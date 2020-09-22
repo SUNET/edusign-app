@@ -1,0 +1,19 @@
+{
+  "name": "edusign-front",
+  "version": "0.1.0",
+  "description": "",
+  "browser": "src/entry-points/index.js",
+  "scripts": {
+    "start": "rm -rf node_modules/.cache && webpack --watch --progress",
+    "test": "karma start karma.conf.js",
+    "debug": "karma start --single-run=false --debug --browser Chrome",
+    "serve": "webpack-dev-server --open"
+  },
+  "author": "Enrique Pérez Arnaud",
+  "license": "BSD-2-Clause",
+  "dependencies": {},
+  "devDependencies": {
+    "karma": "^5.2.2",
+    "webpack": "^4.44.2"
+  }
+}
