@@ -1,11 +1,12 @@
 
-// Polyfill for Element.closest for IE9+
-// see https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
 
 if (!Element.prototype.matches)
   Element.prototype.matches =
     Element.prototype.msMatchesSelector ||
     Element.prototype.webkitMatchesSelector;
+
+// Polyfill for Element.closest for IE9+
+// see https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
 
 if (!Element.prototype.closest)
   Element.prototype.closest = function(s) {
@@ -20,4 +21,8 @@ if (!Element.prototype.closest)
 
 // end Polyfill
 
-console.log('Building entry point');
+import Main from "components/Main";
+import init_app from "init-app/init-app";
+
+
+init_app(document.getElementById("root"), <Main />);

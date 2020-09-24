@@ -11,14 +11,24 @@
   },
   "author": "Enrique Pérez Arnaud",
   "license": "BSD-2-Clause",
-  "dependencies": {},
+  "dependencies": {
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
   "devDependencies": {
     "@babel/core": "^7.11.6",
+    "@babel/plugin-proposal-object-rest-spread": "^7.11.0",
+    "@babel/plugin-transform-flow-strip-types": "^7.10.4",
+    "@babel/plugin-transform-runtime": "^7.11.5",
+    "@babel/preset-env": "^7.11.5",
+    "@babel/preset-react": "^7.10.4",
     "babel-cli": "^6.26.0",
     "babel-loader": "^8.1.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
     "es6-promise": "^4.2.8",
     "karma": "^5.2.2",
     "path": "^0.12.7",
+    "react-hot-loader": "^4.13.0",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",
     "whatwg-fetch": "^3.4.1"
