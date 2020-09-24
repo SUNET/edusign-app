@@ -3,16 +3,14 @@ import PropTypes from "prop-types";
 
 // import "styles/index.scss";
 
-export const history = createBrowserHistory();
-
 class Main extends Component {
 
   render() {
-    return [
+    return (
       <div>
         <span>Main Component</span>
       </div>
-    ];
+    );
   }
 }
 

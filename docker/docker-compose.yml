@@ -1,0 +1,29 @@
+---
+version: '3.8'
+services:
+
+  html:
+    image: nginx:latest
+    expose:
+      - 80
+    dns: 172.18.10.1
+    networks:
+      edusign-dev:
+        ipv4_address: 172.18.10.200
+    volumes:
+      - ./html/etc/html.conf:/etc/nginx/sites-enabled/html.conf:ro
+      - ./html/www/index.html:/usr/share/nginx/html/index.html:ro
+      - ./html/www/static:/usr/share/nginx/html/static:ro
+      - ../frontend/build:/usr/share/nginx/html/front-build:ro
+    environment:
+      - "HOSTNAME=html"
+
+networks:
+  edusign-dev:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-edusign
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.18.10.0/24
