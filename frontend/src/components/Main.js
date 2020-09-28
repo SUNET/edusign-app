@@ -8,7 +8,7 @@ class Main extends Component {
   render() {
     return (
       <div>
-        <span>Main Component</span>
+        <span id="main-content">Main Component</span>
       </div>
     );
   }
