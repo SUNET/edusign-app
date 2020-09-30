@@ -1,6 +1,6 @@
 const webpack = require("webpack");
 const path = require("path");
-// const initialConfigPlugin = require("./src/init-config").initialConfigPlugin;
+// const initialConfigPlugin = require("./src/init-app/init-config").initialConfigPlugin;
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
@@ -38,10 +38,6 @@ module.exports = {
         loaders: ["babel-loader"],
         exclude: /node_modules/
       },
-      {
-        test: /\.json$/,
-        loader: "json-loader"
-      }
     ]
   },
   plugins: [

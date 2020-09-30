@@ -44,6 +44,12 @@ front-test:
 	@cd $(FRONT_DIR); \
     npm test
 
+## Extract translatable messages from the sources
+.PHONY: front-extract-msgs
+front-extract-msgs:
+	@cd $(FRONT_DIR); \
+    npm run extract-msgs
+
 ## -- Misc --
 
 ## Print this help message

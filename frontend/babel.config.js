@@ -12,6 +12,14 @@ module.exports = function(api) {
     "@babel/plugin-transform-flow-strip-types",
     "react-hot-loader/babel",
     "transform-class-properties",
+    [
+      "react-intl-auto",
+      {
+        "removePrefix": "src",
+        "filebase": true,
+        "useKey": true,
+      }
+    ],
   ];
 
   return {

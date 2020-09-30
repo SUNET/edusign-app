@@ -8,12 +8,48 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
+import { IntlProvider } from 'react-intl';
+
+/* internationalization */
+
+const langs = [
+  ["en", "English"],
+  ["sv", "Svenska"]
+];
+
+import en from "translations/en.json";
+import sv from "translations/sv.json";
+
+const messages = {
+  en: en,
+  sv: sv,
+};
 
 /* render app */
 
 const init_app = function(target, component) {
 
-  ReactDOM.render(component, target);
+  let language = navigator.languages
+    ? navigator.languages[0]
+    : navigator.language || navigator.userLanguage;
+
+  language = language.split(/[-_]/)[0];
+
+  const supported = langs.map(lang => lang[0]);
+
+  let lang = 'en';
+
+  if (supported.includes(language)) {
+    lang = language;
+  }
+
+  const wrappedComponent = (
+    <IntlProvider messages={messages[lang]} locale={lang} defaultLocale="en">
+      {component}
+    </IntlProvider>
+  );
+
+  ReactDOM.render(wrappedComponent, target);
 };
 
 export default init_app;
