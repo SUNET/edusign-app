@@ -9,6 +9,16 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { IntlProvider } from 'react-intl';
+import { configureStore } from "@reduxjs/toolkit";
+import { Provider } from "react-redux";
+import rootReducer from "init-app/store";
+
+
+/* Redux store */
+
+const store = configureStore({
+  reducer: rootReducer,
+});
 
 /* internationalization */
 
@@ -44,9 +54,11 @@ const init_app = function(target, component) {
   }
 
   const wrappedComponent = (
-    <IntlProvider messages={messages[lang]} locale={lang} defaultLocale="en">
-      {component}
-    </IntlProvider>
+    <Provider store={store}>
+      <IntlProvider messages={messages[lang]} locale={lang} defaultLocale="en">
+        {component}
+      </IntlProvider>
+    </Provider>
   );
 
   ReactDOM.render(wrappedComponent, target);
