@@ -8,9 +8,8 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
-import { IntlProvider } from 'react-intl';
 import { configureStore } from "@reduxjs/toolkit";
-import { Provider } from "react-redux";
+import { Provider, updateIntl } from 'react-intl-redux';
 import rootReducer from "init-app/store";
 
 
@@ -52,12 +51,16 @@ const init_app = function(target, component) {
   if (supported.includes(language)) {
     lang = language;
   }
+  const msgs = messages[lang];
+
+  store.dispatch(updateIntl({
+    locale: lang,
+    messages: msgs,
+  }))
 
   const wrappedComponent = (
     <Provider store={store}>
-      <IntlProvider messages={messages[lang]} locale={lang} defaultLocale="en">
-        {component}
-      </IntlProvider>
+      {component}
     </Provider>
   );
 

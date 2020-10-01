@@ -33,6 +33,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-intl": "^5.8.3",
+    "react-intl-redux": "^2.2.0",
     "react-redux": "^7.2.1",
     "redux": "^4.0.5",
     "sinon": "^9.0.3"
