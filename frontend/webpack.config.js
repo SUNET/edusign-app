@@ -1,5 +1,7 @@
-const webpack = require("webpack");
+const autoprefixer = require("autoprefixer");
 const path = require("path");
+const precss = require("precss");
+const webpack = require("webpack");
 // const initialConfigPlugin = require("./src/init-app/init-config").initialConfigPlugin;
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
@@ -35,12 +37,28 @@ module.exports = {
         loaders: ["babel-loader"],
         exclude: /node_modules/
       },
+      {
+        test: /\.scss$/,
+        loaders: ["style-loader", "css-loader", "postcss-loader", "sass-loader"]
+      },
+      {
+        test: /\.css$/,
+        loader: "style-loader!css-loader"
+      },
     ]
   },
   plugins: [
     // Initial configuration
     // initialConfigPlugin,
     new webpack.HotModuleReplacementPlugin(),
-    // new BundleAnalyzerPlugin()
+    // new BundleAnalyzerPlugin(),
+    new webpack.LoaderOptionsPlugin({
+      // test: /\.xxx$/, // may apply this only for some modules
+      options: {
+        postcss: function() {
+          return [autoprefixer, precss];
+        }
+      }
+    })
   ]
 };
