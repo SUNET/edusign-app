@@ -6,6 +6,20 @@
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <link rel="icon" href="http://html.edusign.docker/static/favicon.png">
    <title>eduSign</title>
+   <script>
+     const modernBrowser = (
+       'fetch' in window &&
+       'assign' in Object
+     );
+
+     if ( !modernBrowser ) {
+       const scriptElement = document.createElement('script');
+
+       scriptElement.async = false;
+       scriptElement.src = '/front-build/polyfills-bundle.dev.js';
+       document.head.appendChild(scriptElement);
+     }
+   </script>
  </head>
  <body>
    <noscript>

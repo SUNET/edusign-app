@@ -11,11 +11,8 @@ module.exports = {
     port: 9000
   },
   entry: {
-    // To activate the web server, uncomment below 2 lines and
-    // add a script to package.json pointing to "webpack-dev-server"
-    // WebpackDevServer host and port:
-    // server: 'webpack-dev-server/client?http://localhost:8080',
     main: "./src/entry-points/index",
+    polyfills: "./src/entry-points/polyfills",
   },
   output: {
     path: path.join(__dirname, "build"),
@@ -44,10 +41,6 @@ module.exports = {
     // Initial configuration
     // initialConfigPlugin,
     new webpack.HotModuleReplacementPlugin(),
-    new webpack.ProvidePlugin({
-      Promise: "exports-loader?global.Promise!es6-promise",
-      "window.fetch": "exports-loader?global.fetch!whatwg-fetch"
-    }),
     // new BundleAnalyzerPlugin()
   ]
 };
