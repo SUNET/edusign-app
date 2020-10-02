@@ -8,7 +8,8 @@
     "test": "karma start karma.conf.js",
     "debug": "karma start --single-run=false --debug --browser Chrome",
     "serve": "webpack-dev-server --open",
-    "extract-msgs": "extract-messages -l=en,sv -o src/translations -d en --flat true 'src/**/!(*-test).js'"
+    "extract-msgs": "extract-messages -l=en,sv -o src/translations -d en --flat true 'src/**/!(*-test).js'",
+    "prettier": "npx prettier --write src/"
   },
   "author": "Enrique Pérez Arnaud",
   "license": "BSD-2-Clause",
@@ -57,6 +58,7 @@
     "path": "^0.12.7",
     "postcss-loader": "^4.0.2",
     "precss": "^4.0.0",
+    "prettier": "2.1.2",
     "react-hot-loader": "^4.13.0",
     "sass-loader": "^10.0.2",
     "style-loader": "^1.2.1",

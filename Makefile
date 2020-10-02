@@ -50,6 +50,12 @@ front-extract-msgs:
 	@cd $(FRONT_DIR); \
     npm run extract-msgs
 
+## Format the front side source code with Prettier
+.PHONY: front-prettier
+front-prettier:
+	@cd $(FRONT_DIR); \
+    npm run prettier
+
 ## -- Misc --
 
 ## Print this help message
