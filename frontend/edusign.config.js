@@ -7,7 +7,7 @@ const langs = [
 const messages = {};
 
 langs.forEach((lang) => {
-  messages[lang[0]] = require("./src/translations/" + lang[0]);
+  messages[lang[0]] = require("./translations/" + lang[0]);
 });
 
 module.exports = {

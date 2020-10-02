@@ -8,7 +8,7 @@
     "test": "karma start karma.conf.js",
     "debug": "karma start --single-run=false --debug --browser Chrome",
     "serve": "webpack-dev-server --open",
-    "extract-msgs": "extract-messages -l=en,sv -o src/translations -d en --flat true 'src/**/!(*-test).js'",
+    "extract-msgs": "extract-messages -l=en,sv -o translations -d en --flat true 'src/**/!(*-test).js'",
     "prettier": "npx prettier --write src/"
   },
   "author": "Enrique Pérez Arnaud",
