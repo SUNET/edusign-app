@@ -1,4 +1,3 @@
-
 import React from "react";
 
 if (!Element.prototype.matches)
@@ -10,7 +9,7 @@ if (!Element.prototype.matches)
 // see https://developer.mozilla.org/en-US/docs/Web/API/Element/closest
 
 if (!Element.prototype.closest)
-  Element.prototype.closest = function(s) {
+  Element.prototype.closest = function (s) {
     var el = this;
     if (!document.documentElement.contains(el)) return null;
     do {
@@ -24,6 +23,5 @@ if (!Element.prototype.closest)
 
 import Main from "components/Main";
 import init_app from "init-app/init-app";
-
 
 init_app(document.getElementById("root"), <Main />);

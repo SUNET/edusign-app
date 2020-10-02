@@ -9,9 +9,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { configureStore } from "@reduxjs/toolkit";
-import { Provider, updateIntl } from 'react-intl-redux';
+import { Provider, updateIntl } from "react-intl-redux";
 import rootReducer from "init-app/store";
-
 
 /* Redux store */
 
@@ -23,7 +22,7 @@ const store = configureStore({
 
 const langs = [
   ["en", "English"],
-  ["sv", "Svenska"]
+  ["sv", "Svenska"],
 ];
 
 import en from "translations/en.json";
@@ -36,33 +35,30 @@ const messages = {
 
 /* render app */
 
-const init_app = function(target, component) {
-
+const init_app = function (target, component) {
   let language = navigator.languages
     ? navigator.languages[0]
     : navigator.language || navigator.userLanguage;
 
   language = language.split(/[-_]/)[0];
 
-  const supported = langs.map(lang => lang[0]);
+  const supported = langs.map((lang) => lang[0]);
 
-  let lang = 'en';
+  let lang = "en";
 
   if (supported.includes(language)) {
     lang = language;
   }
   const msgs = messages[lang];
 
-  store.dispatch(updateIntl({
-    locale: lang,
-    messages: msgs,
-  }))
-
-  const wrappedComponent = (
-    <Provider store={store}>
-      {component}
-    </Provider>
+  store.dispatch(
+    updateIntl({
+      locale: lang,
+      messages: msgs,
+    })
   );
+
+  const wrappedComponent = <Provider store={store}>{component}</Provider>;
 
   ReactDOM.render(wrappedComponent, target);
 };
