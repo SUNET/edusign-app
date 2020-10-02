@@ -2,7 +2,6 @@ const autoprefixer = require("autoprefixer");
 const path = require("path");
 const precss = require("precss");
 const webpack = require("webpack");
-// const initialConfigPlugin = require("./src/init-app/init-config").initialConfigPlugin;
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
@@ -49,7 +48,10 @@ module.exports = {
   },
   plugins: [
     // Initial configuration
-    // initialConfigPlugin,
+    new webpack.DefinePlugin({
+      AVAILABLE_LANGUAGES: require("./edusign.config.js").AVAILABLE_LANGUAGES,
+      LOCALIZED_MESSAGES: require("./edusign.config.js").LOCALIZED_MESSAGES,
+    }),
     new webpack.HotModuleReplacementPlugin(),
     // new BundleAnalyzerPlugin(),
     new webpack.LoaderOptionsPlugin({
