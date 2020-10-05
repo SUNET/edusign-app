@@ -20,18 +20,8 @@ const store = configureStore({
 
 /* internationalization */
 
-const langs = [
-  ["en", "English"],
-  ["sv", "Svenska"],
-];
-
-import en from "translations/en.json";
-import sv from "translations/sv.json";
-
-const messages = {
-  en: en,
-  sv: sv,
-};
+const langs = AVAILABLE_LANGUAGES;
+const messages = LOCALIZED_MESSAGES;
 
 /* render app */
 
