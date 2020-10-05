@@ -1,4 +1,5 @@
 {
   "components.Footer.copyright": "SUNET 2020",
+  "components.Header.tagline": "Welcome to eduSign",
   "components.Main.test": "Main Component"
 }
