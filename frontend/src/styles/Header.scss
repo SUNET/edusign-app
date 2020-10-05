@@ -1,0 +1,53 @@
+@import "./variables.scss";
+
+header#edusign-header {
+  display: flex;
+  justify-content: space-between;
+  margin: 1rem;
+}
+
+.banner {
+  background-color: $white;
+}
+
+.tagline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 4rem 0 3rem 0;
+  & span {
+    margin-right: 0.375rem;
+  }
+}
+
+#edusign-logo {
+  width: 160px;
+  height: 50px;
+  background-image: url(../../images/eduSign_logo.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin: 0;
+}
+
+#sunet-logo {
+  width: 50px;
+  height: 50px;
+  background-image: url(../../images/sunet_gray_logo.svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin: 0;
+  float: right;
+}
+
+@media (max-width: 823px) {
+  .tagline {
+    margin: 3rem 0 1.5rem;
+  }
+}
+
+@media (max-width: 414px) {
+  #edusign-logo {
+    width: 105px;
+    height: 36px;
+  }
+}
