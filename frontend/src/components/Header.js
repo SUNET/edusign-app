@@ -4,10 +4,8 @@ import { FormattedMessage } from "react-intl";
 
 import "styles/Header.scss";
 
-
 class Header extends Component {
   render() {
-
     return (
       <section className="banner">
         <header id="edusign-header">
@@ -16,7 +14,10 @@ class Header extends Component {
         </header>
         <div className="vertical-content-margin">
           <h1 className="tagline">
-            <FormattedMessage key="tagline" defaultMessage="Welcome to eduSign" />
+            <FormattedMessage
+              key="tagline"
+              defaultMessage="Welcome to eduSign"
+            />
           </h1>
         </div>
       </section>
@@ -24,7 +25,6 @@ class Header extends Component {
   }
 }
 
-Header.propTypes = {
-};
+Header.propTypes = {};
 
 export default Header;

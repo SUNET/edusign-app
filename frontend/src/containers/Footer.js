@@ -3,7 +3,6 @@ import { updateIntl } from "react-intl-redux";
 
 import Footer from "components/Footer";
 
-
 const mapStateToProps = (state, props) => {
   return {
     language: state.intl.locale,
@@ -12,13 +11,13 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    changeLanguage: function(e) {
+    changeLanguage: function (e) {
       const lang = e.target.closest(".lang-selected").dataset.lang;
       const msgs = LOCALIZED_MESSAGES[lang];
       dispatch(
         updateIntl({
           locale: lang,
-          messages: msgs
+          messages: msgs,
         })
       );
     },

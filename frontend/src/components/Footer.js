@@ -4,7 +4,6 @@ import { FormattedMessage } from "react-intl";
 
 import "styles/Footer.scss";
 
-
 class Footer extends Component {
   render() {
     const langElems = AVAILABLE_LANGUAGES.map((lang, index) => {
@@ -30,7 +29,10 @@ class Footer extends Component {
     return (
       <footer key="0" id="footer">
         <p key="0" id="copyright">
-          <span>&copy;&nbsp;<FormattedMessage defaultMessage="SUNET 2020" key="copyright" /></span>
+          <span>
+            &copy;&nbsp;
+            <FormattedMessage defaultMessage="SUNET 2020" key="copyright" />
+          </span>
         </p>
         <nav key="1">
           <ul>
