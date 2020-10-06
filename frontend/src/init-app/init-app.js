@@ -11,6 +11,7 @@ import ReactDOM from "react-dom";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import rootReducer from "init-app/store";
+import { appLoaded } from "slices/Main";
 
 /* Redux store */
 
@@ -24,6 +25,10 @@ const langs = AVAILABLE_LANGUAGES;
 const messages = LOCALIZED_MESSAGES;
 
 /* render app */
+
+const appIsRendered = function () {
+  window.setTimeout(() => store.dispatch(appLoaded()), 1000);
+};
 
 const init_app = function (target, component) {
   let language = navigator.languages
@@ -50,7 +55,7 @@ const init_app = function (target, component) {
 
   const wrappedComponent = <Provider store={store}>{component}</Provider>;
 
-  ReactDOM.render(wrappedComponent, target);
+  ReactDOM.render(wrappedComponent, target, appIsRendered);
 };
 
 export default init_app;

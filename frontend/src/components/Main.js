@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 
 import Header from "components/Header";
+import SplashContainer from "containers/Splash";
 import FooterContainer from "containers/Footer";
 
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
@@ -13,6 +14,7 @@ class Main extends Component {
   render() {
     return (
       <>
+        <SplashContainer />
         <section id="panel">
           <Header />
           <span id="main-content">
