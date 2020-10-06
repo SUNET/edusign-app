@@ -31,13 +31,28 @@ webpackKarma.module.rules = [
     exclude: /node_modules/
   },
   {
-    test: /\.json$/,
-    use: { loader: "json-loader" },
+    test: /\.scss$/,
     enforce: "pre",
-    exclude: /(node_modules|i18n)/,
-    include: /src/
-  }
+    loaders: ["style-loader", "css-loader", "postcss-loader", "sass-loader"]
+  },
+  {
+    test: /\.css$/,
+    enforce: "pre",
+    loader: "style-loader!css-loader"
+  },
+  {
+    test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+    enforce: "pre",
+    loader: "url-loader?limit=10000&mimetype=image/svg+xml"
+  },
 ];
+
+webpackKarma.plugins.push(
+  new webpack.DefinePlugin({
+    AVAILABLE_LANGUAGES: require("./edusign.config.js").AVAILABLE_LANGUAGES,
+    LOCALIZED_MESSAGES: require("./edusign.config.js").LOCALIZED_MESSAGES,
+  }),
+);
 
 process.env.CHROME_BIN = require("puppeteer").executablePath();
 

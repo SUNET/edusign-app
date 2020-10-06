@@ -1,13 +1,14 @@
 import React from "react";
-
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import { setupComponent } from "tests/test-utils";
+import { expect } from "chai";
 
 import Main from "components/Main";
 
-import { expect } from "chai";
 
 it("Main Component mounts", async () => {
-  render(<Main />);
+
+  setupComponent(<Main />);
 
   const span = screen.getAllByText("Main Component");
 
