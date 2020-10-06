@@ -4,10 +4,9 @@ import Alert from "react-bootstrap/Alert";
 
 import "styles/Notifications.scss";
 
-
 class Notifications extends Component {
   render() {
-    let notification = '';
+    let notification = "";
     if (Object.keys(this.props.notification).length !== 0) {
       notification = (
         <Alert
@@ -19,11 +18,7 @@ class Notifications extends Component {
         </Alert>
       );
     }
-    return (
-      <div className="notifications-area">
-        {notification}
-      </div>
-    );
+    return <div className="notifications-area">{notification}</div>;
   }
 }
 
