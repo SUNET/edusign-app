@@ -14,7 +14,8 @@ header#edusign-header {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  margin: 4rem 0 3rem 0;
+  margin: 4rem 0 1rem 0;
+  font-size: xxx-large;
   & span {
     margin-right: 0.375rem;
   }
@@ -42,6 +43,7 @@ header#edusign-header {
 @media (max-width: 823px) {
   .tagline {
     margin: 3rem 0 1.5rem;
+    font-size: x-large;
   }
 }
 
