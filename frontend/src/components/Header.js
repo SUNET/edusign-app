@@ -9,10 +9,10 @@ import "styles/Header.scss";
 class Header extends Component {
   render() {
     return (
-      <section className="banner">
+      <section className="banner" data-testid="edusign-banner">
         <header id="edusign-header">
-          <div id="edusign-logo" />
-          <div id="sunet-logo" />
+          <div id="edusign-logo" data-testid="edusign-logo" />
+          <div id="sunet-logo" data-testid="sunet-logo" />
         </header>
         <div className="vertical-content-margin">
           <h1 className="tagline">

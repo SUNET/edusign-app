@@ -36,7 +36,7 @@ class Splash extends Component {
   }
 
   render() {
-    return this.props.is_app_loading ? <div id="edusign-splash-screen" /> : "";
+    return this.props.is_app_loading ? <div id="edusign-splash-screen" data-testid="edusign-splash-screen" /> : "";
   }
 }
 
