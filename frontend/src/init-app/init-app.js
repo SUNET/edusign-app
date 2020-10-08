@@ -58,4 +58,6 @@ const init_app = function (target, component) {
   ReactDOM.render(wrappedComponent, target, appIsRendered);
 };
 
+export { store };
+
 export default init_app;

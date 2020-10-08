@@ -18,7 +18,14 @@ class Notifications extends Component {
         </Alert>
       );
     }
-    return <div className="notifications-area">{notification}</div>;
+    return (
+      <div
+        className="notifications-area"
+        data-testid="edusign-notifications-area"
+      >
+        {notification}
+      </div>
+    );
   }
 }
 

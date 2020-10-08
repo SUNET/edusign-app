@@ -10,11 +10,6 @@ class Footer extends Component {
       if (lang[0] === this.props.language) {
         // sets the < html lang=""> to the interface language
         document.documentElement.lang = this.props.language;
-        return (
-          <p key="0" className="non-selected" key={index}>
-            <span key="0">{lang[1]}</span>
-          </p>
-        );
       } else {
         return (
           <p key="0" className="lang-selected" data-lang={lang[0]} key={index}>
