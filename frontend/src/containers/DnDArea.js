@@ -22,13 +22,13 @@ const mapDispatchToProps = (dispatch, props) => {
     handleFileDrop: function (fileObjs) {
       fileObjs.forEach(fileObj => {
         const reader = new FileReader();
-        reader.readAsBinaryString(fileObj);
+        reader.readAsDataURL(fileObj);
         reader.onload = () => {
           const file = {
             name: fileObj.name,
             size: fileObj.size,
             type: fileObj.type,
-            blob: btoa(reader.result),
+            blob: reader.result,
           };
           console.log(file);
           dispatch(addDocument(file));
