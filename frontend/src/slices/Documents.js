@@ -6,18 +6,34 @@ const documentsSlice = createSlice({
     documents: [],
   },
   reducers: {
-    addDocuments(state, action) {
-      state.documents = action.payload;
-    },
     addDocument(state, action) {
-      state.documents.push(action.payload);
+      state.documents.push({
+        // action.payload carries keys: name, size, type, and blob
+        ...action.payload,
+        show: false,
+        state: "loading",
+      });
+    },
+    updateDocument(state, action) {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload.name) {
+          return {
+            ...action.payload,
+            state: "loaded",
+          };
+        } else {
+          return {
+            ...doc,
+          };
+        }
+      });
     },
     showPreview(state, action) {
       state.documents = state.documents.map((doc, index) => {
         if (index === action.payload) {
           return {
             ...doc,
-            show: true
+            show: true,
           };
         } else {
           return {
@@ -31,7 +47,7 @@ const documentsSlice = createSlice({
         if (index === action.payload) {
           return {
             ...doc,
-            show: false
+            show: false,
           };
         } else {
           return {
@@ -40,13 +56,20 @@ const documentsSlice = createSlice({
         }
       });
     },
+    removeDocument(state, action) {
+      state.documents = state.documents.filter((doc, index) => {
+        return index !== action.payload;
+      });
+    },
   },
 });
 
-export const { addDocuments,
-               addDocument,
-               showPreview,
-               hidePreview } = documentsSlice.actions;
+export const {
+  addDocument,
+  updateDocument,
+  showPreview,
+  hidePreview,
+  removeDocument,
+} = documentsSlice.actions;
 
 export default documentsSlice.reducer;
-

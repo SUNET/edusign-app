@@ -1,19 +1,24 @@
-import React, { Component } from 'react'
+import React, { Component } from "react";
 import PropTypes from "prop-types";
-import Dropzone from 'react-dropzone'
+import Dropzone from "react-dropzone";
 import { FormattedMessage } from "react-intl";
 
 import "styles/DnDArea.scss";
 
 class DnDArea extends Component {
-  render () {
+  render() {
     return (
       <Dropzone onDrop={this.props.handleFileDrop}>
-        {({getRootProps, getInputProps}) => (
+        {({ getRootProps, getInputProps }) => (
           <section>
             <div {...getRootProps()}>
               <input {...getInputProps()} />
-              <p><FormattedMessage defaultMessage="Drag & drop PDF or click to browse" key="dnd-area" /></p>
+              <p>
+                <FormattedMessage
+                  defaultMessage="Drag & drop PDF or click to browse"
+                  key="dnd-area"
+                />
+              </p>
             </div>
           </section>
         )}
