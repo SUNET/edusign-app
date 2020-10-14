@@ -61,6 +61,20 @@ const documentsSlice = createSlice({
         return index !== action.payload;
       });
     },
+    startSigning(state, action) {
+      state.documents = state.documents.map((doc, index) => {
+        if (index === action.payload) {
+          return {
+            ...doc,
+            state: "signing",
+          };
+        } else {
+          return {
+            ...doc,
+          };
+        }
+      });
+    },
   },
 });
 

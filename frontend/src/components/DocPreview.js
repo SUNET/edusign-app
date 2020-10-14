@@ -4,6 +4,7 @@ import { FormattedMessage } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf";
+import LittleSpinner from "components/LittleSpinner";
 
 import "styles/DocPreview.scss";
 
@@ -56,7 +57,12 @@ function DocPreview(props) {
             <span>{doc.name}</span>&nbsp;|&nbsp;
             <span>{doc.size}</span>&nbsp;|&nbsp;
             <span>{doc.type}</span>&nbsp;|&nbsp;
-            {doc.state === "loading" && "loading ..."}
+            {doc.state === "loading" && (
+              <>
+                <LittleSpinner index={index} />
+                <span>{" loading ..."}</span>
+              </>
+            )}
             {doc.state === "loaded" && (
               <>
                 <span>
@@ -83,6 +89,12 @@ function DocPreview(props) {
                     />
                   </Button>
                 </span>
+              </>
+            )}
+            {doc.state === "signing" && (
+              <>
+                <LittleSpinner index={index} />
+                <span>{" signing ..."}</span>
               </>
             )}
             {doc.show ? (
