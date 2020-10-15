@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { Spinner } from "spin.js";
 
 import "../../node_modules/spin.js/spin.css";
+import "styles/LittleSpinner.scss";
 
 const spinnerOpts = {
   lines: 8, // The number of lines to draw
@@ -18,7 +19,7 @@ const spinnerOpts = {
   direction: 1, // 1: clockwise, -1: counterclockwise
   color: "#000000", // CSS color or array of colors
   fadeColor: "transparent", // CSS color or array of colors
-  top: "50%", // Top position relative to parent
+  top: "20%", // Top position relative to parent
   left: "50%", // Left position relative to parent
   shadow: "0 0 1px transparent", // Box-shadow for the lines
   zIndex: 2000000000, // The z-index (defaults to 2e9)
@@ -35,7 +36,9 @@ class LittleSpinner extends Component {
   }
   render() {
     const elemId = "little-spinner-" + this.props.index;
-    return <span id={elemId} data-testid={elemId} />;
+    return (
+      <div className="spinner-flex-item" id={elemId} data-testid={elemId} />
+    );
   }
 }
 

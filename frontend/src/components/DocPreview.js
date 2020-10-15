@@ -37,6 +37,31 @@ function DocPreview(props) {
     return blob;
   };
 
+  // https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
+  function humanFileSize(bytes, si = false, dp = 1) {
+    const thresh = si ? 1000 : 1024;
+
+    if (Math.abs(bytes) < thresh) {
+      return bytes + " B";
+    }
+
+    const units = si
+      ? ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"]
+      : ["KiB", "MiB", "GiB", "TiB", "PiB", "EiB", "ZiB", "YiB"];
+    let u = -1;
+    const r = 10 ** dp;
+
+    do {
+      bytes /= thresh;
+      ++u;
+    } while (
+      Math.round(Math.abs(bytes) * r) / r >= thresh &&
+      u < units.length - 1
+    );
+
+    return bytes.toFixed(dp) + " " + units[u];
+  }
+
   return (
     <>
       {props.documents.map((doc, index) => {
@@ -53,48 +78,61 @@ function DocPreview(props) {
           reader.readAsDataURL(newFile);
         }
         return (
-          <div>
-            <span>{doc.name}</span>&nbsp;|&nbsp;
-            <span>{doc.size}</span>&nbsp;|&nbsp;
-            <span>{doc.type}</span>&nbsp;|&nbsp;
+          <div className="doc-flex-container">
+            <div className="name-flex-item">{doc.name}</div>
+            <div className="size-flex-item">{humanFileSize(doc.size)}</div>
+            <div className="type-flex-item">{doc.type}</div>
             {doc.state === "loading" && (
               <>
                 <LittleSpinner index={index} />
-                <span>{" loading ..."}</span>
+                <div className="loading-flex-item">{" loading ..."}</div>
               </>
             )}
             {doc.state === "loaded" && (
               <>
-                <span>
-                  <Button onClick={props.handlePreview(index)}>
+                <div className="button-preview-flex-item">
+                  <Button
+                    variant="outline-dark"
+                    size="sm"
+                    onClick={props.handlePreview(index)}
+                  >
                     <FormattedMessage
                       defaultMessage="Preview"
                       key="preview-button"
                     />
                   </Button>
-                </span>
-                <span>
-                  <a id={"download-link-" + index}>
+                </div>
+                <div className="button-download-flex-item">
+                  <Button
+                    as="a"
+                    variant="outline-secondary"
+                    size="sm"
+                    id={"download-link-" + index}
+                  >
                     <FormattedMessage
                       defaultMessage="Download"
                       key="download-button"
                     />
-                  </a>
-                </span>
-                <span>
-                  <Button onClick={props.handleRemove(index)}>
+                  </Button>
+                </div>
+                <div className="button-remove-flex-item">
+                  <Button
+                    variant="outline-danger"
+                    size="sm"
+                    onClick={props.handleRemove(index)}
+                  >
                     <FormattedMessage
                       defaultMessage="Remove"
                       key="remove-button"
                     />
                   </Button>
-                </span>
+                </div>
               </>
             )}
             {doc.state === "signing" && (
               <>
                 <LittleSpinner index={index} />
-                <span>{" signing ..."}</span>
+                <div className="signing-flex-item">{" signing ..."}</div>
               </>
             )}
             {doc.show ? (
