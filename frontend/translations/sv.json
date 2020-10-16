@@ -1,5 +1,14 @@
 {
-  "components.Footer.copyright": "SUNET 2020 sv",
-  "components.Header.tagline": "Welcome to eduSign sv",
-  "components.Main.test": "Main Component sv"
+  "components.DnDArea.dnd-area": "",
+  "components.DnDArea.dnd-area-dropping": "",
+  "components.DocManager.download-button": "",
+  "components.DocManager.preview-button": "",
+  "components.DocManager.remove-button": "",
+  "components.DocManager.sign-button": "",
+  "components.DocManager.signed-button": "",
+  "components.DocPreview.button-close": "",
+  "components.DocPreview.pdf-preview-next-button": "",
+  "components.DocPreview.pdf-preview-page-nav": "",
+  "components.DocPreview.pdf-preview-prev-button": "",
+  "components.Footer.copyright": "SUNET 2020 sv"
 }

@@ -36,7 +36,7 @@ class DnDArea extends Component {
                   <span id="dnd-message">
                     <FormattedMessage
                       defaultMessage="Drop documents here"
-                      key="dnd-area"
+                      key="dnd-area-dropping"
                     />
                   </span>
                 </div>
