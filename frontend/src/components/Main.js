@@ -4,12 +4,13 @@ import PropTypes from "prop-types";
 import Header from "components/Header";
 import SplashContainer from "containers/Splash";
 import FooterContainer from "containers/Footer";
-import DocumentForm from "components/DocumentForm";
+import DnDAreaContainer from "containers/DnDArea";
 import DocPreviewContainer from "containers/DocPreview";
 
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "styles/reset.scss";
 import "styles/Main.scss";
+
 
 class Main extends Component {
   render() {
@@ -18,10 +19,10 @@ class Main extends Component {
         <SplashContainer />
         <section id="panel">
           <Header />
-          <span id="main-content">
-            <DocumentForm />
-          </span>
-          <DocPreviewContainer />
+          <div id="main-content">
+            <DnDAreaContainer />
+            <DocPreviewContainer />
+          </div>
           <FooterContainer />
         </section>
       </>
