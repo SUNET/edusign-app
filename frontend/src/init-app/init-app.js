@@ -13,16 +13,44 @@ import { Provider, updateIntl } from "react-intl-redux";
 import rootReducer from "init-app/store";
 import { appLoaded } from "slices/Main";
 
-/* Redux store */
-
-const store = configureStore({
-  reducer: rootReducer,
-});
-
 /* internationalization */
 
 const langs = AVAILABLE_LANGUAGES;
 const messages = LOCALIZED_MESSAGES;
+
+/* to load persisted state from local storage */
+
+const loadPersistedState = () => {
+  try {
+    const serializedState = localStorage.getItem("edusign-state");
+    if (serializedState === null) {
+      return undefined;
+    }
+    return JSON.parse(serializedState);
+  } catch (err) {
+    return undefined;
+  }
+};
+
+const saveState = state => {
+  try {
+    const serialized = JSON.stringify(state);
+    localStorage.setItem("edusign-state", serialized);
+  } catch (err) {
+    console.log("Cannot save the state: ", err);
+  }
+};
+
+/* Redux store */
+
+const store = configureStore({
+  reducer: rootReducer,
+  preloadedState: loadPersistedState(),
+});
+
+store.subscribe(() => {
+  saveState(store.getState());
+});
 
 /* render app */
 
