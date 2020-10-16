@@ -43,7 +43,7 @@ class LittleSpinner extends Component {
 }
 
 LittleSpinner.propTypes = {
-  index: PropTypes.integer,
+  index: PropTypes.number,
 };
 
 export default LittleSpinner;

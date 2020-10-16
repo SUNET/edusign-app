@@ -75,6 +75,20 @@ const documentsSlice = createSlice({
         }
       });
     },
+    setSigned(state, action) {
+      state.documents = state.documents.map((doc, index) => {
+        if (index === action.payload) {
+          return {
+            ...doc,
+            state: "signed",
+          };
+        } else {
+          return {
+            ...doc,
+          };
+        }
+      });
+    },
   },
 });
 
@@ -84,6 +98,8 @@ export const {
   showPreview,
   hidePreview,
   removeDocument,
+  startSigning,
+  setSigned,
 } = documentsSlice.actions;
 
 export default documentsSlice.reducer;

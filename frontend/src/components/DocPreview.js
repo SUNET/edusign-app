@@ -16,6 +16,18 @@ function DocPreview(props) {
     setNumPages(numPages);
   }
 
+  function changePage(offset) {
+    setPageNumber((prevPageNumber) => prevPageNumber + offset);
+  }
+
+  function previousPage() {
+    changePage(-1);
+  }
+
+  function nextPage() {
+    changePage(1);
+  }
+
   // https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
   const b64toBlob = (b64Data, contentType = "", sliceSize = 512) => {
     const byteCharacters = atob(b64Data);
@@ -77,6 +89,35 @@ function DocPreview(props) {
           };
           reader.readAsDataURL(newFile);
         }
+        const downloadAndPreviewButtons = (
+          <>
+            <div className="button-preview-flex-item">
+              <Button
+                variant="outline-dark"
+                size="sm"
+                onClick={props.handlePreview(index)}
+              >
+                <FormattedMessage
+                  defaultMessage="Preview"
+                  key="preview-button"
+                />
+              </Button>
+            </div>
+            <div className="button-download-flex-item">
+              <Button
+                as="a"
+                variant="outline-secondary"
+                size="sm"
+                id={"download-link-" + index}
+              >
+                <FormattedMessage
+                  defaultMessage="Download"
+                  key="download-button"
+                />
+              </Button>
+            </div>
+          </>
+        );
         return (
           <div className="doc-flex-container">
             <div className="name-flex-item">{doc.name}</div>
@@ -90,29 +131,14 @@ function DocPreview(props) {
             )}
             {doc.state === "loaded" && (
               <>
-                <div className="button-preview-flex-item">
+                {downloadAndPreviewButtons}
+                <div className="button-sign-flex-item">
                   <Button
-                    variant="outline-dark"
+                    variant="outline-success"
                     size="sm"
-                    onClick={props.handlePreview(index)}
+                    onClick={props.handleSign(index)}
                   >
-                    <FormattedMessage
-                      defaultMessage="Preview"
-                      key="preview-button"
-                    />
-                  </Button>
-                </div>
-                <div className="button-download-flex-item">
-                  <Button
-                    as="a"
-                    variant="outline-secondary"
-                    size="sm"
-                    id={"download-link-" + index}
-                  >
-                    <FormattedMessage
-                      defaultMessage="Download"
-                      key="download-button"
-                    />
+                    <FormattedMessage defaultMessage="Sign" key="sign-button" />
                   </Button>
                 </div>
                 <div className="button-remove-flex-item">
@@ -135,22 +161,78 @@ function DocPreview(props) {
                 <div className="signing-flex-item">{" signing ..."}</div>
               </>
             )}
+            {doc.state === "signed" && (
+              <>
+                {downloadAndPreviewButtons}
+                <div className="button-signed-flex-item">
+                  <Button
+                    variant="outline-success"
+                    size="sm"
+                    onClick={props.handleDlSigned(index)}
+                  >
+                    <FormattedMessage
+                      defaultMessage="Download (signed)"
+                      key="signed-button"
+                    />
+                  </Button>
+                </div>
+              </>
+            )}
             {doc.show ? (
-              <Modal show={true} onHide={props.handleClose(index)}>
+              <Modal
+                show={true}
+                onHide={props.handleClose(index)}
+                size="lg"
+                centered
+              >
                 <Modal.Header closeButton>
                   <Modal.Title>{doc.name}</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
-                  <Document file={newFile}>
-                    <Page pageNumber={1} />
+                  <Document
+                    file={newFile}
+                    onLoadSuccess={onDocumentLoadSuccess}
+                  >
+                    <Page pageNumber={pageNumber} width={725} />
                   </Document>
-                  <p>
-                    Page {pageNumber} of {numPages}
-                  </p>
                 </Modal.Body>
 
                 <Modal.Footer>
+                  <div className="pdf-navigation">
+                    <p>
+                      <FormattedMessage
+                        defaultMessage="Page {num} of {total}"
+                        key="pdf-preview-page-nav"
+                        values={{
+                          num: pageNumber || (numPages ? 1 : "--"),
+                          total: numPages || "--",
+                        }}
+                      />
+                    </p>
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      disabled={pageNumber <= 1}
+                      onClick={previousPage}
+                    >
+                      <FormattedMessage
+                        defaultMessage="Previous"
+                        key="pdf-preview-prev-button"
+                      />
+                    </Button>
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      disabled={pageNumber >= numPages}
+                      onClick={nextPage}
+                    >
+                      <FormattedMessage
+                        defaultMessage="Next"
+                        key="pdf-preview-next-button"
+                      />
+                    </Button>
+                  </div>
                   <Button
                     variant="secondary"
                     onClick={props.handleClose(index)}

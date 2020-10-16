@@ -30,7 +30,7 @@
 .doc-flex-container > .loading-flex-item,
 .doc-flex-container > .signing-flex-item {
   flex: initial;
-  width: 14rem;
+  width: 18rem;
 }
 
 .doc-flex-container > .button-preview-flex-item,
@@ -39,7 +39,22 @@
   width: 5rem;
 }
 
+.doc-flex-container > .button-sign-flex-item {
+  flex: initial;
+  width: 4rem;
+}
+
 .doc-flex-container > .button-download-flex-item {
   flex: initial;
   width: 6rem;
+}
+
+.doc-flex-container > .button-signed-flex-item {
+  flex: initial;
+  width: 9rem;
+}
+
+.pdf-navigation {
+  width: 100%;
+  display: inline-block;
 }

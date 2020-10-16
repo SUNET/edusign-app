@@ -2,7 +2,13 @@ import { connect } from "react-redux";
 import { updateIntl } from "react-intl-redux";
 
 import DocPreview from "components/DocPreview";
-import { showPreview, hidePreview, removeDocument } from "slices/Documents";
+import {
+  showPreview,
+  hidePreview,
+  removeDocument,
+  startSigning,
+  setSigned,
+} from "slices/Documents";
 
 const mapStateToProps = (state, props) => {
   return {
@@ -25,6 +31,19 @@ const mapDispatchToProps = (dispatch, props) => {
     handleRemove: function (index) {
       return (e) => {
         dispatch(removeDocument(index));
+      };
+    },
+    handleSign: function (index) {
+      return (e) => {
+        dispatch(startSigning(index));
+        setTimeout(() => {
+          dispatch(setSigned(index));
+        }, 1000);
+      };
+    },
+    handleDlSigned: function (index) {
+      return (e) => {
+        alert("TODO");
       };
     },
   };
