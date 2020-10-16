@@ -11,38 +11,41 @@ import "styles/DocManager.scss";
 
 function DocManager(props) {
 
+  function commonButtons (index) {
+    return (
+      <>
+        <div className="button-preview-flex-item">
+          <Button
+            variant="outline-dark"
+            size="sm"
+            onClick={props.handlePreview(index)}
+          >
+            <FormattedMessage
+              defaultMessage="Preview"
+              key="preview-button"
+            />
+          </Button>
+        </div>
+        <div className="button-download-flex-item">
+          <Button
+            as="a"
+            variant="outline-secondary"
+            size="sm"
+            id={"download-link-" + index}
+          >
+            <FormattedMessage
+              defaultMessage="Download"
+              key="download-button"
+            />
+          </Button>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       {props.documents.map((doc, index) => {
-        const downloadAndPreviewButtons = (
-          <>
-            <div className="button-preview-flex-item">
-              <Button
-                variant="outline-dark"
-                size="sm"
-                onClick={props.handlePreview(index)}
-              >
-                <FormattedMessage
-                  defaultMessage="Preview"
-                  key="preview-button"
-                />
-              </Button>
-            </div>
-            <div className="button-download-flex-item">
-              <Button
-                as="a"
-                variant="outline-secondary"
-                size="sm"
-                id={"download-link-" + index}
-              >
-                <FormattedMessage
-                  defaultMessage="Download"
-                  key="download-button"
-                />
-              </Button>
-            </div>
-          </>
-        );
         return (
           <div className="doc-flex-container" key={index}>
             <div className="name-flex-item">{doc.name}</div>
@@ -56,7 +59,7 @@ function DocManager(props) {
             )}
             {doc.state === "loaded" && (
               <>
-                {downloadAndPreviewButtons}
+                {commonButtons(index)}
                 <div className="button-sign-flex-item">
                   <Button
                     variant="outline-success"
@@ -88,7 +91,7 @@ function DocManager(props) {
             )}
             {doc.state === "signed" && (
               <>
-                {downloadAndPreviewButtons}
+                {commonButtons(index)}
                 <div className="button-signed-flex-item">
                   <Button
                     variant="outline-success"
