@@ -44,7 +44,7 @@ function DocManager(props) {
           </>
         );
         return (
-          <div className="doc-flex-container">
+          <div className="doc-flex-container" key={index}>
             <div className="name-flex-item">{doc.name}</div>
             <div className="size-flex-item">{humanFileSize(doc.size)}</div>
             <div className="type-flex-item">{doc.type}</div>
