@@ -14,14 +14,6 @@ class Header extends Component {
           <div id="edusign-logo" data-testid="edusign-logo" />
           <div id="sunet-logo" data-testid="sunet-logo" />
         </header>
-        <div className="vertical-content-margin">
-          <h1 className="tagline">
-            <FormattedMessage
-              key="tagline"
-              defaultMessage="Welcome to eduSign"
-            />
-          </h1>
-        </div>
         <NotificationsContainer />
       </section>
     );

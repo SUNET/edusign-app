@@ -36,6 +36,7 @@ env-stop:
 .PHONY: front-build
 front-build:
 	@cd $(FRONT_DIR); \
+		cp node_modules/pdfjs-dist/build/pdf.worker.js* build/ ; \
     npm start
 
 ## Run the tests for the front side code
