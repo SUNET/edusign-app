@@ -5,7 +5,7 @@ import Header from "components/Header";
 import SplashContainer from "containers/Splash";
 import FooterContainer from "containers/Footer";
 import DnDAreaContainer from "containers/DnDArea";
-import DocPreviewContainer from "containers/DocPreview";
+import DocManagerContainer from "containers/DocManager";
 
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "styles/reset.scss";
@@ -21,7 +21,7 @@ class Main extends Component {
           <Header />
           <div id="main-content">
             <DnDAreaContainer />
-            <DocPreviewContainer />
+            <DocManagerContainer />
           </div>
           <FooterContainer />
         </section>

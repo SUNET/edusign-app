@@ -1,7 +1,7 @@
 import { connect } from "react-redux";
 import { updateIntl } from "react-intl-redux";
 
-import DocPreview from "components/DocPreview";
+import DocManager from "components/DocManager";
 import {
   showPreview,
   hidePreview,
@@ -49,4 +49,4 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DocPreview);
+export default connect(mapStateToProps, mapDispatchToProps)(DocManager);
