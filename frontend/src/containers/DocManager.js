@@ -1,5 +1,4 @@
 import { connect } from "react-redux";
-import { updateIntl } from "react-intl-redux";
 
 import DocManager from "components/DocManager";
 import {
