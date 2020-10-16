@@ -10,8 +10,7 @@ import { humanFileSize } from "utils";
 import "styles/DocManager.scss";
 
 function DocManager(props) {
-
-  function commonButtons (index) {
+  function commonButtons(index) {
     return (
       <>
         <div className="button-preview-flex-item">
@@ -20,10 +19,7 @@ function DocManager(props) {
             size="sm"
             onClick={props.handlePreview(index)}
           >
-            <FormattedMessage
-              defaultMessage="Preview"
-              key="preview-button"
-            />
+            <FormattedMessage defaultMessage="Preview" key="preview-button" />
           </Button>
         </div>
         <div className="button-download-flex-item">
@@ -33,10 +29,7 @@ function DocManager(props) {
             size="sm"
             id={"download-link-" + index}
           >
-            <FormattedMessage
-              defaultMessage="Download"
-              key="download-button"
-            />
+            <FormattedMessage defaultMessage="Download" key="download-button" />
           </Button>
         </div>
       </>

@@ -28,15 +28,15 @@ const loadPersistedState = () => {
     }
     return {
       ...JSON.parse(serializedState),
-      main: {loading: true},
-      notifications: {notification: {}}
+      main: { loading: true },
+      notifications: { notification: {} },
     };
   } catch (err) {
     return undefined;
   }
 };
 
-const saveState = state => {
+const saveState = (state) => {
   try {
     const serialized = JSON.stringify(state);
     localStorage.setItem("edusign-state", serialized);

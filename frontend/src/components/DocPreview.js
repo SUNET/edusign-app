@@ -32,7 +32,9 @@ function DocPreview(props) {
   let newFile = null;
   if (props.doc.state !== "loading") {
     const fileContents = b64toBlob(props.doc.blob.split(",")[1]);
-    newFile = new File([fileContents], props.doc.name, { type: props.doc.type });
+    newFile = new File([fileContents], props.doc.name, {
+      type: props.doc.type,
+    });
     const reader = new FileReader();
     reader.onload = () => {
       const link = document.getElementById("download-link-" + props.index);
@@ -56,10 +58,7 @@ function DocPreview(props) {
           </Modal.Header>
 
           <Modal.Body>
-            <Document
-              file={newFile}
-              onLoadSuccess={onDocumentLoadSuccess}
-            >
+            <Document file={newFile} onLoadSuccess={onDocumentLoadSuccess}>
               <Page pageNumber={pageNumber} width={725} />
             </Document>
           </Modal.Body>
@@ -103,10 +102,7 @@ function DocPreview(props) {
               variant="secondary"
               onClick={props.handleClose(props.index)}
             >
-              <FormattedMessage
-                defaultMessage="Close"
-                key="button-close"
-              />
+              <FormattedMessage defaultMessage="Close" key="button-close" />
             </Button>
           </Modal.Footer>
         </Modal>

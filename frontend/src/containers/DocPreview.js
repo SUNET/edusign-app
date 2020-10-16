@@ -2,13 +2,10 @@ import { connect } from "react-redux";
 import { updateIntl } from "react-intl-redux";
 
 import DocPreview from "components/DocPreview";
-import {
-  hidePreview,
-} from "slices/Documents";
+import { hidePreview } from "slices/Documents";
 
 const mapStateToProps = (state, props) => {
-  return {
-  };
+  return {};
 };
 
 const mapDispatchToProps = (dispatch, props) => {
