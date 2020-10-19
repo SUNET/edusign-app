@@ -39,9 +39,6 @@ describe("Main Component", function () {
 
     const sunetLogo = screen.getAllByTestId("sunet-logo");
     expect(sunetLogo.length).to.equal(1);
-
-    const tagline = screen.getAllByText("Welcome to eduSign");
-    expect(tagline.length).to.equal(1);
   });
 
   it("Displays Footer", function () {

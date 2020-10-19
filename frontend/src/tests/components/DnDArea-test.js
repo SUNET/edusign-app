@@ -1,14 +1,13 @@
 import React from "react";
 import {
-  act,
   screen,
   cleanup,
-  fireEvent,
   waitFor,
 } from "@testing-library/react";
-import { setupComponent, setupReduxComponent } from "tests/test-utils";
 import { expect } from "chai";
 
+import { setupComponent, setupReduxComponent, mockFileData, dispatchEvtWithData, flushPromises } from "tests/test-utils";
+import Main from "components/Main";
 import DnDAreaContainer from "containers/DnDArea";
 
 describe("DnDArea Component", function () {
@@ -49,9 +48,9 @@ describe("DnDArea Component", function () {
     const file = new File([
       JSON.stringify({ping: true})
     ], 'ping.json', { type: 'application/json' })
-    const data = mockData([file])
+    const data = mockFileData([file])
 
-    dispatchEvt(dnd, "dragenter", data);
+    dispatchEvtWithData(dnd, "dragenter", data);
     await flushPromises(rerender, wrapped);
 
     dndAreaDropping = await waitFor(() => screen.getAllByText("Drop documents here"));
@@ -60,28 +59,25 @@ describe("DnDArea Component", function () {
     dndArea = await waitFor(() => screen.queryByText("Documents to sign. Drag & drop or click to browse"));
     expect(dndArea).to.equal(null);
   });
+
+  it("It shows the file name after a drop event ", async () => {
+
+    const {wrapped, rerender} = setupReduxComponent(<Main />);
+
+    let filename = screen.queryByText(/ping.json/i);
+    expect(filename).to.equal(null);
+
+    const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
+
+    const file = new File([
+      JSON.stringify({ping: true})
+    ], 'ping.json', { type: 'application/json' })
+    const data = mockFileData([file])
+
+    dispatchEvtWithData(dnd, "drop", data);
+    await flushPromises(rerender, wrapped);
+
+    filename = await waitFor(() => screen.getAllByText(/ping.json/i));
+    expect(dndAreaDropping.length).to.equal(1);
+  });
 });
-
-function mockData(files) {
-  return {
-    dataTransfer: {
-      files,
-      items: files.map(file => ({
-        kind: 'file',
-        type: file.type,
-        getAsFile: () => file
-      })),
-      types: ['Files']
-    }
-  }
-}
-
-async function flushPromises(rerender, ui) {
-  await act(() => waitFor(() => rerender(ui)))
-}
-
-function dispatchEvt(node, type, data) {
-  const event = new Event(type, { bubbles: true })
-  Object.assign(event, data)
-  fireEvent(node, event)
-}

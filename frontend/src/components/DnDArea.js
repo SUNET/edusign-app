@@ -17,7 +17,7 @@ class DnDArea extends Component {
           if (this.props.status === "waiting") {
             return (
               <section id="edusign-dnd-wrapper">
-                <div id="edusign-dnd-area" {...getRootProps()}>
+                <div id="edusign-dnd-area" data-testid="edusign-dnd-area" {...getRootProps()}>
                   <input {...getInputProps()} />
                   <span id="dnd-message">
                     <FormattedMessage
@@ -33,7 +33,7 @@ class DnDArea extends Component {
               <section id="edusign-dnd-wrapper">
                 <div id="edusign-dnd-area-receiving" {...getRootProps()}>
                   <input {...getInputProps()} />
-                  <span id="dnd-message">
+                  <span id="dnd-message-dropping">
                     <FormattedMessage
                       defaultMessage="Drop documents here"
                       key="dnd-area-dropping"
