@@ -17,7 +17,11 @@ class DnDArea extends Component {
           if (this.props.status === "waiting") {
             return (
               <section id="edusign-dnd-wrapper">
-                <div id="edusign-dnd-area" data-testid="edusign-dnd-area" {...getRootProps()}>
+                <div
+                  id="edusign-dnd-area"
+                  data-testid="edusign-dnd-area"
+                  {...getRootProps()}
+                >
                   <input {...getInputProps()} />
                   <span id="dnd-message">
                     <FormattedMessage

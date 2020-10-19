@@ -25,11 +25,11 @@ const initialState = {
     messages: messages,
   },
   dnd: {
-    state: "waiting"
+    state: "waiting",
   },
   documents: {
-    documents: []
-  }
+    documents: [],
+  },
 };
 
 export function setupComponent(component, stateOverrides) {
@@ -47,31 +47,30 @@ export function setupComponent(component, stateOverrides) {
 
 export function setupReduxComponent(component) {
   const wrapped = <Provider store={store}>{component}</Provider>;
-  const {container, rerender} = render(wrapped);
-  return {wrapped, rerender};
+  const { container, rerender } = render(wrapped);
+  return { wrapped, rerender };
 }
-
 
 export function mockFileData(files) {
   return {
     dataTransfer: {
       files,
-      items: files.map(file => ({
-        kind: 'file',
+      items: files.map((file) => ({
+        kind: "file",
         type: file.type,
-        getAsFile: () => file
+        getAsFile: () => file,
       })),
-      types: ['Files']
-    }
-  }
+      types: ["Files"],
+    },
+  };
 }
 
 export async function flushPromises(rerender, ui) {
-  await act(() => waitFor(() => rerender(ui)))
+  await act(() => waitFor(() => rerender(ui)));
 }
 
 export function dispatchEvtWithData(node, type, data) {
-  const event = new Event(type, { bubbles: true })
-  Object.assign(event, data)
-  fireEvent(node, event)
+  const event = new Event(type, { bubbles: true });
+  Object.assign(event, data);
+  fireEvent(node, event);
 }
