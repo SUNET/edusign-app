@@ -18,9 +18,10 @@ class DnDArea extends Component {
             return (
               <section id="edusign-dnd-wrapper">
                 <div
-                  id="edusign-dnd-area"
-                  data-testid="edusign-dnd-area"
-                  {...getRootProps()}
+                  {...getRootProps({
+                    id: "edusign-dnd-area",
+                    "data-testid": "edusign-dnd-area",
+                  })}
                 >
                   <input {...getInputProps()} />
                   <span id="dnd-message">
@@ -35,7 +36,11 @@ class DnDArea extends Component {
           } else if (this.props.status === "receiving") {
             return (
               <section id="edusign-dnd-wrapper">
-                <div id="edusign-dnd-area-receiving" {...getRootProps()}>
+                <div
+                  {...getRootProps({
+                    id: "edusign-dnd-area-receiving",
+                  })}
+                >
                   <input {...getInputProps()} />
                   <span id="dnd-message-dropping">
                     <FormattedMessage

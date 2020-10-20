@@ -1,5 +1,5 @@
 import React from "react";
-import { screen, cleanup, waitFor } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { expect } from "chai";
 
 import {
@@ -13,8 +13,6 @@ import Main from "components/Main";
 import DnDAreaContainer from "containers/DnDArea";
 
 describe("DnDArea Component", function () {
-  afterEach(cleanup);
-
   it("Shows dnd area ready to accept documents", function () {
     setupComponent(<DnDAreaContainer />, {});
 
@@ -40,7 +38,9 @@ describe("DnDArea Component", function () {
   });
 
   it("It shows dnd area ready to drop documents on drag enter event ", async () => {
-    const { wrapped, rerender } = setupReduxComponent(<DnDAreaContainer />);
+    const { wrapped, rerender, unmount } = setupReduxComponent(
+      <DnDAreaContainer />
+    );
 
     let dndArea = screen.getAllByText(
       "Documents to sign. Drag & drop or click to browse"
@@ -69,10 +69,12 @@ describe("DnDArea Component", function () {
       screen.queryByText("Documents to sign. Drag & drop or click to browse")
     );
     expect(dndArea).to.equal(null);
+
+    unmount();
   });
 
   it("It shows the file name after a drop event ", async () => {
-    const { wrapped, rerender } = setupReduxComponent(<Main />);
+    const { wrapped, rerender, unmount } = setupReduxComponent(<Main />);
 
     let filename = screen.queryByText(/ping.json/i);
     expect(filename).to.equal(null);
@@ -88,6 +90,8 @@ describe("DnDArea Component", function () {
     await flushPromises(rerender, wrapped);
 
     filename = await waitFor(() => screen.getAllByText(/ping.json/i));
-    expect(dndAreaDropping.length).to.equal(1);
+    expect(filename.length).to.equal(1);
+
+    unmount();
   });
 });

@@ -1,19 +1,15 @@
 import React from "react";
+import { act, screen, fireEvent, waitFor } from "@testing-library/react";
 import {
-  act,
-  screen,
-  cleanup,
-  fireEvent,
-  waitFor,
-} from "@testing-library/react";
-import { setupComponent, setupReduxComponent } from "tests/test-utils";
+  setupComponent,
+  setupReduxComponent,
+  flushPromises,
+} from "tests/test-utils";
 import { expect } from "chai";
 
 import Main from "components/Main";
 
 describe("Main Component", function () {
-  afterEach(cleanup);
-
   it("Shows splash screen", function () {
     setupComponent(<Main />, {});
 
@@ -71,7 +67,7 @@ describe("Main Component", function () {
   });
 
   it("Clicking lang selector in Footer changes language", async () => {
-    setupReduxComponent(<Main />);
+    const { wrapped, rerender } = setupReduxComponent(<Main />);
 
     let langSelectorSv = screen.getAllByText("Svenska");
     expect(langSelectorSv.length).to.equal(1);
@@ -80,6 +76,7 @@ describe("Main Component", function () {
     expect(langSelectorEn).to.equal(null);
 
     fireEvent.click(langSelectorSv[0]);
+    await flushPromises(rerender, wrapped);
 
     langSelectorEn = await waitFor(() => screen.getAllByText("English"));
     expect(langSelectorEn.length).to.equal(1);

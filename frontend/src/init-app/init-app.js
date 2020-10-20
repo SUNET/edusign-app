@@ -47,10 +47,15 @@ const saveState = (state) => {
 
 /* Redux store */
 
-const store = configureStore({
-  reducer: rootReducer,
-  preloadedState: loadPersistedState(),
-});
+export const edusignStore = (test = false) => {
+  let storeObj = { reducer: rootReducer };
+  if (!test) {
+    storeObj.preloadedState = loadPersistedState();
+  }
+  return configureStore(storeObj);
+};
+
+const store = edusignStore();
 
 store.subscribe(() => {
   saveState(store.getState());
@@ -89,7 +94,5 @@ const init_app = function (target, component) {
 
   ReactDOM.render(wrappedComponent, target, appIsRendered);
 };
-
-export { store };
 
 export default init_app;

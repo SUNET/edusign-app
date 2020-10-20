@@ -3,7 +3,8 @@ import { spy } from "sinon";
 import { Provider } from "react-intl-redux";
 import { act, render, fireEvent, waitFor } from "@testing-library/react";
 import configureStore from "redux-mock-store";
-import { store } from "init-app/init-app";
+import { updateIntl } from "react-intl-redux";
+import { edusignStore } from "init-app/init-app";
 
 const messages = {
   en: require("../../translations/en.json"),
@@ -22,7 +23,7 @@ const initialState = {
   },
   intl: {
     locale: "en",
-    messages: messages,
+    messages: messages.en,
   },
   dnd: {
     state: "waiting",
@@ -46,9 +47,16 @@ export function setupComponent(component, stateOverrides) {
 }
 
 export function setupReduxComponent(component) {
+  const store = edusignStore(true);
+  store.dispatch(
+    updateIntl({
+      locale: "en",
+      messages: messages.en,
+    })
+  );
   const wrapped = <Provider store={store}>{component}</Provider>;
-  const { container, rerender } = render(wrapped);
-  return { wrapped, rerender };
+  const { rerender, unmount } = render(wrapped);
+  return { wrapped, rerender, store, unmount };
 }
 
 export function mockFileData(files) {
