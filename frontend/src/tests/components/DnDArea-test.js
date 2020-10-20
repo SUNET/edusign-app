@@ -8,7 +8,7 @@ import {
   mockFileData,
   dispatchEvtWithData,
   flushPromises,
-  samplePDFData
+  samplePDFData,
 } from "tests/test-utils";
 import Main from "components/Main";
 import DnDAreaContainer from "containers/DnDArea";
@@ -75,11 +75,29 @@ describe("DnDArea Component", function () {
     unmount();
   });
 
-  it("It shows the file name after a drop event ", async () => {
+  it("It shows the file details after a drop event ", async () => {
     const { wrapped, rerender, unmount } = setupReduxComponent(<Main />);
 
     let filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
+
+    let filesize = screen.queryByText("1.5 KiB");
+    expect(filesize).to.equal(null);
+
+    let filetype = screen.queryByText("application/pdf");
+    expect(filetype).to.equal(null);
+
+    let previewButton = screen.queryByText("Preview");
+    expect(previewButton).to.equal(null);
+
+    let downloadButton = screen.queryByText("Download");
+    expect(downloadButton).to.equal(null);
+
+    let signButton = screen.queryByText("Sign");
+    expect(signButton).to.equal(null);
+
+    let rmButton = screen.queryByText("Remove");
+    expect(rmButton).to.equal(null);
 
     const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
 
@@ -93,6 +111,24 @@ describe("DnDArea Component", function () {
 
     filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
     expect(filename.length).to.equal(1);
+
+    filesize = await waitFor(() => screen.getAllByText("1.5 KiB"));
+    expect(filesize.length).to.equal(1);
+
+    filetype = await waitFor(() => screen.getAllByText("application/pdf"));
+    expect(filetype.length).to.equal(1);
+
+    previewButton = await waitFor(() => screen.getAllByText("Preview"));
+    expect(previewButton.length).to.equal(1);
+
+    downloadButton = await waitFor(() => screen.getAllByText("Download"));
+    expect(downloadButton.length).to.equal(1);
+
+    signButton = await waitFor(() => screen.getAllByText("Sign"));
+    expect(signButton.length).to.equal(1);
+
+    rmButton = await waitFor(() => screen.getAllByText("Remove"));
+    expect(rmButton.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
