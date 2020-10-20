@@ -8,6 +8,7 @@ import {
   mockFileData,
   dispatchEvtWithData,
   flushPromises,
+  samplePDFData
 } from "tests/test-utils";
 import Main from "components/Main";
 import DnDAreaContainer from "containers/DnDArea";
@@ -52,8 +53,8 @@ describe("DnDArea Component", function () {
 
     const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
 
-    const file = new File([JSON.stringify({ ping: true })], "ping.json", {
-      type: "application/json",
+    const file = new File([samplePDFData], "test.pdf", {
+      type: "application/pdf",
     });
     const data = mockFileData([file]);
 
@@ -70,6 +71,7 @@ describe("DnDArea Component", function () {
     );
     expect(dndArea).to.equal(null);
 
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
 
@@ -81,17 +83,18 @@ describe("DnDArea Component", function () {
 
     const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
 
-    const file = new File([JSON.stringify({ ping: true })], "ping.json", {
-      type: "application/json",
+    const file = new File([samplePDFData], "test.pdf", {
+      type: "application/pdf",
     });
     const data = mockFileData([file]);
 
     dispatchEvtWithData(dnd, "drop", data);
     await flushPromises(rerender, wrapped);
 
-    filename = await waitFor(() => screen.getAllByText(/ping.json/i));
+    filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
     expect(filename.length).to.equal(1);
 
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
 });
