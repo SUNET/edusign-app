@@ -78,7 +78,7 @@ describe("DnDArea Component", function () {
   it("It shows the file name after a drop event ", async () => {
     const { wrapped, rerender, unmount } = setupReduxComponent(<Main />);
 
-    let filename = screen.queryByText(/ping.json/i);
+    let filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
 
     const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
