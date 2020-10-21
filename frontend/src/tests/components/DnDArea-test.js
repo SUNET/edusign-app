@@ -1,5 +1,5 @@
 import React from "react";
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, cleanup } from "@testing-library/react";
 import { expect } from "chai";
 
 import {
@@ -14,8 +14,10 @@ import Main from "components/Main";
 import DnDAreaContainer from "containers/DnDArea";
 
 describe("DnDArea Component", function () {
+  afterEach(cleanup);
+
   it("Shows dnd area ready to accept documents", function () {
-    setupComponent(<DnDAreaContainer />, {});
+    const { unmount } = setupComponent(<DnDAreaContainer />, {});
 
     const dndArea = screen.getAllByText(
       "Documents to sign. Drag & drop or click to browse"
@@ -24,10 +26,14 @@ describe("DnDArea Component", function () {
 
     const dndAreaDropping = screen.queryByText("Drop documents here");
     expect(dndAreaDropping).to.equal(null);
+
+    unmount();
   });
 
   it("Shows dnd area ready to drop documents", function () {
-    setupComponent(<DnDAreaContainer />, { dnd: { state: "receiving" } });
+    const { unmount } = setupComponent(<DnDAreaContainer />, {
+      dnd: { state: "receiving" },
+    });
 
     const dndAreaDropping = screen.getAllByText("Drop documents here");
     expect(dndAreaDropping.length).to.equal(1);
@@ -36,6 +42,8 @@ describe("DnDArea Component", function () {
       "Documents to sign. Drag & drop or click to browse"
     );
     expect(dndArea).to.equal(null);
+
+    unmount();
   });
 
   it("It shows dnd area ready to drop documents on drag enter event ", async () => {
@@ -70,6 +78,54 @@ describe("DnDArea Component", function () {
       screen.queryByText("Documents to sign. Drag & drop or click to browse")
     );
     expect(dndArea).to.equal(null);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows dnd area back to waiting after a dragLeave event", async () => {
+    const { wrapped, rerender, unmount } = setupReduxComponent(
+      <DnDAreaContainer />
+    );
+
+    let dndArea = screen.getAllByText(
+      "Documents to sign. Drag & drop or click to browse"
+    );
+    expect(dndArea.length).to.equal(1);
+
+    let dndAreaDropping = screen.queryByText("Drop documents here");
+    expect(dndAreaDropping).to.equal(null);
+
+    const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
+
+    const file = new File([samplePDFData], "test.pdf", {
+      type: "application/pdf",
+    });
+    const data = mockFileData([file]);
+
+    dispatchEvtWithData(dnd, "dragenter", data);
+    await flushPromises(rerender, wrapped);
+
+    dndAreaDropping = await waitFor(() =>
+      screen.getAllByText("Drop documents here")
+    );
+    expect(dndAreaDropping.length).to.equal(1);
+
+    dndArea = await waitFor(() =>
+      screen.queryByText("Documents to sign. Drag & drop or click to browse")
+    );
+    expect(dndArea).to.equal(null);
+
+    dispatchEvtWithData(dnd, "dragleave", data);
+    await flushPromises(rerender, wrapped);
+
+    dndArea = screen.getAllByText(
+      "Documents to sign. Drag & drop or click to browse"
+    );
+    expect(dndArea.length).to.equal(1);
+
+    dndAreaDropping = screen.queryByText("Drop documents here");
+    expect(dndAreaDropping).to.equal(null);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();

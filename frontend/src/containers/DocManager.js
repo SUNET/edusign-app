@@ -22,11 +22,6 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(showPreview(index));
       };
     },
-    handleClose: function (index) {
-      return (e) => {
-        dispatch(hidePreview(index));
-      };
-    },
     handleRemove: function (index) {
       return (e) => {
         dispatch(removeDocument(index));

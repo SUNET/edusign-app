@@ -38,8 +38,11 @@ function DocPreview(props) {
     const reader = new FileReader();
     reader.onload = () => {
       const link = document.getElementById("download-link-" + props.index);
-      link.setAttribute("href", reader.result);
-      link.setAttribute("download", props.doc.name);
+      // in the tests this callback is often called after exiting the test
+      if (link !== null) {
+        link.setAttribute("href", reader.result);
+        link.setAttribute("download", props.doc.name);
+      }
     };
     reader.readAsDataURL(newFile);
   }
@@ -80,6 +83,7 @@ function DocPreview(props) {
                 size="sm"
                 disabled={Number(pageNumber) <= 1}
                 onClick={previousPage}
+                data-testid="preview-button-prev"
               >
                 <FormattedMessage
                   defaultMessage="Previous"
@@ -91,6 +95,7 @@ function DocPreview(props) {
                 size="sm"
                 disabled={Number(pageNumber) >= Number(numPages)}
                 onClick={nextPage}
+                data-testid="preview-button-next"
               >
                 <FormattedMessage
                   defaultMessage="Next"
@@ -101,6 +106,7 @@ function DocPreview(props) {
             <Button
               variant="secondary"
               onClick={props.handleClose(props.index)}
+              data-testid="preview-button-close"
             >
               <FormattedMessage defaultMessage="Close" key="button-close" />
             </Button>

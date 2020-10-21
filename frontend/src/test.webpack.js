@@ -4,5 +4,9 @@
 var chai = require("chai");
 chai.use(require("chai-dom"));
 
+import { pdfjs } from "react-pdf";
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
+
 var context = require.context(".", true, /-test\.js$/); //make sure you have your directory and regex test set correctly!
 context.keys().forEach(context);

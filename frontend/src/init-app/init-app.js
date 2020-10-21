@@ -64,7 +64,7 @@ store.subscribe(() => {
 /* render app */
 
 const appIsRendered = function () {
-  window.setTimeout(() => store.dispatch(appLoaded()), 1000);
+  store.dispatch(appLoaded());
 };
 
 const init_app = function (target, component) {

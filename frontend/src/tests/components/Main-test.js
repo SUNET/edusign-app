@@ -1,5 +1,11 @@
 import React from "react";
-import { act, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  act,
+  screen,
+  fireEvent,
+  waitFor,
+  cleanup,
+} from "@testing-library/react";
 import {
   setupComponent,
   setupReduxComponent,
@@ -8,24 +14,46 @@ import {
 import { expect } from "chai";
 
 import Main from "components/Main";
+import { addNotification } from "slices/Notifications";
+import { appLoaded } from "slices/Main";
 
 describe("Main Component", function () {
+  afterEach(cleanup);
+
   it("Shows splash screen", function () {
-    setupComponent(<Main />, {});
+    const { unmount } = setupComponent(<Main />, {});
 
     const splashArray = screen.getAllByTestId("edusign-splash-screen");
     expect(splashArray.length).to.equal(1);
+
+    unmount();
   });
 
   it("Doesn't show splash screen", function () {
-    setupComponent(<Main />, { main: { loading: false } });
+    const { unmount } = setupComponent(<Main />, { main: { loading: false } });
 
     const splash = screen.queryByTestId("edusign-splash-screen");
     expect(splash).to.equal(null);
+
+    unmount();
+  });
+
+  it("Doesn't show splash screen after appLoaded event", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    store.dispatch(appLoaded());
+    await flushPromises(rerender, wrapped);
+
+    const splash = await waitFor(() =>
+      screen.queryByTestId("edusign-splash-screen")
+    );
+    expect(splash).to.equal(null);
+
+    unmount();
   });
 
   it("Displays Header", function () {
-    setupComponent(<Main />, { main: { loading: false } });
+    const { unmount } = setupComponent(<Main />, { main: { loading: false } });
 
     const header = screen.getAllByTestId("edusign-banner");
     expect(header.length).to.equal(1);
@@ -35,10 +63,12 @@ describe("Main Component", function () {
 
     const sunetLogo = screen.getAllByTestId("sunet-logo");
     expect(sunetLogo.length).to.equal(1);
+
+    unmount();
   });
 
   it("Displays Footer", function () {
-    setupComponent(<Main />, { main: { loading: false } });
+    const { unmount } = setupComponent(<Main />, { main: { loading: false } });
 
     const footer = screen.getAllByTestId("edusign-footer");
     expect(footer.length).to.equal(1);
@@ -51,10 +81,12 @@ describe("Main Component", function () {
 
     const langSelectorEn = screen.queryByText("English");
     expect(langSelectorEn).to.equal(null);
+
+    unmount();
   });
 
   it("Displays English lang selector in Footer", function () {
-    setupComponent(<Main />, {
+    const { unmount } = setupComponent(<Main />, {
       main: { loading: false },
       intl: { locale: "sv" },
     });
@@ -64,10 +96,12 @@ describe("Main Component", function () {
 
     const langSelectorSv = screen.queryByText("Svenska");
     expect(langSelectorSv).to.equal(null);
+
+    unmount();
   });
 
   it("Clicking lang selector in Footer changes language", async () => {
-    const { wrapped, rerender } = setupReduxComponent(<Main />);
+    const { wrapped, rerender, unmount } = setupReduxComponent(<Main />);
 
     let langSelectorSv = screen.getAllByText("Svenska");
     expect(langSelectorSv.length).to.equal(1);
@@ -83,24 +117,56 @@ describe("Main Component", function () {
 
     langSelectorSv = await waitFor(() => screen.queryByText("Svenska"));
     expect(langSelectorSv).to.equal(null);
+
+    unmount();
   });
 
   it("Contains a Notifications area", function () {
-    setupComponent(<Main />, { main: { loading: false } });
+    const { unmount } = setupComponent(<Main />, { main: { loading: false } });
 
     const notificationsArea = screen.getAllByTestId(
       "edusign-notifications-area"
     );
     expect(notificationsArea.length).to.equal(1);
+
+    unmount();
   });
 
   it("Notifications area displays notifications", function () {
-    setupComponent(<Main />, {
+    const { unmount } = setupComponent(<Main />, {
       main: { loading: false },
       notifications: { notification: { level: "danger", message: "ho ho ho" } },
     });
 
-    const notificationsArea = screen.getAllByText("ho ho ho");
-    expect(notificationsArea.length).to.equal(1);
+    const notification = screen.getAllByText("ho ho ho");
+    expect(notification.length).to.equal(1);
+
+    unmount();
+  });
+
+  it("Notifications are removed from the notifications area", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    store.dispatch(
+      addNotification({
+        message: "ho ho ho",
+        level: "danger",
+      })
+    );
+    await flushPromises(rerender, wrapped);
+
+    let notification = await waitFor(() => screen.getAllByText("ho ho ho"));
+    expect(notification.length).to.equal(1);
+
+    const closeLink = screen.getAllByText("×");
+    expect(closeLink.length).to.equal(1);
+
+    fireEvent.click(closeLink[0]);
+    await flushPromises(rerender, wrapped);
+
+    notification = await waitFor(() => screen.queryByText("ho ho ho"));
+    expect(notification).to.equal(null);
+
+    unmount();
   });
 });

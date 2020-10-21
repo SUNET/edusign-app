@@ -28,6 +28,7 @@ function DocManager(props) {
             variant="outline-secondary"
             size="sm"
             id={"download-link-" + index}
+            data-testid={"download-link-" + index}
           >
             <FormattedMessage defaultMessage="Download" key="download-button" />
           </Button>

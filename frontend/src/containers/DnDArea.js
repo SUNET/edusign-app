@@ -16,9 +16,6 @@ const mapDispatchToProps = (dispatch, props) => {
     handleDragEnter: function (e) {
       dispatch(setReceiving());
     },
-    handleDragOver: function (e) {
-      alert(e);
-    },
     handleDragLeave: function (e) {
       dispatch(setWaiting());
     },
