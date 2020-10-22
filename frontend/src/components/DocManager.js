@@ -11,7 +11,7 @@ import "styles/DocManager.scss";
 
 /**
  * @desc This component provides a representation of the documents in the session.
- * <br />
+ *
  * Each document can be in one of several states:
  * - "loading": The document is being loaded from the filesystem.
  * - "loaded": The document has been loaded from the fs and is ready to be signed.
@@ -22,7 +22,7 @@ import "styles/DocManager.scss";
  * @component
  */
 function DocManager(props) {
-  function commonButtons(index) {
+  function commonButtons(index, doc) {
     return (
       <>
         <div className="button-preview-flex-item">
@@ -39,8 +39,9 @@ function DocManager(props) {
             as="a"
             variant="outline-secondary"
             size="sm"
-            id={"download-link-" + index}
             data-testid={"download-link-" + index}
+            href={doc.blob}
+            download={doc.name}
           >
             <FormattedMessage defaultMessage="Download" key="download-button" />
           </Button>
@@ -65,7 +66,7 @@ function DocManager(props) {
             )}
             {doc.state === "loaded" && (
               <>
-                {commonButtons(index)}
+                {commonButtons(index, doc)}
                 <div className="button-sign-flex-item">
                   <Button
                     variant="outline-success"
@@ -97,7 +98,7 @@ function DocManager(props) {
             )}
             {doc.state === "signed" && (
               <>
-                {commonButtons(index)}
+                {commonButtons(index, doc)}
                 <div className="button-signed-flex-item">
                   <Button
                     variant="outline-success"

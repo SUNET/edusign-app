@@ -35,16 +35,6 @@ function DocPreview(props) {
     newFile = new File([fileContents], props.doc.name, {
       type: props.doc.type,
     });
-    const reader = new FileReader();
-    reader.onload = () => {
-      const link = document.getElementById("download-link-" + props.index);
-      // in the tests this callback is often called after exiting the test
-      if (link !== null) {
-        link.setAttribute("href", reader.result);
-        link.setAttribute("download", props.doc.name);
-      }
-    };
-    reader.readAsDataURL(newFile);
   }
 
   return (
