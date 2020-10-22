@@ -27,6 +27,10 @@ const spinnerOpts = {
   position: "absolute", // Element positioning
 };
 
+/**
+ * @desc Splash screen showing a large spinner.
+ * @component
+ */
 class Splash extends Component {
   componentDidMount() {
     if (this.props.is_app_loading) {
@@ -45,6 +49,9 @@ class Splash extends Component {
 }
 
 Splash.propTypes = {
+  /**
+   * Whether the app is loading or has finished loading.
+   */
   is_app_loading: PropTypes.bool,
 };
 

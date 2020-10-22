@@ -6,6 +6,10 @@ import NotificationsContainer from "containers/Notifications";
 
 import "styles/Header.scss";
 
+/**
+ * @desc Header, with the eduSign and SUNET logos and the container for notifications to the user.
+ * @component
+ */
 class Header extends Component {
   render() {
     return (

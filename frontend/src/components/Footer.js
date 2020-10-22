@@ -4,6 +4,10 @@ import { FormattedMessage } from "react-intl";
 
 import "styles/Footer.scss";
 
+/**
+ * @desc Footer, with the copyright and the language selector
+ * @component
+ */
 class Footer extends Component {
   render() {
     const langElems = AVAILABLE_LANGUAGES.map((lang, index) => {
@@ -42,6 +46,9 @@ class Footer extends Component {
 }
 
 Footer.propTypes = {
+  /**
+   * The language to localize the app to.
+   */
   language: PropTypes.string,
   changeLanguage: PropTypes.func,
 };

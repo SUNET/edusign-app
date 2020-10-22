@@ -9,6 +9,10 @@ import { b64toBlob } from "components/utils";
 
 import "styles/DocPreview.scss";
 
+/**
+ * @desc Show a modal dialog with a paginated view of a PDF, using PDF.js.
+ * @component
+ */
 function DocPreview(props) {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
@@ -110,7 +114,13 @@ function DocPreview(props) {
 }
 
 DocPreview.propTypes = {
+  /**
+   * The document to preview.
+   */
   doc: PropTypes.object,
+  /**
+   * Index of the document
+   */
   index: PropTypes.number,
   handleClose: PropTypes.func,
 };

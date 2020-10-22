@@ -4,6 +4,12 @@ import Alert from "react-bootstrap/Alert";
 
 import "styles/Notifications.scss";
 
+/**
+ * @desc Area for notifications to the user.
+ *
+ * Notifications to be shown are added to the system via the notifications/addNotification Redux action.
+ * @component
+ */
 class Notifications extends Component {
   render() {
     let notification = "";
@@ -30,6 +36,9 @@ class Notifications extends Component {
 }
 
 Notifications.propTypes = {
+  /**
+   * Notification to show
+   */
   notification: PropTypes.object,
   handleRMNotification: PropTypes.func,
 };

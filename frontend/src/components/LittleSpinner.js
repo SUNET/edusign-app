@@ -27,6 +27,10 @@ const spinnerOpts = {
   position: "absolute", // Element positioning
 };
 
+/**
+ * @desc a small spinner to indicate the user to wait.
+ * @component
+ */
 class LittleSpinner extends Component {
   componentDidMount() {
     const anchor = document.getElementById(
@@ -43,6 +47,9 @@ class LittleSpinner extends Component {
 }
 
 LittleSpinner.propTypes = {
+  /**
+   * The index of the document holding this spinner
+   */
   index: PropTypes.number,
 };
 

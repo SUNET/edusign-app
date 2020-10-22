@@ -11,6 +11,13 @@ import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "styles/reset.scss";
 import "styles/Main.scss";
 
+/**
+ * @desc Main eduSign component.
+ *
+ * It displays a splash screen while the app is loading,
+ * and combines te header and footer, the drag and drop area, and the document manager area.
+ * @component
+ */
 class Main extends Component {
   render() {
     return (

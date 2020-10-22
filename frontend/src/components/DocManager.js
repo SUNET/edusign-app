@@ -122,6 +122,9 @@ function DocManager(props) {
 }
 
 DocManager.propTypes = {
+  /**
+   * The documents to manage
+   */
   documents: PropTypes.array,
   handlePreview: PropTypes.func,
   handleSign: PropTypes.func,
