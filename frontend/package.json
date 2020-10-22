@@ -9,10 +9,18 @@
     "debug": "karma start --single-run=false --debug --browser Chrome",
     "serve": "webpack-dev-server --open",
     "extract-msgs": "extract-messages -l=en,sv -o translations -d en --flat true 'src/**/!(*-test).js'",
-    "prettier": "npx prettier --write src/"
+    "prettier": "npx prettier --write src/",
+    "build-docs": "jsdoc -c jsdoc.config.json src/"
   },
   "author": "Enrique Pérez Arnaud",
   "license": "BSD-2-Clause",
+  "alias": {
+    "components": "./src/components",
+    "containers": "./src/containers",
+    "init-app": "./src/init-app",
+    "slices": "./src/slices",
+    "styles": "./src/styles"
+  },
   "dependencies": {
     "@reduxjs/toolkit": "^1.4.0",
     "@testing-library/jest-dom": "^5.11.4",
@@ -59,12 +67,16 @@
     "babel-loader": "^8.1.0",
     "babel-plugin-react-intl-auto": "^3.3.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
+    "better-docs": "^2.3.2",
     "css-loader": "^4.3.0",
     "extract-react-intl-messages": "^4.1.1",
+    "jsdoc": "^3.6.6",
     "json-loader": "^0.5.7",
     "karma": "^5.2.2",
+    "parcel": "^1.12.4",
     "path": "^0.12.7",
     "postcss-loader": "^4.0.2",
+    "postcss-modules": "^3.2.2",
     "precss": "^4.0.0",
     "prettier": "2.1.2",
     "react-hot-loader": "^4.13.0",

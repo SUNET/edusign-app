@@ -57,6 +57,12 @@ front-prettier:
 	@cd $(FRONT_DIR); \
     npm run prettier
 
+## Build developer documentation with jsdoc. Output html to be found at frontend/out/.
+.PHONY: front-build-docs
+front-build-docs:
+	@cd $(FRONT_DIR); \
+    npm run build-docs
+
 ## -- Misc --
 
 ## Print this help message

@@ -5,10 +5,22 @@ import Button from "react-bootstrap/Button";
 import LittleSpinner from "components/LittleSpinner";
 
 import DocPreviewContainer from "containers/DocPreview";
-import { humanFileSize } from "utils";
+import { humanFileSize } from "components/utils";
 
 import "styles/DocManager.scss";
 
+/**
+ * @desc This component provides a representation of the documents in the session.
+ * <br />
+ * Each document can be in one of several states:
+ * - "loading": The document is being loaded from the filesystem.
+ * - "loaded": The document has been loaded from the fs and is ready to be signed.
+ * - "signing": The document is in the process of being signed.
+ * - "signed": The document has been signed and is ready to be got by the user.
+ *
+ * Depending on the state, it will show a different set of controls.
+ * @component
+ */
 function DocManager(props) {
   function commonButtons(index) {
     return (

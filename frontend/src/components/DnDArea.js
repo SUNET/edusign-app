@@ -5,6 +5,13 @@ import { FormattedMessage } from "react-intl";
 
 import "styles/DnDArea.scss";
 
+/**
+ * @component
+ * @desc Drag and drop area for documents to sign.
+ * <br />
+ * I has 2 states, the initial "waiting" state,
+ * and the "receiving" state triggered by a dragEnter event.
+ */
 class DnDArea extends Component {
   render() {
     return (
@@ -59,6 +66,9 @@ class DnDArea extends Component {
 }
 
 DnDArea.propTypes = {
+  /**
+   * "waiting" or "receiving"
+   */
   status: PropTypes.string,
   handleFileDrop: PropTypes.func,
   handleDragEnter: PropTypes.func,

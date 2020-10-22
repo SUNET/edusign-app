@@ -1,3 +1,12 @@
+/**
+ * @module entry-points/index
+ * @desc Main entry point for webpack to build the bundle.
+ *
+ * Here we load some polyfills, set the src for the pdfjs worker,
+ * and call [init_app]{@linkcode module:init-app/init-app~init_app}
+ * with a [Main]{@linkcode module:components/Main.class:Main} React Component.
+ */
+
 import React from "react";
 
 if (!Element.prototype.matches)

@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf";
 
-import { b64toBlob } from "utils";
+import { b64toBlob } from "components/utils";
 
 import "styles/DocPreview.scss";
 

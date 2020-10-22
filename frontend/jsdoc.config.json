@@ -1,0 +1,11 @@
+{
+  "plugins": [
+    "plugins/markdown",
+    "node_modules/better-docs/component"
+  ],
+  "opts": {
+    "recurse": true,
+    "template": "node_modules/better-docs",
+    "destination": "./docs/"
+  }
+}
