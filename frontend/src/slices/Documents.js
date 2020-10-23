@@ -1,3 +1,10 @@
+/**
+ * @module slices/Documents
+ * @desc Here we define the initial state for the documents key of the Redux state,
+ * and the actions and reducers to manipulate it.
+ *
+ * The documents key of the state holds the documents added by the user to be signed.
+ */
 import { createSlice } from "@reduxjs/toolkit";
 
 const documentsSlice = createSlice({
@@ -6,6 +13,12 @@ const documentsSlice = createSlice({
     documents: [],
   },
   reducers: {
+    /**
+     * @public
+     * @function addDocument
+     * @desc Redux action to add a document to the documents state key, setting its name, size and type,
+     * and setting the the show key to false, the blob key to null and the state key to "loading".
+     */
     addDocument(state, action) {
       state.documents.push({
         // action.payload carries keys: name, size, type, and blob
@@ -14,6 +27,12 @@ const documentsSlice = createSlice({
         state: "loading",
       });
     },
+    /**
+     * @public
+     * @function updateDocument
+     * @desc Redux action to update a document in the documents state key,
+     * setting the blob key to the contents of the file as a base64 data URL, and the state key to "loaded".
+     */
     updateDocument(state, action) {
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
@@ -28,6 +47,12 @@ const documentsSlice = createSlice({
         }
       });
     },
+    /**
+     * @public
+     * @function showPreview
+     * @desc Redux action to update a document in the documents state key,
+     * setting the show key to true (so that the UI will show a preview of the document).
+     */
     showPreview(state, action) {
       state.documents = state.documents.map((doc, index) => {
         if (index === action.payload) {
@@ -42,6 +67,12 @@ const documentsSlice = createSlice({
         }
       });
     },
+    /**
+     * @public
+     * @function hidePreview
+     * @desc Redux action to update a document in the documents state key,
+     * setting the show key to false (so that the UI will hide the preview of the document).
+     */
     hidePreview(state, action) {
       state.documents = state.documents.map((doc, index) => {
         if (index === action.payload) {
@@ -56,11 +87,22 @@ const documentsSlice = createSlice({
         }
       });
     },
+    /**
+     * @public
+     * @function hidePreview
+     * @desc Redux action to remove a document from the documents state key.
+     */
     removeDocument(state, action) {
       state.documents = state.documents.filter((doc, index) => {
         return index !== action.payload;
       });
     },
+    /**
+     * @public
+     * @function startSigning
+     * @desc Redux action to update a document in the documents state key,
+     * setting the state key to "signing"
+     */
     startSigning(state, action) {
       state.documents = state.documents.map((doc, index) => {
         if (index === action.payload) {
@@ -75,6 +117,12 @@ const documentsSlice = createSlice({
         }
       });
     },
+    /**
+     * @public
+     * @function setSigned
+     * @desc Redux action to update a document in the documents state key,
+     * setting the state key to "signed"
+     */
     setSigned(state, action) {
       state.documents = state.documents.map((doc, index) => {
         if (index === action.payload) {

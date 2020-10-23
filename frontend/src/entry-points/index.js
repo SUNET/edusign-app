@@ -4,7 +4,7 @@
  *
  * Here we load some polyfills, set the src for the pdfjs worker,
  * and call [init_app]{@linkcode module:init-app/init-app~init_app}
- * with a [Main]{@linkcode module:components/Main.class:Main} React Component.
+ * with a [Main]{@linkcode module:components/Main.Main} React Component.
  */
 
 import React from "react";

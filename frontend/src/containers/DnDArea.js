@@ -1,3 +1,13 @@
+/**
+ * @module containers/DnDArea
+ * @desc In this module we connect the DnDArea component with the Redux store.
+ *
+ * In mapStateToProps we take the state.dnd.state key from the central store
+ * and assign it to the status prop of the component.
+ *
+ * in mapDispatchToProps we compose the drag event handlers making use
+ * of the Redux dispatch function.
+ */
 import { connect } from "react-redux";
 import { updateIntl } from "react-intl-redux";
 
@@ -27,6 +37,7 @@ const mapDispatchToProps = (dispatch, props) => {
           type: fileObj.type,
           blob: null,
         };
+        // dispatch a "loading" document to the central store
         dispatch(addDocument(file));
         const reader = new FileReader();
         reader.readAsDataURL(fileObj);
@@ -35,6 +46,8 @@ const mapDispatchToProps = (dispatch, props) => {
             ...file,
             blob: reader.result,
           };
+          // once the document has been loaded and parsed,
+          // update it in the central store as "loaded".
           dispatch(updateDocument(updatedFile));
           dispatch(setWaiting());
         };

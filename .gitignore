@@ -8,3 +8,5 @@ build/
 dist/
 .npm
 .DS_Store
+frontend/.cache/
+frontend/docs/

@@ -1,4 +1,16 @@
-// https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript
+/**
+ * @module components/utils
+ * @desc Utility functions used in the components.
+ */
+
+
+/**
+ * @public
+ * @function b64toBlob
+ * @desc Create a Blob object from a base64 string
+ *
+ * Obtained from [this stackoverflow question]{https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript}
+ */
 export const b64toBlob = (b64Data, contentType = "", sliceSize = 512) => {
   const byteCharacters = atob(b64Data);
   const byteArrays = [];
@@ -19,7 +31,14 @@ export const b64toBlob = (b64Data, contentType = "", sliceSize = 512) => {
   return blob;
 };
 
-// https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string
+// 
+/**
+ * @public
+ * @function humanFileSize
+ * @desc Convert file size in bytes to human readable string
+ *
+ * Obtained from [this stackoverflow question]{https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string}
+ */
 export function humanFileSize(bytes, si = false, dp = 1) {
   const thresh = si ? 1000 : 1024;
 

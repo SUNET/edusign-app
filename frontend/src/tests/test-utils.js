@@ -33,6 +33,11 @@ const initialState = {
   },
 };
 
+/**
+ * @public
+ * @function setupComponent
+ * @desc Render a component for testing, providing it with a fake Redux store.
+ */
 export function setupComponent(component, stateOverrides) {
   const state = {
     ...initialState,
@@ -46,6 +51,11 @@ export function setupComponent(component, stateOverrides) {
   return wrapper;
 }
 
+/**
+ * @public
+ * @function setupReduxComponent
+ * @desc Render a component for testing, providing it with a real Redux store.
+ */
 export function setupReduxComponent(component) {
   const store = edusignStore(true);
   store.dispatch(
@@ -59,6 +69,11 @@ export function setupReduxComponent(component) {
   return { wrapped, rerender, store, unmount };
 }
 
+/**
+ * @public
+ * @function mockFileData
+ * @desc Prepare file data to be used in a drag event.
+ */
 export function mockFileData(files) {
   return {
     dataTransfer: {
@@ -73,16 +88,31 @@ export function mockFileData(files) {
   };
 }
 
+/**
+ * @public
+ * @function flushPromises
+ * @desc rerender component in tests after dispatching a Redux action or firing an event.
+ */
 export async function flushPromises(rerender, ui) {
   await act(() => waitFor(() => rerender(ui)));
 }
 
+/**
+ * @public
+ * @function dispatchEvtWithData
+ * @desc Fire an event that carries additional data.
+ */
 export function dispatchEvtWithData(node, type, data) {
   const event = new Event(type, { bubbles: true });
   Object.assign(event, data);
   fireEvent(node, event);
 }
 
+/**
+ * @public
+ * @const b64SamplePDFData
+ * @desc base64 string holding a sample PDF doc.
+ */
 export const b64SamplePDFData =
   "JVBERi0xLjQKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgaHR0cDovL3d" +
   "3dy5yZXBvcnRsYWIuY29tCjEgMCBvYmoKPDwKL0YxIDIgMCBSCj4+CmVuZG9iagoyIDAgb2JqCj" +
@@ -113,4 +143,9 @@ export const b64SamplePDFData =
   "oKL0luZm8gNSAwIFIKL1Jvb3QgNCAwIFIKL1NpemUgMTAKPj4Kc3RhcnR4cmVmCjEwOTQKJSVFT" +
   "0YK";
 
+/**
+ * @public
+ * @const samplePDFData
+ * @desc binary string holding a sample PDF doc.
+ */
 export const samplePDFData = atob(b64SamplePDFData);
