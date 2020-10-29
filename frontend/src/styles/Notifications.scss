@@ -5,7 +5,7 @@
   flex-direction: column;
   color: transparent;
   background-color: transparent;
-  height: 3rem;
+  min-height: 3rem;
   margin-bottom: 0.75rem;
   width: 100%;
 }
@@ -13,7 +13,7 @@
 .alert.alert-dismissible {
   position: inherit;
   padding: 0.75rem 1rem;
-  margin: 0;
+  margin: 0.1rem;
   border-radius: 0;
   align-items: baseline;
   &.alert-danger,

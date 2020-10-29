@@ -19,7 +19,7 @@ const initialState = {
     loading: true,
   },
   notifications: {
-    notification: {},
+    messages: [],
   },
   intl: {
     locale: "en",

@@ -36,7 +36,7 @@ const loadPersistedState = () => {
     return {
       ...JSON.parse(serializedState),
       main: { loading: true },
-      notifications: { notification: {} },
+      notifications: { messages: [] },
     };
   } catch (err) {
     return undefined;

@@ -10,5 +10,7 @@
   "components.DocPreview.pdf-preview-next-button": "Next",
   "components.DocPreview.pdf-preview-page-nav": "Page {num} of {total}",
   "components.DocPreview.pdf-preview-prev-button": "Previous",
-  "components.Footer.copyright": "SUNET 2020"
+  "components.Footer.copyright": "SUNET 2020",
+  "containers.DnDArea.loading-error": "Error loading {name}",
+  "containers.DnDArea.rejected-doc": "Not a PDF: {name} (type {type})"
 }

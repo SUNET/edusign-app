@@ -10,5 +10,7 @@
   "components.DocPreview.pdf-preview-next-button": "",
   "components.DocPreview.pdf-preview-page-nav": "",
   "components.DocPreview.pdf-preview-prev-button": "",
-  "components.Footer.copyright": "SUNET 2020 sv"
+  "components.Footer.copyright": "SUNET 2020 sv",
+  "containers.DnDArea.loading-error": "",
+  "containers.DnDArea.rejected-doc": ""
 }

@@ -12,6 +12,7 @@ import {
 } from "tests/test-utils";
 import Main from "components/Main";
 import DnDAreaContainer from "containers/DnDArea";
+import * as edusignLogo from "../../../images/eduSign_logo.svg";
 
 describe("DnDArea Component", function () {
   afterEach(cleanup);
@@ -185,6 +186,26 @@ describe("DnDArea Component", function () {
 
     rmButton = await waitFor(() => screen.getAllByText("Remove"));
     expect(rmButton.length).to.equal(1);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It doesn't show the file details after a drop event with wrong file type", async () => {
+    const { wrapped, rerender, unmount } = setupReduxComponent(<Main />);
+
+    let errorMsg = screen.queryByText(/Not a PDF/);
+    expect(errorMsg).to.equal(null);
+
+    const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
+
+    const data = mockFileData([edusignLogo]);
+
+    dispatchEvtWithData(dnd, "drop", data);
+    await flushPromises(rerender, wrapped);
+
+    errorMsg = await waitFor(() => screen.getAllByText(/Not a PDF/));
+    expect(errorMsg.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();

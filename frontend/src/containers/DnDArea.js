@@ -8,12 +8,14 @@
  * in mapDispatchToProps we compose the drag event handlers making use
  * of the Redux dispatch function.
  */
+import React from "react";
 import { connect } from "react-redux";
 import { updateIntl } from "react-intl-redux";
 
 import DnDArea from "components/DnDArea";
 import { addDocument, updateDocument } from "slices/Documents";
 import { setWaiting, setReceiving } from "slices/DnDArea";
+import { addNotification } from "slices/Notifications";
 
 const mapStateToProps = (state, props) => {
   return {
@@ -40,7 +42,6 @@ const mapDispatchToProps = (dispatch, props) => {
         // dispatch a "loading" document to the central store
         dispatch(addDocument(file));
         const reader = new FileReader();
-        reader.readAsDataURL(fileObj);
         reader.onload = () => {
           const updatedFile = {
             ...file,
@@ -51,6 +52,17 @@ const mapDispatchToProps = (dispatch, props) => {
           dispatch(updateDocument(updatedFile));
           dispatch(setWaiting());
         };
+        reader.onerror = () => {
+          const errorMsg = this.props.intl.formatMessage({defaultMessage: "Error loading {name}", id: "containers.DnDArea.loading-error"}, {name: fileObj.name});
+          dispatch(addNotification({level: "danger", message: errorMsg}));
+        };
+        reader.readAsDataURL(fileObj);
+      });
+    },
+    handleRejected: function (rejecteds, e) {
+      rejecteds.forEach(rejected => {
+        const errorMsg = this.props.intl.formatMessage({id: "containers.DnDArea.rejected-doc", defaultMessage: "Not a PDF: {name} (type {type})"}, {name: rejected.file.name, type: rejected.file.type});
+        dispatch(addNotification({level: "danger", message: errorMsg}));
       });
     },
   };

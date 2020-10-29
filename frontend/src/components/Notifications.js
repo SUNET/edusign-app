@@ -12,24 +12,24 @@ import "styles/Notifications.scss";
  */
 class Notifications extends Component {
   render() {
-    let notification = "";
-    if (Object.keys(this.props.notification).length !== 0) {
-      notification = (
-        <Alert
-          variant={this.props.notification.level}
-          dismissible={true}
-          onClose={this.props.handleRMNotification}
-        >
-          {this.props.notification.message}
-        </Alert>
-      );
-    }
+    let messages = this.props.messages.map((msg, index) => {
+        return (
+          <Alert
+            key={index}
+            variant={msg.level}
+            dismissible={true}
+            onClose={this.props.handleRMNotification(index)}
+          >
+            {msg.message}
+          </Alert>
+        );
+    });
     return (
       <div
         className="notifications-area"
         data-testid="edusign-notifications-area"
       >
-        {notification}
+        {messages}
       </div>
     );
   }
@@ -39,7 +39,7 @@ Notifications.propTypes = {
   /**
    * Notification to show
    */
-  notification: PropTypes.object,
+  messages: PropTypes.array,
   handleRMNotification: PropTypes.func,
 };
 

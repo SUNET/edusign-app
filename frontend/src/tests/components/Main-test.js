@@ -135,11 +135,44 @@ describe("Main Component", function () {
   it("Notifications area displays notifications", function () {
     const { unmount } = setupComponent(<Main />, {
       main: { loading: false },
-      notifications: { notification: { level: "danger", message: "ho ho ho" } },
+      notifications: { messages: [
+        { level: "danger", message: "ho ho ho" },
+        { level: "danger", message: "hi hi hi" },
+      ] },
     });
 
     const notification = screen.getAllByText("ho ho ho");
     expect(notification.length).to.equal(1);
+
+    const notification2 = screen.getAllByText("hi hi hi");
+    expect(notification2.length).to.equal(1);
+
+    unmount();
+  });
+
+  it("Notifications are added to the notifications area", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    store.dispatch(
+      addNotification({
+        message: "ho ho ho",
+        level: "danger",
+      })
+    );
+
+    store.dispatch(
+      addNotification({
+        message: "hi hi hi",
+        level: "danger",
+      })
+    );
+    await flushPromises(rerender, wrapped);
+
+    let notification = await waitFor(() => screen.getAllByText("ho ho ho"));
+    expect(notification.length).to.equal(1);
+
+    let notification2 = await waitFor(() => screen.getAllByText("hi hi hi"));
+    expect(notification2.length).to.equal(1);
 
     unmount();
   });
@@ -153,19 +186,32 @@ describe("Main Component", function () {
         level: "danger",
       })
     );
+
+    store.dispatch(
+      addNotification({
+        message: "hi hi hi",
+        level: "danger",
+      })
+    );
     await flushPromises(rerender, wrapped);
 
     let notification = await waitFor(() => screen.getAllByText("ho ho ho"));
     expect(notification.length).to.equal(1);
 
+    let notification2 = await waitFor(() => screen.getAllByText("hi hi hi"));
+    expect(notification2.length).to.equal(1);
+
     const closeLink = screen.getAllByText("×");
-    expect(closeLink.length).to.equal(1);
+    expect(closeLink.length).to.equal(2);
 
     fireEvent.click(closeLink[0]);
     await flushPromises(rerender, wrapped);
 
     notification = await waitFor(() => screen.queryByText("ho ho ho"));
     expect(notification).to.equal(null);
+
+    notification2 = await waitFor(() => screen.getAllByText("hi hi hi"));
+    expect(notification2.length).to.equal(1);
 
     unmount();
   });

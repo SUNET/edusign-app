@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Dropzone from "react-dropzone";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, injectIntl } from "react-intl";
 
 import "styles/DnDArea.scss";
 
@@ -16,9 +16,11 @@ class DnDArea extends Component {
   render() {
     return (
       <Dropzone
-        onDrop={this.props.handleFileDrop}
+        accept={["application/pdf"]}
+        onDrop={this.props.handleFileDrop.bind(this)}
         onDragEnter={this.props.handleDragEnter}
         onDragLeave={this.props.handleDragLeave}
+        onDropRejected={this.props.handleRejected.bind(this)}
       >
         {({ getRootProps, getInputProps }) => {
           if (this.props.status === "waiting") {
@@ -75,4 +77,4 @@ DnDArea.propTypes = {
   handleDragLeave: PropTypes.func,
 };
 
-export default DnDArea;
+export default injectIntl(DnDArea);
