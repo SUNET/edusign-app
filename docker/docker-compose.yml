@@ -6,6 +6,7 @@ services:
     image: nginx:latest
     expose:
       - 80
+      - 443
     dns: 172.18.10.1
     networks:
       edusign-dev:
@@ -16,7 +17,22 @@ services:
       - ./html/www/static:/usr/share/nginx/html/static:ro
       - ../frontend/build:/usr/share/nginx/html/front-build:ro
     environment:
-      - "HOSTNAME=html"
+      - "HOSTNAME=html.edusign.docker"
+
+  idp:
+    image: unicon/shibboleth-idp:latest
+    ports:
+      - "443:4443"
+    dns: 172.18.10.1
+    networks:
+      edusign-dev:
+        ipv4_address: 172.18.10.201
+    volumes:
+      - ./shibboleth-idp:/opt/shibboleth-idp:rw
+    environment:
+      - "HOSTNAME=idp.edusign.docker"
+      - "JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=secret"
+      - "JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=secret"
 
 networks:
   edusign-dev:

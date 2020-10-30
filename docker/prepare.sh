@@ -10,6 +10,7 @@ fi
 # DON'T USE THE edusign_dev ONES, COOKIES ARE SCOPED FOR edusign.docker
 #
 (printf "172.18.10.200\thtml.edusign_dev html.edusign.docker\n";
+printf "172.18.10.201\tidp.edusign_dev idp.edusign.docker\n";
 ) \
     | while read line; do
     if ! grep -q "^${line}$" /etc/hosts; then
