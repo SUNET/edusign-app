@@ -34,6 +34,17 @@ services:
       - "JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=secret"
       - "JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=secret"
 
+  sp:
+    build: ./edusign/.
+    ports:
+      - "443:4444"
+    dns: 172.18.10.1
+    networks:
+      edusign-dev:
+        ipv4_address: 172.18.10.202
+    environment:
+      - "HOSTNAME=sp.edusign.docker"
+
 networks:
   edusign-dev:
     driver: bridge
