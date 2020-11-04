@@ -21,8 +21,9 @@ services:
 
   idp:
     image: unicon/shibboleth-idp:latest
-    ports:
-      - "443:4443"
+    expose:
+      - 80
+      - 443
     dns: 172.18.10.1
     networks:
       edusign-dev:
@@ -36,12 +37,15 @@ services:
 
   sp:
     build: ./edusign/.
-    ports:
-      - "443:4444"
+    expose:
+      - 80
+      - 443
     dns: 172.18.10.1
     networks:
       edusign-dev:
         ipv4_address: 172.18.10.202
+    volumes:
+      - ./edusign/config:/opt/config:rw
     environment:
       - "HOSTNAME=sp.edusign.docker"
 

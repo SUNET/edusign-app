@@ -39,18 +39,12 @@ RUN mv build-module-artifacts/nginx-module-headersmore_1.18.0-1~buster_amd64.deb
 RUN rm -rf build-module-artifacts
 RUN dpkg -i nginx-module-shibboleth_1.18.0-1~buster_amd64.deb nginx-module-headersmore_1.18.0-1~buster_amd64.deb
 
-RUN mkdir /etc/nginx/ssl
-ADD config/ssl/nginx.crt /etc/nginx/ssl/
-ADD config/ssl/nginx.key /etc/nginx/ssl/
-ADD config/nginx.conf /etc/nginx/nginx.conf
+RUN echo `ls /etc/nginx/conf.d/`
+RUN echo `ls /etc/nginx/`
+RUN echo `cat /etc/nginx/conf.d/default.conf`
 
-# ADD config/systemd/* /lib/systemd/system/
-# 
-# RUN systemctl enable shibauthorizer.socket shibauthorizer.service shibresponder.socket shibresponder.service
-# RUN systemctl start shibauthorizer.socket shibauthorizer.service shibresponder.socket shibresponder.service
+RUN apt install -y supervisor
 
-# EXPOSE 80
-# 
-# STOPSIGNAL SIGTERM
-# 
-# CMD ["nginx", "-g", "daemon off;"]
+COPY start.sh /opt/
+
+CMD ["/opt/start.sh"]
