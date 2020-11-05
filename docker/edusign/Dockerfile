@@ -8,6 +8,8 @@ RUN apt update && apt upgrade -y && \
     apt install -y build-essential fakeroot libpcre3 libpcre3-dev libpcrecpp0v5 libssl-dev \
     openssl zlib1g-dev tar gzip apt-utils mercurial
 
+RUN /usr/sbin/shib-keygen
+
 RUN touch /etc/apt/sources.list.d/nginx.list
 RUN echo "deb http://nginx.org/packages/debian/ buster nginx" >> /etc/apt/sources.list.d/nginx.list
 RUN echo "deb-src http://nginx.org/packages/debian/ buster nginx" >> /etc/apt/sources.list.d/nginx.list
@@ -39,11 +41,12 @@ RUN mv build-module-artifacts/nginx-module-headersmore_1.18.0-1~buster_amd64.deb
 RUN rm -rf build-module-artifacts
 RUN dpkg -i nginx-module-shibboleth_1.18.0-1~buster_amd64.deb nginx-module-headersmore_1.18.0-1~buster_amd64.deb
 
-RUN echo `ls /etc/nginx/conf.d/`
-RUN echo `ls /etc/nginx/`
-RUN echo `cat /etc/nginx/conf.d/default.conf`
-
 RUN apt install -y supervisor
+
+# RUN echo `ls /etc/nginx/conf.d/`
+# RUN echo `ls /etc/nginx/`
+# RUN echo `cat /etc/nginx/conf.d/default.conf`
+# RUN echo `cat /etc/nginx/fastcgi_params`
 
 COPY start.sh /opt/
 
