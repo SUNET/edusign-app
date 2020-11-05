@@ -11,6 +11,8 @@ fi
 #
 (printf "172.18.10.200\thtml.edusign_dev html.edusign.docker\n";
 printf "172.18.10.201\tidp.edusign_dev idp.edusign.docker\n";
+printf "172.18.10.202\tsp.edusign_dev sp.edusign.docker\n";
+printf "172.18.10.203\twww.edusign_dev sp.edusign.docker\n";
 ) \
     | while read line; do
     if ! grep -q "^${line}$" /etc/hosts; then

@@ -48,6 +48,23 @@ services:
       - ./edusign/config:/opt/config:rw
     environment:
       - "HOSTNAME=sp.edusign.docker"
+    depends_on:
+      - idp
+
+  www:
+    build: ./www/.
+    networks:
+      edusign-dev:
+        ipv4_address: 172.18.10.203
+    expose:
+      - 8080
+    volumes:
+      - ../backend:/opt/backend:ro
+    environment:
+      - "PYTHONPATH=/opt/backend/src"
+      - "HOSTNAME=www.edusign.docker"
+    depends_on:
+      - sp
 
 networks:
   edusign-dev:
