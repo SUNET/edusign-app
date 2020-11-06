@@ -52,14 +52,14 @@ services:
       - idp
 
   www:
-    build: ./www/.
+    build: ../backend/.
     networks:
       edusign-dev:
         ipv4_address: 172.18.10.203
     expose:
       - 8080
     volumes:
-      - ../backend:/opt/backend:ro
+      - ../backend:/opt/edusign/edusign-webapp:ro
     environment:
       - "PYTHONPATH=/opt/backend/src"
       - "HOSTNAME=www.edusign.docker"
