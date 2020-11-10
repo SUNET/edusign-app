@@ -22,14 +22,15 @@ services:
   idp:
     image: unicon/shibboleth-idp:latest
     expose:
-      - 80
-      - 443
+      - 8443
+      - 4443
     dns: 172.18.10.1
     networks:
       edusign-dev:
         ipv4_address: 172.18.10.201
     volumes:
       - ./shibboleth-idp:/opt/shibboleth-idp:rw
+      - ./logs-idp:/opt/shibboleth-idp/logs:rw
     environment:
       - "HOSTNAME=idp.edusign.docker"
       - "JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=secret"
@@ -46,6 +47,7 @@ services:
         ipv4_address: 172.18.10.202
     volumes:
       - ./edusign/config:/opt/config:rw
+      - ./logs-sp:/var/log:rw
     environment:
       - "HOSTNAME=sp.edusign.docker"
     depends_on:
@@ -60,8 +62,9 @@ services:
       - 8080
     volumes:
       - ../backend:/opt/edusign/edusign-webapp:ro
+      - ./logs:/var/log/edusign:rw
     environment:
-      - "PYTHONPATH=/opt/backend/src"
+      - "PYTHONPATH=/opt/edusign/edusign-webapp/src"
       - "HOSTNAME=www.edusign.docker"
     depends_on:
       - sp

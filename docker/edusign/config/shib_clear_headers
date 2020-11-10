@@ -14,7 +14,9 @@ more_clear_input_headers
     Shib-Identity-Provider
     Shib-Session-Id
     Shib-Session-Index
-    Remote-User;more_clear_input_headers
+    Remote-User;
+
+more_clear_input_headers
      EPPN
      Affiliation
      cn

@@ -59,7 +59,7 @@ def edusign_init_app(name: str) -> EduSignApp:
     return app
 
 
-app = edusign_init_app('jsconfig', {})
+app = edusign_init_app('jsconfig')
 
 if __name__ == '__main__':
     app.logger.info('Starting edusign app...')

@@ -26,14 +26,19 @@ RUN addgroup --system edusign
 RUN adduser --system --shell /bin/false edusign
 
 RUN mkdir -p /var/log/edusign
-RUN chown edusign: /var/log/edusign
-RUN chmod 770 /var/log/edusign
+RUN chown -R edusign: /var/log/edusign
+RUN chmod -R 770 /var/log/edusign
+
+RUN mkdir -p /opt/edusign/run
+RUN chown -R edusign: /opt/edusign/run
+RUN chmod -R 770 /opt/edusign/run
 
 ADD . /opt/edusign/edusign-webapp
 
 WORKDIR /opt/edusign/edusign-webapp
 
 RUN /opt/edusign/bin/python /opt/edusign/edusign-webapp/setup.py install
+RUN /opt/edusign/bin/pip install gunicorn
 
 EXPOSE 8080
 

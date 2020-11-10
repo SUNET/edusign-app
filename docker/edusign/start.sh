@@ -11,5 +11,9 @@ cp -R /opt/config/ssl /etc/nginx/
 
 cp /opt/config/shibboleth2.xml /etc/shibboleth/
 cp /opt/config/attribute-map.xml /etc/shibboleth/
+cp /opt/config/idp-metadata.xml /etc/shibboleth/
+
+/etc/init.d/shibd start
+
 
 exec /usr/bin/supervisord
