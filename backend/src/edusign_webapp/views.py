@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from flask import Blueprint, abort, render_template, current_app, session
+from flask import Blueprint, abort, render_template, current_app, session, request
 
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='', template_folder='templates')
@@ -41,9 +41,7 @@ def get_config() -> dict:
     """
     Configuration for the front app
     """
-    return {
-        'csrf_token': session.get_csrf_token(),
-    }
+    return str([k for k in request.headers.keys()])
 
 
 @edusign_views.route('/get-bundle', methods=['GET'])

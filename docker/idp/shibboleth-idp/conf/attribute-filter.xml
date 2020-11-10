@@ -16,8 +16,7 @@
     <!-- Release some attributes to an SP. -->
     <AttributeFilterPolicy id="example1">
         <PolicyRequirementRule xsi:type="OR">
-            <Rule xsi:type="Requester" value="https://sp.idptestbed/shibboleth" />
-            <Rule xsi:type="Requester" value="http://idptestbed/sp/simplesamlphp" />
+            <Rule xsi:type="Requester" value="https://sp.edusign.docker/shibboleth" />
         </PolicyRequirementRule>
 
         <AttributeRule attributeID="uid">

@@ -11,21 +11,25 @@ objectClass: organizationalPerson
 objectClass: person
 objectClass: top
 objectClass: inetOrgPerson
+objectClass: eduPerson
 givenName: Stud
 uid: student1
 sn: Ent
 cn: Stud Ent
 mail: student1@idptestbed.edu
 userPassword: password
+eduPersonPrincipalName: student1@idptestbed
 
 dn: uid=staff1,ou=People,dc=idptestbed
 objectClass: organizationalPerson
 objectClass: person
 objectClass: top
 objectClass: inetOrgPerson
+objectClass: eduPerson
 givenName: St
 uid: staff1
 sn: aff
 cn: St aff
 mail: staff1@idptestbed.edu
 userPassword: password
+eduPersonPrincipalName: staff1@idptestbed
