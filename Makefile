@@ -21,7 +21,7 @@ env-prepare:
 env-start: env-prepare
 	@cd $(ENV_DIR); \
     docker-compose  rm -s -f; \
-    docker-compose  up $*; \
+    docker-compose  up --build $*; \
     docker-compose  logs -tf
 
 ## Stop the docker environment
