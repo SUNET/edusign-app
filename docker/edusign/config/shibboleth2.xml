@@ -56,7 +56,7 @@
             You can also override entityID on /Login query string, or in RequestMap/htaccess.
             
 -->
-<SSO entityID="https://idp.edusign.docker/idp/shibboleth"> SAML2 SAML1 </SSO>
+<SSO entityID="https://idptestbed/idp/shibboleth"> SAML2 SAML1 </SSO>
 <!-- SAML and local-only logout. -->
 <Logout>SAML2 Local</Logout>
 <!--
