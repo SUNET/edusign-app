@@ -18,7 +18,7 @@ sn: Ent
 cn: Stud Ent
 mail: student1@idptestbed.edu
 userPassword: password
-eduPersonPrincipalName: student1@idptestbed
+eduPersonPrincipalName: student1@edusign.docker
 
 dn: uid=staff1,ou=People,dc=idptestbed
 objectClass: organizationalPerson
@@ -32,4 +32,4 @@ sn: aff
 cn: St aff
 mail: staff1@idptestbed.edu
 userPassword: password
-eduPersonPrincipalName: staff1@idptestbed
+eduPersonPrincipalName: staff1@edusign.docker

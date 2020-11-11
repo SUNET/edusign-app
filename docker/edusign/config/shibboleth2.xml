@@ -32,6 +32,22 @@
     file, and the https://spaces.internet2.edu/display/SHIB2/NativeSPRequestMapHowTo topic.
     
 -->
+        <RequestMapper type="Native">
+        <RequestMap>
+            <!--
+            The example requires a session for documents in /secure on the containing host with http and
+            https on the default ports. Note that the name and port in the <Host> elements MUST match
+            Apache's ServerName and Port directives or the IIS Site name in the <ISAPI> element above.
+            -->
+            <Host name="sp.edusign.docker">
+                <Path name="config" authType="shibboleth" requireSession="true"/>
+            </Host>
+            <!-- Example of a second vhost mapped to a different applicationId. -->
+            <!--
+            <Host name="admin.example.org" applicationId="admin" authType="shibboleth" requireSession="true"/>
+            -->
+        </RequestMap>
+    </RequestMapper>
 <!--
  The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. 
 -->

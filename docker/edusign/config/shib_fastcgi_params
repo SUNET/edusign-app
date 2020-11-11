@@ -1,5 +1,5 @@
 # vim: set filetype=conf :
-include fastcgi_params;
+include fastcgi.conf;
 
 # Replace `fastcgi_param` with `sgci_param`, `uwsgi_param` or similar
 # directive for use with different upstreams. Consult the relevant upstream
@@ -72,6 +72,9 @@ fastcgi_param Commonname $shib_commonname;
 
 shib_request_set $shib_displayname $upstream_http_variable_displayname;
 fastcgi_param DisplayName $shib_displayname;
+
+shib_request_set $shib_givenname $upstream_http_variable_givenname;
+fastcgi_param GivenName $shib_givenname;
 
 shib_request_set $shib_email $upstream_http_variable_email;
 fastcgi_param Email $shib_email;
