@@ -43,10 +43,14 @@ RUN dpkg -i nginx-module-shibboleth_1.18.0-1~buster_amd64.deb nginx-module-heade
 
 RUN apt install -y supervisor
 
-RUN echo `ls /etc/nginx/conf.d/`
+RUN mkdir -p /var/run/shibboleth
+
+RUN echo `cat /etc/passwd`
+
+# RUN echo `ls /etc/nginx/conf.d/`
 # RUN echo `ls /etc/nginx/`
 # RUN echo `cat /etc/init.d/shibd`
-RUN echo `ls /etc/shibboleth/`
+# RUN echo `ls /etc/shibboleth/`
 
 COPY start.sh /opt/
 

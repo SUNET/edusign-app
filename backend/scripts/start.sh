@@ -30,7 +30,7 @@ echo "PYTHONPATH=${PYTHONPATH}"
 /opt/edusign/bin/pip freeze
 
 extra_args=""
-if [ -f "/opt/edusign/src/edusign-webapp/setup.py" ]; then
+if [ -f "/opt/edusign/edusign-webapp/setup.py" ]; then
     # developer mode, restart on code changes
     extra_args="--reload"
 fi

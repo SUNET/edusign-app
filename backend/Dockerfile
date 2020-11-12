@@ -37,11 +37,11 @@ ADD . /opt/edusign/edusign-webapp
 
 WORKDIR /opt/edusign/edusign-webapp
 
-RUN /opt/edusign/bin/python /opt/edusign/edusign-webapp/setup.py install
+RUN /opt/edusign/bin/python /opt/edusign/edusign-webapp/setup.py develop
 RUN /opt/edusign/bin/pip install gunicorn
 
-EXPOSE 8080
-
 ADD ./scripts/start.sh /start.sh
+
+EXPOSE 8080
 
 CMD ["bash", "/start.sh"]

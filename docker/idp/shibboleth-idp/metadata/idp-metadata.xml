@@ -10,7 +10,7 @@
     <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol urn:oasis:names:tc:SAML:1.1:protocol urn:mace:shibboleth:1.0">
 
         <Extensions>
-            <shibmd:Scope regexp="false">edusign.docker</shibmd:Scope>
+            <shibmd:Scope regexp="false">example.org</shibmd:Scope>
 <!--
     Fill in the details for your IdP here 
 
@@ -125,7 +125,7 @@ p+tGUbGS2l873J5PrsbpeKEVR/IIoKo=
     <AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:1.1:protocol">
 
         <Extensions>
-            <shibmd:Scope regexp="false">edusign.docker</shibmd:Scope>
+            <shibmd:Scope regexp="false">example.org</shibmd:Scope>
         </Extensions>
 
         <KeyDescriptor use="signing">

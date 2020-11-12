@@ -2,52 +2,78 @@
 version: '3.8'
 services:
 
-  html:
-    image: nginx:latest
-    expose:
-      - 80
-      - 443
-    dns: 172.18.10.1
+  # html:
+  #   image: nginx:latest
+  #   expose:
+  #     - 80
+  #     - 443
+  #   dns: 172.18.10.1
+  #   networks:
+  #     edusign-front:
+  #       ipv4_address: 172.18.10.200
+  #   volumes:
+  #     - ./html/etc/html.conf:/etc/nginx/sites-enabled/html.conf:ro
+  #     - ./html/www/index.html:/usr/share/nginx/html/index.html:ro
+  #     - ./html/www/static:/usr/share/nginx/html/static:ro
+  #     - ../frontend/build:/usr/share/nginx/html/front-build:ro
+  #   environment:
+  #     - "HOSTNAME=html.edusign.docker"
+
+  httpd-proxy:
+    build: ./httpd-proxy/
     networks:
       edusign-dev:
-        ipv4_address: 172.18.10.200
+        ipv4_address: 172.20.10.200
+      edusign-back:
+        ipv4_address: 172.19.10.200
+    ports:
+     - "80:80"
+     - "443:443"
     volumes:
-      - ./html/etc/html.conf:/etc/nginx/sites-enabled/html.conf:ro
-      - ./html/www/index.html:/usr/share/nginx/html/index.html:ro
-      - ./html/www/static:/usr/share/nginx/html/static:ro
-      - ../frontend/build:/usr/share/nginx/html/front-build:ro
-    environment:
-      - "HOSTNAME=html.edusign.docker"
+      - ./logs/httpd:/var/log/httpd:rw
 
   idp:
-    image: unicon/shibboleth-idp:latest
-    expose:
-      - 8443
-      - 4443
-    dns: 172.18.10.1
-    networks:
-      edusign-dev:
-        ipv4_address: 172.18.10.201
-    volumes:
-      - ./shibboleth-idp:/opt/shibboleth-idp:rw
-      - ./logs-idp:/opt/shibboleth-idp/logs:rw
+    build: ./idp/
+    depends_on: 
+     - ldap
     environment:
-      - "HOSTNAME=idp.edusign.docker"
-      - "JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=secret"
-      - "JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=secret"
+     - JETTY_MAX_HEAP=64m
+     - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
+     - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
+    expose: 
+     - "4443"
+    networks:
+      edusign-back:
+        ipv4_address: 172.19.10.201
+    secrets:
+     - source: idp_backchannel
+     - source: idp_browser
+     - source: idp_encryption
+     - source: idp_signing
+     - source: idp_sealer     
+   
+  ldap:
+    build: ./ldap/
+    networks:
+      edusign-back:
+        ipv4_address: 172.19.10.202
+    ports:
+     - "9830:9830"
 
   sp:
-    build: ./edusign/.
+    build: ./edusign/
     expose:
       - 80
       - 443
-    dns: 172.18.10.1
+    dns: 172.20.10.1
     networks:
       edusign-dev:
-        ipv4_address: 172.18.10.202
+        ipv4_address: 172.20.10.203
     volumes:
       - ./edusign/config:/opt/config:rw
-      - ./logs-sp:/var/log:rw
+      - ./logs/nginx:/var/log/nginx:rw
+      - ./logs/shibboleth:/var/log/supervisor:rw
+      - ./logs/shibd:/var/log/shibboleth:rw
     environment:
       - "HOSTNAME=sp.edusign.docker"
     depends_on:
@@ -57,12 +83,12 @@ services:
     build: ../backend/.
     networks:
       edusign-dev:
-        ipv4_address: 172.18.10.203
+        ipv4_address: 172.20.10.204
     expose:
       - 8080
     volumes:
       - ../backend:/opt/edusign/edusign-webapp:ro
-      - ./logs:/var/log/edusign:rw
+      - ./logs/edusign:/var/log/edusign:rw
     environment:
       - "PYTHONPATH=/opt/edusign/edusign-webapp/src"
       - "HOSTNAME=www.edusign.docker"
@@ -70,6 +96,14 @@ services:
       - sp
 
 networks:
+  edusign-back:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-edusign-back
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.19.10.0/24
   edusign-dev:
     driver: bridge
     driver_opts:
@@ -77,4 +111,16 @@ networks:
     ipam:
       driver: default
       config:
-      - subnet: 172.18.10.0/24
+      - subnet: 172.20.10.0/24
+
+secrets:
+  idp_backchannel:
+    file: ./secrets/idp/idp-backchannel.p12
+  idp_browser:
+    file: ./secrets/idp/idp-browser.p12
+  idp_encryption:
+    file: ./secrets/idp/idp-encryption.key
+  idp_signing:
+    file: ./secrets/idp/idp-signing.key
+  idp_sealer:
+    file: ./secrets/idp/sealer.jks
