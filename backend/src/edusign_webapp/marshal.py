@@ -30,41 +30,56 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from flask import Blueprint, abort, render_template, current_app, session, request
 
-from edusign_webapp.marshal import Marshal
-from edusign_webapp.schemata import ConfigSchema
+import os
+from functools import wraps
+
+from flask import current_app, jsonify, session
+from werkzeug.wrappers import Response as WerkzeugResponse
+from werkzeug.security import generate_password_hash
+from marshmallow import Schema, fields, pre_dump
 
 
-edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
+class ResponseSchema(Schema):
+
+    message = fields.String(required=False)
+    error = fields.Boolean(deafault=False)
+    csrf_token = fields.String(required=True)
+
+    @pre_dump
+    def get_csrf_token(self, out_data, **kwargs):
+        # Generate a new csrf token for every response
+        method = current_app.config['HASH_METHOD']
+        secret = current_app.config['SECRET_KEY']
+        salt_length = current_app.config['SALT_LENGTH']
+        session['user_key'] = str(os.urandom(16))
+        token_hash = generate_password_hash(session['user_key'] + secret, method=method, salt_length=salt_length)
+        token = token_hash.replace(method + '$', '')
+        out_data['csrf_token'] = token
+        return out_data
 
 
-@edusign_views.route('/config', methods=['GET'])
-@Marshal(ConfigSchema)
-def get_config() -> dict:
+class Marshal(object):
     """
-    Configuration for the front app
     """
-    config = {
-        'given_name': session['given_name'],
-        'surname': session['surname'],
-        'email': session['email'],
-    }
-    return config
 
+    def __init__(self, schema):
 
-@edusign_views.route('/', methods=['GET'])
-def get_bundle():
-    if 'eppn' not in session:
-        session['eppn'] = request.headers.get('Edupersonprincipalname')
-        session['given_name'] = request.headers.get('Givenname')
-        session['surname'] = request.headers.get('Sn')
-        session['email'] = request.headers.get('Mail')
-        session['idp'] = request.headers.get('Shib-Identity-Provider')
-        session['authn_method'] = request.headers.get('Shib-Authentication-Method')
-        session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
-    try:
-        return render_template('index.jinja2')
-    except AttributeError as e:
-        current_app.logger.error(f'Template rendering failed: {e}')
-        abort(500)
+        class MarshallingSchema(ResponseSchema):
+            payload = fields.Nested(schema)
+
+        self.schema = MarshallingSchema
+
+    def __call__(self, f):
+        @wraps(f)
+        def marshal_decorator(*args, **kwargs):
+
+            resp = f(*args, **kwargs)
+
+            if isinstance(resp, WerkzeugResponse):
+                # No need to Marshal again, someone else already did that
+                return resp
+
+            return jsonify(self.schema().dump(resp))
+
+        return marshal_decorator

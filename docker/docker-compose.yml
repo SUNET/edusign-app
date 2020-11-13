@@ -2,23 +2,6 @@
 version: '3.8'
 services:
 
-  # html:
-  #   image: nginx:latest
-  #   expose:
-  #     - 80
-  #     - 443
-  #   dns: 172.18.10.1
-  #   networks:
-  #     edusign-front:
-  #       ipv4_address: 172.18.10.200
-  #   volumes:
-  #     - ./html/etc/html.conf:/etc/nginx/sites-enabled/html.conf:ro
-  #     - ./html/www/index.html:/usr/share/nginx/html/index.html:ro
-  #     - ./html/www/static:/usr/share/nginx/html/static:ro
-  #     - ../frontend/build:/usr/share/nginx/html/front-build:ro
-  #   environment:
-  #     - "HOSTNAME=html.edusign.docker"
-
   httpd-proxy:
     build: ./httpd-proxy/
     networks:
@@ -74,6 +57,7 @@ services:
       - ./logs/nginx:/var/log/nginx:rw
       - ./logs/shibboleth:/var/log/supervisor:rw
       - ./logs/shibd:/var/log/shibboleth:rw
+      - ../frontend:/opt/edusign/frontend:ro
     environment:
       - "HOSTNAME=sp.edusign.docker"
     depends_on:
@@ -92,6 +76,7 @@ services:
     environment:
       - "PYTHONPATH=/opt/edusign/edusign-webapp/src"
       - "HOSTNAME=www.edusign.docker"
+      - "FLASK_ENV=development"
     depends_on:
       - sp
 

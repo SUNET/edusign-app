@@ -30,41 +30,19 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from flask import Blueprint, abort, render_template, current_app, session, request
 
-from edusign_webapp.marshal import Marshal
-from edusign_webapp.schemata import ConfigSchema
+import os
 
 
-edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
+SECRET_KEY = os.environ.get('SECRET_KEY', default='supersecret')
 
+SESSION_COOKIE_DOMAIN = os.environ.get('SERVER_NAME', default='sp.edusign.docker')
+SESSION_COOKIE_PATH = os.environ.get('SESSION_COOKIE_PATH', default='/sign')
+SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', default=True)
 
-@edusign_views.route('/config', methods=['GET'])
-@Marshal(ConfigSchema)
-def get_config() -> dict:
-    """
-    Configuration for the front app
-    """
-    config = {
-        'given_name': session['given_name'],
-        'surname': session['surname'],
-        'email': session['email'],
-    }
-    return config
+SERVER_NAME = os.environ.get('SERVER_NAME', default='sp.edusign.docker')
 
+PREFERRED_URL_SCHEME = 'https'
 
-@edusign_views.route('/', methods=['GET'])
-def get_bundle():
-    if 'eppn' not in session:
-        session['eppn'] = request.headers.get('Edupersonprincipalname')
-        session['given_name'] = request.headers.get('Givenname')
-        session['surname'] = request.headers.get('Sn')
-        session['email'] = request.headers.get('Mail')
-        session['idp'] = request.headers.get('Shib-Identity-Provider')
-        session['authn_method'] = request.headers.get('Shib-Authentication-Method')
-        session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
-    try:
-        return render_template('index.jinja2')
-    except AttributeError as e:
-        current_app.logger.error(f'Template rendering failed: {e}')
-        abort(500)
+HASH_METHOD = os.environ.get('HASH_METHOD', default='sha256')
+SALT_LENGTH = int(os.environ.get('SALT_LENGTH', default='8'))
