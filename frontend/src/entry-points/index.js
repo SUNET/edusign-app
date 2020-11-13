@@ -34,7 +34,7 @@ if (!Element.prototype.closest)
 
 import { pdfjs } from "react-pdf";
 
-pdfjs.GlobalWorkerOptions.workerSrc = "/front-build/pdf.worker.js";
+pdfjs.GlobalWorkerOptions.workerSrc = "/js/pdf.worker.js";
 
 // End of PDF.js worker
 
