@@ -6,6 +6,7 @@ version = '0.1.0'
 requires = [
     'setuptools >= 50.3.2',
     'Flask >= 1.1,<1.2',
+    'marshmallow >= 3.9.1',
 ]
 
 test_requires = [
