@@ -46,3 +46,8 @@ PREFERRED_URL_SCHEME = 'https'
 
 HASH_METHOD = os.environ.get('HASH_METHOD', default='sha256')
 SALT_LENGTH = int(os.environ.get('SALT_LENGTH', default='8'))
+
+BABEL_DEFAULT_LOCALE = os.environ.get('BABEL_DEFAULT_LOCALE', default='en')
+BABEL_DEFAULT_TIMEZONE = os.environ.get('BABEL_DEFAULT_TIMEZONE', default='UTC')
+BABEL_TRANSLATION_DIRECTORIES = 'translations'
+BABEL_DOMAIN = 'messages'

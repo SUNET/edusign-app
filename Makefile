@@ -8,6 +8,8 @@ ENV_DIR=docker/
 FRONT_DIR=frontend/
 FRONT_SOURCE=src/
 
+BACK_DIR=backend/
+
 ## -- Docker environment commands --
 
 ## Add needed entries to /etc/hosts if absent
@@ -31,6 +33,12 @@ env-stop:
     docker-compose  rm -s -f; \
 
 ## -- Front end development commands --
+
+## Initialize the front app development environment
+.PHONY: front-init
+front-init:
+	@cd $(FRONT_DIR); \
+		npm install
 
 ## Build the front app bundle
 .PHONY: front-build
@@ -62,6 +70,23 @@ front-prettier:
 front-build-docs:
 	@cd $(FRONT_DIR); \
     npm run build-docs
+
+## -- Back end development commands --
+
+## Initialize the backend development environment
+.PHONY: back-init
+back-init:
+	@cd $(BACK_DIR); \
+		python -m venv venv; \
+		./venv/bin/python setup.py develop easy_install edusign-webapp[devel]
+
+## Extract translatable messages from the backend sources
+.PHONY: back-extract-msgs
+back-extract-msgs:
+	@cd $(BACK_DIR); \
+    pybabel extract -F babel.cfg -o messages.pot ./src/ ; \
+	pybabel init -i messages.pot -d translations -l en ; \
+	pybabel init -i messages.pot -d translations -l sv
 
 ## -- Misc --
 

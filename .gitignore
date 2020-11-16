@@ -11,3 +11,5 @@ dist/
 frontend/.cache/
 frontend/docs/
 docker/logs/
+backend/src/edusign_webapp.egg-info/
+backend/venv/

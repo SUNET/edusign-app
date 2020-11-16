@@ -36,6 +36,7 @@ from functools import wraps
 from urllib.parse import urlsplit
 
 from flask import current_app, jsonify, session, request
+from flask_babel import gettext
 from werkzeug.wrappers import Response as WerkzeugResponse
 from werkzeug.security import generate_password_hash, check_password_hash
 from marshmallow import Schema, fields, pre_dump, post_load, validates, ValidationError
@@ -44,21 +45,21 @@ from marshmallow import Schema, fields, pre_dump, post_load, validates, Validati
 def csrf_check_hesders():
     custom_header = request.headers.get('X-Requested-With', '')
     if custom_header != 'XMLHttpRequest':
-        raise ValidationError('CSRF missing custom X-Requested-With header')
+        raise ValidationError(gettext('CSRF missing custom X-Requested-With header'))
     origin = request.headers.get('Origin', None)
     if origin is None:
         origin = request.headers.get('Referer', None)
     if origin is None:
-        raise ValidationError('CSRF cannot check origin')
+        raise ValidationError(gettext('CSRF cannot check origin'))
     origin = origin.split()[0]
     origin = urlsplit(origin).hostname
     target = request.headers.get('X-Forwarded-Host', None)
     if target is None:
         current_app.logger.error('The X-Forwarded-Host header is missing!!')
-        raise ValidationError('CSRF cannot check target')
+        raise ValidationError(gettext('CSRF cannot check target'))
     target = target.split(':')[0]
     if origin != target:
-        raise ValidationError('CSRF cross origin request, origin: {}, ' 'target: {}'.format(origin, target))
+        raise ValidationError(gettext('CSRF cross origin request, origin: %(origin)s, target: %(target)s', origin=origin, target=target))
 
 
 class ResponseSchema(Schema):
@@ -122,7 +123,7 @@ class RequestSchema(Schema):
         key = session['user_key'] + secret
 
         if not check_password_hash(token, key):
-            raise ValidationError('CSRF token failed to validate')
+            raise ValidationError(gettext('CSRF token failed to validate'))
 
     @post_load
     def post_processing(self, in_data, **kwargs):

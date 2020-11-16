@@ -31,6 +31,7 @@
 #
 
 from flask import Flask
+from flask_babel import Babel
 
 
 class EduSignApp(Flask):
@@ -56,9 +57,11 @@ def edusign_init_app(name: str) -> EduSignApp:
 
     app.config.from_object('edusign_webapp.config')
 
-    app.logger.info(f'Init {name} app...')
+    babel_app = Babel(app)
 
-    return app
+    babel_app.logger.info(f'Init {name} app...')
+
+    return babel_app
 
 
 app = edusign_init_app('edusign')
