@@ -96,6 +96,12 @@ back-reformat:
 	./venv/bin/isort --line-width 120 --atomic --project edusign-webapp $(BACK_SOURCE) ; \
 	./venv/bin/black --line-length 120 --target-version py38 --skip-string-normalization $(BACK_SOURCE)
 
+## Type check Python sources
+.PHONY: back-typecheck
+back-typecheck:
+	@cd $(BACK_DIR); \
+		./venv/bin/mypy --ignore-missing-imports $(BACK_SOURCE)
+
 ## -- Misc --
 
 ## Print this help message
