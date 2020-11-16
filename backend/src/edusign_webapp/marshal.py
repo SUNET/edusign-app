@@ -35,11 +35,11 @@ import os
 from functools import wraps
 from urllib.parse import urlsplit
 
-from flask import current_app, jsonify, session, request
+from flask import current_app, jsonify, request, session
 from flask_babel import gettext
+from marshmallow import Schema, ValidationError, fields, post_load, pre_dump, validates
+from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.wrappers import Response as WerkzeugResponse
-from werkzeug.security import generate_password_hash, check_password_hash
-from marshmallow import Schema, fields, pre_dump, post_load, validates, ValidationError
 
 
 def csrf_check_hesders():
@@ -59,7 +59,9 @@ def csrf_check_hesders():
         raise ValidationError(gettext('CSRF cannot check target'))
     target = target.split(':')[0]
     if origin != target:
-        raise ValidationError(gettext('CSRF cross origin request, origin: %(origin)s, target: %(target)s', origin=origin, target=target))
+        raise ValidationError(
+            gettext('CSRF cross origin request, origin: %(origin)s, target: %(target)s', origin=origin, target=target)
+        )
 
 
 class ResponseSchema(Schema):
@@ -82,11 +84,9 @@ class ResponseSchema(Schema):
 
 
 class Marshal(object):
-    """
-    """
+    """"""
 
     def __init__(self, schema):
-
         class MarshallingSchema(ResponseSchema):
             payload = fields.Nested(schema)
 
@@ -133,11 +133,9 @@ class RequestSchema(Schema):
 
 
 class UnMarshal(object):
-    """
-    """
+    """"""
 
     def __init__(self, schema):
-
         class UnMarshallingSchema(RequestSchema):
             payload = fields.Nested(schema)
 
@@ -154,10 +152,7 @@ class UnMarshal(object):
                 kwargs.update(unmarshal_result)
                 return f(*args, **kwargs)
             except ValidationError as e:
-                data = {
-                    'error': True,
-                    'message': e.normalized_messages()
-                }
+                data = {'error': True, 'message': e.normalized_messages()}
                 return jsonify(ResponseSchema(data).to_dict())
 
         return unmarshal_decorator

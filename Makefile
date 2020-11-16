@@ -9,6 +9,7 @@ FRONT_DIR=frontend/
 FRONT_SOURCE=src/
 
 BACK_DIR=backend/
+BACK_SOURCE=src/
 
 ## -- Docker environment commands --
 
@@ -84,9 +85,16 @@ back-init:
 .PHONY: back-extract-msgs
 back-extract-msgs:
 	@cd $(BACK_DIR); \
-    pybabel extract -F babel.cfg -o messages.pot ./src/ ; \
-	pybabel init -i messages.pot -d translations -l en ; \
-	pybabel init -i messages.pot -d translations -l sv
+    ./venv/bin/pybabel extract -F babel.cfg -o messages.pot ./src/ ; \
+	./venv/bin/pybabel init -i messages.pot -d translations -l en ; \
+	./venv/bin/pybabel init -i messages.pot -d translations -l sv
+
+## Reformat Python sources
+.PHONY: back-reformat
+back-reformat:
+	@cd $(BACK_DIR); \
+	./venv/bin/isort --line-width 120 --atomic --project edusign-webapp $(BACK_SOURCE) ; \
+	./venv/bin/black --line-length 120 --target-version py38 --skip-string-normalization $(BACK_SOURCE)
 
 ## -- Misc --
 

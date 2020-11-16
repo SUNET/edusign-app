@@ -30,11 +30,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from flask import Blueprint, abort, render_template, current_app, session, request
+from flask import Blueprint, abort, current_app, render_template, request, session
 
 from edusign_webapp.marshal import Marshal
 from edusign_webapp.schemata import ConfigSchema
-
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
 
