@@ -102,6 +102,12 @@ back-typecheck:
 	@cd $(BACK_DIR); \
 		./venv/bin/mypy --ignore-missing-imports $(BACK_SOURCE)
 
+## Test Python code
+.PHONY: back-test
+back-test:
+	@cd $(BACK_DIR); \
+		./venv/bin/pytest --log-cli-level DEBUG $(BACK_SOURCE)
+
 ## -- Misc --
 
 ## Print this help message

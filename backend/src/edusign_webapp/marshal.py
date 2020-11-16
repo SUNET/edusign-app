@@ -135,11 +135,15 @@ class RequestSchema(Schema):
 class UnMarshal(object):
     """"""
 
-    def __init__(self, schema):
-        class UnMarshallingSchema(RequestSchema):
-            payload = fields.Nested(schema)
+    def __init__(self, schema=None):
 
-        self.schema = UnMarshallingSchema
+        if schema is None:
+            self.schema = RequestSchema
+        else:
+            class UnMarshallingSchema(RequestSchema):
+                payload = fields.Nested(schema)
+
+            self.schema = UnMarshallingSchema
 
     def __call__(self, f):
         @wraps(f)

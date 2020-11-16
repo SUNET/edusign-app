@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright (c) 2020 SUNET
 # All rights reserved.
@@ -29,43 +30,41 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+import pytest
+from flask import session
 
-from flask import Flask
-from flask_babel import Babel
-
-
-class EduSignApp(Flask):
-    def __init__(self, name: str, **kwargs):
-
-        super().__init__(name, **kwargs)
-
-        if not self.testing:
-            self.url_map.host_matching = False
-
-        from edusign_webapp.views import edusign_views
-
-        self.register_blueprint(edusign_views)
+from edusign_webapp import run
 
 
-def edusign_init_app(name: str) -> EduSignApp:
-    """
-    Create an instance of an edusign data app.
-    :param name: The name of the instance, it will affect the configuration loaded.
-    """
+@pytest.fixture
+def client():
+    run.app.config['TESTING'] = True
 
-    app = EduSignApp(name)
+    with run.app.test_client() as client:
+        client.environ_base["HTTP_EDUPERSONPRINCIPALNAME"] = 'dummy-eppn'
+        client.environ_base["HTTP_GIVENNAME"] = 'Tester'
+        client.environ_base["HTTP_SN"] = 'Testing'
+        client.environ_base["HTTP_MAIL"] = 'tester@example.org'
+        client.environ_base["HTTP_SHIB_IDENTITY_PROVIDER"] = 'https://idp'
+        client.environ_base["HTTP_SHIB_AUTHENTICATION_METHOD"] = 'dummy'
+        client.environ_base["HTTP_SHIB_AUTHNCONTEXT_CLASS"] = 'dummy'
 
-    app.config.from_object('edusign_webapp.config')
-
-    app.babel = Babel(app)
-
-    app.logger.info(f'Init {name} app...')
-
-    return app
+        yield client
 
 
-app = edusign_init_app('edusign')
+def test_index(client):
+    """"""
 
-if __name__ == '__main__':
-    app.logger.info('Starting edusign app...')
-    app.run()
+    response = client.get('/sign/')
+
+    assert response.status == '200 OK'
+
+    assert b"<title>eduSign</title>" in response.data
+
+    assert session.get('eppn') == 'dummy-eppn'
+    assert session.get('given_name') == 'Tester'
+    assert session.get('surname') == 'Testing'
+    assert session.get('email') == 'tester@example.org'
+    assert session.get('idp') == 'https://idp'
+    assert session.get('authn_method') == 'dummy'
+    assert session.get('authn_context') == 'dummy'

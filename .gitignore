@@ -13,3 +13,5 @@ frontend/docs/
 docker/logs/
 backend/src/edusign_webapp.egg-info/
 backend/venv/
+backend/.coverage
+__pycache__
