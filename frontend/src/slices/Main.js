@@ -7,12 +7,31 @@
  * 
  * - loading: to indicate whether the app is loading or has finished loading.
  */
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+import { getRequest, checkStatus } from "slices/fetch-utils";
+import { addNotification } from "slices/Notifications";
+
+const fetchConfig = createAsyncThunk(
+  'main/fetchConfig',
+  async (thunkAPI) => {
+    const response = await fetch("/sign/config", getRequest);
+    try {
+      const configData = checkStatus(response);
+      thunkAPI.dispatch(mainSlice.actions.appLoaded());
+      return configData;
+    } catch(err) {
+      console.log(err);
+      thunkAPI.dispatch(addNotification("XXX TODO"));
+    }
+  }
+);
 
 const mainSlice = createSlice({
   name: "main",
   initialState: {
     loading: false,
+    config: {},
   },
   reducers: {
     /**
@@ -20,9 +39,15 @@ const mainSlice = createSlice({
      * @function appLoaded
      * @desc Redux action to set the loading key to false to indicate that the app has finished loading.
      */
-    appLoaded(state, action) {
+    appLoaded(state) {
       state.loading = false;
     },
+  },
+  extraReducers: {
+
+    [fetchConfig.fulfilled]: (state, action) => {
+      state.config = action.payload;
+    }
   },
 });
 

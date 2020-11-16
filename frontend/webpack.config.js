@@ -17,7 +17,7 @@ module.exports = {
   },
   output: {
     path: path.join(__dirname, "build"),
-    // publicPath: "https://html.edusign.docker/static/front-build/",
+    publicPath: "https://sp.edusign.docker/js/",
     filename: "[name]-bundle.dev.js"
   },
   devtool: "source-map",

@@ -40,7 +40,7 @@
             Apache's ServerName and Port directives or the IIS Site name in the <ISAPI> element above.
             -->
             <Host name="sp.edusign.docker">
-                <Path name="config" authType="shibboleth" requireSession="true"/>
+                <Path name="sign" authType="shibboleth" requireSession="true"/>
             </Host>
             <!-- Example of a second vhost mapped to a different applicationId. -->
             <!--

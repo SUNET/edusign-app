@@ -6,11 +6,13 @@ version = '0.1.0'
 requires = [
     'setuptools >= 50.3.2',
     'Flask >= 1.1,<1.2',
+    'marshmallow >= 3.9.1',
+    'Flask-Babel == 2.0.0',
 ]
 
 test_requires = [
-    'pytest>=6.1.2'
-    'pytest-cov>=2.10.1'
+    'pytest>=6.1.2',
+    'pytest-cov>=2.10.1',
     'mock==4.0.2',
     'WebTest>=2.0.35',
 ]
@@ -18,7 +20,7 @@ test_requires = [
 devel_extras = test_requires + [
     'isort>=5.6.4',
     'black>=20.8b1',
-    'mypy>=0.790'
+    'mypy>=0.790',
 ]
 
 long_description = open('README.txt').read()

@@ -8,6 +8,9 @@ ENV_DIR=docker/
 FRONT_DIR=frontend/
 FRONT_SOURCE=src/
 
+BACK_DIR=backend/
+BACK_SOURCE=src/
+
 ## -- Docker environment commands --
 
 ## Add needed entries to /etc/hosts if absent
@@ -31,6 +34,12 @@ env-stop:
     docker-compose  rm -s -f; \
 
 ## -- Front end development commands --
+
+## Initialize the front app development environment
+.PHONY: front-init
+front-init:
+	@cd $(FRONT_DIR); \
+		npm install
 
 ## Build the front app bundle
 .PHONY: front-build
@@ -62,6 +71,42 @@ front-prettier:
 front-build-docs:
 	@cd $(FRONT_DIR); \
     npm run build-docs
+
+## -- Back end development commands --
+
+## Initialize the backend development environment
+.PHONY: back-init
+back-init:
+	@cd $(BACK_DIR); \
+		python -m venv venv; \
+		./venv/bin/python setup.py develop easy_install edusign-webapp[devel]
+
+## Extract translatable messages from the backend sources
+.PHONY: back-extract-msgs
+back-extract-msgs:
+	@cd $(BACK_DIR); \
+    ./venv/bin/pybabel extract -F babel.cfg -o messages.pot ./src/ ; \
+	./venv/bin/pybabel init -i messages.pot -d translations -l en ; \
+	./venv/bin/pybabel init -i messages.pot -d translations -l sv
+
+## Reformat Python sources
+.PHONY: back-reformat
+back-reformat:
+	@cd $(BACK_DIR); \
+	./venv/bin/isort --line-width 120 --atomic --project edusign-webapp $(BACK_SOURCE) ; \
+	./venv/bin/black --line-length 120 --target-version py38 --skip-string-normalization $(BACK_SOURCE)
+
+## Type check Python sources
+.PHONY: back-typecheck
+back-typecheck:
+	@cd $(BACK_DIR); \
+		./venv/bin/mypy --ignore-missing-imports $(BACK_SOURCE)
+
+## Test Python code
+.PHONY: back-test
+back-test:
+	@cd $(BACK_DIR); \
+		./venv/bin/pytest --log-cli-level DEBUG $(BACK_SOURCE)
 
 ## -- Misc --
 

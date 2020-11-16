@@ -30,40 +30,58 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from flask import Blueprint, abort, current_app, render_template, request, session
+import pytest
+from flask import session, json
 
-from edusign_webapp.marshal import Marshal
-from edusign_webapp.schemata import ConfigSchema
-
-edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
+from edusign_webapp import run
 
 
-@edusign_views.route('/config', methods=['GET'])
-@Marshal(ConfigSchema)
-def get_config() -> dict:
-    """
-    Configuration for the front app
-    """
-    config = {
-        'given_name': session['given_name'],
-        'surname': session['surname'],
-        'email': session['email'],
-    }
-    return config
+@pytest.fixture
+def client():
+    run.app.config['TESTING'] = True
+
+    with run.app.test_client() as client:
+        client.environ_base["HTTP_EDUPERSONPRINCIPALNAME"] = 'dummy-eppn'
+        client.environ_base["HTTP_GIVENNAME"] = 'Tester'
+        client.environ_base["HTTP_SN"] = 'Testing'
+        client.environ_base["HTTP_MAIL"] = 'tester@example.org'
+        client.environ_base["HTTP_SHIB_IDENTITY_PROVIDER"] = 'https://idp'
+        client.environ_base["HTTP_SHIB_AUTHENTICATION_METHOD"] = 'dummy'
+        client.environ_base["HTTP_SHIB_AUTHNCONTEXT_CLASS"] = 'dummy'
+
+        yield client
 
 
-@edusign_views.route('/', methods=['GET'])
-def get_bundle():
-    if 'eppn' not in session:
-        session['eppn'] = request.headers.get('Edupersonprincipalname')
-        session['given_name'] = request.headers.get('Givenname')
-        session['surname'] = request.headers.get('Sn')
-        session['email'] = request.headers.get('Mail')
-        session['idp'] = request.headers.get('Shib-Identity-Provider')
-        session['authn_method'] = request.headers.get('Shib-Authentication-Method')
-        session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
-    try:
-        return render_template('index.jinja2')
-    except AttributeError as e:
-        current_app.logger.error(f'Template rendering failed: {e}')
-        abort(500)
+def test_index(client):
+    """"""
+
+    response = client.get('/sign/')
+
+    assert response.status == '200 OK'
+
+    assert b"<title>eduSign</title>" in response.data
+
+    assert session.get('eppn') == 'dummy-eppn'
+    assert session.get('given_name') == 'Tester'
+    assert session.get('surname') == 'Testing'
+    assert session.get('email') == 'tester@example.org'
+    assert session.get('idp') == 'https://idp'
+    assert session.get('authn_method') == 'dummy'
+    assert session.get('authn_context') == 'dummy'
+
+
+def test_config(client):
+
+    response1 = client.get('/sign/')
+
+    assert response1.status == '200 OK'
+
+    response = client.get('/sign/config')
+
+    assert response.status == '200 OK'
+
+    data = json.loads(response.data)
+
+    assert data['payload']['given_name'] == 'Tester'
+    assert data['payload']['surname'] == 'Testing'
+    assert data['payload']['email'] == 'tester@example.org'
