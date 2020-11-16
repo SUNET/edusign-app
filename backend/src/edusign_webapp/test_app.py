@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import pytest
-from flask import session
+from flask import session, json
 
 from edusign_webapp import run
 
@@ -68,3 +68,20 @@ def test_index(client):
     assert session.get('idp') == 'https://idp'
     assert session.get('authn_method') == 'dummy'
     assert session.get('authn_context') == 'dummy'
+
+
+def test_config(client):
+
+    response1 = client.get('/sign/')
+
+    assert response1.status == '200 OK'
+
+    response = client.get('/sign/config')
+
+    assert response.status == '200 OK'
+
+    data = json.loads(response.data)
+
+    assert data['payload']['given_name'] == 'Tester'
+    assert data['payload']['surname'] == 'Testing'
+    assert data['payload']['email'] == 'tester@example.org'

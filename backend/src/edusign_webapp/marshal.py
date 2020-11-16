@@ -102,7 +102,8 @@ class Marshal(object):
                 # No need to Marshal again, someone else already did that
                 return resp
 
-            return jsonify(self.schema().dump(resp))
+            data = {'payload': resp}
+            return jsonify(self.schema().dump(data))
 
         return marshal_decorator
 
