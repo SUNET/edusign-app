@@ -33,11 +33,32 @@
 
 import os
 from functools import wraps
+from urllib.parse import urlsplit
 
-from flask import current_app, jsonify, session
+from flask import current_app, jsonify, session, request
 from werkzeug.wrappers import Response as WerkzeugResponse
-from werkzeug.security import generate_password_hash
-from marshmallow import Schema, fields, pre_dump
+from werkzeug.security import generate_password_hash, check_password_hash
+from marshmallow import Schema, fields, pre_dump, post_load, validates, ValidationError
+
+
+def csrf_check_hesders():
+    custom_header = request.headers.get('X-Requested-With', '')
+    if custom_header != 'XMLHttpRequest':
+        raise ValidationError('CSRF missing custom X-Requested-With header')
+    origin = request.headers.get('Origin', None)
+    if origin is None:
+        origin = request.headers.get('Referer', None)
+    if origin is None:
+        raise ValidationError('CSRF cannot check origin')
+    origin = origin.split()[0]
+    origin = urlsplit(origin).hostname
+    target = request.headers.get('X-Forwarded-Host', None)
+    if target is None:
+        current_app.logger.error('The X-Forwarded-Host header is missing!!')
+        raise ValidationError('CSRF cannot check target')
+    target = target.split(':')[0]
+    if origin != target:
+        raise ValidationError('CSRF cross origin request, origin: {}, ' 'target: {}'.format(origin, target))
 
 
 class ResponseSchema(Schema):
@@ -83,3 +104,59 @@ class Marshal(object):
             return jsonify(self.schema().dump(resp))
 
         return marshal_decorator
+
+
+class RequestSchema(Schema):
+
+    csrf_token = fields.String(required=True)
+
+    @validates('csrf_token')
+    def verify_csrf_token(self, value):
+
+        csrf_check_hesders()
+
+        method = current_app.config['HASH_METHOD']
+        token = f'{method}${value}'
+
+        secret = current_app.config['SECRET_KEY']
+        key = session['user_key'] + secret
+
+        if not check_password_hash(token, key):
+            raise ValidationError('CSRF token failed to validate')
+
+    @post_load
+    def post_processing(self, in_data, **kwargs):
+        # Remove token from data forwarded to views
+        del in_data['csrf_token']
+        return in_data
+
+
+class UnMarshal(object):
+    """
+    """
+
+    def __init__(self, schema):
+
+        class UnMarshallingSchema(RequestSchema):
+            payload = fields.Nested(schema)
+
+        self.schema = UnMarshallingSchema
+
+    def __call__(self, f):
+        @wraps(f)
+        def unmarshal_decorator(*args, **kwargs):
+            try:
+                json_data = request.get_json()
+                if json_data is None:
+                    json_data = {}
+                unmarshal_result = self.schema().load(json_data)
+                kwargs.update(unmarshal_result)
+                return f(*args, **kwargs)
+            except ValidationError as e:
+                data = {
+                    'error': True,
+                    'message': e.normalized_messages()
+                }
+                return jsonify(ResponseSchema(data).to_dict())
+
+        return unmarshal_decorator
