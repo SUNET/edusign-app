@@ -3,7 +3,6 @@
  * @desc Utility functions used in the components.
  */
 
-
 /**
  * @public
  * @function b64toBlob
@@ -31,7 +30,7 @@ export const b64toBlob = (b64Data, contentType = "", sliceSize = 512) => {
   return blob;
 };
 
-// 
+//
 /**
  * @public
  * @function humanFileSize

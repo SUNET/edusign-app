@@ -21,7 +21,9 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleRMNotification(index) {
-      return () => {dispatch(rmNotification(index));}
+      return () => {
+        dispatch(rmNotification(index));
+      };
     },
   };
 };

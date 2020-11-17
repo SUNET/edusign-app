@@ -4,7 +4,7 @@
  * and the actions and reducers to manipulate it.
  *
  * The main key of the Redux state holds the following subkeys:
- * 
+ *
  * - loading: to indicate whether the app is loading or has finished loading.
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
@@ -18,14 +18,14 @@ import { addNotification } from "slices/Notifications";
  * @desc Redux async thunk to get configuration data from the backend.
  */
 export const fetchConfig = createAsyncThunk(
-  'main/fetchConfig',
+  "main/fetchConfig",
   async (arg, thunkAPI) => {
     try {
       const response = await fetch("/sign/config", getRequest);
       const configData = checkStatus(response);
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
       return configData;
-    } catch(err) {
+    } catch (err) {
       console.log(err);
       thunkAPI.dispatch(addNotification("XXX TODO"));
       thunkAPI.rejectWithValue(err.toString());
@@ -50,10 +50,9 @@ const mainSlice = createSlice({
     },
   },
   extraReducers: {
-
     [fetchConfig.fulfilled]: (state, action) => {
       state.config = action.payload;
-    }
+    },
   },
 });
 

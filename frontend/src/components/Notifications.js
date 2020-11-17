@@ -13,16 +13,16 @@ import "styles/Notifications.scss";
 class Notifications extends Component {
   render() {
     let messages = this.props.messages.map((msg, index) => {
-        return (
-          <Alert
-            key={index}
-            variant={msg.level}
-            dismissible={true}
-            onClose={this.props.handleRMNotification(index)}
-          >
-            {msg.message}
-          </Alert>
-        );
+      return (
+        <Alert
+          key={index}
+          variant={msg.level}
+          dismissible={true}
+          onClose={this.props.handleRMNotification(index)}
+        >
+          {msg.message}
+        </Alert>
+      );
     });
     return (
       <div

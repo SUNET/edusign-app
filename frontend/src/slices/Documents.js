@@ -16,31 +16,31 @@ import { addNotification } from "slices/Notifications";
  * @desc Redux async thunk to get configuration data from the backend.
  */
 export const prepareDocument = createAsyncThunk(
-  'main/prepareDocument',
+  "main/prepareDocument",
   async (document, thunkAPI) => {
     try {
       const response = await fetch("/sign/add-doc", {
-          ...postRequest,
-          body: JSON.stringify(document)
+        ...postRequest,
+        body: JSON.stringify(document),
       });
       const data = checkStatus(response);
       if (!data.error) {
         const updatedDoc = {
           ...document,
-          state: 'loaded',
+          state: "loaded",
           ref: data.payload.ref,
         };
         return updatedDoc;
       } else {
-        throw(new Error(data.message));
+        throw new Error(data.message);
       }
-    } catch(err) {
+    } catch (err) {
       console.log(err);
       thunkAPI.dispatch(addNotification("XXX TODO"));
       thunkAPI.rejectWithValue({
-          ...document,
-          state: 'failed',
-          reason: err.toString(),
+        ...document,
+        state: "failed",
+        reason: err.toString(),
       });
     }
   }
@@ -178,7 +178,6 @@ const documentsSlice = createSlice({
     },
   },
   extraReducers: {
-
     [prepareDocument.fulfilled]: (state, action) => {
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {

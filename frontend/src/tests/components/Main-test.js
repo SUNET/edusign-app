@@ -135,10 +135,12 @@ describe("Main Component", function () {
   it("Notifications area displays notifications", function () {
     const { unmount } = setupComponent(<Main />, {
       main: { loading: false },
-      notifications: { messages: [
-        { level: "danger", message: "ho ho ho" },
-        { level: "danger", message: "hi hi hi" },
-      ] },
+      notifications: {
+        messages: [
+          { level: "danger", message: "ho ho ho" },
+          { level: "danger", message: "hi hi hi" },
+        ],
+      },
     });
 
     const notification = screen.getAllByText("ho ho ho");

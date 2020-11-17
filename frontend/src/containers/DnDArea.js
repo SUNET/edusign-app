@@ -54,16 +54,28 @@ const mapDispatchToProps = (dispatch, props) => {
           dispatch(setWaiting());
         };
         reader.onerror = () => {
-          const errorMsg = this.props.intl.formatMessage({defaultMessage: "Error loading {name}", id: "containers.DnDArea.loading-error"}, {name: fileObj.name});
-          dispatch(addNotification({level: "danger", message: errorMsg}));
+          const errorMsg = this.props.intl.formatMessage(
+            {
+              defaultMessage: "Error loading {name}",
+              id: "containers.DnDArea.loading-error",
+            },
+            { name: fileObj.name }
+          );
+          dispatch(addNotification({ level: "danger", message: errorMsg }));
         };
         reader.readAsDataURL(fileObj);
       });
     },
     handleRejected: function (rejecteds, e) {
-      rejecteds.forEach(rejected => {
-        const errorMsg = this.props.intl.formatMessage({id: "containers.DnDArea.rejected-doc", defaultMessage: "Not a PDF: {name} (type {type})"}, {name: rejected.file.name, type: rejected.file.type});
-        dispatch(addNotification({level: "danger", message: errorMsg}));
+      rejecteds.forEach((rejected) => {
+        const errorMsg = this.props.intl.formatMessage(
+          {
+            id: "containers.DnDArea.rejected-doc",
+            defaultMessage: "Not a PDF: {name} (type {type})",
+          },
+          { name: rejected.file.name, type: rejected.file.type }
+        );
+        dispatch(addNotification({ level: "danger", message: errorMsg }));
       });
     },
   };
