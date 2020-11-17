@@ -38,20 +38,6 @@ from edusign_webapp.schemata import ConfigSchema
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
 
 
-@edusign_views.route('/config', methods=['GET'])
-@Marshal(ConfigSchema)
-def get_config() -> dict:
-    """
-    Configuration for the front app
-    """
-    config = {
-        'given_name': session['given_name'],
-        'surname': session['surname'],
-        'email': session['email'],
-    }
-    return config
-
-
 @edusign_views.route('/', methods=['GET'])
 def get_bundle():
     if 'eppn' not in session:
@@ -67,3 +53,17 @@ def get_bundle():
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
         abort(500)
+
+
+@edusign_views.route('/config', methods=['GET'])
+@Marshal(ConfigSchema)
+def get_config() -> dict:
+    """
+    Configuration for the front app
+    """
+    config = {
+        'given_name': session['given_name'],
+        'surname': session['surname'],
+        'email': session['email'],
+    }
+    return config

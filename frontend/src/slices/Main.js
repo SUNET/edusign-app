@@ -12,17 +12,23 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { getRequest, checkStatus } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 
-const fetchConfig = createAsyncThunk(
+/**
+ * @public
+ * @function fetchConfig
+ * @desc Redux async thunk to get configuration data from the backend.
+ */
+export const fetchConfig = createAsyncThunk(
   'main/fetchConfig',
-  async (thunkAPI) => {
-    const response = await fetch("/sign/config", getRequest);
+  async (arg, thunkAPI) => {
     try {
+      const response = await fetch("/sign/config", getRequest);
       const configData = checkStatus(response);
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
       return configData;
     } catch(err) {
       console.log(err);
       thunkAPI.dispatch(addNotification("XXX TODO"));
+      thunkAPI.rejectWithValue(err.toString());
     }
   }
 );

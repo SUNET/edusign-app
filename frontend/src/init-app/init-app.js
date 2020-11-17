@@ -12,7 +12,7 @@ import ReactDOM from "react-dom";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import rootReducer from "init-app/store";
-import { appLoaded } from "slices/Main";
+import { fetchConfig } from "slices/Main";
 
 /*
  * internationalization.
@@ -90,7 +90,7 @@ store.subscribe(() => {
  * @desc Callback to be executed when React.render has finished rendering the Main component.
  */
 const appIsRendered = function () {
-  store.dispatch(appLoaded());
+  store.dispatch(fetchConfig());
 };
 
 /**
