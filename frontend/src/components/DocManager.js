@@ -64,6 +64,19 @@ function DocManager(props) {
                 <div className="loading-flex-item">{" loading ..."}</div>
               </>
             )}
+            {doc.state === "failed" && (
+              <>
+                <div className="button-reload-flex-item">
+                  <Button
+                    variant="outline-success"
+                    size="sm"
+                    onClick={props.handleRetry(index)}
+                  >
+                    <FormattedMessage defaultMessage="Retry" key="retry-button" />
+                  </Button>
+                </div>
+              </>
+            )}
             {doc.state === "loaded" && (
               <>
                 {commonButtons(index, doc)}

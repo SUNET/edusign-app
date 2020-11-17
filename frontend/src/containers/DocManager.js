@@ -12,6 +12,7 @@ import { connect } from "react-redux";
 
 import DocManager from "components/DocManager";
 import {
+  prepareDocument,
   showPreview,
   hidePreview,
   removeDocument,
@@ -35,6 +36,11 @@ const mapDispatchToProps = (dispatch, props) => {
     handleRemove: function (index) {
       return (e) => {
         dispatch(removeDocument(index));
+      };
+    },
+    handleRetry: function (index) {
+      return (e) => {
+        dispatch(prepareDocument(index));
       };
     },
     handleSign: function (index) {
