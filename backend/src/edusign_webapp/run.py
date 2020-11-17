@@ -33,6 +33,8 @@
 from flask import Flask
 from flask_babel import Babel
 
+from edusign_webapp.api_client import APIClient
+
 
 class EduSignApp(Flask):
     def __init__(self, name: str, **kwargs):
@@ -56,6 +58,8 @@ def edusign_init_app(name: str) -> EduSignApp:
     app = EduSignApp(name)
 
     app.config.from_object('edusign_webapp.config')
+
+    app.api_client = APIClient(app.config['EDUSIGN_API_BASE_URL'], app.config['EDUSIGN_API_PROFILE'])
 
     app.babel = Babel(app)
 

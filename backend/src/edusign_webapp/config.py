@@ -50,3 +50,6 @@ BABEL_DEFAULT_LOCALE = os.environ.get('BABEL_DEFAULT_LOCALE', default='en')
 BABEL_DEFAULT_TIMEZONE = os.environ.get('BABEL_DEFAULT_TIMEZONE', default='UTC')
 BABEL_TRANSLATION_DIRECTORIES = 'translations'
 BABEL_DOMAIN = 'messages'
+
+EDUSIGN_API_BASE_URL = os.environ.get('EDUSIGN_API_BASE_URL', default='https://sig.idsec.se/signint/v1/')
+EDUSIGN_API_PROFILE = os.environ.get('EDUSIGN_API_PROFILE', default='default')

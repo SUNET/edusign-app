@@ -31,9 +31,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 from flask import Blueprint, abort, current_app, render_template, request, session
+from flask_babel import gettext
 
-from edusign_webapp.marshal import Marshal
-from edusign_webapp.schemata import ConfigSchema
+from edusign_webapp.marshal import Marshal, UnMarshal
+from edusign_webapp.schemata import ConfigSchema, DocumentSchema, ReferenceSchema
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
 
@@ -48,6 +49,7 @@ def get_bundle():
         session['idp'] = request.headers.get('Shib-Identity-Provider')
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
         session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
+        session['documents'] = []
     try:
         return render_template('index.jinja2')
     except AttributeError as e:
@@ -61,9 +63,34 @@ def get_config() -> dict:
     """
     Configuration for the front app
     """
-    config = {
-        'given_name': session['given_name'],
-        'surname': session['surname'],
-        'email': session['email'],
+    return {
+        'payload': {
+            'given_name': session['given_name'],
+            'surname': session['surname'],
+            'email': session['email'],
+        }
     }
-    return config
+
+
+@edusign_views.route('/add-doc', methods=['POST'])
+@UnMarshal(DocumentSchema)
+@Marshal(ReferenceSchema)
+def add_document(payload) -> dict:
+    """
+    """
+    try:
+        doc_ref = current_app.api_client.prepare(payload)
+    except Exception as e:
+        current_app.logger.error(f'Problem preparing document: {e}')
+
+        return {'error': True, 'message': gettext('Communication error with the eduSign API')}
+
+    payload['ref'] = doc_ref
+    session['documents'].append(payload)
+
+    return {
+        'message': gettext(),
+        'payload': {
+            'ref': doc_ref
+        }
+    }

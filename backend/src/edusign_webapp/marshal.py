@@ -42,7 +42,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.wrappers import Response as WerkzeugResponse
 
 
-def csrf_check_hesders():
+def csrf_check_headers():
     custom_header = request.headers.get('X-Requested-With', '')
     if custom_header != 'XMLHttpRequest':
         raise ValidationError(gettext('CSRF missing custom X-Requested-With header'))
@@ -67,7 +67,7 @@ def csrf_check_hesders():
 class ResponseSchema(Schema):
 
     message = fields.String(required=False)
-    error = fields.Boolean(deafault=False)
+    error = fields.Boolean(default=False)
     csrf_token = fields.String(required=True)
 
     @pre_dump
@@ -102,8 +102,10 @@ class Marshal(object):
                 # No need to Marshal again, someone else already did that
                 return resp
 
-            data = {'payload': resp}
-            return jsonify(self.schema().dump(data))
+            if resp.get('error', False):
+                return jsonify(ResponseSchema().dump(resp))
+
+            return jsonify(self.schema().dump(resp))
 
         return marshal_decorator
 
@@ -115,7 +117,7 @@ class RequestSchema(Schema):
     @validates('csrf_token')
     def verify_csrf_token(self, value):
 
-        csrf_check_hesders()
+        csrf_check_headers()
 
         method = current_app.config['HASH_METHOD']
         token = f'{method}${value}'
@@ -148,14 +150,13 @@ class UnMarshal(object):
 
     def __call__(self, f):
         @wraps(f)
-        def unmarshal_decorator(*args, **kwargs):
+        def unmarshal_decorator():
             try:
                 json_data = request.get_json()
                 if json_data is None:
                     json_data = {}
                 unmarshal_result = self.schema().load(json_data)
-                kwargs.update(unmarshal_result)
-                return f(*args, **kwargs)
+                return f(*unmarshal_result)
             except ValidationError as e:
                 data = {'error': True, 'message': e.normalized_messages()}
                 return jsonify(ResponseSchema(data).to_dict())

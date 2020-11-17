@@ -13,7 +13,7 @@ import { connect } from "react-redux";
 import { updateIntl } from "react-intl-redux";
 
 import DnDArea from "components/DnDArea";
-import { addDocument, updateDocument } from "slices/Documents";
+import { addDocument, updateDocument, prepareDocument } from "slices/Documents";
 import { setWaiting, setReceiving } from "slices/DnDArea";
 import { addNotification } from "slices/Notifications";
 
@@ -50,6 +50,7 @@ const mapDispatchToProps = (dispatch, props) => {
           // once the document has been loaded and parsed,
           // update it in the central store as "loaded".
           dispatch(updateDocument(updatedFile));
+          dispatch(prepareDocument(updatedFile));
           dispatch(setWaiting());
         };
         reader.onerror = () => {

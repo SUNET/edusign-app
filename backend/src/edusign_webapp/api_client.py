@@ -30,22 +30,40 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+from urllib.parse import urljoin
 
-from marshmallow import Schema, fields
-
-
-class ConfigSchema(Schema):
-    given_name = fields.String(required=True)
-    surname = fields.String(required=True)
-    email = fields.String(required=True)
+import requests
+from flask import session
 
 
-class DocumentSchema(Schema):
-    name = fields.String(required=True)
-    size = fields.Integer(required=True)
-    email = fields.String(required=True)
-    blob = fields.Raw(required=True)
+class APIClient(object):
 
+    def __init__(self, base_url: str, profile: str):
+        self.base_url = base_url
+        self.profile = profile
 
-class ReferenceSchema(Schema):
-    ref = fields.String(required=True)
+    def prepare_document(self, document: dict) -> str:
+        request_data = {
+            "pdfDocument": document['blob'],
+            "signaturePagePreferences": {
+                "visiblePdfSignatureUserInformation": {
+                    "signerName": {
+                        "signerAttributes": [{
+                            "name": "urn:oid:2.16.840.1.113730.3.1.241"
+                        }]
+                    },
+                    "fieldValues": {
+                        "idp": session['idp']
+                    }
+                },
+                "failWhenSignPageFull": True,
+                "insertPageAt": 0,
+                "returnDocumentReference": True
+            }
+        }
+        api_url = urljoin(self.base_url, f'prepare/{self.profile}')
+
+        response = requests.post(api_url, data=request_data)
+        response_data = response.json()
+
+        return response_data['updatedPdfDocumentReference']

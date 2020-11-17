@@ -8,6 +8,7 @@ requires = [
     'Flask >= 1.1,<1.2',
     'marshmallow >= 3.9.1',
     'Flask-Babel == 2.0.0',
+    'requests >= 2.25.0',
 ]
 
 test_requires = [

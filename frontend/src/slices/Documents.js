@@ -5,7 +5,38 @@
  *
  * The documents key of the state holds the documents added by the user to be signed.
  */
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+import { postRequest, checkStatus } from "slices/fetch-utils";
+import { addNotification } from "slices/Notifications";
+
+/**
+ * @public
+ * @function fetchConfig
+ * @desc Redux async thunk to get configuration data from the backend.
+ */
+export const prepareDocument = createAsyncThunk(
+  'main/prepareDocument',
+  async (document, thunkAPI) => {
+    try {
+      const response = await fetch("/sign/add-doc", {
+          ...postRequest,
+          body: JSON.stringify(document)
+      });
+      // XXX Deal with error response from backend
+      const data = checkStatus(response);
+      const updatedDoc = {
+        ...document,
+        'ref': data.payload.ref,
+      };
+      return updatedDoc;
+    } catch(err) {
+      console.log(err);
+      thunkAPI.dispatch(addNotification("XXX TODO"));
+      thunkAPI.rejectWithValue(err.toString());
+    }
+  }
+);
 
 const documentsSlice = createSlice({
   name: "documents",
@@ -38,7 +69,7 @@ const documentsSlice = createSlice({
         if (doc.name === action.payload.name) {
           return {
             ...action.payload,
-            state: "loaded",
+            state: "loading",
           };
         } else {
           return {
@@ -129,6 +160,23 @@ const documentsSlice = createSlice({
           return {
             ...doc,
             state: "signed",
+          };
+        } else {
+          return {
+            ...doc,
+          };
+        }
+      });
+    },
+  },
+  extraReducers: {
+
+    [prepareDocument.fulfilled]: (state, action) => {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload.name) {
+          return {
+            ...action.payload,
+            state: "loaded",
           };
         } else {
           return {
