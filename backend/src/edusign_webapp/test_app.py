@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import pytest
-from flask import session, json
+from flask import json, session
 
 from edusign_webapp import run
 

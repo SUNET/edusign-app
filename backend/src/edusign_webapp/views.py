@@ -76,8 +76,7 @@ def get_config() -> dict:
 @UnMarshal(DocumentSchema)
 @Marshal(ReferenceSchema)
 def add_document(payload) -> dict:
-    """
-    """
+    """"""
     try:
         doc_ref = current_app.api_client.prepare(payload)
     except Exception as e:
@@ -88,9 +87,4 @@ def add_document(payload) -> dict:
     payload['ref'] = doc_ref
     session['documents'].append(payload)
 
-    return {
-        'message': gettext(),
-        'payload': {
-            'ref': doc_ref
-        }
-    }
+    return {'message': gettext(), 'payload': {'ref': doc_ref}}

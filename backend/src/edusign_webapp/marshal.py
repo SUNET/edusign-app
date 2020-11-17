@@ -143,6 +143,7 @@ class UnMarshal(object):
         if schema is None:
             self.schema = RequestSchema
         else:
+
             class UnMarshallingSchema(RequestSchema):
                 payload = fields.Nested(schema)
 

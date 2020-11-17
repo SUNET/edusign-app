@@ -37,7 +37,6 @@ from flask import session
 
 
 class APIClient(object):
-
     def __init__(self, base_url: str, profile: str):
         self.base_url = base_url
         self.profile = profile
@@ -47,19 +46,13 @@ class APIClient(object):
             "pdfDocument": document['blob'],
             "signaturePagePreferences": {
                 "visiblePdfSignatureUserInformation": {
-                    "signerName": {
-                        "signerAttributes": [{
-                            "name": "urn:oid:2.16.840.1.113730.3.1.241"
-                        }]
-                    },
-                    "fieldValues": {
-                        "idp": session['idp']
-                    }
+                    "signerName": {"signerAttributes": [{"name": "urn:oid:2.16.840.1.113730.3.1.241"}]},
+                    "fieldValues": {"idp": session['idp']},
                 },
                 "failWhenSignPageFull": True,
                 "insertPageAt": 0,
-                "returnDocumentReference": True
-            }
+                "returnDocumentReference": True,
+            },
         }
         api_url = urljoin(self.base_url, f'prepare/{self.profile}')
 
