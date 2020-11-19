@@ -15,3 +15,4 @@ backend/src/edusign_webapp.egg-info/
 backend/venv/
 backend/.coverage
 __pycache__
+.env

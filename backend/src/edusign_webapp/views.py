@@ -75,16 +75,17 @@ def get_config() -> dict:
 @edusign_views.route('/add-doc', methods=['POST'])
 @UnMarshal(DocumentSchema)
 @Marshal(ReferenceSchema)
-def add_document(payload) -> dict:
+def add_document(document) -> dict:
     """"""
     try:
-        doc_ref = current_app.api_client.prepare(payload)
+        current_app.logger.info(f"Sending document {document['name']} for preparation")
+        doc_ref = current_app.api_client.prepare_document(document)
     except Exception as e:
         current_app.logger.error(f'Problem preparing document: {e}')
 
         return {'error': True, 'message': gettext('Communication error with the eduSign API')}
 
-    payload['ref'] = doc_ref
-    session['documents'].append(payload)
+    document['ref'] = doc_ref
+    session['documents'].append(document)
 
-    return {'message': gettext(), 'payload': {'ref': doc_ref}}
+    return {'message': gettext(f"Success preparing document {document['name']}"), 'payload': {'ref': doc_ref}}

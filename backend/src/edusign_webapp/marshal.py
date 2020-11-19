@@ -96,16 +96,26 @@ class Marshal(object):
         @wraps(f)
         def marshal_decorator(*args, **kwargs):
 
-            resp = f(*args, **kwargs)
+            resp_data = f(*args, **kwargs)
+            current_app.logger.debug(f"Data gotten from view {str(f)}: {resp_data}")
 
-            if isinstance(resp, WerkzeugResponse):
+            if isinstance(resp_data, WerkzeugResponse):
                 # No need to Marshal again, someone else already did that
-                return resp
+                return resp_data
 
-            if resp.get('error', False):
-                return jsonify(ResponseSchema().dump(resp))
+            if resp_data.get('error', False):
+                processed = ResponseSchema().dump(resp_data)
+                current_app.logger.debug(f"Processed data: {processed}")
+                response = jsonify(processed)
+                current_app.logger.debug(f"And response: {response}")
+                return response
 
-            return jsonify(self.schema().dump(resp))
+            processed = self.schema().dump(resp_data)
+            current_app.logger.debug(f"Processed data: {processed}")
+            response = jsonify(processed)
+            current_app.logger.debug(f"And response: {response}")
+            current_app.logger.debug(f"With Headers: {response.headers}")
+            return response
 
         return marshal_decorator
 
@@ -154,10 +164,11 @@ class UnMarshal(object):
         def unmarshal_decorator():
             try:
                 json_data = request.get_json()
+                current_app.logger.debug(f'Data received: {json_data}')
                 if json_data is None:
                     json_data = {}
                 unmarshal_result = self.schema().load(json_data)
-                return f(*unmarshal_result)
+                return f(unmarshal_result['payload'])
             except ValidationError as e:
                 data = {'error': True, 'message': e.normalized_messages()}
                 return jsonify(ResponseSchema(data).to_dict())

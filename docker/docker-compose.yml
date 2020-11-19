@@ -77,6 +77,8 @@ services:
       - "PYTHONPATH=/opt/edusign/edusign-webapp/src"
       - "HOSTNAME=www.edusign.docker"
       - "FLASK_ENV=development"
+      - EDUSIGN_API_USERNAME
+      - EDUSIGN_API_PASSWORD
     depends_on:
       - sp
 

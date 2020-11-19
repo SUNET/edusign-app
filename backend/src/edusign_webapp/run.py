@@ -59,7 +59,7 @@ def edusign_init_app(name: str) -> EduSignApp:
 
     app.config.from_object('edusign_webapp.config')
 
-    app.api_client = APIClient(app.config['EDUSIGN_API_BASE_URL'], app.config['EDUSIGN_API_PROFILE'])
+    app.api_client = APIClient(app.config)
 
     app.babel = Babel(app)
 

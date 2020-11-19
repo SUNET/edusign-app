@@ -43,7 +43,7 @@ class ConfigSchema(Schema):
 class DocumentSchema(Schema):
     name = fields.String(required=True)
     size = fields.Integer(required=True)
-    email = fields.String(required=True)
+    type = fields.String(required=True)
     blob = fields.Raw(required=True)
 
 

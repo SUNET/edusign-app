@@ -52,4 +52,6 @@ BABEL_TRANSLATION_DIRECTORIES = 'translations'
 BABEL_DOMAIN = 'messages'
 
 EDUSIGN_API_BASE_URL = os.environ.get('EDUSIGN_API_BASE_URL', default='https://sig.idsec.se/signint/v1/')
-EDUSIGN_API_PROFILE = os.environ.get('EDUSIGN_API_PROFILE', default='default')
+EDUSIGN_API_PROFILE = os.environ.get('EDUSIGN_API_PROFILE', default='edusign-test')
+EDUSIGN_API_USERNAME = os.environ.get('EDUSIGN_API_USERNAME', default='dummy')
+EDUSIGN_API_PASSWORD = os.environ.get('EDUSIGN_API_PASSWORD', default='dummy')

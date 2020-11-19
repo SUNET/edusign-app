@@ -31,19 +31,44 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 from urllib.parse import urljoin
+from pprint import pformat
 
 import requests
-from flask import session
+from requests.auth import HTTPBasicAuth
+from flask import session, current_app
+
+
+def pretty_print_req(req):
+    """
+    """
+    return '{}\n{}\r\n{}\r\n\r\n{}'.format(
+        '-----------START-----------',
+        req.method + ' ' + req.url,
+        '\r\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
+        req.body,
+    )
 
 
 class APIClient(object):
-    def __init__(self, base_url: str, profile: str):
-        self.base_url = base_url
-        self.profile = profile
+    def __init__(self, config: dict):
+        self.base_url = config['EDUSIGN_API_BASE_URL']
+        self.profile = config['EDUSIGN_API_PROFILE']
+        self.basic_auth = HTTPBasicAuth(config['EDUSIGN_API_USERNAME'], config['EDUSIGN_API_PASSWORD'])
+
+    def _post(self, url, request_data):
+        requests_session = requests.Session()
+        req = requests.Request('POST', url, json=request_data, auth=self.basic_auth)
+        prepped = requests_session.prepare_request(req)
+
+        current_app.logger.debug(f"Request sent to the API's prepare method: {pretty_print_req(prepped)}")
+
+        settings = requests_session.merge_environment_settings(prepped.url, {}, None, None, None)
+        return requests_session.send(prepped, **settings)
 
     def prepare_document(self, document: dict) -> str:
+        doc_data = document['blob'].split(',')[1]
         request_data = {
-            "pdfDocument": document['blob'],
+            "pdfDocument": doc_data,
             "signaturePagePreferences": {
                 "visiblePdfSignatureUserInformation": {
                     "signerName": {"signerAttributes": [{"name": "urn:oid:2.16.840.1.113730.3.1.241"}]},
@@ -56,7 +81,9 @@ class APIClient(object):
         }
         api_url = urljoin(self.base_url, f'prepare/{self.profile}')
 
-        response = requests.post(api_url, data=request_data)
+        response = self._post(api_url, request_data)
+
         response_data = response.json()
+        current_app.logger.debug(f"Data returned from the API's prepare endpoint: {pformat(response_data)}")
 
         return response_data['updatedPdfDocumentReference']

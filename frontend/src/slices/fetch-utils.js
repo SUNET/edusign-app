@@ -4,6 +4,8 @@
  * to help fetching data from the backend.
  */
 
+import { addNotification } from "slices/Notifications";
+
 export const checkStatus = function (response) {
   if (response.status >= 200 && response.status < 300) {
     return response.json();
@@ -37,4 +39,24 @@ export const getRequest = {
   redirect: "manual",
   credentials: "include",
   headers: ajaxHeaders,
+};
+
+export const preparePayload = (state, payload) => {
+  const data = {
+    csrf_token: state.main.config.csrf_token,
+    payload: payload
+  };
+  return JSON.stringify(data);
+};
+
+export const processResponseData = (dispatch, data) => {
+  if ('message' in data) {
+    const level = data.error ? 'danger' : 'success';
+    dispatch(addNotification({level: level, message: data.message}));
+  }
+  if ('payload' in data) {
+    return data.payload;
+  } else {
+    return null;
+  }
 };
