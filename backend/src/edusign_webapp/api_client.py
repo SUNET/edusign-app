@@ -30,17 +30,18 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from urllib.parse import urljoin
 from pprint import pformat
+from urllib.parse import urljoin
+from uuid import uuid4
 
 import requests
+from flask import current_app, session, url_for
+from flask_babel import gettext
 from requests.auth import HTTPBasicAuth
-from flask import session, current_app
 
 
 def pretty_print_req(req):
-    """
-    """
+    """"""
     return '{}\n{}\r\n{}\r\n\r\n{}'.format(
         '-----------START-----------',
         req.method + ' ' + req.url,
@@ -51,7 +52,7 @@ def pretty_print_req(req):
 
 class APIClient(object):
     def __init__(self, config: dict):
-        self.base_url = config['EDUSIGN_API_BASE_URL']
+        self.api_base_url = config['EDUSIGN_API_BASE_URL']
         self.profile = config['EDUSIGN_API_PROFILE']
         self.basic_auth = HTTPBasicAuth(config['EDUSIGN_API_USERNAME'], config['EDUSIGN_API_PASSWORD'])
 
@@ -65,7 +66,7 @@ class APIClient(object):
         settings = requests_session.merge_environment_settings(prepped.url, {}, None, None, None)
         return requests_session.send(prepped, **settings)
 
-    def prepare_document(self, document: dict) -> str:
+    def prepare_document(self, document: dict) -> dict:
         doc_data = document['blob'].split(',')[1]
         request_data = {
             "pdfDocument": doc_data,
@@ -79,11 +80,56 @@ class APIClient(object):
                 "returnDocumentReference": True,
             },
         }
-        api_url = urljoin(self.base_url, f'prepare/{self.profile}')
+        api_url = urljoin(self.api_base_url, f'prepare/{self.profile}')
 
         response = self._post(api_url, request_data)
 
         response_data = response.json()
         current_app.logger.debug(f"Data returned from the API's prepare endpoint: {pformat(response_data)}")
 
-        return response_data['updatedPdfDocumentReference']
+        return response_data
+
+    def create_sign_request(self, document: dict, visible_req: dict) -> dict:
+        config = current_app.config
+        correlation_id = uuid4()
+        document_id = uuid4()
+        base_url = f"{config['PREFERRED_URL_SCHEME']}://{config['SERVER_NAME']}"
+        entity_id = urljoin(base_url, config['ENTITY_ID_URL'])
+        return_url = url_for('edusign.sign_service_callback', _external=True)
+
+        request_data = {
+            "correlationId": correlation_id,
+            "signRequesterID": entity_id,
+            "returnUrl": return_url,
+            "authnRequirements": {
+                "authnServiceID": session['idp'],
+                "authnContextClassRefs": [session['authn_context']],
+                "requestedSignerAttributes": [
+                    {"name": "urn:oid:2.5.4.42", "value": session['given_name']},
+                    {"name": "urn:oid:2.5.4.4", "value": session['surname']},
+                    {"name": "urn:oid:0.9.2342.19200300.100.1.3", "value": session['email']},
+                ],
+            },
+            "tbsDocuments": [
+                {
+                    "id": document_id,
+                    "contentReference": document['ref'],
+                    "mimeType": document['type'],
+                    "visiblePdfSignatureRequirement": visible_req,
+                }
+            ],
+            "signMessageParameters": {
+                "signMessage": gettext("Hi %(name)s, this is the eduSign service", name=session['given_name']),
+                "performEncryption": True,
+                "mimeType": "text",
+                "mustShow": True,
+            },
+        }
+        api_url = urljoin(self.api_base_url, f'create/{self.profile}')
+
+        response = self._post(api_url, request_data)
+
+        response_data = response.json()
+        current_app.logger.debug(f"Data returned from the API's create endpoint: {pformat(response_data)}")
+
+        return response_data

@@ -30,6 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+import json
+
 from flask import Blueprint, abort, current_app, render_template, request, session
 from flask_babel import gettext
 
@@ -78,10 +80,35 @@ def add_document(document) -> dict:
     """"""
     try:
         current_app.logger.info(f"Sending document {document['name']} for preparation")
-        doc_ref = current_app.api_client.prepare_document(document)
+        prepare_data = current_app.api_client.prepare_document(document)
+
     except Exception as e:
         current_app.logger.error(f'Problem preparing document: {e}')
+        return {'error': True, 'message': gettext('Communication error with the prepare endpoint of the eduSign API')}
 
-        return {'error': True, 'message': gettext('Communication error with the eduSign API')}
+    doc_ref = prepare_data['updatedPdfDocumentReference']
+    document['ref'] = doc_ref
+    visible_req = prepare_data['updatedPdfDocumentReference']
 
-    return {'message': gettext(f"Success preparing document {document['name']}"), 'payload': {'ref': doc_ref}}
+    try:
+        current_app.logger.info(f"Creating signature request for {document['name']}")
+        create_data = current_app.api_client.create_sign_request(document, visible_req)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem creating sign request: {e}')
+        return {'error': True, 'message': gettext('Communication error with the create endpoint of the eduSign API')}
+
+    message = gettext("Success preparing document %(doc)s", doc=document['name'])
+
+    return {
+        'message': message,
+        'payload': {
+            'ref': doc_ref,
+            'creation_response': json.dumps(create_data)
+        }
+    }
+
+
+@edusign_views.route('/callback', methods=['POST'])
+def sign_service_callback() -> dict:
+    pass

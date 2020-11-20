@@ -41,8 +41,8 @@ export const prepareDocument = createAsyncThunk(
     if ('payload' in data) {
       const updatedDoc = {
         ...document,
+        ...data.payload,
         state: "loaded",
-        ref: data.payload.ref,
       };
       return updatedDoc;
     }
