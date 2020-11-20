@@ -49,7 +49,6 @@ def get_bundle():
         session['idp'] = request.headers.get('Shib-Identity-Provider')
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
         session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
-        session['documents'] = []
     try:
         return render_template('index.jinja2')
     except AttributeError as e:
@@ -84,8 +83,5 @@ def add_document(document) -> dict:
         current_app.logger.error(f'Problem preparing document: {e}')
 
         return {'error': True, 'message': gettext('Communication error with the eduSign API')}
-
-    document['ref'] = doc_ref
-    session['documents'].append(document)
 
     return {'message': gettext(f"Success preparing document {document['name']}"), 'payload': {'ref': doc_ref}}
