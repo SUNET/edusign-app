@@ -19,35 +19,38 @@ export const prepareDocument = createAsyncThunk(
   "main/prepareDocument",
   async (document, thunkAPI) => {
     const body = preparePayload(thunkAPI.getState(), document);
+    let data = null;
     try {
       const response = await fetch("/sign/add-doc", {
         ...postRequest,
         body: body,
       });
-      const data = checkStatus(response);
+      data = await checkStatus(response);
     } catch (err) {
-      console.log(err);
-      thunkAPI.dispatch(addNotification({level: 'danger', message: "XXX TODO"}));
-      thunkAPI.rejectWithValue({
+      thunkAPI.dispatch(addNotification({level: 'danger', message: "comm prob XXX TODO"}));
+      return thunkAPI.rejectWithValue({
         ...document,
         state: "failed",
         reason: err.toString(),
       });
     }
-    const payload = processResponseData(thunkAPI.dispatch, data);
-    if (payload !== null) {
+    if ('message' in data) {
+      const level = data.error ? 'danger' : 'success';
+      thunkAPI.dispatch(addNotification({level: level, message: data.message}));
+    }
+    if ('payload' in data) {
       const updatedDoc = {
         ...document,
         state: "loaded",
-        ref: payload.ref,
+        ref: data.payload.ref,
       };
       return updatedDoc;
-    } else {
-      thunkAPI.rejectWithValue({
-        ...document,
-        state: "failed",
-      });
     }
+    return thunkAPI.rejectWithValue({
+      ...document,
+      state: "failed",
+      reason: data.message,
+    });
   }
 );
 

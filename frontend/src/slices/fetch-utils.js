@@ -4,17 +4,14 @@
  * to help fetching data from the backend.
  */
 
-import { addNotification } from "slices/Notifications";
-
-export const checkStatus = function (response) {
+export const checkStatus = async function (response) {
   if (response.status >= 200 && response.status < 300) {
-    return response.json();
+    return await response.json();
   } else if (response.status === 0) {
-    console.log(response);
     const next = document.location.href;
     document.location.assign(next);
   } else {
-    throw new Error(response.statusText);
+    throw(new Error("Error response from backend: " + response.statusText));
   }
 };
 
@@ -47,16 +44,4 @@ export const preparePayload = (state, payload) => {
     payload: payload
   };
   return JSON.stringify(data);
-};
-
-export const processResponseData = (dispatch, data) => {
-  if ('message' in data) {
-    const level = data.error ? 'danger' : 'success';
-    dispatch(addNotification({level: level, message: data.message}));
-  }
-  if ('payload' in data) {
-    return data.payload;
-  } else {
-    return null;
-  }
 };
