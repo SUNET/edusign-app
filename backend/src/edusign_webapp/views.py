@@ -64,13 +64,15 @@ def get_config() -> dict:
     """
     Configuration for the front app
     """
-    return {
-        'payload': {
-            'given_name': session['given_name'],
-            'surname': session['surname'],
-            'email': session['email'],
-        }
+    payload = {
+        'given_name': session['given_name'],
+        'surname': session['surname'],
+        'email': session['email'],
     }
+    if 'process_data' in session:
+        payload['process_data'] = session['process_data']
+
+    return {'payload': payload}
 
 
 @edusign_views.route('/add-doc', methods=['POST'])
@@ -88,7 +90,7 @@ def add_document(document) -> dict:
 
     doc_ref = prepare_data['updatedPdfDocumentReference']
     document['ref'] = doc_ref
-    visible_req = prepare_data['updatedPdfDocumentReference']
+    visible_req = prepare_data['visiblePdfSignatureRequirement']
 
     try:
         current_app.logger.info(f"Creating signature request for {document['name']}")
@@ -100,15 +102,16 @@ def add_document(document) -> dict:
 
     message = gettext("Success preparing document %(doc)s", doc=document['name'])
 
-    return {
-        'message': message,
-        'payload': {
-            'ref': doc_ref,
-            'creation_response': json.dumps(create_data)
-        }
-    }
+    return {'message': message, 'payload': {'ref': doc_ref, 'creation_response': json.dumps(create_data)}}
 
 
 @edusign_views.route('/callback', methods=['POST'])
 def sign_service_callback() -> dict:
-    pass
+    sign_response = request.form.get('EidSignResponse')
+    relay_state = request.form.get('RelayState')
+
+    process_data = current_app.api_client.process_document(sign_response, relay_state)
+
+    session['process_data'] = process_data
+
+    return get_bundle()

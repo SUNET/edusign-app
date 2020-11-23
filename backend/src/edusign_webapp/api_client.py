@@ -72,7 +72,7 @@ class APIClient(object):
             "pdfDocument": doc_data,
             "signaturePagePreferences": {
                 "visiblePdfSignatureUserInformation": {
-                    "signerName": {"signerAttributes": [{"name": "urn:oid:2.16.840.1.113730.3.1.241"}]},
+                    "signerName": {"signerAttributes": [{"name": "urn:oid:2.5.4.4", "name": "urn:oid:2.5.4.4"}]},
                     "fieldValues": {"idp": session['idp']},
                 },
                 "failWhenSignPageFull": True,
@@ -91,8 +91,8 @@ class APIClient(object):
 
     def create_sign_request(self, document: dict, visible_req: dict) -> dict:
         config = current_app.config
-        correlation_id = uuid4()
-        document_id = uuid4()
+        correlation_id = str(uuid4())
+        document_id = str(uuid4())
         base_url = f"{config['PREFERRED_URL_SCHEME']}://{config['SERVER_NAME']}"
         entity_id = urljoin(base_url, config['ENTITY_ID_URL'])
         return_url = url_for('edusign.sign_service_callback', _external=True)
@@ -131,5 +131,17 @@ class APIClient(object):
 
         response_data = response.json()
         current_app.logger.debug(f"Data returned from the API's create endpoint: {pformat(response_data)}")
+
+        return response_data
+
+    def process_document(self, sign_response, relay_state):
+
+        request_data = {"signResponse": sign_response, "relayState": relay_state, "state": {"id": relay_state}}
+        api_url = urljoin(self.api_base_url, 'process')
+
+        response = self._post(api_url, request_data)
+
+        response_data = response.json()
+        current_app.logger.debug(f"Data returned from the API's process endpoint: {pformat(response_data)}")
 
         return response_data

@@ -38,6 +38,7 @@ class ConfigSchema(Schema):
     given_name = fields.String(required=True)
     surname = fields.String(required=True)
     email = fields.String(required=True)
+    process_data = fields.String(required=False)
 
 
 class DocumentSchema(Schema):
@@ -49,3 +50,4 @@ class DocumentSchema(Schema):
 
 class ReferenceSchema(Schema):
     ref = fields.String(required=True)
+    creation_response = fields.String(required=True)
