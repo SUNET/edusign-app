@@ -11,7 +11,7 @@ export const checkStatus = async function (response) {
     const next = document.location.href;
     document.location.assign(next);
   } else {
-    throw(new Error("Error response from backend: " + response.statusText));
+    throw new Error("Error response from backend: " + response.statusText);
   }
 };
 
@@ -41,7 +41,7 @@ export const getRequest = {
 export const preparePayload = (state, payload) => {
   const data = {
     csrf_token: state.main.config.csrf_token,
-    payload: payload
+    payload: payload,
   };
   return JSON.stringify(data);
 };

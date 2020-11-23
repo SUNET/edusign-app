@@ -7,7 +7,12 @@
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import { postRequest, checkStatus, preparePayload, processResponseData } from "slices/fetch-utils";
+import {
+  postRequest,
+  checkStatus,
+  preparePayload,
+  processResponseData,
+} from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 
 /**
@@ -27,18 +32,22 @@ export const prepareDocument = createAsyncThunk(
       });
       data = await checkStatus(response);
     } catch (err) {
-      thunkAPI.dispatch(addNotification({level: 'danger', message: "comm prob XXX TODO"}));
+      thunkAPI.dispatch(
+        addNotification({ level: "danger", message: "comm prob XXX TODO" })
+      );
       return thunkAPI.rejectWithValue({
         ...document,
         state: "failed",
         reason: err.toString(),
       });
     }
-    if ('message' in data) {
-      const level = data.error ? 'danger' : 'success';
-      thunkAPI.dispatch(addNotification({level: level, message: data.message}));
+    if ("message" in data) {
+      const level = data.error ? "danger" : "success";
+      thunkAPI.dispatch(
+        addNotification({ level: level, message: data.message })
+      );
     }
-    if ('payload' in data) {
+    if ("payload" in data) {
       const updatedDoc = {
         ...document,
         ...data.payload,

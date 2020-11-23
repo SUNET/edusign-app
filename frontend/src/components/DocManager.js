@@ -22,7 +22,7 @@ import "styles/DocManager.scss";
  * @component
  */
 function DocManager(props) {
-  function commonButtons(index, doc) {
+  function previewButton(index, doc) {
     return (
       <>
         <div className="button-preview-flex-item">
@@ -34,6 +34,12 @@ function DocManager(props) {
             <FormattedMessage defaultMessage="Preview" key="preview-button" />
           </Button>
         </div>
+      </>
+    );
+  }
+  function downloadButton(index, doc) {
+    return (
+      <>
         <div className="button-download-flex-item">
           <Button
             as="a"
@@ -44,6 +50,84 @@ function DocManager(props) {
             download={doc.name}
           >
             <FormattedMessage defaultMessage="Download" key="download-button" />
+          </Button>
+        </div>
+      </>
+    );
+  }
+  function retryButton(index, doc) {
+    return (
+      <>
+        <div className="button-reload-flex-item">
+          <Button
+            variant="outline-success"
+            size="sm"
+            onClick={props.handleRetry(index)}
+          >
+            <FormattedMessage defaultMessage="Retry" key="retry-button" />
+          </Button>
+        </div>
+      </>
+    );
+  }
+  function signButton(index, doc) {
+    return (
+      <>
+        <form action={doc.creation_response.destinationUrl} method="post">
+          <div>
+            <input
+              type="hidden"
+              name="Binding"
+              value={doc.creation_response.binding}
+            />
+            <input
+              type="hidden"
+              name="RelayState"
+              value={doc.creation_response.relayState}
+            />
+            <input
+              type="hidden"
+              name="EidSignRequest"
+              value={doc.creation_response.signRequest}
+            />
+          </div>
+          <div className="button-sign-flex-item">
+            <Button variant="outline-success" size="sm" type="submit">
+              <FormattedMessage defaultMessage="Sign" key="sign-button" />
+            </Button>
+          </div>
+        </form>
+      </>
+    );
+  }
+  function removeButton(index, doc) {
+    return (
+      <>
+        <div className="button-remove-flex-item">
+          <Button
+            variant="outline-danger"
+            size="sm"
+            onClick={props.handleRemove(index)}
+          >
+            <FormattedMessage defaultMessage="Remove" key="remove-button" />
+          </Button>
+        </div>
+      </>
+    );
+  }
+  function dlSignedButton(index, doc) {
+    return (
+      <>
+        <div className="button-signed-flex-item">
+          <Button
+            variant="outline-success"
+            size="sm"
+            onClick={props.handleDlSigned(index)}
+          >
+            <FormattedMessage
+              defaultMessage="Download (signed)"
+              key="signed-button"
+            />
           </Button>
         </div>
       </>
@@ -66,44 +150,16 @@ function DocManager(props) {
             )}
             {doc.state === "failed" && (
               <>
-                <div className="button-reload-flex-item">
-                  <Button
-                    variant="outline-success"
-                    size="sm"
-                    onClick={props.handleRetry(index)}
-                  >
-                    <FormattedMessage
-                      defaultMessage="Retry"
-                      key="retry-button"
-                    />
-                  </Button>
-                </div>
+                {retryButton(index, doc)}
+                {removeButton(index, doc)}
               </>
             )}
             {doc.state === "loaded" && (
               <>
-                {commonButtons(index, doc)}
-                <div className="button-sign-flex-item">
-                  <Button
-                    variant="outline-success"
-                    size="sm"
-                    onClick={props.handleSign(index)}
-                  >
-                    <FormattedMessage defaultMessage="Sign" key="sign-button" />
-                  </Button>
-                </div>
-                <div className="button-remove-flex-item">
-                  <Button
-                    variant="outline-danger"
-                    size="sm"
-                    onClick={props.handleRemove(index)}
-                  >
-                    <FormattedMessage
-                      defaultMessage="Remove"
-                      key="remove-button"
-                    />
-                  </Button>
-                </div>
+                {previewButton(index, doc)}
+                {downloadButton(index, doc)}
+                {signButton(index, doc)}
+                {removeButton(index, doc)}
               </>
             )}
             {doc.state === "signing" && (
@@ -114,19 +170,9 @@ function DocManager(props) {
             )}
             {doc.state === "signed" && (
               <>
-                {commonButtons(index, doc)}
-                <div className="button-signed-flex-item">
-                  <Button
-                    variant="outline-success"
-                    size="sm"
-                    onClick={props.handleDlSigned(index)}
-                  >
-                    <FormattedMessage
-                      defaultMessage="Download (signed)"
-                      key="signed-button"
-                    />
-                  </Button>
-                </div>
+                {previewButton(index, doc)}
+                {downloadButton(index, doc)}
+                {dlSignedButton(index, doc)}
               </>
             )}
             <DocPreviewContainer doc={doc} index={index} />
