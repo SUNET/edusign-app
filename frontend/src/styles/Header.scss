@@ -37,7 +37,15 @@ header#edusign-header {
   background-size: contain;
   background-repeat: no-repeat;
   margin: 0;
+  display: inline-block;
+}
+
+#header-right {
   float: right;
+}
+
+#name-in-header {
+  margin-right: 3rem;
 }
 
 @media (max-width: 823px) {

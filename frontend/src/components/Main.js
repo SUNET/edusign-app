@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import Header from "components/Header";
+import HeaderContainer from "containers/Header";
 import SplashContainer from "containers/Splash";
 import FooterContainer from "containers/Footer";
 import DnDAreaContainer from "containers/DnDArea";
@@ -24,7 +24,7 @@ class Main extends Component {
       <>
         <SplashContainer />
         <section id="panel">
-          <Header />
+          <HeaderContainer />
           <div id="main-content">
             <DnDAreaContainer />
             <DocManagerContainer />

@@ -58,7 +58,7 @@ function DocManager(props) {
   function retryButton(index, doc) {
     return (
       <>
-        <div className="button-reload-flex-item">
+        <div className="button-retry-flex-item">
           <Button
             variant="outline-success"
             size="sm"
@@ -71,6 +71,7 @@ function DocManager(props) {
     );
   }
   function signButton(index, doc) {
+    if (doc.creation_response === undefined) {return ''}
     return (
       <>
         <form action={doc.creation_response.destinationUrl} method="post">
