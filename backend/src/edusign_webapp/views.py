@@ -106,12 +106,17 @@ def add_document(document) -> dict:
         current_app.logger.error(f'Problem creating sign request: {e}')
         return {'error': True, 'message': gettext('Communication error with the create endpoint of the eduSign API')}
 
-    doc_in_session = {
-        'name': document['name'],
-        'relay_state': create_data['relayState'],
-        'state': 'loaded',
-    }
-    session['documents'].append(doc_in_session)
+    try:
+        doc_in_session = {
+            'name': document['name'],
+            'relay_state': create_data['relayState'],
+            'state': 'loaded',
+        }
+        session['documents'].append(doc_in_session)
+
+    except KeyError:
+        current_app.logger.error(f'Problem creating sign request, got response: {create_data}')
+        return {'error': True, 'message': create_data['message']}
 
     message = gettext("Success preparing document %(doc)s", doc=document['name'])
 

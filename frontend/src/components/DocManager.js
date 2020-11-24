@@ -37,24 +37,6 @@ function DocManager(props) {
       </>
     );
   }
-  function downloadButton(index, doc) {
-    return (
-      <>
-        <div className="button-download-flex-item">
-          <Button
-            as="a"
-            variant="outline-secondary"
-            size="sm"
-            data-testid={"download-link-" + index}
-            href={doc.blob}
-            download={doc.name}
-          >
-            <FormattedMessage defaultMessage="Download" key="download-button" />
-          </Button>
-        </div>
-      </>
-    );
-  }
   function retryButton(index, doc) {
     return (
       <>
@@ -162,7 +144,8 @@ function DocManager(props) {
                 <div className="loading-flex-item">{" loading ..."}</div>
               </>
             )}
-            {doc.state === "failed" && (
+            {doc.state === "failed-loading" && <>{removeButton(index, doc)}</>}
+            {doc.state === "failed-preparing" && (
               <>
                 {retryButton(index, doc)}
                 {removeButton(index, doc)}
@@ -171,7 +154,6 @@ function DocManager(props) {
             {doc.state === "loaded" && (
               <>
                 {previewButton(index, doc)}
-                {downloadButton(index, doc)}
                 {signButton(index, doc)}
                 {removeButton(index, doc)}
               </>
@@ -185,8 +167,13 @@ function DocManager(props) {
             {doc.state === "signed" && (
               <>
                 {previewButton(index, doc)}
-                {downloadButton(index, doc)}
                 {dlSignedButton(index, doc)}
+              </>
+            )}
+            {doc.state === "failed-signing" && (
+              <>
+                {retryButton(index, doc)}
+                {removeButton(index, doc)}
               </>
             )}
             <DocPreviewContainer doc={doc} index={index} />
