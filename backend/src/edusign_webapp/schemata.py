@@ -51,3 +51,14 @@ class DocumentSchema(Schema):
 class ReferenceSchema(Schema):
     ref = fields.String(required=True)
     creation_response = fields.String(required=True)
+
+
+class SigningDocumentSchema(Schema):
+    name = fields.String(required=True)
+    sign_response = fields.String(required=True)
+    relay_state = fields.String(required=True)
+
+
+class SignedDocumentSchema(Schema):
+    name = fields.String(required=True)
+    signed_content = fields.Raw(required=True)
