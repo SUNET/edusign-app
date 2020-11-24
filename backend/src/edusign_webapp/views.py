@@ -72,10 +72,12 @@ def get_config() -> dict:
     Configuration for the front app
     """
     return {
-        'given_name': session['given_name'],
-        'surname': session['surname'],
-        'email': session['email'],
-        'documents': session['documents'],
+        'payload': {
+            'given_name': session['given_name'],
+            'surname': session['surname'],
+            'email': session['email'],
+            'documents': session['documents'],
+        }
     }
 
 

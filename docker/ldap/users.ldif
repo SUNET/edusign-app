@@ -26,9 +26,9 @@ objectClass: person
 objectClass: top
 objectClass: inetOrgPerson
 objectClass: eduPerson
-givenName: St
+givenName: Testing
 uid: staff1
-sn: aff
+sn: Testersson
 cn: St aff
 mail: staff1@idptestbed.edu
 userPassword: password

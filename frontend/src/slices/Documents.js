@@ -10,6 +10,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   postRequest,
   checkStatus,
+  extractCsrfToken,
   preparePayload,
   processResponseData,
 } from "slices/fetch-utils";
@@ -31,6 +32,7 @@ export const prepareDocument = createAsyncThunk(
         body: body,
       });
       data = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({ level: "danger", message: "comm prob XXX TODO" })
@@ -83,6 +85,7 @@ export const fetchSignedDocument = createAsyncThunk(
         body: body,
       });
       const data = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({

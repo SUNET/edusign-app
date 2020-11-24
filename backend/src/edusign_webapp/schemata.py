@@ -38,7 +38,7 @@ class ConfigSchema(Schema):
     given_name = fields.String(required=True)
     surname = fields.String(required=True)
     email = fields.String(required=True)
-    process_data = fields.String(required=False)
+    documents = fields.Raw(required=False)
 
 
 class DocumentSchema(Schema):

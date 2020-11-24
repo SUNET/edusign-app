@@ -15,8 +15,8 @@ const mapStateToProps = (state, props) => {
   }
   return {
     loading: false,
-    givenName: state.main.config.payload.given_name,
-    surname: state.main.config.payload.surname,
+    givenName: state.main.config.given_name,
+    surname: state.main.config.surname,
   };
 };
 

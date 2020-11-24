@@ -9,7 +9,7 @@
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import { getRequest, checkStatus } from "slices/fetch-utils";
+import { getRequest, checkStatus, extractCsrfToken } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 import { fetchSignedDocument } from "slices/Documents";
 
@@ -23,9 +23,10 @@ export const fetchConfig = createAsyncThunk(
   async (arg, thunkAPI) => {
     try {
       const response = await fetch("/sign/config", getRequest);
-      const configData = checkStatus(response);
-      if (configData.payload.documents !== undefined) {
-        configData.payload.documents.forEach((doc) => {
+      const configData = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, configData);
+      if (configData.documents !== undefined) {
+        configData.documents.forEach((doc) => {
           thunkAPI.dispatch(fetchSignedDocument(doc));
         });
       }
@@ -43,6 +44,7 @@ const mainSlice = createSlice({
   name: "main",
   initialState: {
     loading: false,
+    csrf_token: null,
     config: {},
   },
   reducers: {
@@ -54,14 +56,22 @@ const mainSlice = createSlice({
     appLoaded(state) {
       state.loading = false;
     },
+    /**
+     * @public
+     * @function setCsrfToken
+     * @desc Redux action to keep the csrf token in the state
+     */
+    setCsrfToken(state, action) {
+      state.csrf_token = action.payload;
+    },
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
-      state.config = action.payload;
+      state.config = action.payload.payload;
     },
   },
 });
 
-export const { appLoaded } = mainSlice.actions;
+export const { appLoaded, setCsrfToken } = mainSlice.actions;
 
 export default mainSlice.reducer;
