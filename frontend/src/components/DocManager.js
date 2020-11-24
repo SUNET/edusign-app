@@ -71,27 +71,33 @@ function DocManager(props) {
     );
   }
   function signButton(index, doc) {
-    if (doc.creation_response === undefined) {
-      return "";
+    let creation_response = doc.creation_response;
+    if (creation_response === undefined) {
+      creation_response = {
+        destinationUrl: "dummy",
+        binding: "dummy",
+        relayState: "dummy",
+        signRequest: "dummy",
+      };
     }
     return (
       <>
-        <form action={doc.creation_response.destinationUrl} method="post">
+        <form action={creation_response.destinationUrl} method="post">
           <div>
             <input
               type="hidden"
               name="Binding"
-              value={doc.creation_response.binding}
+              value={creation_response.binding}
             />
             <input
               type="hidden"
               name="RelayState"
-              value={doc.creation_response.relayState}
+              value={creation_response.relayState}
             />
             <input
               type="hidden"
               name="EidSignRequest"
-              value={doc.creation_response.signRequest}
+              value={creation_response.signRequest}
             />
           </div>
           <div className="button-sign-flex-item">
