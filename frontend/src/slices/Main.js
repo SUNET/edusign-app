@@ -11,6 +11,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import { getRequest, checkStatus } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
+import { fetchSignedDocument } from "slices/Documents";
 
 /**
  * @public
@@ -23,6 +24,9 @@ export const fetchConfig = createAsyncThunk(
     try {
       const response = await fetch("/sign/config", getRequest);
       const configData = checkStatus(response);
+      configData.payload.documents.forEach((doc) => {
+        thunkAPI.dispatch(fetchSignedDocument(doc));
+      });
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
       return configData;
     } catch (err) {

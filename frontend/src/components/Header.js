@@ -12,10 +12,12 @@ import "styles/Header.scss";
  */
 class Header extends Component {
   render() {
-    let name = '';
+    let name = "";
     if (!this.props.loading) {
       name = (
-        <span id="name-in-header">{this.props.givenName} {this.props.surname}</span>
+        <span id="name-in-header">
+          {this.props.givenName} {this.props.surname}
+        </span>
       );
     }
     return (

@@ -11,12 +11,12 @@ const mapStateToProps = (state, props) => {
   if (state.main.config === undefined) {
     return {
       loading: true,
-    }
+    };
   }
   return {
-      loading: false,
-      givenName: state.main.config.payload.given_name,
-      surname: state.main.config.payload.surname,
+    loading: false,
+    givenName: state.main.config.payload.given_name,
+    surname: state.main.config.payload.surname,
   };
 };
 

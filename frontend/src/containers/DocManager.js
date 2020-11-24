@@ -16,8 +16,6 @@ import {
   showPreview,
   hidePreview,
   removeDocument,
-  startSigning,
-  setSigned,
 } from "slices/Documents";
 
 const mapStateToProps = (state, props) => {
@@ -41,15 +39,6 @@ const mapDispatchToProps = (dispatch, props) => {
     handleRetry: function (index) {
       return (e) => {
         dispatch(prepareDocument(index));
-      };
-    },
-    handleSign: function (index) {
-      // this code is just a placeholder until we are actually signing documents.
-      return (e) => {
-        dispatch(startSigning(index));
-        setTimeout(() => {
-          dispatch(setSigned(index));
-        }, 1000);
       };
     },
     handleDlSigned: function (index) {

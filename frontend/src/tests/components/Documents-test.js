@@ -12,12 +12,7 @@ import {
 } from "tests/test-utils";
 import Main from "components/Main";
 import DnDAreaContainer from "containers/DnDArea";
-import {
-  addDocument,
-  updateDocument,
-  startSigning,
-  setSigned,
-} from "slices/Documents";
+import { addDocument, updateDocument } from "slices/Documents";
 
 describe("Document representations", function () {
   afterEach(cleanup);
@@ -301,110 +296,6 @@ describe("Document representations", function () {
       screen.queryByTestId("preview-button-next")
     );
     expect(nextButton).to.equal(null);
-
-    // if we don't unmount here, mounted components (DocPreview) leak to other tests
-    unmount();
-  });
-
-  it("It shows signing... after dispatching the startSigning action", async () => {
-    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-
-    const fileObj = new File([samplePDFData], "test.pdf", {
-      type: "application/pdf",
-    });
-    const file = {
-      name: fileObj.name,
-      size: fileObj.size,
-      type: fileObj.type,
-      blob: null,
-    };
-    const file2 = {
-      name: "test2.pdf",
-      size: fileObj.size,
-      type: fileObj.type,
-      blob: null,
-    };
-    store.dispatch(addDocument(file));
-    store.dispatch(addDocument(file2));
-    await flushPromises(rerender, wrapped);
-
-    const updatedFile = {
-      ...file,
-      blob: "data:application/pdf;base64," + b64SamplePDFData,
-    };
-    store.dispatch(updateDocument(updatedFile));
-    await flushPromises(rerender, wrapped);
-
-    let signing = await waitFor(() => screen.queryByText(/signing .../));
-    expect(signing).to.equal(null);
-
-    const signButton = await waitFor(() => screen.getAllByText("Sign"));
-    expect(signButton.length).to.equal(1);
-
-    const dlButton = await waitFor(() =>
-      screen.getAllByTestId("download-link-0")
-    );
-    expect(dlButton.length).to.equal(1);
-
-    store.dispatch(startSigning(0));
-    await flushPromises(rerender, wrapped);
-
-    signing = await waitFor(() => screen.getAllByText(/signing .../));
-    expect(signing.length).to.equal(1);
-
-    // if we don't unmount here, mounted components (DocPreview) leak to other tests
-    unmount();
-  });
-
-  it("It shows the download (signed) button after dispatching the setSigned action", async () => {
-    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-
-    const fileObj = new File([samplePDFData], "test.pdf", {
-      type: "application/pdf",
-    });
-    const file = {
-      name: fileObj.name,
-      size: fileObj.size,
-      type: fileObj.type,
-      blob: null,
-    };
-    const file2 = {
-      name: "test2.pdf",
-      size: fileObj.size,
-      type: fileObj.type,
-      blob: null,
-    };
-    store.dispatch(addDocument(file));
-    store.dispatch(addDocument(file2));
-    await flushPromises(rerender, wrapped);
-
-    const updatedFile = {
-      ...file,
-      blob: "data:application/pdf;base64," + b64SamplePDFData,
-    };
-    store.dispatch(updateDocument(updatedFile));
-    await flushPromises(rerender, wrapped);
-
-    let signing = await waitFor(() => screen.queryByText(/signing .../));
-    expect(signing).to.equal(null);
-
-    let dlButton = await waitFor(() => screen.queryByText(/Download (signed)/));
-    expect(signing).to.equal(null);
-
-    const signButton = await waitFor(() => screen.getAllByText("Sign"));
-    expect(signButton.length).to.equal(1);
-
-    store.dispatch(startSigning(0));
-    await flushPromises(rerender, wrapped);
-
-    store.dispatch(setSigned(0));
-    await flushPromises(rerender, wrapped);
-
-    signing = await waitFor(() => screen.queryByText(/signing .../));
-    expect(signing).to.equal(null);
-
-    dlButton = await waitFor(() => screen.getAllByText("Download (signed)"));
-    expect(dlButton.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();

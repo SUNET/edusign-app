@@ -17,11 +17,11 @@ import { addNotification } from "slices/Notifications";
 
 /**
  * @public
- * @function fetchConfig
- * @desc Redux async thunk to get configuration data from the backend.
+ * @function prepareDocument
+ * @desc Redux async thunk to send documents to the backend for preparation
  */
 export const prepareDocument = createAsyncThunk(
-  "main/prepareDocument",
+  "documents/prepareDocument",
   async (document, thunkAPI) => {
     const body = preparePayload(thunkAPI.getState(), document);
     let data = null;
@@ -39,6 +39,60 @@ export const prepareDocument = createAsyncThunk(
         ...document,
         state: "failed",
         reason: err.toString(),
+      });
+    }
+    if ("message" in data) {
+      const level = data.error ? "danger" : "success";
+      thunkAPI.dispatch(
+        addNotification({ level: level, message: data.message })
+      );
+    }
+    if ("payload" in data) {
+      const updatedDoc = {
+        ...document,
+        ...data.payload,
+        state: "loaded",
+      };
+      return updatedDoc;
+    }
+    return thunkAPI.rejectWithValue({
+      ...document,
+      state: "failed",
+      reason: data.message,
+    });
+  }
+);
+
+/**
+ * @public
+ * @function fetchSignedDocument
+ * @desc Redux async thunk to get signed documents from the backend.
+ */
+export const fetchSignedDocument = createAsyncThunk(
+  "documents/fetchSignedDocument",
+  async (document, thunkAPI) => {
+    const payload = {
+      name: document.name,
+      sign_response: document.sign_response,
+      relay_state: document.relay_state,
+    };
+    const body = preparePayload(thunkAPI.getState(), payload);
+    try {
+      const response = fetch("/sign/get-signed", {
+        ...postRequest,
+        body: body,
+      });
+      const data = await checkStatus(response);
+    } catch (err) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: "comm prob signed XXX TODO",
+        })
+      );
+      return thunkAPI.rejectWithValue({
+        ...document,
+        state: "failed",
       });
     }
     if ("message" in data) {
@@ -155,16 +209,17 @@ const documentsSlice = createSlice({
     },
     /**
      * @public
-     * @function startSigning
+     * @function setSigned
      * @desc Redux action to update a document in the documents state key,
-     * setting the state key to "signing"
+     * setting the state key to "signed"
      */
-    startSigning(state, action) {
+    setSigned(state, action) {
       state.documents = state.documents.map((doc, index) => {
-        if (index === action.payload) {
+        if (doc.name === action.payload.name) {
           return {
             ...doc,
-            state: "signing",
+            ...action.payload,
+            state: "signed",
           };
         } else {
           return {
@@ -175,16 +230,16 @@ const documentsSlice = createSlice({
     },
     /**
      * @public
-     * @function setSigned
+     * @function setFailed
      * @desc Redux action to update a document in the documents state key,
-     * setting the state key to "signed"
+     * setting the state key to "failed"
      */
-    setSigned(state, action) {
+    setFailed(state, action) {
       state.documents = state.documents.map((doc, index) => {
-        if (index === action.payload) {
+        if (doc.name === action.payload.name) {
           return {
             ...doc,
-            state: "signed",
+            state: "failed",
           };
         } else {
           return {
@@ -222,6 +277,33 @@ const documentsSlice = createSlice({
         }
       });
     },
+    [fetchSignedDocument.fulfilled]: (state, action) => {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload.name) {
+          return {
+            ...action.payload,
+          };
+        } else {
+          return {
+            ...doc,
+          };
+        }
+      });
+    },
+
+    [fetchSignedDocument.rejected]: (state, action) => {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload.name) {
+          return {
+            ...action.payload,
+          };
+        } else {
+          return {
+            ...doc,
+          };
+        }
+      });
+    },
   },
 });
 
@@ -231,8 +313,6 @@ export const {
   showPreview,
   hidePreview,
   removeDocument,
-  startSigning,
-  setSigned,
 } = documentsSlice.actions;
 
 export default documentsSlice.reducer;

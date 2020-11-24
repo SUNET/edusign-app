@@ -71,7 +71,9 @@ function DocManager(props) {
     );
   }
   function signButton(index, doc) {
-    if (doc.creation_response === undefined) {return ''}
+    if (doc.creation_response === undefined) {
+      return "";
+    }
     return (
       <>
         <form action={doc.creation_response.destinationUrl} method="post">
@@ -190,7 +192,6 @@ DocManager.propTypes = {
    */
   documents: PropTypes.array,
   handlePreview: PropTypes.func,
-  handleSign: PropTypes.func,
   handleRemove: PropTypes.func,
   handleDlSigned: PropTypes.func,
 };
