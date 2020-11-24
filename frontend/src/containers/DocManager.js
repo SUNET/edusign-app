@@ -15,6 +15,7 @@ import {
   prepareDocument,
   showPreview,
   hidePreview,
+  startSigningDocument,
   removeDocument,
 } from "slices/Documents";
 
@@ -39,6 +40,11 @@ const mapDispatchToProps = (dispatch, props) => {
     handleRetry: function (index) {
       return (e) => {
         dispatch(prepareDocument(index));
+      };
+    },
+    handleSubmitToSign: function (index) {
+      return (e) => {
+        dispatch(startSigningDocument(index));
       };
     },
     handleDlSigned: function (index) {

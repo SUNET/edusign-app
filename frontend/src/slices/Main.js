@@ -24,9 +24,11 @@ export const fetchConfig = createAsyncThunk(
     try {
       const response = await fetch("/sign/config", getRequest);
       const configData = checkStatus(response);
-      configData.payload.documents.forEach((doc) => {
-        thunkAPI.dispatch(fetchSignedDocument(doc));
-      });
+      if (configData.payload.documents !== undefined) {
+        configData.payload.documents.forEach((doc) => {
+          thunkAPI.dispatch(fetchSignedDocument(doc));
+        });
+      }
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
       return configData;
     } catch (err) {

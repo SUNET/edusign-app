@@ -37,7 +37,7 @@ export const prepareDocument = createAsyncThunk(
       );
       return thunkAPI.rejectWithValue({
         ...document,
-        state: "failed",
+        state: "failed-preparing",
         reason: err.toString(),
       });
     }
@@ -57,7 +57,7 @@ export const prepareDocument = createAsyncThunk(
     }
     return thunkAPI.rejectWithValue({
       ...document,
-      state: "failed",
+      state: "failed-preparing",
       reason: data.message,
     });
   }
@@ -92,7 +92,7 @@ export const fetchSignedDocument = createAsyncThunk(
       );
       return thunkAPI.rejectWithValue({
         ...document,
-        state: "failed",
+        state: "failed-signing",
       });
     }
     if ("message" in data) {
@@ -111,7 +111,7 @@ export const fetchSignedDocument = createAsyncThunk(
     }
     return thunkAPI.rejectWithValue({
       ...document,
-      state: "failed",
+      state: "failed-signing",
       reason: data.message,
     });
   }
@@ -149,6 +149,25 @@ const documentsSlice = createSlice({
           return {
             ...action.payload,
             state: "loading",
+          };
+        } else {
+          return {
+            ...doc,
+          };
+        }
+      });
+    },
+    /**
+     * @public
+     * @function updateDocumentFail
+     * @desc Redux action to mark that a document has failed loading, settngs its state to "failed-loading"
+     */
+    updateDocumentFail(state, action) {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload.name) {
+          return {
+            ...doc,
+            state: "failed-loading",
           };
         } else {
           return {
@@ -209,6 +228,26 @@ const documentsSlice = createSlice({
     },
     /**
      * @public
+     * @function startSigningDocument
+     * @desc Redux action to update a document in the documents state key,
+     * setting the state key to "signing"
+     */
+    startSigningDocument(state, action) {
+      state.documents = state.documents.map((doc, index) => {
+        if (index === action.payload) {
+          return {
+            ...doc,
+            state: "signing",
+          };
+        } else {
+          return {
+            ...doc,
+          };
+        }
+      });
+    },
+    /**
+     * @public
      * @function setSigned
      * @desc Redux action to update a document in the documents state key,
      * setting the state key to "signed"
@@ -220,26 +259,6 @@ const documentsSlice = createSlice({
             ...doc,
             ...action.payload,
             state: "signed",
-          };
-        } else {
-          return {
-            ...doc,
-          };
-        }
-      });
-    },
-    /**
-     * @public
-     * @function setFailed
-     * @desc Redux action to update a document in the documents state key,
-     * setting the state key to "failed"
-     */
-    setFailed(state, action) {
-      state.documents = state.documents.map((doc, index) => {
-        if (doc.name === action.payload.name) {
-          return {
-            ...doc,
-            state: "failed",
           };
         } else {
           return {
@@ -310,9 +329,11 @@ const documentsSlice = createSlice({
 export const {
   addDocument,
   updateDocument,
+  updateDocumentFail,
   showPreview,
   hidePreview,
   removeDocument,
+  startSigningDocument,
 } = documentsSlice.actions;
 
 export default documentsSlice.reducer;

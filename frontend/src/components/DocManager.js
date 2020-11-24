@@ -95,7 +95,12 @@ function DocManager(props) {
             />
           </div>
           <div className="button-sign-flex-item">
-            <Button variant="outline-success" size="sm" type="submit">
+            <Button
+              variant="outline-success"
+              size="sm"
+              type="submit"
+              onClick={props.handleSubmitToSign(index)}
+            >
               <FormattedMessage defaultMessage="Sign" key="sign-button" />
             </Button>
           </div>
@@ -194,6 +199,7 @@ DocManager.propTypes = {
   handlePreview: PropTypes.func,
   handleRemove: PropTypes.func,
   handleDlSigned: PropTypes.func,
+  handleSubmitToSign: PropTypes.func,
 };
 
 export default DocManager;

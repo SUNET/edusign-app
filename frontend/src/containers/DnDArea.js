@@ -13,7 +13,12 @@ import { connect } from "react-redux";
 import { updateIntl } from "react-intl-redux";
 
 import DnDArea from "components/DnDArea";
-import { addDocument, updateDocument, prepareDocument } from "slices/Documents";
+import {
+  addDocument,
+  updateDocument,
+  updateDocumentFail,
+  prepareDocument,
+} from "slices/Documents";
 import { setWaiting, setReceiving } from "slices/DnDArea";
 import { addNotification } from "slices/Notifications";
 
@@ -62,6 +67,7 @@ const mapDispatchToProps = (dispatch, props) => {
             { name: fileObj.name }
           );
           dispatch(addNotification({ level: "danger", message: errorMsg }));
+          dispatch(updateDocumentFail(file));
         };
         reader.readAsDataURL(fileObj);
       });
@@ -76,6 +82,7 @@ const mapDispatchToProps = (dispatch, props) => {
           { name: rejected.file.name, type: rejected.file.type }
         );
         dispatch(addNotification({ level: "danger", message: errorMsg }));
+        dispatch(updateDocumentFail({ name: rejected.file.name }));
       });
     },
   };
