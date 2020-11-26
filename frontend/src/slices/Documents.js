@@ -15,6 +15,7 @@ import {
   processResponseData,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
+import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 
 /**
  * @public
@@ -133,12 +134,14 @@ const documentsSlice = createSlice({
      * and setting the the show key to false, the blob key to null and the state key to "loading".
      */
     addDocument(state, action) {
-      state.documents.push({
+      const document = {
         // action.payload carries keys: name, size, type, and blob
         ...action.payload,
         show: false,
         state: "loading",
-      });
+      };
+      dbSaveDocument(document);
+      state.documents.push(document);
     },
     /**
      * @public
@@ -149,10 +152,12 @@ const documentsSlice = createSlice({
     updateDocument(state, action) {
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
-          return {
+          const document = {
             ...action.payload,
             state: "loading",
           };
+          dbSaveDocument(document);
+          return document;
         } else {
           return {
             ...doc,
@@ -168,10 +173,12 @@ const documentsSlice = createSlice({
     updateDocumentFail(state, action) {
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
-          return {
+          const document = {
             ...doc,
             state: "failed-loading",
           };
+          dbSaveDocument(document);
+          return document;
         } else {
           return {
             ...doc,
@@ -225,8 +232,9 @@ const documentsSlice = createSlice({
      * @desc Redux action to remove a document from the documents state key.
      */
     removeDocument(state, action) {
-      state.documents = state.documents.filter((doc, index) => {
-        return index !== action.payload;
+      dbRemoveDocument({name: action.payload});
+      state.documents = state.documents.filter((doc) => {
+        return doc.name !== action.payload;
       });
     },
     /**
@@ -238,10 +246,12 @@ const documentsSlice = createSlice({
     startSigningDocument(state, action) {
       state.documents = state.documents.map((doc, index) => {
         if (index === action.payload) {
-          return {
+          const document = {
             ...doc,
             state: "signing",
           };
+          dbSaveDocument(document);
+          return document;
         } else {
           return {
             ...doc,
@@ -258,10 +268,32 @@ const documentsSlice = createSlice({
     setSigned(state, action) {
       state.documents = state.documents.map((doc, index) => {
         if (doc.name === action.payload.name) {
-          return {
+          const document = {
             ...doc,
             ...action.payload,
             state: "signed",
+          };
+          dbSaveDocument(document);
+          return document;
+        } else {
+          return {
+            ...doc,
+          };
+        }
+      });
+    },
+    /**
+     * @public
+     * @function setStatus
+     * @desc Redux action to update a document in the documents state key,
+     * setting the state key to whatever we want, mainly for testing
+     */
+    setState(state, action) {
+      state.documents = state.documents.map((doc, index) => {
+        if (index === action.payload.index) {
+          return {
+            ...doc,
+            state: action.payload.state,
           };
         } else {
           return {
@@ -273,6 +305,7 @@ const documentsSlice = createSlice({
   },
   extraReducers: {
     [prepareDocument.fulfilled]: (state, action) => {
+      dbSaveDocument(action.payload);
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
           return {
@@ -287,6 +320,7 @@ const documentsSlice = createSlice({
     },
 
     [prepareDocument.rejected]: (state, action) => {
+      dbSaveDocument(action.payload);
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
           return {

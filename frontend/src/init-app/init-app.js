@@ -12,6 +12,7 @@ import ReactDOM from "react-dom";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import rootReducer from "init-app/store";
+import getDb from "init-app/database";
 import { fetchConfig } from "slices/Main";
 
 /*
@@ -22,39 +23,39 @@ import { fetchConfig } from "slices/Main";
 const langs = AVAILABLE_LANGUAGES;
 const messages = LOCALIZED_MESSAGES;
 
+
+const db = await getDb();
+
 /**
  * @private
  * @function loadPersistedState
  * @desc To load persisted Redux state from local storage
  */
 const loadPersistedState = () => {
-  try {
-    const serializedState = localStorage.getItem("edusign-state");
-    if (serializedState === null) {
-      return undefined;
-    }
-    return {
-      ...JSON.parse(serializedState),
-      main: { loading: true },
-      notifications: { messages: [] },
+  console.log("loading persisted state");
+  if (db !== null) {
+    const transaction = db.transaction(["documents"]);
+    transaction.onerror = (event) => {
+      console.log("cannot create a db transaction for reading", event);
+      return {
+        documents: [],
+      };
     };
-  } catch (err) {
-    return undefined;
-  }
-};
-
-/**
- * @private
- * @function saveState
- * @param {object} state: The Redux state to be saved to local storage.
- * @desc To save the Redux state into local storage.
- */
-const saveState = (state) => {
-  try {
-    const serialized = JSON.stringify(state);
-    localStorage.setItem("edusign-state", serialized);
-  } catch (err) {
-    console.log("Cannot save the state: ", err);
+    const docStore = transaction.objectStore("documents");
+    const documents = new Array();
+    docStore.openCursor().onsuccess = (event) => {
+      cursor = event.target.result;
+      if (cursor) {
+        console.log("retrieving document from db", cursor.value.name);
+        documents.push(cursor.value);
+        cursor.continue();
+      }
+    };
+    return {
+      documents: documents,
+    };
+  } else {
+    console.log("could not open db");
   }
 };
 
@@ -76,11 +77,6 @@ export const edusignStore = (test = false) => {
 };
 
 const store = edusignStore();
-
-/* subscribe the saveState function to changes on the Redux store */
-store.subscribe(() => {
-  saveState(store.getState());
-});
 
 /* render app */
 

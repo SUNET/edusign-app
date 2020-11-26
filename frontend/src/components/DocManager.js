@@ -103,7 +103,7 @@ function DocManager(props) {
           <Button
             variant="outline-danger"
             size="sm"
-            onClick={props.handleRemove(index)}
+            onClick={props.handleRemove(doc.name)}
           >
             <FormattedMessage defaultMessage="Remove" key="remove-button" />
           </Button>

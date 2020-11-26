@@ -32,9 +32,9 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(showPreview(index));
       };
     },
-    handleRemove: function (index) {
+    handleRemove: function (name) {
       return (e) => {
-        dispatch(removeDocument(index));
+        dispatch(removeDocument(name));
       };
     },
     handleRetry: function (index) {
