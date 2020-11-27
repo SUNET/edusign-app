@@ -5,28 +5,31 @@
 
 let db = null;
 
-const request = indexedDB.open("eduSignDB", 1);
-
-async function getDb () {
-  const promisedDb = Promise((resolve, reject) => {
-    request.onsuccess = (event) => {
-      console.log("Loaded db from disk");
-      const newdb = event.target.result;
-      db = newdb;
-      resolve(newdb);
-    };
-    request.onerror = (event) => {
-      console.log("Problem opening eduSign db", event);
-      reject("Problem opening eduSign db");
-    };
-    request.onupgradeneeded = (event) => {
-      const newdb = event.target.result;
-      db = newdb;
-      const docStore = db.createObjectStore("documents", {keyPath: "name"});
-      docStore.createIndex("name", "name", {unique: true});
-      resolve(newdb);
-    };
-  });
+export function getDb () {
+  if (db === null) {
+    const promisedDb = new Promise((resolve, reject) => {
+      const request = indexedDB.open("eduSignDB", 1);
+      request.onsuccess = (event) => {
+        console.log("Loaded db from disk");
+        const newdb = event.target.result;
+        db = newdb;
+        resolve(newdb);
+      };
+      request.onerror = (event) => {
+        console.log("Problem opening eduSign db", event);
+        reject("Problem opening eduSign db");
+      };
+      request.onupgradeneeded = (event) => {
+        const newdb = event.target.result;
+        db = newdb;
+        const docStore = db.createObjectStore("documents", {keyPath: "id", autoIncrement: true});
+        resolve(newdb);
+      };
+    });
+    return promisedDb;
+  } else {
+    return db;
+  }
 }
 
 const documentDo = (action, document) => {
@@ -59,5 +62,3 @@ export const dbSaveDocument = (document) => {
 export const dbRemoveDocument = (document) => {
   documentDo("removing", document);
 };
-
-export default db;

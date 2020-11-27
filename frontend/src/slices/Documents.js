@@ -16,6 +16,97 @@ import {
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
+import { getDb } from "init-app/database";
+
+/**
+ * @public
+ * @function createDocument
+ * @desc Redux async thunk to add a new document to IndexedDB.
+ */
+export const createDocument = createAsyncThunk(
+  "documents/createDocument",
+  async (document, thunkAPI) => {
+    console.log("Creating document", document);
+    document.show = false;
+    document.state = "loading";
+    const db = await getDb();
+    if (db !== null) {
+      const promisedDoc = new Promise((resolve, reject) => {
+        const transaction = db.transaction(["documents"], "readwrite");
+        transaction.onerror = (event) => {
+          console.log("Problem with create transaction", event);
+          reject("Problem with create transaction");
+        };
+        const docStore = transaction.objectStore("documents");
+        console.log("saving document to db", document.name);
+        const docRequest = docStore.add(document);
+        docRequest.onsuccess = (event) => {
+          console.log("saving document", event);
+          resolve({
+            ...document,
+            id: event.target.result
+          });
+        };
+        docRequest.onerror = (event) => {
+          console.log("Problem saving document", event);
+          reject("Problem saving document");
+        };
+      });
+      const newDoc = await promisedDoc;
+      thunkAPI.dispatch(prepareDocument(newDoc));
+      return newDoc;
+    } else {
+      console.log("Cannot save the state, db absent");
+      thunkAPI.rejectWithValue(document);
+    }
+  }
+);
+
+/**
+ * @public
+ * @function loadDocuments
+ * @desc Redux async thunk to get documents saved in IndexedDB.
+ */
+export const loadDocuments = createAsyncThunk(
+  "documents/loadDocuments",
+  async (arg, thunkAPI) => {
+    console.log("loading persisted documents");
+    const db = await getDb();
+    console.log("loaded db", db);
+
+    if (db !== null) {
+      const promisedDocuments = new Promise((resolve, reject) => {
+        const transaction = db.transaction(["documents"]);
+        transaction.onerror = (event) => {
+          console.log("cannot create a db transaction for reading", event);
+          resolve([]);
+        };
+        const docStore = transaction.objectStore("documents");
+        const docs = [];
+        docStore.openCursor().onsuccess = (event) => {
+          const cursor = event.target.result;
+          if (cursor) {
+            console.log("retrieving document from db", cursor.value);
+            docs.push(cursor.value);
+            cursor.continue();
+          }
+          if (cursor === null) {
+            resolve(docs);
+          }
+        };
+      });
+      const documents = await promisedDocuments;
+      return {
+        documents: documents,
+      };
+    } else {
+      console.log("could not open db");
+      return {
+        documents: [],
+      };
+    }
+  }
+);
 
 /**
  * @public
@@ -25,7 +116,13 @@ import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 export const prepareDocument = createAsyncThunk(
   "documents/prepareDocument",
   async (document, thunkAPI) => {
-    const body = preparePayload(thunkAPI.getState(), document);
+    const docToSend = {
+      name: document.name,
+      blob: document.blob,
+      size: document.size,
+      type: document.type,
+    };
+    const body = preparePayload(thunkAPI.getState(), docToSend);
     let data = null;
     try {
       const response = await fetch("/sign/add-doc", {
@@ -127,65 +224,6 @@ const documentsSlice = createSlice({
     documents: [],
   },
   reducers: {
-    /**
-     * @public
-     * @function addDocument
-     * @desc Redux action to add a document to the documents state key, setting its name, size and type,
-     * and setting the the show key to false, the blob key to null and the state key to "loading".
-     */
-    addDocument(state, action) {
-      const document = {
-        // action.payload carries keys: name, size, type, and blob
-        ...action.payload,
-        show: false,
-        state: "loading",
-      };
-      dbSaveDocument(document);
-      state.documents.push(document);
-    },
-    /**
-     * @public
-     * @function updateDocument
-     * @desc Redux action to update a document in the documents state key,
-     * setting the blob key to the contents of the file as a base64 data URL, and the state key to "loaded".
-     */
-    updateDocument(state, action) {
-      state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload.name) {
-          const document = {
-            ...action.payload,
-            state: "loading",
-          };
-          dbSaveDocument(document);
-          return document;
-        } else {
-          return {
-            ...doc,
-          };
-        }
-      });
-    },
-    /**
-     * @public
-     * @function updateDocumentFail
-     * @desc Redux action to mark that a document has failed loading, settngs its state to "failed-loading"
-     */
-    updateDocumentFail(state, action) {
-      state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload.name) {
-          const document = {
-            ...doc,
-            state: "failed-loading",
-          };
-          dbSaveDocument(document);
-          return document;
-        } else {
-          return {
-            ...doc,
-          };
-        }
-      });
-    },
     /**
      * @public
      * @function showPreview
@@ -304,6 +342,12 @@ const documentsSlice = createSlice({
     },
   },
   extraReducers: {
+    [createDocument.fulfilled]: (state, action) => {
+      state.documents.push(action.payload);
+    },
+    [loadDocuments.fulfilled]: (state, action) => {
+      state.documents = action.payload.documents;
+    },
     [prepareDocument.fulfilled]: (state, action) => {
       dbSaveDocument(action.payload);
       state.documents = state.documents.map((doc) => {
@@ -364,9 +408,6 @@ const documentsSlice = createSlice({
 });
 
 export const {
-  addDocument,
-  updateDocument,
-  updateDocumentFail,
   showPreview,
   hidePreview,
   removeDocument,

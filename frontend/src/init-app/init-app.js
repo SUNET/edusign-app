@@ -12,8 +12,8 @@ import ReactDOM from "react-dom";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import rootReducer from "init-app/store";
-import getDb from "init-app/database";
 import { fetchConfig } from "slices/Main";
+import { loadDocuments } from "slices/Documents";
 
 /*
  * internationalization.
@@ -22,42 +22,6 @@ import { fetchConfig } from "slices/Main";
 
 const langs = AVAILABLE_LANGUAGES;
 const messages = LOCALIZED_MESSAGES;
-
-
-const db = await getDb();
-
-/**
- * @private
- * @function loadPersistedState
- * @desc To load persisted Redux state from local storage
- */
-const loadPersistedState = () => {
-  console.log("loading persisted state");
-  if (db !== null) {
-    const transaction = db.transaction(["documents"]);
-    transaction.onerror = (event) => {
-      console.log("cannot create a db transaction for reading", event);
-      return {
-        documents: [],
-      };
-    };
-    const docStore = transaction.objectStore("documents");
-    const documents = new Array();
-    docStore.openCursor().onsuccess = (event) => {
-      cursor = event.target.result;
-      if (cursor) {
-        console.log("retrieving document from db", cursor.value.name);
-        documents.push(cursor.value);
-        cursor.continue();
-      }
-    };
-    return {
-      documents: documents,
-    };
-  } else {
-    console.log("could not open db");
-  }
-};
 
 /**
  * @public
@@ -70,9 +34,6 @@ const loadPersistedState = () => {
  */
 export const edusignStore = (test = false) => {
   let storeObj = { reducer: rootReducer };
-  if (!test) {
-    storeObj.preloadedState = loadPersistedState();
-  }
   return configureStore(storeObj);
 };
 
@@ -87,6 +48,7 @@ const store = edusignStore();
  */
 const appIsRendered = function () {
   store.dispatch(fetchConfig());
+  store.dispatch(loadDocuments());
 };
 
 /**
