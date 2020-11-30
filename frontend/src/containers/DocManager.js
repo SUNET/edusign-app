@@ -15,21 +15,26 @@ import {
   prepareDocument,
   showPreview,
   hidePreview,
-  startSigningDocument,
+  toggleDocSelection,
+  startSigningDocuments,
   removeDocument,
 } from "slices/Documents";
 
 const mapStateToProps = (state, props) => {
   return {
     documents: state.documents.documents,
+    destinationUrl: state.main.signingData.destinationUrl,
+    binding: state.main.signingData.binding,
+    relayState: state.main.signingData.relayState,
+    signRequest: state.main.signingData.signRequest,
   };
 };
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handlePreview: function (index) {
+    handlePreview: function (name) {
       return (e) => {
-        dispatch(showPreview(index));
+        dispatch(showPreview(name));
       };
     },
     handleRemove: function (name) {
@@ -37,17 +42,20 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(removeDocument(name));
       };
     },
-    handleRetry: function (index) {
+    handleRetry: function (name) {
       return (e) => {
-        dispatch(prepareDocument(index));
+        dispatch(prepareDocument(name));
       };
     },
-    handleSubmitToSign: function (index) {
+    handleDocSelection: function (name) {
       return (e) => {
-        dispatch(startSigningDocument(index));
+          dispatch(toggleDocSelection({name: name, select: e.target.checked}));
       };
     },
-    handleDlSigned: function (index) {
+    handleSubmitToSign: function (e) {
+      dispatch(startSigningDocuments());
+    },
+    handleDlSigned: function (name) {
       // this code is just a placeholder until we are actually signing documents.
       return (e) => {
         alert("TODO");

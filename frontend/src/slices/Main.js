@@ -47,6 +47,7 @@ const mainSlice = createSlice({
     loading: false,
     csrf_token: null,
     config: {},
+    signingData: {},
   },
   reducers: {
     /**
@@ -64,6 +65,14 @@ const mainSlice = createSlice({
      */
     setCsrfToken(state, action) {
       state.csrf_token = action.payload;
+    },
+    /**
+     * @public
+     * @function updateSigningForm
+     * @desc Redux action to pass nput values to the signing form
+     */
+    updateSigningForm(state, action) {
+      state.signingData = action.payload;
     },
   },
   extraReducers: {

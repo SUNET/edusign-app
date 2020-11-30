@@ -22,14 +22,14 @@ import "styles/DocManager.scss";
  * @component
  */
 function DocManager(props) {
-  function previewButton(index, doc) {
+  function previewButton(doc) {
     return (
       <>
         <div className="button-preview-flex-item">
           <Button
             variant="outline-dark"
             size="sm"
-            onClick={props.handlePreview(index)}
+            onClick={props.handlePreview(doc.name)}
           >
             <FormattedMessage defaultMessage="Preview" key="preview-button" />
           </Button>
@@ -37,14 +37,14 @@ function DocManager(props) {
       </>
     );
   }
-  function retryButton(index, doc) {
+  function retryButton(doc) {
     return (
       <>
         <div className="button-retry-flex-item">
           <Button
             variant="outline-success"
             size="sm"
-            onClick={props.handleRetry(index)}
+            onClick={props.handleRetry(doc.name)}
           >
             <FormattedMessage defaultMessage="Retry" key="retry-button" />
           </Button>
@@ -52,51 +52,14 @@ function DocManager(props) {
       </>
     );
   }
-  function signButton(index, doc) {
-    let creation_response = doc.creation_response;
-    if (creation_response === undefined) {
-      creation_response = {
-        destinationUrl: "dummy",
-        binding: "dummy",
-        relayState: "dummy",
-        signRequest: "dummy",
-      };
-    }
+  function selectDoc(doc) {
     return (
       <>
-        <form action={creation_response.destinationUrl} method="post">
-          <div>
-            <input
-              type="hidden"
-              name="Binding"
-              value={creation_response.binding}
-            />
-            <input
-              type="hidden"
-              name="RelayState"
-              value={creation_response.relayState}
-            />
-            <input
-              type="hidden"
-              name="EidSignRequest"
-              value={creation_response.signRequest}
-            />
-          </div>
-          <div className="button-sign-flex-item">
-            <Button
-              variant="outline-success"
-              size="sm"
-              type="submit"
-              onClick={props.handleSubmitToSign(index)}
-            >
-              <FormattedMessage defaultMessage="Sign" key="sign-button" />
-            </Button>
-          </div>
-        </form>
+        <input type="checkbox" onClick={props.handleDocSelection(doc.name)} defaultChecked={doc.state === "selected"} />
       </>
     );
   }
-  function removeButton(index, doc) {
+  function removeButton(doc) {
     return (
       <>
         <div className="button-remove-flex-item">
@@ -111,14 +74,14 @@ function DocManager(props) {
       </>
     );
   }
-  function dlSignedButton(index, doc) {
+  function dlSignedButton(doc) {
     return (
       <>
         <div className="button-signed-flex-item">
           <Button
             variant="outline-success"
             size="sm"
-            onClick={props.handleDlSigned(index)}
+            onClick={props.handleDlSigned(doc.name)}
           >
             <FormattedMessage
               defaultMessage="Download (signed)"
@@ -130,9 +93,12 @@ function DocManager(props) {
     );
   }
 
+  let someSelected = false;
+
   return (
     <>
       {props.documents.map((doc, index) => {
+        if (doc.state === "selected") someSelected = true;
         return (
           <div className="doc-flex-container" key={index}>
             <div className="name-flex-item">{doc.name}</div>
@@ -144,18 +110,18 @@ function DocManager(props) {
                 <div className="loading-flex-item">{" loading ..."}</div>
               </>
             )}
-            {doc.state === "failed-loading" && <>{removeButton(index, doc)}</>}
+            {doc.state === "failed-loading" && <>{removeButton(doc)}</>}
             {doc.state === "failed-preparing" && (
               <>
-                {retryButton(index, doc)}
-                {removeButton(index, doc)}
+                {retryButton(doc)}
+                {removeButton(doc)}
               </>
             )}
-            {doc.state === "loaded" && (
+            {(doc.state === "loaded" || doc.state === "selected") && (
               <>
-                {previewButton(index, doc)}
-                {signButton(index, doc)}
-                {removeButton(index, doc)}
+                {selectDoc(doc)}
+                {previewButton(doc)}
+                {removeButton(doc)}
               </>
             )}
             {doc.state === "signing" && (
@@ -166,20 +132,51 @@ function DocManager(props) {
             )}
             {doc.state === "signed" && (
               <>
-                {previewButton(index, doc)}
-                {dlSignedButton(index, doc)}
+                {previewButton(doc)}
+                {dlSignedButton(doc)}
               </>
             )}
             {doc.state === "failed-signing" && (
               <>
-                {retryButton(index, doc)}
-                {removeButton(index, doc)}
+                {retryButton(doc)}
+                {removeButton(doc)}
               </>
             )}
             <DocPreviewContainer doc={doc} index={index} />
           </div>
         );
       })}
+      <div className="button-sign-flex-item">
+        <Button
+          variant="outline-success"
+          size="lg"
+          disabled={!someSelected}
+          onClick={props.handleSubmitToSign}
+        >
+          <FormattedMessage defaultMessage="Sign" key="sign-button" />
+        </Button>
+      </div>
+      {(props.destinationUrl !== undefined) && (
+        <div>
+          <form id="signing-form" action={props.destinationUrl} method="post">
+            <input
+              type="hidden"
+              name="Binding"
+              value={props.binding}
+            />
+            <input
+              type="hidden"
+              name="RelayState"
+              value={props.relayState}
+            />
+            <input
+              type="hidden"
+              name="EidSignRequest"
+              value={props.signRequest}
+            />
+          </form>
+        </div>
+      )}
     </>
   );
 }

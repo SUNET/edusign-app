@@ -42,6 +42,8 @@ from edusign_webapp.schemata import (
     ReferenceSchema,
     SignedDocumentSchema,
     SigningDocumentSchema,
+    ToSignSchema,
+    SignRequestSchema,
 )
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
@@ -95,32 +97,41 @@ def add_document(document) -> dict:
         return {'error': True, 'message': gettext('Communication error with the prepare endpoint of the eduSign API')}
 
     doc_ref = prepare_data['updatedPdfDocumentReference']
-    document['ref'] = doc_ref
-    visible_req = prepare_data['visiblePdfSignatureRequirement']
+    sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])
 
+    message = gettext("Success preparing document %(doc)s", doc=document['name'])
+
+    return {'message': message, 'payload': {'ref': doc_ref, 'sign_requirement': sign_req}}
+
+
+@edusign_views.route('/create-sign-request', methods=['POST'])
+@UnMarshal(ToSignSchema)
+@Marshal(SignRequestSchema)
+def create_sign_request(documents) -> dict:
+    """"""
     try:
-        current_app.logger.info(f"Creating signature request for {document['name']}")
-        create_data = current_app.api_client.create_sign_request(document, visible_req)
+        current_app.logger.info("Creating signature request")
+        create_data = current_app.api_client.create_sign_request(documents)
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
         return {'error': True, 'message': gettext('Communication error with the create endpoint of the eduSign API')}
 
     try:
-        doc_in_session = {
-            'name': document['name'],
+        sign_data = {
             'relay_state': create_data['relayState'],
-            'state': 'loaded',
+            'sign_request': create_data['signRequest'],
+            'binding': create_data['binding'],
         }
-        session['documents'].append(doc_in_session)
+        session['sign_data'] = sign_data
 
     except KeyError:
         current_app.logger.error(f'Problem creating sign request, got response: {create_data}')
         return {'error': True, 'message': create_data['message']}
 
-    message = gettext("Success preparing document %(doc)s", doc=document['name'])
+    message = gettext("Success preparing documents")
 
-    return {'message': message, 'payload': {'ref': doc_ref, 'creation_response': json.dumps(create_data)}}
+    return {'message': message, 'payload': sign_data}
 
 
 @edusign_views.route('/callback', methods=['POST'])

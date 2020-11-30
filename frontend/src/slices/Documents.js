@@ -15,6 +15,7 @@ import {
   processResponseData,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
+import { updateSigningForm } from "slices/Main";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
 
@@ -165,6 +166,51 @@ export const prepareDocument = createAsyncThunk(
 
 /**
  * @public
+ * @function startSigningDocuments
+ * @desc Redux async thunk to send documents to the backend for preparation
+ */
+export const startSigningDocuments = createAsyncThunk(
+  "documents/startSigningDocuments",
+  async (arg, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const docsToSign = [];
+    state.documents.documents.forEach((doc) => {
+      if (doc.state === "selected") {
+        docsToSign.push({
+          name: doc.name,
+          ref: doc.ref,
+          sign_requirement: doc.sign_requirement,
+        });
+        thunkAPI.dispatch(setState({name: doc.name, state: "signing"}));
+      }
+    });
+    const body = preparePayload(state, docsToSign);
+    try {
+      const response = fetch("/sign/create-sign-request", {
+        ...postRequest,
+        body: body,
+      });
+      const data = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, data);
+    } catch (err) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: "comm prob create XXX TODO",
+        })
+      );
+      return thunkAPI.rejectWithValue({
+        state: "failed-signing",
+      });
+    }
+    thunkAPI.dispatch(updateSigningForm(data));
+    const form = window.getElementById("signing-form");
+    form.submit();
+  }
+);
+
+/**
+ * @public
  * @function fetchSignedDocument
  * @desc Redux async thunk to get signed documents from the backend.
  */
@@ -231,8 +277,8 @@ const documentsSlice = createSlice({
      * setting the show key to true (so that the UI will show a preview of the document).
      */
     showPreview(state, action) {
-      state.documents = state.documents.map((doc, index) => {
-        if (index === action.payload) {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload) {
           return {
             ...doc,
             show: true,
@@ -251,8 +297,8 @@ const documentsSlice = createSlice({
      * setting the show key to false (so that the UI will hide the preview of the document).
      */
     hidePreview(state, action) {
-      state.documents = state.documents.map((doc, index) => {
-        if (index === action.payload) {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload) {
           return {
             ...doc,
             show: false,
@@ -277,13 +323,31 @@ const documentsSlice = createSlice({
     },
     /**
      * @public
+     * @function toggleDocSelection
+     * @desc Redux action to toggle a document's state between loaded and selected.
+     */
+    toggleDocSelection(state, action) {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload.name) {
+          const state = action.payload.select ? "selected" : "loaded";
+          const document = {
+            ...doc,
+            state: state,
+          };
+          dbSaveDocument(document);
+          return document;
+        } else return doc;
+      });
+    },
+    /**
+     * @public
      * @function startSigningDocument
      * @desc Redux action to update a document in the documents state key,
      * setting the state key to "signing"
      */
     startSigningDocument(state, action) {
-      state.documents = state.documents.map((doc, index) => {
-        if (index === action.payload) {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload) {
           const document = {
             ...doc,
             state: "signing",
@@ -304,7 +368,7 @@ const documentsSlice = createSlice({
      * setting the state key to "signed"
      */
     setSigned(state, action) {
-      state.documents = state.documents.map((doc, index) => {
+      state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
           const document = {
             ...doc,
@@ -327,8 +391,8 @@ const documentsSlice = createSlice({
      * setting the state key to whatever we want, mainly for testing
      */
     setState(state, action) {
-      state.documents = state.documents.map((doc, index) => {
-        if (index === action.payload.index) {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload.name) {
           return {
             ...doc,
             state: action.payload.state,
@@ -412,6 +476,7 @@ export const {
   hidePreview,
   removeDocument,
   startSigningDocument,
+  toggleDocSelection,
 } = documentsSlice.actions;
 
 export default documentsSlice.reducer;

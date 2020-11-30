@@ -89,10 +89,9 @@ class APIClient(object):
 
         return response_data
 
-    def create_sign_request(self, document: dict, visible_req: dict) -> dict:
+    def create_sign_request(self, documents: list) -> dict:
         config = current_app.config
         correlation_id = str(uuid4())
-        document_id = str(uuid4())
         base_url = f"{config['PREFERRED_URL_SCHEME']}://{config['SERVER_NAME']}"
         entity_id = urljoin(base_url, config['ENTITY_ID_URL'])
         return_url = url_for('edusign.sign_service_callback', _external=True)
@@ -111,12 +110,6 @@ class APIClient(object):
                 ],
             },
             "tbsDocuments": [
-                {
-                    "id": document_id,
-                    "contentReference": document['ref'],
-                    "mimeType": document['type'],
-                    "visiblePdfSignatureRequirement": visible_req,
-                }
             ],
             "signMessageParameters": {
                 "signMessage": gettext("Hi %(name)s, this is the eduSign service", name=session['given_name']),
@@ -125,6 +118,15 @@ class APIClient(object):
                 "mustShow": True,
             },
         }
+        for document in documents:
+            document_id = str(uuid4())
+            request_data['tbsDocuments'].append({
+                "id": document_id,
+                "contentReference": document['ref'],
+                "mimeType": document['type'],
+                "visiblePdfSignatureRequirement": document['sign_requirement'],
+            })
+
         api_url = urljoin(self.api_base_url, f'create/{self.profile}')
 
         response = self._post(api_url, request_data)
