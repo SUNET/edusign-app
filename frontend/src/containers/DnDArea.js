@@ -14,12 +14,9 @@ import { updateIntl } from "react-intl-redux";
 
 import DnDArea from "components/DnDArea";
 import {
-  addDocument,
-  updateDocument,
-  updateDocumentFail,
-  prepareDocument,
+  createDocument,
 } from "slices/Documents";
-import { setWaiting, setReceiving } from "slices/DnDArea";
+import { setWaiting, setLoading, setReceiving } from "slices/DnDArea";
 import { addNotification } from "slices/Notifications";
 
 const mapStateToProps = (state, props) => {
@@ -37,26 +34,26 @@ const mapDispatchToProps = (dispatch, props) => {
       dispatch(setWaiting());
     },
     handleFileDrop: function (fileObjs) {
-      fileObjs.forEach((fileObj) => {
+      dispatch(setLoading());
+      const maxIndex = fileObjs.length - 1
+      fileObjs.forEach((fileObj, index) => {
         const file = {
           name: fileObj.name,
           size: fileObj.size,
           type: fileObj.type,
           blob: null,
         };
-        // dispatch a "loading" document to the central store
-        dispatch(addDocument(file));
         const reader = new FileReader();
         reader.onload = () => {
           const updatedFile = {
             ...file,
             blob: reader.result,
           };
-          // once the document has been loaded and parsed,
-          // update it in the central store as "loaded".
-          dispatch(updateDocument(updatedFile));
-          dispatch(prepareDocument(updatedFile));
-          dispatch(setWaiting());
+          console.log("loaded file", updatedFile);
+          dispatch(createDocument(updatedFile));
+          if (index === maxIndex) {
+            dispatch(setWaiting());
+          }
         };
         reader.onerror = () => {
           const errorMsg = this.props.intl.formatMessage(
@@ -67,7 +64,9 @@ const mapDispatchToProps = (dispatch, props) => {
             { name: fileObj.name }
           );
           dispatch(addNotification({ level: "danger", message: errorMsg }));
-          dispatch(updateDocumentFail(file));
+          file.state = "failed-loading";
+          dispatch(createDocument(file));
+          dispatch(setWaiting());
         };
         reader.readAsDataURL(fileObj);
       });

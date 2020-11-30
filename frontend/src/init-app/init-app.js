@@ -13,6 +13,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import rootReducer from "init-app/store";
 import { fetchConfig } from "slices/Main";
+import { loadDocuments } from "slices/Documents";
 
 /*
  * internationalization.
@@ -21,42 +22,6 @@ import { fetchConfig } from "slices/Main";
 
 const langs = AVAILABLE_LANGUAGES;
 const messages = LOCALIZED_MESSAGES;
-
-/**
- * @private
- * @function loadPersistedState
- * @desc To load persisted Redux state from local storage
- */
-const loadPersistedState = () => {
-  try {
-    const serializedState = localStorage.getItem("edusign-state");
-    if (serializedState === null) {
-      return undefined;
-    }
-    return {
-      ...JSON.parse(serializedState),
-      main: { loading: true },
-      notifications: { messages: [] },
-    };
-  } catch (err) {
-    return undefined;
-  }
-};
-
-/**
- * @private
- * @function saveState
- * @param {object} state: The Redux state to be saved to local storage.
- * @desc To save the Redux state into local storage.
- */
-const saveState = (state) => {
-  try {
-    const serialized = JSON.stringify(state);
-    localStorage.setItem("edusign-state", serialized);
-  } catch (err) {
-    console.log("Cannot save the state: ", err);
-  }
-};
 
 /**
  * @public
@@ -69,18 +34,10 @@ const saveState = (state) => {
  */
 export const edusignStore = (test = false) => {
   let storeObj = { reducer: rootReducer };
-  if (!test) {
-    storeObj.preloadedState = loadPersistedState();
-  }
   return configureStore(storeObj);
 };
 
 const store = edusignStore();
-
-/* subscribe the saveState function to changes on the Redux store */
-store.subscribe(() => {
-  saveState(store.getState());
-});
 
 /* render app */
 
@@ -91,6 +48,7 @@ store.subscribe(() => {
  */
 const appIsRendered = function () {
   store.dispatch(fetchConfig());
+  store.dispatch(loadDocuments());
 };
 
 /**

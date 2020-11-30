@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import Dropzone from "react-dropzone";
 import { FormattedMessage, injectIntl } from "react-intl";
 
+import LittleSpinner from "components/LittleSpinner";
 import "styles/DnDArea.scss";
 
 /**
@@ -56,6 +57,21 @@ class DnDArea extends Component {
                       defaultMessage="Drop documents here"
                       key="dnd-area-dropping"
                     />
+                  </span>
+                </div>
+              </section>
+            );
+          } else if (this.props.status === "loading") {
+            return (
+              <section id="edusign-dnd-wrapper">
+                <div
+                  {...getRootProps({
+                    id: "edusign-dnd-area-receiving",
+                  })}
+                >
+                  <input {...getInputProps()} />
+                  <span id="dnd-message-dropping">
+                    <LittleSpinner index={0} />
                   </span>
                 </div>
               </section>

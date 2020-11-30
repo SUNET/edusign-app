@@ -31,6 +31,7 @@ export const fetchConfig = createAsyncThunk(
         });
       }
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
+      delete configData.documents;
       return configData;
     } catch (err) {
       console.log(err);

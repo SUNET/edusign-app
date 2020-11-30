@@ -25,6 +25,14 @@ const dndSlice = createSlice({
     },
     /**
      * @public
+     * @function setLoading
+     * @desc Redux action to set the dnd state to "loading"
+     */
+    setLoading(state, action) {
+      state.state = "loading";
+    },
+    /**
+     * @public
      * @function setWaiting
      * @desc Redux action to set the dnd state to "waiting"
      */
@@ -34,6 +42,6 @@ const dndSlice = createSlice({
   },
 });
 
-export const { setWaiting, setReceiving } = dndSlice.actions;
+export const { setWaiting, setLoading, setReceiving } = dndSlice.actions;
 
 export default dndSlice.reducer;
