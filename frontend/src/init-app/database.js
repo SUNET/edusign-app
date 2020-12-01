@@ -5,7 +5,7 @@
 
 let db = null;
 
-export function getDb () {
+export function getDb() {
   if (db === null) {
     const promisedDb = new Promise((resolve, reject) => {
       const request = indexedDB.open("eduSignDB", 1);
@@ -22,7 +22,10 @@ export function getDb () {
       request.onupgradeneeded = (event) => {
         const newdb = event.target.result;
         db = newdb;
-        const docStore = db.createObjectStore("documents", {keyPath: "id", autoIncrement: true});
+        const docStore = db.createObjectStore("documents", {
+          keyPath: "id",
+          autoIncrement: true,
+        });
         resolve(newdb);
       };
     });
@@ -48,8 +51,8 @@ const documentDo = (action, document) => {
       docRequest = docStore.delete(document.name);
     }
     docRequest.onerror = (event) => {
-      console.log("Problem saving document", document.name, "Error:", event)
-    }
+      console.log("Problem saving document", document.name, "Error:", event);
+    };
   } else {
     console.log("Cannot save the state, db absent");
   }

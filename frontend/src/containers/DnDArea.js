@@ -13,9 +13,7 @@ import { connect } from "react-redux";
 import { updateIntl } from "react-intl-redux";
 
 import DnDArea from "components/DnDArea";
-import {
-  createDocument,
-} from "slices/Documents";
+import { createDocument } from "slices/Documents";
 import { setWaiting, setLoading, setReceiving } from "slices/DnDArea";
 import { addNotification } from "slices/Notifications";
 
@@ -35,7 +33,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleFileDrop: function (fileObjs) {
       dispatch(setLoading());
-      const maxIndex = fileObjs.length - 1
+      const maxIndex = fileObjs.length - 1;
       fileObjs.forEach((fileObj, index) => {
         const file = {
           name: fileObj.name,

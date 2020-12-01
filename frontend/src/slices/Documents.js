@@ -45,7 +45,7 @@ export const createDocument = createAsyncThunk(
           console.log("saving document", event);
           resolve({
             ...document,
-            id: event.target.result
+            id: event.target.result,
           });
         };
         docRequest.onerror = (event) => {
@@ -183,10 +183,12 @@ export const startSigningDocuments = createAsyncThunk(
           ref: doc.ref,
           sign_requirement: doc.sign_requirement,
         });
-        thunkAPI.dispatch(documentsSlice.actions.setState({name: doc.name, state: "signing"}));
+        thunkAPI.dispatch(
+          documentsSlice.actions.setState({ name: doc.name, state: "signing" })
+        );
       }
     });
-    const body = preparePayload(state, {documents: docsToSign});
+    const body = preparePayload(state, { documents: docsToSign });
     try {
       const response = await fetch("/sign/create-sign-request", {
         ...postRequest,
@@ -207,7 +209,7 @@ export const startSigningDocuments = createAsyncThunk(
       });
     }
     data.payload.payload.documents.forEach((doc) => {
-        thunkAPI.dispatch(documentSlice.actions.updateDocumentWithId(doc));
+      thunkAPI.dispatch(documentSlice.actions.updateDocumentWithId(doc));
     });
     delete data.payload.payload.documents;
 
@@ -260,9 +262,11 @@ export const fetchSignedDocuments = createAsyncThunk(
     }
     try {
       data.payload.payload.documents.forEach((doc) => {
-        thunkAPI.dispatch(documentSlice.actions.updateDocumentWithSignedContent(doc));
+        thunkAPI.dispatch(
+          documentSlice.actions.updateDocumentWithSignedContent(doc)
+        );
       });
-    } catch(err) {
+    } catch (err) {
       console.log("Problem getting the signed documents", err);
       return thunkAPI.rejectWithValue({
         ...document,
@@ -284,10 +288,11 @@ export const downloadSigned = createAsyncThunk(
     const state = thunkAPI.getState();
     state.documents.documents.forEach((doc) => {
       if (doc.name === document.name) {
-        const a = document.createElement('a');
-        a.setAttribute('href', '' + doc.signedContent);
-        const newName = doc.name.split('.').slice(0, -1).join('.') + '-signed.pdf';
-        a.setAttribute('download', newName);
+        const a = document.createElement("a");
+        a.setAttribute("href", "" + doc.signedContent);
+        const newName =
+          doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
+        a.setAttribute("download", newName);
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -348,7 +353,7 @@ const documentsSlice = createSlice({
      * @desc Redux action to remove a document from the documents state key.
      */
     removeDocument(state, action) {
-      dbRemoveDocument({name: action.payload});
+      dbRemoveDocument({ name: action.payload });
       state.documents = state.documents.filter((doc) => {
         return doc.name !== action.payload;
       });

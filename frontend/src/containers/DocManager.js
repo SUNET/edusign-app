@@ -50,7 +50,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleDocSelection: function (name) {
       return (e) => {
-        dispatch(toggleDocSelection({name: name, select: e.target.checked}));
+        dispatch(toggleDocSelection({ name: name, select: e.target.checked }));
       };
     },
     handleSubmitToSign: function (e) {

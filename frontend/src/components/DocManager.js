@@ -55,7 +55,11 @@ function DocManager(props) {
   function selectDoc(doc) {
     return (
       <>
-        <input type="checkbox" onClick={props.handleDocSelection(doc.name)} defaultChecked={doc.state === "selected"} />
+        <input
+          type="checkbox"
+          onClick={props.handleDocSelection(doc.name)}
+          defaultChecked={doc.state === "selected"}
+        />
       </>
     );
   }
@@ -156,19 +160,11 @@ function DocManager(props) {
           <FormattedMessage defaultMessage="Sign" key="sign-button" />
         </Button>
       </div>
-      {(props.destinationUrl !== undefined) && (
+      {props.destinationUrl !== undefined && (
         <div>
           <form id="signing-form" action={props.destinationUrl} method="post">
-            <input
-              type="hidden"
-              name="Binding"
-              value={props.binding}
-            />
-            <input
-              type="hidden"
-              name="RelayState"
-              value={props.relayState}
-            />
+            <input type="hidden" name="Binding" value={props.binding} />
+            <input type="hidden" name="RelayState" value={props.relayState} />
             <input
               type="hidden"
               name="EidSignRequest"

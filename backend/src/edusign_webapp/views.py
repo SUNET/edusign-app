@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from flask import Blueprint, abort, current_app, render_template, request, session, json
+from flask import Blueprint, abort, current_app, json, render_template, request, session
 from flask_babel import gettext
 
 from edusign_webapp.marshal import Marshal, UnMarshal
@@ -40,8 +40,8 @@ from edusign_webapp.schemata import (
     ReferenceSchema,
     SignedDocumentsSchema,
     SigningSchema,
-    ToSignSchema,
     SignRequestSchema,
+    ToSignSchema,
 )
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
@@ -134,9 +134,11 @@ def create_sign_request(documents) -> dict:
 @edusign_views.route('/callback', methods=['POST'])
 def sign_service_callback() -> str:
     try:
-        return render_template('index-with-sign-response.jinja2',
-                               sign_response=request.form.get('EidSignResponse'),
-                               relay_state=request.form.get('RelayState'))
+        return render_template(
+            'index-with-sign-response.jinja2',
+            sign_response=request.form.get('EidSignResponse'),
+            relay_state=request.form.get('RelayState'),
+        )
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
         abort(500)

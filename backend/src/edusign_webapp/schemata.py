@@ -54,7 +54,6 @@ class ReferenceSchema(Schema):
 
 
 class ToSignSchema(Schema):
-
     class ToSignDocumentSchema(ReferenceSchema):
         name = fields.String(required=True)
         type = fields.String(required=True)
@@ -81,7 +80,6 @@ class SigningSchema(Schema):
 
 
 class SignedDocumentsSchema(Schema):
-
     class SignedDocumentSchema(Schema):
         id = fields.String(required=True)
         signed_content = fields.Raw(required=True)

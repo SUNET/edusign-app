@@ -35,7 +35,7 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import requests
-from flask import current_app, session, url_for, json
+from flask import current_app, json, session, url_for
 from requests.auth import HTTPBasicAuth
 
 
@@ -108,19 +108,20 @@ class APIClient(object):
                     {"name": "urn:oid:0.9.2342.19200300.100.1.3", "value": session['email']},
                 ],
             },
-            "tbsDocuments": [
-            ],
+            "tbsDocuments": [],
         }
         documents_with_id = []
         for document in documents:
             document_id = str(uuid4())
             documents_with_id.append({'name': document['name'], 'id': document_id})
-            request_data['tbsDocuments'].append({
-                "id": document_id,
-                "contentReference": document['ref'],
-                "mimeType": document['type'],
-                "visiblePdfSignatureRequirement": json.loads(document['sign_requirement']),
-            })
+            request_data['tbsDocuments'].append(
+                {
+                    "id": document_id,
+                    "contentReference": document['ref'],
+                    "mimeType": document['type'],
+                    "visiblePdfSignatureRequirement": json.loads(document['sign_requirement']),
+                }
+            )
         api_url = urljoin(self.api_base_url, f'create/{self.profile}')
 
         response = self._post(api_url, request_data)
