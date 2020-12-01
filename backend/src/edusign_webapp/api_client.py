@@ -72,7 +72,7 @@ class APIClient(object):
             "signaturePagePreferences": {
                 "visiblePdfSignatureUserInformation": {
                     "signerName": {"signerAttributes": [{"name": "urn:oid:2.5.4.4", "name": "urn:oid:2.5.4.4"}]},
-                    "fieldValues": {"idp": session['idp']},
+                    "fieldValues": {"idp": 'https://login.idp.eduid.se/idp.xml'},
                 },
                 "failWhenSignPageFull": True,
                 "insertPageAt": 0,
@@ -88,19 +88,19 @@ class APIClient(object):
 
         return response_data
 
-    def create_sign_request(self, documents: list) -> dict:
-        config = current_app.config
+    def create_sign_request(self, documents: list) -> tuple:
+        # config = current_app.config
         correlation_id = str(uuid4())
-        base_url = f"{config['PREFERRED_URL_SCHEME']}://{config['SERVER_NAME']}"
-        entity_id = urljoin(base_url, config['ENTITY_ID_URL'])
+        # base_url = f"{config['PREFERRED_URL_SCHEME']}://{config['SERVER_NAME']}"
+        # entity_id = urljoin(base_url, config['ENTITY_ID_URL'])
         return_url = url_for('edusign.sign_service_callback', _external=True)
 
         request_data = {
             "correlationId": correlation_id,
-            "signRequesterID": entity_id,
+            "signRequesterID": "http://sandbox.swedenconnect.se/testmyeid",
             "returnUrl": return_url,
             "authnRequirements": {
-                "authnServiceID": session['idp'],
+                "authnServiceID": 'https://login.idp.eduid.se/idp.xml',
                 "authnContextClassRefs": [session['authn_context']],
                 "requestedSignerAttributes": [
                     {"name": "urn:oid:2.5.4.42", "value": session['given_name']},
@@ -111,8 +111,10 @@ class APIClient(object):
             "tbsDocuments": [
             ],
         }
+        documents_with_id = []
         for document in documents:
             document_id = str(uuid4())
+            documents_with_id.append({'name': document['name'], 'id': document_id})
             request_data['tbsDocuments'].append({
                 "id": document_id,
                 "contentReference": document['ref'],
@@ -126,7 +128,7 @@ class APIClient(object):
         response_data = response.json()
         current_app.logger.debug(f"Data returned from the API's create endpoint: {pformat(response_data)}")
 
-        return response_data
+        return response_data, documents_with_id
 
     def process_document(self, sign_response, relay_state):
 

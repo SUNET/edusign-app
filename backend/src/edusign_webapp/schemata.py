@@ -68,13 +68,22 @@ class SignRequestSchema(Schema):
     binding = fields.String(required=True)
     destination_url = fields.String(required=True)
 
+    class DocumentWithIdSchema(ReferenceSchema):
+        name = fields.String(required=True)
+        id = fields.String(required=True)
 
-class SigningDocumentSchema(Schema):
-    name = fields.String(required=True)
+    documents = fields.List(fields.Nested(DocumentWithIdSchema))
+
+
+class SigningSchema(Schema):
     sign_response = fields.String(required=True)
     relay_state = fields.String(required=True)
 
 
-class SignedDocumentSchema(Schema):
-    name = fields.String(required=True)
-    signed_content = fields.Raw(required=True)
+class SignedDocumentsSchema(Schema):
+
+    class SignedDocumentSchema(Schema):
+        id = fields.String(required=True)
+        signed_content = fields.Raw(required=True)
+
+    documents = fields.List(fields.Nested(SignedDocumentSchema))

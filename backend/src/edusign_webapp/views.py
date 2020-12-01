@@ -38,8 +38,8 @@ from edusign_webapp.schemata import (
     ConfigSchema,
     DocumentSchema,
     ReferenceSchema,
-    SignedDocumentSchema,
-    SigningDocumentSchema,
+    SignedDocumentsSchema,
+    SigningSchema,
     ToSignSchema,
     SignRequestSchema,
 )
@@ -57,7 +57,6 @@ def get_bundle():
         session['idp'] = request.headers.get('Shib-Identity-Provider')
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
         session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
-        session['documents'] = []
     try:
         return render_template('index.jinja2')
     except AttributeError as e:
@@ -76,7 +75,6 @@ def get_config() -> dict:
             'given_name': session['given_name'],
             'surname': session['surname'],
             'email': session['email'],
-            'documents': session['documents'],
         }
     }
 
@@ -110,7 +108,7 @@ def create_sign_request(documents) -> dict:
     current_app.logger.debug(f'Data gotten in create view: {documents}')
     try:
         current_app.logger.info("Creating signature request")
-        create_data = current_app.api_client.create_sign_request(documents['documents'])
+        create_data, documents_with_id = current_app.api_client.create_sign_request(documents['documents'])
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
@@ -122,6 +120,7 @@ def create_sign_request(documents) -> dict:
             'sign_request': create_data['signRequest'],
             'binding': create_data['binding'],
             'destination_url': create_data['destinationUrl'],
+            'documents': documents_with_id,
         }
     except KeyError:
         current_app.logger.error(f'Problem creating sign request, got response: {create_data}')
@@ -133,33 +132,29 @@ def create_sign_request(documents) -> dict:
 
 
 @edusign_views.route('/callback', methods=['POST'])
-def sign_service_callback() -> dict:
-    sign_response = request.form.get('EidSignResponse')
-    relay_state = request.form.get('RelayState')
-
-    for doc in session['documents']:
-        if doc['relay_state'] == relay_state:
-            doc['state'] = 'ready'
-            doc['sign_response'] = sign_response
-
-    return get_bundle()
+def sign_service_callback() -> str:
+    try:
+        return render_template('index-with-sign-response.jinja2',
+                               sign_response=request.form.get('EidSignResponse'),
+                               relay_state=request.form.get('RelayState'))
+    except AttributeError as e:
+        current_app.logger.error(f'Template rendering failed: {e}')
+        abort(500)
 
 
 @edusign_views.route('/get-signed', methods=['POST'])
-@UnMarshal(SigningDocumentSchema)
-@Marshal(SignedDocumentSchema)
-def get_signed_doc(document) -> dict:
+@UnMarshal(SigningSchema)
+@Marshal(SignedDocumentsSchema)
+def get_signed_documents(sign_data) -> dict:
 
     try:
-        current_app.logger.info(f"Processing signature for {document['name']}")
-        process_data = current_app.api_client.process_document(document['sign_response'], document['relay_state'])
+        current_app.logger.info(f"Processing signature for {sign_data['sign_response']}")
+        process_data = current_app.api_client.process_sign_request(sign_data['sign_response'], sign_data['relay_state'])
 
     except Exception as e:
         current_app.logger.error(f'Problem processing sign request: {e}')
         return {'error': True, 'message': gettext('Communication error with the process endpoint of the eduSign API')}
 
-    signed_content = process_data['signedDocuments'][0]['signedContent']
+    message = gettext("Success processing document sign request")
 
-    message = gettext("Success processing document %(doc)s", doc=document['name'])
-
-    return {'message': message, 'payload': {'name': document['name'], 'signed_content': signed_content}}
+    return {'message': message, 'payload': {'documents': process_data['signedDocuments']}}
