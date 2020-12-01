@@ -23,10 +23,10 @@ import {
 const mapStateToProps = (state, props) => {
   return {
     documents: state.documents.documents,
-    destinationUrl: state.main.signingData.destinationUrl,
+    destinationUrl: state.main.signingData.destination_url,
     binding: state.main.signingData.binding,
-    relayState: state.main.signingData.relayState,
-    signRequest: state.main.signingData.signRequest,
+    relayState: state.main.signingData.relay_state,
+    signRequest: state.main.signingData.sign_request,
   };
 };
 

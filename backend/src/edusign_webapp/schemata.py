@@ -41,13 +41,10 @@ class ConfigSchema(Schema):
     documents = fields.Raw(required=False)
 
 
-class BareDocumentSchema(Schema):
+class DocumentSchema(Schema):
     name = fields.String(required=True)
     size = fields.Integer(required=True)
     type = fields.String(required=True)
-
-
-class DocumentSchema(BareDocumentSchema):
     blob = fields.Raw(required=True)
 
 
@@ -56,11 +53,12 @@ class ReferenceSchema(Schema):
     sign_requirement = fields.String(required=True)
 
 
-class ToSignDocumentSchema(BareDocumentSchema, ReferenceSchema):
-    pass
-
-
 class ToSignSchema(Schema):
+
+    class ToSignDocumentSchema(ReferenceSchema):
+        name = fields.String(required=True)
+        type = fields.String(required=True)
+
     documents = fields.List(fields.Nested(ToSignDocumentSchema))
 
 
@@ -68,6 +66,7 @@ class SignRequestSchema(Schema):
     relay_state = fields.String(required=True)
     sign_request = fields.String(required=True)
     binding = fields.String(required=True)
+    destination_url = fields.String(required=True)
 
 
 class SigningDocumentSchema(Schema):

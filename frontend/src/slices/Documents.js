@@ -174,25 +174,28 @@ export const startSigningDocuments = createAsyncThunk(
   async (arg, thunkAPI) => {
     const state = thunkAPI.getState();
     const docsToSign = [];
+    let data = null;
     state.documents.documents.forEach((doc) => {
       if (doc.state === "selected") {
         docsToSign.push({
           name: doc.name,
+          type: doc.type,
           ref: doc.ref,
           sign_requirement: doc.sign_requirement,
         });
-        thunkAPI.dispatch(setState({name: doc.name, state: "signing"}));
+        thunkAPI.dispatch(documentsSlice.actions.setState({name: doc.name, state: "signing"}));
       }
     });
-    const body = preparePayload(state, docsToSign);
+    const body = preparePayload(state, {documents: docsToSign});
     try {
-      const response = fetch("/sign/create-sign-request", {
+      const response = await fetch("/sign/create-sign-request", {
         ...postRequest,
         body: body,
       });
-      const data = await checkStatus(response);
+      data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
+      console.log("Error creating sign request", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -203,8 +206,8 @@ export const startSigningDocuments = createAsyncThunk(
         state: "failed-signing",
       });
     }
-    thunkAPI.dispatch(updateSigningForm(data));
-    const form = window.getElementById("signing-form");
+    thunkAPI.dispatch(updateSigningForm(data.payload));
+    const form = document.getElementById("signing-form");
     form.submit();
   }
 );

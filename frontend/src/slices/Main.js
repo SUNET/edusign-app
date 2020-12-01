@@ -82,6 +82,6 @@ const mainSlice = createSlice({
   },
 });
 
-export const { appLoaded, setCsrfToken } = mainSlice.actions;
+export const { appLoaded, setCsrfToken, updateSigningForm } = mainSlice.actions;
 
 export default mainSlice.reducer;

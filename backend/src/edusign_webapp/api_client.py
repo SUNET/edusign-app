@@ -35,8 +35,7 @@ from urllib.parse import urljoin
 from uuid import uuid4
 
 import requests
-from flask import current_app, session, url_for
-from flask_babel import gettext
+from flask import current_app, session, url_for, json
 from requests.auth import HTTPBasicAuth
 
 
@@ -111,12 +110,6 @@ class APIClient(object):
             },
             "tbsDocuments": [
             ],
-            "signMessageParameters": {
-                "signMessage": gettext("Hi %(name)s, this is the eduSign service", name=session['given_name']),
-                "performEncryption": True,
-                "mimeType": "text",
-                "mustShow": True,
-            },
         }
         for document in documents:
             document_id = str(uuid4())
@@ -124,9 +117,8 @@ class APIClient(object):
                 "id": document_id,
                 "contentReference": document['ref'],
                 "mimeType": document['type'],
-                "visiblePdfSignatureRequirement": document['sign_requirement'],
+                "visiblePdfSignatureRequirement": json.loads(document['sign_requirement']),
             })
-
         api_url = urljoin(self.api_base_url, f'create/{self.profile}')
 
         response = self._post(api_url, request_data)

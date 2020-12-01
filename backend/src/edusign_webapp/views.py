@@ -30,9 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import json
-
-from flask import Blueprint, abort, current_app, render_template, request, session
+from flask import Blueprint, abort, current_app, render_template, request, session, json
 from flask_babel import gettext
 
 from edusign_webapp.marshal import Marshal, UnMarshal
@@ -109,9 +107,10 @@ def add_document(document) -> dict:
 @Marshal(SignRequestSchema)
 def create_sign_request(documents) -> dict:
     """"""
+    current_app.logger.debug(f'Data gotten in create view: {documents}')
     try:
         current_app.logger.info("Creating signature request")
-        create_data = current_app.api_client.create_sign_request(documents)
+        create_data = current_app.api_client.create_sign_request(documents['documents'])
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
@@ -122,14 +121,13 @@ def create_sign_request(documents) -> dict:
             'relay_state': create_data['relayState'],
             'sign_request': create_data['signRequest'],
             'binding': create_data['binding'],
+            'destination_url': create_data['destinationUrl'],
         }
-        session['sign_data'] = sign_data
-
     except KeyError:
         current_app.logger.error(f'Problem creating sign request, got response: {create_data}')
         return {'error': True, 'message': create_data['message']}
 
-    message = gettext("Success preparing documents")
+    message = gettext("Success creating sign request")
 
     return {'message': message, 'payload': sign_data}
 
