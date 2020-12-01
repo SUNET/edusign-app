@@ -273,6 +273,29 @@ export const fetchSignedDocuments = createAsyncThunk(
   }
 );
 
+/**
+ * @public
+ * @function downloadSigned
+ * @desc Redux async thunk to add a new document to IndexedDB.
+ */
+export const downloadSigned = createAsyncThunk(
+  "documents/downloadSigned",
+  async (document, thunkAPI) => {
+    const state = thunkAPI.getState();
+    state.documents.documents.forEach((doc) => {
+      if (doc.name === document.name) {
+        const a = document.createElement('a');
+        a.setAttribute('href', '' + doc.signedContent);
+        const newName = doc.name.split('.').slice(0, -1).join('.') + '-signed.pdf';
+        a.setAttribute('download', newName);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    });
+  }
+);
+
 const documentsSlice = createSlice({
   name: "documents",
   initialState: {

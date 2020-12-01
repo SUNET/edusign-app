@@ -11,7 +11,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import { getRequest, checkStatus, extractCsrfToken } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { fetchSignedDocument } from "slices/Documents";
 
 /**
  * @public
@@ -25,13 +24,7 @@ export const fetchConfig = createAsyncThunk(
       const response = await fetch("/sign/config", getRequest);
       const configData = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, configData);
-      if (configData.documents !== undefined) {
-        configData.documents.forEach((doc) => {
-          thunkAPI.dispatch(fetchSignedDocument(doc));
-        });
-      }
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
-      delete configData.documents;
       return configData;
     } catch (err) {
       console.log(err);

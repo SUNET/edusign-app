@@ -18,6 +18,7 @@ import {
   toggleDocSelection,
   startSigningDocuments,
   removeDocument,
+  downloadSigned,
 } from "slices/Documents";
 
 const mapStateToProps = (state, props) => {
@@ -49,16 +50,15 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleDocSelection: function (name) {
       return (e) => {
-          dispatch(toggleDocSelection({name: name, select: e.target.checked}));
+        dispatch(toggleDocSelection({name: name, select: e.target.checked}));
       };
     },
     handleSubmitToSign: function (e) {
       dispatch(startSigningDocuments());
     },
     handleDlSigned: function (name) {
-      // this code is just a placeholder until we are actually signing documents.
       return (e) => {
-        alert("TODO");
+        dispatch(downloadSigned(name));
       };
     },
   };
