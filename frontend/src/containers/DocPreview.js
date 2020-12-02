@@ -17,9 +17,9 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleClose: function (index) {
+    handleClose: function (name) {
       return (e) => {
-        dispatch(hidePreview(index));
+        dispatch(hidePreview(name));
       };
     },
   };

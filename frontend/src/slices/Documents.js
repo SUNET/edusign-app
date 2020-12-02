@@ -504,7 +504,7 @@ const documentsSlice = createSlice({
         }
       });
     },
-    [fetchSignedDocument.fulfilled]: (state, action) => {
+    [fetchSignedDocuments.fulfilled]: (state, action) => {
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
           return {
@@ -518,7 +518,7 @@ const documentsSlice = createSlice({
       });
     },
 
-    [fetchSignedDocument.rejected]: (state, action) => {
+    [fetchSignedDocuments.rejected]: (state, action) => {
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
           return {

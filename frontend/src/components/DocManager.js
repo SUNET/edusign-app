@@ -146,7 +146,7 @@ function DocManager(props) {
                 {removeButton(doc)}
               </>
             )}
-            <DocPreviewContainer doc={doc} index={index} />
+            <DocPreviewContainer doc={doc} />
           </div>
         );
       })}

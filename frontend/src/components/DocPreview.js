@@ -46,7 +46,7 @@ function DocPreview(props) {
       {props.doc.show ? (
         <Modal
           show={true}
-          onHide={props.handleClose(props.index)}
+          onHide={props.handleClose(props.doc.name)}
           size="lg"
           centered
         >
@@ -99,7 +99,7 @@ function DocPreview(props) {
             </div>
             <Button
               variant="secondary"
-              onClick={props.handleClose(props.index)}
+              onClick={props.handleClose(props.doc.name)}
               data-testid="preview-button-close"
             >
               <FormattedMessage defaultMessage="Close" key="button-close" />
@@ -117,11 +117,6 @@ DocPreview.propTypes = {
   /**
    * The document to preview.
    */
-  doc: PropTypes.object,
-  /**
-   * Index of the document
-   */
-  index: PropTypes.number,
   handleClose: PropTypes.func,
 };
 
