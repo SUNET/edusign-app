@@ -208,10 +208,10 @@ export const startSigningDocuments = createAsyncThunk(
         state: "failed-signing",
       });
     }
-    data.payload.payload.documents.forEach((doc) => {
-      thunkAPI.dispatch(documentSlice.actions.updateDocumentWithId(doc));
+    data.payload.documents.forEach((doc) => {
+      thunkAPI.dispatch(documentsSlice.actions.updateDocumentWithId(doc));
     });
-    delete data.payload.payload.documents;
+    delete data.payload.documents;
 
     thunkAPI.dispatch(updateSigningForm(data.payload));
     const form = document.getElementById("signing-form");
@@ -263,7 +263,7 @@ export const fetchSignedDocuments = createAsyncThunk(
     try {
       data.payload.payload.documents.forEach((doc) => {
         thunkAPI.dispatch(
-          documentSlice.actions.updateDocumentWithSignedContent(doc)
+          documentsSlice.actions.updateDocumentWithSignedContent(doc)
         );
       });
     } catch (err) {

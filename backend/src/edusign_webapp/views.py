@@ -131,7 +131,7 @@ def create_sign_request(documents) -> dict:
     return {'message': message, 'payload': sign_data}
 
 
-@edusign_views.route('/callback', methods=['POST'])
+@edusign_views.route('/callback', methods=['GET'])
 def sign_service_callback() -> str:
     try:
         return render_template(

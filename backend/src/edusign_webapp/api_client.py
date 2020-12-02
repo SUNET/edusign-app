@@ -97,7 +97,7 @@ class APIClient(object):
 
         request_data = {
             "correlationId": correlation_id,
-            "signRequesterID": "http://sandbox.swedenconnect.se/testmyeid",
+            "signRequesterID": "https://sig.idsec.se/shibboleth",
             "returnUrl": return_url,
             "authnRequirements": {
                 "authnServiceID": 'https://login.idp.eduid.se/idp.xml',
