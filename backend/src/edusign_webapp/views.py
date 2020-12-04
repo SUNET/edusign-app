@@ -131,8 +131,12 @@ def create_sign_request(documents) -> dict:
     return {'message': message, 'payload': sign_data}
 
 
-@edusign_views.route('/callback', methods=['GET'])
+@edusign_views.route('/callback', methods=['POST'])
 def sign_service_callback() -> str:
+
+    data = {k: v for k, v in request.values.items()}
+    current_app.logger.debug(f"Data received from sign service: {data}")
+
     try:
         return render_template(
             'index-with-sign-response.jinja2',
@@ -159,4 +163,4 @@ def get_signed_documents(sign_data) -> dict:
 
     message = gettext("Success processing document sign request")
 
-    return {'message': message, 'payload': {'documents': process_data['signedDocuments']}}
+    return {'message': message, 'payload': {'documents': [{'id': doc['id'], 'signed_content': doc['signedContent']} for doc in process_data['signedDocuments']]}}

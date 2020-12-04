@@ -76,6 +76,7 @@ export const loadDocuments = createAsyncThunk(
     console.log("loaded db", db);
 
     if (db !== null) {
+      let signing = false;
       const promisedDocuments = new Promise((resolve, reject) => {
         const transaction = db.transaction(["documents"]);
         transaction.onerror = (event) => {
@@ -87,8 +88,12 @@ export const loadDocuments = createAsyncThunk(
         docStore.openCursor().onsuccess = (event) => {
           const cursor = event.target.result;
           if (cursor) {
-            console.log("retrieving document from db", cursor.value);
-            docs.push(cursor.value);
+            const document = cursor.value;
+            console.log("retrieving document from db", document);
+            docs.push(document);
+            if (document.state === 'signing') {
+              signing = true;
+            }
             cursor.continue();
           }
           if (cursor === null) {
@@ -97,6 +102,9 @@ export const loadDocuments = createAsyncThunk(
         };
       });
       const documents = await promisedDocuments;
+      if (signing) {
+        thunkAPI.dispatch(fetchSignedDocuments());
+      }
       return {
         documents: documents,
       };
@@ -184,7 +192,7 @@ export const startSigningDocuments = createAsyncThunk(
           sign_requirement: doc.sign_requirement,
         });
         thunkAPI.dispatch(
-          documentsSlice.actions.setState({ name: doc.name, state: "signing" })
+          documentsSlice.actions.startSigningDocument(doc.name)
         );
       }
     });
@@ -224,55 +232,59 @@ export const startSigningDocuments = createAsyncThunk(
  * @function fetchSignedDocuments
  * @desc Redux async thunk to get signed documents from the backend.
  */
-export const fetchSignedDocuments = createAsyncThunk(
+const fetchSignedDocuments = createAsyncThunk(
   "documents/fetchSignedDocuments",
-  async (document, thunkAPI) => {
+  async (dummyArg, thunkAPI) => {
     const dataElem = document.getElementById("sign-response-holder");
-    const payload = {
-      sign_response: dataElem.dataset.signResponse,
-      relay_state: dataElem.dataset.relayState,
-    };
-    const body = preparePayload(thunkAPI.getState(), payload);
-    let data = null;
-    try {
-      const response = await fetch("/sign/get-signed", {
-        ...postRequest,
-        body: body,
-      });
-      data = await checkStatus(response);
-      extractCsrfToken(thunkAPI.dispatch, data);
-    } catch (err) {
-      console.log("Error getting signed documents", err);
-      thunkAPI.dispatch(
-        addNotification({
-          level: "danger",
-          message: "comm prob signed XXX TODO",
-        })
-      );
-      return thunkAPI.rejectWithValue({
-        ...document,
-        state: "failed-signing",
-      });
-    }
-    if ("message" in data) {
-      const level = data.error ? "danger" : "success";
-      thunkAPI.dispatch(
-        addNotification({ level: level, message: data.message })
-      );
-    }
-    try {
-      data.payload.payload.documents.forEach((doc) => {
+    if (dataElem !== null) {
+      const payload = {
+        sign_response: dataElem.dataset.signresponse,
+        relay_state: dataElem.dataset.relaystate,
+      };
+      const body = preparePayload(thunkAPI.getState(), payload);
+      let data = null;
+      try {
+        const response = await fetch("/sign/get-signed", {
+          ...postRequest,
+          body: body,
+        });
+        data = await checkStatus(response);
+        extractCsrfToken(thunkAPI.dispatch, data);
+      } catch (err) {
+        console.log("Error getting signed documents", err);
         thunkAPI.dispatch(
-          documentsSlice.actions.updateDocumentWithSignedContent(doc)
+          addNotification({
+            level: "danger",
+            message: "comm prob signed XXX TODO",
+          })
         );
-      });
-    } catch (err) {
-      console.log("Problem getting the signed documents", err);
-      return thunkAPI.rejectWithValue({
-        ...document,
-        state: "failed-signing",
-        reason: data.message,
-      });
+        return thunkAPI.rejectWithValue({
+          ...document,
+          state: "failed-signing",
+        });
+      }
+      if ("message" in data) {
+        const level = data.error ? "danger" : "success";
+        thunkAPI.dispatch(
+          addNotification({ level: level, message: data.message })
+        );
+      }
+      try {
+        data.payload.documents.forEach((doc) => {
+          thunkAPI.dispatch(
+            documentsSlice.actions.updateDocumentWithSignedContent(doc)
+          );
+        });
+      } catch (err) {
+        console.log("Problem getting the signed documents", err);
+        return thunkAPI.rejectWithValue({
+          ...document,
+          state: "failed-signing",
+          reason: data.message,
+        });
+      }
+    } else {
+      // XXX dispatch to reset all docs
     }
   }
 );
@@ -284,12 +296,12 @@ export const fetchSignedDocuments = createAsyncThunk(
  */
 export const downloadSigned = createAsyncThunk(
   "documents/downloadSigned",
-  async (document, thunkAPI) => {
+  async (docname, thunkAPI) => {
     const state = thunkAPI.getState();
     state.documents.documents.forEach((doc) => {
-      if (doc.name === document.name) {
+      if (doc.name === docname) {
         const a = document.createElement("a");
-        a.setAttribute("href", "" + doc.signedContent);
+        a.setAttribute("href", doc.signedContent);
         const newName =
           doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
         a.setAttribute("download", newName);
@@ -320,11 +332,7 @@ const documentsSlice = createSlice({
             ...doc,
             show: true,
           };
-        } else {
-          return {
-            ...doc,
-          };
-        }
+        } else return doc;
       });
     },
     /**
@@ -340,11 +348,7 @@ const documentsSlice = createSlice({
             ...doc,
             show: false,
           };
-        } else {
-          return {
-            ...doc,
-          };
-        }
+        } else return doc;
       });
     },
     /**
@@ -402,10 +406,12 @@ const documentsSlice = createSlice({
     updateDocumentWithId(state, action) {
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
-          return {
+          const document = {
             ...doc,
-            id: action.payload.id,
+            signing_id: action.payload.id,
           };
+          dbSaveDocument(document);
+          return document;
         } else return doc;
       });
     },
@@ -416,35 +422,15 @@ const documentsSlice = createSlice({
      */
     updateDocumentWithSignedContent(state, action) {
       state.documents = state.documents.map((doc) => {
-        if (doc.id === action.payload.id) {
-          return {
-            ...doc,
-            signedContent: action.payload.signedContent,
-          };
-        } else return doc;
-      });
-    },
-    /**
-     * @public
-     * @function setSigned
-     * @desc Redux action to update a document in the documents state key,
-     * setting the state key to "signed"
-     */
-    setSigned(state, action) {
-      state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload.name) {
+        if (doc.signing_id === action.payload.id) {
           const document = {
             ...doc,
-            ...action.payload,
+            signedContent: "data:application/pdf;base64," + action.payload.signed_content,
             state: "signed",
           };
           dbSaveDocument(document);
           return document;
-        } else {
-          return {
-            ...doc,
-          };
-        }
+        } else return doc;
       });
     },
     /**
@@ -460,11 +446,7 @@ const documentsSlice = createSlice({
             ...doc,
             state: action.payload.state,
           };
-        } else {
-          return {
-            ...doc,
-          };
-        }
+        } else return doc;
       });
     },
   },
@@ -482,11 +464,7 @@ const documentsSlice = createSlice({
           return {
             ...action.payload,
           };
-        } else {
-          return {
-            ...doc,
-          };
-        }
+        } else return doc;
       });
     },
 
@@ -497,24 +475,7 @@ const documentsSlice = createSlice({
           return {
             ...action.payload,
           };
-        } else {
-          return {
-            ...doc,
-          };
-        }
-      });
-    },
-    [fetchSignedDocuments.fulfilled]: (state, action) => {
-      state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload.name) {
-          return {
-            ...action.payload,
-          };
-        } else {
-          return {
-            ...doc,
-          };
-        }
+        } else return doc;
       });
     },
 
@@ -524,11 +485,7 @@ const documentsSlice = createSlice({
           return {
             ...action.payload,
           };
-        } else {
-          return {
-            ...doc,
-          };
-        }
+        } else return doc;
       });
     },
   },
@@ -538,7 +495,6 @@ export const {
   showPreview,
   hidePreview,
   removeDocument,
-  startSigningDocument,
   toggleDocSelection,
 } = documentsSlice.actions;
 

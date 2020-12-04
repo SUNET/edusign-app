@@ -80,6 +80,7 @@ class SigningSchema(Schema):
 
 
 class SignedDocumentsSchema(Schema):
+
     class SignedDocumentSchema(Schema):
         id = fields.String(required=True)
         signed_content = fields.Raw(required=True)

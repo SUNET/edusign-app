@@ -26,10 +26,38 @@ objectClass: person
 objectClass: top
 objectClass: inetOrgPerson
 objectClass: eduPerson
-givenName: Testing
+givenName: St
 uid: staff1
-sn: Testersson
+sn: aff
 cn: St aff
 mail: staff1@idptestbed.edu
 userPassword: password
 eduPersonPrincipalName: staff1
+
+dn: uid=eperez2,ou=People,dc=idptestbed
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: eduPerson
+givenName: Enrique
+uid: eperez2
+sn: Perez
+cn: Enrique Perez
+mail: eperez@emergya.com
+userPassword: password
+eduPersonPrincipalName: pugoj-hutat
+
+dn: uid=eperez3,ou=People,dc=idptestbed
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: eduPerson
+givenName: Enrique
+uid: eperez3
+sn: Perez
+cn: Enrique Perez
+mail: eperez@emergya.com
+userPassword: password
+eduPersonPrincipalName: pugoj-hutat

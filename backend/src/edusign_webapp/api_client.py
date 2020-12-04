@@ -60,7 +60,7 @@ class APIClient(object):
         req = requests.Request('POST', url, json=request_data, auth=self.basic_auth)
         prepped = requests_session.prepare_request(req)
 
-        current_app.logger.debug(f"Request sent to the API's prepare method: {pretty_print_req(prepped)}")
+        current_app.logger.debug(f"Request sent to the API's {url} method: {pretty_print_req(prepped)}")
 
         settings = requests_session.merge_environment_settings(prepped.url, {}, None, None, None)
         return requests_session.send(prepped, **settings)
@@ -71,7 +71,11 @@ class APIClient(object):
             "pdfDocument": doc_data,
             "signaturePagePreferences": {
                 "visiblePdfSignatureUserInformation": {
-                    "signerName": {"signerAttributes": [{"name": "urn:oid:2.5.4.4", "name": "urn:oid:2.5.4.4"}]},
+                    "signerName": {"signerAttributes": [
+                        {"name": "urn:oid:2.5.4.42"},
+                        {"name": "urn:oid:2.5.4.4"},
+                        {"name": "urn:oid:0.9.2342.19200300.100.1.3"},
+                    ]},
                     "fieldValues": {"idp": 'https://login.idp.eduid.se/idp.xml'},
                 },
                 "failWhenSignPageFull": True,
@@ -93,7 +97,7 @@ class APIClient(object):
         correlation_id = str(uuid4())
         # base_url = f"{config['PREFERRED_URL_SCHEME']}://{config['SERVER_NAME']}"
         # entity_id = urljoin(base_url, config['ENTITY_ID_URL'])
-        return_url = url_for('edusign.sign_service_callback', _external=True)
+        return_url = url_for('edusign.sign_service_callback', _external=True, _scheme='https')
 
         request_data = {
             "correlationId": correlation_id,
@@ -101,7 +105,7 @@ class APIClient(object):
             "returnUrl": return_url,
             "authnRequirements": {
                 "authnServiceID": 'https://login.idp.eduid.se/idp.xml',
-                "authnContextClassRefs": [session['authn_context']],
+                "authnContextClassRefs": ['https://www.swamid.se/specs/id-fido-u2f-ce-transports'],
                 "requestedSignerAttributes": [
                     {"name": "urn:oid:2.5.4.42", "value": session['given_name']},
                     {"name": "urn:oid:2.5.4.4", "value": session['surname']},
@@ -131,7 +135,7 @@ class APIClient(object):
 
         return response_data, documents_with_id
 
-    def process_document(self, sign_response, relay_state):
+    def process_sign_request(self, sign_response, relay_state):
 
         request_data = {"signResponse": sign_response, "relayState": relay_state, "state": {"id": relay_state}}
         api_url = urljoin(self.api_base_url, 'process')
