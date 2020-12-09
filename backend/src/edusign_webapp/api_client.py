@@ -92,7 +92,7 @@ class APIClient(object):
 
         return response_data
 
-    def create_sign_request(self, documents: list) -> tuple:
+    def _try_creating_sign_request(self, documents: list) -> tuple:
         # config = current_app.config
         correlation_id = str(uuid4())
         # base_url = f"{config['PREFERRED_URL_SCHEME']}://{config['SERVER_NAME']}"
@@ -128,7 +128,25 @@ class APIClient(object):
             )
         api_url = urljoin(self.api_base_url, f'create/{self.profile}')
 
-        response = self._post(api_url, request_data)
+        return self._post(api_url, request_data), documents_with_id
+
+    def create_sign_request(self, documents: list) -> tuple:
+
+        response, documents_with_id = self._try_creating_sign_request(documents)
+
+        if response.status == 404:  # XXX make sure it's a 404 when the doc cache expires
+            new_documents = []
+            for doc in documents:
+                prepare_data = self.prepare_document(doc)
+
+                new_documents.append({
+                    'name': doc['name'],
+                    'type': doc['type'],
+                    'ref': prepare_data['updatedPdfDocumentReference'],
+                    'sign_requirement': prepare_data['visiblePdfSignatureRequirement']
+                })
+
+            response, documents_with_id = self._try_creating_sign_request(new_documents)
 
         response_data = response.json()
         current_app.logger.debug(f"Data returned from the API's create endpoint: {pformat(response_data)}")
