@@ -16,8 +16,8 @@ BACK_SOURCE=src/
 ## Build configuration with values from env file (environment-current). If file provided, vars in the diff with environment-devel must be in the environment. Otherwise environment-devel is used.
 .PHONY: config-build
 config-build:
-	if [ ! -f environment-current ]; then cp environment-devel environment-current; fi && \
-	  export $(cat environment-current | xargs) && \
+	@if [ ! -f environment-current ]; then cp environment-devel environment-current; fi && \
+	  export $$(cat environment-current | xargs) && \
 		if [ ! -d config-current ]; then mkdir -p config-current/ssl; fi && \
 		if [ ! -e config-current/supervisord.conf ]; then cp config-templates/supervisord.conf config-current/supervisord.conf; fi && \
 		if [ ! -e config-current/idp-metadata.xml ]; then cp config-templates/idp-metadata.xml config-current/idp-metadata.xml; fi && \
@@ -27,9 +27,9 @@ config-build:
 		if [ ! -e config-current/shib_fastcgi_params ]; then cp config-templates/shib_fastcgi_params config-current/shib_fastcgi_params; fi && \
 		if [ ! -e config-current/ssl/nginx.crt ]; then cp config-templates/ssl/nginx.crt config-current/ssl/nginx.crt; fi && \
 		if [ ! -e config-current/ssl/nginx.key ]; then cp config-templates/ssl/nginx.key config-current/ssl/nginx.key; fi && \
-		perl -p -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < config-templates/nginx.conf > config-current/nginx.conf && \
-		perl -p -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < config-templates/shibboleth.xml > config-current/shibboleth.xml && \
-		perl -p -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < config-templates/environment-compose > docker/.env && \
+		perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/nginx.conf > config-current/nginx.conf && \
+		perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/shibboleth2.xml > config-current/shibboleth2.xml && \
+		perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/environment-compose > docker/.env
 
 ## -- Docker development environment commands --
 

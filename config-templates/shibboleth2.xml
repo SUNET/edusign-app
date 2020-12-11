@@ -51,7 +51,7 @@
 <!--
  The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. 
 -->
-    <ApplicationDefaults entityID="${SHIB_SP_ENTITY_ID}" REMOTE_USER="${SHIB_SP_REMOTE_USER}">
+    <ApplicationDefaults entityID="${SHIB_SP_ENTITY_ID}" REMOTE_USER="eppn persistent-id targeted-id">
 <!--
 
         Controls session lifetimes, address checks, cookie handling, and the protocol handlers.

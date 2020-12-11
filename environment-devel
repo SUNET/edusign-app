@@ -3,7 +3,6 @@ SERVER_NAME=sp.edusign.docker
 HOSTNAME=sp.edusign.docker
 
 SHIB_SP_ENTITY_ID=https://sp.edusign.docker/shibboleth
-SHIB_SP_REMOTE_USER=eppn persistent-id targeted-id
 SHIB_IDP_ENTITY_ID=https://idptestbed/idp/shibboleth
 
 
