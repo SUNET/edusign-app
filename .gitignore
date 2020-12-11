@@ -16,3 +16,6 @@ backend/venv/
 backend/.coverage
 __pycache__
 .env
+
+config-current/
+environment-current

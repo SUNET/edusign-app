@@ -11,27 +11,49 @@ FRONT_SOURCE=src/
 BACK_DIR=backend/
 BACK_SOURCE=src/
 
-## -- Docker environment commands --
+## -- Configuration commands --
+
+## Build configuration with values from env file (environment-current). If file provided, vars in the diff with environment-devel must be in the environment. Otherwise environment-devel is used.
+.PHONY: config-build
+config-build:
+	if [ ! -f environment-current ]; then cp environment-devel environment-current; fi && \
+	  export $(cat environment-current | xargs) && \
+		if [ ! -d config-current ]; then mkdir -p config-current/ssl; fi && \
+		if [ ! -e config-current/supervisord.conf ]; then cp config-templates/supervisord.conf config-current/supervisord.conf; fi && \
+		if [ ! -e config-current/idp-metadata.xml ]; then cp config-templates/idp-metadata.xml config-current/idp-metadata.xml; fi && \
+		if [ ! -e config-current/attribute-map.xml ]; then cp config-templates/attribute-map.xml config-current/attribute-map.xml; fi && \
+		if [ ! -e config-current/fastcgi.conf ]; then cp config-templates/fastcgi.conf config-current/fastcgi.conf; fi && \
+		if [ ! -e config-current/shib_clear_headers ]; then cp config-templates/shib_clear_headers config-current/shib_clear_headers; fi && \
+		if [ ! -e config-current/shib_fastcgi_params ]; then cp config-templates/shib_fastcgi_params config-current/shib_fastcgi_params; fi && \
+		if [ ! -e config-current/ssl/nginx.crt ]; then cp config-templates/ssl/nginx.crt config-current/ssl/nginx.crt; fi && \
+		if [ ! -e config-current/ssl/nginx.key ]; then cp config-templates/ssl/nginx.key config-current/ssl/nginx.key; fi && \
+		perl -p -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < config-templates/nginx.conf > config-current/nginx.conf && \
+		perl -p -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < config-templates/shibboleth.xml > config-current/shibboleth.xml && \
+		perl -p -e 's/\$\{([^}]+)\}/defined $ENV{$1} ? $ENV{$1} : $&/eg' < config-templates/environment-compose > docker/.env && \
+
+## -- Docker development environment commands --
 
 ## Add needed entries to /etc/hosts if absent
-.PHONY: env-prepare
-env-prepare:
+.PHONY: dev-env-prepare
+dev-env-prepare:
 	@cd $(ENV_DIR); \
     ./prepare.sh
 
 ## Start the docker environment, adding entries to /etc/hosts if needed
-.PHONY: env-start
-env-start: env-prepare
+.PHONY: dev-env-start
+dev-env-start: dev-env-prepare
 	@cd $(ENV_DIR); \
-    docker-compose  rm -s -f; \
-    docker-compose  up --build $*; \
-    docker-compose  logs -tf
+    docker-compose -f docker-compose-dev.yml rm -s -f; \
+    docker-compose -f docker-compose-dev.yml  up --build $*; \
+    docker-compose -f docker-compose-dev.yml  logs -tf
 
 ## Stop the docker environment
-.PHONY: env-stop
-env-stop:
+.PHONY: dev-env-stop
+dev-env-stop:
 	@cd $(ENV_DIR); \
-    docker-compose  rm -s -f; \
+    docker-compose -f docker-compose-dev.yml  rm -s -f; \
+
+## -- Production environment commands --
 
 ## -- Front end development commands --
 

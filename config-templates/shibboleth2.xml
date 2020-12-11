@@ -39,7 +39,7 @@
             https on the default ports. Note that the name and port in the <Host> elements MUST match
             Apache's ServerName and Port directives or the IIS Site name in the <ISAPI> element above.
             -->
-            <Host name="sp.edusign.docker">
+            <Host name="${SERVER_NAME}">
                 <Path name="sign" authType="shibboleth" requireSession="true"/>
             </Host>
             <!-- Example of a second vhost mapped to a different applicationId. -->
@@ -51,7 +51,7 @@
 <!--
  The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. 
 -->
-<ApplicationDefaults entityID="https://sp.edusign.docker/shibboleth" REMOTE_USER="eppn persistent-id targeted-id">
+    <ApplicationDefaults entityID="${SHIB_SP_ENTITY_ID}" REMOTE_USER="${SHIB_SP_REMOTE_USER}">
 <!--
 
         Controls session lifetimes, address checks, cookie handling, and the protocol handlers.
@@ -72,7 +72,7 @@
             You can also override entityID on /Login query string, or in RequestMap/htaccess.
             
 -->
-<SSO entityID="https://idptestbed/idp/shibboleth"> SAML2 SAML1 </SSO>
+  <SSO entityID="${SHIB_IDP_ENTITY_ID}"> SAML2 SAML1 </SSO>
 <!-- SAML and local-only logout. -->
 <Logout>SAML2 Local</Logout>
 <!--
