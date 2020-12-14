@@ -5,6 +5,7 @@
   "browser": "src/entry-points/index.js",
   "scripts": {
     "start": "rm -rf node_modules/.cache && webpack --watch --progress",
+    "build-pro": "rm -rf node_modules/.cache && webpack --config webpack.prod.config.js",
     "test": "karma start karma.conf.js",
     "debug": "karma start --single-run=false --debug --browser Chrome",
     "serve": "webpack-dev-server --open",
@@ -29,6 +30,7 @@
     "bootstrap": "^4.5.2",
     "chai": "^4.2.0",
     "chai-dom": "^1.8.2",
+    "compression-webpack-plugin": "^6.1.1",
     "coverage-istanbul": "^1.1.0",
     "es6-promise": "^4.2.8",
     "formik": "^2.1.7",
@@ -82,6 +84,7 @@
     "react-hot-loader": "^4.13.0",
     "sass-loader": "^10.0.2",
     "style-loader": "^1.2.1",
+    "terser-webpack-plugin": "^2.3.8",
     "url-loader": "^4.1.0",
     "webpack": "^4.44.2",
     "webpack-cli": "^3.3.12",

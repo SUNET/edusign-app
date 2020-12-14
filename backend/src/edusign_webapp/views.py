@@ -58,7 +58,11 @@ def get_bundle():
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
         session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
     try:
-        return render_template('index.jinja2')
+        bundle_name = 'main-bundle'
+        if current_app.config['DEBUG']:
+            bundle_name += '.dev'
+
+        return render_template('index.jinja2', current_app=current_app)
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
         abort(500)

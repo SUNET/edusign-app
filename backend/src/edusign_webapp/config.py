@@ -33,6 +33,13 @@
 
 import os
 
+DEBUG = os.environ.get('DEBUG', default=False)
+if isinstance(DEBUG, str):
+    if DEBUG in ('t', 'true', 'True'):
+        DEBUG = True
+    else:
+        DEBUG = False
+
 SECRET_KEY = os.environ.get('SECRET_KEY', default='supersecret')
 
 SESSION_COOKIE_DOMAIN = os.environ.get('SERVER_NAME', default='sp.edusign.docker')

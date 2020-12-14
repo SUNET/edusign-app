@@ -64,12 +64,19 @@ front-init:
 	@cd $(FRONT_DIR); \
 		npm install
 
-## Build the front app bundle
-.PHONY: front-build
-front-build:
+## Build the development front app bundle
+.PHONY: front-build-dev
+front-build-dev:
 	@cd $(FRONT_DIR); \
 		cp node_modules/pdfjs-dist/build/pdf.worker.js* build/ ; \
     npm start
+
+## Build the production front app bundle
+.PHONY: front-build-pro
+front-build-pro:
+	@cd $(FRONT_DIR); \
+		cp node_modules/pdfjs-dist/build/pdf.worker.js* build/ ; \
+    npm run build-pro
 
 ## Run the tests for the front side code
 .PHONY: front-test
