@@ -62,7 +62,7 @@ def get_bundle():
         if current_app.config['DEBUG']:
             bundle_name += '.dev'
 
-        return render_template('index.jinja2', current_app=current_app)
+        return render_template('index.jinja2', bundle_name=bundle_name)
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
         abort(500)
@@ -140,12 +140,16 @@ def sign_service_callback() -> str:
 
     data = {k: v for k, v in request.values.items()}
     current_app.logger.debug(f"Data received from sign service: {data}")
+    bundle_name = 'main-bundle'
+    if current_app.config['DEBUG']:
+        bundle_name += '.dev'
 
     try:
         return render_template(
             'index-with-sign-response.jinja2',
             sign_response=request.form.get('EidSignResponse'),
             relay_state=request.form.get('RelayState'),
+            bundle_name=bundle_name,
         )
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
