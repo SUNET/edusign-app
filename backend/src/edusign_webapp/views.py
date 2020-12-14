@@ -50,7 +50,9 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 @edusign_views.route('/', methods=['GET'])
 def get_bundle():
     if 'eppn' not in session:
-        session['eppn'] = request.headers.get('Edupersonprincipalname')
+        eppn = request.headers.get('Edupersonprincipalname')
+        current_app.logger.info(f'User {eppn} started a session')
+        session['eppn'] = eppn
         session['given_name'] = request.headers.get('Givenname')
         session['surname'] = request.headers.get('Sn')
         session['email'] = request.headers.get('Mail')
@@ -89,7 +91,7 @@ def get_config() -> dict:
 def add_document(document) -> dict:
     """"""
     try:
-        current_app.logger.info(f"Sending document {document['name']} for preparation")
+        current_app.logger.info(f"Sending document {document['name']} for preparation for user {session['eppn']}")
         prepare_data = current_app.api_client.prepare_document(document)
 
     except Exception as e:
@@ -111,7 +113,7 @@ def create_sign_request(documents) -> dict:
     """"""
     current_app.logger.debug(f'Data gotten in create view: {documents}')
     try:
-        current_app.logger.info("Creating signature request")
+        current_app.logger.info(f"Creating signature request for user {session['eppn']}")
         create_data, documents_with_id = current_app.api_client.create_sign_request(documents['documents'])
 
     except Exception as e:
@@ -162,7 +164,7 @@ def sign_service_callback() -> str:
 def get_signed_documents(sign_data) -> dict:
 
     try:
-        current_app.logger.info(f"Processing signature for {sign_data['sign_response']}")
+        current_app.logger.info(f"Processing signature for {sign_data['sign_response']} for user {session['eppn']}")
         process_data = current_app.api_client.process_sign_request(sign_data['sign_response'], sign_data['relay_state'])
 
     except Exception as e:
