@@ -29,7 +29,8 @@ config-build:
 		if [ ! -e config-current/ssl/nginx.key ]; then cp config-templates/ssl/nginx.key config-current/ssl/nginx.key; fi && \
 		perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/nginx.conf > config-current/nginx.conf && \
 		perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/shibboleth2.xml > config-current/shibboleth2.xml && \
-		perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/environment-compose > docker/.env
+		perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/environment-compose > docker/.env && \
+		cp -Rp config-current docker/edusign/
 
 ## -- Docker development environment commands --
 

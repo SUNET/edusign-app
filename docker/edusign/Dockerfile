@@ -45,18 +45,20 @@ RUN apt install -y supervisor
 
 RUN mkdir -p /var/run/shibboleth
 
-COPY ../../config-current/nginx.conf /etc/nginx/
-COPY ../../config-current/shib_fastcgi_params /etc/nginx/
-COPY ../../config-current/shib_clear_headers /etc/nginx/
-COPY ../../config-current/fastcgi.conf /etc/nginx/
+COPY ./config-current/nginx.conf /etc/nginx/
+COPY ./config-current/shib_fastcgi_params /etc/nginx/
+COPY ./config-current/shib_clear_headers /etc/nginx/
+COPY ./config-current/fastcgi.conf /etc/nginx/
 
-COPY ../../config-current/supervisord.conf /etc/supervisor/conf.d/
+COPY ./config-current/supervisord.conf /etc/supervisor/conf.d/
 
-COPY -R ../../config-current/ssl /etc/nginx/
+RUN mkdir /etc/nginx/ssl/
 
-COPY ../../config-current/shibboleth2.xml /etc/shibboleth/
-COPY ../../config-current/attribute-map.xml /etc/shibboleth/
-COPY ../../config-current/idp-metadata.xml /etc/shibboleth/
+COPY ./config-current/ssl/nginx.* /etc/nginx/ssl/
+
+COPY ./config-current/shibboleth2.xml /etc/shibboleth/
+COPY ./config-current/attribute-map.xml /etc/shibboleth/
+COPY ./config-current/idp-metadata.xml /etc/shibboleth/
 
 COPY start.sh /opt/
 
