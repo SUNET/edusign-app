@@ -14,7 +14,7 @@ var webpackProd = {
 delete webpackProd.entry.server;
 delete webpackProd.entry.hot;
 
-delete webpackProd.devtool;
+webpackProd.devtool = 'nosources-source-map';
 
 webpackProd.output = {
   filename: "[name]-bundle.js",
@@ -32,7 +32,7 @@ webpackProd.plugins = [
   new webpack.optimize.AggressiveMergingPlugin(), //Merge chunks
   new webpack.optimize.OccurrenceOrderPlugin(true),
   new CompressionPlugin({
-    minRatio: 0.8
+    minRatio: 0.8,
   }),
   // new BundleAnalyzerPlugin()
 ];
@@ -41,9 +41,7 @@ webpackProd.mode = 'production';
 
 webpackProd.optimization = {
   minimize: true,
-  minimizer: [new TerserPlugin({
-    extractComments: true,
-  })],
+  minimizer: [new TerserPlugin()],
 };
 
 module.exports = webpackProd;
