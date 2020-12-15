@@ -99,13 +99,13 @@ networks:
 
 secrets:
   idp_backchannel:
-    file: ./secrets/idp/idp-backchannel.p12
+    file: ./idp/secrets/idp-backchannel.p12
   idp_browser:
-    file: ./secrets/idp/idp-browser.p12
+    file: ./idp/secrets/idp-browser.p12
   idp_encryption:
-    file: ./secrets/idp/idp-encryption.key
+    file: ./idp/secrets/idp-encryption.key
   idp_signing:
-    file: ./secrets/idp/idp-signing.key
+    file: ./idp/secrets/idp-signing.key
   idp_sealer:
-    file: ./secrets/idp/sealer.jks
+    file: ./idp/secrets/sealer.jks
 
