@@ -11,6 +11,7 @@ FRONT_SOURCE=src/
 BACK_DIR=backend/
 BACK_SOURCE=src/
 
+# Get any extra command line arguments
 args=`arg="$(filter-out $@,$(MAKECMDGOALS))" && echo $${arg:-${1}}`
 
 ## -- Configuration commands --

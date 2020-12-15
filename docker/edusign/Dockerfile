@@ -60,6 +60,4 @@ COPY ./config-current/shibboleth2.xml /etc/shibboleth/
 COPY ./config-current/attribute-map.xml /etc/shibboleth/
 COPY ./config-current/idp-metadata.xml /etc/shibboleth/
 
-COPY start.sh /opt/
-
-CMD ["/opt/start.sh"]
+CMD ["/usr/bin/supervisord"]
