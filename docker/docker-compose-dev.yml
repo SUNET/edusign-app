@@ -3,7 +3,7 @@ version: '3.8'
 services:
 
   httpd-proxy:
-    build: ./httpd-proxy/
+    build: ./test-idp/httpd-proxy/
     networks:
       edusign-dev:
         ipv4_address: 172.20.10.200
@@ -16,7 +16,7 @@ services:
       - ./logs/httpd:/var/log/httpd:rw
 
   idp:
-    build: ./idp/
+    build: ./test-idp/idp/
     depends_on: 
      - ldap
     environment:
@@ -36,7 +36,7 @@ services:
      - source: idp_sealer     
    
   ldap:
-    build: ./ldap/
+    build: ./test-idp/ldap/
     networks:
       edusign-back:
         ipv4_address: 172.19.10.202
@@ -99,13 +99,13 @@ networks:
 
 secrets:
   idp_backchannel:
-    file: ./idp/secrets/idp-backchannel.p12
+    file: ./test-idp/idp/secrets/idp-backchannel.p12
   idp_browser:
-    file: ./idp/secrets/idp-browser.p12
+    file: ./test-idp/idp/secrets/idp-browser.p12
   idp_encryption:
-    file: ./idp/secrets/idp-encryption.key
+    file: ./test-idp/idp/secrets/idp-encryption.key
   idp_signing:
-    file: ./idp/secrets/idp-signing.key
+    file: ./test-idp/idp/secrets/idp-signing.key
   idp_sealer:
-    file: ./idp/secrets/sealer.jks
+    file: ./test-idp/idp/secrets/sealer.jks
 
