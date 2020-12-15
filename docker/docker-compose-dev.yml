@@ -13,7 +13,7 @@ services:
      - "80:80"
      - "443:443"
     volumes:
-      - ./logs/httpd:/var/log/httpd:rw
+      - edusignlogs:/var/log/httpd:rw
 
   idp:
     build: ./test-idp/idp/
@@ -53,9 +53,7 @@ services:
       edusign-dev:
         ipv4_address: 172.20.10.203
     volumes:
-      - ./logs/nginx:/var/log/nginx:rw
-      - ./logs/shibboleth:/var/log/supervisor:rw
-      - ./logs/shibd:/var/log/shibboleth:rw
+      - edusignlogs:/var/log/edusign:rw
       - ../frontend:/opt/edusign/frontend:ro
     environment:
       - "HOSTNAME=${SP_HOSTNAME}"
@@ -70,8 +68,8 @@ services:
     expose:
       - 8080
     volumes:
+      - edusignlogs:/var/log/edusign:rw
       - ../backend:/opt/edusign/edusign-webapp:ro
-      - ./logs/edusign:/var/log/edusign:rw
     environment:
       - "PYTHONPATH=/opt/edusign/edusign-webapp/src"
       - "HOSTNAME=${WEBAPP_HOSTNAME}"
@@ -96,6 +94,10 @@ networks:
       driver: default
       config:
       - subnet: 172.20.10.0/24
+
+volumes:
+  edusignlogs:
+    name: edusignlogs
 
 secrets:
   idp_backchannel:

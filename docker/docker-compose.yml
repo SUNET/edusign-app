@@ -12,10 +12,8 @@ services:
       edusign:
         ipv4_address: 172.20.10.203
     volumes:
-      - ./logs/nginx:/var/log/nginx:rw
-      - ./logs/shibboleth:/var/log/supervisor:rw
-      - ./logs/shibd:/var/log/shibboleth:rw
       - ../frontend:/opt/edusign/frontend:ro
+      - edusignlogs:/var/log/edusign:rw
     environment:
       - "HOSTNAME=${SP_HOSTNAME}"
 
@@ -28,13 +26,17 @@ services:
       - 8080
     volumes:
       - ../backend:/opt/edusign/edusign-webapp:ro
-      - ./logs/edusign:/var/log/edusign:rw
+      - edusignlogs:/var/log/edusign:rw
     environment:
       - "PYTHONPATH=/opt/edusign/edusign-webapp/src"
       - "HOSTNAME=${WEBAPP_HOSTNAME}"
     env_file: .env
     depends_on:
       - sp
+
+volumes:
+  edusignlogs:
+    name: edusignlogs
 
 networks:
   edusign:
