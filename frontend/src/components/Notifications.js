@@ -19,6 +19,7 @@ class Notifications extends Component {
           variant={msg.level}
           dismissible={true}
           onClose={this.props.handleRMNotification(index)}
+          className="notification"
         >
           {msg.message}
         </Alert>

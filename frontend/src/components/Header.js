@@ -15,21 +15,28 @@ class Header extends Component {
     let name = "";
     if (!this.props.loading) {
       name = (
-        <span id="name-in-header">
-          {this.props.givenName} {this.props.surname}
-        </span>
+        <div id="name-and-clear-in-header">
+          <span id="name-in-header">
+            {this.props.givenName} {this.props.surname}
+          </span>|
+          <span id="clear-in-header">
+            <FormattedMessage defaultMessage="Clear session" key="clear-seesion" />
+          </span>
+        </div>
       );
     }
     return (
       <section className="banner" data-testid="edusign-banner">
         <header id="edusign-header">
           <div id="edusign-logo" data-testid="edusign-logo" />
+          <NotificationsContainer />
           <div id="header-right" data-testid="header-right">
+            <a href="https://sunet.se">
+              <div id="sunet-logo" data-testid="sunet-logo" />
+            </a>
             {name}
-            <div id="sunet-logo" data-testid="sunet-logo" />
           </div>
         </header>
-        <NotificationsContainer />
       </section>
     );
   }
