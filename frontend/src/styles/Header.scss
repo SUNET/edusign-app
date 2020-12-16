@@ -1,12 +1,10 @@
 @import "./variables.scss";
 
-header#edusign-header {
+section#edusign-banner {
+  flex: none;
+  background-color: $white;
   display: flex;
   margin: 1rem;
-}
-
-.banner {
-  background-color: $white;
 }
 
 #edusign-logo {

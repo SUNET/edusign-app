@@ -34,10 +34,16 @@ class DnDArea extends Component {
                   })}
                 >
                   <input {...getInputProps()} />
-                  <span id="dnd-message">
+                  <span id="dnd-message-head">
                     <FormattedMessage
-                      defaultMessage="Documents to sign. Drag & drop or click to browse"
-                      key="dnd-area"
+                      defaultMessage="Drag & drop here or click to browse"
+                      key="dnd-area-head"
+                    />
+                  </span>
+                  <span id="dnd-message-foot">
+                    <FormattedMessage
+                      defaultMessage="Documents to sign"
+                      key="dnd-area-foot"
                     />
                   </span>
                 </div>

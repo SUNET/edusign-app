@@ -2,11 +2,14 @@
 
 section#panel {
   margin: 2.5rem 9rem;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 
 div#main-content {
-  max-width: 1200px;
-  margin: 0 auto;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }

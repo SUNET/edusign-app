@@ -26,17 +26,15 @@ class Header extends Component {
       );
     }
     return (
-      <section className="banner" data-testid="edusign-banner">
-        <header id="edusign-header">
-          <div id="edusign-logo" data-testid="edusign-logo" />
-          <NotificationsContainer />
-          <div id="header-right" data-testid="header-right">
-            <a href="https://sunet.se">
-              <div id="sunet-logo" data-testid="sunet-logo" />
-            </a>
-            {name}
-          </div>
-        </header>
+      <section id="edusign-banner" className="banner" data-testid="edusign-banner">
+        <div id="edusign-logo" data-testid="edusign-logo" />
+        <NotificationsContainer />
+        <div id="header-right" data-testid="header-right">
+          <a href="https://sunet.se">
+            <div id="sunet-logo" data-testid="sunet-logo" />
+          </a>
+          {name}
+        </div>
       </section>
     );
   }
