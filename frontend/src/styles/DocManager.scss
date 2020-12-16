@@ -4,12 +4,13 @@
   display: flex;
   flex-direction: row;
   min-height: 3rem;
+  min-width: 80%;
   align-items: center;
   justify-content: left;
 }
 
 .doc-flex-container > .name-flex-item {
-  flex: auto;
+  flex: 1 0 auto;
 }
 
 .doc-flex-container > .size-flex-item {
