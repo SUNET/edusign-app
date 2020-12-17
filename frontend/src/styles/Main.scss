@@ -1,5 +1,9 @@
 @import "./variables.scss";
 
+html, body, div#root {
+  height: 100%;
+}
+
 section#panel {
   margin: 2.5rem 9rem;
   flex: 1 0 auto;
