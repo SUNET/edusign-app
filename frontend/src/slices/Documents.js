@@ -199,28 +199,27 @@ export const startSigningDocuments = createAsyncThunk(
       });
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
+      if (data.error) {
+        throw new Error(data.message);
+      }
+      data.payload.documents.forEach((doc) => {
+        thunkAPI.dispatch(documentsSlice.actions.updateDocumentWithId(doc));
+      });
+      delete data.payload.documents;
+
+      thunkAPI.dispatch(updateSigningForm(data.payload));
+      const form = document.getElementById("signing-form");
+      form.submit();
     } catch (err) {
       console.log("Error creating sign request", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message: "comm prob create XXX TODO",
+          message: "XXX Problem creating signature request",
         })
       );
-      return {
-        ...doc,
-        state: "failed-signing",
-        message: "XXX problem creating sign request, please try again",
-      };
+      thunkAPI.dispatch(documentsSlice.actions.signFailure());
     }
-    data.payload.documents.forEach((doc) => {
-      thunkAPI.dispatch(documentsSlice.actions.updateDocumentWithId(doc));
-    });
-    delete data.payload.documents;
-
-    thunkAPI.dispatch(updateSigningForm(data.payload));
-    const form = document.getElementById("signing-form");
-    form.submit();
   }
 );
 
@@ -245,6 +244,20 @@ const fetchSignedDocuments = async (thunkAPI) => {
       });
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
+      if (data.error) {
+        throw new Error(data.message);
+      }
+      if ("message" in data) {
+        const level = data.error ? "danger" : "success";
+        thunkAPI.dispatch(
+          addNotification({ level: level, message: data.message })
+        );
+      }
+      data.payload.documents.forEach((doc) => {
+        thunkAPI.dispatch(
+          documentsSlice.actions.updateDocumentWithSignedContent(doc)
+        );
+      });
     } catch (err) {
       console.log("Error getting signed documents", err);
       thunkAPI.dispatch(
@@ -253,19 +266,8 @@ const fetchSignedDocuments = async (thunkAPI) => {
           message: "XXX Problem getting signed documents",
         })
       );
-      thunkAPI.dispatch(documentSlice.actions.signFailure());
+      thunkAPI.dispatch(documentsSlice.actions.signFailure());
     }
-    if ("message" in data) {
-      const level = data.error ? "danger" : "success";
-      thunkAPI.dispatch(
-        addNotification({ level: level, message: data.message })
-      );
-    }
-    data.payload.documents.forEach((doc) => {
-      thunkAPI.dispatch(
-        documentsSlice.actions.updateDocumentWithSignedContent(doc)
-      );
-    });
   }
 };
 
@@ -433,11 +435,11 @@ const documentsSlice = createSlice({
      */
     signFailure(state) {
       state.documents = state.documents.map((doc) => {
-        if (doc.state === signing) {
+        if (doc.state === "signing") {
           return {
             ...doc,
             state: 'failed-signing',
-            message: 'XXX Problem retrieving the signed document'
+            message: 'XXX Problem signing the document'
           };
         } else return doc;
       });
