@@ -1,6 +1,7 @@
 @import "./variables.scss";
 
 .doc-flex-container {
+  flex: none;
   display: flex;
   flex-direction: row;
   min-height: 3rem;
@@ -55,6 +56,16 @@
   }
 }
 
+#adjust-vertical-space {
+  flex: 1 0 0;
+}
+
+#footer-negative-margin {
+  flex: none;
+  height: 3rem;
+}
+
 button#button-sign {
-  margin-bottom: 1rem;
+  flex: none;
+  margin-bottom: 4rem;
 }

@@ -207,6 +207,7 @@ function DocManager(props) {
           </div>
         );
       })}
+      <div id="adjust-vertical-space" />
       <div className="button-sign-flex-item">
         <Button
           variant="outline-success"
