@@ -59,7 +59,7 @@ const documentDo = (action, document) => {
       docRequest = docStore.put(document);
     } else if (action === "removing") {
       console.log("removing document from db", document.name);
-      docRequest = docStore.delete(document.name);
+      docRequest = docStore.delete(document.id);
     }
     docRequest.onerror = (event) => {
       console.log(`Problem {action} document`, document.name, "Error:", event);

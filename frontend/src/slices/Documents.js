@@ -357,7 +357,11 @@ const documentsSlice = createSlice({
      * @desc Redux action to remove a document from the documents state key.
      */
     removeDocument(state, action) {
-      dbRemoveDocument({ name: action.payload });
+      state.documents.forEach((doc) => {
+        if (doc.name === action.payload) {
+          dbRemoveDocument(doc);
+        }
+      });
       state.documents = state.documents.filter((doc) => {
         return doc.name !== action.payload;
       });
