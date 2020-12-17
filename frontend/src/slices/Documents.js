@@ -353,7 +353,7 @@ const documentsSlice = createSlice({
     },
     /**
      * @public
-     * @function hidePreview
+     * @function removeDocument
      * @desc Redux action to remove a document from the documents state key.
      */
     removeDocument(state, action) {
@@ -361,6 +361,14 @@ const documentsSlice = createSlice({
       state.documents = state.documents.filter((doc) => {
         return doc.name !== action.payload;
       });
+    },
+    /**
+     * @public
+     * @function removeAllDocuments
+     * @desc Redux action to remove all documents from the documents state key.
+     */
+    removeAllDocuments(state, action) {
+      state.documents = new Array();
     },
     /**
      * @public
@@ -495,6 +503,7 @@ export const {
   showPreview,
   hidePreview,
   removeDocument,
+  removeAllDocuments,
   toggleDocSelection,
 } = documentsSlice.actions;
 

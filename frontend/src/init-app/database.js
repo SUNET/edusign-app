@@ -3,6 +3,8 @@
  * @desc Here we create the IndexedDB db that will persst the documents n the session between sessions
  */
 
+import { addNotification } from "slices/Notifications";
+
 let db = null;
 
 export function getDb() {
@@ -35,13 +37,22 @@ export function getDb() {
   }
 }
 
-const documentDo = (action, document) => {
+const getDocStore = () => {
   if (db !== null) {
     const transaction = db.transaction(["documents"], "readwrite");
     transaction.onerror = (event) => {
       console.log("cannot create a db transaction", event);
     };
-    const docStore = transaction.objectStore("documents");
+    return transaction.objectStore("documents");
+  } else {
+    console.log("No persistent state, db absent");
+    return null;
+  }
+};
+
+const documentDo = (action, document) => {
+  const docStore = getDocStore();
+  if (docStore !== null) {
     let docRequest = null;
     if (action === "saving") {
       console.log("saving document to db", document.name);
@@ -51,10 +62,10 @@ const documentDo = (action, document) => {
       docRequest = docStore.delete(document.name);
     }
     docRequest.onerror = (event) => {
-      console.log("Problem saving document", document.name, "Error:", event);
+      console.log(`Problem {action} document`, document.name, "Error:", event);
     };
   } else {
-    console.log("Cannot save the state, db absent");
+    console.log(`Problem {action} document, db absent`);
   }
 };
 
@@ -64,4 +75,19 @@ export const dbSaveDocument = (document) => {
 
 export const dbRemoveDocument = (document) => {
   documentDo("removing", document);
+};
+
+export const clearDocStore = (dispatch) => {
+  const docStore = getDocStore();
+  if (docStore !== null) {
+    console.log("clearing the db");
+    const docRequest = docStore.clear();
+    docRequest.onerror = (event) => {
+      console.log("Problem clearing the db", "Error:", event);
+      dispatch(addNotification({level: 'danger', message: 'XXX problem clearing db, please try again'}));
+    };
+  } else {
+    console.log("Problem clearing the state, db absent");
+    dispatch(addNotification({level: 'danger', message: 'XXX no persistent state'}));
+  }
 };

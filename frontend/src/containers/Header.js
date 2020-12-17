@@ -6,6 +6,8 @@
 import { connect } from "react-redux";
 
 import Header from "components/Header";
+import { clearDocStore } from "init-app/database";
+import { removeAllDocuments } from "slices/Documents";
 
 const mapStateToProps = (state, props) => {
   if (state.main.config === undefined) {
@@ -20,4 +22,13 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-export default connect(mapStateToProps)(Header);
+const mapDispatchToProps = (dispatch, props) => {
+  return {
+    clearDb: function (e) {
+      clearDocStore(dispatch);
+      dispatch(removeAllDocuments());
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

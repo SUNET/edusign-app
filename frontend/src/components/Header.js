@@ -19,7 +19,7 @@ class Header extends Component {
           <span id="name-in-header">
             {this.props.givenName} {this.props.surname}
           </span>|
-          <span id="clear-in-header">
+          <span id="clear-in-header" onClick={this.props.clearDb}>
             <FormattedMessage defaultMessage="Clear session" key="clear-seesion" />
           </span>
         </div>
