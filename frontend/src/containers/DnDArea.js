@@ -63,6 +63,7 @@ const mapDispatchToProps = (dispatch, props) => {
           );
           dispatch(addNotification({ level: "danger", message: errorMsg }));
           file.state = "failed-loading";
+          file.message = "XXX Document could not be loaded"
           dispatch(createDocument(file));
           dispatch(setWaiting());
         };

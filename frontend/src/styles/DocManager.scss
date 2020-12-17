@@ -9,44 +9,52 @@
   justify-content: left;
 }
 
-.doc-flex-container > .name-flex-item {
-  flex: 1 0 auto;
-}
-
-.doc-flex-container > .size-flex-item {
-  flex: initial;
-  width: 5rem;
-}
-
-.doc-flex-container > .type-flex-item {
-  flex: initial;
-  width: 7rem;
-}
-
-.doc-flex-container > .spinner-flex-item {
-  flex: initial;
+.doc-flex-container > .doc-selector-flex-item {
+  flex: none;
   width: 2rem;
 }
 
-.doc-flex-container > .loading-flex-item,
-.doc-flex-container > .signing-flex-item {
-  flex: initial;
-  width: 18rem;
+.doc-flex-container > .name-flex-item {
+  flex: 5 0 auto;
 }
 
-.doc-flex-container > .button-preview-flex-item,
-.doc-flex-container > .button-remove-flex-item {
-  flex: initial;
+.doc-flex-container > .message-flex-item {
+  flex: none;
+  margin-left: 1rem;
+  color: $error-red;
+}
+
+.doc-flex-container > .type-flex-item,
+.doc-flex-container > .size-flex-item {
+  flex: none;
+  margin-left: 1rem;
+}
+
+.doc-flex-container > .spinner-flex-item,
+.doc-flex-container > .spinning-flex-item {
+  flex: none;
   width: 5rem;
 }
 
+.doc-flex-container > .button-preview-flex-item,
+.doc-flex-container > .button-remove-flex-item,
 .doc-flex-container > .button-retry-flex-item,
 .doc-flex-container > .button-sign-flex-item {
-  flex: initial;
-  width: 4rem;
+  flex: none;
+  button {
+    width: 4rem;
+    margin-left: 1rem;
+  }
 }
 
 .doc-flex-container > .button-signed-flex-item {
-  flex: initial;
-  width: 9rem;
+  flex: none;
+  button {
+    width: 9rem;
+    margin-left: 1rem;
+  }
+}
+
+button#button-sign {
+  margin-bottom: 1rem;
 }

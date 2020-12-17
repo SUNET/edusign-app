@@ -22,6 +22,23 @@ import "styles/DocManager.scss";
  * @component
  */
 function DocManager(props) {
+  function docName(doc) {
+    return <div className="name-flex-item">{doc.name}</div> ;
+  }
+  function docSize(doc) {
+    return <div className="size-flex-item">{humanFileSize(doc.size)}</div> ;
+  }
+  function docType(doc) {
+    return <div className="type-flex-item">{doc.type}</div> ;
+  }
+  function namedSpinner(index, name) {
+    return (
+      <>
+        <LittleSpinner index={index} />
+        <div className="spinning-flex-item">{` ${name} ...`}</div>
+      </>
+    );
+  }
   function previewButton(doc) {
     return (
       <>
@@ -55,11 +72,20 @@ function DocManager(props) {
   function selectDoc(doc) {
     return (
       <>
-        <input
-          type="checkbox"
-          onClick={props.handleDocSelection(doc.name)}
-          defaultChecked={doc.state === "selected"}
-        />
+        <div className="doc-selector-flex-item">
+          <input
+            type="checkbox"
+            onClick={props.handleDocSelection(doc.name)}
+            defaultChecked={doc.state === "selected"}
+          />
+        </div>
+      </>
+    );
+  }
+  function dummySelectDoc() {
+    return (
+      <>
+        <div className="doc-selector-flex-item" />
       </>
     );
   }
@@ -96,6 +122,15 @@ function DocManager(props) {
       </>
     );
   }
+  function showMessage(doc) {
+    return (
+      <>
+        <div className="message-flex-item">
+          <span alt={doc.message}>{doc.message}</span>
+        </div>
+      </>
+    );
+  }
 
   let someSelected = false;
 
@@ -105,18 +140,28 @@ function DocManager(props) {
         if (doc.state === "selected") someSelected = true;
         return (
           <div className="doc-flex-container" key={index}>
-            <div className="name-flex-item">{doc.name}</div>
-            <div className="size-flex-item">{humanFileSize(doc.size)}</div>
-            <div className="type-flex-item">{doc.type}</div>
             {doc.state === "loading" && (
               <>
-                <LittleSpinner index={index} />
-                <div className="loading-flex-item">{" loading ..."}</div>
+                {dummySelectDoc()}
+                {docName(doc)}
+                {docSize(doc)}
+                {docType(doc)}
+                {namedSpinner(index, "loading")}
               </>
             )}
-            {doc.state === "failed-loading" && <>{removeButton(doc)}</>}
+            {doc.state === "failed-loading" && (
+              <>
+                {dummySelectDoc()}
+                {docName(doc)}
+                {showMessage(doc)}
+                {removeButton(doc)}
+              </>
+            )}
             {doc.state === "failed-preparing" && (
               <>
+                {dummySelectDoc()}
+                {docName(doc)}
+                {showMessage(doc)}
                 {retryButton(doc)}
                 {removeButton(doc)}
               </>
@@ -124,25 +169,37 @@ function DocManager(props) {
             {(doc.state === "loaded" || doc.state === "selected") && (
               <>
                 {selectDoc(doc)}
+                {docName(doc)}
+                {docSize(doc)}
+                {docType(doc)}
                 {previewButton(doc)}
                 {removeButton(doc)}
               </>
             )}
             {doc.state === "signing" && (
               <>
-                <LittleSpinner index={index} />
-                <div className="signing-flex-item">{" signing ..."}</div>
+                {dummySelectDoc()}
+                {docName(doc)}
+                {docSize(doc)}
+                {docType(doc)}
+                {namedSpinner(index, "signing")}
               </>
             )}
             {doc.state === "signed" && (
               <>
-                {previewButton(doc)}
+                {dummySelectDoc()}
+                {docName(doc)}
+                {docSize(doc)}
+                {docType(doc)}
                 {dlSignedButton(doc)}
               </>
             )}
             {doc.state === "failed-signing" && (
               <>
-                {retryButton(doc)}
+                {selectDoc(doc)}
+                {docName(doc)}
+                {showMessage(doc)}
+                {previewButton(doc)}
                 {removeButton(doc)}
               </>
             )}
@@ -153,11 +210,12 @@ function DocManager(props) {
       <div className="button-sign-flex-item">
         <Button
           variant="outline-success"
+          id="button-sign"
           size="lg"
           disabled={!someSelected}
           onClick={props.handleSubmitToSign}
         >
-          <FormattedMessage defaultMessage="Sign" key="sign-button" />
+          <FormattedMessage defaultMessage="Sign Selected Documents" key="sign-selected-button" />
         </Button>
       </div>
       {props.destinationUrl !== undefined && (
