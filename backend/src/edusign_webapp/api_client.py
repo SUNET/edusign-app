@@ -134,7 +134,7 @@ class APIClient(object):
 
         response, documents_with_id = self._try_creating_sign_request(documents)
 
-        if response.status == 404:  # XXX make sure it's a 404 when the doc cache expires
+        if False:  # XXX check what is the response when the doc cache expires
             new_documents = []
             for doc in documents:
                 prepare_data = self.prepare_document(doc)
