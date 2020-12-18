@@ -30,6 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+import asyncio
+
 from flask import Blueprint, abort, current_app, json, render_template, request, session
 from flask_babel import gettext
 
@@ -42,6 +44,7 @@ from edusign_webapp.schemata import (
     SigningSchema,
     SignRequestSchema,
     ToSignSchema,
+    ToRestartSigningSchema,
 )
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
@@ -85,18 +88,26 @@ def get_config() -> dict:
     }
 
 
+def _prepare_document(document) -> dict:
+    """"""
+    try:
+        current_app.logger.info(f"Sending document {document['name']} for preparation for user {session['eppn']}")
+        return current_app.api_client.prepare_document(document)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem preparing document: {e}')
+        return {'error': True, 'message': gettext('Communication error with the prepare endpoint of the eduSign API')}
+
+
 @edusign_views.route('/add-doc', methods=['POST'])
 @UnMarshal(DocumentSchema)
 @Marshal(ReferenceSchema)
 def add_document(document) -> dict:
     """"""
-    try:
-        current_app.logger.info(f"Sending document {document['name']} for preparation for user {session['eppn']}")
-        prepare_data = current_app.api_client.prepare_document(document)
+    prepare_data = _prepare_document(document)
 
-    except Exception as e:
-        current_app.logger.error(f'Problem preparing document: {e}')
-        return {'error': True, 'message': gettext('Communication error with the prepare endpoint of the eduSign API')}
+    if 'error' in prepare_data and prepare_data['error']:
+        return prepare_data
 
     doc_ref = prepare_data['updatedPdfDocumentReference']
     sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])
@@ -116,6 +127,10 @@ def create_sign_request(documents) -> dict:
         current_app.logger.info(f"Creating signature request for user {session['eppn']}")
         create_data, documents_with_id = current_app.api_client.create_sign_request(documents['documents'])
 
+    except current_app.api_client.ExpiredCache:
+        current_app.logger.info(f"Some document(s) have expired for {session['eppn']} in the API's cache, restarting process...")
+        return {'error': True, 'message': 'expired cache'}
+
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
         return {'error': True, 'message': gettext('Communication error with the create endpoint of the eduSign API')}
@@ -130,6 +145,54 @@ def create_sign_request(documents) -> dict:
         }
     except KeyError:
         current_app.logger.error(f'Problem creating sign request, got response: {create_data}')
+        return {'error': True, 'message': create_data['message']}
+
+    message = gettext("Success creating sign request")
+
+    return {'message': message, 'payload': sign_data}
+
+
+@edusign_views.route('/recreate-sign-request', methods=['POST'])
+@UnMarshal(ToRestartSigningSchema)
+@Marshal(SignRequestSchema)
+def recreate_sign_request(documents) -> dict:
+    """"""
+    current_app.logger.debug(f'Data gotten in recreate view: {documents}')
+
+    new_docs = []
+    for doc in documents['documents']:
+        current_app.logger.info(f"Re-preparing {doc['name']} for user {session['eppn']}")
+        prepare_data = _prepare_document(doc)
+
+        if 'error' in prepare_data and prepare_data['error']:
+            current_app.logger.error(f"Problem re-preparing document: {doc['name']}")
+            return prepare_data
+
+        new_docs.append({
+            'name': doc['name'],
+            'type': doc['type'],
+            'ref': prepare_data['updatedPdfDocumentReference'],
+            'sign_requirement': json.dumps(prepare_data['visiblePdfSignatureRequirement'])
+        })
+
+    try:
+        current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
+        create_data, documents_with_id = current_app.api_client.create_sign_request(new_docs)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem creating sign request: {e}')
+        return {'error': True, 'message': gettext('Communication error with the create endpoint of the eduSign API')}
+
+    try:
+        sign_data = {
+            'relay_state': create_data['relayState'],
+            'sign_request': create_data['signRequest'],
+            'binding': create_data['binding'],
+            'destination_url': create_data['destinationUrl'],
+            'documents': documents_with_id,
+        }
+    except KeyError:
+        current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
         return {'error': True, 'message': create_data['message']}
 
     message = gettext("Success creating sign request")

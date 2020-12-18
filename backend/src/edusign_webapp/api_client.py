@@ -50,6 +50,10 @@ def pretty_print_req(req):
 
 
 class APIClient(object):
+
+    class ExpiredCache(Exception):
+        pass
+
     def __init__(self, config: dict):
         self.api_base_url = config['EDUSIGN_API_BASE_URL']
         self.profile = config['EDUSIGN_API_PROFILE']
@@ -133,22 +137,12 @@ class APIClient(object):
     def create_sign_request(self, documents: list) -> tuple:
 
         response, documents_with_id = self._try_creating_sign_request(documents)
-
-        if False:  # XXX check what is the response when the doc cache expires
-            new_documents = []
-            for doc in documents:
-                prepare_data = self.prepare_document(doc)
-
-                new_documents.append({
-                    'name': doc['name'],
-                    'type': doc['type'],
-                    'ref': prepare_data['updatedPdfDocumentReference'],
-                    'sign_requirement': prepare_data['visiblePdfSignatureRequirement']
-                })
-
-            response, documents_with_id = self._try_creating_sign_request(new_documents)
-
         response_data = response.json()
+
+        if 'status' in response_data and response_data['status'] == 400 and 'message' in response_data and 'not found in cache' in response_data['message']:
+
+            raise self.ExpiredCache()
+
         current_app.logger.debug(f"Data returned from the API's create endpoint: {pformat(response_data)}")
 
         return response_data, documents_with_id

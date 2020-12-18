@@ -61,6 +61,16 @@ class ToSignSchema(Schema):
     documents = fields.List(fields.Nested(ToSignDocumentSchema))
 
 
+class ToRestartSigningSchema(Schema):
+    class ToSignDocumentSchema(Schema):
+        name = fields.String(required=True)
+        size = fields.Integer(required=True)
+        type = fields.String(required=True)
+        blob = fields.Raw(required=True)
+
+    documents = fields.List(fields.Nested(ToSignDocumentSchema))
+
+
 class SignRequestSchema(Schema):
     relay_state = fields.String(required=True)
     sign_request = fields.String(required=True)
