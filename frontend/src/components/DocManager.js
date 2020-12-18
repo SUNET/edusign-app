@@ -61,7 +61,7 @@ function DocManager(props) {
           <Button
             variant="outline-success"
             size="sm"
-            onClick={props.handleRetry(doc.name)}
+            onClick={props.handleRetry(doc)}
           >
             <FormattedMessage defaultMessage="Retry" key="retry-button" />
           </Button>

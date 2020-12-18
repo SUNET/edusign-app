@@ -43,9 +43,9 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(removeDocument(name));
       };
     },
-    handleRetry: function (name) {
+    handleRetry: function (doc) {
       return (e) => {
-        dispatch(prepareDocument(name));
+        dispatch(prepareDocument(doc));
       };
     },
     handleDocSelection: function (name) {
