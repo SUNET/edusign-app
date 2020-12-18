@@ -14,16 +14,14 @@ import { rmNotification } from "slices/Notifications";
 
 const mapStateToProps = (state, props) => {
   return {
-    messages: state.notifications.messages,
+    message: state.notifications.message,
   };
 };
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleRMNotification(index) {
-      return () => {
-        dispatch(rmNotification(index));
-      };
+    handleRMNotification() {
+      dispatch(rmNotification());
     },
   };
 };

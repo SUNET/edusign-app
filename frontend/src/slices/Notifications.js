@@ -14,7 +14,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const notificationsSlice = createSlice({
   name: "notifications",
   initialState: {
-    messages: [],
+    message: null,
   },
   reducers: {
     /**
@@ -24,7 +24,7 @@ const notificationsSlice = createSlice({
      * This notification will show in the notifications area of the header.
      */
     addNotification(state, action) {
-      state.messages.push(action.payload);
+      state.message = action.payload;
     },
     /**
      * @public
@@ -32,10 +32,8 @@ const notificationsSlice = createSlice({
      * @desc Redux action to remove a notification to the notifications state key.
      * This will clear a message from the notifications area of the header.
      */
-    rmNotification(state, action) {
-      state.messages = state.messages.filter((msg, index) => {
-        return index !== action.payload;
-      });
+    rmNotification(state) {
+      state.message = null;
     },
   },
 });

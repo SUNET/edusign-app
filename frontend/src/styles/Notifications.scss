@@ -17,11 +17,15 @@
   max-width: 75%;
   border-radius: 2;
   align-items: baseline;
-  &.alert-danger,
+  &.alert-danger {
+    color: $error-red;
+    border-color: $error-red;
+    background-color: $white;
+  }
   &.alert-success {
-    color: $orange-highlight;
-    background-color: $orange-opaque;
-    border: none;
+    color: $dark-green;
+    border-color: $dark-green;
+    background-color: $white;
   }
   & span {
     font-size: 1rem;
