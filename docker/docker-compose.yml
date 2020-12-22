@@ -7,7 +7,6 @@ services:
     expose:
       - 80
       - 443
-    dns: 172.20.10.1
     networks:
       edusign:
         ipv4_address: 172.20.10.203
