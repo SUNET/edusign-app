@@ -574,6 +574,7 @@ export const {
   hidePreview,
   removeDocument,
   removeAllDocuments,
+  setState,
   toggleDocSelection,
 } = documentsSlice.actions;
 

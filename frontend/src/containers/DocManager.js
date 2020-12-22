@@ -14,6 +14,7 @@ import DocManager from "components/DocManager";
 import {
   prepareDocument,
   showPreview,
+  setState,
   hidePreview,
   toggleDocSelection,
   startSigningDocuments,
@@ -46,6 +47,7 @@ const mapDispatchToProps = (dispatch, props) => {
     handleRetry: function (doc) {
       return (e) => {
         dispatch(prepareDocument(doc));
+        dispatch(setState({name: doc.name, state: 'loading'}));
       };
     },
     handleDocSelection: function (name) {
