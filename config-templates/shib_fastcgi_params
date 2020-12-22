@@ -73,6 +73,9 @@ fastcgi_param Commonname $shib_commonname;
 shib_request_set $shib_displayname $upstream_http_variable_displayname;
 fastcgi_param DisplayName $shib_displayname;
 
+shib_request_set $shib_sn $upstream_http_variable_sn;
+fastcgi_param Sn $shib_sn;
+
 shib_request_set $shib_givenname $upstream_http_variable_givenname;
 fastcgi_param GivenName $shib_givenname;
 

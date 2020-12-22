@@ -42,8 +42,8 @@ objectClass: inetOrgPerson
 objectClass: eduPerson
 givenName: Enrique
 uid: eperez2
-sn: Perez
-cn: Enrique Perez
+sn:: UMOpcmV6
+cn:: RW5yaXF1ZSBQw6lyZXo=
 mail: eperez@emergya.com
 userPassword: password
 eduPersonPrincipalName: pugoj-hutat

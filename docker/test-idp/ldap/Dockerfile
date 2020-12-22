@@ -4,8 +4,15 @@ MAINTAINER John Gasper <jgasper@unicon.net>
 
 RUN yum install -y epel-release \
     && yum update -y \
-    && yum install -y 389-ds-base 389-adminutil \
-    && yum clean all
+    && yum install -y 389-ds-base 389-adminutil
+
+RUN yum reinstall glibc-common -y && \
+  localedef -c -i en_US -f UTF-8 en_US.UTF-8 && \
+  echo "LANG=en_US.UTF-8" > /etc/locale.conf
+
+ENV LANG en_US.UTF-8
+
+RUN yum clean all
 
 COPY ds-setup.inf /ds-setup.inf
 COPY users.ldif /users.ldif

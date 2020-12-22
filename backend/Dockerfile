@@ -10,11 +10,18 @@ RUN apt-get -y update && apt-get -y upgrade && \
     apt-get -y install libffi-dev libfreetype6-dev libjpeg62-turbo-dev libssl-dev \
       libtiff5-dev libxml2-dev libxml2-utils libxslt1-dev swig xmlsec1 zlib1g-dev \
       git build-essential libpython3-dev python3-cffi python3-venv iputils-ping \
-      procps bind9-host netcat-openbsd net-tools curl && \
+      procps bind9-host netcat-openbsd net-tools curl locales && \
     apt-get -y clean
 
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/*
+
+# Set the locale
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
 
 RUN mkdir -p /opt/edusign
 WORKDIR /opt/edusign

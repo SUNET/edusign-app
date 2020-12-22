@@ -29,6 +29,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+import pprint
 
 from flask import Flask
 from flask_babel import Babel
@@ -70,6 +71,26 @@ def edusign_init_app(name: str) -> EduSignApp:
 
 app = edusign_init_app('edusign')
 
+
+class LoggingMiddleware(object):
+    def __init__(self, app):
+        self._app = app
+
+    def __call__(self, env, resp):
+        errorlog = env['wsgi.errors']
+        pprint.pprint(('REQUEST', env), stream=errorlog)
+
+        def log_response(status, headers, *args):
+            pprint.pprint(('RESPONSE', status, headers), stream=errorlog)
+            return resp(status, headers, *args)
+
+        return self._app(env, log_response)
+
+
 if __name__ == '__main__':
     app.logger.info('Starting edusign app...')
+
+    if app.config['DEBUG']:
+        app.wsgi_app = LoggingMiddleware(app.wsgi_app)
+
     app.run()

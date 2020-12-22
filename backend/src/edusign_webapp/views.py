@@ -30,7 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import asyncio
+from base64 import b64decode
+from xml.etree import cElementTree as ET
 
 from flask import Blueprint, abort, current_app, json, render_template, request, session
 from flask_babel import gettext
@@ -56,8 +57,8 @@ def get_bundle():
         eppn = request.headers.get('Edupersonprincipalname')
         current_app.logger.info(f'User {eppn} started a session')
         session['eppn'] = eppn
-        session['given_name'] = request.headers.get('Givenname')
-        session['surname'] = request.headers.get('Sn')
+        session['given_name'] = ET.fromstring(b64decode(request.headers.get('Givenname'))).text
+        session['surname'] = ET.fromstring(b64decode(request.headers.get('Sn'))).text
         session['email'] = request.headers.get('Mail')
         session['idp'] = request.headers.get('Shib-Identity-Provider')
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')

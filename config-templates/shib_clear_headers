@@ -28,4 +28,19 @@ more_clear_input_headers
      Commonname
      DisplayName
      Email
-     OrganizationName;
+     OrganizationName
+     GivenName
+     EduPersonPrincipalName
+     Sn
+     commonName
+     displayName
+     email
+     givenName
+     eduPersonPrincipalName
+     sn
+     COMMONNAME
+     DISPLAYNAME
+     EMAIL
+     GIVENNAME
+     EDUPERSONPRINCIPALNAME
+     SN;
