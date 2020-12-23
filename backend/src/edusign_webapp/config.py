@@ -40,6 +40,8 @@ if isinstance(DEBUG, str):
     else:
         DEBUG = False
 
+ENVIRONMENT = os.environ.get('ENVIRONMENT', default='production')
+
 SECRET_KEY = os.environ.get('SECRET_KEY', default='supersecret')
 
 SESSION_COOKIE_DOMAIN = os.environ.get('SERVER_NAME', default='sp.edusign.docker')

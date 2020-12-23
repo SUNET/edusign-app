@@ -73,7 +73,7 @@ class APIClient(object):
     def prepare_document(self, document: dict) -> dict:
         """"""
         idp = session['idp']
-        if self.config['DEBUG']:
+        if self.config['ENVIRONMENT'] == 'development':
             idp = self.config['DEBUG_IDP']
 
         doc_data = document['blob'].split(',')[1]
@@ -105,7 +105,7 @@ class APIClient(object):
     def _try_creating_sign_request(self, documents: list) -> tuple:
         idp = session['idp']
         authn_context = session['authn_context']
-        if self.config['DEBUG']:
+        if self.config['ENVIRONMENT'] == 'development':
             idp = self.config['DEBUG_IDP']
             authn_context = self.config['DEBUG_AUTHN_CONTEXT']
 

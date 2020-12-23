@@ -1,6 +1,8 @@
 
 DEBUG=true
 
+ENVIRONMENT=development
+
 SERVER_NAME=sp.edusign.docker
 HOSTNAME=sp.edusign.docker
 
