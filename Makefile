@@ -16,11 +16,11 @@ args=`arg="$(filter-out $@,$(MAKECMDGOALS))" && echo $${arg:-${1}}`
 
 ## -- Configuration commands --
 
-## Build configuration with values from env file (environment-current). If file provided, vars in the diff with environment-devel must be in the environment. Otherwise environment-devel is used.
+## Build configuration with values from env file (environment-current). If file provided, vars in the diff with the environment-devel provided file must be in the environment. Otherwise environment-devel is used.
 .PHONY: config-build
 config-build:
 	@if [ ! -f environment-current ]; then cp environment-devel environment-current; fi && \
-	  export $$(cat environment-current | xargs) && \
+	  if ! grep -q 'DUMMY=dummy' environment-current; then export $$(cat environment-current | xargs); fi && \
 		if [ ! -d config-current ]; then mkdir -p config-current/ssl; fi && \
 		if [ ! -e config-current/supervisord.conf ]; then cp config-templates/supervisord.conf config-current/supervisord.conf; fi && \
 		if [ ! -e config-current/idp-metadata.xml ]; then cp config-templates/idp-metadata.xml config-current/idp-metadata.xml; fi && \
@@ -34,7 +34,18 @@ config-build:
 		if [ ! -e config-current/nginx.conf ]; then perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/nginx.conf > config-current/nginx.conf; fi && \
 		if [ ! -e config-current/shibboleth2.xml ]; then perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/shibboleth2.xml > config-current/shibboleth2.xml; fi && \
 		perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/environment-compose > docker/.env && \
-		mv config-current docker/edusign/
+		cp -Rp config-current docker/edusign/
+
+## Build configuration with values from the environment. All env variables present in the provided environment-devel file must be present in the environment.
+.PHONY: config-build-from-env
+config-build-from-env:
+	@echo "DUMMY=dummy" > environment-current
+	config-build
+
+## Remove built configuration (NOTE that this command will remove anything provided in ./config-current/).
+.PHONY: config-clean
+config-clean:
+	@rm -rf config-current/ docker/edusign/config-current/ docker/.env
 
 ## -- Docker development environment commands --
 
@@ -107,6 +118,12 @@ front-build-pro:
 	@cd $(FRONT_DIR); \
 		cp node_modules/pdfjs-dist/build/pdf.worker.js* build/ ; \
     npm run build-pro
+
+## Clean the production front app build stuff
+.PHONY: front-clean-pro
+front-clean-pro:
+	@cd $(FRONT_DIR); \
+		rm -rf node_modules
 
 ## Run the tests for the front side code
 .PHONY: front-test
