@@ -58,6 +58,7 @@ class APIClient(object):
         self.api_base_url = config['EDUSIGN_API_BASE_URL']
         self.profile = config['EDUSIGN_API_PROFILE']
         self.basic_auth = HTTPBasicAuth(config['EDUSIGN_API_USERNAME'], config['EDUSIGN_API_PASSWORD'])
+        self.config = config
 
     def _post(self, url, request_data):
         requests_session = requests.Session()
@@ -70,6 +71,11 @@ class APIClient(object):
         return requests_session.send(prepped, **settings)
 
     def prepare_document(self, document: dict) -> dict:
+        """"""
+        idp = session['idp']
+        if self.config['DEBUG']:
+            idp = self.config['DEBUG_IDP']
+
         doc_data = document['blob'].split(',')[1]
         request_data = {
             "pdfDocument": doc_data,
@@ -80,7 +86,7 @@ class APIClient(object):
                         {"name": "urn:oid:2.5.4.4"},
                         {"name": "urn:oid:0.9.2342.19200300.100.1.3"},
                     ]},
-                    "fieldValues": {"idp": 'https://login.idp.eduid.se/idp.xml'},
+                    "fieldValues": {"idp": idp},
                 },
                 "failWhenSignPageFull": True,
                 "insertPageAt": 0,
@@ -97,7 +103,12 @@ class APIClient(object):
         return response_data
 
     def _try_creating_sign_request(self, documents: list) -> tuple:
-        # config = current_app.config
+        idp = session['idp']
+        authn_context = session['authn_context']
+        if self.config['DEBUG']:
+            idp = self.config['DEBUG_IDP']
+            authn_context = self.config['DEBUG_AUTHN_CONTEXT']
+
         correlation_id = str(uuid4())
         # base_url = f"{config['PREFERRED_URL_SCHEME']}://{config['SERVER_NAME']}"
         # entity_id = urljoin(base_url, config['ENTITY_ID_URL'])
@@ -105,11 +116,11 @@ class APIClient(object):
 
         request_data = {
             "correlationId": correlation_id,
-            "signRequesterID": "https://sig.idsec.se/shibboleth",
+            "signRequesterID": self.config['SIGN_REQUESTER_ID'],
             "returnUrl": return_url,
             "authnRequirements": {
-                "authnServiceID": 'https://login.idp.eduid.se/idp.xml',
-                "authnContextClassRefs": ['https://www.swamid.se/specs/id-fido-u2f-ce-transports'],
+                "authnServiceID": idp,
+                "authnContextClassRefs": [authn_context],
                 "requestedSignerAttributes": [
                     {"name": "urn:oid:2.5.4.42", "value": session['given_name']},
                     {"name": "urn:oid:2.5.4.4", "value": session['surname']},

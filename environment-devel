@@ -29,4 +29,5 @@ EDUSIGN_API_PROFILE=edusign-test
 EDUSIGN_API_USERNAME=dummy
 EDUSIGN_API_PASSWORD=dummy
 
+SIGN_REQUESTER_ID=https://sig.idsec.se/shibboleth
 ENTITY_ID_URL=/shibboleth
