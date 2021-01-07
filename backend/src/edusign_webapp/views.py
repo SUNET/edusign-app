@@ -57,9 +57,12 @@ def get_bundle():
         eppn = request.headers.get('Edupersonprincipalname')
         current_app.logger.info(f'User {eppn} started a session')
         session['eppn'] = eppn
-        session['given_name'] = ET.fromstring(b64decode(request.headers.get('Givenname'))).text
-        session['surname'] = ET.fromstring(b64decode(request.headers.get('Sn'))).text
-        session['email'] = request.headers.get('Mail')
+
+        attrs = [(attr, attr.capitalize().replace('_', '')) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
+        for attr_in_session, attr_in_header in attrs:
+            current_app.logger.debug(f'Getting attribute {attr_in_header} from request')
+            session[attr_in_session] = ET.fromstring(b64decode(request.headers.get(attr_in_header))).text
+
         session['idp'] = request.headers.get('Shib-Identity-Provider')
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
         session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
@@ -80,11 +83,10 @@ def get_config() -> dict:
     """
     Configuration for the front app
     """
+    attrs = ', '.join([f"{attr}: {session[attr]}" for attr in current_app.config['SIGNER_ATTRIBUTES'].values()])
     return {
         'payload': {
-            'given_name': session['given_name'],
-            'surname': session['surname'],
-            'email': session['email'],
+            'signer_attributes': attrs,
         }
     }
 

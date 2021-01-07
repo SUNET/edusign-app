@@ -71,3 +71,7 @@ SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.ids
 
 DEBUG_IDP = os.environ.get('DEBUG_IDP', default='https://login.idp.eduid.se/idp.xml')
 DEBUG_AUTHN_CONTEXT = os.environ.get('DEBUG_AUTHN_CONTEXT', default='https://www.swamid.se/specs/id-fido-u2f-ce-transports')
+
+RAW_SIGNER_ATTRIBUTES = os.environ.get('SIGNER_ATTRIBUTES', default='urn:oid:2.5.4.42,given_name;urn:oid:2.5.4.4,sn;urn:oid:0.9.2342.19200300.100.1.3,mail')
+
+SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}

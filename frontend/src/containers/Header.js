@@ -17,8 +17,7 @@ const mapStateToProps = (state, props) => {
   }
   return {
     loading: false,
-    givenName: state.main.config.given_name,
-    surname: state.main.config.surname,
+    signer_attributes: state.main.config.signer_attributes,
   };
 };
 

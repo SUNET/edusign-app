@@ -17,10 +17,13 @@ class Header extends Component {
       name = (
         <div id="name-and-clear-in-header">
           <span id="name-in-header">
-            {this.props.givenName} {this.props.surname}
+          <span id="signing-with-span">
+              <FormattedMessage defaultMessage="Signing with: " key="signing-with" />
+          </span>
+            {this.props.signer_attributes}
           </span>|
           <span id="clear-in-header" onClick={this.props.clearDb}>
-            <FormattedMessage defaultMessage="Clear session" key="clear-seesion" />
+            <FormattedMessage defaultMessage="Clear session" key="clear-session" />
           </span>
         </div>
       );

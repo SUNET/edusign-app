@@ -76,16 +76,14 @@ class APIClient(object):
         if self.config['ENVIRONMENT'] == 'development':
             idp = self.config['DEBUG_IDP']
 
+        attrs = [{'name': attr} for attr in self.config['SIGNER_ATTRIBUTES'].keys()]
+
         doc_data = document['blob'].split(',')[1]
         request_data = {
             "pdfDocument": doc_data,
             "signaturePagePreferences": {
                 "visiblePdfSignatureUserInformation": {
-                    "signerName": {"signerAttributes": [
-                        {"name": "urn:oid:2.5.4.42"},
-                        {"name": "urn:oid:2.5.4.4"},
-                        {"name": "urn:oid:0.9.2342.19200300.100.1.3"},
-                    ]},
+                    "signerName": {"signerAttributes": attrs},
                     "fieldValues": {"idp": idp},
                 },
                 "failWhenSignPageFull": True,
@@ -114,6 +112,8 @@ class APIClient(object):
         # entity_id = urljoin(base_url, config['ENTITY_ID_URL'])
         return_url = url_for('edusign.sign_service_callback', _external=True, _scheme='https')
 
+        attrs = [{'name': attr, 'value': session[name]} for attr, name in self.config['SIGNER_ATTRIBUTES'].items()]
+
         request_data = {
             "correlationId": correlation_id,
             "signRequesterID": self.config['SIGN_REQUESTER_ID'],
@@ -121,11 +121,7 @@ class APIClient(object):
             "authnRequirements": {
                 "authnServiceID": idp,
                 "authnContextClassRefs": [authn_context],
-                "requestedSignerAttributes": [
-                    {"name": "urn:oid:2.5.4.42", "value": session['given_name']},
-                    {"name": "urn:oid:2.5.4.4", "value": session['surname']},
-                    {"name": "urn:oid:0.9.2342.19200300.100.1.3", "value": session['email']},
-                ],
+                "requestedSignerAttributes": attrs,
             },
             "tbsDocuments": [],
         }

@@ -35,9 +35,7 @@ from marshmallow import Schema, fields
 
 
 class ConfigSchema(Schema):
-    given_name = fields.String(required=True)
-    surname = fields.String(required=True)
-    email = fields.String(required=True)
+    signer_attributes = fields.String(required=True)
     documents = fields.Raw(required=False)
 
 
