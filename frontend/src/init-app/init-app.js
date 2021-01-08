@@ -12,7 +12,7 @@ import ReactDOM from "react-dom";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import rootReducer from "init-app/store";
-import { fetchConfig } from "slices/Main";
+import { fetchConfig, resizeWindow } from "slices/Main";
 import { loadDocuments } from "slices/Documents";
 
 /*
@@ -83,6 +83,9 @@ const init_app = function (target, component) {
       messages: msgs,
     })
   );
+  store.dispatch(resizeWindow());
+
+  window.onresize = () => {store.dispatch(resizeWindow())};
 
   const wrappedComponent = <Provider store={store}>{component}</Provider>;
 
