@@ -1,53 +1,112 @@
 @import "./variables.scss";
 
-section#edusign-banner {
+section#edusign-banner-lg {
   flex: none;
   background-color: $white;
   display: flex;
   margin: 1rem;
+
+  #edusign-logo {
+    width: 160px;
+    height: 50px;
+    background-image: url(../../images/eduSign_logo.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin: 0;
+    flex: 0 0 auto;
+  }
+
+  #header-right {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+
+    #sunet-logo {
+      width: 50px;
+      height: 50px;
+      background-image: url(../../images/sunet_gray_logo.svg);
+      background-size: contain;
+      background-repeat: no-repeat;
+      margin: 0;
+      display: inline-block;
+    }
+
+    #name-in-header {
+      margin-right: 1rem;
+    }
+
+    #clear-in-header {
+      margin-left: 1rem;
+      margin-right: 2rem;
+    }
+  }
 }
 
-#edusign-logo {
-  width: 160px;
-  height: 50px;
-  background-image: url(../../images/eduSign_logo.svg);
-  background-size: contain;
-  background-repeat: no-repeat;
-  margin: 0;
-  flex: 0 0 auto;
-}
-
-#sunet-logo {
-  width: 50px;
-  height: 50px;
-  background-image: url(../../images/sunet_gray_logo.svg);
-  background-size: contain;
-  background-repeat: no-repeat;
-  margin: 0;
-  display: inline-block;
-}
-
-#header-right {
-  flex: 0 0 auto;
+section#edusign-banner-sm {
+  flex: none;
+  background-color: $white;
   display: flex;
-  flex-direction: row-reverse;
-  align-items: center;
+  flex-direction: column;
+  margin-bottom: 1rem;
+
+  #edusign-logos {
+    flex: none;
+    display: flex;
+    justify-content: space-between;
+
+    #edusign-logo {
+      width: 160px;
+      height: 50px;
+      background-image: url(../../images/eduSign_logo.svg);
+      background-size: contain;
+      background-repeat: no-repeat;
+      margin: 0;
+      flex: 0 1 auto;
+    }
+
+    #sunet-logo {
+      width: 50px;
+      height: 50px;
+      background-image: url(../../images/sunet_gray_logo.svg);
+      background-size: contain;
+      background-repeat: no-repeat;
+      margin: 0;
+      display: inline-block;
+    }
+  }
+
+  #name-and-clear-in-header {
+    display: flex;
+    justify-content: space-between;
+
+    #name-in-header #signer-attributes {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    #sep-in-header {
+      display: none;
+    }
+
+    #clear-in-header {
+      margin-left: 1rem;
+    }
+  }
 }
 
-#name-in-header {
+.signer-attribute {
+  margin-left: 0.5rem;
+}
+
+#signing-with-span, .signer-attribute .attr-value {
+  color: $darker-dark-grey;
+}
+
+.signer-attribute .attr-name {
   color: $darker-grey;
-  margin-right: 1rem;
 }
 
 #clear-in-header {
-  margin-left: 1rem;
-  margin-right: 2rem;
   cursor: pointer;
-}
-
-@media (max-width: 414px) {
-  #edusign-logo {
-    width: 105px;
-    height: 36px;
-  }
 }

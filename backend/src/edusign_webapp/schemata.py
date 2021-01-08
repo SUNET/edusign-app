@@ -35,7 +35,11 @@ from marshmallow import Schema, fields
 
 
 class ConfigSchema(Schema):
-    signer_attributes = fields.String(required=True)
+    class SignerAttribute(Schema):
+        name = fields.String(required=True)
+        value = fields.String(required=True)
+
+    signer_attributes = fields.List(fields.Nested(SignerAttribute))
     documents = fields.Raw(required=False)
 
 

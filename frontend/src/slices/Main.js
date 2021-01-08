@@ -39,7 +39,7 @@ const mainSlice = createSlice({
   initialState: {
     loading: false,
     csrf_token: null,
-    config: {},
+    signer_attributes: undefined,
     signingData: {},
     size: 'lg',
   },
@@ -79,7 +79,7 @@ const mainSlice = createSlice({
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
-      state.config = action.payload.payload;
+      state.signer_attributes = action.payload.payload.signer_attributes;
     },
   },
 });

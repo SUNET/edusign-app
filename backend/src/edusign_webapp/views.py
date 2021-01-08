@@ -83,7 +83,7 @@ def get_config() -> dict:
     """
     Configuration for the front app
     """
-    attrs = ', '.join([f"{attr}: {session[attr]}" for attr in current_app.config['SIGNER_ATTRIBUTES'].values()])
+    attrs = [{'name': attr, 'value': session[attr]} for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
     return {
         'payload': {
             'signer_attributes': attrs,

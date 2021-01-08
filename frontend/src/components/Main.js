@@ -20,10 +20,11 @@ import "styles/Main.scss";
  */
 class Main extends Component {
   render() {
+    const panelId = 'panel-' + this.props.size;
     return (
       <>
         <SplashContainer />
-        <section id="panel">
+        <section id={panelId}>
           <HeaderContainer />
           <div id="main-content">
             <DnDAreaContainer />
@@ -36,6 +37,8 @@ class Main extends Component {
   }
 }
 
-Main.propTypes = {};
+Main.propTypes = {
+  size: PropTypes.string,
+};
 
 export default Main;

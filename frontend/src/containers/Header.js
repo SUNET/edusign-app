@@ -10,14 +10,16 @@ import { clearDocStore } from "init-app/database";
 import { removeAllDocuments } from "slices/Documents";
 
 const mapStateToProps = (state, props) => {
-  if (state.main.config === undefined) {
+  if (state.main.signer_attributes === undefined) {
     return {
       loading: true,
+      size: state.main.size,
     };
   }
   return {
     loading: false,
-    signer_attributes: state.main.config.signer_attributes,
+    signer_attributes: state.main.signer_attributes,
+    size: state.main.size,
   };
 };
 
