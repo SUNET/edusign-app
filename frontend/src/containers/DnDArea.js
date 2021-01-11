@@ -20,6 +20,7 @@ import { addNotification } from "slices/Notifications";
 const mapStateToProps = (state, props) => {
   return {
     status: state.dnd.state,
+    size: state.main.size,
   };
 };
 

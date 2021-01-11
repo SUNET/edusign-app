@@ -29,6 +29,7 @@ const mapStateToProps = (state, props) => {
     binding: state.main.signingData.binding,
     relayState: state.main.signingData.relay_state,
     signRequest: state.main.signingData.sign_request,
+    size: state.main.size,
   };
 };
 

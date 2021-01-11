@@ -28,9 +28,6 @@ function DocManager(props) {
   function docSize(doc) {
     return <div className="size-flex-item">{humanFileSize(doc.size)}</div> ;
   }
-  function docType(doc) {
-    return <div className="type-flex-item">{doc.type}</div> ;
-  }
   function namedSpinner(index, name) {
     return (
       <>
@@ -138,74 +135,171 @@ function DocManager(props) {
     <>
       {props.documents.map((doc, index) => {
         if (doc.state === "selected") someSelected = true;
-        return (
-          <div className="doc-flex-container" key={index}>
-            {doc.state === "loading" && (
-              <>
-                {dummySelectDoc()}
-                {docName(doc)}
-                {docSize(doc)}
-                {docType(doc)}
-                {namedSpinner(index, "loading")}
-              </>
-            )}
-            {doc.state === "failed-loading" && (
-              <>
-                {dummySelectDoc()}
-                {docName(doc)}
-                {showMessage(doc)}
-                {removeButton(doc)}
-              </>
-            )}
-            {doc.state === "failed-preparing" && (
-              <>
-                {dummySelectDoc()}
-                {docName(doc)}
-                {showMessage(doc)}
-                {retryButton(doc)}
-                {removeButton(doc)}
-              </>
-            )}
-            {(doc.state === "loaded" || doc.state === "selected") && (
-              <>
-                {selectDoc(doc)}
-                {docName(doc)}
-                {docSize(doc)}
-                {docType(doc)}
-                {previewButton(doc)}
-                {removeButton(doc)}
-              </>
-            )}
-            {doc.state === "signing" && (
-              <>
-                {dummySelectDoc()}
-                {docName(doc)}
-                {docSize(doc)}
-                {docType(doc)}
-                {namedSpinner(index, "signing")}
-              </>
-            )}
-            {doc.state === "signed" && (
-              <>
-                {dummySelectDoc()}
-                {docName(doc)}
-                {docSize(doc)}
-                {docType(doc)}
-                {dlSignedButton(doc)}
-              </>
-            )}
-            {doc.state === "failed-signing" && (
-              <>
-                {selectDoc(doc)}
-                {docName(doc)}
-                {showMessage(doc)}
-                {previewButton(doc)}
-                {removeButton(doc)}
-              </>
-            )}
-            <DocPreviewContainer doc={doc} />
-          </div>
-        );
+        if (props.size === 'lg') {
+          return (
+            <div className="doc-flex-container" key={index}>
+              {doc.state === "loading" && (
+                <>
+                  {dummySelectDoc()}
+                  {docSize(doc)}
+                  {docName(doc)}
+                  {namedSpinner(index, "loading")}
+                </>
+              )}
+              {doc.state === "failed-loading" && (
+                <>
+                  {dummySelectDoc()}
+                  {docName(doc)}
+                  {showMessage(doc)}
+                  {removeButton(doc)}
+                </>
+              )}
+              {doc.state === "failed-preparing" && (
+                <>
+                  {dummySelectDoc()}
+                  {docName(doc)}
+                  {showMessage(doc)}
+                  {retryButton(doc)}
+                  {removeButton(doc)}
+                </>
+              )}
+              {(doc.state === "loaded" || doc.state === "selected") && (
+                <>
+                  {selectDoc(doc)}
+                  {docSize(doc)}
+                  {docName(doc)}
+                  {previewButton(doc)}
+                  {removeButton(doc)}
+                </>
+              )}
+              {doc.state === "signing" && (
+                <>
+                  {dummySelectDoc()}
+                  {docSize(doc)}
+                  {docName(doc)}
+                  {namedSpinner(index, "signing")}
+                </>
+              )}
+              {doc.state === "signed" && (
+                <>
+                  {dummySelectDoc()}
+                  {docSize(doc)}
+                  {docName(doc)}
+                  {dlSignedButton(doc)}
+                </>
+              )}
+              {doc.state === "failed-signing" && (
+                <>
+                  {selectDoc(doc)}
+                  {docName(doc)}
+                  {showMessage(doc)}
+                  {previewButton(doc)}
+                  {removeButton(doc)}
+                </>
+              )}
+              <DocPreviewContainer doc={doc} />
+            </div>
+          );
+        } else if (props.size ==='sm') {
+          return (
+            <div className="doc-flex-container-sm" key={index}>
+              {doc.state === "loading" && (
+                <>
+                  <div className="doc-container-first-row">
+                    {dummySelectDoc()}
+                    {docSize(doc)}
+                    {docName(doc)}
+                  </div>
+                  <div className="doc-container-second-row">
+                    {namedSpinner(index, "loading")}
+                  </div>
+                </>
+              )}
+              {doc.state === "failed-loading" && (
+                <>
+                  <div className="doc-container-first-row">
+                    {dummySelectDoc()}
+                    {docName(doc)}
+                  </div>
+                  <div className="doc-container-second-row">
+                    {showMessage(doc)}
+                  </div>
+                  <div className="doc-container-third-row">
+                    {removeButton(doc)}
+                  </div>
+                </>
+              )}
+              {doc.state === "failed-preparing" && (
+                <>
+                  <div className="doc-container-first-row">
+                    {dummySelectDoc()}
+                    {docName(doc)}
+                  </div>
+                  <div className="doc-container-second-row">
+                    {showMessage(doc)}
+                  </div>
+                  <div className="doc-container-third-row">
+                    {retryButton(doc)}
+                    {removeButton(doc)}
+                  </div>
+                </>
+              )}
+              {(doc.state === "loaded" || doc.state === "selected") && (
+                <>
+                  <div className="doc-container-first-row">
+                    {selectDoc(doc)}
+                    {docSize(doc)}
+                    {docName(doc)}
+                  </div>
+                  <div className="doc-container-second-row">
+                    {previewButton(doc)}
+                    {removeButton(doc)}
+                  </div>
+                </>
+              )}
+              {doc.state === "signing" && (
+                <>
+                  <div className="doc-container-first-row">
+                    {dummySelectDoc()}
+                    {docSize(doc)}
+                    {docName(doc)}
+                  </div>
+                  <div className="doc-container-second-row">
+                    {namedSpinner(index, "signing")}
+                  </div>
+                </>
+              )}
+              {doc.state === "signed" && (
+                <>
+                  <div className="doc-container-first-row">
+                    {dummySelectDoc()}
+                    {docSize(doc)}
+                    {docName(doc)}
+                  </div>
+                  <div className="doc-container-second-row">
+                    {dlSignedButton(doc)}
+                  </div>
+                </>
+              )}
+              {doc.state === "failed-signing" && (
+                <>
+                  <div className="doc-container-first-row">
+                    {selectDoc(doc)}
+                    {docName(doc)}
+                  </div>
+                  <div className="doc-container-second-row">
+                    {showMessage(doc)}
+                  </div>
+                  <div className="doc-container-third-row">
+                    {previewButton(doc)}
+                    {removeButton(doc)}
+                  </div>
+                </>
+              )}
+              <DocPreviewContainer doc={doc} />
+            </div>
+          );
+        }
       })}
       <div id="adjust-vertical-space" />
       <div className="button-sign-flex-item">

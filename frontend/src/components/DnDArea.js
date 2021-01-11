@@ -35,10 +35,13 @@ class DnDArea extends Component {
                 >
                   <input {...getInputProps()} />
                   <span id="dnd-message-head">
-                    <FormattedMessage
+                    {this.props.size === 'lg' ? (<FormattedMessage
                       defaultMessage="Drag & drop here or click to browse"
                       key="dnd-area-head"
-                    />
+                    />) : (<FormattedMessage
+                      defaultMessage="Tap here to browse"
+                      key="dnd-area-head-sm"
+                    />)}
                   </span>
                   <span id="dnd-message-foot">
                     <FormattedMessage

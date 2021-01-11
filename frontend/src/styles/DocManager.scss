@@ -3,56 +3,118 @@
 .doc-flex-container {
   flex: none;
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
   min-height: 3rem;
   min-width: 80%;
   align-items: center;
   justify-content: left;
-}
 
-.doc-flex-container > .doc-selector-flex-item {
-  flex: none;
-  width: 2rem;
-}
+  .doc-selector-flex-item {
+    flex: none;
+    width: 2rem;
+  }
 
-.doc-flex-container > .name-flex-item {
-  flex: 5 0 auto;
-}
+  .name-flex-item {
+    flex: 5 0 auto;
+  }
 
-.doc-flex-container > .message-flex-item {
-  flex: none;
-  margin-left: 1rem;
-  color: $error-red;
-}
-
-.doc-flex-container > .type-flex-item,
-.doc-flex-container > .size-flex-item {
-  flex: none;
-  margin-left: 1rem;
-}
-
-.doc-flex-container > .spinner-flex-item,
-.doc-flex-container > .spinning-flex-item {
-  flex: none;
-  width: 5rem;
-}
-
-.doc-flex-container > .button-preview-flex-item,
-.doc-flex-container > .button-remove-flex-item,
-.doc-flex-container > .button-retry-flex-item,
-.doc-flex-container > .button-sign-flex-item {
-  flex: none;
-  button {
-    width: 4rem;
+  .message-flex-item {
+    flex: none;
     margin-left: 1rem;
+    color: $error-red;
+  }
+
+  .size-flex-item {
+    flex: none;
+    margin-right: 1rem;
+  }
+
+  .spinner-flex-item,
+  .spinning-flex-item {
+    flex: none;
+    width: 5rem;
+  }
+
+  .button-preview-flex-item,
+  .button-remove-flex-item,
+  .button-retry-flex-item,
+  .button-sign-flex-item {
+    flex: none;
+    button {
+      width: 4rem;
+      margin-left: 1rem;
+    }
+  }
+
+  .button-signed-flex-item {
+    flex: none;
+    button {
+      width: 9rem;
+      margin-left: 1rem;
+    }
   }
 }
 
-.doc-flex-container > .button-signed-flex-item {
+.doc-flex-container-sm {
+  margin-top: 1.5rem;
   flex: none;
-  button {
-    width: 9rem;
-    margin-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  align-items: flex-start;
+
+  .doc-container-first-row,
+  .doc-container-second-row,
+  .doc-container-third-row {
+    margin-bottom: 0.5rem;
+    flex: none;
+    display: flex;
+    justify-content: flex-start;
+
+    .doc-selector-flex-item {
+      flex: none;
+      width: 2rem;
+    }
+
+    .name-flex-item {
+      flex: 5 0 auto;
+    }
+
+    .message-flex-item {
+      flex: none;
+      color: $error-red;
+    }
+
+    .size-flex-item {
+      flex: none;
+      margin-right: 1rem;
+      color: $darker-dark-grey;
+    }
+
+    .spinner-flex-item,
+    .spinning-flex-item {
+      flex: none;
+      width: 5rem;
+    }
+
+    .button-preview-flex-item,
+    .button-remove-flex-item,
+    .button-retry-flex-item,
+    .button-sign-flex-item {
+      flex: none;
+      button {
+        width: 4rem;
+        margin-left: 1rem;
+      }
+    }
+
+    .button-signed-flex-item {
+      flex: none;
+      button {
+        width: 9rem;
+        margin-left: 1rem;
+      }
+    }
   }
 }
 
