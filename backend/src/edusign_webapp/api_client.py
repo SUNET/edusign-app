@@ -39,13 +39,13 @@ from flask import current_app, json, session, url_for
 from requests.auth import HTTPBasicAuth
 
 
-def pretty_print_req(req):
+def pretty_print_req(req: requests.Request) -> str:
     """"""
     return '{}\n{}\r\n{}\r\n\r\n{}'.format(
         '-----------START-----------',
         req.method + ' ' + req.url,
         '\r\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
-        req.body,
+        req.data,
     )
 
 
@@ -59,7 +59,7 @@ class APIClient(object):
         self.basic_auth = HTTPBasicAuth(config['EDUSIGN_API_USERNAME'], config['EDUSIGN_API_PASSWORD'])
         self.config = config
 
-    def _post(self, url, request_data):
+    def _post(self, url: str, request_data: dict) -> requests.Response:
         requests_session = requests.Session()
         req = requests.Request('POST', url, json=request_data, auth=self.basic_auth)
         prepped = requests_session.prepare_request(req)
@@ -158,7 +158,7 @@ class APIClient(object):
 
         return response_data, documents_with_id
 
-    def process_sign_request(self, sign_response, relay_state):
+    def process_sign_request(self, sign_response: dict, relay_state: str) -> dict:
 
         request_data = {"signResponse": sign_response, "relayState": relay_state, "state": {"id": relay_state}}
         api_url = urljoin(self.api_base_url, 'process')

@@ -35,6 +35,7 @@ from xml.etree import cElementTree as ET
 
 from flask import Blueprint, abort, current_app, json, render_template, request, session
 from flask_babel import gettext
+from werkzeug.wrappers import Response
 
 from edusign_webapp.marshal import Marshal, UnMarshal
 from edusign_webapp.schemata import (
@@ -52,7 +53,7 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 
 
 @edusign_views.route('/', methods=['GET'])
-def get_bundle():
+def get_bundle() -> str:
     if 'eppn' not in session:
         eppn = request.headers.get('Edupersonprincipalname')
         current_app.logger.info(f'User {eppn} started a session')
@@ -63,7 +64,7 @@ def get_bundle():
         ]
         for attr_in_session, attr_in_header in attrs:
             current_app.logger.debug(f'Getting attribute {attr_in_header} from request')
-            session[attr_in_session] = ET.fromstring(b64decode(request.headers.get(attr_in_header))).text
+            session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
 
         session['idp'] = request.headers.get('Shib-Identity-Provider')
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
@@ -93,7 +94,7 @@ def get_config() -> dict:
     }
 
 
-def _prepare_document(document) -> dict:
+def _prepare_document(document: dict) -> dict:
     """"""
     try:
         current_app.logger.info(f"Sending document {document['name']} for preparation for user {session['eppn']}")
@@ -107,7 +108,7 @@ def _prepare_document(document) -> dict:
 @edusign_views.route('/add-doc', methods=['POST'])
 @UnMarshal(DocumentSchema)
 @Marshal(ReferenceSchema)
-def add_document(document) -> dict:
+def add_document(document: dict) -> dict:
     """"""
     prepare_data = _prepare_document(document)
 
@@ -125,7 +126,7 @@ def add_document(document) -> dict:
 @edusign_views.route('/create-sign-request', methods=['POST'])
 @UnMarshal(ToSignSchema)
 @Marshal(SignRequestSchema)
-def create_sign_request(documents) -> dict:
+def create_sign_request(documents: dict) -> dict:
     """"""
     current_app.logger.debug(f'Data gotten in create view: {documents}')
     try:
@@ -162,7 +163,7 @@ def create_sign_request(documents) -> dict:
 @edusign_views.route('/recreate-sign-request', methods=['POST'])
 @UnMarshal(ToRestartSigningSchema)
 @Marshal(SignRequestSchema)
-def recreate_sign_request(documents) -> dict:
+def recreate_sign_request(documents: dict) -> dict:
     """"""
     current_app.logger.debug(f'Data gotten in recreate view: {documents}')
 
@@ -233,7 +234,7 @@ def sign_service_callback() -> str:
 @edusign_views.route('/get-signed', methods=['POST'])
 @UnMarshal(SigningSchema)
 @Marshal(SignedDocumentsSchema)
-def get_signed_documents(sign_data) -> dict:
+def get_signed_documents(sign_data: dict) -> dict:
 
     try:
         current_app.logger.info(f"Processing signature for {sign_data['sign_response']} for user {session['eppn']}")

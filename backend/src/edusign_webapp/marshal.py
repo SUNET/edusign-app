@@ -33,6 +33,7 @@
 
 import os
 from functools import wraps
+from typing import cast, Callable, Type
 from urllib.parse import urlsplit
 
 from flask import current_app, jsonify, request, session
@@ -42,7 +43,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.wrappers import Response as WerkzeugResponse
 
 
-def csrf_check_headers():
+def csrf_check_headers() -> None:
     custom_header = request.headers.get('X-Requested-With', '')
     if custom_header != 'XMLHttpRequest':
         raise ValidationError(gettext('CSRF missing custom X-Requested-With header'))
@@ -71,7 +72,7 @@ class ResponseSchema(Schema):
     csrf_token = fields.String(required=True)
 
     @pre_dump
-    def get_csrf_token(self, out_data, **kwargs):
+    def get_csrf_token(self, out_data: dict, **kwargs) -> dict:
         # Generate a new csrf token for every response
         method = current_app.config['HASH_METHOD']
         secret = current_app.config['SECRET_KEY']
@@ -86,13 +87,13 @@ class ResponseSchema(Schema):
 class Marshal(object):
     """"""
 
-    def __init__(self, schema):
+    def __init__(self, schema: Type[Schema]):
         class MarshallingSchema(ResponseSchema):
             payload = fields.Nested(schema)
 
         self.schema = MarshallingSchema
 
-    def __call__(self, f):
+    def __call__(self, f: Callable) -> Callable:
         @wraps(f)
         def marshal_decorator(*args, **kwargs):
 
@@ -125,7 +126,7 @@ class RequestSchema(Schema):
     csrf_token = fields.String(required=True)
 
     @validates('csrf_token')
-    def verify_csrf_token(self, value):
+    def verify_csrf_token(self, value: str) -> None:
 
         csrf_check_headers()
 
@@ -139,7 +140,7 @@ class RequestSchema(Schema):
             raise ValidationError(gettext('CSRF token failed to validate'))
 
     @post_load
-    def post_processing(self, in_data, **kwargs):
+    def post_processing(self, in_data: dict, **kwargs) -> dict:
         # Remove token from data forwarded to views
         del in_data['csrf_token']
         return in_data
@@ -148,18 +149,18 @@ class RequestSchema(Schema):
 class UnMarshal(object):
     """"""
 
-    def __init__(self, schema=None):
+    def __init__(self, schema: Type[Schema] = None):
 
         if schema is None:
             self.schema = RequestSchema
         else:
 
             class UnMarshallingSchema(RequestSchema):
-                payload = fields.Nested(schema)
+                payload = fields.Nested(schema)  # type: ignore
 
             self.schema = UnMarshallingSchema
 
-    def __call__(self, f):
+    def __call__(self, f: Callable) -> Callable:
         @wraps(f)
         def unmarshal_decorator():
             try:

@@ -30,9 +30,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import pprint
+from typing import Callable
 
 from flask import Flask
 from flask_babel import Babel
+from werkzeug.wrappers import Response
 
 from edusign_webapp.api_client import APIClient
 
@@ -73,10 +75,10 @@ app = edusign_init_app('edusign')
 
 
 class LoggingMiddleware(object):
-    def __init__(self, app):
+    def __init__(self, app: EduSignApp):
         self._app = app
 
-    def __call__(self, env, resp):
+    def __call__(self, env: dict, resp: Callable) -> Response:
         errorlog = env['wsgi.errors']
         pprint.pprint(('REQUEST', env), stream=errorlog)
 
@@ -91,6 +93,6 @@ if __name__ == '__main__':
     app.logger.info('Starting edusign app...')
 
     if app.config['DEBUG']:
-        app.wsgi_app = LoggingMiddleware(app.wsgi_app)
+        app.wsgi_app = LoggingMiddleware(app.wsgi_app)  # type: ignore
 
     app.run()
