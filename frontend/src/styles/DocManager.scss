@@ -1,6 +1,7 @@
 @import "./variables.scss";
 
 .doc-flex-container {
+  padding: 0.3rem;
   flex: none;
   display: flex;
   flex-flow: row wrap;
@@ -57,6 +58,7 @@
 
 .doc-flex-container-sm {
   margin-top: 1.5rem;
+  padding: 0.2rem;
   flex: none;
   display: flex;
   flex-direction: column;
@@ -131,4 +133,14 @@ button#button-sign {
   flex: none;
   margin-bottom: 2rem;
   margin-top: 2rem;
+}
+
+div.failed-loading,
+div.failed-signing,
+div.failed-preparing {
+  background-color: $light-orange;
+}
+
+div.selected {
+  background-color: $light-blue;
 }

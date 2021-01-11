@@ -137,7 +137,7 @@ function DocManager(props) {
         if (doc.state === "selected") someSelected = true;
         if (props.size === 'lg') {
           return (
-            <div className="doc-flex-container" key={index}>
+            <div className={"doc-flex-container " + doc.state} key={index}>
               {doc.state === "loading" && (
                 <>
                   {dummySelectDoc()}
@@ -202,7 +202,7 @@ function DocManager(props) {
           );
         } else if (props.size ==='sm') {
           return (
-            <div className="doc-flex-container-sm" key={index}>
+            <div className={"doc-flex-container-sm " + doc.state} key={index}>
               {doc.state === "loading" && (
                 <>
                   <div className="doc-container-first-row">
