@@ -87,7 +87,6 @@ class Marshal(object):
     """"""
 
     def __init__(self, schema):
-
         class MarshallingSchema(ResponseSchema):
             payload = fields.Nested(schema)
 

@@ -50,7 +50,6 @@ def pretty_print_req(req):
 
 
 class APIClient(object):
-
     class ExpiredCache(Exception):
         pass
 
@@ -146,7 +145,12 @@ class APIClient(object):
         response, documents_with_id = self._try_creating_sign_request(documents)
         response_data = response.json()
 
-        if 'status' in response_data and response_data['status'] == 400 and 'message' in response_data and 'not found in cache' in response_data['message']:
+        if (
+            'status' in response_data
+            and response_data['status'] == 400
+            and 'message' in response_data
+            and 'not found in cache' in response_data['message']
+        ):
 
             raise self.ExpiredCache()
 

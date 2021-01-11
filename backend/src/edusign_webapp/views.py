@@ -44,8 +44,8 @@ from edusign_webapp.schemata import (
     SignedDocumentsSchema,
     SigningSchema,
     SignRequestSchema,
-    ToSignSchema,
     ToRestartSigningSchema,
+    ToSignSchema,
 )
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
@@ -58,7 +58,9 @@ def get_bundle():
         current_app.logger.info(f'User {eppn} started a session')
         session['eppn'] = eppn
 
-        attrs = [(attr, attr.capitalize().replace('_', '')) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
+        attrs = [
+            (attr, attr.capitalize().replace('_', '')) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()
+        ]
         for attr_in_session, attr_in_header in attrs:
             current_app.logger.debug(f'Getting attribute {attr_in_header} from request')
             session[attr_in_session] = ET.fromstring(b64decode(request.headers.get(attr_in_header))).text
@@ -131,7 +133,9 @@ def create_sign_request(documents) -> dict:
         create_data, documents_with_id = current_app.api_client.create_sign_request(documents['documents'])
 
     except current_app.api_client.ExpiredCache:
-        current_app.logger.info(f"Some document(s) have expired for {session['eppn']} in the API's cache, restarting process...")
+        current_app.logger.info(
+            f"Some document(s) have expired for {session['eppn']} in the API's cache, restarting process..."
+        )
         return {'error': True, 'message': 'expired cache'}
 
     except Exception as e:
@@ -171,12 +175,14 @@ def recreate_sign_request(documents) -> dict:
             current_app.logger.error(f"Problem re-preparing document: {doc['name']}")
             return prepare_data
 
-        new_docs.append({
-            'name': doc['name'],
-            'type': doc['type'],
-            'ref': prepare_data['updatedPdfDocumentReference'],
-            'sign_requirement': json.dumps(prepare_data['visiblePdfSignatureRequirement'])
-        })
+        new_docs.append(
+            {
+                'name': doc['name'],
+                'type': doc['type'],
+                'ref': prepare_data['updatedPdfDocumentReference'],
+                'sign_requirement': json.dumps(prepare_data['visiblePdfSignatureRequirement']),
+            }
+        )
 
     try:
         current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
@@ -239,4 +245,11 @@ def get_signed_documents(sign_data) -> dict:
 
     message = gettext("Success processing document sign request")
 
-    return {'message': message, 'payload': {'documents': [{'id': doc['id'], 'signed_content': doc['signedContent']} for doc in process_data['signedDocuments']]}}
+    return {
+        'message': message,
+        'payload': {
+            'documents': [
+                {'id': doc['id'], 'signed_content': doc['signedContent']} for doc in process_data['signedDocuments']
+            ]
+        },
+    }
