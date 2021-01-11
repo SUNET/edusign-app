@@ -84,10 +84,17 @@ export const clearDocStore = (dispatch) => {
     const docRequest = docStore.clear();
     docRequest.onerror = (event) => {
       console.log("Problem clearing the db", "Error:", event);
-      dispatch(addNotification({level: 'danger', message: 'XXX problem clearing db, please try again'}));
+      dispatch(
+        addNotification({
+          level: "danger",
+          message: "XXX problem clearing db, please try again",
+        })
+      );
     };
   } else {
     console.log("Problem clearing the state, db absent");
-    dispatch(addNotification({level: 'danger', message: 'XXX no persistent state'}));
+    dispatch(
+      addNotification({ level: "danger", message: "XXX no persistent state" })
+    );
   }
 };

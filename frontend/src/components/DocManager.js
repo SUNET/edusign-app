@@ -23,10 +23,10 @@ import "styles/DocManager.scss";
  */
 function DocManager(props) {
   function docName(doc) {
-    return <div className="name-flex-item">{doc.name}</div> ;
+    return <div className="name-flex-item">{doc.name}</div>;
   }
   function docSize(doc) {
-    return <div className="size-flex-item">{humanFileSize(doc.size)}</div> ;
+    return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
   }
   function namedSpinner(index, name) {
     return (
@@ -135,7 +135,7 @@ function DocManager(props) {
     <>
       {props.documents.map((doc, index) => {
         if (doc.state === "selected") someSelected = true;
-        if (props.size === 'lg') {
+        if (props.size === "lg") {
           return (
             <div className={"doc-flex-container " + doc.state} key={index}>
               {doc.state === "loading" && (
@@ -200,7 +200,7 @@ function DocManager(props) {
               <DocPreviewContainer doc={doc} />
             </div>
           );
-        } else if (props.size ==='sm') {
+        } else if (props.size === "sm") {
           return (
             <div className={"doc-flex-container-sm " + doc.state} key={index}>
               {doc.state === "loading" && (
@@ -310,7 +310,10 @@ function DocManager(props) {
           disabled={!someSelected}
           onClick={props.handleSubmitToSign}
         >
-          <FormattedMessage defaultMessage="Sign Selected Documents" key="sign-selected-button" />
+          <FormattedMessage
+            defaultMessage="Sign Selected Documents"
+            key="sign-selected-button"
+          />
         </Button>
       </div>
       {props.destinationUrl !== undefined && (

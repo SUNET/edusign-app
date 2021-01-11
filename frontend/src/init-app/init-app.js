@@ -85,7 +85,9 @@ const init_app = function (target, component) {
   );
   store.dispatch(resizeWindow());
 
-  window.onresize = () => {store.dispatch(resizeWindow())};
+  window.onresize = () => {
+    store.dispatch(resizeWindow());
+  };
 
   const wrappedComponent = <Provider store={store}>{component}</Provider>;
 

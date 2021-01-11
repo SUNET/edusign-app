@@ -41,7 +41,7 @@ const mainSlice = createSlice({
     csrf_token: null,
     signer_attributes: undefined,
     signingData: {},
-    size: 'lg',
+    size: "lg",
   },
   reducers: {
     /**
@@ -74,7 +74,7 @@ const mainSlice = createSlice({
      * @desc Redux action to set the window size in the state
      */
     resizeWindow(state) {
-      state.size = window.innerWidth > 1200 ? 'lg' : 'sm';
+      state.size = window.innerWidth > 1200 ? "lg" : "sm";
     },
   },
   extraReducers: {
@@ -84,6 +84,11 @@ const mainSlice = createSlice({
   },
 });
 
-export const { appLoaded, setCsrfToken, updateSigningForm, resizeWindow } = mainSlice.actions;
+export const {
+  appLoaded,
+  setCsrfToken,
+  updateSigningForm,
+  resizeWindow,
+} = mainSlice.actions;
 
 export default mainSlice.reducer;

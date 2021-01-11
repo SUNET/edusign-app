@@ -18,7 +18,10 @@ class Header extends Component {
         <div id="name-and-clear-in-header">
           <span id="name-in-header">
             <span id="signing-with-span">
-                <FormattedMessage defaultMessage="Signing with: " key="signing-with" />
+              <FormattedMessage
+                defaultMessage="Signing with: "
+                key="signing-with"
+              />
             </span>
             <span id="signer-attributes">
               {this.props.signer_attributes.map((attr) => {
@@ -33,15 +36,22 @@ class Header extends Component {
           </span>
           <span id="sep-in-header">|</span>
           <span id="clear-in-header" onClick={this.props.clearDb}>
-            <FormattedMessage defaultMessage="Clear session" key="clear-session" />
+            <FormattedMessage
+              defaultMessage="Clear session"
+              key="clear-session"
+            />
           </span>
         </div>
       );
     }
     let banner = undefined;
-    if (this.props.size === 'lg') {
+    if (this.props.size === "lg") {
       banner = (
-        <section id="edusign-banner-lg" className="banner-lg" data-testid="edusign-banner-lg">
+        <section
+          id="edusign-banner-lg"
+          className="banner-lg"
+          data-testid="edusign-banner-lg"
+        >
           <div id="edusign-logo" data-testid="edusign-logo" />
           <NotificationsContainer />
           <div id="header-right" data-testid="header-right">
@@ -52,9 +62,13 @@ class Header extends Component {
           </div>
         </section>
       );
-    } else if (this.props.size === 'sm') {
+    } else if (this.props.size === "sm") {
       banner = (
-        <section id="edusign-banner-sm" className="banner-sm" data-testid="edusign-banner-sm">
+        <section
+          id="edusign-banner-sm"
+          className="banner-sm"
+          data-testid="edusign-banner-sm"
+        >
           <div id="edusign-logos" data-testid="edusign-logos">
             <div id="edusign-logo" data-testid="edusign-logo" />
             <a href="https://sunet.se">
@@ -66,11 +80,7 @@ class Header extends Component {
         </section>
       );
     }
-    return (
-      <>
-        {banner}
-      </>
-    );
+    return <>{banner}</>;
   }
 }
 

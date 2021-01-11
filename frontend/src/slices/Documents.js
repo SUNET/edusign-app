@@ -91,7 +91,7 @@ export const loadDocuments = createAsyncThunk(
             const document = cursor.value;
             console.log("retrieving document from db", document);
             docs.push(document);
-            if (document.state === 'signing') {
+            if (document.state === "signing") {
               signing = true;
             }
             cursor.continue();
@@ -108,11 +108,11 @@ export const loadDocuments = createAsyncThunk(
           fetchSignedDocuments(thunkAPI, dataElem);
         } else {
           documents = documents.map((doc) => {
-            if (doc.state === 'signing') {
+            if (doc.state === "signing") {
               return {
                 ...doc,
-                state: 'failed-signing',
-                message: 'XXX Thre was a problem signing the document',
+                state: "failed-signing",
+                message: "XXX Thre was a problem signing the document",
               };
             } else return doc;
           });
@@ -213,15 +213,15 @@ export const startSigningDocuments = createAsyncThunk(
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
-        if (data.message === 'expired cache') {
-            thunkAPI.dispatch(
-              addNotification({
-                level: "success",
-                message: "XXX Please wait ...",
-              })
-            );
-            thunkAPI.dispatch(restartSigningDocuments());
-            return;
+        if (data.message === "expired cache") {
+          thunkAPI.dispatch(
+            addNotification({
+              level: "success",
+              message: "XXX Please wait ...",
+            })
+          );
+          thunkAPI.dispatch(restartSigningDocuments());
+          return;
         }
 
         throw new Error(data.message);
@@ -493,7 +493,8 @@ const documentsSlice = createSlice({
         if (doc.signing_id === action.payload.id) {
           const document = {
             ...doc,
-            signedContent: "data:application/pdf;base64," + action.payload.signed_content,
+            signedContent:
+              "data:application/pdf;base64," + action.payload.signed_content,
             state: "signed",
           };
           dbSaveDocument(document);
@@ -513,8 +514,8 @@ const documentsSlice = createSlice({
         if (doc.state === "signing") {
           const document = {
             ...doc,
-            state: 'failed-signing',
-            message: 'XXX Problem signing the document'
+            state: "failed-signing",
+            message: "XXX Problem signing the document",
           };
           dbSaveDocument(document);
           return document;

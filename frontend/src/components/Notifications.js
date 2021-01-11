@@ -12,7 +12,7 @@ import "styles/Notifications.scss";
  */
 class Notifications extends Component {
   render() {
-    let message = '';
+    let message = "";
     if (this.props.message !== null) {
       message = (
         <Alert

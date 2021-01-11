@@ -1,6 +1,8 @@
 @import "./variables.scss";
 
-html, body, div#root {
+html,
+body,
+div#root {
   height: 100%;
 }
 
@@ -28,5 +30,4 @@ div#main-content {
 }
 
 @media (max-width: 1200px) {
-
 }

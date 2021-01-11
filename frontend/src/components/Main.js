@@ -20,7 +20,7 @@ import "styles/Main.scss";
  */
 class Main extends Component {
   render() {
-    const panelId = 'panel-' + this.props.size;
+    const panelId = "panel-" + this.props.size;
     return (
       <>
         <SplashContainer />
