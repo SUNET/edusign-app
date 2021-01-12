@@ -30,6 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+from base64 import b64encode
+
 import pytest
 from flask import json, session
 
@@ -42,9 +44,9 @@ def client():
 
     with run.app.test_client() as client:
         client.environ_base["HTTP_EDUPERSONPRINCIPALNAME"] = 'dummy-eppn'
-        client.environ_base["HTTP_GIVENNAME"] = 'Tester'
-        client.environ_base["HTTP_SN"] = 'Testing'
-        client.environ_base["HTTP_MAIL"] = 'tester@example.org'
+        client.environ_base["HTTP_GIVENNAME"] = b64encode('<Attribute>Tëster</Attribute>'.encode("utf-8"))
+        client.environ_base["HTTP_SN"] = b64encode(b'<Attribute>Testing</Attribute>')
+        client.environ_base["HTTP_MAIL"] = b64encode(b'<Attribute>tester@example.org</Attribute>')
         client.environ_base["HTTP_SHIB_IDENTITY_PROVIDER"] = 'https://idp'
         client.environ_base["HTTP_SHIB_AUTHENTICATION_METHOD"] = 'dummy'
         client.environ_base["HTTP_SHIB_AUTHNCONTEXT_CLASS"] = 'dummy'
@@ -62,9 +64,9 @@ def test_index(client):
     assert b"<title>eduSign</title>" in response.data
 
     assert session.get('eppn') == 'dummy-eppn'
-    assert session.get('given_name') == 'Tester'
-    assert session.get('surname') == 'Testing'
-    assert session.get('email') == 'tester@example.org'
+    assert session.get('given_name') == 'Tëster'
+    assert session.get('sn') == 'Testing'
+    assert session.get('mail') == 'tester@example.org'
     assert session.get('idp') == 'https://idp'
     assert session.get('authn_method') == 'dummy'
     assert session.get('authn_context') == 'dummy'
@@ -82,6 +84,14 @@ def test_config(client):
 
     data = json.loads(response.data)
 
-    assert data['payload']['given_name'] == 'Tester'
-    assert data['payload']['surname'] == 'Testing'
-    assert data['payload']['email'] == 'tester@example.org'
+    attr_names = run.app.config['SIGNER_ATTRIBUTES'].values()
+
+    for attr in data['payload']['signer_attributes']:
+
+        assert attr['name'] in attr_names
+        if attr['name'] == 'given_name':
+            assert attr['value'] == 'Tëster'
+        elif attr['name'] == 'sn':
+            assert attr['value'] == 'Testing'
+        elif attr['name'] == 'mail':
+            assert attr['value'] == 'tester@example.org'

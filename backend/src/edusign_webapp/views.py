@@ -63,7 +63,7 @@ def get_bundle() -> str:
             (attr, attr.capitalize().replace('_', '')) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()
         ]
         for attr_in_session, attr_in_header in attrs:
-            current_app.logger.debug(f'Getting attribute {attr_in_header} from request')
+            current_app.logger.debug(f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}')
             session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
 
         session['idp'] = request.headers.get('Shib-Identity-Provider')
