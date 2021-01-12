@@ -39,13 +39,13 @@ from flask import current_app, json, session, url_for
 from requests.auth import HTTPBasicAuth
 
 
-def pretty_print_req(req: requests.Request) -> str:
+def pretty_print_req(req: requests.PreparedRequest) -> str:
     """"""
     return '{}\n{}\r\n{}\r\n\r\n{}'.format(
         '-----------START-----------',
-        req.method + ' ' + req.url,
+        str(req.method) + ' ' + str(req.url),
         '\r\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
-        req.data,
+        str(req.body),
     )
 
 
