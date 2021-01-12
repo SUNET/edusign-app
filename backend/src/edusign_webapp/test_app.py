@@ -146,6 +146,5 @@ def test_add_document(client, monkeypatch):
     assert response.status == '200 OK'
 
     resp_data = json.loads(response.data)
-    import pdb; pdb.set_trace()
 
     assert resp_data['payload']['ref'] == 'ba26478f-f8e0-43db-991c-08af7c65ed58'
