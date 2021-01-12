@@ -67,7 +67,8 @@ class APIClient(object):
         current_app.logger.debug(f"Request sent to the API's {url} method: {pretty_print_req(prepped)}")
 
         settings = requests_session.merge_environment_settings(prepped.url, {}, None, None, None)
-        return requests_session.send(prepped, **settings)
+        response = requests_session.send(prepped, **settings)
+        return response.json()
 
     def prepare_document(self, document: dict) -> dict:
         """"""
@@ -92,9 +93,8 @@ class APIClient(object):
         }
         api_url = urljoin(self.api_base_url, f'prepare/{self.profile}')
 
-        response = self._post(api_url, request_data)
+        response_data = self._post(api_url, request_data)
 
-        response_data = response.json()
         current_app.logger.debug(f"Data returned from the API's prepare endpoint: {pformat(response_data)}")
 
         return response_data
@@ -142,8 +142,7 @@ class APIClient(object):
 
     def create_sign_request(self, documents: list) -> tuple:
 
-        response, documents_with_id = self._try_creating_sign_request(documents)
-        response_data = response.json()
+        response_data, documents_with_id = self._try_creating_sign_request(documents)
 
         if (
             'status' in response_data
@@ -163,9 +162,8 @@ class APIClient(object):
         request_data = {"signResponse": sign_response, "relayState": relay_state, "state": {"id": relay_state}}
         api_url = urljoin(self.api_base_url, 'process')
 
-        response = self._post(api_url, request_data)
+        response_data = self._post(api_url, request_data)
 
-        response_data = response.json()
         current_app.logger.debug(f"Data returned from the API's process endpoint: {pformat(response_data)}")
 
         return response_data

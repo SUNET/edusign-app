@@ -72,13 +72,15 @@ class ResponseSchema(Schema):
     csrf_token = fields.String(required=True)
 
     @pre_dump
-    def get_csrf_token(self, out_data: dict, **kwargs) -> dict:
+    def get_csrf_token(self, out_data: dict, sess=None, **kwargs) -> dict:
         # Generate a new csrf token for every response
         method = current_app.config['HASH_METHOD']
         secret = current_app.config['SECRET_KEY']
         salt_length = current_app.config['SALT_LENGTH']
-        session['user_key'] = str(os.urandom(16))
-        token_hash = generate_password_hash(session['user_key'] + secret, method=method, salt_length=salt_length)
+        if sess is None:
+            sess = session
+        sess['user_key'] = str(os.urandom(16))
+        token_hash = generate_password_hash(sess['user_key'] + secret, method=method, salt_length=salt_length)
         token = token_hash.replace(method + '$', '')
         out_data['csrf_token'] = token
         return out_data
@@ -172,6 +174,6 @@ class UnMarshal(object):
                 return f(unmarshal_result['payload'])
             except ValidationError as e:
                 data = {'error': True, 'message': e.normalized_messages()}
-                return jsonify(ResponseSchema(data).to_dict())
+                return ResponseSchema().dump(data)
 
         return unmarshal_decorator
