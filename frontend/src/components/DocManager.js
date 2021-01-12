@@ -157,6 +157,7 @@ function DocManager(props) {
               {doc.state === "failed-preparing" && (
                 <>
                   {dummySelectDoc()}
+                  {docSize(doc)}
                   {docName(doc)}
                   {showMessage(doc)}
                   {retryButton(doc)}
@@ -191,6 +192,7 @@ function DocManager(props) {
               {doc.state === "failed-signing" && (
                 <>
                   {selectDoc(doc)}
+                  {docSize(doc)}
                   {docName(doc)}
                   {showMessage(doc)}
                   {previewButton(doc)}
@@ -233,6 +235,7 @@ function DocManager(props) {
                 <>
                   <div className="doc-container-first-row">
                     {dummySelectDoc()}
+                    {docSize(doc)}
                     {docName(doc)}
                   </div>
                   <div className="doc-container-second-row">
@@ -285,6 +288,7 @@ function DocManager(props) {
                 <>
                   <div className="doc-container-first-row">
                     {selectDoc(doc)}
+                    {docSize(doc)}
                     {docName(doc)}
                   </div>
                   <div className="doc-container-second-row">
