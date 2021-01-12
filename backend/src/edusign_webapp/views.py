@@ -112,7 +112,11 @@ def add_document(document: dict) -> dict:
     """"""
     prepare_data = _prepare_document(document)
 
-    if 'error' in prepare_data and prepare_data['error']:
+    if 'error' in prepare_data and prepare_data['error']:  # XXX update error message, translate
+        return prepare_data
+
+    if 'errorCode' in prepare_data:  # XXX update error message, translate
+        prepare_data['error'] = True
         return prepare_data
 
     doc_ref = prepare_data['updatedPdfDocumentReference']
