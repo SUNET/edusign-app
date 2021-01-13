@@ -7,8 +7,8 @@ Front end to use the eduSign document signing service.
 Most development and deployment tasks are provided as make commands; type `make
 help` at the root of the repository to find out about them.
 
-For the operator
-----------------
+Instructions for the operator
+-----------------------------
 
 Instructions to deploy an instance of the app. This will consist on 2 docker
 containers, one running a front facing NGINX server protected by a Shibboleth
@@ -23,9 +23,9 @@ Prerequisites
 * A server with a public IP and domain name.
 * Docker daemon running on the server.
 * npm in the server.
-* An SSL certificate.
+* An SSL certificate for the domain name.
 * A SAML2 IdP/federation ready to integrate our SP metadata.
-* A clone of the SUNET/eduisign-app repository in the server.
+* A clone of the SUNET/edusign-app repository in the server.
 
 Configuration
 .............
