@@ -77,8 +77,10 @@ class APIClient(object):
             idp = self.config['DEBUG_IDP']
 
         attrs = [{'name': attr} for attr in self.config['SIGNER_ATTRIBUTES'].keys()]
+        current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
 
         doc_data = document['blob'].split(',')[1]
+        current_app.logger.debug(f"Document sent to the prepare endpoint: {doc_data}")
         request_data = {
             "pdfDocument": doc_data,
             "signaturePagePreferences": {
