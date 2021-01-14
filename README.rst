@@ -152,7 +152,7 @@ Install a graphical environment and a browser.
 
 Install docker:
 
- # curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+ # curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
  # add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
  # apt update
  # apt install docker-ce docker-ce-cli containerd.io
@@ -182,9 +182,8 @@ Build the frontside app javascript bundle:
  $ make front-init
 
 Now we want to start building the bundle, and keep building it as we hack at
-it. For this we need a new xterm instance.
+it.
 
- $ cd edusign-app
  $ make front-build-dev
 
 From now on, this xterm will be busy watching changes to the js code and rebuilding
@@ -195,9 +194,15 @@ terminal, so we open a new xterm.
 
  $ cd edusign-app
 
-First we install the configuration needed for the environment to run. The
-default configuration should work for a development environment, so we just
-install it.
+First we install the configuration needed for the environment to run. On top of
+the default configuration, we just need to add the credentials for basic auth
+at the edusign API, as values to the variables `EDUSIGN_API_USERNAME` and
+`EDUSIGN_API_PASSWORD`.
+
+ $ cp environment-devel environment-current
+ $ vim environment-current  # set the credentials
+
+Install the configuration and start the environment.
 
  $ make config-build
  $ make dev-env-start

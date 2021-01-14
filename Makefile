@@ -30,6 +30,8 @@ config-build:
 		if [ ! -e config-current/shib_fastcgi_params ]; then cp config-templates/shib_fastcgi_params config-current/shib_fastcgi_params; fi && \
 		if [ ! -e config-current/ssl/nginx.crt ]; then cp config-templates/ssl/nginx.crt config-current/ssl/nginx.crt; fi && \
 		if [ ! -e config-current/ssl/nginx.key ]; then cp config-templates/ssl/nginx.key config-current/ssl/nginx.key; fi && \
+		if [ ! -e config-current/ssl/sp-cert.pem ]; then cp config-templates/ssl/sp-cert.pem config-current/ssl/sp-cert.pem; fi && \
+		if [ ! -e config-current/ssl/sp-key.pem ]; then cp config-templates/ssl/sp-key.pem config-current/ssl/sp-key.pem; fi && \
 		if [ ! -e config-current/shibd.logger ]; then cp config-templates/shibd.logger config-current/shibd.logger; fi && \
 		if [ ! -e config-current/nginx.conf ]; then perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/nginx.conf > config-current/nginx.conf; fi && \
 		if [ ! -e config-current/shibboleth2.xml ]; then perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/shibboleth2.xml > config-current/shibboleth2.xml; fi && \
