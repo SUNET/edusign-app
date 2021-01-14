@@ -134,3 +134,70 @@ SIGN_REQUESTER_ID
 
 ENTITY_ID_URL
     String. SAML2 Entity ID of the service as an SP. Default: /shibboleth (??SHIB_SP_ENTITY_ID??)
+
+Install development environment
+-------------------------------
+
+We start with a virtual machine with a minimal installation of debian 10.7, and
+install and use just the essential software needed.
+
+As root, install a few facilities:
+
+ # apt install sudo apt-transport-https ca-certificates curl gnupg-agent software-properties-common vim npm
+ # npm install -U npm -g
+
+Install a graphical environment and a browser.
+
+ # apt install x-window-system-core icewm chromium
+
+Install docker:
+
+ # curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+ # add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+ # apt update
+ # apt install docker-ce docker-ce-cli containerd.io
+ # curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+ # chmod +x /usr/local/bin/docker-compose
+
+Add edusign user
+
+ # useradd -m -s /bin/bash -k /etc/skel -g users -G sudo,docker edusign
+ # passwd edusign
+
+As edusign:
+
+First set up the desktop environment (choosing your correct keyboard layout) and start it.
+
+ $ echo "setxkbmap -layout es" > .xinitrc
+ $ echo "exec icewm-session" >> .xinitrc
+ $ startx
+
+Now, open an xterm and type:
+
+ $ git clone https://github.com/SUNET/edusign-app
+ $ cd edusign-app
+
+Build the frontside app javascript bundle:
+
+ $ make front-init
+
+Now we want to start building the bundle, and keep building it as we hack at
+it. For this we need a new xterm instance.
+
+ $ cd edusign-app
+ $ make front-build-dev
+
+From now on, this xterm will be busy watching changes to the js code and rebuilding
+the bundle accordingly.
+
+Now we want to run the docker compose environment. For this we need a new
+terminal, so we open a new xterm.
+
+ $ cd edusign-app
+
+First we install the configuration needed for the environment to run. The
+default configuration should work for a development environment, so we just
+install it.
+
+ $ make config-build
+ $ make dev-env-start

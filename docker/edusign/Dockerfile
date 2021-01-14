@@ -36,7 +36,7 @@ RUN apt-get update -y && \
         apt-get clean -y && \
         rm -rf /var/lib/apt/lists/*
 
-RUN /usr/sbin/shib-keygen
+COPY ./config-current/ssl/sp-* /etc/shibboleth/
 
 RUN curl -OL http://hg.nginx.org/pkg-oss/archive/tip.tar.gz
 RUN tar -xzf tip.tar.gz
