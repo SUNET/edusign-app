@@ -80,18 +80,11 @@ ENVIRONMENT
 SERVER_NAME
     String. FQDN for the service. Default: sp.edusign.docker
 
-HOSTNAME
-    String. FQDN for the service. Default: sp.edusign.docker
-
 SHIB_SP_ENTITY_ID
     String. SAML2 Entity ID of the service as an SP. Default: https://sp.edusign.docker/shibboleth
 
 SHIB_IDP_ENTITY_ID
     String. SAML2 Entity ID of the (test?) IdP. Default: https://idptestbed/idp/shibboleth
-
-
-SP_HOSTNAME
-    String. FQDN for the service. Default: sp.edusign.docker
 
 WEBAPP_HOSTNAME
     String. FQDN for the wsgi app in the docker network (??). Default: www.edusign.docker
@@ -101,9 +94,6 @@ FLASK_ENV
 
 SECRET_KEY
     String. Key to use for encryption, e.g. for the session. Default: supersecret
-
-SESSION_COOKIE_DOMAIN
-    String. Domain for the cookie. Default: sp.edusign.docker
 
 HASH_METHOD
     String. For the CSRF token. Default: sha256
@@ -193,6 +183,10 @@ attributes used for signing to make sure that they are released by the
 Finally, we need to edit the file at `docker/test-idp/ldap/users.ldif` to add a
 user that has the same attributes and values as our identity in the
 `DEBUG_IDP`.
+
+The rest of the env variables in `environment-devel` are there just to have a
+different value than in production, and it should not be necessary to change
+them.
 
  $ cp environment-devel environment-current
  $ vim environment-current  # change settings

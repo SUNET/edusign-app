@@ -52,11 +52,11 @@ SERVER_NAME = os.environ.get('SERVER_NAME', default='sp.edusign.docker')
 
 PREFERRED_URL_SCHEME = 'https'
 
-HASH_METHOD = os.environ.get('HASH_METHOD', default='sha256')
-SALT_LENGTH = int(os.environ.get('SALT_LENGTH', default='8'))
+HASH_METHOD = 'sha256'
+SALT_LENGTH = 8
 
-BABEL_DEFAULT_LOCALE = os.environ.get('BABEL_DEFAULT_LOCALE', default='en')
-BABEL_DEFAULT_TIMEZONE = os.environ.get('BABEL_DEFAULT_TIMEZONE', default='UTC')
+BABEL_DEFAULT_LOCALE = 'en'
+BABEL_DEFAULT_TIMEZONE = 'UTC'
 BABEL_TRANSLATION_DIRECTORIES = 'translations'
 BABEL_DOMAIN = 'messages'
 
@@ -64,8 +64,6 @@ EDUSIGN_API_BASE_URL = os.environ.get('EDUSIGN_API_BASE_URL', default='https://s
 EDUSIGN_API_PROFILE = os.environ.get('EDUSIGN_API_PROFILE', default='edusign-test')
 EDUSIGN_API_USERNAME = os.environ.get('EDUSIGN_API_USERNAME', default='dummy')
 EDUSIGN_API_PASSWORD = os.environ.get('EDUSIGN_API_PASSWORD', default='dummy')
-
-ENTITY_ID_URL = os.environ.get('ENTITY_ID_URL', default='/shibboleth')
 
 SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.idsec.se/shibboleth")
 

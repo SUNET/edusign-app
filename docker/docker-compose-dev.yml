@@ -53,7 +53,7 @@ services:
       - edusignlogs:/var/log/edusign:rw
       - ../frontend:/opt/edusign/frontend:ro
     environment:
-      - "HOSTNAME=${SP_HOSTNAME}"
+      - "HOSTNAME=${SERVER_NAME}"
     depends_on:
       - idp
 

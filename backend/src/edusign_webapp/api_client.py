@@ -109,10 +109,7 @@ class APIClient(object):
             authn_context = self.config['DEBUG_AUTHN_CONTEXT']
 
         correlation_id = str(uuid4())
-        # base_url = f"{config['PREFERRED_URL_SCHEME']}://{config['SERVER_NAME']}"
-        # entity_id = urljoin(base_url, config['ENTITY_ID_URL'])
         return_url = url_for('edusign.sign_service_callback', _external=True, _scheme='https')
-
         attrs = [{'name': attr, 'value': session[name]} for attr, name in self.config['SIGNER_ATTRIBUTES'].items()]
 
         request_data = {

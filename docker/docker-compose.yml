@@ -14,7 +14,7 @@ services:
       - ../frontend:/opt/edusign/frontend:ro
       - edusignlogs:/var/log/edusign:rw
     environment:
-      - "HOSTNAME=${SP_HOSTNAME}"
+      - "HOSTNAME=${SERVER_NAME}"
 
   www:
     build: ../backend/.

@@ -20,14 +20,5 @@ SHIB_SP_ENTITY_ID=https://sp.edusign.docker/shibboleth
 SHIB_IDP_ENTITY_ID=https://idptestbed/idp/shibboleth
 
 WEBAPP_HOSTNAME=www.edusign.docker
-FLASK_ENV=development
 
 SECRET_KEY=supersecret
-
-HASH_METHOD=sha256
-SALT_LENGTH=8
-
-BABEL_DEFAULT_LOCALE=en
-BABEL_DEFAULT_TIMEZONE=UTC
-
-ENTITY_ID_URL=/shibboleth
