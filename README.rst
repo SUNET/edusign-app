@@ -138,46 +138,19 @@ ENTITY_ID_URL
 Install development environment
 -------------------------------
 
-We start with a virtual machine with a minimal installation of debian 10.7, and
-install and use just the essential software needed.
+These are instructions to set up an environment in which to work on the
+development of SUNET/edusign-app.
 
-As root, install a few facilities:
+We start with a system (only tested on Arch Linux and Debian 10) with npm and
+docker and docker-compose (tested with npm 6.14.11, docker engine 20.20.2 or
+20.10.2, and docker-compose 1.27.4).
 
- # apt install sudo apt-transport-https ca-certificates curl gnupg-agent software-properties-common vim npm
- # npm install -U npm -g
-
-Install a graphical environment and a browser.
-
- # apt install x-window-system-core icewm chromium
-
-Install docker:
-
- # curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
- # add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
- # apt update
- # apt install docker-ce docker-ce-cli containerd.io
- # curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
- # chmod +x /usr/local/bin/docker-compose
-
-Add edusign user
-
- # useradd -m -s /bin/bash -k /etc/skel -g users -G sudo,docker edusign
- # passwd edusign
-
-As edusign:
-
-First set up the desktop environment (choosing your correct keyboard layout) and start it.
-
- $ echo "setxkbmap -layout es" > .xinitrc
- $ echo "exec icewm-session" >> .xinitrc
- $ startx
-
-Now, open an xterm and type:
+First we clone the repo:
 
  $ git clone https://github.com/SUNET/edusign-app
  $ cd edusign-app
 
-Build the frontside app javascript bundle:
+Then we build the frontside app javascript bundle:
 
  $ make front-init
 
@@ -186,23 +159,54 @@ it.
 
  $ make front-build-dev
 
-From now on, this xterm will be busy watching changes to the js code and rebuilding
-the bundle accordingly.
-
 Now we want to run the docker compose environment. For this we need a new
-terminal, so we open a new xterm.
+terminal.
 
  $ cd edusign-app
 
-First we install the configuration needed for the environment to run. On top of
-the default configuration, we just need to add the credentials for basic auth
-at the edusign API, as values to the variables `EDUSIGN_API_USERNAME` and
-`EDUSIGN_API_PASSWORD`.
+Then we install the configuration needed for the environment to run. We need
+access to some deployment of the eduSign API / sign service, in the form of the
+URL of the API / service, the name of a profile for which we have basic auth
+credentials, the said credentials, and the entityID of the SP that has driven
+the authentication of the user (which needs to be registered with the API).
+
+The default configuration for development is in the `environment-devel` file.
+We copy this file to `environment-current` (in the root of the repository, at
+the same level as `environment-devel`) and change the settings there. This file
+should only contain environment variables with their values (not comments or
+anything else).
+
+Essentially, we should only need to change the settings for the eduSign API.
+The absolute minimum is to set the basic auth credentials, as values to the
+variables `EDUSIGN_API_USERNAME` and `EDUSIGN_API_PASSWORD`. This is assuming
+that we are using the API at `https://sig.idsec.se/signint/v1/`, with profile
+`edusign-test`, and that we have an account at `https://eduid.se`.
+
+If we are not using the eduSign API settings mentioned above, we would set the
+API URL (without any API method) at `EDUSIGN_API_BASE_URL`, the profile name at
+`EDUSIGN_API_PROFILE`, the entityID of the authenticating SP at
+`SIGN_REQUESTER_ID`, and the entityID of an IdP that is trusted by the API and
+in which we have an identity at `DEBUG_IDP`. We might also have to adjust the
+attributes used for signing to make sure that they are released by the
+`DEBUG_IDP`, at `SIGNER_ATTRIBUTES`.
+
+Finally, we need to edit the file at `docker/test-idp/ldap/users.ldif` to add a
+user that has the same attributes and values as our identity in the
+`DEBUG_IDP`.
 
  $ cp environment-devel environment-current
- $ vim environment-current  # set the credentials
+ $ vim environment-current  # change settings
 
-Install the configuration and start the environment.
+We now install the configuration, and start the environment.
 
  $ make config-build
  $ make dev-env-start
+
+This will start a development environment (the 1st time it'll take a while,
+since it needs to build all the images) which we can access (locally) at
+`https://sp.edusign.docker/sign`.
+
+We can tail the logs with `make logs-tailf <logfile name>`, and list all
+possible log files with `make logs-list`.
+
+To check all the commands to help in the development, simply type `make`.
