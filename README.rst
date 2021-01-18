@@ -56,8 +56,11 @@ Then we install the configuration needed for the environment to run. We need
 access to some deployment of the eduSign API / sign service, in the form of the
 URL of the API / service, the name of a profile for which we have basic auth
 credentials, the said credentials, and the entityID of the SP that has driven
-the authentication of the user (known as :code:`signRequesterID` to the API, which
-needs to be registered with it).
+the authentication of the user (known as :code:`signRequesterID` to the API,
+which needs to be registered with it; in production this would be the entityID of
+the app as an SP, but in development, since we would not normally be able to
+register our instance of the app with the sign service, we fake it, and
+provide some value agreed upon with the operators of the API).
 
 We also need an identity at a SAML IdP that has established trust with the
 eduSign API. In production, we would use this same IdP to authenticate our
@@ -148,7 +151,7 @@ SP. These need to be named :code:`nginx.crt`, :code:`nginx.key`, :code:`sp-cert.
  $ cp <wherever>/sp-* config-current/ssl/
 
 Then we need to provide the IdP metadata, in a file named
-idp-metadata.xml. 
+idp-metadata.xml. If we are instead dealing with a federation, we would need to configure it by editing the configuration at :code:`shibboleth2.xml`, see below.
 
 .. code-block:: bash
 
@@ -178,8 +181,10 @@ we would export them and then run:
 
  $ make config-build-from-env
 
-We may now want to edit any of the configuration files in :code:`config-current/`. If
-we do so, after editing them we would again execute :code:`make config-build`.
+We may now want to edit any of the configuration files in
+:code:`config-current/` (e.g., :code:`shibboleth2.xml`, if we deal with a
+federation instead of an IdP). If we do so, after editing them we would again
+execute :code:`make config-build`.
 
 Once the environment is running, we can get the Shibboleth SP metadata from
 :code:`/Shibboleth.sso/Metadata`.
