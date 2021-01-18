@@ -8,7 +8,7 @@ Here I will provide instructions to depoy both a development environment to
 hack at the project and a production environment.
 
 Development and deployment tasks are provided as make commands; type
-:command:`make help` at the root of the repository to find out about them.
+:code:`make help` at the root of the repository to find out about them.
 
 Deploying a development environment
 -----------------------------------
@@ -65,17 +65,17 @@ users, but in development we use a test IdP and tell (lie) the sign API /
 service that we have used the same IdP it will be using (setting it as value to
 the :code:`DEBUG_IDP` setting).
 
-The default configuration for development is in the :file:`environment-devel` file.
-We copy this file to :file:`environment-current` (in the root of the repository, at
-the same level as :file:`environment-devel`) and change the settings there. This file
+The default configuration for development is in the :code:`environment-devel` file.
+We copy this file to :code:`environment-current` (in the root of the repository, at
+the same level as :code:`environment-devel`) and change the settings there. This file
 should only contain environment variables with their values (not comments or
 anything else).
 
 In principle, we should only need to change the settings for the eduSign API.
 The absolute minimum is to set the basic auth credentials, as values to the
 variables :code:`EDUSIGN_API_USERNAME` and :code:`EDUSIGN_API_PASSWORD`. This is assuming
-that we are using the API at :file:`https://sig.idsec.se/signint/v1/`, with profile
-:code:`edusign-test`, and that we have an account at :file:`https://eduid.se`.
+that we are using the API at :code:`https://sig.idsec.se/signint/v1/`, with profile
+:code:`edusign-test`, and that we have an account at :code:`https://eduid.se`.
 
 If we are not using the eduSign API settings mentioned above, we would set the
 API URL (without any API method) at :code:`EDUSIGN_API_BASE_URL`, the profile name at
@@ -85,11 +85,11 @@ in which we have an identity at :code:`DEBUG_IDP`. We might also have to adjust 
 attributes used for signing to make sure that they are released by the
 :code:`DEBUG_IDP`, at :code:`SIGNER_ATTRIBUTES`.
 
-Finally, we need to edit the file at :file:`docker/test-idp/ldap/users.ldif` to add a
+Finally, we need to edit the file at :code:`docker/test-idp/ldap/users.ldif` to add a
 user that has the same attributes and values as our identity in the
 :code:`DEBUG_IDP`.
 
-The rest of the env variables in :file:`environment-devel` are there just to have a
+The rest of the env variables in :code:`environment-devel` are there just to have a
 different value than in production, and it should not be necessary to change
 them.
 
@@ -107,10 +107,10 @@ We now install the configuration, and start the environment.
 
 This will start a development environment (the 1st time it'll take a while,
 since it needs to build all the images) which we can access (locally) at
-:file:`https://sp.edusign.docker/sign`.
+:code:`https://sp.edusign.docker/sign`.
 
-We can tail the logs with :command:`make logs-tailf <logfile name>`, and list all
-possible log files with :command:`make logs-list`.
+We can tail the logs with :code:`make logs-tailf <logfile name>`, and list all
+possible log files with :code:`make logs-list`.
 
 Deploying a production environment
 ----------------------------------
@@ -137,8 +137,8 @@ Configuration
 .............
 
 First we need to provide the SSL certificates for NGINX and for the Shibboleth
-SP. These need to be named :file:`nginx.crt`, :file:`nginx.key`, :file:`sp-cert.pem`, and
-:file:`sp-key.pem`.
+SP. These need to be named :code:`nginx.crt`, :code:`nginx.key`, :code:`sp-cert.pem`, and
+:code:`sp-key.pem`.
 
 .. code-block:: bash
 
@@ -155,8 +155,8 @@ idp-metadata.xml.
  $ cp <wherever>/idp-metadata.xml config-current/
 
 Then we need to provide values to some settings. These can reside in an
-environment file :file:`environment-current` or be exported as environment variables.
-The settings needed are listed in the file :file:`environment-pro` at the root of the
+environment file :code:`environment-current` or be exported as environment variables.
+The settings needed are listed in the file :code:`environment-pro` at the root of the
 repo, see below for an explanation of each of them.  So to add them in a file,
 do:
 
@@ -178,11 +178,11 @@ we would export them and then run:
 
  $ make config-build-from-env
 
-We may now want to edit any of the configuration files in :file:`config-current/`. If
-we do so, after editing them we would again execute :command:`make config-build`.
+We may now want to edit any of the configuration files in :code:`config-current/`. If
+we do so, after editing them we would again execute :code:`make config-build`.
 
 Once the environment is running, we can get the Shibboleth SP metadata from
-:file:`/Shibboleth.sso/Metadata`.
+:code:`/Shibboleth.sso/Metadata`.
 
 Attributes used for signing
 ...........................
@@ -191,32 +191,32 @@ By default, we use the given name :code:`givenName`, the surname :code:`sn` and 
 address :code:`mail` attributes for signing the documents. This list can be altered;
 if we do so, there are 4 different places which we need to be aware of.  One is
 the :code:`SIGNER_ATTRIBUTES` setting as we show below. Then, whatever attributes are
-used must be taken into account in the files :file:`attribute-map.xml`,
-:file:`shib_clear_headers`, and :file:`shib_fastcgi_params`. Since having extra attributes
+used must be taken into account in the files :code:`attribute-map.xml`,
+:code:`shib_clear_headers`, and :code:`shib_fastcgi_params`. Since having extra attributes
 in those files, not actually used for signing, would not pose a problem, it
 would be best to take into account in those files *all* attributes that might
 be so used, so that is is not needed to edit those files. Note that the
-attributes must be set in :file:`attribute-map.xml` with an :code:`AttributeDecoder` with
+attributes must be set in :code:`attribute-map.xml` with an :code:`AttributeDecoder` with
 type :code:`StringAttributeDecoder`.
 
 Build JS bundle
 ...............
 
-Execute the command :command:`make front-init`, to gather all needed js packages, and
-then :command:`make front-build-pro` to build the bundle. Finally :command:`make front-clean-pro`
+Execute the command :code:`make front-init`, to gather all needed js packages, and
+then :code:`make front-build-pro` to build the bundle. Finally :code:`make front-clean-pro`
 can be executed to remove unneeded stuff.
 
 Start docker compose environment
 ................................
 
-Execute the command :command:`make pro-env-start`. To stop the environment, the :command:`make
+Execute the command :code:`make pro-env-start`. To stop the environment, the :code:`make
 pro-env-stop` command should be used.
 
 Access logs
 ...........
 
-The available logs can be listed via the command :command:`make logs-list`. They can be
-tailed with :command:`make logs-tailf <logfile>`.
+The available logs can be listed via the command :code:`make logs-list`. They can be
+tailed with :code:`make logs-tailf <logfile>`.
 
 Configuration variables
 .......................
@@ -234,7 +234,7 @@ SHIB_SP_ENTITY_ID
     String. SAML2 Entity ID of the service as an SP.
 
 SHIB_IDP_ENTITY_ID
-    String. SAML2 Entity ID of the IdP, used to configure the :file:`shibboleth2.xml` file for the Shibboleth SP. It may be necessary to actually edit the file if we have >1 IdP and need to configure a discovery service.
+    String. SAML2 Entity ID of the IdP, used to configure the :code:`shibboleth2.xml` file for the Shibboleth SP. It may be necessary to actually edit the file if we have >1 IdP and need to configure a discovery service.
 
 SECRET_KEY
     String. Key used by the webapp for encryption, e.g. for the sessions.
@@ -252,4 +252,4 @@ EDUSIGN_API_PASSWORD
     String. Password for Basic Auth for the eduSign API.
 
 SIGN_REQUESTER_ID
-    String. SAML2 Entity ID for the eduSign API as an SP. Set separately from the SP entityId at :file:`shibboleth2.xml` because in development we usually fake it (since it needs to be registered with the API).
+    String. SAML2 Entity ID for the eduSign API as an SP. Set separately from the SP entityId at :code:`shibboleth2.xml` because in development we usually fake it (since it needs to be registered with the API).
