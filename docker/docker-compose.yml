@@ -28,7 +28,6 @@ services:
       - edusignlogs:/var/log/edusign:rw
     environment:
       - "PYTHONPATH=/opt/edusign/edusign-webapp/src"
-      - "HOSTNAME=${WEBAPP_HOSTNAME}"
     env_file: .env
     depends_on:
       - sp
