@@ -70,7 +70,7 @@ class APIClient(object):
         response = requests_session.send(prepped, **settings)
         return response.json()
 
-    def prepare_document(self, document: dict) -> dict:
+    def prepare_document(self, document: dict) -> requests.Response:
         """"""
         idp = session['idp']
         if self.config['ENVIRONMENT'] == 'development':
@@ -95,11 +95,11 @@ class APIClient(object):
         }
         api_url = urljoin(self.api_base_url, f'prepare/{self.profile}')
 
-        response_data = self._post(api_url, request_data)
+        response = self._post(api_url, request_data)
 
-        current_app.logger.debug(f"Data returned from the API's prepare endpoint: {pformat(response_data)}")
+        current_app.logger.debug(f"Data returned from the API's prepare endpoint: {pformat(response)}")
 
-        return response_data
+        return response
 
     def _try_creating_sign_request(self, documents: list) -> tuple:
         idp = session['idp']
@@ -156,13 +156,13 @@ class APIClient(object):
 
         return response_data, documents_with_id
 
-    def process_sign_request(self, sign_response: dict, relay_state: str) -> dict:
+    def process_sign_request(self, sign_response: dict, relay_state: str) -> requests.Response:
 
         request_data = {"signResponse": sign_response, "relayState": relay_state, "state": {"id": relay_state}}
         api_url = urljoin(self.api_base_url, 'process')
 
-        response_data = self._post(api_url, request_data)
+        response = self._post(api_url, request_data)
 
-        current_app.logger.debug(f"Data returned from the API's process endpoint: {pformat(response_data)}")
+        current_app.logger.debug(f"Data returned from the API's process endpoint: {pformat(response)}")
 
-        return response_data
+        return response
