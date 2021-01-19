@@ -219,8 +219,6 @@ def recreate_sign_request(documents: dict) -> dict:
 @edusign_views.route('/callback', methods=['POST'])
 def sign_service_callback() -> str:
 
-    data = {k: v for k, v in request.values.items()}
-    current_app.logger.debug(f"Data received from sign service: {data}")
     bundle_name = 'main-bundle'
     if current_app.config['DEBUG']:
         bundle_name += '.dev'

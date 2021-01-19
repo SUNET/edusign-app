@@ -314,3 +314,22 @@ def test_recreate_sign_request(client, monkeypatch):
 
     assert resp_data['payload']['documents'][0]['name'] == 'test.pdf'
     assert resp_data['payload']['relay_state'] == '31dc573b-ab7d-496c-845e-cae8792ba063'
+
+
+def test_sign_sevice_callback(client):
+
+    response1 = client.get('/sign/')
+
+    assert response1.status == '200 OK'
+
+    data = {'Binding': 'POST/XML/1.0', 'RelayState': '09d91b6f-199c-4388-a4e5-230807dd4ac4', 'EidSignResponse': 'Dummy Sign Response'}
+
+    response = client.post(
+        '/sign/callback',
+        data=data,
+    )
+
+    assert response.status == '200 OK'
+
+    assert b"<title>eduSign</title>" in response.data
+    assert b"Dummy Sign Response" in response.data
