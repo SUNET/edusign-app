@@ -51,7 +51,7 @@ services:
         ipv4_address: 172.20.10.203
     volumes:
       - edusignlogs:/var/log/edusign:rw
-      - ../frontend:/opt/edusign/frontend:ro
+      - ../frontend/build:/opt/edusign/jsbuild:ro
     environment:
       - "HOSTNAME=${SERVER_NAME}"
     depends_on:
