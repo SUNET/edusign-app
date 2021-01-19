@@ -137,8 +137,9 @@ Prerequisites
 .............
 
 * A server with a public IP and domain name.
-* Docker daemon running on the server.
 * An SSL certificate for the domain name.
+* Docker daemon running on the server, and docker-compose available (tested with docker engine 20.10.2
+  or 20.20.2, and docker-compose 1.27.4).
 * A SAML2 IdP/federation that has established trust with the API and is ready to do the same with us.
 * A clone of the SUNET/edusign-app repository in the server.
 
