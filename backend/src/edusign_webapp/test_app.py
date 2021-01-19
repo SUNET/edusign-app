@@ -104,18 +104,26 @@ def test_add_document(client, monkeypatch):
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
-        return {'policy': 'edusign-test',
-                'updatedPdfDocumentReference': 'ba26478f-f8e0-43db-991c-08af7c65ed58',
-                'visiblePdfSignatureRequirement': {'fieldValues': {'idp': 'https://login.idp.eduid.se/idp.xml'},
-                                                   'page': 2,
-                                                   'scale': -74,
-                                                   'signerName': {'formatting': None,
-                                                                  'signerAttributes': [{'name': 'urn:oid:2.5.4.42'},
-                                                                                       {'name': 'urn:oid:2.5.4.4'},
-                                                                                       {'name': 'urn:oid:0.9.2342.19200300.100.1.3'}]},
-                                                   'templateImageRef': 'eduSign-image',
-                                                   'xposition': 37,
-                                                   'yposition': 165}}
+        return {
+            'policy': 'edusign-test',
+            'updatedPdfDocumentReference': 'ba26478f-f8e0-43db-991c-08af7c65ed58',
+            'visiblePdfSignatureRequirement': {
+                'fieldValues': {'idp': 'https://login.idp.eduid.se/idp.xml'},
+                'page': 2,
+                'scale': -74,
+                'signerName': {
+                    'formatting': None,
+                    'signerAttributes': [
+                        {'name': 'urn:oid:2.5.4.42'},
+                        {'name': 'urn:oid:2.5.4.4'},
+                        {'name': 'urn:oid:0.9.2342.19200300.100.1.3'},
+                    ],
+                },
+                'templateImageRef': 'eduSign-image',
+                'xposition': 37,
+                'yposition': 165,
+            },
+        }
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
 
@@ -129,7 +137,10 @@ def test_add_document(client, monkeypatch):
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 
-    doc_data = {'csrf_token': csrf_token, 'payload': {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}}
+    doc_data = {
+        'csrf_token': csrf_token,
+        'payload': {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'},
+    }
 
     from flask.sessions import SecureCookieSession
 
@@ -141,7 +152,15 @@ def test_add_document(client, monkeypatch):
 
     monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    response = client.post('/sign/add-doc', headers={'X-Requested-With': 'XMLHttpRequest', 'Origin': 'https://test.localhost', 'X-Forwarded-Host': 'test.localhost'}, json=doc_data)
+    response = client.post(
+        '/sign/add-doc',
+        headers={
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://test.localhost',
+            'X-Forwarded-Host': 'test.localhost',
+        },
+        json=doc_data,
+    )
 
     assert response.status == '200 OK'
 
@@ -155,11 +174,13 @@ def test_create_sign_request(client, monkeypatch):
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
-        return {'binding': 'POST/XML/1.0',
-                'destinationUrl': 'https://sig.idsec.se/sigservice-dev/request',
-                'relayState': '31dc573b-ab7d-496c-845e-cae8792ba063',
-                'signRequest': 'DUMMY SIGN REQUEST',
-                'state': {'id': '31dc573b-ab7d-496c-845e-cae8792ba063'}}
+        return {
+            'binding': 'POST/XML/1.0',
+            'destinationUrl': 'https://sig.idsec.se/sigservice-dev/request',
+            'relayState': '31dc573b-ab7d-496c-845e-cae8792ba063',
+            'signRequest': 'DUMMY SIGN REQUEST',
+            'state': {'id': '31dc573b-ab7d-496c-845e-cae8792ba063'},
+        }
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
 
@@ -183,14 +204,29 @@ def test_create_sign_request(client, monkeypatch):
 
     monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    doc_data = {'csrf_token': csrf_token,
-                'payload': {'documents': [
-                    {'name': 'test.pdf',
-                     'type': 'application/pdf',
-                     'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
-                     'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}'}]}}
+    doc_data = {
+        'csrf_token': csrf_token,
+        'payload': {
+            'documents': [
+                {
+                    'name': 'test.pdf',
+                    'type': 'application/pdf',
+                    'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
+                    'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
+                }
+            ]
+        },
+    }
 
-    response = client.post('/sign/create-sign-request', headers={'X-Requested-With': 'XMLHttpRequest', 'Origin': 'https://test.localhost', 'X-Forwarded-Host': 'test.localhost'}, json=doc_data)
+    response = client.post(
+        '/sign/create-sign-request',
+        headers={
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://test.localhost',
+            'X-Forwarded-Host': 'test.localhost',
+        },
+        json=doc_data,
+    )
 
     assert response.status == '200 OK'
 
@@ -206,24 +242,34 @@ def test_recreate_sign_request(client, monkeypatch):
 
     def mock_post(self, url, *args, **kwargs):
         if 'prepare' in url:
-            return {'policy': 'edusign-test',
-                    'updatedPdfDocumentReference': 'ba26478f-f8e0-43db-991c-08af7c65ed58',
-                    'visiblePdfSignatureRequirement': {'fieldValues': {'idp': 'https://login.idp.eduid.se/idp.xml'},
-                                                       'page': 2,
-                                                       'scale': -74,
-                                                       'signerName': {'formatting': None,
-                                                                      'signerAttributes': [{'name': 'urn:oid:2.5.4.42'},
-                                                                                           {'name': 'urn:oid:2.5.4.4'},
-                                                                                           {'name': 'urn:oid:0.9.2342.19200300.100.1.3'}]},
-                                                       'templateImageRef': 'eduSign-image',
-                                                       'xposition': 37,
-                                                       'yposition': 165}}
+            return {
+                'policy': 'edusign-test',
+                'updatedPdfDocumentReference': 'ba26478f-f8e0-43db-991c-08af7c65ed58',
+                'visiblePdfSignatureRequirement': {
+                    'fieldValues': {'idp': 'https://login.idp.eduid.se/idp.xml'},
+                    'page': 2,
+                    'scale': -74,
+                    'signerName': {
+                        'formatting': None,
+                        'signerAttributes': [
+                            {'name': 'urn:oid:2.5.4.42'},
+                            {'name': 'urn:oid:2.5.4.4'},
+                            {'name': 'urn:oid:0.9.2342.19200300.100.1.3'},
+                        ],
+                    },
+                    'templateImageRef': 'eduSign-image',
+                    'xposition': 37,
+                    'yposition': 165,
+                },
+            }
 
-        return {'binding': 'POST/XML/1.0',
-                'destinationUrl': 'https://sig.idsec.se/sigservice-dev/request',
-                'relayState': '31dc573b-ab7d-496c-845e-cae8792ba063',
-                'signRequest': 'DUMMY SIGN REQUEST',
-                'state': {'id': '31dc573b-ab7d-496c-845e-cae8792ba063'}}
+        return {
+            'binding': 'POST/XML/1.0',
+            'destinationUrl': 'https://sig.idsec.se/sigservice-dev/request',
+            'relayState': '31dc573b-ab7d-496c-845e-cae8792ba063',
+            'signRequest': 'DUMMY SIGN REQUEST',
+            'state': {'id': '31dc573b-ab7d-496c-845e-cae8792ba063'},
+        }
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
 
@@ -247,9 +293,20 @@ def test_recreate_sign_request(client, monkeypatch):
 
     monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    doc_data = {'csrf_token': csrf_token, 'payload': {'documents': [{'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}]}}
+    doc_data = {
+        'csrf_token': csrf_token,
+        'payload': {'documents': [{'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}]},
+    }
 
-    response = client.post('/sign/recreate-sign-request', headers={'X-Requested-With': 'XMLHttpRequest', 'Origin': 'https://test.localhost', 'X-Forwarded-Host': 'test.localhost'}, json=doc_data)
+    response = client.post(
+        '/sign/recreate-sign-request',
+        headers={
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://test.localhost',
+            'X-Forwarded-Host': 'test.localhost',
+        },
+        json=doc_data,
+    )
 
     assert response.status == '200 OK'
 
