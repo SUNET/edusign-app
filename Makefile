@@ -33,6 +33,7 @@ config-build:
 		if [ ! -e config-current/ssl/sp-cert.pem ]; then cp config-templates/ssl/sp-cert.pem config-current/ssl/sp-cert.pem; fi && \
 		if [ ! -e config-current/ssl/sp-key.pem ]; then cp config-templates/ssl/sp-key.pem config-current/ssl/sp-key.pem; fi && \
 		if [ ! -e config-current/shibd.logger ]; then cp config-templates/shibd.logger config-current/shibd.logger; fi && \
+		if [ ! -e config-current/users.ldif ]; then cp config-templates/users.ldif config-current/users.ldif; fi && \
 		if [ ! -e config-current/nginx.conf ]; then perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/nginx.conf > config-current/nginx.conf; fi && \
 		if [ ! -e config-current/shibboleth2.xml ]; then perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/shibboleth2.xml > config-current/shibboleth2.xml; fi && \
 		if [ -e config-current/users.ldif ]; then cp config-current/users.ldif docker/test-idp/ldap/; fi && \

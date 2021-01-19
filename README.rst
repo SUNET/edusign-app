@@ -111,6 +111,8 @@ at :code:`config-current/`. After doing so we must again execute
 
 Finally, we start the docker environment:
 
+.. code-block:: bash
+
  $ make dev-env-start
 
 This will start a development environment (the 1st time it'll take a while,
