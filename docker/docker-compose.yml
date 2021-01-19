@@ -2,6 +2,13 @@
 version: '3.8'
 services:
 
+  build-front:
+    build: ../frontend/.
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - jsbuild:/opt/fronted/build
+
   sp:
     build: ./edusign/
     expose:
@@ -11,7 +18,7 @@ services:
       edusign:
         ipv4_address: 172.20.10.203
     volumes:
-      - ../frontend:/opt/edusign/frontend:ro
+      - jsbuild:/opt/edusign/jsbuild:ro
       - edusignlogs:/var/log/edusign:rw
     environment:
       - "HOSTNAME=${SERVER_NAME}"
@@ -35,6 +42,8 @@ services:
 volumes:
   edusignlogs:
     name: edusignlogs
+  jsbuild:
+    name: jsbuild
 
 networks:
   edusign:

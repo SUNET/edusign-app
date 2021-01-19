@@ -80,8 +80,7 @@ dev-env-stop:
 pro-env-start:
 	@cd $(ENV_DIR); \
     docker-compose rm -s -f; \
-    docker-compose up --build $*; \
-    docker-compose logs -tf
+    docker-compose up --build --detach
 
 ## Stop the docker environment
 .PHONY: pro-env-stop

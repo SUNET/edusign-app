@@ -130,15 +130,14 @@ docker containers, one running a front facing NGINX server protected by a
 Shibboleth SP and proxying the app, and another with the eduSign app as a WSGI
 app driven by Gunicorn.
 
-Essentially, this will involve providing the configuration, building the
-front-end Javascript app bundle, and starting the docker compose environment.
+Essentially, this will involve providing the configuration, and starting the
+docker compose environment.
 
 Prerequisites
 .............
 
 * A server with a public IP and domain name.
 * Docker daemon running on the server.
-* npm in the server.
 * An SSL certificate for the domain name.
 * A SAML2 IdP/federation that has established trust with the API and is ready to do the same with us.
 * A clone of the SUNET/edusign-app repository in the server.
@@ -210,13 +209,6 @@ would be best to take into account in those files *all* attributes that might
 be so used, so that is is not needed to edit those files. Note that the
 attributes must be set in :code:`attribute-map.xml` with an :code:`AttributeDecoder` with
 type :code:`StringAttributeDecoder`.
-
-Build JS bundle
-...............
-
-Execute the command :code:`make front-init`, to gather all needed js packages, and
-then :code:`make front-build-pro` to build the bundle. Finally :code:`make front-clean-pro`
-can be executed to remove unneeded stuff.
 
 Start docker compose environment
 ................................
