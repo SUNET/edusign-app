@@ -22,6 +22,8 @@ services:
       - edusignlogs:/var/log/edusign:rw
     environment:
       - "HOSTNAME=${SERVER_NAME}"
+    depends_on:
+      - build-front
 
   www:
     build: ../backend/.
