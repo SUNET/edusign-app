@@ -3,11 +3,8 @@
 set -e
 set -x
 
-cd /opt/frontend
+rm -rf /opt/jsbuild/*
 
-npm install
-npm run build-pro
-
-rm -rf node_modules
+cp -R /opt/frontend/build/* /opt/jsbuild/
 
 echo "Built js bundle, stopping container..."

@@ -7,7 +7,9 @@ services:
     environment:
       - NODE_ENV=production
     volumes:
-      - jsbuild:/opt/fronted/build
+      - jsbuild:/opt/jsbuild
+    stdin_open: false
+    tty: true
 
   sp:
     build: ./edusign/
