@@ -35,6 +35,7 @@ config-build:
 		if [ ! -e config-current/shibd.logger ]; then cp config-templates/shibd.logger config-current/shibd.logger; fi && \
 		if [ ! -e config-current/nginx.conf ]; then perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/nginx.conf > config-current/nginx.conf; fi && \
 		if [ ! -e config-current/shibboleth2.xml ]; then perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/shibboleth2.xml > config-current/shibboleth2.xml; fi && \
+		if [ -e config-current/users.ldif ]; then cp config-current/users.ldif docker/test-idp/ldap/; fi && \
 		perl -p -e 's/\$$\{([^}]+)\}/defined $$ENV{$$1} ? $$ENV{$$1} : $$&/eg' < config-templates/environment-compose > docker/.env && \
 		cp -Rp config-current docker/edusign/
 

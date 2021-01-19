@@ -88,10 +88,6 @@ in which we have an identity at :code:`DEBUG_IDP`. We might also have to adjust 
 attributes used for signing to make sure that they are released by the
 :code:`DEBUG_IDP`, at :code:`SIGNER_ATTRIBUTES`.
 
-Finally, we need to edit the file at :code:`docker/test-idp/ldap/users.ldif` to add a
-user that has the same attributes and values as our identity in the
-:code:`DEBUG_IDP`.
-
 The rest of the env variables in :code:`environment-devel` are there just to have a
 different value than in production, and it should not be necessary to change
 them.
@@ -101,11 +97,20 @@ them.
  $ cp environment-devel environment-current
  $ vim environment-current  # change settings
 
-We now install the configuration, and start the environment.
+We now install the configuration.
 
 .. code-block:: bash
 
  $ make config-build
+
+Now, we may need to edit the file at :code:`config-current/users.ldif` to add a
+user that has the same attributes and values as our identity in the
+:code:`DEBUG_IDP`. We might also want to edit some other of the files present
+at :code:`config-current/`. After doing so we must again execute
+:code:`make config-build`.
+
+Finally, we start the docker environment:
+
  $ make dev-env-start
 
 This will start a development environment (the 1st time it'll take a while,
@@ -257,4 +262,4 @@ EDUSIGN_API_PASSWORD
     String. Password for Basic Auth for the eduSign API.
 
 SIGN_REQUESTER_ID
-    String. SAML2 Entity ID for the eduSign API as an SP. Set separately from the SP entityId at :code:`shibboleth2.xml` because in development we usually fake it (since it needs to be registered with the API).
+    String. SAML2 Entity ID for the eduSign app as an SP. Set separately from the SP entityId at :code:`shibboleth2.xml` because in development we usually fake it (since it needs to be registered with the API).
