@@ -14,6 +14,7 @@ docker/logs/
 backend/src/edusign_webapp.egg-info/
 backend/venv/
 backend/.coverage
+backend/htmlcov
 __pycache__
 .env
 
