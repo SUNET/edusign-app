@@ -73,21 +73,6 @@ dev-env-stop:
 	@cd $(ENV_DIR); \
     docker-compose -f docker-compose-dev.yml  rm -s -f; \
 
-## -- Production environment commands --
-
-## Start the docker environment
-.PHONY: pro-env-start
-pro-env-start:
-	@cd $(ENV_DIR); \
-    docker-compose rm -s -f; \
-    docker-compose up --build --detach
-
-## Stop the docker environment
-.PHONY: pro-env-stop
-pro-env-stop:
-	@cd $(ENV_DIR); \
-    docker-compose rm -s -f; \
-
 ## -- Logging commands --
 
 ## Tail some log file
