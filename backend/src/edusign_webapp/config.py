@@ -73,7 +73,7 @@ DEBUG_AUTHN_CONTEXT = os.environ.get(
 )
 
 RAW_SIGNER_ATTRIBUTES = os.environ.get(
-    'SIGNER_ATTRIBUTES', default='urn:oid:2.5.4.42,given_name;urn:oid:2.5.4.4,sn;urn:oid:0.9.2342.19200300.100.1.3,mail'
+    'SIGNER_ATTRIBUTES', default='urn:oid:2.5.4.42,givenName;urn:oid:2.5.4.4,sn;urn:oid:0.9.2342.19200300.100.1.3,mail'
 )
 
 SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}

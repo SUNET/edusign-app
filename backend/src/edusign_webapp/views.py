@@ -35,7 +35,6 @@ from xml.etree import cElementTree as ET
 
 from flask import Blueprint, abort, current_app, json, render_template, request, session
 from flask_babel import gettext
-from werkzeug.wrappers import Response
 
 from edusign_webapp.marshal import Marshal, UnMarshal
 from edusign_webapp.schemata import (
@@ -60,7 +59,7 @@ def get_bundle() -> str:
         session['eppn'] = eppn
 
         attrs = [
-            (attr, attr.capitalize().replace('_', '')) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()
+            (attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()
         ]
         for attr_in_session, attr_in_header in attrs:
             current_app.logger.debug(
@@ -71,9 +70,12 @@ def get_bundle() -> str:
         session['idp'] = request.headers.get('Shib-Identity-Provider')
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
         session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
+
+    current_app.logger.debug("Attributes in session: ", [f"{k}: {v}" for k, v in session.items()])
+
     try:
         bundle_name = 'main-bundle'
-        if current_app.config['DEBUG']:
+        if current_app.config['ENVIRONMENT'] == 'development':
             bundle_name += '.dev'
 
         return render_template('index.jinja2', bundle_name=bundle_name)

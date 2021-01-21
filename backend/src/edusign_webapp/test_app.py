@@ -65,7 +65,27 @@ def test_index(client):
     assert b"<title>eduSign</title>" in response.data
 
     assert session.get('eppn') == 'dummy-eppn'
-    assert session.get('given_name') == 'Tëster'
+    assert session.get('givenName') == 'Tëster'
+    assert session.get('sn') == 'Testing'
+    assert session.get('mail') == 'tester@example.org'
+    assert session.get('idp') == 'https://idp'
+    assert session.get('authn_method') == 'dummy'
+    assert session.get('authn_context') == 'dummy'
+
+
+def test_index_twice(client):
+    """"""
+
+    client.get('/sign/')
+
+    response = client.get('/sign/')
+
+    assert response.status == '200 OK'
+
+    assert b"<title>eduSign</title>" in response.data
+
+    assert session.get('eppn') == 'dummy-eppn'
+    assert session.get('givenName') == 'Tëster'
     assert session.get('sn') == 'Testing'
     assert session.get('mail') == 'tester@example.org'
     assert session.get('idp') == 'https://idp'
@@ -91,7 +111,7 @@ def test_config(client):
 
         assert attr['name'] in attr_names
 
-        if attr['name'] == 'given_name':
+        if attr['name'] == 'givenName':
             assert attr['value'] == 'Tëster'
         elif attr['name'] == 'sn':
             assert attr['value'] == 'Testing'
