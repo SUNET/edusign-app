@@ -33,7 +33,7 @@
 
 import os
 from functools import wraps
-from typing import Callable, Type, cast
+from typing import Callable, Type
 from urllib.parse import urlsplit
 
 from flask import current_app, jsonify, request, session
