@@ -114,3 +114,54 @@ def test_recreate_sign_request(client, monkeypatch):
 
     assert resp_data['payload']['documents'][0]['name'] == 'test.pdf'
     assert resp_data['payload']['relay_state'] == '31dc573b-ab7d-496c-845e-cae8792ba063'
+
+
+def test_recreate_sign_request_post_raises(client, monkeypatch):
+
+    from edusign_webapp.api_client import APIClient
+
+    def mock_post(self, url, *args, **kwargs):
+        raise Exception("ho ho ho")
+
+    monkeypatch.setattr(APIClient, '_post', mock_post)
+
+    response1 = client.get('/sign/')
+
+    assert response1.status == '200 OK'
+
+    with run.app.test_request_context():
+        with client.session_transaction() as sess:
+
+            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+            user_key = sess['user_key']
+
+    from flask.sessions import SecureCookieSession
+
+    def mock_getitem(self, key):
+        if key == 'user_key':
+            return user_key
+        self.accessed = True
+        return super(SecureCookieSession, self).__getitem__(key)
+
+    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+
+    doc_data = {
+        'csrf_token': csrf_token,
+        'payload': {'documents': [{'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}]},
+    }
+
+    response = client.post(
+        '/sign/recreate-sign-request',
+        headers={
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://test.localhost',
+            'X-Forwarded-Host': 'test.localhost',
+        },
+        json=doc_data,
+    )
+
+    assert response.status == '200 OK'
+
+    resp_data = json.loads(response.data)
+
+    assert resp_data['message'] == 'Communication error with the prepare endpoint of the eduSign API'
