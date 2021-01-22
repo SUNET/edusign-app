@@ -37,10 +37,21 @@ import pytest
 from edusign_webapp import run
 
 
-@pytest.fixture
-def client():
-    run.app.config['TESTING'] = True
-    run.app.config['ENVIRONMENT'] = 'development'
+config_dev = {
+    'TESTING': True,
+    'ENVIRONMENT': 'development'
+}
+
+
+config_pro = {
+    'TESTING': True,
+    'ENVIRONMENT': 'production'
+}
+
+
+@pytest.fixture(params=[config_dev, config_pro])
+def client(request):
+    run.app.config.update(request.param)
 
     with run.app.test_client() as client:
         client.environ_base["HTTP_EDUPERSONPRINCIPALNAME"] = 'dummy-eppn'
