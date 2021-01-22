@@ -42,6 +42,7 @@ from edusign_webapp.marshal import ResponseSchema
 @pytest.fixture
 def client():
     run.app.config['TESTING'] = True
+    run.app.config['ENVIRONMENT'] = 'development'
 
     with run.app.test_client() as client:
         client.environ_base["HTTP_EDUPERSONPRINCIPALNAME"] = 'dummy-eppn'

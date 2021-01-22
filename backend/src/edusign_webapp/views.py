@@ -52,7 +52,7 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 
 
 @edusign_views.route('/', methods=['GET'])
-def get_bundle() -> str:
+def get_index() -> str:
     if 'eppn' not in session:
         eppn = request.headers.get('Edupersonprincipalname')
         current_app.logger.info(f'User {eppn} started a session')
@@ -71,13 +71,13 @@ def get_bundle() -> str:
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
         session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
 
-    current_app.logger.debug("Attributes in session: ", [f"{k}: {v}" for k, v in session.items()])
+    current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
+
+    bundle_name = 'main-bundle'
+    if current_app.config['ENVIRONMENT'] == 'development':
+        bundle_name += '.dev'
 
     try:
-        bundle_name = 'main-bundle'
-        if current_app.config['ENVIRONMENT'] == 'development':
-            bundle_name += '.dev'
-
         return render_template('index.jinja2', bundle_name=bundle_name)
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
