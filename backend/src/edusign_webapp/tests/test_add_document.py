@@ -213,3 +213,19 @@ def test_add_document_empty_doc_name(client, monkeypatch):
 
     assert resp_data['error']
     assert resp_data['message'] == "name: Missing value for required field"
+
+
+def test_add_document_missing_doc_size(client, monkeypatch):
+    data = {'name': 'test.pdf', 'type': 'application/pdf', 'blob': 'dummy,dummy'}
+    resp_data = _add_document_missing_data(client, monkeypatch, data)
+
+    assert resp_data['error']
+    assert resp_data['message'] == "size: Missing data for required field"
+
+
+def test_add_document_bad_doc_size(client, monkeypatch):
+    data = {'name': 'test.pdf', 'size': 'not an int', 'type': 'application/pdf', 'blob': 'dummy,dummy'}
+    resp_data = _add_document_missing_data(client, monkeypatch, data)
+
+    assert resp_data['error']
+    assert resp_data['message'] == "size: Missing data for required field"
