@@ -111,7 +111,7 @@ def test_add_document_error_preparing(client, monkeypatch):
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
-        raise Exception("ho ho ho")
+        raise Exception("Mocking an error posting to the API")
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
 

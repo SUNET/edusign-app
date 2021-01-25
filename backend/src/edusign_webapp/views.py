@@ -226,10 +226,17 @@ def sign_service_callback() -> str:
         bundle_name += '.dev'
 
     try:
+        sign_response = request.form['EidSignResponse']
+        relay_state = request.form['RelayState']
+    except KeyError as e:
+        current_app.logger.error(f'Missing data in callback request: {e}')
+        abort(400)
+
+    try:
         return render_template(
             'index-with-sign-response.jinja2',
-            sign_response=request.form.get('EidSignResponse'),
-            relay_state=request.form.get('RelayState'),
+            sign_response=sign_response,
+            relay_state=relay_state,
             bundle_name=bundle_name,
         )
     except AttributeError as e:

@@ -53,3 +53,41 @@ def test_sign_sevice_callback(client):
 
     assert b"<title>eduSign</title>" in response.data
     assert b"Dummy Sign Response" in response.data
+
+
+def test_sign_sevice_callback_no_sign_response(client):
+
+    response1 = client.get('/sign/')
+
+    assert response1.status == '200 OK'
+
+    data = {
+        'Binding': 'POST/XML/1.0',
+        'RelayState': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
+    }
+
+    response = client.post(
+        '/sign/callback',
+        data=data,
+    )
+
+    assert response.status == '400 BAD REQUEST'
+
+
+def test_sign_sevice_callback_no_relay_state(client):
+
+    response1 = client.get('/sign/')
+
+    assert response1.status == '200 OK'
+
+    data = {
+        'Binding': 'POST/XML/1.0',
+        'EidSignResponse': 'Dummy Sign Response',
+    }
+
+    response = client.post(
+        '/sign/callback',
+        data=data,
+    )
+
+    assert response.status == '400 BAD REQUEST'
