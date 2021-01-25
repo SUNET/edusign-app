@@ -173,7 +173,20 @@ class UnMarshal(object):
                 unmarshal_result = self.schema().load(json_data)
                 return f(unmarshal_result['payload'])
             except ValidationError as e:
-                data = {'error': True, 'message': e.normalized_messages()}
+                error = e.normalized_messages()
+                if isinstance(error, dict):
+                    error_msgs = []
+                    for field, msgs in error['payload'].items():
+                        field_msgs = []
+                        for msg in msgs:
+                            if msg == "Missing data for required field":
+                                msg = gettext("Missing data for required field")
+                            field_msgs.append(msg)
+                        error_msgs.append("{}: {}".format(field, "; ".join(field_msgs)))
+                    error_msg = '. '.join(error_msgs)
+                else:
+                    error_msg = error
+                data = {'error': True, 'message': error_msg}
                 return ResponseSchema().dump(data)
 
         return unmarshal_decorator

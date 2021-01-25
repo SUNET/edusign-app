@@ -33,32 +33,34 @@
 
 from marshmallow import Schema, fields
 
+from edusign_webapp.validators import validate_nonempty
+
 
 class ConfigSchema(Schema):
     class SignerAttribute(Schema):
-        name = fields.String(required=True)
-        value = fields.String(required=True)
+        name = fields.String(required=True, validators=[validate_nonempty])
+        value = fields.String(required=True, validators=[validate_nonempty])
 
     signer_attributes = fields.List(fields.Nested(SignerAttribute))
     documents = fields.Raw(required=False)
 
 
 class DocumentSchema(Schema):
-    name = fields.String(required=True)
-    size = fields.Integer(required=True)
-    type = fields.String(required=True)
-    blob = fields.Raw(required=True)
+    name = fields.String(required=True, validators=[validate_nonempty])
+    size = fields.Integer(required=True, validators=[validate_nonempty])
+    type = fields.String(required=True, validators=[validate_nonempty])
+    blob = fields.Raw(required=True, validators=[validate_nonempty])
 
 
 class ReferenceSchema(Schema):
-    ref = fields.String(required=True)
-    sign_requirement = fields.String(required=True)
+    ref = fields.String(required=True, validators=[validate_nonempty])
+    sign_requirement = fields.String(required=True, validators=[validate_nonempty])
 
 
 class ToSignSchema(Schema):
     class ToSignDocumentSchema(ReferenceSchema):
-        name = fields.String(required=True)
-        type = fields.String(required=True)
+        name = fields.String(required=True, validators=[validate_nonempty])
+        type = fields.String(required=True, validators=[validate_nonempty])
 
     documents = fields.List(fields.Nested(ToSignDocumentSchema))
 
@@ -68,26 +70,26 @@ class ToRestartSigningSchema(Schema):
 
 
 class SignRequestSchema(Schema):
-    relay_state = fields.String(required=True)
-    sign_request = fields.String(required=True)
-    binding = fields.String(required=True)
-    destination_url = fields.String(required=True)
+    relay_state = fields.String(required=True, validators=[validate_nonempty])
+    sign_request = fields.String(required=True, validators=[validate_nonempty])
+    binding = fields.String(required=True, validators=[validate_nonempty])
+    destination_url = fields.String(required=True, validators=[validate_nonempty])
 
     class DocumentWithIdSchema(ReferenceSchema):
-        name = fields.String(required=True)
-        id = fields.String(required=True)
+        name = fields.String(required=True, validators=[validate_nonempty])
+        id = fields.String(required=True, validators=[validate_nonempty])
 
     documents = fields.List(fields.Nested(DocumentWithIdSchema))
 
 
 class SigningSchema(Schema):
-    sign_response = fields.String(required=True)
-    relay_state = fields.String(required=True)
+    sign_response = fields.String(required=True, validators=[validate_nonempty])
+    relay_state = fields.String(required=True, validators=[validate_nonempty])
 
 
 class SignedDocumentsSchema(Schema):
     class SignedDocumentSchema(Schema):
-        id = fields.String(required=True)
-        signed_content = fields.Raw(required=True)
+        id = fields.String(required=True, validators=[validate_nonempty])
+        signed_content = fields.Raw(required=True, validators=[validate_nonempty])
 
     documents = fields.List(fields.Nested(SignedDocumentSchema))
