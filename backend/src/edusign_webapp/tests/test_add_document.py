@@ -245,3 +245,19 @@ def test_add_document_bad_doc_type(client, monkeypatch):
 
     assert resp_data['error']
     assert resp_data['message'] == "type: Invalid document type"
+
+
+def test_add_document_missing_doc(client, monkeypatch):
+    data = {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf'}
+    resp_data = _add_document_missing_data(client, monkeypatch, data)
+
+    assert resp_data['error']
+    assert resp_data['message'] == "blob: Missing data for required field"
+
+
+def test_add_document_empty_doc(client, monkeypatch):
+    data = {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': ''}
+    resp_data = _add_document_missing_data(client, monkeypatch, data)
+
+    assert resp_data['error']
+    assert resp_data['message'] == "blob: Missing value for required field"
