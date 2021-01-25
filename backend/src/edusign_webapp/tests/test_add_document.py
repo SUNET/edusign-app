@@ -228,4 +228,4 @@ def test_add_document_bad_doc_size(client, monkeypatch):
     resp_data = _add_document_missing_data(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == "size: Missing data for required field"
+    assert resp_data['message'] == "size: Not a valid integer"

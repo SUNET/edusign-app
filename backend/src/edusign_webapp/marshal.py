@@ -194,5 +194,7 @@ def _i18n_marshmallow_validation_errors(msgs):
         msg = msg.strip('.')
         if msg == "Missing data for required field":
             msg = gettext("Missing data for required field")
+        elif msg == "Not a valid integer":
+            msg = gettext("Not a valid integer")
         field_msgs.append(msg)
     return field_msgs
