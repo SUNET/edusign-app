@@ -37,7 +37,7 @@ from marshmallow import ValidationError
 
 def validate_nonempty(value):
     if not value:
-        raise ValidationError(gettext("Missing 22 value for required field"))
+        raise ValidationError(gettext("Missing value for required field"))
 
     if isinstance(value, str) and not value.strip():
-        raise ValidationError(gettext("Missing 22 value for required field"))
+        raise ValidationError(gettext("Missing value for required field"))

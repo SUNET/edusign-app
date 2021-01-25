@@ -177,11 +177,7 @@ class UnMarshal(object):
                 if isinstance(error, dict):
                     error_msgs = []
                     for field, msgs in error['payload'].items():
-                        field_msgs = []
-                        for msg in msgs:
-                            if msg == "Missing data for required field":
-                                msg = gettext("Missing data for required field")
-                            field_msgs.append(msg)
+                        field_msgs = _i18n_marshmallow_validation_errors(msgs)
                         error_msgs.append("{}: {}".format(field, "; ".join(field_msgs)))
                     error_msg = '. '.join(error_msgs)
                 else:
@@ -190,3 +186,13 @@ class UnMarshal(object):
                 return ResponseSchema().dump(data)
 
         return unmarshal_decorator
+
+
+def _i18n_marshmallow_validation_errors(msgs):
+    field_msgs = []
+    for msg in msgs:
+        msg = msg.strip('.')
+        if msg == "Missing data for required field":
+            msg = gettext("Missing data for required field")
+        field_msgs.append(msg)
+    return field_msgs

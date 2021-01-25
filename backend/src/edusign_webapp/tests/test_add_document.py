@@ -157,7 +157,7 @@ def test_add_document_error_preparing(client, monkeypatch):
     assert resp_data['message'] == 'Communication error with the prepare endpoint of the eduSign API'
 
 
-def test_add_document_missing_doc_name(client, monkeypatch):
+def _add_document_missing_data(client, monkeypatch, data):
 
     response1 = client.get('/sign/')
 
@@ -171,7 +171,7 @@ def test_add_document_missing_doc_name(client, monkeypatch):
 
     doc_data = {
         'csrf_token': csrf_token,
-        'payload': {'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'},
+        'payload': data,
     }
 
     from flask.sessions import SecureCookieSession
@@ -196,7 +196,20 @@ def test_add_document_missing_doc_name(client, monkeypatch):
 
     assert response.status == '200 OK'
 
-    resp_data = json.loads(response.data)
+    return json.loads(response.data)
+
+
+def test_add_document_missing_doc_name(client, monkeypatch):
+    data = {'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}
+    resp_data = _add_document_missing_data(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == "name: Missing data for required field."
+    assert resp_data['message'] == "name: Missing data for required field"
+
+
+def test_add_document_empty_doc_name(client, monkeypatch):
+    data = {'name': '', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}
+    resp_data = _add_document_missing_data(client, monkeypatch, data)
+
+    assert resp_data['error']
+    assert resp_data['message'] == "name: Missing value for required field"

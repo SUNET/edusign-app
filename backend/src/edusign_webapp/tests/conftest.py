@@ -39,19 +39,20 @@ from edusign_webapp import run
 
 config_dev = {
     'TESTING': True,
-    'ENVIRONMENT': 'development'
+    'ENVIRONMENT': 'development',
 }
 
 
 config_pro = {
     'TESTING': True,
-    'ENVIRONMENT': 'production'
+    'ENVIRONMENT': 'production',
 }
 
 
 @pytest.fixture(params=[config_dev, config_pro])
 def client(request):
     run.app.config.update(request.param)
+    run.app.api_client.api_base_url = 'https://dummy.edusign.api'
 
     with run.app.test_client() as client:
         client.environ_base["HTTP_EDUPERSONPRINCIPALNAME"] = 'dummy-eppn'
