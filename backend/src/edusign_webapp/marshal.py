@@ -175,11 +175,18 @@ class UnMarshal(object):
             except ValidationError as e:
                 error = e.normalized_messages()
                 if isinstance(error, dict):
-                    error_msgs = []
-                    for field, msgs in error['payload'].items():
-                        field_msgs = _i18n_marshmallow_validation_errors(msgs)
-                        error_msgs.append("{}: {}".format(field, "; ".join(field_msgs)))
-                    error_msg = '. '.join(error_msgs)
+                    if 'payload' in error:
+                        error_msgs = []
+                        for field, msgs in error['payload'].items():
+                            if field == 'documents':
+                                error_msgs = [gettext('Document data seems corrupted')]
+                            else:
+                                field_msgs = _i18n_marshmallow_validation_errors(msgs)
+                                error_msgs.append("{}: {}".format(field, "; ".join(field_msgs)))
+                        error_msg = '. '.join(error_msgs)
+                    elif 'csrf_token' in error:
+                        msgs = _i18n_marshmallow_validation_errors(error['csrf_token'])
+                        error_msg = 'csrf_token: {}'.format('; '.join(msgs))
                 else:
                     error_msg = error
                 data = {'error': True, 'message': error_msg}

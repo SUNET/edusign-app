@@ -30,6 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+from uuid import UUID
+import json
 
 from flask_babel import gettext
 from marshmallow import ValidationError
@@ -46,3 +48,26 @@ def validate_nonempty(value):
 def validate_doc_type(value):
     if value != 'application/pdf':
         raise ValidationError(gettext("Invalid document type"))
+
+
+def validate_uuid4(value):
+    try:
+        val = UUID(value)
+    except ValueError:
+        raise ValidationError(gettext('Invalid UUID value'))
+
+    if str(val) != value:
+        raise ValidationError(gettext('Invalid UUID value'))
+
+
+def validate_sign_requirement(value):
+    try:
+        val = json.loads(value)
+    except json.decoder.JSONDecodeError:
+        raise ValidationError(gettext('Invalid sign requirement value'))
+
+    if 'fieldValues' not in val:
+        raise ValidationError(gettext('Invalid sign requirement value'))
+
+    if 'signerName' not in val:
+        raise ValidationError(gettext('Invalid sign requirement value'))

@@ -33,7 +33,7 @@
 
 from marshmallow import Schema, fields
 
-from edusign_webapp.validators import validate_nonempty, validate_doc_type
+from edusign_webapp.validators import validate_nonempty, validate_doc_type, validate_uuid4, validate_sign_requirement
 
 
 class ConfigSchema(Schema):
@@ -53,14 +53,14 @@ class DocumentSchema(Schema):
 
 
 class ReferenceSchema(Schema):
-    ref = fields.String(required=True, validate=[validate_nonempty])
-    sign_requirement = fields.String(required=True, validate=[validate_nonempty])
+    ref = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+    sign_requirement = fields.String(required=True, validate=[validate_nonempty, validate_sign_requirement])
 
 
 class ToSignSchema(Schema):
     class ToSignDocumentSchema(ReferenceSchema):
         name = fields.String(required=True, validate=[validate_nonempty])
-        type = fields.String(required=True, validate=[validate_nonempty])
+        type = fields.String(required=True, validate=[validate_nonempty, validate_doc_type])
 
     documents = fields.List(fields.Nested(ToSignDocumentSchema))
 
@@ -77,7 +77,7 @@ class SignRequestSchema(Schema):
 
     class DocumentWithIdSchema(ReferenceSchema):
         name = fields.String(required=True, validate=[validate_nonempty])
-        id = fields.String(required=True, validate=[validate_nonempty])
+        id = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
 
     documents = fields.List(fields.Nested(DocumentWithIdSchema))
 

@@ -157,22 +157,28 @@ def test_add_document_error_preparing(client, monkeypatch):
     assert resp_data['message'] == 'Communication error with the prepare endpoint of the eduSign API'
 
 
-def _add_document_missing_data(client, monkeypatch, data):
+def _add_document_missing_data(client, monkeypatch, data, csrf_token=None):
 
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
+    if csrf_token is None:
+        with run.app.test_request_context():
+            with client.session_transaction() as sess:
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+                csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+                user_key = sess['user_key']
+    else:
+        user_key = 'dummy key'
 
     doc_data = {
         'csrf_token': csrf_token,
         'payload': data,
     }
+
+    if csrf_token == 'rm':
+        del doc_data['csrf_token']
 
     from flask.sessions import SecureCookieSession
 
@@ -261,3 +267,19 @@ def test_add_document_empty_doc(client, monkeypatch):
 
     assert resp_data['error']
     assert resp_data['message'] == "blob: Missing value for required field"
+
+
+def test_add_document_missing_csrf(client, monkeypatch):
+    data = {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}
+    resp_data = _add_document_missing_data(client, monkeypatch, data, csrf_token='rm')
+
+    assert resp_data['error']
+    assert resp_data['message'] == "csrf_token: Missing data for required field"
+
+
+def test_add_document_wrong_csrf(client, monkeypatch):
+    data = {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}
+    resp_data = _add_document_missing_data(client, monkeypatch, data, csrf_token='wrong csrf token')
+
+    assert resp_data['error']
+    assert resp_data['message'] == "csrf_token: CSRF token failed to validate"
