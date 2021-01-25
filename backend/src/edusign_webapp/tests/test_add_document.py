@@ -229,3 +229,19 @@ def test_add_document_bad_doc_size(client, monkeypatch):
 
     assert resp_data['error']
     assert resp_data['message'] == "size: Not a valid integer"
+
+
+def test_add_document_missing_doc_type(client, monkeypatch):
+    data = {'name': 'test.pdf', 'size': 100, 'blob': 'dummy,dummy'}
+    resp_data = _add_document_missing_data(client, monkeypatch, data)
+
+    assert resp_data['error']
+    assert resp_data['message'] == "type: Missing data for required field"
+
+
+def test_add_document_bad_doc_type(client, monkeypatch):
+    data = {'name': 'test.pdf', 'size': 100, 'type': 'text/plain', 'blob': 'dummy,dummy'}
+    resp_data = _add_document_missing_data(client, monkeypatch, data)
+
+    assert resp_data['error']
+    assert resp_data['message'] == "type: Invalid document type"

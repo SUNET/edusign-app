@@ -33,7 +33,7 @@
 
 from marshmallow import Schema, fields
 
-from edusign_webapp.validators import validate_nonempty
+from edusign_webapp.validators import validate_nonempty, validate_doc_type
 
 
 class ConfigSchema(Schema):
@@ -48,7 +48,7 @@ class ConfigSchema(Schema):
 class DocumentSchema(Schema):
     name = fields.String(required=True, validate=[validate_nonempty])
     size = fields.Integer(required=True)
-    type = fields.String(required=True, validate=[validate_nonempty])
+    type = fields.String(required=True, validate=[validate_nonempty, validate_doc_type])
     blob = fields.Raw(required=True, validate=[validate_nonempty])
 
 

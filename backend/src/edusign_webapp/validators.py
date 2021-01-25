@@ -41,3 +41,8 @@ def validate_nonempty(value):
 
     if isinstance(value, str) and not value.strip():
         raise ValidationError(gettext("Missing value for required field"))
+
+
+def validate_doc_type(value):
+    if value != 'application/pdf':
+        raise ValidationError(gettext("Invalid document type"))
