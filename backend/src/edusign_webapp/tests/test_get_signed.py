@@ -241,7 +241,7 @@ def _get_signed_documents(client, monkeypatch, data_payload, csrf_token=None):
 
     doc_data = {
         'csrf_token': csrf_token,
-        'payload': {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
+        'payload': data_payload,
     }
     if csrf_token == 'rm':
         del doc_data['csrf_token']
@@ -276,4 +276,44 @@ def test_get_signed_documents_no_sign_response(client, monkeypatch):
     resp_data = _get_signed_documents(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Communication error with the process endpoint of the eduSign API'
+    assert resp_data['message'] == 'sign_response: Missing data for required field'
+
+
+def test_get_signed_documents_empty_sign_response(client, monkeypatch):
+    data = {'sign_response': '', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'}
+    resp_data = _get_signed_documents(client, monkeypatch, data)
+
+    assert resp_data['error']
+    assert resp_data['message'] == 'sign_response: Missing value for required field'
+
+
+def test_get_signed_documents_no_relay_state(client, monkeypatch):
+    data = {'sign_response': 'Dummy Sign Response'}
+    resp_data = _get_signed_documents(client, monkeypatch, data)
+
+    assert resp_data['error']
+    assert resp_data['message'] == 'relay_state: Missing data for required field'
+
+
+def test_get_signed_documents_empty_relay_state(client, monkeypatch):
+    data = {'sign_response': 'Dummy Sign Response', 'relay_state': ''}
+    resp_data = _get_signed_documents(client, monkeypatch, data)
+
+    assert resp_data['error']
+    assert resp_data['message'] == 'relay_state: Missing value for required field'
+
+
+def test_get_signed_documents_no_csrf(client, monkeypatch):
+    data = {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'}
+    resp_data = _get_signed_documents(client, monkeypatch, data, csrf_token='rm')
+
+    assert resp_data['error']
+    assert resp_data['message'] == 'csrf_token: Missing data for required field'
+
+
+def test_get_signed_documents_wrong_csrf(client, monkeypatch):
+    data = {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'}
+    resp_data = _get_signed_documents(client, monkeypatch, data, csrf_token='wrong csrf token')
+
+    assert resp_data['error']
+    assert resp_data['message'] == 'csrf_token: CSRF token failed to validate'
