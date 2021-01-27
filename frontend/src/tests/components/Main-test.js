@@ -53,7 +53,7 @@ describe("Main Component", function () {
   });
 
   it("Displays Header", function () {
-    const { unmount } = setupComponent(<Main />, { main: { loading: false } });
+    const { unmount } = setupComponent(<Main />, { main: { loading: false, size: 'lg' } });
 
     const header = screen.getAllByTestId("edusign-banner");
     expect(header.length).to.equal(1);
@@ -68,7 +68,7 @@ describe("Main Component", function () {
   });
 
   it("Displays Footer", function () {
-    const { unmount } = setupComponent(<Main />, { main: { loading: false } });
+    const { unmount } = setupComponent(<Main />, { main: { loading: false, size: 'lg' } });
 
     const footer = screen.getAllByTestId("edusign-footer");
     expect(footer.length).to.equal(1);
@@ -87,7 +87,7 @@ describe("Main Component", function () {
 
   it("Displays English lang selector in Footer", function () {
     const { unmount } = setupComponent(<Main />, {
-      main: { loading: false },
+      main: { loading: false, size: 'lg' },
       intl: { locale: "sv" },
     });
 
@@ -136,18 +136,12 @@ describe("Main Component", function () {
     const { unmount } = setupComponent(<Main />, {
       main: { loading: false },
       notifications: {
-        messages: [
-          { level: "danger", message: "ho ho ho" },
-          { level: "danger", message: "hi hi hi" },
-        ],
+        message: { level: "danger", message: "ho ho ho" },
       },
     });
 
     const notification = screen.getAllByText("ho ho ho");
     expect(notification.length).to.equal(1);
-
-    const notification2 = screen.getAllByText("hi hi hi");
-    expect(notification2.length).to.equal(1);
 
     unmount();
   });
@@ -161,20 +155,10 @@ describe("Main Component", function () {
         level: "danger",
       })
     );
-
-    store.dispatch(
-      addNotification({
-        message: "hi hi hi",
-        level: "danger",
-      })
-    );
     await flushPromises(rerender, wrapped);
 
     let notification = await waitFor(() => screen.getAllByText("ho ho ho"));
     expect(notification.length).to.equal(1);
-
-    let notification2 = await waitFor(() => screen.getAllByText("hi hi hi"));
-    expect(notification2.length).to.equal(1);
 
     unmount();
   });
@@ -198,13 +182,13 @@ describe("Main Component", function () {
     await flushPromises(rerender, wrapped);
 
     let notification = await waitFor(() => screen.getAllByText("ho ho ho"));
-    expect(notification.length).to.equal(1);
+    expect(notification).to.equal(null);
 
     let notification2 = await waitFor(() => screen.getAllByText("hi hi hi"));
     expect(notification2.length).to.equal(1);
 
     const closeLink = screen.getAllByText("×");
-    expect(closeLink.length).to.equal(2);
+    expect(closeLink.length).to.equal(1);
 
     fireEvent.click(closeLink[0]);
     await flushPromises(rerender, wrapped);
@@ -213,7 +197,7 @@ describe("Main Component", function () {
     expect(notification).to.equal(null);
 
     notification2 = await waitFor(() => screen.getAllByText("hi hi hi"));
-    expect(notification2.length).to.equal(1);
+    expect(notification2).to.equal(null);
 
     unmount();
   });

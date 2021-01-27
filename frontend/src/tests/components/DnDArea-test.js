@@ -18,10 +18,10 @@ describe("DnDArea Component", function () {
   afterEach(cleanup);
 
   it("Shows dnd area ready to accept documents", function () {
-    const { unmount } = setupComponent(<DnDAreaContainer />, {});
+    const { unmount } = setupComponent(<DnDAreaContainer />, {main: {loading: false, size: 'lg'}});
 
     const dndArea = screen.getAllByText(
-      "Documents to sign. Drag & drop or click to browse"
+      "Drag & drop here or click to browse"
     );
     expect(dndArea.length).to.equal(1);
 
@@ -40,7 +40,7 @@ describe("DnDArea Component", function () {
     expect(dndAreaDropping.length).to.equal(1);
 
     const dndArea = screen.queryByText(
-      "Documents to sign. Drag & drop or click to browse"
+      "Drag & drop here or click to browse"
     );
     expect(dndArea).to.equal(null);
 
@@ -53,7 +53,7 @@ describe("DnDArea Component", function () {
     );
 
     let dndArea = screen.getAllByText(
-      "Documents to sign. Drag & drop or click to browse"
+      "Drag & drop here or click to browse"
     );
     expect(dndArea.length).to.equal(1);
 
@@ -76,7 +76,7 @@ describe("DnDArea Component", function () {
     expect(dndAreaDropping.length).to.equal(1);
 
     dndArea = await waitFor(() =>
-      screen.queryByText("Documents to sign. Drag & drop or click to browse")
+      screen.queryByText("Drag & drop here or click to browse")
     );
     expect(dndArea).to.equal(null);
 
@@ -90,7 +90,7 @@ describe("DnDArea Component", function () {
     );
 
     let dndArea = screen.getAllByText(
-      "Documents to sign. Drag & drop or click to browse"
+      "Drag & drop here or click to browse"
     );
     expect(dndArea.length).to.equal(1);
 
@@ -113,7 +113,7 @@ describe("DnDArea Component", function () {
     expect(dndAreaDropping.length).to.equal(1);
 
     dndArea = await waitFor(() =>
-      screen.queryByText("Documents to sign. Drag & drop or click to browse")
+      screen.queryByText("Drag & drop here or click to browse")
     );
     expect(dndArea).to.equal(null);
 
@@ -121,7 +121,7 @@ describe("DnDArea Component", function () {
     await flushPromises(rerender, wrapped);
 
     dndArea = screen.getAllByText(
-      "Documents to sign. Drag & drop or click to browse"
+      "Drag & drop here or click to browse"
     );
     expect(dndArea.length).to.equal(1);
 

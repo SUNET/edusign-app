@@ -16,7 +16,8 @@ const mockStore = configureStore(middlewares);
 
 const initialState = {
   main: {
-    loading: true,
+    loading: false,
+    size: 'lg',
   },
   notifications: {
     messages: [],
@@ -94,7 +95,7 @@ export function mockFileData(files) {
  * @desc rerender component in tests after dispatching a Redux action or firing an event.
  */
 export async function flushPromises(rerender, ui) {
-  await act(() => waitFor(() => rerender(ui)));
+  await act(async () => await waitFor(() => rerender(ui)));
 }
 
 /**

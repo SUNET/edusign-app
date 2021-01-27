@@ -12,7 +12,6 @@ import {
   checkStatus,
   extractCsrfToken,
   preparePayload,
-  processResponseData,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 import { updateSigningForm } from "slices/Main";
@@ -154,6 +153,7 @@ export const prepareDocument = createAsyncThunk(
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
+      console.log("Problem preparing document", err);
       return {
         ...document,
         state: "failed-preparing",
@@ -168,7 +168,7 @@ export const prepareDocument = createAsyncThunk(
       };
       return updatedDoc;
     }
-    let msg = "XXX Problem preparing document, please try again";
+    let msg = "XXX XXX Problem preparing document, please try again";
     if ("message" in data) {
       msg = data.message;
     }
