@@ -1,6 +1,7 @@
 import React from "react";
 import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { expect } from "chai";
+import fetchMock from "fetch-mock";
 
 import {
   setupReduxComponent,
@@ -20,11 +21,11 @@ describe("Document representations", function () {
     let filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
 
-    let filesize = screen.queryByTestId("little-spinner-0");
-    expect(filesize).to.equal(null);
+    let buttonPreview = screen.queryByText(/Preview/i);
+    expect(buttonPreview).to.equal(null);
 
-    let filetype = screen.queryByText(/loading .../i);
-    expect(filetype).to.equal(null);
+    let buttonRemove = screen.queryByText(/Remove/i);
+    expect(buttonRemove).to.equal(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -35,20 +36,26 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
+    fetchMock.post('/sign/add-doc', {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement"
+      }
+    });
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
 
     filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
     expect(filename.length).to.equal(1);
 
-    filesize = await waitFor(() => screen.getAllByText("1.5 KiB"));
-    expect(filesize.length).to.equal(1);
+    buttonPreview = await waitFor(() => screen.getAllByText(/Preview/i));
+    expect(buttonPreview.length).to.equal(1);
 
-    filesize = await waitFor(() => screen.getAllByTestId("little-spinner-0"));
-    expect(filesize.length).to.equal(1);
+    buttonRemove = await waitFor(() => screen.getAllByText(/Remove/i));
+    expect(buttonRemove.length).to.equal(1);
 
-    filetype = await waitFor(() => screen.getAllByText(/loading .../i));
-    expect(filetype.length).to.equal(1);
+    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -69,6 +76,13 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
+    fetchMock.post('/sign/add-doc', {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement"
+      }
+    });
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
 
@@ -96,6 +110,8 @@ describe("Document representations", function () {
     rmButton = screen.queryByText("Remove");
     expect(rmButton).to.equal(null);
 
+    fetchMock.restore();
+
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -118,7 +134,15 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
+    fetchMock.post('/sign/add-doc', {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement"
+      }
+    });
     store.dispatch(createDocument(file));
+    await flushPromises(rerender, wrapped);
     store.dispatch(createDocument(file2));
     await flushPromises(rerender, wrapped);
 
@@ -149,6 +173,8 @@ describe("Document representations", function () {
     );
     expect(closeButton.length).to.equal(1);
 
+    fetchMock.restore();
+
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -169,9 +195,17 @@ describe("Document representations", function () {
       name: "test2.pdf",
       size: fileObj.size,
       type: fileObj.type,
-      blob: null,
+      blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
+    fetchMock.post('/sign/add-doc', {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement"
+      }
+    });
     store.dispatch(createDocument(file));
+    await flushPromises(rerender, wrapped);
     store.dispatch(createDocument(file2));
     await flushPromises(rerender, wrapped);
 
@@ -204,6 +238,8 @@ describe("Document representations", function () {
       screen.queryByTestId("preview-button-next")
     );
     expect(nextButton).to.equal(null);
+
+    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();

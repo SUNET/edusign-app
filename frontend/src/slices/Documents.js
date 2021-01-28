@@ -20,50 +20,6 @@ import { getDb } from "init-app/database";
 
 /**
  * @public
- * @function createDocument
- * @desc Redux async thunk to add a new document to IndexedDB.
- */
-export const createDocument = createAsyncThunk(
-  "documents/createDocument",
-  async (document, thunkAPI) => {
-    console.log("Creating document", document);
-    document.show = false;
-    document.state = "loading";
-    const db = await getDb();
-    if (db !== null) {
-      const promisedDoc = new Promise((resolve, reject) => {
-        const transaction = db.transaction(["documents"], "readwrite");
-        transaction.onerror = (event) => {
-          console.log("Problem with create transaction", event);
-          reject("Problem with create transaction");
-        };
-        const docStore = transaction.objectStore("documents");
-        console.log("saving document to db", document.name);
-        const docRequest = docStore.add(document);
-        docRequest.onsuccess = (event) => {
-          console.log("saving document", event);
-          resolve({
-            ...document,
-            id: event.target.result,
-          });
-        };
-        docRequest.onerror = (event) => {
-          console.log("Problem saving document", event);
-          reject("Problem saving document");
-        };
-      });
-      const newDoc = await promisedDoc;
-      thunkAPI.dispatch(prepareDocument(newDoc));
-      return newDoc;
-    } else {
-      console.log("Cannot save the state, db absent");
-      thunkAPI.rejectWithValue(document);
-    }
-  }
-);
-
-/**
- * @public
  * @function loadDocuments
  * @desc Redux async thunk to get documents saved in IndexedDB.
  */
@@ -131,6 +87,70 @@ export const loadDocuments = createAsyncThunk(
 
 /**
  * @public
+ * @function createDocument
+ * @desc Redux async thunk to add a new document to IndexedDB.
+ */
+export const createDocument = createAsyncThunk(
+  "documents/createDocument",
+  async (document, thunkAPI) => {
+    console.log("Creating document", document);
+    document.show = false;
+    document.state = "loading";
+    const db = await getDb();
+    console.log("Got db", db);
+    if (db !== null) {
+      try {
+        const newDoc = await new Promise((resolve, reject) => {
+          console.log("Waiting to save document being created");
+          const transaction = db.transaction(["documents"], "readwrite");
+          transaction.onerror = (event) => {
+            console.log("Problem with create transaction", event);
+            reject("Problem with create transaction");
+          };
+          const docStore = transaction.objectStore("documents");
+          console.log("saving document to db", document.name);
+          const docRequest = docStore.add(document);
+          docRequest.onsuccess = (event) => {
+            console.log("saving document", event);
+            resolve({
+              ...document,
+              id: event.target.result,
+            });
+          };
+          docRequest.onerror = () => {
+            reject("Problem saving document");
+          };
+        });
+        console.log("About to prepare document", newDoc);
+        thunkAPI.dispatch(prepareDocument(newDoc));
+        return newDoc;
+      } catch (err) {
+        console.log("Problem saving document to db", err);
+        thunkAPI.dispatch(
+          addNotification({
+            level: "danger",
+            message: "XXX Problem saving document(s) in session, will not persist",
+          })
+        );
+        document.state = 'loaded';
+        thunkAPI.rejectWithValue(document);
+      }
+    } else {
+      console.log("Cannot save the doc, db absent");
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: "XXX Problem saving document(s) in session, will not persist",
+        })
+      );
+      document.state = 'loaded';
+      thunkAPI.rejectWithValue(document);
+    }
+  }
+);
+
+/**
+ * @public
  * @function prepareDocument
  * @desc Redux async thunk to send documents to the backend for preparation
  */
@@ -143,14 +163,18 @@ export const prepareDocument = createAsyncThunk(
       size: document.size,
       type: document.type,
     };
+    console.log("preparing document", docToSend);
     const body = preparePayload(thunkAPI.getState(), docToSend);
     let data = null;
     try {
+      console.log("Using fetch to post to add-doc", body);
       const response = await fetch("/sign/add-doc", {
         ...postRequest,
         body: body,
       });
+      console.log("Used fetch to post to add-doc");
       data = await checkStatus(response);
+      console.log("And got data", data);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
       console.log("Problem preparing document", err);
@@ -542,6 +566,11 @@ const documentsSlice = createSlice({
   extraReducers: {
     [createDocument.fulfilled]: (state, action) => {
       state.documents.push(action.payload);
+    },
+    [createDocument.rejected]: (state, action) => {
+      console.log("Documents after rejection", action);
+      state.documents.push(action.payload);
+      console.log("Documents after rejection", state.documents);
     },
     [loadDocuments.fulfilled]: (state, action) => {
       state.documents = action.payload.documents;

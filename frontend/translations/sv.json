@@ -1,16 +1,20 @@
 {
-  "components.DnDArea.dnd-area": "",
   "components.DnDArea.dnd-area-dropping": "",
-  "components.DocManager.download-button": "",
+  "components.DnDArea.dnd-area-foot": "",
+  "components.DnDArea.dnd-area-head": "",
+  "components.DnDArea.dnd-area-head-sm": "",
   "components.DocManager.preview-button": "",
   "components.DocManager.remove-button": "",
-  "components.DocManager.sign-button": "",
+  "components.DocManager.retry-button": "",
+  "components.DocManager.sign-selected-button": "",
   "components.DocManager.signed-button": "",
   "components.DocPreview.button-close": "",
   "components.DocPreview.pdf-preview-next-button": "",
   "components.DocPreview.pdf-preview-page-nav": "",
   "components.DocPreview.pdf-preview-prev-button": "",
   "components.Footer.copyright": "SUNET 2020 sv",
+  "components.Header.clear-session": "",
+  "components.Header.signing-with": "",
   "containers.DnDArea.loading-error": "",
   "containers.DnDArea.rejected-doc": ""
 }

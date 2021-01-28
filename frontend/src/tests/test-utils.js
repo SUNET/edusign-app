@@ -1,5 +1,4 @@
 import React from "react";
-import { spy } from "sinon";
 import { Provider } from "react-intl-redux";
 import { act, render, fireEvent, waitFor } from "@testing-library/react";
 import configureStore from "redux-mock-store";
@@ -18,9 +17,10 @@ const initialState = {
   main: {
     loading: false,
     size: 'lg',
+    signingData: {}
   },
   notifications: {
-    messages: [],
+    message: null,
   },
   intl: {
     locale: "en",

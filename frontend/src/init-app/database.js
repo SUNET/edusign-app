@@ -7,28 +7,31 @@ import { addNotification } from "slices/Notifications";
 
 let db = null;
 
-export function getDb() {
+export async function getDb() {
   if (db === null) {
-    const promisedDb = new Promise((resolve, reject) => {
+    const promisedDb = await new Promise((resolve) => {
       const request = indexedDB.open("eduSignDB", 1);
-      request.onsuccess = (event) => {
+      request.onsuccess = () => {
         console.log("Loaded db from disk");
-        const newdb = event.target.result;
-        db = newdb;
-        resolve(newdb);
+        db = request.result;
+        resolve(db);
       };
       request.onerror = (event) => {
         console.log("Problem opening eduSign db", event);
-        reject("Problem opening eduSign db");
+        resolve(null);
       };
       request.onupgradeneeded = (event) => {
-        const newdb = event.target.result;
-        db = newdb;
-        const docStore = db.createObjectStore("documents", {
-          keyPath: "id",
-          autoIncrement: true,
-        });
-        resolve(newdb);
+        console.log("Loaded db from disk, upgrading...");
+        db = request.result;
+        if (event.oldVersion < 1) {
+          db.createObjectStore("documents", {
+            keyPath: "id",
+            autoIncrement: true,
+          });
+        }
+        event.target.transaction.oncomplete = () => {
+          resolve(db);
+        };
       };
     });
     return promisedDb;

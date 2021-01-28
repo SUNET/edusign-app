@@ -14,6 +14,7 @@ class Notifications extends Component {
   render() {
     let message = "";
     if (this.props.message !== null) {
+      console.log("Painting notification", this.props.message);
       message = (
         <Alert
           variant={this.props.message.level}

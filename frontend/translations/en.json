@@ -1,16 +1,20 @@
 {
-  "components.DnDArea.dnd-area": "Documents to sign. Drag & drop or click to browse",
   "components.DnDArea.dnd-area-dropping": "Drop documents here",
-  "components.DocManager.download-button": "Download",
+  "components.DnDArea.dnd-area-foot": "Documents to sign",
+  "components.DnDArea.dnd-area-head": "Drag & drop here or click to browse",
+  "components.DnDArea.dnd-area-head-sm": "Tap here to browse",
   "components.DocManager.preview-button": "Preview",
   "components.DocManager.remove-button": "Remove",
-  "components.DocManager.sign-button": "Sign",
+  "components.DocManager.retry-button": "Retry",
+  "components.DocManager.sign-selected-button": "Sign Selected Documents",
   "components.DocManager.signed-button": "Download (signed)",
   "components.DocPreview.button-close": "Close",
   "components.DocPreview.pdf-preview-next-button": "Next",
   "components.DocPreview.pdf-preview-page-nav": "Page {num} of {total}",
   "components.DocPreview.pdf-preview-prev-button": "Previous",
   "components.Footer.copyright": "SUNET 2020",
+  "components.Header.clear-session": "Clear session",
+  "components.Header.signing-with": "Signing with: ",
   "containers.DnDArea.loading-error": "Error loading {name}",
   "containers.DnDArea.rejected-doc": "Not a PDF: {name} (type {type})"
 }

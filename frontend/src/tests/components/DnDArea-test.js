@@ -1,6 +1,7 @@
 import React from "react";
 import { screen, waitFor, cleanup } from "@testing-library/react";
 import { expect } from "chai";
+import fetchMock from "fetch-mock";
 
 import {
   setupComponent,
@@ -141,17 +142,8 @@ describe("DnDArea Component", function () {
     let filesize = screen.queryByText("1.5 KiB");
     expect(filesize).to.equal(null);
 
-    let filetype = screen.queryByText("application/pdf");
-    expect(filetype).to.equal(null);
-
     let previewButton = screen.queryByText("Preview");
     expect(previewButton).to.equal(null);
-
-    let downloadButton = screen.queryByText("Download");
-    expect(downloadButton).to.equal(null);
-
-    let signButton = screen.queryByText("Sign");
-    expect(signButton).to.equal(null);
 
     let rmButton = screen.queryByText("Remove");
     expect(rmButton).to.equal(null);
@@ -163,6 +155,14 @@ describe("DnDArea Component", function () {
     });
     const data = mockFileData([file]);
 
+    fetchMock.post('/sign/add-doc', {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement"
+      }
+    });
+
     dispatchEvtWithData(dnd, "drop", data);
     await flushPromises(rerender, wrapped);
 
@@ -172,20 +172,13 @@ describe("DnDArea Component", function () {
     filesize = await waitFor(() => screen.getAllByText("1.5 KiB"));
     expect(filesize.length).to.equal(1);
 
-    filetype = await waitFor(() => screen.getAllByText("application/pdf"));
-    expect(filetype.length).to.equal(1);
-
     previewButton = await waitFor(() => screen.getAllByText("Preview"));
     expect(previewButton.length).to.equal(1);
 
-    downloadButton = await waitFor(() => screen.getAllByText("Download"));
-    expect(downloadButton.length).to.equal(1);
-
-    signButton = await waitFor(() => screen.getAllByText("Sign"));
-    expect(signButton.length).to.equal(1);
-
     rmButton = await waitFor(() => screen.getAllByText("Remove"));
     expect(rmButton.length).to.equal(1);
+
+    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();

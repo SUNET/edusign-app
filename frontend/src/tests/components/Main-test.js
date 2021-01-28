@@ -21,7 +21,13 @@ describe("Main Component", function () {
   afterEach(cleanup);
 
   it("Shows splash screen", function () {
-    const { unmount } = setupComponent(<Main />, {});
+    const { unmount } = setupComponent(<Main />, {
+      main: {
+        loading: true,
+        size: 'lg',
+        signingData: {}
+      }
+    });
 
     const splashArray = screen.getAllByTestId("edusign-splash-screen");
     expect(splashArray.length).to.equal(1);
@@ -30,7 +36,7 @@ describe("Main Component", function () {
   });
 
   it("Doesn't show splash screen", function () {
-    const { unmount } = setupComponent(<Main />, { main: { loading: false } });
+    const { unmount } = setupComponent(<Main />, {});
 
     const splash = screen.queryByTestId("edusign-splash-screen");
     expect(splash).to.equal(null);
@@ -53,9 +59,9 @@ describe("Main Component", function () {
   });
 
   it("Displays Header", function () {
-    const { unmount } = setupComponent(<Main />, { main: { loading: false, size: 'lg' } });
+    const { unmount } = setupComponent(<Main />, { main: { loading: false, size: 'lg', signingData: {} } });
 
-    const header = screen.getAllByTestId("edusign-banner");
+    const header = screen.getAllByTestId("edusign-banner-lg");
     expect(header.length).to.equal(1);
 
     const eduSignLogo = screen.getAllByTestId("edusign-logo");
@@ -68,7 +74,7 @@ describe("Main Component", function () {
   });
 
   it("Displays Footer", function () {
-    const { unmount } = setupComponent(<Main />, { main: { loading: false, size: 'lg' } });
+    const { unmount } = setupComponent(<Main />, { main: { loading: false, size: 'lg', signingData: {} } });
 
     const footer = screen.getAllByTestId("edusign-footer");
     expect(footer.length).to.equal(1);
@@ -87,7 +93,7 @@ describe("Main Component", function () {
 
   it("Displays English lang selector in Footer", function () {
     const { unmount } = setupComponent(<Main />, {
-      main: { loading: false, size: 'lg' },
+      main: { loading: false, size: 'lg', signingData: {} },
       intl: { locale: "sv" },
     });
 
@@ -122,7 +128,7 @@ describe("Main Component", function () {
   });
 
   it("Contains a Notifications area", function () {
-    const { unmount } = setupComponent(<Main />, { main: { loading: false } });
+    const { unmount } = setupComponent(<Main />, { main: { loading: false, size: 'lg', signingData: {} } });
 
     const notificationsArea = screen.getAllByTestId(
       "edusign-notifications-area"
@@ -134,7 +140,6 @@ describe("Main Component", function () {
 
   it("Notifications area displays notifications", function () {
     const { unmount } = setupComponent(<Main />, {
-      main: { loading: false },
       notifications: {
         message: { level: "danger", message: "ho ho ho" },
       },
@@ -181,7 +186,7 @@ describe("Main Component", function () {
     );
     await flushPromises(rerender, wrapped);
 
-    let notification = await waitFor(() => screen.getAllByText("ho ho ho"));
+    let notification = await waitFor(() => screen.queryByText("ho ho ho"));
     expect(notification).to.equal(null);
 
     let notification2 = await waitFor(() => screen.getAllByText("hi hi hi"));
@@ -196,7 +201,7 @@ describe("Main Component", function () {
     notification = await waitFor(() => screen.queryByText("ho ho ho"));
     expect(notification).to.equal(null);
 
-    notification2 = await waitFor(() => screen.getAllByText("hi hi hi"));
+    notification2 = await waitFor(() => screen.queryByText("hi hi hi"));
     expect(notification2).to.equal(null);
 
     unmount();

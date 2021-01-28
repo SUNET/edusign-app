@@ -10,29 +10,29 @@
  */
 import React from "react";
 import { connect } from "react-redux";
-import { updateIntl } from "react-intl-redux";
 
 import DnDArea from "components/DnDArea";
 import { createDocument } from "slices/Documents";
 import { setWaiting, setLoading, setReceiving } from "slices/DnDArea";
 import { addNotification } from "slices/Notifications";
 
-const mapStateToProps = (state, props) => {
+const mapStateToProps = (state) => {
   return {
     status: state.dnd.state,
     size: state.main.size,
   };
 };
 
-const mapDispatchToProps = (dispatch, props) => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    handleDragEnter: function (e) {
+    handleDragEnter: function () {
       dispatch(setReceiving());
     },
-    handleDragLeave: function (e) {
-      dispatch(setWaiting());
+      handleDragLeave: function () {
+        dispatch(setWaiting());
     },
     handleFileDrop: function (fileObjs) {
+      console.log("Starting to handle dropping of files", fileObjs);
       dispatch(setLoading());
       const maxIndex = fileObjs.length - 1;
       fileObjs.forEach((fileObj, index) => {
@@ -54,7 +54,8 @@ const mapDispatchToProps = (dispatch, props) => {
             dispatch(setWaiting());
           }
         };
-        reader.onerror = () => {
+        reader.onerror = (e) => {
+          console.log("Error reading Document", e);
           const errorMsg = this.props.intl.formatMessage(
             {
               defaultMessage: "Error loading {name}",
@@ -69,6 +70,7 @@ const mapDispatchToProps = (dispatch, props) => {
           dispatch(setWaiting());
         };
         reader.readAsDataURL(fileObj);
+        console.log("Finished handling dropping of files");
       });
     },
     handleRejected: function (rejecteds, e) {
