@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 import LittleSpinner from "components/LittleSpinner";
 
 import DocPreviewContainer from "containers/DocPreview";
-import { humanFileSize } from "components/utils";
+import { humanFileSize, docToFile } from "components/utils";
 
 import "styles/DocManager.scss";
 
@@ -66,12 +66,13 @@ function DocManager(props) {
       </>
     );
   }
-  function selectDoc(doc) {
+  function selectDoc(index, doc) {
     return (
       <>
         <div className="doc-selector-flex-item">
           <input
             type="checkbox"
+            data-testid={'doc-selector-' + index}
             onClick={props.handleDocSelection(doc.name)}
             defaultChecked={doc.state === "selected"}
           />
@@ -134,6 +135,10 @@ function DocManager(props) {
   return (
     <>
       {props.documents.map((doc, index) => {
+        const docFile = docToFile(doc);
+        if (docFile === null) {
+          doc = {...doc, state: "failed-loading", message: "Malformed PDF"};
+        }
         if (doc.state === "selected") someSelected = true;
         if (props.size === "lg") {
           return (
@@ -166,11 +171,12 @@ function DocManager(props) {
               )}
               {(doc.state === "loaded" || doc.state === "selected") && (
                 <>
-                  {selectDoc(doc)}
+                  {selectDoc(index, doc)}
                   {docSize(doc)}
                   {docName(doc)}
                   {previewButton(doc)}
                   {removeButton(doc)}
+                  <DocPreviewContainer doc={doc} docFile={docFile} />
                 </>
               )}
               {doc.state === "signing" && (
@@ -191,15 +197,15 @@ function DocManager(props) {
               )}
               {doc.state === "failed-signing" && (
                 <>
-                  {selectDoc(doc)}
+                  {selectDoc(index, doc)}
                   {docSize(doc)}
                   {docName(doc)}
                   {showMessage(doc)}
                   {previewButton(doc)}
                   {removeButton(doc)}
+                  <DocPreviewContainer doc={doc} docFile={docFile} />
                 </>
               )}
-              <DocPreviewContainer doc={doc} />
             </div>
           );
         } else if (props.size === "sm") {
@@ -250,7 +256,7 @@ function DocManager(props) {
               {(doc.state === "loaded" || doc.state === "selected") && (
                 <>
                   <div className="doc-container-first-row">
-                    {selectDoc(doc)}
+                    {selectDoc(index, doc)}
                     {docSize(doc)}
                     {docName(doc)}
                   </div>
@@ -258,6 +264,7 @@ function DocManager(props) {
                     {previewButton(doc)}
                     {removeButton(doc)}
                   </div>
+                  <DocPreviewContainer doc={doc} docFile={docFile} />
                 </>
               )}
               {doc.state === "signing" && (
@@ -287,7 +294,7 @@ function DocManager(props) {
               {doc.state === "failed-signing" && (
                 <>
                   <div className="doc-container-first-row">
-                    {selectDoc(doc)}
+                    {selectDoc(index, doc)}
                     {docSize(doc)}
                     {docName(doc)}
                   </div>
@@ -298,6 +305,7 @@ function DocManager(props) {
                     {previewButton(doc)}
                     {removeButton(doc)}
                   </div>
+                  <DocPreviewContainer doc={doc} docFile={docFile} />
                 </>
               )}
               <DocPreviewContainer doc={doc} />
@@ -322,7 +330,7 @@ function DocManager(props) {
       </div>
       {props.destinationUrl !== undefined && (
         <div>
-          <form id="signing-form" action={props.destinationUrl} method="post">
+          <form id="signing-form" data-testid="signing-form" action={props.destinationUrl} method="post">
             <input type="hidden" name="Binding" value={props.binding} />
             <input type="hidden" name="RelayState" value={props.relayState} />
             <input

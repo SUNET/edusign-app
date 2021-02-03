@@ -61,3 +61,16 @@ export function humanFileSize(bytes, si = false, dp = 1) {
 
   return bytes.toFixed(dp) + " " + units[u];
 }
+
+export function docToFile(doc) {
+  let newFile = null;
+  try {
+    const fileContents = b64toBlob(doc.blob.split(",")[1]);
+    newFile = new File([fileContents], doc.name, {
+      type: doc.type,
+    });
+  } catch(err) {
+    console.log("Error loading document", err);
+  }
+  return newFile;
+}

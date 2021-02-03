@@ -5,8 +5,6 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf";
 
-import { b64toBlob } from "components/utils";
-
 import "styles/DocPreview.scss";
 
 /**
@@ -33,14 +31,6 @@ function DocPreview(props) {
     changePage(1);
   }
 
-  let newFile = null;
-  if (props.doc.state !== "loading") {
-    const fileContents = b64toBlob(props.doc.blob.split(",")[1]);
-    newFile = new File([fileContents], props.doc.name, {
-      type: props.doc.type,
-    });
-  }
-
   return (
     <>
       {props.doc.show ? (
@@ -55,7 +45,7 @@ function DocPreview(props) {
           </Modal.Header>
 
           <Modal.Body>
-            <Document file={newFile} onLoadSuccess={onDocumentLoadSuccess}>
+            <Document file={props.docFile} onLoadSuccess={onDocumentLoadSuccess}>
               <Page pageNumber={pageNumber} width={725} />
             </Document>
           </Modal.Body>
@@ -118,6 +108,8 @@ DocPreview.propTypes = {
    * The document to preview.
    */
   handleClose: PropTypes.func,
+  doc: PropTypes.object,
+  docFile: PropTypes.object,
 };
 
 export default DocPreview;

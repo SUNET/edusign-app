@@ -10,12 +10,12 @@ import {
   samplePDFData,
 } from "tests/test-utils";
 import Main from "components/Main";
-import { createDocument } from "slices/Documents";
+import { createDocument, setState } from "slices/Documents";
 
 describe("Document representations", function () {
   afterEach(cleanup);
 
-  it("It shows loading spinner after createDocument action", async () => {
+  it("It shows the document after createDocument action", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     let filename = screen.queryByText(/test.pdf/i);
@@ -53,6 +53,95 @@ describe("Document representations", function () {
     expect(buttonPreview.length).to.equal(1);
 
     buttonRemove = await waitFor(() => screen.getAllByText(/Remove/i));
+    expect(buttonRemove.length).to.equal(1);
+
+    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    expect(selector.length).to.equal(1);
+
+    fetchMock.restore();
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows the failed document after wrong createDocument action", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    let filename = screen.queryByText(/test.pdf/i);
+    expect(filename).to.equal(null);
+
+    let buttonRetry = screen.queryByText(/Retry/i);
+    expect(buttonRetry).to.equal(null);
+
+    let buttonRemove = screen.queryByText(/Remove/i);
+    expect(buttonRemove).to.equal(null);
+
+    const fileObj = new File([samplePDFData], "test.pdf", {
+      type: "application/pdf",
+    });
+    const file = {
+      name: fileObj.name,
+      size: fileObj.size,
+      type: fileObj.type,
+      blob: "data:application/pdf;base64," + b64SamplePDFData,
+    };
+    fetchMock.post('/sign/add-doc', {
+      message: "dummy error in add-doc",
+      error: true
+    });
+    store.dispatch(createDocument(file));
+    await flushPromises(rerender, wrapped);
+
+    filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
+    expect(filename.length).to.equal(1);
+
+    buttonRetry = await waitFor(() => screen.getAllByText(/Retry/i));
+    expect(buttonRetry.length).to.equal(1);
+
+    buttonRemove = await waitFor(() => screen.getAllByText(/Remove/i));
+    expect(buttonRemove.length).to.equal(1);
+
+    fetchMock.restore();
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows failed loading after createDocument with bad pdf", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    let filename = screen.queryByText(/test.pdf/i);
+    expect(filename).to.equal(null);
+
+    let buttonPreview = screen.queryByText(/Preview/i);
+    expect(buttonPreview).to.equal(null);
+
+    let buttonRemove = screen.queryByText(/Remove/i);
+    expect(buttonRemove).to.equal(null);
+
+    const file = {
+      name: 'test.pdf',
+      size: 1500,
+      type: 'application/pdf',
+      blob: "Bad PDF document",
+    };
+    fetchMock.post('/sign/add-doc', {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement"
+      }
+    });
+    store.dispatch(createDocument(file));
+    await flushPromises(rerender, wrapped);
+
+    filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
+    expect(filename.length).to.equal(1);
+
+    buttonRemove = await waitFor(() => screen.getAllByText(/Remove/i));
+    expect(buttonRemove.length).to.equal(1);
+
+    buttonRemove = await waitFor(() => screen.getAllByText(/Malformed PDF/i));
     expect(buttonRemove.length).to.equal(1);
 
     fetchMock.restore();
@@ -238,6 +327,64 @@ describe("Document representations", function () {
       screen.queryByTestId("preview-button-next")
     );
     expect(nextButton).to.equal(null);
+
+    fetchMock.restore();
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  xit("It shows the spinner after clicking on the sign button", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    const fileObj = new File([samplePDFData], "test.pdf", {
+      type: "application/pdf",
+    });
+    const file = {
+      name: fileObj.name,
+      size: fileObj.size,
+      type: fileObj.type,
+      blob: "data:application/pdf;base64," + b64SamplePDFData,
+    };
+    fetchMock.once({url: '/sign/add-doc', method: 'POST'}, {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement"
+      }
+    })
+    .once({url: '/sign/create-sign-request', method: 'POST'}, {
+      payload: {
+        relay_state: "dummy relay state",
+        sign_request: "dummy sign request",
+        binding: "dummy binding",
+        destination_url: "https://dummy.destination.url",
+        documents: [{name: 'test.pdf', id: "dummy id"}]
+      }
+    });
+
+    store.dispatch(createDocument(file));
+    await flushPromises(rerender, wrapped);
+
+    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    expect(selector.length).to.equal(1);
+
+    window.document.forms.onSubmit = (e) => {e.preventDefault()};
+
+    fireEvent.click(selector[0]);
+    await flushPromises(rerender, wrapped);
+
+    const signButton = await waitFor(() => screen.getAllByText("Sign Selected Documents"));
+    expect(signButton.length).to.equal(1);
+
+    fireEvent.click(signButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const spinner = await waitFor(() => screen.getAllByTestId("little-spinner-0"));
+    expect(spinner.length).to.equal(1);
+
+    const text = await waitFor(() => screen.getAllByText(/loading .../i));
+    expect(text.length).to.equal(1);
 
     fetchMock.restore();
 
