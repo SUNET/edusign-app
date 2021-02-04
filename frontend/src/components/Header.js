@@ -35,7 +35,7 @@ class Header extends Component {
             </span>
           </span>
           <span id="sep-in-header">|</span>
-          <span id="clear-in-header" onClick={this.props.clearDb}>
+          <span id="clear-in-header" data-testid="clear-in-header" onClick={this.props.clearDb}>
             <FormattedMessage
               defaultMessage="Clear session"
               key="clear-session"

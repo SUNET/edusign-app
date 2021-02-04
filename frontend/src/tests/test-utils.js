@@ -17,7 +17,7 @@ const initialState = {
   main: {
     loading: false,
     size: 'lg',
-    signingData: {}
+    signingData: {},
   },
   notifications: {
     message: null,
