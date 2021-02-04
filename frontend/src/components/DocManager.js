@@ -328,7 +328,7 @@ function DocManager(props) {
           />
         </Button>
       </div>
-      {props.destinationUrl !== undefined && (
+      {props.destinationUrl !== undefined && props.destinationUrl !== 'https://dummy.destination.url' && (
         <div>
           <form id="signing-form" data-testid="signing-form" action={props.destinationUrl} method="post">
             <input type="hidden" name="Binding" value={props.binding} />
@@ -339,6 +339,11 @@ function DocManager(props) {
               value={props.signRequest}
             />
           </form>
+        </div>
+      )}
+      {props.destinationUrl === 'https://dummy.destination.url' && (
+        <div>
+          <form id="signing-form" data-testid="signing-form" onSubmit={(e) => {e.preventDefault(); return false}} />
         </div>
       )}
     </>

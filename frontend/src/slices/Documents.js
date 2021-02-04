@@ -257,7 +257,7 @@ export const startSigningDocuments = createAsyncThunk(
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
       const form = document.getElementById("signing-form");
-      form.submit();
+      form.requestSubmit();
     } catch (err) {
       console.log("Error creating sign request", err);
       thunkAPI.dispatch(
@@ -310,7 +310,7 @@ export const restartSigningDocuments = createAsyncThunk(
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
       const form = document.getElementById("signing-form");
-      form.submit();
+      form.requestSubmit();
     } catch (err) {
       console.log("Error creating sign request", err);
       thunkAPI.dispatch(

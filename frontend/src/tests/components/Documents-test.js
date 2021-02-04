@@ -334,7 +334,7 @@ describe("Document representations", function () {
     unmount();
   });
 
-  xit("It shows the spinner after clicking on the sign button", async () => {
+  it("It shows the spinner after clicking on the sign button", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -369,8 +369,6 @@ describe("Document representations", function () {
     const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
     expect(selector.length).to.equal(1);
 
-    window.document.forms.onSubmit = (e) => {e.preventDefault()};
-
     fireEvent.click(selector[0]);
     await flushPromises(rerender, wrapped);
 
@@ -383,7 +381,7 @@ describe("Document representations", function () {
     const spinner = await waitFor(() => screen.getAllByTestId("little-spinner-0"));
     expect(spinner.length).to.equal(1);
 
-    const text = await waitFor(() => screen.getAllByText(/loading .../i));
+    const text = await waitFor(() => screen.getAllByText(/signing .../i));
     expect(text.length).to.equal(1);
 
     fetchMock.restore();

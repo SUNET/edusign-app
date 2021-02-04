@@ -27,7 +27,7 @@ export const fetchConfig = createAsyncThunk(
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
       return configData;
     } catch (err) {
-      console.log(err);
+      console.log("Error fetching config", err);
       thunkAPI.dispatch(addNotification("XXX TODO"));
       thunkAPI.rejectWithValue(err.toString());
     }
