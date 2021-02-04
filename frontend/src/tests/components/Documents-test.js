@@ -389,4 +389,164 @@ describe("Document representations", function () {
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
+
+  it("It shows error message after create sign request returns error message", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    const fileObj = new File([samplePDFData], "test.pdf", {
+      type: "application/pdf",
+    });
+    const file = {
+      name: fileObj.name,
+      size: fileObj.size,
+      type: fileObj.type,
+      blob: "data:application/pdf;base64," + b64SamplePDFData,
+    };
+    fetchMock.once({url: '/sign/add-doc', method: 'POST'}, {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement"
+      }
+    })
+    .once({url: '/sign/create-sign-request', method: 'POST'}, {
+      message: "dummy error in create-sign-request",
+      error: true
+    });
+
+    store.dispatch(createDocument(file));
+    await flushPromises(rerender, wrapped);
+
+    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    expect(selector.length).to.equal(1);
+
+    fireEvent.click(selector[0]);
+    await flushPromises(rerender, wrapped);
+
+    const signButton = await waitFor(() => screen.getAllByText("Sign Selected Documents"));
+    expect(signButton.length).to.equal(1);
+
+    fireEvent.click(signButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const text = await waitFor(() => screen.getAllByText("XXX Problem creating signature request"));
+    expect(text.length).to.equal(1);
+
+    fetchMock.restore();
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows the spinner after create sign request returns expired cache", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    const fileObj = new File([samplePDFData], "test.pdf", {
+      type: "application/pdf",
+    });
+    const file = {
+      name: fileObj.name,
+      size: fileObj.size,
+      type: fileObj.type,
+      blob: "data:application/pdf;base64," + b64SamplePDFData,
+    };
+    fetchMock.post('/sign/add-doc', {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement"
+      }
+    })
+    .post('/sign/create-sign-request', {
+      message: "expired cache",
+      error: true
+    })
+    .post('/sign/recreate-sign-request', {
+      payload: {
+        relay_state: "dummy relay state",
+        sign_request: "dummy sign request",
+        binding: "dummy binding",
+        destination_url: "https://dummy.destination.url",
+        documents: [{name: 'test.pdf', id: "dummy id"}]
+      }
+    });
+
+    store.dispatch(createDocument(file));
+    await flushPromises(rerender, wrapped);
+
+    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    expect(selector.length).to.equal(1);
+
+    fireEvent.click(selector[0]);
+    await flushPromises(rerender, wrapped);
+
+    const signButton = await waitFor(() => screen.getAllByText("Sign Selected Documents"));
+    expect(signButton.length).to.equal(1);
+
+    fireEvent.click(signButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const spinner = await waitFor(() => screen.getAllByTestId("little-spinner-0"));
+    expect(spinner.length).to.equal(1);
+
+    const text = await waitFor(() => screen.getAllByText(/signing .../i));
+    expect(text.length).to.equal(1);
+
+    fetchMock.restore();
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows error message after recreate sign request returns error", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    const fileObj = new File([samplePDFData], "test.pdf", {
+      type: "application/pdf",
+    });
+    const file = {
+      name: fileObj.name,
+      size: fileObj.size,
+      type: fileObj.type,
+      blob: "data:application/pdf;base64," + b64SamplePDFData,
+    };
+    fetchMock.post('/sign/add-doc', {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement"
+      }
+    })
+    .post('/sign/create-sign-request', {
+      message: "expired cache",
+      error: true
+    })
+    .post('/sign/recreate-sign-request', {
+      message: "error in recreate sign request",
+      error: true
+    });
+
+    store.dispatch(createDocument(file));
+    await flushPromises(rerender, wrapped);
+
+    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    expect(selector.length).to.equal(1);
+
+    fireEvent.click(selector[0]);
+    await flushPromises(rerender, wrapped);
+
+    const signButton = await waitFor(() => screen.getAllByText("Sign Selected Documents"));
+    expect(signButton.length).to.equal(1);
+
+    fireEvent.click(signButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const text = await waitFor(() => screen.getAllByText("XXX Problem creating signature request"));
+    expect(text.length).to.equal(1);
+
+    fetchMock.restore();
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
 });

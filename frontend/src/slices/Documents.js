@@ -235,6 +235,7 @@ export const startSigningDocuments = createAsyncThunk(
         body: body,
       });
       data = await checkStatus(response);
+      console.log("Data received from the create-sign-request endpoint", data);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
         if (data.message === "expired cache") {
