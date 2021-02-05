@@ -58,7 +58,7 @@ export function setupComponent(component, stateOverrides) {
  * @desc Render a component for testing, providing it with a real Redux store.
  */
 export function setupReduxComponent(component) {
-  const store = edusignStore(true);
+  const store = edusignStore();
   store.dispatch(
     updateIntl({
       locale: "en",

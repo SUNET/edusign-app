@@ -2,8 +2,8 @@
  * @module containers/DocManager
  * @desc In this module we connect the DocManager component with the Redux store.
  *
- * In mapStateToProps we take the state.documents.documents key from the central store
- * and assign it to the documents prop of the component.
+ * In mapStateToProps we take a few keys from the central store
+ * and assign them to the props of the component.
  *
  * in mapDispatchToProps we compose the event handlers making use
  * of the Redux dispatch function.
@@ -15,14 +15,13 @@ import {
   prepareDocument,
   showPreview,
   setState,
-  hidePreview,
   toggleDocSelection,
   startSigningDocuments,
   removeDocument,
   downloadSigned,
 } from "slices/Documents";
 
-const mapStateToProps = (state, props) => {
+const mapStateToProps = (state) => {
   return {
     documents: state.documents.documents,
     destinationUrl: state.main.signingData.destination_url,
@@ -33,20 +32,20 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const mapDispatchToProps = (dispatch, props) => {
+const mapDispatchToProps = (dispatch) => {
   return {
     handlePreview: function (name) {
-      return (e) => {
+      return () => {
         dispatch(showPreview(name));
       };
     },
     handleRemove: function (name) {
-      return (e) => {
+      return () => {
         dispatch(removeDocument(name));
       };
     },
     handleRetry: function (doc) {
-      return (e) => {
+      return () => {
         dispatch(prepareDocument(doc));
         dispatch(setState({ name: doc.name, state: "loading" }));
       };
@@ -56,11 +55,11 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(toggleDocSelection({ name: name, select: e.target.checked }));
       };
     },
-    handleSubmitToSign: function (e) {
+    handleSubmitToSign: function () {
       dispatch(startSigningDocuments());
     },
     handleDlSigned: function (name) {
-      return (e) => {
+      return () => {
         dispatch(downloadSigned(name));
       };
     },

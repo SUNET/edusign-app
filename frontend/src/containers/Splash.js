@@ -8,7 +8,7 @@
 import { connect } from "react-redux";
 import Splash from "components/Splash";
 
-const mapStateToProps = (state, props) => {
+const mapStateToProps = (state) => {
   return {
     is_app_loading: state.main.loading,
   };

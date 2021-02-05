@@ -1,12 +1,18 @@
 /**
  * @module init-app/database
- * @desc Here we create the IndexedDB db that will persst the documents n the session between sessions
+ * @desc Here we create the IndexedDB db that will persist the loaded documents between sessions
  */
 
 import { addNotification } from "slices/Notifications";
 
 let db = null;
 
+/**
+ * @public
+ * @function getDb
+ * @desc Get or create the IndexedDB db to hold documents loaded to the app.
+ *
+ */
 export async function getDb() {
   if (db === null) {
     const promisedDb = await new Promise((resolve) => {
@@ -40,6 +46,11 @@ export async function getDb() {
   }
 }
 
+/**
+ * @function getDocStore
+ * @desc Get the documents table from the db, or null if there's no db.
+ *
+ */
 const getDocStore = () => {
   if (db !== null) {
     const transaction = db.transaction(["documents"], "readwrite");
@@ -53,6 +64,11 @@ const getDocStore = () => {
   }
 };
 
+/**
+ * @function documentDo
+ * @desc Save or remove some document from the db.
+ *
+ */
 const documentDo = (action, document) => {
   const docStore = getDocStore();
   if (docStore !== null) {
@@ -72,14 +88,32 @@ const documentDo = (action, document) => {
   }
 };
 
+/**
+ * @public
+ * @function dbSaveDocument
+ * @desc Save document to the IndexedDB db.
+ *
+ */
 export const dbSaveDocument = (document) => {
   documentDo("saving", document);
 };
 
+/**
+ * @public
+ * @function dbRemoveDocument
+ * @desc Remove document from the IndexedDB db.
+ *
+ */
 export const dbRemoveDocument = (document) => {
   documentDo("removing", document);
 };
 
+/**
+ * @public
+ * @function clearDocStore
+ * @desc Remove all documents from the IndexedDB db.
+ *
+ */
 export const clearDocStore = (dispatch) => {
   const docStore = getDocStore();
   if (docStore !== null) {

@@ -6,6 +6,13 @@
 
 import { setCsrfToken } from "slices/Main";
 
+/**
+ * @public
+ * @function checkStatus
+ * @param response: Response obtained in a call to `fetch`.
+ * @desc Check that the response status is successful, and return the body loaded as json.
+ *       If the response is a redirect, follow it, and for any other status, throw an error.
+ */
 export const checkStatus = async function (response) {
   if (response.status >= 200 && response.status < 300) {
     return await response.json();
@@ -17,12 +24,24 @@ export const checkStatus = async function (response) {
   }
 };
 
+/**
+ * @public
+ * @function extractCsrfToken
+ * @param dispatch: Redux function to dispatch to the store.
+ * @param data: data fetched from the backend.
+ * @desc extract the csrf token from the data and dispatch it to the central store.
+ */
 export const extractCsrfToken = (dispatch, data) => {
   if ("csrf_token" in data) {
     dispatch(setCsrfToken(data.csrf_token));
   }
 };
 
+/**
+ * @public
+ * @const ajaxHeaders
+ * @desc Headers for ajax requests.
+ */
 export const ajaxHeaders = {
   "Content-Type": "application/json; charset=utf-8",
   Accept: "application/json",
@@ -32,6 +51,11 @@ export const ajaxHeaders = {
   "X-Requested-With": "XMLHttpRequest",
 };
 
+/**
+ * @public
+ * @const postRequest
+ * @desc POST request
+ */
 export const postRequest = {
   method: "post",
   redirect: "manual",
@@ -39,6 +63,11 @@ export const postRequest = {
   headers: ajaxHeaders,
 };
 
+/**
+ * @public
+ * @const getRequest
+ * @desc GET request
+ */
 export const getRequest = {
   method: "get",
   redirect: "manual",
@@ -46,6 +75,13 @@ export const getRequest = {
   headers: ajaxHeaders,
 };
 
+/**
+ * @public
+ * @function preparePayload
+ * @param state: Redux state from the central store.
+ * @param payload: data to be sent to the backend.
+ * @desc combine the data and the CSRF token into a JSON string to be added to a request to be sent to the backend.
+ */
 export const preparePayload = (state, payload) => {
   const data = {
     csrf_token: state.main.csrf_token,

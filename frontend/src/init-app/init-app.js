@@ -4,7 +4,7 @@
  * meant to be used in the webpack entry points.
  * <br />&nbsp;
  * Initialization involves localizing the app and providing
- * it with a redux store, possibly loaded from local storage.
+ * it with a redux store.
  */
 
 import React from "react";
@@ -26,13 +26,9 @@ const messages = LOCALIZED_MESSAGES;
 /**
  * @public
  * @function edusignStore
- * @param {boolean} test: to indicate whether we are calling the function from test code.
  * @desc To build the Redux store, using configureStore from redux-toolkit.
- * <br />&nbsp;
- * It will load any Redux state saved in local storage
- * if we are not calling this function from test code.
  */
-export const edusignStore = (test = false) => {
+export const edusignStore = () => {
   let storeObj = { reducer: rootReducer };
   return configureStore(storeObj);
 };
@@ -45,6 +41,8 @@ const store = edusignStore();
  * @private
  * @function appIsRendered
  * @desc Callback to be executed when React.render has finished rendering the Main component.
+ * <br />&nbsp;
+ * It will trigger retrieving configuration parameters from the backend and loading documents from the IndeedBD db.
  */
 const appIsRendered = function () {
   store.dispatch(fetchConfig());

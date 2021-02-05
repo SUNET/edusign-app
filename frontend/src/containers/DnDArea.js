@@ -2,7 +2,7 @@
  * @module containers/DnDArea
  * @desc In this module we connect the DnDArea component with the Redux store.
  *
- * In mapStateToProps we take the state.dnd.state key from the central store
+ * In mapStateToProps we take the state.dnd.state and state.main.size keys from the central store
  * and assign it to the status prop of the component.
  *
  * in mapDispatchToProps we compose the drag event handlers making use

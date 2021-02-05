@@ -6,6 +6,11 @@ import notifications from "slices/Notifications";
 import documents from "slices/Documents";
 import dnd from "slices/DnDArea";
 
+/**
+ * @public
+ * @object store
+ * @desc Central redux store.
+ */
 export default combineReducers({
   main,
   notifications,

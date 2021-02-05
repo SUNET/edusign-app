@@ -3,7 +3,8 @@
  * @desc Here we define the initial state for the documents key of the Redux state,
  * and the actions and reducers to manipulate it.
  *
- * The documents key of the state holds the documents added by the user to be signed.
+ * The documents key of the state holds the documents added by the user to be signed,
+ * in whatever stage of the signing procedure they may be.
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
@@ -21,7 +22,7 @@ import { getDb } from "init-app/database";
 /**
  * @public
  * @function loadDocuments
- * @desc Redux async thunk to get documents saved in IndexedDB.
+ * @desc Redux async thunk to load documents saved in IndexedDB.
  */
 export const loadDocuments = createAsyncThunk(
   "documents/loadDocuments",
@@ -88,7 +89,8 @@ export const loadDocuments = createAsyncThunk(
 /**
  * @public
  * @function createDocument
- * @desc Redux async thunk to add a new document to IndexedDB.
+ * @desc Redux async thunk to add a new document to IndexedDB
+ * and to the store.
  */
 export const createDocument = createAsyncThunk(
   "documents/createDocument",
@@ -155,6 +157,7 @@ export const createDocument = createAsyncThunk(
  * @public
  * @function prepareDocument
  * @desc Redux async thunk to send documents to the backend for preparation
+ * and to update the state of the documents in the redux store.
  */
 export const prepareDocument = createAsyncThunk(
   "documents/prepareDocument",
@@ -375,7 +378,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem) => {
 /**
  * @public
  * @function downloadSigned
- * @desc Redux async thunk to add a new document to IndexedDB.
+ * @desc Redux async thunk to hand signed documents to the user.
  */
 export const downloadSigned = createAsyncThunk(
   "documents/downloadSigned",
@@ -437,7 +440,7 @@ const documentsSlice = createSlice({
     /**
      * @public
      * @function removeDocument
-     * @desc Redux action to remove a document from the documents state key.
+     * @desc Redux action to remove a document from the store
      */
     removeDocument(state, action) {
       state.documents.forEach((doc) => {
@@ -452,9 +455,9 @@ const documentsSlice = createSlice({
     /**
      * @public
      * @function removeAllDocuments
-     * @desc Redux action to remove all documents from the documents state key.
+     * @desc Redux action to remove all documents from the store
      */
-    removeAllDocuments(state, action) {
+    removeAllDocuments(state) {
       state.documents = new Array();
     },
     /**
@@ -478,7 +481,7 @@ const documentsSlice = createSlice({
     /**
      * @public
      * @function startSigningDocument
-     * @desc Redux action to update a document in the documents state key,
+     * @desc Redux action to update a document in the store
      * setting the state key to "signing"
      */
     startSigningDocument(state, action) {
@@ -496,7 +499,7 @@ const documentsSlice = createSlice({
     /**
      * @public
      * @function updateDocumentWithId
-     * @desc Redux action to update a document with the id sent to the siign API
+     * @desc Redux action to update a document with the id sent to the sign API
      */
     updateDocumentWithId(state, action) {
       state.documents = state.documents.map((doc) => {
