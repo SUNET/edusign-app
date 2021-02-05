@@ -14,8 +14,11 @@ import "styles/DocManager.scss";
  *
  * Each document can be in one of several states:
  * - "loading": The document is being loaded from the filesystem.
+ * - "failed-loading": PDFjs has not been able to parse the document, irrecoverable failure.
+ * - "failed-preparing": There's been som problem sending the document to the backend and API to be prepared, recoverable.
  * - "loaded": The document has been loaded from the fs and is ready to be signed.
  * - "signing": The document is in the process of being signed.
+ * - "failed-signing": There's been some problem in the signing process, recoverable failure.
  * - "signed": The document has been signed and is ready to be got by the user.
  *
  * Depending on the state, it will show a different set of controls.
@@ -72,7 +75,7 @@ function DocManager(props) {
         <div className="doc-selector-flex-item">
           <input
             type="checkbox"
-            data-testid={'doc-selector-' + index}
+            data-testid={"doc-selector-" + index}
             onClick={props.handleDocSelection(doc.name)}
             defaultChecked={doc.state === "selected"}
           />
@@ -137,7 +140,11 @@ function DocManager(props) {
       {props.documents.map((doc, index) => {
         const docFile = docToFile(doc);
         if (docFile === null) {
-          doc = {...doc, state: "failed-loading", message: "Malformed PDF"};
+          doc = {
+            ...doc,
+            state: "failed-loading",
+            message: "XXX Malformed PDF",
+          };
         }
         if (doc.state === "selected") someSelected = true;
         if (props.size === "lg") {
@@ -328,22 +335,35 @@ function DocManager(props) {
           />
         </Button>
       </div>
-      {props.destinationUrl !== undefined && props.destinationUrl !== 'https://dummy.destination.url' && (
+      {props.destinationUrl !== undefined &&
+        props.destinationUrl !== "https://dummy.destination.url" && (
+          <div>
+            <form
+              id="signing-form"
+              data-testid="signing-form"
+              action={props.destinationUrl}
+              method="post"
+            >
+              <input type="hidden" name="Binding" value={props.binding} />
+              <input type="hidden" name="RelayState" value={props.relayState} />
+              <input
+                type="hidden"
+                name="EidSignRequest"
+                value={props.signRequest}
+              />
+            </form>
+          </div>
+        )}
+      {props.destinationUrl === "https://dummy.destination.url" && (
         <div>
-          <form id="signing-form" data-testid="signing-form" action={props.destinationUrl} method="post">
-            <input type="hidden" name="Binding" value={props.binding} />
-            <input type="hidden" name="RelayState" value={props.relayState} />
-            <input
-              type="hidden"
-              name="EidSignRequest"
-              value={props.signRequest}
-            />
-          </form>
-        </div>
-      )}
-      {props.destinationUrl === 'https://dummy.destination.url' && (
-        <div>
-          <form id="signing-form" data-testid="signing-form" onSubmit={(e) => {e.preventDefault(); return false}} />
+          <form
+            id="signing-form"
+            data-testid="signing-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              return false;
+            }}
+          />
         </div>
       )}
     </>

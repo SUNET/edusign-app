@@ -16,7 +16,7 @@ const mockStore = configureStore(middlewares);
 const initialState = {
   main: {
     loading: false,
-    size: 'lg',
+    size: "lg",
     signingData: {},
   },
   notifications: {

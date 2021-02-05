@@ -34,7 +34,7 @@ export const b64toBlob = (b64Data, contentType = "", sliceSize = 512) => {
 /**
  * @public
  * @function humanFileSize
- * @desc Convert file size in bytes to human readable string
+ * @desc Convert file size from number of bytes (int) to human readable string
  *
  * Obtained from [this stackoverflow question]{https://stackoverflow.com/questions/10420352/converting-file-size-in-bytes-to-human-readable-string}
  */
@@ -62,6 +62,12 @@ export function humanFileSize(bytes, si = false, dp = 1) {
   return bytes.toFixed(dp) + " " + units[u];
 }
 
+/**
+ * @public
+ * @function docToFile
+ * @desc Convert object containing a document's data and metadata to a File object.
+ *
+ */
 export function docToFile(doc) {
   let newFile = null;
   try {
@@ -69,7 +75,7 @@ export function docToFile(doc) {
     newFile = new File([fileContents], doc.name, {
       type: doc.type,
     });
-  } catch(err) {
+  } catch (err) {
     console.log("Error loading document", err);
   }
   return newFile;

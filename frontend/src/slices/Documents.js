@@ -129,10 +129,11 @@ export const createDocument = createAsyncThunk(
         thunkAPI.dispatch(
           addNotification({
             level: "danger",
-            message: "XXX Problem saving document(s) in session, will not persist",
+            message:
+              "XXX Problem saving document(s) in session, will not persist",
           })
         );
-        document.state = 'loaded';
+        document.state = "loaded";
         thunkAPI.rejectWithValue(document);
       }
     } else {
@@ -140,10 +141,11 @@ export const createDocument = createAsyncThunk(
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message: "XXX Problem saving document(s) in session, will not persist",
+          message:
+            "XXX Problem saving document(s) in session, will not persist",
         })
       );
-      document.state = 'loaded';
+      document.state = "loaded";
       thunkAPI.rejectWithValue(document);
     }
   }

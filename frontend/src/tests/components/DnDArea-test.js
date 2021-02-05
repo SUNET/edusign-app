@@ -19,11 +19,11 @@ describe("DnDArea Component", function () {
   afterEach(cleanup);
 
   it("Shows dnd area ready to accept documents", function () {
-    const { unmount } = setupComponent(<DnDAreaContainer />, {main: {loading: false, size: 'lg'}});
+    const { unmount } = setupComponent(<DnDAreaContainer />, {
+      main: { loading: false, size: "lg" },
+    });
 
-    const dndArea = screen.getAllByText(
-      "Drag & drop here or click to browse"
-    );
+    const dndArea = screen.getAllByText("Drag & drop here or click to browse");
     expect(dndArea.length).to.equal(1);
 
     const dndAreaDropping = screen.queryByText("Drop documents here");
@@ -40,9 +40,7 @@ describe("DnDArea Component", function () {
     const dndAreaDropping = screen.getAllByText("Drop documents here");
     expect(dndAreaDropping.length).to.equal(1);
 
-    const dndArea = screen.queryByText(
-      "Drag & drop here or click to browse"
-    );
+    const dndArea = screen.queryByText("Drag & drop here or click to browse");
     expect(dndArea).to.equal(null);
 
     unmount();
@@ -53,9 +51,7 @@ describe("DnDArea Component", function () {
       <DnDAreaContainer />
     );
 
-    let dndArea = screen.getAllByText(
-      "Drag & drop here or click to browse"
-    );
+    let dndArea = screen.getAllByText("Drag & drop here or click to browse");
     expect(dndArea.length).to.equal(1);
 
     let dndAreaDropping = screen.queryByText("Drop documents here");
@@ -90,9 +86,7 @@ describe("DnDArea Component", function () {
       <DnDAreaContainer />
     );
 
-    let dndArea = screen.getAllByText(
-      "Drag & drop here or click to browse"
-    );
+    let dndArea = screen.getAllByText("Drag & drop here or click to browse");
     expect(dndArea.length).to.equal(1);
 
     let dndAreaDropping = screen.queryByText("Drop documents here");
@@ -121,9 +115,7 @@ describe("DnDArea Component", function () {
     dispatchEvtWithData(dnd, "dragleave", data);
     await flushPromises(rerender, wrapped);
 
-    dndArea = screen.getAllByText(
-      "Drag & drop here or click to browse"
-    );
+    dndArea = screen.getAllByText("Drag & drop here or click to browse");
     expect(dndArea.length).to.equal(1);
 
     dndAreaDropping = screen.queryByText("Drop documents here");
@@ -155,12 +147,12 @@ describe("DnDArea Component", function () {
     });
     const data = mockFileData([file]);
 
-    fetchMock.post('/sign/add-doc', {
+    fetchMock.post("/sign/add-doc", {
       message: "document added",
       payload: {
         ref: "dummy ref",
-        sign_requirement: "dummy sign requirement"
-      }
+        sign_requirement: "dummy sign requirement",
+      },
     });
 
     dispatchEvtWithData(dnd, "drop", data);

@@ -8,7 +8,7 @@ import { Document, Page } from "react-pdf";
 import "styles/DocPreview.scss";
 
 /**
- * @desc Show a modal dialog with a paginated view of a PDF, using PDF.js.
+ * @desc To show a modal dialog with a paginated view of a PDF, using PDF.js.
  * @component
  */
 function DocPreview(props) {
@@ -45,7 +45,10 @@ function DocPreview(props) {
           </Modal.Header>
 
           <Modal.Body>
-            <Document file={props.docFile} onLoadSuccess={onDocumentLoadSuccess}>
+            <Document
+              file={props.docFile}
+              onLoadSuccess={onDocumentLoadSuccess}
+            >
               <Page pageNumber={pageNumber} width={725} />
             </Document>
           </Modal.Body>

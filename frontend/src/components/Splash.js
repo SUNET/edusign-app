@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import ReactDom from "react-dom";
 import { Spinner } from "spin.js";
 
 import "../../node_modules/spin.js/spin.css";
@@ -28,7 +27,7 @@ const spinnerOpts = {
 };
 
 /**
- * @desc Splash screen showing a large spinner.
+ * @desc Splash screen showing a large spinner, shown when the app is loading.
  * @component
  */
 class Splash extends Component {

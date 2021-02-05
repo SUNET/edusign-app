@@ -18,18 +18,20 @@ describe("Document representations", function () {
 
   it("It shows the document after createDocument action", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get('/sign/config', {
+    fetchMock.get("/sign/config", {
       payload: {
         signer_attributes: [
-          {name: 'givenName', value: "Tester"},
-          {name: 'surname', value: "Testig"}
-        ]
-      }
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
     });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() => screen.getAllByTestId("clear-in-header"));
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
@@ -53,12 +55,12 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    fetchMock.post('/sign/add-doc', {
+    fetchMock.post("/sign/add-doc", {
       message: "document added",
       payload: {
         ref: "dummy ref",
-        sign_requirement: "dummy sign requirement"
-      }
+        sign_requirement: "dummy sign requirement",
+      },
     });
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
@@ -72,7 +74,9 @@ describe("Document representations", function () {
     buttonRemove = await waitFor(() => screen.getAllByText(/Remove/i));
     expect(buttonRemove.length).to.equal(1);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fetchMock.restore();
@@ -83,18 +87,20 @@ describe("Document representations", function () {
 
   it("It shows the failed document after wrong createDocument action", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get('/sign/config', {
+    fetchMock.get("/sign/config", {
       payload: {
         signer_attributes: [
-          {name: 'givenName', value: "Tester"},
-          {name: 'surname', value: "Testig"}
-        ]
-      }
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
     });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() => screen.getAllByTestId("clear-in-header"));
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
@@ -118,9 +124,9 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    fetchMock.post('/sign/add-doc', {
+    fetchMock.post("/sign/add-doc", {
       message: "dummy error in add-doc",
-      error: true
+      error: true,
     });
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
@@ -142,18 +148,20 @@ describe("Document representations", function () {
 
   it("It shows failed loading after createDocument with bad pdf", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get('/sign/config', {
+    fetchMock.get("/sign/config", {
       payload: {
         signer_attributes: [
-          {name: 'givenName', value: "Tester"},
-          {name: 'surname', value: "Testig"}
-        ]
-      }
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
     });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() => screen.getAllByTestId("clear-in-header"));
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
@@ -169,17 +177,17 @@ describe("Document representations", function () {
     expect(buttonRemove).to.equal(null);
 
     const file = {
-      name: 'test.pdf',
+      name: "test.pdf",
       size: 1500,
-      type: 'application/pdf',
+      type: "application/pdf",
       blob: "Bad PDF document",
     };
-    fetchMock.post('/sign/add-doc', {
+    fetchMock.post("/sign/add-doc", {
       message: "document added",
       payload: {
         ref: "dummy ref",
-        sign_requirement: "dummy sign requirement"
-      }
+        sign_requirement: "dummy sign requirement",
+      },
     });
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
@@ -201,18 +209,20 @@ describe("Document representations", function () {
 
   it("It hides the file details after clicking on the remove button", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get('/sign/config', {
+    fetchMock.get("/sign/config", {
       payload: {
         signer_attributes: [
-          {name: 'givenName', value: "Tester"},
-          {name: 'surname', value: "Testig"}
-        ]
-      }
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
     });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() => screen.getAllByTestId("clear-in-header"));
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
@@ -230,12 +240,12 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    fetchMock.post('/sign/add-doc', {
+    fetchMock.post("/sign/add-doc", {
       message: "document added",
       payload: {
         ref: "dummy ref",
-        sign_requirement: "dummy sign requirement"
-      }
+        sign_requirement: "dummy sign requirement",
+      },
     });
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
@@ -272,18 +282,20 @@ describe("Document representations", function () {
 
   it("It shows the preview after clicking on the preview button", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get('/sign/config', {
+    fetchMock.get("/sign/config", {
       payload: {
         signer_attributes: [
-          {name: 'givenName', value: "Tester"},
-          {name: 'surname', value: "Testig"}
-        ]
-      }
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
     });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() => screen.getAllByTestId("clear-in-header"));
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
@@ -304,12 +316,12 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    fetchMock.post('/sign/add-doc', {
+    fetchMock.post("/sign/add-doc", {
       message: "document added",
       payload: {
         ref: "dummy ref",
-        sign_requirement: "dummy sign requirement"
-      }
+        sign_requirement: "dummy sign requirement",
+      },
     });
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
@@ -351,18 +363,20 @@ describe("Document representations", function () {
 
   it("It hides the preview after clicking on the close button", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get('/sign/config', {
+    fetchMock.get("/sign/config", {
       payload: {
         signer_attributes: [
-          {name: 'givenName', value: "Tester"},
-          {name: 'surname', value: "Testig"}
-        ]
-      }
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
     });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() => screen.getAllByTestId("clear-in-header"));
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
@@ -383,12 +397,12 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    fetchMock.post('/sign/add-doc', {
+    fetchMock.post("/sign/add-doc", {
       message: "document added",
       payload: {
         ref: "dummy ref",
-        sign_requirement: "dummy sign requirement"
-      }
+        sign_requirement: "dummy sign requirement",
+      },
     });
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
@@ -433,18 +447,20 @@ describe("Document representations", function () {
 
   it("It shows the spinner after clicking on the sign button", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get('/sign/config', {
+    fetchMock.get("/sign/config", {
       payload: {
         signer_attributes: [
-          {name: 'givenName', value: "Tester"},
-          {name: 'surname', value: "Testig"}
-        ]
-      }
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
     });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() => screen.getAllByTestId("clear-in-header"));
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
@@ -459,39 +475,52 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    fetchMock.once({url: '/sign/add-doc', method: 'POST'}, {
-      message: "document added",
-      payload: {
-        ref: "dummy ref",
-        sign_requirement: "dummy sign requirement"
-      }
-    })
-    .once({url: '/sign/create-sign-request', method: 'POST'}, {
-      payload: {
-        relay_state: "dummy relay state",
-        sign_request: "dummy sign request",
-        binding: "dummy binding",
-        destination_url: "https://dummy.destination.url",
-        documents: [{name: 'test.pdf', id: "dummy id"}]
-      }
-    });
+    fetchMock
+      .once(
+        { url: "/sign/add-doc", method: "POST" },
+        {
+          message: "document added",
+          payload: {
+            ref: "dummy ref",
+            sign_requirement: "dummy sign requirement",
+          },
+        }
+      )
+      .once(
+        { url: "/sign/create-sign-request", method: "POST" },
+        {
+          payload: {
+            relay_state: "dummy relay state",
+            sign_request: "dummy sign request",
+            binding: "dummy binding",
+            destination_url: "https://dummy.destination.url",
+            documents: [{ name: "test.pdf", id: "dummy id" }],
+          },
+        }
+      );
 
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fireEvent.click(selector[0]);
     await flushPromises(rerender, wrapped);
 
-    const signButton = await waitFor(() => screen.getAllByText("Sign Selected Documents"));
+    const signButton = await waitFor(() =>
+      screen.getAllByText("Sign Selected Documents")
+    );
     expect(signButton.length).to.equal(1);
 
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
 
-    const spinner = await waitFor(() => screen.getAllByTestId("little-spinner-0"));
+    const spinner = await waitFor(() =>
+      screen.getAllByTestId("little-spinner-0")
+    );
     expect(spinner.length).to.equal(1);
 
     const text = await waitFor(() => screen.getAllByText("signing ..."));
@@ -505,18 +534,20 @@ describe("Document representations", function () {
 
   it("It shows error message after create sign request returns error message", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get('/sign/config', {
+    fetchMock.get("/sign/config", {
       payload: {
         signer_attributes: [
-          {name: 'givenName', value: "Tester"},
-          {name: 'surname', value: "Testig"}
-        ]
-      }
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
     });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() => screen.getAllByTestId("clear-in-header"));
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
@@ -531,34 +562,47 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    fetchMock.once({url: '/sign/add-doc', method: 'POST'}, {
-      message: "document added",
-      payload: {
-        ref: "dummy ref",
-        sign_requirement: "dummy sign requirement"
-      }
-    })
-    .once({url: '/sign/create-sign-request', method: 'POST'}, {
-      message: "dummy error in create-sign-request",
-      error: true
-    });
+    fetchMock
+      .once(
+        { url: "/sign/add-doc", method: "POST" },
+        {
+          message: "document added",
+          payload: {
+            ref: "dummy ref",
+            sign_requirement: "dummy sign requirement",
+          },
+        }
+      )
+      .once(
+        { url: "/sign/create-sign-request", method: "POST" },
+        {
+          message: "dummy error in create-sign-request",
+          error: true,
+        }
+      );
 
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fireEvent.click(selector[0]);
     await flushPromises(rerender, wrapped);
 
-    const signButton = await waitFor(() => screen.getAllByText("Sign Selected Documents"));
+    const signButton = await waitFor(() =>
+      screen.getAllByText("Sign Selected Documents")
+    );
     expect(signButton.length).to.equal(1);
 
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
 
-    const text = await waitFor(() => screen.getAllByText("XXX Problem creating signature request"));
+    const text = await waitFor(() =>
+      screen.getAllByText("XXX Problem creating signature request")
+    );
     expect(text.length).to.equal(1);
 
     fetchMock.restore();
@@ -569,18 +613,20 @@ describe("Document representations", function () {
 
   it("It shows the spinner after create sign request returns expired cache", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get('/sign/config', {
+    fetchMock.get("/sign/config", {
       payload: {
         signer_attributes: [
-          {name: 'givenName', value: "Tester"},
-          {name: 'surname', value: "Testig"}
-        ]
-      }
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
     });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() => screen.getAllByTestId("clear-in-header"));
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
@@ -595,43 +641,50 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    fetchMock.post('/sign/add-doc', {
-      message: "document added",
-      payload: {
-        ref: "dummy ref",
-        sign_requirement: "dummy sign requirement"
-      }
-    })
-    .post('/sign/create-sign-request', {
-      message: "expired cache",
-      error: true
-    })
-    .post('/sign/recreate-sign-request', {
-      payload: {
-        relay_state: "dummy relay state",
-        sign_request: "dummy sign request",
-        binding: "dummy binding",
-        destination_url: "https://dummy.destination.url",
-        documents: [{name: 'test.pdf', id: "dummy id"}]
-      }
-    });
+    fetchMock
+      .post("/sign/add-doc", {
+        message: "document added",
+        payload: {
+          ref: "dummy ref",
+          sign_requirement: "dummy sign requirement",
+        },
+      })
+      .post("/sign/create-sign-request", {
+        message: "expired cache",
+        error: true,
+      })
+      .post("/sign/recreate-sign-request", {
+        payload: {
+          relay_state: "dummy relay state",
+          sign_request: "dummy sign request",
+          binding: "dummy binding",
+          destination_url: "https://dummy.destination.url",
+          documents: [{ name: "test.pdf", id: "dummy id" }],
+        },
+      });
 
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fireEvent.click(selector[0]);
     await flushPromises(rerender, wrapped);
 
-    const signButton = await waitFor(() => screen.getAllByText("Sign Selected Documents"));
+    const signButton = await waitFor(() =>
+      screen.getAllByText("Sign Selected Documents")
+    );
     expect(signButton.length).to.equal(1);
 
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
 
-    const spinner = await waitFor(() => screen.getAllByTestId("little-spinner-0"));
+    const spinner = await waitFor(() =>
+      screen.getAllByTestId("little-spinner-0")
+    );
     expect(spinner.length).to.equal(1);
 
     const text = await waitFor(() => screen.getAllByText("signing ..."));
@@ -645,18 +698,20 @@ describe("Document representations", function () {
 
   it("It shows error message after recreate sign request returns error", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get('/sign/config', {
+    fetchMock.get("/sign/config", {
       payload: {
         signer_attributes: [
-          {name: 'givenName', value: "Tester"},
-          {name: 'surname', value: "Testig"}
-        ]
-      }
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
     });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() => screen.getAllByTestId("clear-in-header"));
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
@@ -671,38 +726,45 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    fetchMock.post('/sign/add-doc', {
-      message: "document added",
-      payload: {
-        ref: "dummy ref",
-        sign_requirement: "dummy sign requirement"
-      }
-    })
-    .post('/sign/create-sign-request', {
-      message: "expired cache",
-      error: true
-    })
-    .post('/sign/recreate-sign-request', {
-      message: "error in recreate sign request",
-      error: true
-    });
+    fetchMock
+      .post("/sign/add-doc", {
+        message: "document added",
+        payload: {
+          ref: "dummy ref",
+          sign_requirement: "dummy sign requirement",
+        },
+      })
+      .post("/sign/create-sign-request", {
+        message: "expired cache",
+        error: true,
+      })
+      .post("/sign/recreate-sign-request", {
+        message: "error in recreate sign request",
+        error: true,
+      });
 
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fireEvent.click(selector[0]);
     await flushPromises(rerender, wrapped);
 
-    const signButton = await waitFor(() => screen.getAllByText("Sign Selected Documents"));
+    const signButton = await waitFor(() =>
+      screen.getAllByText("Sign Selected Documents")
+    );
     expect(signButton.length).to.equal(1);
 
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
 
-    const text = await waitFor(() => screen.getAllByText("XXX Problem creating signature request"));
+    const text = await waitFor(() =>
+      screen.getAllByText("XXX Problem creating signature request")
+    );
     expect(text.length).to.equal(1);
 
     fetchMock.restore();
@@ -713,18 +775,20 @@ describe("Document representations", function () {
 
   it("It carries the sign response after getting the signed docs", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get('/sign/config', {
+    fetchMock.get("/sign/config", {
       payload: {
         signer_attributes: [
-          {name: 'givenName', value: "Tester"},
-          {name: 'surname', value: "Testig"}
-        ]
-      }
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
     });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() => screen.getAllByTestId("clear-in-header"));
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
@@ -739,49 +803,56 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    fetchMock.post('/sign/add-doc', {
-      message: "document added",
-      payload: {
-        ref: "dummy ref",
-        sign_requirement: "dummy sign requirement"
-      }
-    })
-    .post('/sign/create-sign-request', {
-      payload: {
-        relay_state: "dummy relay state",
-        sign_request: "dummy sign request",
-        binding: "dummy binding",
-        destination_url: "https://dummy.destination.url",
-        documents: [{name: 'test.pdf', id: "dummy-id"}]
-      }
-    })
-    .post('/sign/get-signed', {
-      message: "documents signed",
-      payload: {
-        documents: [{id: "dummy-id", signed_content: "dummy signed content"}]
-      }
-    });
+    fetchMock
+      .post("/sign/add-doc", {
+        message: "document added",
+        payload: {
+          ref: "dummy ref",
+          sign_requirement: "dummy sign requirement",
+        },
+      })
+      .post("/sign/create-sign-request", {
+        payload: {
+          relay_state: "dummy relay state",
+          sign_request: "dummy sign request",
+          binding: "dummy binding",
+          destination_url: "https://dummy.destination.url",
+          documents: [{ name: "test.pdf", id: "dummy-id" }],
+        },
+      })
+      .post("/sign/get-signed", {
+        message: "documents signed",
+        payload: {
+          documents: [
+            { id: "dummy-id", signed_content: "dummy signed content" },
+          ],
+        },
+      });
 
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fireEvent.click(selector[0]);
     await flushPromises(rerender, wrapped);
 
-    const signButton = await waitFor(() => screen.getAllByText("Sign Selected Documents"));
+    const signButton = await waitFor(() =>
+      screen.getAllByText("Sign Selected Documents")
+    );
     expect(signButton.length).to.equal(1);
 
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
 
-    const signHolder = window.document.createElement('div');
-    signHolder.setAttribute('id', 'sign-response-holder');
-    signHolder.setAttribute('data-signresponse', 'dummy sign response');
-    signHolder.setAttribute('data-relaystate', 'dummy relay state');
-    const body = window.document.getElementsByTagName('body')[0];
+    const signHolder = window.document.createElement("div");
+    signHolder.setAttribute("id", "sign-response-holder");
+    signHolder.setAttribute("data-signresponse", "dummy sign response");
+    signHolder.setAttribute("data-relaystate", "dummy relay state");
+    const body = window.document.getElementsByTagName("body")[0];
     body.appendChild(signHolder);
 
     store.dispatch(loadDocuments());
@@ -789,7 +860,9 @@ describe("Document representations", function () {
     const filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
     expect(filename.length).to.equal(1);
 
-    const buttonSigned = await waitFor(() => screen.getAllByText("Download (signed)"));
+    const buttonSigned = await waitFor(() =>
+      screen.getAllByText("Download (signed)")
+    );
     expect(buttonSigned.length).to.equal(1);
 
     fetchMock.restore();
@@ -800,18 +873,20 @@ describe("Document representations", function () {
 
   it("It shows error after a failure at the get-signed endpoint", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get('/sign/config', {
+    fetchMock.get("/sign/config", {
       payload: {
         signer_attributes: [
-          {name: 'givenName', value: "Tester"},
-          {name: 'surname', value: "Testig"}
-        ]
-      }
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
     });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() => screen.getAllByTestId("clear-in-header"));
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
@@ -826,47 +901,52 @@ describe("Document representations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    fetchMock.post('/sign/add-doc', {
-      message: "document added",
-      payload: {
-        ref: "dummy ref",
-        sign_requirement: "dummy sign requirement"
-      }
-    })
-    .post('/sign/create-sign-request', {
-      payload: {
-        relay_state: "dummy relay state",
-        sign_request: "dummy sign request",
-        binding: "dummy binding",
-        destination_url: "https://dummy.destination.url",
-        documents: [{name: 'test.pdf', id: "dummy-id"}]
-      }
-    })
-    .post('/sign/get-signed', {
-      message: "problem signing documents",
-      error: true
-    });
+    fetchMock
+      .post("/sign/add-doc", {
+        message: "document added",
+        payload: {
+          ref: "dummy ref",
+          sign_requirement: "dummy sign requirement",
+        },
+      })
+      .post("/sign/create-sign-request", {
+        payload: {
+          relay_state: "dummy relay state",
+          sign_request: "dummy sign request",
+          binding: "dummy binding",
+          destination_url: "https://dummy.destination.url",
+          documents: [{ name: "test.pdf", id: "dummy-id" }],
+        },
+      })
+      .post("/sign/get-signed", {
+        message: "problem signing documents",
+        error: true,
+      });
 
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fireEvent.click(selector[0]);
     await flushPromises(rerender, wrapped);
 
-    const signButton = await waitFor(() => screen.getAllByText("Sign Selected Documents"));
+    const signButton = await waitFor(() =>
+      screen.getAllByText("Sign Selected Documents")
+    );
     expect(signButton.length).to.equal(1);
 
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
 
-    const signHolder = window.document.createElement('div');
-    signHolder.setAttribute('id', 'sign-response-holder');
-    signHolder.setAttribute('data-signresponse', 'dummy sign response');
-    signHolder.setAttribute('data-relaystate', 'dummy relay state');
-    const body = window.document.getElementsByTagName('body')[0];
+    const signHolder = window.document.createElement("div");
+    signHolder.setAttribute("id", "sign-response-holder");
+    signHolder.setAttribute("data-signresponse", "dummy sign response");
+    signHolder.setAttribute("data-relaystate", "dummy relay state");
+    const body = window.document.getElementsByTagName("body")[0];
     body.appendChild(signHolder);
 
     store.dispatch(loadDocuments());
@@ -880,7 +960,9 @@ describe("Document representations", function () {
     const buttonRemove = await waitFor(() => screen.getAllByText(/Remove/i));
     expect(buttonRemove.length).to.equal(1);
 
-    const errorMsg = await waitFor(() => screen.getAllByText(/XXX Problem signing the document/i));
+    const errorMsg = await waitFor(() =>
+      screen.getAllByText(/XXX Problem signing the document/i)
+    );
     expect(errorMsg.length).to.equal(1);
 
     fetchMock.restore();

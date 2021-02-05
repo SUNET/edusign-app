@@ -7,7 +7,8 @@ import NotificationsContainer from "containers/Notifications";
 import "styles/Header.scss";
 
 /**
- * @desc Header, with the eduSign and SUNET logos and the container for notifications to the user.
+ * @desc Header, with the eduSign and SUNET logos, the container for notifications to the user,
+ *       info on the attributes to be used for signing, and a link to clear the stored documents.
  * @component
  */
 class Header extends Component {
@@ -35,7 +36,11 @@ class Header extends Component {
             </span>
           </span>
           <span id="sep-in-header">|</span>
-          <span id="clear-in-header" data-testid="clear-in-header" onClick={this.props.clearDb}>
+          <span
+            id="clear-in-header"
+            data-testid="clear-in-header"
+            onClick={this.props.clearDb}
+          >
             <FormattedMessage
               defaultMessage="Clear session"
               key="clear-session"

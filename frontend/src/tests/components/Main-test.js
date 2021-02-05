@@ -24,9 +24,9 @@ describe("Main Component", function () {
     const { unmount } = setupComponent(<Main />, {
       main: {
         loading: true,
-        size: 'lg',
-        signingData: {}
-      }
+        size: "lg",
+        signingData: {},
+      },
     });
 
     const splashArray = screen.getAllByTestId("edusign-splash-screen");
@@ -59,7 +59,9 @@ describe("Main Component", function () {
   });
 
   it("Displays Header", function () {
-    const { unmount } = setupComponent(<Main />, { main: { loading: false, size: 'lg', signingData: {} } });
+    const { unmount } = setupComponent(<Main />, {
+      main: { loading: false, size: "lg", signingData: {} },
+    });
 
     const header = screen.getAllByTestId("edusign-banner-lg");
     expect(header.length).to.equal(1);
@@ -74,7 +76,9 @@ describe("Main Component", function () {
   });
 
   it("Displays Footer", function () {
-    const { unmount } = setupComponent(<Main />, { main: { loading: false, size: 'lg', signingData: {} } });
+    const { unmount } = setupComponent(<Main />, {
+      main: { loading: false, size: "lg", signingData: {} },
+    });
 
     const footer = screen.getAllByTestId("edusign-footer");
     expect(footer.length).to.equal(1);
@@ -93,7 +97,7 @@ describe("Main Component", function () {
 
   it("Displays English lang selector in Footer", function () {
     const { unmount } = setupComponent(<Main />, {
-      main: { loading: false, size: 'lg', signingData: {} },
+      main: { loading: false, size: "lg", signingData: {} },
       intl: { locale: "sv" },
     });
 
@@ -128,7 +132,9 @@ describe("Main Component", function () {
   });
 
   it("Contains a Notifications area", function () {
-    const { unmount } = setupComponent(<Main />, { main: { loading: false, size: 'lg', signingData: {} } });
+    const { unmount } = setupComponent(<Main />, {
+      main: { loading: false, size: "lg", signingData: {} },
+    });
 
     const notificationsArea = screen.getAllByTestId(
       "edusign-notifications-area"

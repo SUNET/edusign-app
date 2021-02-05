@@ -8,7 +8,6 @@
  * in mapDispatchToProps we compose the drag event handlers making use
  * of the Redux dispatch function.
  */
-import React from "react";
 import { connect } from "react-redux";
 
 import DnDArea from "components/DnDArea";
@@ -28,8 +27,8 @@ const mapDispatchToProps = (dispatch) => {
     handleDragEnter: function () {
       dispatch(setReceiving());
     },
-      handleDragLeave: function () {
-        dispatch(setWaiting());
+    handleDragLeave: function () {
+      dispatch(setWaiting());
     },
     handleFileDrop: function (fileObjs) {
       console.log("Starting to handle dropping of files", fileObjs);
