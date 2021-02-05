@@ -31,13 +31,19 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import json
+from typing import Any
 from uuid import UUID
 
 from flask_babel import gettext
 from marshmallow import ValidationError
 
 
-def validate_nonempty(value):
+def validate_nonempty(value: Any):
+    """
+    Validate that the concerned value is not an empty string.
+
+    :raises ValidationError: If the value is an empty string.
+    """
     if not value:
         raise ValidationError(gettext("Missing value for required field"))
 
@@ -46,11 +52,21 @@ def validate_nonempty(value):
 
 
 def validate_doc_type(value):
+    """
+    Validate that the provided value is exactly the string "application/pdf".
+
+    :raises ValidationError: if the value is not the string "application/pdf".
+    """
     if value != 'application/pdf':
         raise ValidationError(gettext("Invalid document type"))
 
 
 def validate_uuid4(value):
+    """
+    Validate that the provided value is an UUID (RFC 4122)
+
+    :raises ValidationError: if the value does not correspond with an UUID.
+    """
     try:
         val = UUID(value)
     except ValueError:
@@ -61,6 +77,11 @@ def validate_uuid4(value):
 
 
 def validate_sign_requirement(value):
+    """
+    Validate that the concerned value is a JSON string that contains `fieldValues` and `signerName` keys.
+
+    :raises ValidationError: in case the value doesn't conform to the above.
+    """
     try:
         val = json.loads(value)
     except json.decoder.JSONDecodeError:

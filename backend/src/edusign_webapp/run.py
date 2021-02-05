@@ -40,8 +40,14 @@ from edusign_webapp.api_client import APIClient
 
 
 class EduSignApp(Flask):
-    def __init__(self, name: str, **kwargs):
+    """
+    Edusign's Flask app, with blueprint with the views needed by the eduSign app.
+    """
 
+    def __init__(self, name: str, **kwargs):
+        """
+        :param name: Name for the Flask app
+        """
         super().__init__(name, **kwargs)
 
         if not self.testing:
@@ -55,9 +61,10 @@ class EduSignApp(Flask):
 def edusign_init_app(name: str) -> EduSignApp:
     """
     Create an instance of an edusign data app.
-    :param name: The name of the instance, it will affect the configuration loaded.
-    """
 
+    :param name: Name for the Flask app
+    :return: The Flask app.
+    """
     app = EduSignApp(name)
 
     app.config.from_object('edusign_webapp.config')
@@ -75,10 +82,25 @@ app = edusign_init_app('edusign')
 
 
 class LoggingMiddleware(object):
+    """
+    Flask middleware to log every request and response,
+    activated in debug mode.
+    """
+
     def __init__(self, app: EduSignApp):
+        """
+        :param app: The Flask app
+        """
         self._app = app
 
     def __call__(self, env: dict, resp: Callable) -> Response:
+        """
+        WSGI Call.
+
+        :param env: the WSGI environ
+        :param resp: The WSGI start_response callback
+        :return: Response
+        """
         errorlog = env['wsgi.errors']
         pprint.pprint(('REQUEST', env), stream=errorlog)
 

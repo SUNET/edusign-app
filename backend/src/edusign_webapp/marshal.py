@@ -33,7 +33,7 @@
 
 import os
 from functools import wraps
-from typing import Callable, Type
+from typing import Callable, List, Mapping, Type
 from urllib.parse import urlsplit
 
 from flask import current_app, jsonify, request, session
@@ -46,6 +46,8 @@ from werkzeug.wrappers import Response as WerkzeugResponse
 def csrf_check_headers() -> None:
     """
     Validate the http headers of a request that carries a CSRF token.
+
+    :raises ValidationError: In case of a validation errror.
     """
     custom_header = request.headers.get('X-Requested-With', '')
     if custom_header != 'XMLHttpRequest':
@@ -79,9 +81,13 @@ class ResponseSchema(Schema):
     csrf_token = fields.String(required=True)
 
     @pre_dump
-    def get_csrf_token(self, out_data: dict, sess=None, **kwargs) -> dict:
+    def get_csrf_token(self, out_data: dict, sess: Mapping = None, **kwargs) -> dict:
         """
         Generate a new csrf token for every response
+
+        :param out_data: Dict in which to include the CSRF token under the `csrf_token` key.
+        :param sess: Mapping to use as session, to be used in tests
+        :return: The provided `out_data` dict, with the added `csrf_token` key.
         """
         method = current_app.config['HASH_METHOD']
         secret = current_app.config['SECRET_KEY']
@@ -107,6 +113,8 @@ class Marshal(object):
         Instantiate `Marshall` with a Schema class,
         which will give form to the payload of the actual response schema
         used to produce the responses.
+
+        :param schema: Marshmallow schema detailing the structure and type of the data to marshal.
         """
 
         class MarshallingSchema(ResponseSchema):
@@ -115,6 +123,11 @@ class Marshal(object):
         self.schema = MarshallingSchema
 
     def __call__(self, f: Callable) -> Callable:
+        """
+        :param f: The view to decorate
+        :return: the decorated view
+        """
+
         @wraps(f)
         def marshal_decorator(*args, **kwargs):
 
@@ -154,6 +167,9 @@ class RequestSchema(Schema):
     def verify_csrf_token(self, value: str) -> None:
         """
         validate the CSRF token in requests from the front side app.
+
+        :param value: The CSRF token to validate
+        :raises ValidationError: When the provided CRF token does not validate.
         """
 
         csrf_check_headers()
@@ -171,15 +187,29 @@ class RequestSchema(Schema):
     def post_processing(self, in_data: dict, **kwargs) -> dict:
         """
         Remove token from data forwarded to views
+
+        :param in_data: The data about to be returned from the schema
+        :return: The provided data, without the csrf_token key
         """
         del in_data['csrf_token']
         return in_data
 
 
 class UnMarshal(object):
-    """"""
+    """
+    Decorator class for Flask views,
+    That will extract data from the requests, validate it,
+    and provide it to the views in the form of dicts and lists.
+    """
 
     def __init__(self, schema: Type[Schema] = None):
+        """
+        Instantiate the class with a view specific schema,
+        that will parse and validate the request data that is specific to the decorated view,
+        in the payload.
+
+        :param schema: The schema detailing the expected structure and type of the received data.
+        """
 
         if schema is None:
             self.schema = RequestSchema
@@ -191,6 +221,11 @@ class UnMarshal(object):
             self.schema = UnMarshallingSchema
 
     def __call__(self, f: Callable) -> Callable:
+        """
+        :param f: The view to decorate
+        :return: the decorated view
+        """
+
         @wraps(f)
         def unmarshal_decorator():
             try:
@@ -223,7 +258,14 @@ class UnMarshal(object):
         return unmarshal_decorator
 
 
-def _i18n_marshmallow_validation_errors(msgs):
+def _i18n_marshmallow_validation_errors(msgs: List[str]) -> List[str]:
+    """
+    This is for internationalizing validation errors in English
+    straight out of Marshmallow.
+
+    :param msgs: List of messages to localize
+    :return: List of localized messages.
+    """
     field_msgs = []
     for msg in msgs:
         msg = msg.strip('.')

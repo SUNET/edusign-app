@@ -37,15 +37,23 @@ from edusign_webapp.validators import validate_doc_type, validate_nonempty, vali
 
 
 class ConfigSchema(Schema):
+    """
+    Schema to marshall configuration sent to the frontend,
+    basically consisting on the signer attributes.
+    """
+
     class SignerAttribute(Schema):
         name = fields.String(required=True, validate=[validate_nonempty])
         value = fields.String(required=True, validate=[validate_nonempty])
 
     signer_attributes = fields.List(fields.Nested(SignerAttribute))
-    documents = fields.Raw(required=False)
 
 
 class DocumentSchema(Schema):
+    """
+    Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
+    """
+
     name = fields.String(required=True, validate=[validate_nonempty])
     size = fields.Integer(required=True)
     type = fields.String(required=True, validate=[validate_nonempty, validate_doc_type])
@@ -53,11 +61,20 @@ class DocumentSchema(Schema):
 
 
 class ReferenceSchema(Schema):
+    """
+    Schema to marshal data returned from the `prepare` API endpoint
+    referencing a document just prepared for signing.
+    """
+
     ref = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     sign_requirement = fields.String(required=True, validate=[validate_nonempty, validate_sign_requirement])
 
 
 class ToSignSchema(Schema):
+    """
+    Schema to unmarshal (already prepared) documents to be included in a sign request.
+    """
+
     class ToSignDocumentSchema(ReferenceSchema):
         name = fields.String(required=True, validate=[validate_nonempty])
         type = fields.String(required=True, validate=[validate_nonempty, validate_doc_type])
@@ -66,10 +83,20 @@ class ToSignSchema(Schema):
 
 
 class ToRestartSigningSchema(Schema):
+    """
+    Schema to unmarshal documents sent to be prepared for signing,
+    after an attempt to create a sign request has failed due to (some of the) documents
+    having been evicted from the API's cache.
+    """
+
     documents = fields.List(fields.Nested(DocumentSchema))
 
 
 class SignRequestSchema(Schema):
+    """
+    Schema to marshal a sign request to the API.
+    """
+
     relay_state = fields.String(required=True, validate=[validate_nonempty])
     sign_request = fields.String(required=True, validate=[validate_nonempty])
     binding = fields.String(required=True, validate=[validate_nonempty])
@@ -83,11 +110,19 @@ class SignRequestSchema(Schema):
 
 
 class SigningSchema(Schema):
+    """
+    Schema to unmarshal a request to get the contents of already signed documents.
+    """
+
     sign_response = fields.String(required=True, validate=[validate_nonempty])
     relay_state = fields.String(required=True, validate=[validate_nonempty])
 
 
 class SignedDocumentsSchema(Schema):
+    """
+    Schema to marshal the contents of signed documents.
+    """
+
     class SignedDocumentSchema(Schema):
         id = fields.String(required=True, validate=[validate_nonempty])
         signed_content = fields.Raw(required=True, validate=[validate_nonempty])

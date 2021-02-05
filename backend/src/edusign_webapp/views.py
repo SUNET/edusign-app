@@ -53,6 +53,14 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 
 @edusign_views.route('/', methods=['GET'])
 def get_index() -> str:
+    """
+    View to get the index html that loads the frontside app.
+
+    This view assumes that it is secured by a Shibboleth SP, that has added some authn info as headers to the request,
+    and in case that info is not already in the session, adds it there.
+
+    :return: the rendered `index.jinja2` template as a string
+    """
     if 'eppn' not in session:
         eppn = request.headers.get('Edupersonprincipalname')
         current_app.logger.info(f'User {eppn} started a session')
@@ -86,7 +94,9 @@ def get_index() -> str:
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """
-    Configuration for the front app
+    VIew to serve the configuration for the front app - in principle just the attributes used for signing.
+
+    :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
     attrs = [{'name': attr, 'value': session[attr]} for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
     return {
@@ -97,7 +107,12 @@ def get_config() -> dict:
 
 
 def _prepare_document(document: dict) -> dict:
-    """"""
+    """
+    Send documents to the eduSign API to be prepared for signing.
+
+    :param document: a dict with metadata and contents of the document to be prepared.
+    :return: a dict with the reponse obtained from the API, or with an error message.
+    """
     try:
         current_app.logger.info(f"Sending document {document['name']} for preparation for user {session['eppn']}")
         return current_app.api_client.prepare_document(document)
@@ -111,7 +126,13 @@ def _prepare_document(document: dict) -> dict:
 @UnMarshal(DocumentSchema)
 @Marshal(ReferenceSchema)
 def add_document(document: dict) -> dict:
-    """"""
+    """
+    View that sends a document to the API to be prepared to be signed.
+
+    :param document: Representation of the document as unmarshaled by the DocumentSchema schema
+    :return: a dict with the data returned from the API after preparing the document,
+             or with eerror information in case of some error.
+    """
     prepare_data = _prepare_document(document)
 
     if 'error' in prepare_data and prepare_data['error']:  # XXX update error message, translate
@@ -133,7 +154,14 @@ def add_document(document: dict) -> dict:
 @UnMarshal(ToSignSchema)
 @Marshal(SignRequestSchema)
 def create_sign_request(documents: dict) -> dict:
-    """"""
+    """
+    View to send a request to the API to create a sign request.
+
+    :param documents: Representation of the documents to include in the sign request,
+                      as unmarshaled by the ToSignSchema schema
+    :return: A dict with either the relevant information returned by the API,
+             or information about some error obtained in the process.
+    """
     current_app.logger.debug(f'Data gotten in create view: {documents}')
     try:
         current_app.logger.info(f"Creating signature request for user {session['eppn']}")
@@ -170,7 +198,17 @@ def create_sign_request(documents: dict) -> dict:
 @UnMarshal(ToRestartSigningSchema)
 @Marshal(SignRequestSchema)
 def recreate_sign_request(documents: dict) -> dict:
-    """"""
+    """
+    View to both send some documents to the API to be prepared to  be signed,
+    and to send the results of the preparations to create a sign request.
+
+    This is used when a call to the `create` sign request API method has failed
+    due to the prepared documents havingg been evicted from the API's cache.
+
+    :param documents: representation of the documents as returned by the ToRestartSigningSchema
+    :return: A dict with either the relevant information returned by the API's `create` sign request endpoint,
+             or information about some error obtained in the process.
+    """
     current_app.logger.debug(f'Data gotten in recreate view: {documents}')
 
     new_docs = []
@@ -218,7 +256,14 @@ def recreate_sign_request(documents: dict) -> dict:
 
 @edusign_views.route('/callback', methods=['POST'])
 def sign_service_callback() -> str:
+    """
+    Callback to be called from the signature service, after the user has visited it
+    to finish signing some documents.
 
+    :return: The rendered template `index-with-sign-response.jinja2`, which loads the app like the index,
+             and in addition contains some information POSTed from the signature service, needed
+             to retrieve the signed documents.
+    """
     bundle_name = 'main-bundle'
     if current_app.config['DEBUG']:
         bundle_name += '.dev'
@@ -246,7 +291,13 @@ def sign_service_callback() -> str:
 @UnMarshal(SigningSchema)
 @Marshal(SignedDocumentsSchema)
 def get_signed_documents(sign_data: dict) -> dict:
+    """
+    View to get the signed documents from the API.
 
+    :param sign_data: The data needed to identify the signed documents to be retrieved,
+                      as obtained from the POST from the signature service to the `sign_service_callback`.
+    :return: A dict wit the signed documents, or with error information if some error has ocurred.
+    """
     try:
         current_app.logger.info(f"Processing signature for {sign_data['sign_response']} for user {session['eppn']}")
         process_data = current_app.api_client.process_sign_request(sign_data['sign_response'], sign_data['relay_state'])

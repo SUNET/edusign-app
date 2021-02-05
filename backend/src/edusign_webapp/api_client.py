@@ -42,6 +42,9 @@ from requests.auth import HTTPBasicAuth
 def pretty_print_req(req: requests.PreparedRequest) -> str:
     """
     Pretty print `requests.PreparedRequest`, used for logging
+
+    :param req: The request to print
+    :return: Pretty printed reepresentation of the request
     """
     return '{}\n{}\r\n{}\r\n\r\n{}'.format(
         '-----------START-----------',
@@ -64,6 +67,9 @@ class APIClient(object):
         pass
 
     def __init__(self, config: dict):
+        """
+        :param config: Dict containing the configuration parameters provided to Flask.
+        """
         self.api_base_url = config['EDUSIGN_API_BASE_URL']
         self.profile = config['EDUSIGN_API_PROFILE']
         self.basic_auth = HTTPBasicAuth(config['EDUSIGN_API_USERNAME'], config['EDUSIGN_API_PASSWORD'])
@@ -73,6 +79,10 @@ class APIClient(object):
         """
         Method to POST to the eduSign API, used by all methods of the class
         that POST to it.
+
+        :param url: URL to send the POST to
+        :param request_data: Dict holding the data to POST.
+        :return: Flask representation of the HTTP response from the API.
         """
         requests_session = requests.Session()
         req = requests.Request('POST', url, json=request_data, auth=self.basic_auth)
@@ -90,6 +100,9 @@ class APIClient(object):
         This API method will prepare a PDF document
         with a PDF signature page containing a visible PDF signature image,
         and keep it cached for 15min.
+
+        :param document: Dict holding the PDF (data and metadata) to prepare for signing.
+        :return: Flask representation of the HTTP response from the API.
         """
         idp = session['idp']
         if self.config['ENVIRONMENT'] == 'development':
@@ -121,6 +134,11 @@ class APIClient(object):
         return response
 
     def _try_creating_sign_request(self, documents: list) -> tuple:
+        """
+        :param documents: List with (already prepared) documents to include in the sign request.
+        :return: Pair of  Flask representation of the HTTP response from the API,
+                 and list of mappings linking the documents' names with the generated ids.
+        """
         idp = session['idp']
         authn_context = session['authn_context']
         if self.config['ENVIRONMENT'] == 'development':
@@ -163,8 +181,12 @@ class APIClient(object):
         Send request to the `create` endpoint of the API.
         This API method will create and return the DSS SignRequest message
         that is to be sent to the signature service.
-        """
 
+        :param documents: List with (already prepared) documents to include in the sign request.
+        :raises ExpiredCache: When the response from the API indicates that the documents to sign have dissapeared from the API's cache.
+        :return: Pair of  Flask representation of the HTTP response from the API,
+                 and list of mappings linking the documents' names with the generated ids.
+        """
         response_data, documents_with_id = self._try_creating_sign_request(documents)
 
         if (
@@ -184,8 +206,11 @@ class APIClient(object):
         """
         Send request to the `process` endpoint of the API.
         This API method will process the DSS SignRequest in order to get the signed document.
-        """
 
+        :param sign_response: signResponse data as returned from the `create` endpoint of the eduSign API.
+        :param relay_state: Relay state as returned from the `create` endpoint of the eduSign API.
+        :return: Flask representation of the HTTP response from the API.
+        """
         request_data = {"signResponse": sign_response, "relayState": relay_state, "state": {"id": relay_state}}
         api_url = urljoin(self.api_base_url, 'process')
 
