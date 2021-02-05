@@ -44,6 +44,9 @@ from werkzeug.wrappers import Response as WerkzeugResponse
 
 
 def csrf_check_headers() -> None:
+    """
+    Validate the http headers of a request that carries a CSRF token.
+    """
     custom_header = request.headers.get('X-Requested-With', '')
     if custom_header != 'XMLHttpRequest':
         raise ValidationError(gettext('CSRF missing custom X-Requested-With header'))
@@ -66,6 +69,10 @@ def csrf_check_headers() -> None:
 
 
 class ResponseSchema(Schema):
+    """
+    Basic Schema for responses to front side app requests,
+    that will acquire different payloads depending on the actual request being made.
+    """
 
     message = fields.String(required=False)
     error = fields.Boolean(default=False)
@@ -73,7 +80,9 @@ class ResponseSchema(Schema):
 
     @pre_dump
     def get_csrf_token(self, out_data: dict, sess=None, **kwargs) -> dict:
-        # Generate a new csrf token for every response
+        """
+        Generate a new csrf token for every response
+        """
         method = current_app.config['HASH_METHOD']
         secret = current_app.config['SECRET_KEY']
         salt_length = current_app.config['SALT_LENGTH']
@@ -87,9 +96,19 @@ class ResponseSchema(Schema):
 
 
 class Marshal(object):
-    """"""
+    """
+    Decorator class for Flask views,
+    that will grab the return value from said views (generally dicts)
+    and marshall them into Flask response objects via marshmallow schemata.
+    """
 
     def __init__(self, schema: Type[Schema]):
+        """
+        Instantiate `Marshall` with a Schema class,
+        which will give form to the payload of the actual response schema
+        used to produce the responses.
+        """
+
         class MarshallingSchema(ResponseSchema):
             payload = fields.Nested(schema)
 
@@ -124,11 +143,18 @@ class Marshal(object):
 
 
 class RequestSchema(Schema):
+    """
+    Basic Schema to validate requests from the front side app,
+    that will acquire different payloads depending on the actual request being made.
+    """
 
     csrf_token = fields.String(required=True)
 
     @validates('csrf_token')
     def verify_csrf_token(self, value: str) -> None:
+        """
+        validate the CSRF token in requests from the front side app.
+        """
 
         csrf_check_headers()
 
@@ -143,7 +169,9 @@ class RequestSchema(Schema):
 
     @post_load
     def post_processing(self, in_data: dict, **kwargs) -> dict:
-        # Remove token from data forwarded to views
+        """
+        Remove token from data forwarded to views
+        """
         del in_data['csrf_token']
         return in_data
 

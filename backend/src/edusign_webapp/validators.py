@@ -30,8 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from uuid import UUID
 import json
+from uuid import UUID
 
 from flask_babel import gettext
 from marshmallow import ValidationError

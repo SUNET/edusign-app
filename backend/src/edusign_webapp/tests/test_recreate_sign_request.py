@@ -273,7 +273,9 @@ def test_recreate_sign_request_no_size(client, monkeypatch):
 
 
 def test_recreate_sign_request_invalid_size(client, monkeypatch):
-    payload_data = {'documents': [{'name': 'test.pdf', 'size': 'invalid size', 'type': 'application/pdf', 'blob': 'dummy,dummy'}]}
+    payload_data = {
+        'documents': [{'name': 'test.pdf', 'size': 'invalid size', 'type': 'application/pdf', 'blob': 'dummy,dummy'}]
+    }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
     assert resp_data['message'] == 'Document data seems corrupted'

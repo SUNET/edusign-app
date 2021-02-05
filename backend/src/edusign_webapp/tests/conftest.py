@@ -36,7 +36,6 @@ import pytest
 
 from edusign_webapp import run
 
-
 config_dev = {
     'TESTING': True,
     'ENVIRONMENT': 'development',

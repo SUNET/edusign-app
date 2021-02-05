@@ -33,7 +33,7 @@
 
 from marshmallow import Schema, fields
 
-from edusign_webapp.validators import validate_nonempty, validate_doc_type, validate_uuid4, validate_sign_requirement
+from edusign_webapp.validators import validate_doc_type, validate_nonempty, validate_sign_requirement, validate_uuid4
 
 
 class ConfigSchema(Schema):

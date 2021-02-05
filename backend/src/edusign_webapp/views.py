@@ -58,9 +58,7 @@ def get_index() -> str:
         current_app.logger.info(f'User {eppn} started a session')
         session['eppn'] = eppn
 
-        attrs = [
-            (attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()
-        ]
+        attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
         for attr_in_session, attr_in_header in attrs:
             current_app.logger.debug(
                 f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
