@@ -144,7 +144,8 @@ front-build-docs:
 back-init:
 	@cd $(BACK_DIR); \
 		python -m venv venv; \
-		./venv/bin/python setup.py develop easy_install edusign-webapp[devel]
+		./venv/bin/pip install -r test_requirements.txt; \
+		./venv/bin/python setup.py develop
 
 ## Extract translatable messages from the backend sources
 .PHONY: back-extract-msgs
