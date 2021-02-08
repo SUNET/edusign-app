@@ -34,7 +34,7 @@
 import json
 import os
 from functools import wraps
-from typing import Callable, List, Mapping, Type
+from typing import Any, Callable, Dict, List, Mapping, Optional, Type
 from urllib.parse import urlsplit
 
 from flask import current_app, request, session
@@ -82,7 +82,7 @@ class ResponseSchema(Schema):
     csrf_token = fields.String(required=True)
 
     @pre_dump
-    def get_csrf_token(self, out_data: dict, sess: Mapping = None, **kwargs) -> dict:
+    def get_csrf_token(self, out_data: dict, sess: Optional[Dict[str, Any]] = None, **kwargs) -> dict:
         """
         Generate a new csrf token for every response
 
@@ -93,10 +93,12 @@ class ResponseSchema(Schema):
         method = current_app.config['HASH_METHOD']
         secret = current_app.config['SECRET_KEY']
         salt_length = current_app.config['SALT_LENGTH']
+        user_key = str(os.urandom(16))
         if sess is None:
-            sess = session
-        sess['user_key'] = str(os.urandom(16))
-        token_hash = generate_password_hash(sess['user_key'] + secret, method=method, salt_length=salt_length)
+            session['user_key'] = user_key
+        else:
+            sess['user_key'] = user_key
+        token_hash = generate_password_hash(user_key + secret, method=method, salt_length=salt_length)
         token = token_hash.replace(method + '$', '')
         out_data['csrf_token'] = token
         return out_data
