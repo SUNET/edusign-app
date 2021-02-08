@@ -31,12 +31,13 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+import json
 import os
 from functools import wraps
 from typing import Callable, List, Mapping, Type
 from urllib.parse import urlsplit
 
-from flask import current_app, jsonify, request, session
+from flask import current_app, request, session
 from flask_babel import gettext
 from marshmallow import Schema, ValidationError, fields, post_load, pre_dump, validates
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -141,13 +142,13 @@ class Marshal(object):
             if resp_data.get('error', False):
                 processed = ResponseSchema().dump(resp_data)
                 current_app.logger.debug(f"Processed data: {processed}")
-                response = jsonify(processed)
+                response = current_app.response_class(json.dumps(processed), mimetype='application/json')
                 current_app.logger.debug(f"And response: {response}")
                 return response
 
             processed = self.schema().dump(resp_data)
             current_app.logger.debug(f"Processed data: {processed}")
-            response = jsonify(processed)
+            response = current_app.response_class(json.dumps(processed), mimetype='application/json')
             current_app.logger.debug(f"And response: {response}")
             current_app.logger.debug(f"With Headers: {response.headers}")
             return response

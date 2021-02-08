@@ -32,8 +32,9 @@
 #
 from base64 import b64decode
 from xml.etree import cElementTree as ET
+import json
 
-from flask import Blueprint, abort, current_app, json, render_template, request, session
+from flask import Blueprint, abort, current_app, render_template, request, session
 from flask_babel import gettext
 
 from edusign_webapp.marshal import Marshal, UnMarshal

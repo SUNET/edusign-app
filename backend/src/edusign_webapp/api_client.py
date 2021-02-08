@@ -33,9 +33,10 @@
 from pprint import pformat
 from urllib.parse import urljoin
 from uuid import uuid4
+import json
 
 import requests
-from flask import current_app, json, session, url_for
+from flask import current_app, session, url_for
 from requests.auth import HTTPBasicAuth
 
 
