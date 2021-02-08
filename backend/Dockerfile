@@ -44,7 +44,7 @@ ADD . /opt/edusign/edusign-webapp
 
 WORKDIR /opt/edusign/edusign-webapp
 
-RUN /opt/edusign/bin/pip /opt/edusign/edusign-webapp/requirements.txt
+RUN /opt/edusign/bin/pip install -r /opt/edusign/edusign-webapp/requirements.txt
 RUN /opt/edusign/bin/python /opt/edusign/edusign-webapp/setup.py develop
 RUN /opt/edusign/bin/pip install gunicorn
 
