@@ -32,6 +32,7 @@
 #
 from base64 import b64decode
 from xml.etree import cElementTree as ET
+import asyncio
 import json
 
 from flask import Blueprint, abort, current_app, render_template, request, session
@@ -212,21 +213,31 @@ def recreate_sign_request(documents: dict) -> dict:
     """
     current_app.logger.debug(f'Data gotten in recreate view: {documents}')
 
-    new_docs = []
-    for doc in documents['documents']:
-        current_app.logger.info(f"Re-preparing {doc['name']} for user {session['eppn']}")
-        prepare_data = _prepare_document(doc)
+    async def prepare(doc):
+        return _prepare_document(doc)
 
-        if 'error' in prepare_data and prepare_data['error']:
-            current_app.logger.error(f"Problem re-preparing document: {doc['name']}")
-            return prepare_data
+    current_app.logger.info(f"Re-preparing documents for user {session['eppn']}")
+    loop = asyncio.new_event_loop()
+    tasks = [loop.create_task(prepare(doc)) for doc in documents['documents']]
+    loop.run_until_complete(asyncio.wait(tasks))
+    loop.close()
+
+    docs_data = [task.result() for task in tasks]
+    new_docs = []
+    for doc_data, doc in zip(docs_data, documents['documents']):
+
+        if 'error' in doc_data and doc_data['error']:
+            current_app.logger.error(f"Problem re-preparing document for user {session['eppn']}: {doc['name']}")
+            return doc_data
+
+        current_app.logger.info(f"Re-prepared {doc['name']} for user {session['eppn']}")
 
         new_docs.append(
             {
                 'name': doc['name'],
                 'type': doc['type'],
-                'ref': prepare_data['updatedPdfDocumentReference'],
-                'sign_requirement': json.dumps(prepare_data['visiblePdfSignatureRequirement']),
+                'ref': doc_data['updatedPdfDocumentReference'],
+                'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
             }
         )
 
