@@ -30,10 +30,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from base64 import b64decode
-from xml.etree import cElementTree as ET
 import asyncio
 import json
+from base64 import b64decode
+from xml.etree import cElementTree as ET
 
 from flask import Blueprint, abort, current_app, render_template, request, session
 from flask_babel import gettext

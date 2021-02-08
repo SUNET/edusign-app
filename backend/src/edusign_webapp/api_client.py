@@ -30,10 +30,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+import json
 from pprint import pformat
 from urllib.parse import urljoin
 from uuid import uuid4
-import json
 
 import requests
 from flask import current_app, session, url_for
