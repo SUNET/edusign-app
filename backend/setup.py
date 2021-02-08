@@ -1,28 +1,15 @@
+import os
+
 from setuptools import setup, find_packages
 
 
+here = os.path.abspath(os.path.dirname(__file__))
+
 version = '0.1.0'
 
-requires = [
-    'setuptools >= 50.3.2',
-    'Flask >= 1.1,<1.2',
-    'marshmallow >= 3.9.1',
-    'Flask-Babel == 2.0.0',
-    'requests >= 2.25.0',
-]
-
-test_requires = [
-    'pytest>=6.1.2',
-    'pytest-cov>=2.10.1',
-    'mock==4.0.2',
-    'WebTest>=2.0.35',
-]
-
-devel_extras = test_requires + [
-    'isort>=5.6.4',
-    'black>=20.8b1',
-    'mypy>=0.790',
-]
+requires = [x for x in open(os.path.join(here, 'requirements.txt')).read().split('\n') if len(x) > 0]
+test_requires = [x for x in open(os.path.join(here, 'test_requirements.txt')).read().split('\n')
+                 if len(x) > 0 and not x.startswith('-')]
 
 long_description = open('README.txt').read()
 
@@ -44,9 +31,6 @@ setup(name='edusign-webapp',
       zip_safe=False,
       install_requires=requires,
       tests_require=test_requires,
-      extras_require={
-          'devel': devel_extras,
-      },
       entry_points="""
       """,
       )
