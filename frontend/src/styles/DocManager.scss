@@ -58,13 +58,15 @@
 }
 
 .doc-flex-container-sm {
-  margin-top: 1.5rem;
-  padding: 0.2rem;
+  margin-top: 0.5rem;
+  padding: 1rem 0.2rem 0.2rem;
   flex: none;
   display: flex;
   flex-direction: column;
   min-width: 100%;
   align-items: flex-start;
+  border-radius: 10px;
+  background-color: $lightest-gray;
 
   .doc-container-first-row,
   .doc-container-second-row,
