@@ -229,6 +229,13 @@ class DocStore(object):
         Get the content of some document identified by the `key`,
         as a base64 string, to add a signature to it.
 
+        NOTE XXX: This should set a lock on the document,
+                  to avoid 2 users signing the document concurrently,
+                  thus one of them shadowing the other's signaure.
+                  This lock should also expire after some time.
+                  Alternatively, we may send the email invites in succession,
+                  only sending one when the previous invited user has already signed.
+
         :param key: The key identifying the document in the `storage`.
         :return: base64 string with the contents of the document.
         """
