@@ -48,16 +48,11 @@ class ABCStorage(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add(self, document: Dict[str, Any], owner: dict) -> str:
+    def add(self, content: str) -> str:
         """
         Store a new document.
 
-        :param document: Content and metadata of the document. Dictionary containing 4 keys:
-                         + name: The name of the document
-                         + type: Content type of the doc
-                         + size: Size of the doc
-                         + blob: Contents of the document, as a base64 string.
-        :param owner: Email address of the user that has uploaded the document.
+        :param content: Contents of the document, as a base64 string.
         :return: A key that uniquely identifies the document in the store.
         """
 
