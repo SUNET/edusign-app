@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import abc
+import uuid
 from importlib import import_module
 from typing import Any, Dict, List
 
@@ -57,7 +58,7 @@ class ABCStorage(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def get_content(self, key: str) -> str:
+    def get_content(self, key: uuid.UUID) -> str:
         """
         Get the content of some document identified by the `key`,
         as a base64 string.
@@ -67,7 +68,7 @@ class ABCStorage(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def update(self, key: str, content: str):
+    def update(self, key: uuid.UUID, content: str):
         """
         Update a document, usually because a new signature has been added.
 
@@ -76,7 +77,7 @@ class ABCStorage(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def remove(self, key):
+    def remove(self, key: uuid.UUID):
         """
         Remove a document from the store
 
@@ -101,7 +102,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add(self, key: str, document: Dict[str, str], owner: str, invites: List[str]):
+    def add(self, key: uuid.UUID, document: Dict[str, str], owner: str, invites: List[str]):
         """
         Store metadata for a new document.
 
@@ -110,7 +111,6 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                          + name: The name of the document
                          + type: Content type of the doc
                          + size: Size of the doc
-                         + blob: Contents of the document, as a base64 string.
         :param owner: Email address of the user that has uploaded the document.
         :param invites: List of the emails of the users that have been invited to sign the document.
         """
@@ -132,7 +132,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def update(self, key: str, email: str):
+    def update(self, key: uuid.UUID, email: str):
         """
         Update the metadata of a document to which a new signature has been added.
 
@@ -155,7 +155,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def remove(self, key):
+    def remove(self, key: uuid.UUID):
         """
         Remove from the store the metadata corresponding to the document identified by the `key`,
         typically because it has already been signed by all requested parties and has been handed to the owner.
@@ -219,7 +219,7 @@ class DocStore(object):
         """
         return self.metadata.get_pending(email)
 
-    def get_document_content(self, key: str) -> str:
+    def get_document_content(self, key: uuid.UUID) -> str:
         """
         Get the content of some document identified by the `key`,
         as a base64 string, to add a signature to it.
@@ -236,7 +236,7 @@ class DocStore(object):
         """
         return self.storage.get_content(key)
 
-    def update_document(self, key: str, content: str, email: str):
+    def update_document(self, key: uuid.UUID, content: str, email: str):
         """
         Update a document to which a new signature has been added.
 
@@ -263,7 +263,7 @@ class DocStore(object):
         """
         return self.metadata.get_owned(email)
 
-    def remove_document(self, key: str):
+    def remove_document(self, key: uuid.UUID):
         """
         Remove a document from the store, possibly because it has already been signed
         by all requested parties and has been handed to the owner.

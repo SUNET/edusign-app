@@ -38,6 +38,7 @@ import pytest
 
 from edusign_webapp import run
 from edusign_webapp.document.storage.local import LocalStorage
+from edusign_webapp.document.metadata.sqlite import SqliteMD
 
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -80,6 +81,17 @@ def local_storage():
     }
     # return tempdir, since once it goes out of scope, it is removed
     return tempdir, LocalStorage(config)
+
+
+@pytest.fixture
+def sqlite_md():
+    tempdir = tempfile.TemporaryDirectory()
+    db_path = os.path.join(tempdir.name, 'test.db')
+    config = {
+        'SQLITE_MD_DB_PATH': db_path
+    }
+    # return tempdir, since once it goes out of scope, it is removed
+    return tempdir, SqliteMD(config)
 
 
 @pytest.fixture

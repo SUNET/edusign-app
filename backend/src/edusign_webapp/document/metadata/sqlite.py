@@ -33,6 +33,7 @@
 from typing import Any, Dict, List, Union
 import os
 import sqlite3
+import uuid
 
 from flask import current_app, g
 
@@ -41,61 +42,63 @@ from edusign_webapp.doc_store import ABCMetadata
 
 DB_SCHEMA = """
 CREATE TABLE [Users]
-(      [UserID] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [Email] VARCHAR(255) NOT NULL
+(      [userID] INTEGER PRIMARY KEY AUTOINCREMENT,
+       [email] VARCHAR(255) NOT NULL
 );
 CREATE TABLE [Documents]
-(      [DocumentID] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [Key] INTEGER NOT NULL,
-       [Name] VARCHAR(255) NOT NULL,
-       [Size] INTEGER NOT NULL,
-       [Type] VARCHAR(50) NOT NULL,
-       [Created] DATETIME DEFAULT CURRENT_TIMESTAMP,
-       [Updated] DATETIME DEFAULT CURRENT_TIMESTAMP,
-       [Owner] INTEGER NOT NULL,
-            FOREIGN KEY ([Owner]) REFERENCES [Users] ([UserID])
+(      [documentID] INTEGER PRIMARY KEY AUTOINCREMENT,
+       [key] VARCHAR(255) NOT NULL,
+       [name] VARCHAR(255) NOT NULL,
+       [size] INTEGER NOT NULL,
+       [type] VARCHAR(50) NOT NULL,
+       [created] DATETIME DEFAULT CURRENT_TIMESTAMP,
+       [updated] DATETIME DEFAULT CURRENT_TIMESTAMP,
+       [owner] INTEGER NOT NULL,
+            FOREIGN KEY ([owner]) REFERENCES [Users] ([userID])
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 CREATE TABLE [Invites]
-(      [InviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [UserID] INTEGER NOT NULL,
-       [DocumentID] INTEGER NOT NULL,
-            FOREIGN KEY ([UserID]) REFERENCES [Users] ([UserID])
+(      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
+       [userID] INTEGER NOT NULL,
+       [documentID] INTEGER NOT NULL,
+            FOREIGN KEY ([userID]) REFERENCES [Users] ([userID])
               ON DELETE NO ACTION ON UPDATE NO ACTION,
-            FOREIGN KEY ([DocumentID]) REFERENCES [Documents] ([DocumentID])
+            FOREIGN KEY ([documentID]) REFERENCES [Documents] ([documentID])
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
-CREATE INDEX IF NOT EXISTS [EmailIX] ON [Users] ([Email]);
-CREATE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([Key]);
-CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([Owner]);
-CREATE INDEX IF NOT EXISTS [InviteeIX] ON [Invites] ([UserID]);
-CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([DocumentID]);
+CREATE INDEX IF NOT EXISTS [EmailIX] ON [Users] ([email]);
+CREATE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
+CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([owner]);
+CREATE INDEX IF NOT EXISTS [InviteeIX] ON [Invites] ([userID]);
+CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([documentID]);
 """
 
 
-USER_INSERT = "INSERT INTO Users (Email) VALUES (?);"
-USER_QUERY_ID = "SELECT UserID FROM Users WHERE Email = ?;"
-USER_QUERY = "SELECT Email FROM Users WHERE UserID = ?;"
-DOCUMENT_INSERT = "INSERT INTO Documents (Key, Name, Size, Type, Owner) VALUES (?, ?, ?, ?, ?);"
-DOCUMENT_QUERY_ID = "SELECT DocumentID FROM Documents WHERE Key = ?;"
-DOCUMENT_QUERY = "SELECT Key, Name, Size, Type, Owner FROM Documents WHERE DocumentID = ?;"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT DocumentID, Key, Name, Size, Type FROM Documents WHERE Owner = ?;"
-DOCUMENT_DELETE = "DELETE FROM Documents WHERE Key = ?;"
-INVITE_INSERT = "INSERT INTO Invites (DocumentID, UserID) VALUES (?, ?)"
-INVITE_QUERY = "SELECT DocumentID FROM Invites WHERE UserID = ?;"
-INVITE_QUERY_FROM_DOC = "SELECT UserID FROM Invites WHERE DocumentID = ?;"
-INVITE_DELETE = "DELETE FROM Invites WHERE UserID = ? and DocumentID = ?;"
+USER_INSERT = "INSERT INTO Users (email) VALUES (?);"
+USER_QUERY_ID = "SELECT userID FROM Users WHERE email = ?;"
+USER_QUERY = "SELECT email FROM Users WHERE userID = ?;"
+DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner) VALUES (?, ?, ?, ?, ?);"
+DOCUMENT_QUERY_ID = "SELECT documentID FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY = "SELECT key, name, size, type, owner FROM Documents WHERE documentID = ?;"
+DOCUMENT_QUERY_FROM_OWNER = "SELECT documentID, key, name, size, type FROM Documents WHERE owner = ?;"
+DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
+INVITE_INSERT = "INSERT INTO Invites (documentID, userID) VALUES (?, ?)"
+INVITE_QUERY = "SELECT documentID FROM Invites WHERE userID = ?;"
+INVITE_QUERY_FROM_DOC = "SELECT userID FROM Invites WHERE documentID = ?;"
+INVITE_DELETE = "DELETE FROM Invites WHERE userID = ? and documentID = ?;"
 
 
 def get_db(db_path):
     db = getattr(g, '_database', None)
     if db is None:
-        exists = os.isfile(db_path)
+        exists = os.path.isfile(db_path)
         db = g._database = sqlite3.connect(db_path)
 
         if not exists:
             db.cursor().executescript(DB_SCHEMA)
             db.commit()
+
+        db.row_factory = sqlite3.Row
 
         @current_app.teardown_appcontext
         def close_connection(exception):
@@ -109,6 +112,7 @@ def get_db(db_path):
 # XXX Lower case fields
 # XXX Make sure error conditions are handled sensibly
 # XXX Work on the SQL, compounding queries and statements
+# XXX Update updated timestamp in Documents table
 
 
 class SqliteMD(ABCMetadata):
@@ -126,7 +130,7 @@ class SqliteMD(ABCMetadata):
         :param config: Dict like object with the configuration parameters provided to the Flask app.
         """
         self.config = config
-        self.db_path = os.path.join(config['SQLITE_MD_DB_PATH'], config['SQLITE_MD_DB_NAME'])
+        self.db_path = config['SQLITE_MD_DB_PATH']
 
     def _db_execute(self, stmt: str, args: tuple = ()):
         db = get_db(self.db_path)
@@ -142,39 +146,38 @@ class SqliteMD(ABCMetadata):
         db = get_db(self.db_path)
         db.commit()
 
-    def add(self, key: str, document: Dict[str, str], owner: str, invites: List[str]):
+    def add(self, key: uuid.UUID, document: Dict[str, Any], owner: str, invites: List[str]):
         """
         Store metadata for a new document.
 
-        :param key: The key that uniquely identifies the document in the storage.
+        :param key: The uuid that uniquely identifies the document in the storage.
         :param document: Content and metadata of the document. Dictionary containing 4 keys:
                          + name: The name of the document
                          + size: Size of the doc
                          + type: Content type of the doc
-                         + blob: Contents of the document, as a base64 string.
-        :param owner: Email address of the user that has uploaded the document.
+        :param owner: email address of the user that has uploaded the document.
         :param invites: List of the emails of the users that have been invited to sign the document.
         """
         self._db_execute(USER_INSERT, (owner,))
         owner_result = self._db_query(USER_QUERY_ID, (owner,), one=True)
-        if owner_result is None:
+        if owner_result is None or isinstance(owner_result, list):
             return
-        elif isinstance(owner_result, dict):
-            owner_id = owner_result['UserID']
 
-        self._db_execute(DOCUMENT_INSERT, (key, document['name'], document['size'], document['type'], owner_id))
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (key,), one=True)
+        owner_id = owner_result['userID']
+
+        self._db_execute(DOCUMENT_INSERT, (key.bytes, document['name'], document['size'], document['type'], owner_id))
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
         if document_result is None or isinstance(document_result, list):
             return
-        document_id = document_result['DocumentID']
+        document_id = document_result['documentID']
 
         for email in invites:
             self._db_execute(USER_INSERT, (email,))
             user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
-            if user_result is None:
+            if user_result is None or isinstance(user_result, list):
                 continue
-            elif isinstance(user_result, dict):
-                user_id = user_result['UserID']
+
+            user_id = user_result['userID']
             self._db_execute(INVITE_INSERT, (document_id, user_id))
 
         self._db_commit()
@@ -197,7 +200,7 @@ class SqliteMD(ABCMetadata):
         if user_result is None:
             return []
         elif isinstance(user_result, dict):
-            user_id = user_result['UserID']
+            user_id = user_result['userID']
 
         invites = self._db_query(INVITE_QUERY, user_id)
         pending = []
@@ -205,18 +208,19 @@ class SqliteMD(ABCMetadata):
             return []
 
         for invite in invites:
-            document = self._db_query(DOCUMENT_QUERY, (invite['DocumentID'],), one=True)
+            document = self._db_query(DOCUMENT_QUERY, (invite['documentID'],), one=True)
             if document is None or isinstance(document, list):
                 continue
-            email_result = self._db_query(USER_QUERY, (document['Owner'],), one=True)
+            email_result = self._db_query(USER_QUERY, (document['owner'],), one=True)
             if email_result is None or isinstance(email_result, list):
                 continue
-            document['Owner'] = email_result['Email']
+            document['owner'] = email_result['email']
+            document['key'] = uuid.UUID(bytes=document['key'])
             pending.append(document)
 
         return pending
 
-    def update(self, key: str, email: str):
+    def update(self, key: uuid.UUID, email: str):
         """
         Update the metadata of a document to which a new signature has been added.
         This is, remove corresponding entry in the Invites table.
@@ -228,14 +232,15 @@ class SqliteMD(ABCMetadata):
         if user_result is None:
             return []
         elif isinstance(user_result, dict):
-            user_id = user_result['UserID']
+            user_id = user_result['userID']
 
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (key,), one=True)
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
         if document_result is None or isinstance(document_result, list):
             return
-        document_id = document_result['DocumentID']
+        document_id = document_result['documentID']
 
         self._db_execute(INVITE_DELETE, (user_id, document_id))
+        self._db_commit()
 
     def get_owned(self, email: str) -> List[Dict[str, Any]]:
         """
@@ -253,31 +258,33 @@ class SqliteMD(ABCMetadata):
         if user_result is None:
             return []
         elif isinstance(user_result, dict):
-            user_id = user_result['UserID']
+            user_id = user_result['userID']
 
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (user_id,))
         if documents is None or isinstance(documents, dict):
             return []
 
         for document in documents:
+            document['key'] = uuid.UUID(bytes=document['key'])
             document['pending'] = []
-            invites = self._db_query(INVITE_QUERY_FROM_DOC, (document['DocumentID'],))
-            del document['DocumentID']
+            invites = self._db_query(INVITE_QUERY_FROM_DOC, (document['documentID'],))
+            del document['documentID']
             if invites is None or isinstance(invites, dict):
                 continue
             for invite in invites:
-                email_result = self._db_query(USER_QUERY, (invite['UserID'],), one=True)
+                email_result = self._db_query(USER_QUERY, (invite['userID'],), one=True)
                 if email_result is None or isinstance(email_result, list):
                     continue
-                document['pending'].append(email_result['Email'])
+                document['pending'].append(email_result['email'])
 
         return documents
 
-    def remove(self, key):
+    def remove(self, key: uuid.UUID):
         """
         Remove from the store the metadata corresponding to the document identified by the `key`,
         typically because it has already been signed by all requested parties and has been handed to the owner.
 
         :param key: The key identifying the document.
         """
-        self._db_execute(DOCUMENT_DELETE, (key,))
+        self._db_execute(DOCUMENT_DELETE, (key.bytes,))
+        self._db_commit()
