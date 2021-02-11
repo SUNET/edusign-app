@@ -30,15 +30,14 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from typing import Any, Dict, List, Union
 import os
 import sqlite3
 import uuid
+from typing import Any, Dict, List, Union
 
 from flask import current_app, g
 
 from edusign_webapp.doc_store import ABCMetadata
-
 
 DB_SCHEMA = """
 CREATE TABLE [Users]
@@ -136,7 +135,9 @@ class SqliteMD(ABCMetadata):
         db = get_db(self.db_path)
         db.execute(stmt, args)
 
-    def _db_query(self, query: str, args: tuple = (), one: bool = False) -> Union[List[Dict[str, Any]], Dict[str, Any], None]:
+    def _db_query(
+        self, query: str, args: tuple = (), one: bool = False
+    ) -> Union[List[Dict[str, Any]], Dict[str, Any], None]:
         cur = get_db(self.db_path).execute(query, args)
         rv = cur.fetchall()
         cur.close()

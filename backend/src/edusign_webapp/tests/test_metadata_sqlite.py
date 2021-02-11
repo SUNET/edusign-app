@@ -40,11 +40,7 @@ from edusign_webapp import run
 def test_add(client, sqlite_md):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    test_doc = {
-        'name': 'test.pdf',
-        'size': 1500000,
-        'type': 'application/pdf'
-    }
+    test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
     test_invites = ['invite1@example.com', 'invite2@example.com']
 
     with run.app.app_context():
