@@ -116,7 +116,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def get_pending(self, email: str) -> Dict[str, str]:
+    def get_pending(self, email: str) -> List[Dict[str, str]]:
         """
         Given the email address of some user, return information about the documents
         she has been invited to sign, and has not yet signed.
@@ -141,7 +141,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def get_owned(self, email: str) -> Dict[str, Any]:
+    def get_owned(self, email: str) -> List[Dict[str, Any]]:
         """
         Get information about the documents that have been added by some user to be signed by other users.
 
