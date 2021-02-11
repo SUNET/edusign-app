@@ -32,7 +32,7 @@
 #
 import base64
 import os
-from uuid import uuid4
+import uuid
 
 from edusign_webapp.doc_store import ABCStorage
 
@@ -50,21 +50,21 @@ class LocalStorage(ABCStorage):
         self.config = config
         self.base_dir = config['LOCAL_STORAGE_BASE_DIR']
 
-    def add(self, content: str) -> str:
+    def add(self, content: str) -> uuid.UUID:
         """
         Store a new document.
 
         :param content: Contents of the document, as a base64 string.
         :return: A key that uniquely identifies the document in the store.
         """
-        key = str(uuid4())
-        path = os.path.join(self.base_dir, key)
+        key = uuid.uuid4()
+        path = os.path.join(self.base_dir, str(key))
         bcontent = base64.b64decode(content.encode('utf8'))
         with open(path, 'wb') as f:
             f.write(bcontent)
         return key
 
-    def get_content(self, key: str) -> str:
+    def get_content(self, key: uuid.UUID) -> str:
         """
         Get the content of some document identified by the `key`,
         as a base64 string.
@@ -72,29 +72,29 @@ class LocalStorage(ABCStorage):
         :param key: The key identifying the document.
         :return: base64 string with the contents of the document.
         """
-        path = os.path.join(self.base_dir, key)
+        path = os.path.join(self.base_dir, str(key))
         with open(path, 'rb') as f:
             bcontent = f.read()
         return base64.b64encode(bcontent).decode('utf8')
 
-    def update(self, key: str, content: str):
+    def update(self, key: uuid.UUID, content: str):
         """
         Update a document, usually because a new signature has been added.
 
         :param key: The key identifying the document.
         :param content: base64 string with the contents of the new version of the document.
         """
-        path = os.path.join(self.base_dir, key)
+        path = os.path.join(self.base_dir, str(key))
         bcontent = base64.b64decode(content.encode('utf8'))
         with open(path, 'wb') as f:
             f.write(bcontent)
 
-    def remove(self, key):
+    def remove(self, key: uuid.UUID):
         """
         Remove a document from the store
 
         :param key: The key identifying the document.
         """
-        path = os.path.join(self.base_dir, key)
+        path = os.path.join(self.base_dir, str(key))
         if os.path.isfile(path):
             os.remove(path)

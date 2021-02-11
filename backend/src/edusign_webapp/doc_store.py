@@ -49,7 +49,7 @@ class ABCStorage(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add(self, content: str) -> str:
+    def add(self, content: str) -> uuid.UUID:
         """
         Store a new document.
 

@@ -37,7 +37,7 @@ def test_add(local_storage, sample_pdf_data):
     _, storage = local_storage
     key = storage.add(sample_pdf_data)
 
-    assert os.listdir(storage.base_dir) == [key]
+    assert os.listdir(storage.base_dir) == [str(key)]
 
 
 def test_add_and_retrieve(local_storage, sample_pdf_data):
@@ -90,4 +90,4 @@ def test_add_two_and_remove(local_storage, sample_pdf_data, sample_pdf_data_2):
 
     storage.remove(key1)
 
-    assert os.listdir(storage.base_dir) == [key2]
+    assert os.listdir(storage.base_dir) == [str(key2)]
