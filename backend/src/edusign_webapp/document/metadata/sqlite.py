@@ -120,9 +120,6 @@ def get_db(db_path):
     return db
 
 
-# XXX Work on the SQL, compounding queries and statements
-
-
 class SqliteMD(ABCMetadata):
     """
     Sqlite backend to deal with the metadata associated to documents
