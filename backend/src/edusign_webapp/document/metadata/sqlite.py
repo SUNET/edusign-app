@@ -81,11 +81,12 @@ USER_QUERY = "SELECT email FROM Users WHERE userID = ?;"
 DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner) VALUES (?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT documentID FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner FROM Documents WHERE documentID = ?;"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT documentID, key, name, size, type FROM Documents WHERE owner = ?;"
+DOCUMENT_QUERY_FROM_OWNER = "SELECT d.documentID, d.key, d.name, d.size, d.type FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.userID;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (documentID, userID) VALUES (?, ?)"
 INVITE_QUERY = "SELECT documentID FROM Invites WHERE userID = ?;"
+INVITE_QUERY_FROM_EMAIL = "SELECT Invites.documentID FROM Invites, Users WHERE Users.email = ? and Invites.userID = Users.userID;"
 INVITE_QUERY_FROM_DOC = "SELECT userID FROM Invites WHERE documentID = ?;"
 INVITE_DELETE = "DELETE FROM Invites WHERE userID = ? and documentID = ?;"
 
@@ -216,16 +217,11 @@ class SqliteMD(ABCMetadata):
                  + type: Content type of the doc
                  + owner: Email of the user requesting the signature
         """
-        user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
-        if user_result is None or isinstance(user_result, list):
-            return []
-
-        user_id = user_result['userID']
-        invites = self._db_query(INVITE_QUERY, (user_id,))
-        pending = []
+        invites = self._db_query(INVITE_QUERY_FROM_EMAIL, (email,))
         if invites is None or isinstance(invites, dict):
             return []
 
+        pending = []
         for invite in invites:
             document_id = invite['documentID']
             document = self._db_query(DOCUMENT_QUERY, (document_id,), one=True)
@@ -285,13 +281,7 @@ class SqliteMD(ABCMetadata):
                  + size: Size of the doc
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
         """
-        user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
-        if user_result is None or isinstance(user_result, list):
-            return []
-
-        user_id = user_result['userID']
-
-        documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (user_id,))
+        documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (email,))
         if documents is None or isinstance(documents, dict):
             return []
 
