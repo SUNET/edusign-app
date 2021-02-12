@@ -120,9 +120,6 @@ def get_db(db_path):
 
 
 # XXX Work on the SQL, compounding queries and statements
-# XXX Update updated timestamp in Documents table
-# XXX remove should fail if there are pending signatures
-#     (perhaps with a flag `force` that would remove dangling pendings?
 
 
 class SqliteMD(ABCMetadata):
@@ -317,7 +314,7 @@ class SqliteMD(ABCMetadata):
 
         return documents
 
-    def remove(self, key: uuid.UUID):
+    def remove(self, key: uuid.UUID, force: bool = False):
         """
         Remove from the store the metadata corresponding to the document identified by the `key`,
         typically because it has already been signed by all requested parties and has been handed to the owner.
@@ -329,13 +326,14 @@ class SqliteMD(ABCMetadata):
             self.logger.error(f"Trying to delete a non-existing document with key {key}")
             return
 
-        document_id = document_result['documentID']
-        invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
-        if invites is None or isinstance(invites, dict):  # This should never happen, it's just to please mypy
-            pass
-        elif len(invites) != 0:
-            self.logger.error(f"Refusing to remove document {key} with pending emails")
-            return
+        if not force:
+            document_id = document_result['documentID']
+            invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
+            if invites is None or isinstance(invites, dict):  # This should never happen, it's just to please mypy
+                pass
+            elif len(invites) != 0:
+                self.logger.error(f"Refusing to remove document {key} with pending emails")
+                return
 
         self._db_execute(DOCUMENT_DELETE, (key.bytes,))
         self._db_commit()
