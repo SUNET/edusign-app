@@ -54,4 +54,130 @@ def test_add(client, sqlite_md):
     cur.close()
     conn.close()
 
+    # Remove timestamps from the result
     assert result[:5] == (1, dummy_key.bytes, 'test.pdf', 1500000, 'application/pdf')
+
+
+def test_add_and_get_pending(client, sqlite_md):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
+    test_invites = ['invite1@example.com', 'invite2@example.com']
+
+    with run.app.app_context():
+        test_md.add(dummy_key, test_doc, 'owner@example.com', test_invites)
+
+        pending1 = test_md.get_pending('invite1@example.com')
+        pending2 = test_md.get_pending('invite2@example.com')
+
+    assert len(pending1) == 1
+    assert pending1[0]['name'] == 'test.pdf'
+    assert pending1[0]['size'] == 1500000
+    assert pending1[0]['type'] == 'application/pdf'
+    assert pending1[0]['owner'] == 'owner@example.com'
+
+    assert len(pending2) == 1
+    assert pending2[0]['name'] == 'test.pdf'
+    assert pending2[0]['size'] == 1500000
+    assert pending2[0]['type'] == 'application/pdf'
+    assert pending2[0]['owner'] == 'owner@example.com'
+
+
+def test_add_and_get_pending_not(client, sqlite_md):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
+    test_invites = ['invite1@example.com', 'invite2@example.com']
+
+    with run.app.app_context():
+        test_md.add(dummy_key, test_doc, 'owner@example.com', test_invites)
+
+        pending = test_md.get_pending('invite3@example.com')
+
+    assert pending == []
+
+
+def test_add_two_and_get_pending(client, sqlite_md):
+    tempdir, test_md = sqlite_md
+    dummy_key_1 = uuid.uuid4()
+    test_doc_1 = {'name': 'test1.pdf', 'size': 1500000, 'type': 'application/pdf'}
+    test_invites_1 = ['invite1@example.com', 'invite2@example.com']
+    dummy_key_2 = uuid.uuid4()
+    test_doc_2 = {'name': 'test2.pdf', 'size': 1500000, 'type': 'application/pdf'}
+    test_invites_2 = ['invite1@example.com', 'invite3@example.com']
+
+    with run.app.app_context():
+        test_md.add(dummy_key_1, test_doc_1, 'owner1@example.com', test_invites_1)
+        test_md.add(dummy_key_2, test_doc_2, 'owner2@example.com', test_invites_2)
+
+        pending = test_md.get_pending('invite1@example.com')
+
+    assert len(pending) == 2
+
+    assert pending[0]['name'] == 'test1.pdf'
+    assert pending[0]['size'] == 1500000
+    assert pending[0]['type'] == 'application/pdf'
+    assert pending[0]['owner'] == 'owner1@example.com'
+
+    assert pending[1]['name'] == 'test2.pdf'
+    assert pending[1]['size'] == 1500000
+    assert pending[1]['type'] == 'application/pdf'
+    assert pending[1]['owner'] == 'owner2@example.com'
+
+
+def test_update_and_get_pending(client, sqlite_md):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
+    test_invites = ['invite1@example.com', 'invite2@example.com']
+
+    with run.app.app_context():
+        test_md.add(dummy_key, test_doc, 'owner@example.com', test_invites)
+
+        test_md.update(dummy_key, test_invites[0])
+
+        pending1 = test_md.get_pending('invite1@example.com')
+        pending2 = test_md.get_pending('invite2@example.com')
+
+    assert len(pending1) == 0
+
+    assert len(pending2) == 1
+    assert pending2[0]['name'] == 'test.pdf'
+    assert pending2[0]['size'] == 1500000
+    assert pending2[0]['type'] == 'application/pdf'
+    assert pending2[0]['owner'] == 'owner@example.com'
+
+
+def test_add_and_get_owned(client, sqlite_md):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
+    test_invites = ['invite1@example.com', 'invite2@example.com']
+
+    with run.app.app_context():
+        test_md.add(dummy_key, test_doc, 'owner@example.com', test_invites)
+
+        owned = test_md.get_owned('owner@example.com')
+
+    assert len(owned) == 1
+    assert owned[0]['key'] == dummy_key
+    assert owned[0]['name'] == 'test.pdf'
+    assert owned[0]['size'] == 1500000
+    assert owned[0]['type'] == 'application/pdf'
+    assert owned[0]['pending'] == ['invite1@example.com', 'invite2@example.com']
+
+
+def test_add_and_remove(client, sqlite_md):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
+    test_invites = ['invite1@example.com']
+
+    with run.app.app_context():
+        test_md.add(dummy_key, test_doc, 'owner@example.com', test_invites)
+        test_md.update(dummy_key, test_invites[0])
+        test_md.remove(dummy_key)
+
+        owned = test_md.get_owned('owner@example.com')
+
+    assert len(owned) == 0

@@ -65,8 +65,8 @@ CREATE TABLE [Invites]
             FOREIGN KEY ([documentID]) REFERENCES [Documents] ([documentID])
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
-CREATE INDEX IF NOT EXISTS [EmailIX] ON [Users] ([email]);
-CREATE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
+CREATE UNIQUE INDEX IF NOT EXISTS [EmailIX] ON [Users] ([email]);
+CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
 CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([owner]);
 CREATE INDEX IF NOT EXISTS [InviteeIX] ON [Invites] ([userID]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([documentID]);
@@ -87,6 +87,14 @@ INVITE_QUERY_FROM_DOC = "SELECT userID FROM Invites WHERE documentID = ?;"
 INVITE_DELETE = "DELETE FROM Invites WHERE userID = ? and documentID = ?;"
 
 
+def make_dicts(cursor, row):
+    """
+    See https://flask.palletsprojects.com/en/1.1.x/patterns/sqlite3
+    """
+    return dict((cursor.description[idx][0], value)
+                for idx, value in enumerate(row))
+
+
 def get_db(db_path):
     db = getattr(g, '_database', None)
     if db is None:
@@ -97,7 +105,7 @@ def get_db(db_path):
             db.cursor().executescript(DB_SCHEMA)
             db.commit()
 
-        db.row_factory = sqlite3.Row
+        db.row_factory = make_dicts
 
         @current_app.teardown_appcontext
         def close_connection(exception):
@@ -108,10 +116,11 @@ def get_db(db_path):
     return db
 
 
-# XXX Lower case fields
 # XXX Make sure error conditions are handled sensibly
 # XXX Work on the SQL, compounding queries and statements
 # XXX Update updated timestamp in Documents table
+# XXX remove should fail if there are pending signatures
+#     (perhaps with a flag `force` that would remove dangling pendings?
 
 
 class SqliteMD(ABCMetadata):
@@ -159,8 +168,11 @@ class SqliteMD(ABCMetadata):
         :param owner: email address of the user that has uploaded the document.
         :param invites: List of the emails of the users that have been invited to sign the document.
         """
-        self._db_execute(USER_INSERT, (owner,))
         owner_result = self._db_query(USER_QUERY_ID, (owner,), one=True)
+        if owner_result is None:
+            self._db_execute(USER_INSERT, (owner,))
+            owner_result = self._db_query(USER_QUERY_ID, (owner,), one=True)
+
         if owner_result is None or isinstance(owner_result, list):
             return
 
@@ -173,8 +185,11 @@ class SqliteMD(ABCMetadata):
         document_id = document_result['documentID']
 
         for email in invites:
-            self._db_execute(USER_INSERT, (email,))
             user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+            if user_result is None:
+                self._db_execute(USER_INSERT, (email,))
+                user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+
             if user_result is None or isinstance(user_result, list):
                 continue
 
@@ -197,13 +212,12 @@ class SqliteMD(ABCMetadata):
                  + type: Content type of the doc
                  + owner: Email of the user requesting the signature
         """
-        user_result = self._db_query(USER_QUERY_ID, (email,))
-        if user_result is None:
+        user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+        if user_result is None or isinstance(user_result, list):
             return []
-        elif isinstance(user_result, dict):
-            user_id = user_result['userID']
 
-        invites = self._db_query(INVITE_QUERY, user_id)
+        user_id = user_result['userID']
+        invites = self._db_query(INVITE_QUERY, (user_id,))
         pending = []
         if invites is None or isinstance(invites, dict):
             return []
@@ -229,11 +243,11 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the document in the `storage`.
         :param email: email address of the user that has just signed the document.
         """
-        user_result = self._db_query(USER_QUERY_ID, (email,))
-        if user_result is None:
+        user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+        if user_result is None or isinstance(user_result, list):
             return []
-        elif isinstance(user_result, dict):
-            user_id = user_result['userID']
+
+        user_id = user_result['userID']
 
         document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
         if document_result is None or isinstance(document_result, list):
@@ -255,11 +269,11 @@ class SqliteMD(ABCMetadata):
                  + size: Size of the doc
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
         """
-        user_result = self._db_query(USER_QUERY_ID, (email,))
-        if user_result is None:
+        user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+        if user_result is None or isinstance(user_result, list):
             return []
-        elif isinstance(user_result, dict):
-            user_id = user_result['userID']
+
+        user_id = user_result['userID']
 
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (user_id,))
         if documents is None or isinstance(documents, dict):
