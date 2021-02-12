@@ -30,9 +30,11 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+import logging
 import os
 import sqlite3
 import uuid
+from datetime import datetime
 from typing import Any, Dict, List, Union
 
 from flask import current_app, g
@@ -50,8 +52,8 @@ CREATE TABLE [Documents]
        [name] VARCHAR(255) NOT NULL,
        [size] INTEGER NOT NULL,
        [type] VARCHAR(50) NOT NULL,
-       [created] DATETIME DEFAULT CURRENT_TIMESTAMP,
-       [updated] DATETIME DEFAULT CURRENT_TIMESTAMP,
+       [created] TEXT DEFAULT CURRENT_TIMESTAMP,
+       [updated] TEXT DEFAULT CURRENT_TIMESTAMP,
        [owner] INTEGER NOT NULL,
             FOREIGN KEY ([owner]) REFERENCES [Users] ([userID])
               ON DELETE NO ACTION ON UPDATE NO ACTION
@@ -80,6 +82,7 @@ DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner) VALUES (
 DOCUMENT_QUERY_ID = "SELECT documentID FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner FROM Documents WHERE documentID = ?;"
 DOCUMENT_QUERY_FROM_OWNER = "SELECT documentID, key, name, size, type FROM Documents WHERE owner = ?;"
+DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (documentID, userID) VALUES (?, ?)"
 INVITE_QUERY = "SELECT documentID FROM Invites WHERE userID = ?;"
@@ -116,7 +119,6 @@ def get_db(db_path):
     return db
 
 
-# XXX Make sure error conditions are handled sensibly
 # XXX Work on the SQL, compounding queries and statements
 # XXX Update updated timestamp in Documents table
 # XXX remove should fail if there are pending signatures
@@ -133,11 +135,13 @@ class SqliteMD(ABCMetadata):
     and data about the users who have been invited to sign the document.
     """
 
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, logger: logging.Logger):
         """
         :param config: Dict like object with the configuration parameters provided to the Flask app.
+        :param logger: Logger
         """
         self.config = config
+        self.logger = logger
         self.db_path = config['SQLITE_MD_DB_PATH']
 
     def _db_execute(self, stmt: str, args: tuple = ()):
@@ -170,18 +174,21 @@ class SqliteMD(ABCMetadata):
         """
         owner_result = self._db_query(USER_QUERY_ID, (owner,), one=True)
         if owner_result is None:
+            self.logger.info(f"Adding new (owning) user: {owner}")
             self._db_execute(USER_INSERT, (owner,))
             owner_result = self._db_query(USER_QUERY_ID, (owner,), one=True)
 
-        if owner_result is None or isinstance(owner_result, list):
+        if owner_result is None or isinstance(owner_result, list):  # This should never happen, it's just to please mypy
             return
 
         owner_id = owner_result['userID']
 
         self._db_execute(DOCUMENT_INSERT, (key.bytes, document['name'], document['size'], document['type'], owner_id))
         document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
-        if document_result is None or isinstance(document_result, list):
+
+        if document_result is None or isinstance(document_result, list):  # This should never happen, it's just to please mypy
             return
+
         document_id = document_result['documentID']
 
         for email in invites:
@@ -190,7 +197,7 @@ class SqliteMD(ABCMetadata):
                 self._db_execute(USER_INSERT, (email,))
                 user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
 
-            if user_result is None or isinstance(user_result, list):
+            if user_result is None or isinstance(user_result, list):  # This should never happen, it's just to please mypy
                 continue
 
             user_id = user_result['userID']
@@ -223,12 +230,19 @@ class SqliteMD(ABCMetadata):
             return []
 
         for invite in invites:
-            document = self._db_query(DOCUMENT_QUERY, (invite['documentID'],), one=True)
+            document_id = invite['documentID']
+            document = self._db_query(DOCUMENT_QUERY, (document_id,), one=True)
             if document is None or isinstance(document, list):
+                self.logger.error(f"Db seems corrupted, an invite for {email}"
+                                  f" references a non existing document with id {document_id}")
                 continue
-            email_result = self._db_query(USER_QUERY, (document['owner'],), one=True)
+
+            owner = document['owner']
+            email_result = self._db_query(USER_QUERY, (owner,), one=True)
             if email_result is None or isinstance(email_result, list):
+                self.logger.error(f"Db seems corrupted, a document references a non existing owner {owner}")
                 continue
+
             document['owner'] = email_result['email']
             document['key'] = uuid.UUID(bytes=document['key'])
             pending.append(document)
@@ -245,16 +259,21 @@ class SqliteMD(ABCMetadata):
         """
         user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
         if user_result is None or isinstance(user_result, list):
-            return []
+            self.logger.error(f"Trying to update a document with the signature of non-existing {email}")
+            return
 
         user_id = user_result['userID']
 
         document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
         if document_result is None or isinstance(document_result, list):
+            self.logger.error(f"Trying to update a non-existing document with the signature of {email}")
             return
+
         document_id = document_result['documentID']
 
+        self.logger.info(f"Removing invite for {email} to sign {key}")
         self._db_execute(INVITE_DELETE, (user_id, document_id))
+        self._db_execute(DOCUMENT_UPDATE, (datetime.now().isoformat(), key.bytes,))
         self._db_commit()
 
     def get_owned(self, email: str) -> List[Dict[str, Any]]:
@@ -282,13 +301,17 @@ class SqliteMD(ABCMetadata):
         for document in documents:
             document['key'] = uuid.UUID(bytes=document['key'])
             document['pending'] = []
-            invites = self._db_query(INVITE_QUERY_FROM_DOC, (document['documentID'],))
+            document_id = document['documentID']
+            invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
             del document['documentID']
             if invites is None or isinstance(invites, dict):
                 continue
             for invite in invites:
-                email_result = self._db_query(USER_QUERY, (invite['userID'],), one=True)
+                user_id = invite['userID']
+                email_result = self._db_query(USER_QUERY, (user_id,), one=True)
                 if email_result is None or isinstance(email_result, list):
+                    self.logger.error(f"Db seems corrupted, an invite for {document_id}"
+                                      f" references a non existing user with id {user_id}")
                     continue
                 document['pending'].append(email_result['email'])
 
@@ -301,5 +324,18 @@ class SqliteMD(ABCMetadata):
 
         :param key: The key identifying the document.
         """
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.error(f"Trying to delete a non-existing document with key {key}")
+            return
+
+        document_id = document_result['documentID']
+        invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
+        if invites is None or isinstance(invites, dict):  # This should never happen, it's just to please mypy
+            pass
+        elif len(invites) != 0:
+            self.logger.error(f"Refusing to remove document {key} with pending emails")
+            return
+
         self._db_execute(DOCUMENT_DELETE, (key.bytes,))
         self._db_commit()

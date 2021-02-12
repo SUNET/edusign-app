@@ -30,6 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+import logging
 import os
 import tempfile
 from base64 import b64encode
@@ -77,7 +78,7 @@ def local_storage():
     tempdir = tempfile.TemporaryDirectory()
     config = {'LOCAL_STORAGE_BASE_DIR': tempdir.name}
     # return tempdir, since once it goes out of scope, it is removed
-    return tempdir, LocalStorage(config)
+    return tempdir, LocalStorage(config, logging.getLogger(__name__))
 
 
 @pytest.fixture
@@ -86,7 +87,7 @@ def sqlite_md():
     db_path = os.path.join(tempdir.name, 'test.db')
     config = {'SQLITE_MD_DB_PATH': db_path}
     # return tempdir, since once it goes out of scope, it is removed
-    return tempdir, SqliteMD(config)
+    return tempdir, SqliteMD(config, logging.getLogger(__name__))
 
 
 @pytest.fixture

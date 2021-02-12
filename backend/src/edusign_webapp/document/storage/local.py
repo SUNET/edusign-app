@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import base64
+import logging
 import os
 import uuid
 
@@ -43,11 +44,13 @@ class LocalStorage(ABCStorage):
     so that they can be consecutively signedby more than one user.
     """
 
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, logger: logging.Logger):
         """
         :param config: Dict like object with the configuration parameters provided to the Flask app.
+        :param logger: Logger
         """
         self.config = config
+        self.logger = logger
         self.base_dir = config['LOCAL_STORAGE_BASE_DIR']
 
     def add(self, content: str) -> uuid.UUID:
@@ -62,6 +65,8 @@ class LocalStorage(ABCStorage):
         bcontent = base64.b64decode(content.encode('utf8'))
         with open(path, 'wb') as f:
             f.write(bcontent)
+
+        self.logger.info(f"Saved document contents with key {key}")
         return key
 
     def get_content(self, key: uuid.UUID) -> str:
@@ -89,6 +94,8 @@ class LocalStorage(ABCStorage):
         with open(path, 'wb') as f:
             f.write(bcontent)
 
+        self.logger.info(f"Updated document contents with key {key}")
+
     def remove(self, key: uuid.UUID):
         """
         Remove a document from the store
@@ -98,3 +105,5 @@ class LocalStorage(ABCStorage):
         path = os.path.join(self.base_dir, str(key))
         if os.path.isfile(path):
             os.remove(path)
+
+        self.logger.info(f"Removed document contents with key {key}")

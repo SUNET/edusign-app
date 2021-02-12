@@ -33,6 +33,7 @@
 import os
 import sqlite3
 import uuid
+from datetime import datetime
 
 from edusign_webapp import run
 
@@ -148,6 +149,37 @@ def test_update_and_get_pending(client, sqlite_md):
     assert pending2[0]['owner'] == 'owner@example.com'
 
 
+def test_updated_timestamp(client, sqlite_md):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
+    test_invites = ['invite1@example.com', 'invite2@example.com']
+
+    with run.app.app_context():
+        test_md.add(dummy_key, test_doc, 'owner@example.com', test_invites)
+
+    def get_doc():
+        db_path = os.path.join(tempdir.name, 'test.db')
+        conn = sqlite3.connect(db_path)
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM Documents")
+        result = cur.fetchone()
+        cur.close()
+        conn.close()
+        return result
+
+    result = get_doc()
+
+    assert datetime.fromisoformat(result[5]) == datetime.fromisoformat(result[6])
+
+    with run.app.app_context():
+        test_md.update(dummy_key, 'invite1@example.com')
+
+    result = get_doc()
+
+    assert datetime.fromisoformat(result[5]) < datetime.fromisoformat(result[6])
+
+
 def test_add_and_get_owned(client, sqlite_md):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
@@ -181,3 +213,18 @@ def test_add_and_remove(client, sqlite_md):
         owned = test_md.get_owned('owner@example.com')
 
     assert len(owned) == 0
+
+
+def test_add_and_remove_not(client, sqlite_md):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
+    test_invites = ['invite1@example.com']
+
+    with run.app.app_context():
+        test_md.add(dummy_key, test_doc, 'owner@example.com', test_invites)
+        test_md.remove(dummy_key)
+
+        owned = test_md.get_owned('owner@example.com')
+
+    assert len(owned) == 1
