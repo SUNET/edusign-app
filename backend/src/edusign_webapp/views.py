@@ -37,11 +37,13 @@ from xml.etree import cElementTree as ET
 
 from flask import Blueprint, abort, current_app, render_template, request, session
 from flask_babel import gettext
+from flask_mail import Message
 
 from edusign_webapp.marshal import Marshal, UnMarshal
 from edusign_webapp.schemata import (
     ConfigSchema,
     DocumentSchema,
+    MultiSignSchema,
     ReferenceSchema,
     SignedDocumentsSchema,
     SigningSchema,
@@ -308,7 +310,7 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     :param sign_data: The data needed to identify the signed documents to be retrieved,
                       as obtained from the POST from the signature service to the `sign_service_callback`.
-    :return: A dict wit the signed documents, or with error information if some error has ocurred.
+    :return: A dict with the signed documents, or with error information if some error has ocurred.
     """
     try:
         current_app.logger.info(f"Processing signature for {sign_data['sign_response']} for user {session['eppn']}")
@@ -328,3 +330,32 @@ def get_signed_documents(sign_data: dict) -> dict:
             ]
         },
     }
+
+
+@edusign_views.route('/create-multi-sign', methods=['POST'])
+@UnMarshal(MultiSignSchema)
+@Marshal()
+def create_multi_sign_request(data: dict) -> dict:
+    """
+    View to create requests for collectively signing a document
+
+    :param data: The document to sign, the owner of the document,
+                 and the emails of the users invited to sign the doc.
+    :return: A dict wit the signed documents, or with error information if some error has ocurred.
+    """
+    try:
+        current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
+        current_app.doc_store.add_document(data['document'], data['owner'], data['invites'])
+
+        msg = Message(gettext("XXX Invite mail subject"), recipients=data['invites'])
+        msg.body = gettext("XXX Invite mail body")
+
+        current_app.mailer.send(msg)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem processing multi sign request: {e}')
+        return {'error': True, 'message': gettext('Problem storing the document to be multi signed')}
+
+    message = gettext("Success creating multi signature request")
+
+    return {'message': message}

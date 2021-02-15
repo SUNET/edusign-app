@@ -34,9 +34,11 @@ from typing import Callable
 
 from flask import Flask
 from flask_babel import Babel
+from flask_mail import Mail
 from werkzeug.wrappers import Response
 
 from edusign_webapp.api_client import APIClient
+from edusign_webapp.doc_store import DocStore
 
 
 class EduSignApp(Flask):
@@ -72,6 +74,10 @@ def edusign_init_app(name: str) -> EduSignApp:
     app.api_client = APIClient(app.config)
 
     app.babel = Babel(app)
+
+    app.doc_store = DocStore(app.config, app.logger)
+
+    app.mailer = Mail(app)
 
     app.logger.info(f'Init {name} app...')
 

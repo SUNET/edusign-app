@@ -128,3 +128,13 @@ class SignedDocumentsSchema(Schema):
         signed_content = fields.Raw(required=True, validate=[validate_nonempty])
 
     documents = fields.List(fields.Nested(SignedDocumentSchema))
+
+
+class MultiSignSchema(Schema):
+    """
+    Schema to unmarshal requests for multi signatures.
+    """
+
+    document = fields.Nested(DocumentSchema, many=False)
+    invites = fields.List(fields.Email())
+    owner = fields.Email(required=True)

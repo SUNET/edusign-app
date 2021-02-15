@@ -86,17 +86,19 @@ DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (documentID, userID) VALUES (?, ?)"
 INVITE_QUERY = "SELECT documentID FROM Invites WHERE userID = ?;"
-INVITE_QUERY_FROM_EMAIL = "SELECT Invites.documentID FROM Invites, Users WHERE Users.email = ? and Invites.userID = Users.userID;"
+INVITE_QUERY_FROM_EMAIL = (
+    "SELECT Invites.documentID FROM Invites, Users WHERE Users.email = ? and Invites.userID = Users.userID;"
+)
 INVITE_QUERY_FROM_DOC = "SELECT userID FROM Invites WHERE documentID = ?;"
 INVITE_DELETE = "DELETE FROM Invites WHERE userID = ? and documentID = ?;"
+INVITE_DELETE_ALL = "DELETE FROM Invites WHERE documentID = ?;"
 
 
 def make_dicts(cursor, row):
     """
     See https://flask.palletsprojects.com/en/1.1.x/patterns/sqlite3
     """
-    return dict((cursor.description[idx][0], value)
-                for idx, value in enumerate(row))
+    return dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
 
 
 def get_db(db_path):
@@ -181,7 +183,9 @@ class SqliteMD(ABCMetadata):
         self._db_execute(DOCUMENT_INSERT, (key.bytes, document['name'], document['size'], document['type'], owner_id))
         document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
 
-        if document_result is None or isinstance(document_result, list):  # This should never happen, it's just to please mypy
+        if document_result is None or isinstance(
+            document_result, list
+        ):  # This should never happen, it's just to please mypy
             return
 
         document_id = document_result['documentID']
@@ -192,7 +196,9 @@ class SqliteMD(ABCMetadata):
                 self._db_execute(USER_INSERT, (email,))
                 user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
 
-            if user_result is None or isinstance(user_result, list):  # This should never happen, it's just to please mypy
+            if user_result is None or isinstance(
+                user_result, list
+            ):  # This should never happen, it's just to please mypy
                 continue
 
             user_id = user_result['userID']
@@ -223,8 +229,10 @@ class SqliteMD(ABCMetadata):
             document_id = invite['documentID']
             document = self._db_query(DOCUMENT_QUERY, (document_id,), one=True)
             if document is None or isinstance(document, list):
-                self.logger.error(f"Db seems corrupted, an invite for {email}"
-                                  f" references a non existing document with id {document_id}")
+                self.logger.error(
+                    f"Db seems corrupted, an invite for {email}"
+                    f" references a non existing document with id {document_id}"
+                )
                 continue
 
             owner = document['owner']
@@ -263,7 +271,13 @@ class SqliteMD(ABCMetadata):
 
         self.logger.info(f"Removing invite for {email} to sign {key}")
         self._db_execute(INVITE_DELETE, (user_id, document_id))
-        self._db_execute(DOCUMENT_UPDATE, (datetime.now().isoformat(), key.bytes,))
+        self._db_execute(
+            DOCUMENT_UPDATE,
+            (
+                datetime.now().isoformat(),
+                key.bytes,
+            ),
+        )
         self._db_commit()
 
     def get_owned(self, email: str) -> List[Dict[str, Any]]:
@@ -294,8 +308,10 @@ class SqliteMD(ABCMetadata):
                 user_id = invite['userID']
                 email_result = self._db_query(USER_QUERY, (user_id,), one=True)
                 if email_result is None or isinstance(email_result, list):
-                    self.logger.error(f"Db seems corrupted, an invite for {document_id}"
-                                      f" references a non existing user with id {user_id}")
+                    self.logger.error(
+                        f"Db seems corrupted, an invite for {document_id}"
+                        f" references a non existing user with id {user_id}"
+                    )
                     continue
                 document['pending'].append(email_result['email'])
 
@@ -315,16 +331,18 @@ class SqliteMD(ABCMetadata):
             self.logger.error(f"Trying to delete a non-existing document with key {key}")
             return False
 
+        document_id = document_result['documentID']
+        invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
+
         if not force:
-            document_id = document_result['documentID']
-            invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
             if invites is None or isinstance(invites, dict):  # This should never happen, it's just to please mypy
                 pass
             elif len(invites) != 0:
                 self.logger.error(f"Refusing to remove document {key} with pending emails")
                 return False
 
-        # XXX if force and pending invites, remove them
+        else:
+            self._db_execute(INVITE_DELETE_ALL, (document_id,))
 
         self._db_execute(DOCUMENT_DELETE, (key.bytes,))
         self._db_commit()

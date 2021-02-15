@@ -77,3 +77,23 @@ RAW_SIGNER_ATTRIBUTES = os.environ.get(
 )
 
 SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}
+
+STORAGE_CLASS_PATH = 'edusign_webapp.document.storage.local.LocalStorage'
+LOCAL_STORAGE_BASE_DIR = '/tmp'
+
+DOC_METADATA_CLASS_PATH = 'edusign_webapp.document.metadata.sqlite.SqliteMD'
+SQLITE_MD_DB_PATH = '/tmp/test.db'
+
+
+MAIL_SERVER = os.environ.get('MAIL_SERVER', default='localhost')
+MAIL_PORT = os.environ.get('MAIL_PORT', default=25)
+MAIL_USERNAME = os.environ.get('MAIL_USERNAME', default='')
+MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', default='')
+MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', default='no-reply@localhost')
+
+MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', default=False)
+MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', default=False)
+MAIL_DEBUG = DEBUG
+MAIL_MAX_EMAILS = os.environ.get('MAIL_MAX_EMAILS', default=None)
+MAIL_SUPPRESS_SEND = os.environ.get('MAIL_SUPPRESS_SEND', default='app.testing')
+MAIL_ASCII_ATTACHMENTS = os.environ.get('MAIL_ASCII_ATTACHMENTS', default=False)

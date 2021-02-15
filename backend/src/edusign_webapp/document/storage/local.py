@@ -34,6 +34,7 @@ import base64
 import logging
 import os
 import uuid
+from typing import Optional
 
 from edusign_webapp.doc_store import ABCStorage
 
@@ -69,7 +70,7 @@ class LocalStorage(ABCStorage):
         self.logger.info(f"Saved document contents with key {key}")
         return key
 
-    def get_content(self, key: uuid.UUID) -> str:
+    def get_content(self, key: uuid.UUID) -> Optional[str]:
         """
         Get the content of some document identified by the `key`,
         as a base64 string.
@@ -78,6 +79,10 @@ class LocalStorage(ABCStorage):
         :return: base64 string with the contents of the document.
         """
         path = os.path.join(self.base_dir, str(key))
+
+        if not os.path.isfile(path):
+            return None
+
         with open(path, 'rb') as f:
             bcontent = f.read()
         return base64.b64encode(bcontent).decode('utf8')

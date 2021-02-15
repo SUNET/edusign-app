@@ -34,7 +34,7 @@ import abc
 import logging
 import uuid
 from importlib import import_module
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 class ABCStorage(metaclass=abc.ABCMeta):
@@ -60,7 +60,7 @@ class ABCStorage(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def get_content(self, key: uuid.UUID) -> str:
+    def get_content(self, key: uuid.UUID) -> Optional[str]:
         """
         Get the content of some document identified by the `key`,
         as a base64 string.
@@ -223,7 +223,7 @@ class DocStore(object):
         """
         return self.metadata.get_pending(email)
 
-    def get_document_content(self, key: uuid.UUID) -> str:
+    def get_document_content(self, key: uuid.UUID) -> Optional[str]:
         """
         Get the content of some document identified by the `key`,
         as a base64 string, to add a signature to it.
@@ -267,13 +267,17 @@ class DocStore(object):
         """
         return self.metadata.get_owned(email)
 
-    def remove_document(self, key: uuid.UUID, force: bool = False):
+    def remove_document(self, key: uuid.UUID, force: bool = False) -> bool:
         """
         Remove a document from the store, possibly because it has already been signed
         by all requested parties and has been handed to the owner.
 
         :param key: The key identifying the document in the `storage`.
+        :param force: If True, remove document even if there are peding signatures.
+        :return: whther the document has been removed.
         """
         removed = self.metadata.remove(key, force=force)
         if removed:
             self.storage.remove(key)
+
+        return removed

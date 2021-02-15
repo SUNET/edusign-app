@@ -34,7 +34,7 @@
 import json
 import os
 from functools import wraps
-from typing import Any, Callable, Dict, List, Mapping, Optional, Type
+from typing import Any, Callable, Dict, List, Optional, Type
 from urllib.parse import urlsplit
 
 from flask import current_app, request, session
@@ -111,7 +111,7 @@ class Marshal(object):
     and marshall them into Flask response objects via marshmallow schemata.
     """
 
-    def __init__(self, schema: Type[Schema]):
+    def __init__(self, schema: Type[Schema] = None):
         """
         Instantiate `Marshall` with a Schema class,
         which will give form to the payload of the actual response schema
@@ -120,10 +120,14 @@ class Marshal(object):
         :param schema: Marshmallow schema detailing the structure and type of the data to marshal.
         """
 
-        class MarshallingSchema(ResponseSchema):
-            payload = fields.Nested(schema)
+        if schema is None:
+            self.schema = ResponseSchema
+        else:
 
-        self.schema = MarshallingSchema
+            class MarshallingSchema(ResponseSchema):
+                payload = fields.Nested(schema)  # type: ignore
+
+            self.schema = MarshallingSchema
 
     def __call__(self, f: Callable) -> Callable:
         """
