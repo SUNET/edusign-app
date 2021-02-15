@@ -301,17 +301,19 @@ class SqliteMD(ABCMetadata):
 
         return documents
 
-    def remove(self, key: uuid.UUID, force: bool = False):
+    def remove(self, key: uuid.UUID, force: bool = False) -> bool:
         """
         Remove from the store the metadata corresponding to the document identified by the `key`,
         typically because it has already been signed by all requested parties and has been handed to the owner.
 
         :param key: The key identifying the document.
+        :param force: whether to remove the doc even if there are pending signatures
+        :return: whether the document has been removed
         """
         document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.error(f"Trying to delete a non-existing document with key {key}")
-            return
+            return False
 
         if not force:
             document_id = document_result['documentID']
@@ -320,7 +322,11 @@ class SqliteMD(ABCMetadata):
                 pass
             elif len(invites) != 0:
                 self.logger.error(f"Refusing to remove document {key} with pending emails")
-                return
+                return False
+
+        # XXX if force and pending invites, remove them
 
         self._db_execute(DOCUMENT_DELETE, (key.bytes,))
         self._db_commit()
+
+        return True

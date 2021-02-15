@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import abc
+import logging
 import uuid
 from importlib import import_module
 from typing import Any, Dict, List
@@ -43,9 +44,10 @@ class ABCStorage(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, logger: logging.Logger):
         """
         :param config: Dict like object with the configuration parameters provided to the Flask app.
+        :param logger: Logger
         """
 
     @abc.abstractmethod
@@ -96,9 +98,10 @@ class ABCMetadata(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, logger: logging.Logger):
         """
         :param config: Dict like object with the configuration parameters provided to the Flask app.
+        :param logger: Logger
         """
 
     @abc.abstractmethod
@@ -155,7 +158,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def remove(self, key: uuid.UUID):
+    def remove(self, key: uuid.UUID, force: bool = False) -> bool:
         """
         Remove from the store the metadata corresponding to the document identified by the `key`,
         typically because it has already been signed by all requested parties and has been handed to the owner.
@@ -169,24 +172,25 @@ class DocStore(object):
     Interface to deal with multi-sign documents.
     """
 
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, logger: logging.Logger):
         """
         :param config: Dict containing the configuration parameters provided to Flask.
         """
 
         self.config = config
+        self.logger = logger
 
         storage_class_path = config['STORAGE_CLASS_PATH']
         storage_module_path, storage_class_name = storage_class_path.rsplit('.', 1)
         storage_class = getattr(import_module(storage_module_path), storage_class_name)
 
-        self.storage = storage_class(config)
+        self.storage = storage_class(config, logger)
 
         docmd_class_path = config['DOC_METADATA_CLASS_PATH']
         docmd_module_path, docmd_class_name = docmd_class_path.rsplit('.', 1)
         docmd_class = getattr(import_module(docmd_module_path), docmd_class_name)
 
-        self.metadata = docmd_class(config)
+        self.metadata = docmd_class(config, logger)
 
     def add_document(self, document: Dict[str, str], owner: str, invites: List[str]):
         """
@@ -200,7 +204,7 @@ class DocStore(object):
         :param owner: Email address of the user that has uploaded the document.
         :param invites: List of email addresses of the users that should sign the document.
         """
-        key = self.storage.add(document, owner)
+        key = self.storage.add(document['blob'])
         self.metadata.add(key, document, owner, invites)
 
     def get_pending_documents(self, email: str) -> List[Dict[str, str]]:
@@ -263,12 +267,13 @@ class DocStore(object):
         """
         return self.metadata.get_owned(email)
 
-    def remove_document(self, key: uuid.UUID):
+    def remove_document(self, key: uuid.UUID, force: bool = False):
         """
         Remove a document from the store, possibly because it has already been signed
         by all requested parties and has been handed to the owner.
 
         :param key: The key identifying the document in the `storage`.
         """
-        self.storage.remove(key)
-        self.metadata.remove(key)
+        removed = self.metadata.remove(key, force=force)
+        if removed:
+            self.storage.remove(key)

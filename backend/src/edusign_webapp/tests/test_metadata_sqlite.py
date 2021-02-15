@@ -38,7 +38,7 @@ from datetime import datetime
 from edusign_webapp import run
 
 
-def test_add(client, sqlite_md):
+def test_add(sqlite_md):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
@@ -59,7 +59,7 @@ def test_add(client, sqlite_md):
     assert result[:5] == (1, dummy_key.bytes, 'test.pdf', 1500000, 'application/pdf')
 
 
-def test_add_and_get_pending(client, sqlite_md):
+def test_add_and_get_pending(sqlite_md):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
@@ -84,7 +84,7 @@ def test_add_and_get_pending(client, sqlite_md):
     assert pending2[0]['owner'] == 'owner@example.com'
 
 
-def test_add_and_get_pending_not(client, sqlite_md):
+def test_add_and_get_pending_not(sqlite_md):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
@@ -98,7 +98,7 @@ def test_add_and_get_pending_not(client, sqlite_md):
     assert pending == []
 
 
-def test_add_two_and_get_pending(client, sqlite_md):
+def test_add_two_and_get_pending(sqlite_md):
     tempdir, test_md = sqlite_md
     dummy_key_1 = uuid.uuid4()
     test_doc_1 = {'name': 'test1.pdf', 'size': 1500000, 'type': 'application/pdf'}
@@ -126,7 +126,7 @@ def test_add_two_and_get_pending(client, sqlite_md):
     assert pending[1]['owner'] == 'owner2@example.com'
 
 
-def test_update_and_get_pending(client, sqlite_md):
+def test_update_and_get_pending(sqlite_md):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
@@ -149,7 +149,7 @@ def test_update_and_get_pending(client, sqlite_md):
     assert pending2[0]['owner'] == 'owner@example.com'
 
 
-def test_updated_timestamp(client, sqlite_md):
+def test_updated_timestamp(sqlite_md):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
@@ -180,7 +180,7 @@ def test_updated_timestamp(client, sqlite_md):
     assert datetime.fromisoformat(result[5]) < datetime.fromisoformat(result[6])
 
 
-def test_add_and_get_owned(client, sqlite_md):
+def test_add_and_get_owned(sqlite_md):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
@@ -199,7 +199,7 @@ def test_add_and_get_owned(client, sqlite_md):
     assert owned[0]['pending'] == ['invite1@example.com', 'invite2@example.com']
 
 
-def test_add_and_remove(client, sqlite_md):
+def test_add_and_remove(sqlite_md):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
@@ -215,7 +215,7 @@ def test_add_and_remove(client, sqlite_md):
     assert len(owned) == 0
 
 
-def test_add_and_remove_not(client, sqlite_md):
+def test_add_and_remove_not(sqlite_md):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     test_doc = {'name': 'test.pdf', 'size': 1500000, 'type': 'application/pdf'}
