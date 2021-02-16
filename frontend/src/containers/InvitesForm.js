@@ -11,16 +11,29 @@
 import { connect } from "react-redux";
 
 import InvitesForm from "components/InvitesForm";
+import {
+  stopInviting
+} from "slices/Invites";
+import {
+  sendMultiSignRequest
+} from "slices/Documents";
 
 const mapStateToProps = (state) => {
   return {
+    docId: state.invites.documentId,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    handleSendInvites: function () {
-      alert('ho ho ho');
+    handleSendInvites: function (docId, invites) {
+      dispatch(sendMultiSignRequest({
+        docId,
+        invites
+      }));
+    },
+    handleCloseForm: function () {
+      dispatch(stopInviting());
     },
   };
 };

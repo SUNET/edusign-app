@@ -20,25 +20,24 @@ const InviteForm = (props) => {
   const handleClose = () => setShow(false);
 
   return (
-  <Modal show={show} onHide={handleClose}>
-    <Modal.Header closeButton>
-      <Modal.Title>
-        <FormattedMessage
-          defaultMessage="Invite people to sign document"
-          key="invite-people"
-        />
-      </Modal.Title>
-    </Modal.Header>
-    <Modal.Body>
-      <Formik
-        initialValues={initialValues}
-        onSubmit={async (values) => {
-          await new Promise((r) => setTimeout(r, 500));
-          alert(JSON.stringify(values, null, 2));
-        }}
-      >
-        {({ values }) => (
-          <Form>
+    <Formik
+      initialValues={initialValues}
+      onSubmit={(values) => {
+        props.handleSendInvites(props.docId, values)
+      }}
+    >
+      {({ values }) => (
+      <Form>
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>
+              <FormattedMessage
+                defaultMessage="Invite people to sign document"
+                key="invite-people"
+              />
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
             <FieldArray name="invites">
               {({ insert, remove, push }) => (
                 <div>
@@ -87,37 +86,39 @@ const InviteForm = (props) => {
                     onClick={() => push({ name: '', email: '' })}
                   >
                     <FormattedMessage
-                      defaultMessage="Add friend"
+                      defaultMessage="Add Invitation"
                       key="add-invite"
                     />
                   </Button>
                 </div>
               )}
             </FieldArray>
-          </Form>
-        )}
-        </Formik>
-      </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            <FormattedMessage
-              defaultMessage="Cancel"
-              key="cancel-invite"
-            />
-          </Button>
-          <Button variant="primary" onClick={handleClose}>
-            <FormattedMessage
-              defaultMessage="Send"
-              key="send-invite"
-            />
-          </Button>
-        </Modal.Footer>
-      </Modal>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={props.handleCloseForm}>
+              <FormattedMessage
+                defaultMessage="Cancel"
+                key="cancel-invite"
+              />
+            </Button>
+            <Button variant="primary" type="submit">
+              <FormattedMessage
+                defaultMessage="Send"
+                key="send-invite"
+              />
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </Form>
+      )}
+    </Formik>
 )};
 
 
 InviteForm.propTypes = {
   show: PropTypes.bool,
+  handleCloseForm: PropTypes.func,
+  handleSendInvites: PropTypes.func,
 };
 
 export default InviteForm;

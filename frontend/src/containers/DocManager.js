@@ -20,6 +20,9 @@ import {
   removeDocument,
   downloadSigned,
 } from "slices/Documents";
+import {
+  startInviting
+} from "slices/Invites";
 
 const mapStateToProps = (state) => {
   return {
@@ -29,7 +32,7 @@ const mapStateToProps = (state) => {
     relayState: state.main.signingData.relay_state,
     signRequest: state.main.signingData.sign_request,
     size: state.main.size,
-    showInvitesForm: true,
+    showInvitesForm: state.invites.documentId !== null,
   };
 };
 
@@ -62,6 +65,11 @@ const mapDispatchToProps = (dispatch) => {
     handleDlSigned: function (name) {
       return () => {
         dispatch(downloadSigned(name));
+      };
+    },
+    handleMultiSign: function (docId) {
+      return () => {
+        dispatch(startInviting(docId));
       };
     },
   };

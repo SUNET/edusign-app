@@ -20,4 +20,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(() => {}, mapDispatchToProps)(DocPreview);
+export default connect(() => ({}), mapDispatchToProps)(DocPreview);
