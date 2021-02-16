@@ -38,13 +38,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 def test_create_multi_sign_request(client, monkeypatch, sample_doc_1):
 
-    from edusign_webapp.api_client import APIClient
-
-    def mock_post(self, url, *args, **kwargs):
-        return {'error': False, 'message': 'Success message'}
-
-    monkeypatch.setattr(APIClient, '_post', mock_post)
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
