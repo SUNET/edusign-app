@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import LittleSpinner from "components/LittleSpinner";
 
 import DocPreviewContainer from "containers/DocPreview";
+import InvitesFormContainer from "containers/InvitesForm";
 import { humanFileSize, docToFile } from "components/utils";
 
 import "styles/DocManager.scss";
@@ -213,6 +214,9 @@ function DocManager(props) {
                   <DocPreviewContainer doc={doc} docFile={docFile} />
                 </>
               )}
+              {props.showInvitesForm && (
+                <InvitesFormContainer show={props.showInvitesForm} />
+              )}
             </div>
           );
         } else if (props.size === "sm") {
@@ -315,7 +319,9 @@ function DocManager(props) {
                   <DocPreviewContainer doc={doc} docFile={docFile} />
                 </>
               )}
-              <DocPreviewContainer doc={doc} />
+              {props.showInvitesForm && (
+                <InvitesFormContainer show={props.showInvitesForm} />
+              )}
             </div>
           );
         }
@@ -379,6 +385,7 @@ DocManager.propTypes = {
   handleRemove: PropTypes.func,
   handleDlSigned: PropTypes.func,
   handleSubmitToSign: PropTypes.func,
+  showInvitesForm: PropTypes.bool,
 };
 
 export default DocManager;
