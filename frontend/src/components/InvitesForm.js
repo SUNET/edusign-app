@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
@@ -8,8 +8,6 @@ import { FormattedMessage } from "react-intl";
 
 
 const InviteForm = (props) => {
-  const [show, setShow] = useState(props.show);
-  const handleClose = () => setShow(false);
 
   return (
     <Formik
@@ -20,9 +18,8 @@ const InviteForm = (props) => {
     >
       {({ values }) => (
       <Form>
-        <Modal show={show} onHide={() => {
+        <Modal show={props.show} onHide={() => {
                                     props.handleSoftClose(values);
-                                    handleClose();
                                   }}>
           <Modal.Header closeButton>
             <Modal.Title>
@@ -36,31 +33,31 @@ const InviteForm = (props) => {
             <FieldArray name="invites">
               {({ insert, remove, push }) => (
                 <div>
-                  {values.invites.length > 0 &&
-                    values.invites.map((invite, index) => (
+                  {values.length > 0 &&
+                    values.map((invite, index) => (
                       <div className="row" key={index}>
                         <div className="col">
-                          <label htmlFor={`invites.${index}.name`}>Name</label>
+                          <label htmlFor={invite.name}>Name</label>
                           <Field
-                            name={`invites.${index}.name`}
+                            name={invite.name}
                             placeholder="Jane Doe"
                             type="text"
                           />
                           <ErrorMessage
-                            name={`invites.${index}.name`}
+                            name={invite.name}
                             component="div"
                             className="field-error"
                           />
                         </div>
                         <div className="col">
-                          <label htmlFor={`invites.${index}.email`}>Email</label>
+                          <label htmlFor={invite.email}>Email</label>
                           <Field
-                            name={`invites.${index}.email`}
+                            name={invite.email}
                             placeholder="jane@acme.com"
                             type="email"
                           />
                           <ErrorMessage
-                            name={`invites.${index}.name`}
+                            name={invite.name}
                             component="div"
                             className="field-error"
                           />
@@ -90,10 +87,7 @@ const InviteForm = (props) => {
             </FieldArray>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => {
-                                                  props.handleHardClose();
-                                                  handleClose();
-                                                }}>
+            <Button variant="secondary" onClick={props.handleHardClose}>
               <FormattedMessage
                 defaultMessage="Cancel"
                 key="cancel-invite"
