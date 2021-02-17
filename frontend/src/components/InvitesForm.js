@@ -6,14 +6,6 @@ import Button from "react-bootstrap/Button";
 import { Formik, Field, Form, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage } from "react-intl";
 
-const initialValues = {
-  invites: [
-    {
-      name: '',
-      email: '',
-    },
-  ],
-};
 
 const InviteForm = (props) => {
   const [show, setShow] = useState(props.show);
@@ -21,14 +13,17 @@ const InviteForm = (props) => {
 
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={props.invites}
       onSubmit={(values) => {
         props.handleSendInvites(props.docId, values)
       }}
     >
       {({ values }) => (
       <Form>
-        <Modal show={show} onHide={handleClose}>
+        <Modal show={show} onHide={() => {
+                                    props.handleSoftClose(values);
+                                    handleClose();
+                                  }}>
           <Modal.Header closeButton>
             <Modal.Title>
               <FormattedMessage
@@ -95,7 +90,10 @@ const InviteForm = (props) => {
             </FieldArray>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={props.handleCloseForm}>
+            <Button variant="secondary" onClick={() => {
+                                                  props.handleHardClose();
+                                                  handleClose();
+                                                }}>
               <FormattedMessage
                 defaultMessage="Cancel"
                 key="cancel-invite"
@@ -117,7 +115,8 @@ const InviteForm = (props) => {
 
 InviteForm.propTypes = {
   show: PropTypes.bool,
-  handleCloseForm: PropTypes.func,
+  handleSoftClose: PropTypes.func,
+  handleHardClose: PropTypes.func,
   handleSendInvites: PropTypes.func,
 };
 

@@ -11,31 +11,67 @@ import { createSlice } from "@reduxjs/toolkit";
 const invitesSlice = createSlice({
   name: "invites",
   initialState: {
-    documentId: null
+    showForm: false,
+    documentId: null,
+    invites: [
+      {
+        name: '',
+        email: '',
+      },
+    ],
   },
   reducers: {
     /**
      * @public
-     * @function startInviting
+     * @function openInviteForm
      * @desc Redux action to open the multi sign invite form
      */
-    startInviting(state, action) {
-      state.documentId = action.payload;
+    openInviteForm(state, action) {
+      if (state.documentId !== action.payload) {
+        return {
+          showForm: true,
+          documentId: action.payload,
+          invites: [{
+            name: '',
+            email: ''
+          }]
+        }
+      }
     },
     /**
      * @public
-     * @function stopInviting
-     * @desc Redux action to close the multi sign invite form
+     * @function softCloseInviteForm
+     * @desc Redux action to close the multi sign invite form keeping invites
      */
-    stopInviting(state) {
-      state.documentId = null;
+    softCloseInviteForm(state, action) {
+      return {
+        ...state,
+        showForm: false,
+        invites: action.payload,
+      }
+    },
+    /**
+     * @public
+     * @function hardCloseInviteForm
+     * @desc Redux action to close the multi sign invite form w/o keeping invites
+     */
+    hardCloseInviteForm(state) {
+      return {
+        ...state,
+        invites: [{
+          name: '',
+          email: ''
+        }],
+        showForm: false,
+      }
     },
   }
 });
 
 export const {
-  startInviting,
-  stopInviting,
+  openInviteForm,
+  softCloseInviteForm,
+  hardCloseInviteForm,
 } = invitesSlice.actions;
 
 export default invitesSlice.reducer;

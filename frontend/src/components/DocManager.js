@@ -386,9 +386,7 @@ function DocManager(props) {
           />
         </div>
       )}
-      {props.showInvitesForm && (
-        <InvitesFormContainer show={props.showInvitesForm} />
-      )}
+      <InvitesFormContainer show={props.showInvitesForm} />
     </>
   );
 }
@@ -402,7 +400,6 @@ DocManager.propTypes = {
   handleRemove: PropTypes.func,
   handleDlSigned: PropTypes.func,
   handleSubmitToSign: PropTypes.func,
-  showInvitesForm: PropTypes.bool,
 };
 
 export default DocManager;

@@ -12,7 +12,8 @@ import { connect } from "react-redux";
 
 import InvitesForm from "components/InvitesForm";
 import {
-  stopInviting
+  softCloseInviteForm,
+  hardCloseInviteForm,
 } from "slices/Invites";
 import {
   sendMultiSignRequest
@@ -21,6 +22,7 @@ import {
 const mapStateToProps = (state) => {
   return {
     docId: state.invites.documentId,
+    invites: state.invites.invites,
   };
 };
 
@@ -32,8 +34,11 @@ const mapDispatchToProps = (dispatch) => {
         invites
       }));
     },
-    handleCloseForm: function () {
-      dispatch(stopInviting());
+    handleSoftClose: function (invites) {
+      dispatch(softCloseInviteForm(invites));
+    },
+    handleHardClose: function () {
+      dispatch(hardCloseInviteForm());
     },
   };
 };

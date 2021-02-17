@@ -21,7 +21,7 @@ import {
   downloadSigned,
 } from "slices/Documents";
 import {
-  startInviting
+  openInviteForm
 } from "slices/Invites";
 
 const mapStateToProps = (state) => {
@@ -32,7 +32,7 @@ const mapStateToProps = (state) => {
     relayState: state.main.signingData.relay_state,
     signRequest: state.main.signingData.sign_request,
     size: state.main.size,
-    showInvitesForm: state.invites.documentId !== null,
+    showInvitesForm: state.invites.showForm,
   };
 };
 
@@ -69,7 +69,7 @@ const mapDispatchToProps = (dispatch) => {
     },
     handleMultiSign: function (docId) {
       return () => {
-        dispatch(startInviting(docId));
+        dispatch(openInviteForm(docId));
       };
     },
   };
