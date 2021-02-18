@@ -17,6 +17,7 @@ import { closeInviteForm } from "slices/Invite";
 const mapStateToProps = (state) => {
   return {
     show: state.invites.showForm,
+    invitees: state.invites.invitees,
   };
 };
 

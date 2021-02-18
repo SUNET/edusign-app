@@ -10,7 +10,9 @@ import { FormattedMessage } from "react-intl";
 const InviteForm = (props) => {
 
   return (
-    <Formik>
+    <Formik
+      initialValues={{invitees: props.invitees}}
+    >
       {(fprops) => (
       <Form>
         <Modal show={props.show}
@@ -24,7 +26,63 @@ const InviteForm = (props) => {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <span>hoh ho ho</span>
+            <FieldArray name="invitees">
+              {(arrayHelpers) => (
+                <div>
+                  {fprops.values.invitees.length > 0 &&
+                    fprops.values.invitees.map((invitee, index) => (
+                      <div className="row" key={index}>
+                        <div className="col">
+                          <label htmlFor={`invitee.${index}.name`}>Name</label>
+                          <Field
+                            name={`invitee.${index}.name`}
+                            value={invitee.name}
+                            placeholder="Jane Doe"
+                            type="text"
+                          />
+                          <ErrorMessage
+                            name={`invitee.${index}.name`}
+                            component="div"
+                            className="field-error"
+                          />
+                        </div>
+                        <div className="col">
+                          <label htmlFor={`invitee.${index}.email`}>Email</label>
+                          <Field
+                            name={`invitee.${index}.email`}
+                            value={invitee.email}
+                            placeholder="jane@acme.com"
+                            type="email"
+                          />
+                          <ErrorMessage
+                            name={`invitee.${index}.email`}
+                            component="div"
+                            className="field-error"
+                          />
+                        </div>
+                        <div className="col">
+                          <button
+                            type="button"
+                            className="secondary"
+                            onClick={() => arrayHelpers.remove(index)}
+                          >
+                            X
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  <Button
+                    variant="secondary"
+                    onClick={() => arrayHelpers.push({ name: '', email: '' })}
+                  >
+                    <FormattedMessage
+                      defaultMessage="Add Invitation"
+                      key="add-invite"
+                    />
+                  </Button>
+                </div>
+              )}
+            </FieldArray>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => {props.handleClose()}}>
