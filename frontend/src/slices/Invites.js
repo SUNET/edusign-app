@@ -27,15 +27,11 @@ const invitesSlice = createSlice({
      * @desc Redux action to open the multi sign invite form
      */
     openInviteForm(state, action) {
-      if (state.documentId !== action.payload) {
-        return {
-          showForm: true,
-          documentId: action.payload,
-          invites: [{
-            name: '',
-            email: ''
-          }]
-        }
+      const invites = state.documentId === action.payload ? state.invites : [{name: '', email: ''}]
+      return {
+        showForm: true,
+        documentId: action.payload,
+        invites: invites
       }
     },
     /**

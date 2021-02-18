@@ -15,6 +15,7 @@ const InviteForm = (props) => {
       onSubmit={(values) => {
         props.handleSendInvites(props.docId, values)
       }}
+      onChange={() => {alert('CHANGING')}}
     >
       {({ values }) => (
       <Form>
@@ -37,27 +38,27 @@ const InviteForm = (props) => {
                     values.map((invite, index) => (
                       <div className="row" key={index}>
                         <div className="col">
-                          <label htmlFor={invite.name}>Name</label>
+                          <label htmlFor={`invites.${index}.name`}>Name</label>
                           <Field
-                            name={invite.name}
+                            name={`invites.${index}.name`}
                             placeholder="Jane Doe"
                             type="text"
                           />
                           <ErrorMessage
-                            name={invite.name}
+                            name={`invites.${index}.name`}
                             component="div"
                             className="field-error"
                           />
                         </div>
                         <div className="col">
-                          <label htmlFor={invite.email}>Email</label>
+                          <label htmlFor={`invites.${index}.email`}>Email</label>
                           <Field
-                            name={invite.email}
+                            name={`invites.${index}.email`}
                             placeholder="jane@acme.com"
                             type="email"
                           />
                           <ErrorMessage
-                            name={invite.name}
+                            name={`invites.${index}.name`}
                             component="div"
                             className="field-error"
                           />
