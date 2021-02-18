@@ -5,7 +5,7 @@ import main from "slices/Main";
 import notifications from "slices/Notifications";
 import documents from "slices/Documents";
 import dnd from "slices/DnDArea";
-import invites from "slices/Invites";
+import invites from "slices/Invite";
 
 /**
  * @public

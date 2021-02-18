@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 import LittleSpinner from "components/LittleSpinner";
 
 import DocPreviewContainer from "containers/DocPreview";
-import InvitesFormContainer from "containers/InvitesForm";
+import InviteFormContainer from "containers/InviteForm";
 import { humanFileSize, docToFile } from "components/utils";
 
 import "styles/DocManager.scss";
@@ -386,7 +386,7 @@ function DocManager(props) {
           />
         </div>
       )}
-      <InvitesFormContainer show={props.showInvitesForm} />
+      <InviteFormContainer />
     </>
   );
 }

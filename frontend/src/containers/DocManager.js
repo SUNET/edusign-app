@@ -22,7 +22,7 @@ import {
 } from "slices/Documents";
 import {
   openInviteForm
-} from "slices/Invites";
+} from "slices/Invite";
 
 const mapStateToProps = (state) => {
   return {
@@ -32,7 +32,6 @@ const mapStateToProps = (state) => {
     relayState: state.main.signingData.relay_state,
     signRequest: state.main.signingData.sign_request,
     size: state.main.size,
-    showInvitesForm: state.invites.showForm,
   };
 };
 
