@@ -12,12 +12,13 @@ import { connect } from "react-redux";
 
 import InviteForm from "components/InviteForm";
 
-import { closeInviteForm, updateInvitees } from "slices/Invite";
+import { closeInviteForm, updateInvitees, sendInvites } from "slices/Invite";
 
 const mapStateToProps = (state) => {
   return {
     show: state.invites.showForm,
     invitees: state.invites.invitees,
+    documentId: state.invites.documentId,
   };
 };
 
@@ -28,6 +29,10 @@ const mapDispatchToProps = (dispatch) => {
     },
     handleChange: function (invitees) {
       dispatch(updateInvitees(invitees));
+    },
+    handleSubmit: function (e) {
+      e.preventDefault();
+      dispatch(sendInvites());
     },
   };
 };

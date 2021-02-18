@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
-import { Formik, Field, Form, ErrorMessage, FieldArray } from "formik";
+import { Formik, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage } from "react-intl";
 
 
@@ -12,14 +12,14 @@ const InviteForm = (props) => {
   return (
     <>
       {props.show && (
-        <Formik
-          initialValues={{invitees: props.invitees}}
-          onSubmit={(values) => {props.handleChange(values.invitees)}}
-        >
-          {(fprops) => (
-          <Form>
-            <Modal show={props.show}
-                   onHide={() => {props.handleClose()}}>
+        <Modal show={props.show}
+               onHide={() => {props.handleClose()}}>
+          <Formik
+            initialValues={{invitees: props.invitees}}
+            onSubmit={(values) => {props.handleChange(values.invitees)}}
+          >
+            {(fprops) => (
+            <form onSubmit={props.handleSubmit}>
               <Modal.Header closeButton>
                 <Modal.Title>
                   <FormattedMessage
@@ -42,6 +42,7 @@ const InviteForm = (props) => {
                                 value={invitee.name}
                                 placeholder="Jane Doe"
                                 type="text"
+                                onChange={(e) => {fprops.handleSubmit(e); fprops.handleChange(e)}}
                               />
                               <ErrorMessage
                                 name={`invitees.${index}.name`}
@@ -56,6 +57,7 @@ const InviteForm = (props) => {
                                 value={invitee.email}
                                 placeholder="jane@acme.com"
                                 type="email"
+                                onChange={(e) => {fprops.handleSubmit(e); fprops.handleChange(e)}}
                               />
                               <ErrorMessage
                                 name={`invitees.${index}.email`}
@@ -101,10 +103,10 @@ const InviteForm = (props) => {
                   />
                 </Button>
               </Modal.Footer>
-            </Modal>
-          </Form>
-          )}
-        </Formik>
+            </form>
+            )}
+          </Formik>
+        </Modal>
       )}
     </>
   )
