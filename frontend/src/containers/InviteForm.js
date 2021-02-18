@@ -12,7 +12,7 @@ import { connect } from "react-redux";
 
 import InviteForm from "components/InviteForm";
 
-import { closeInviteForm } from "slices/Invite";
+import { closeInviteForm, updateInvitees } from "slices/Invite";
 
 const mapStateToProps = (state) => {
   return {
@@ -25,6 +25,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     handleClose: function () {
       dispatch(closeInviteForm());
+    },
+    handleChange: function (invitees) {
+      dispatch(updateInvitees(invitees));
     },
   };
 };

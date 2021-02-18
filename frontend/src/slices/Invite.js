@@ -23,10 +23,23 @@ const inviteSlice = createSlice({
       }
     },
     openInviteForm(state, action) {
-      return {
+      const newState = {
         ...state,
         showForm: true,
         documentId: action.payload
+      }
+      if (state.documentId !== action.payload) {
+        return {
+          ...newState,
+          invitees: [{name: '', email: ''}]
+        };
+      }
+      return newState;
+    },
+    updateInvitees(state, action) {
+      return {
+        ...state,
+        invitees: action.payload
       }
     },
   }
@@ -35,6 +48,7 @@ const inviteSlice = createSlice({
 export const {
   closeInviteForm,
   openInviteForm,
+  updateInvitees,
 } = inviteSlice.actions;
 
 export default inviteSlice.reducer;
