@@ -40,6 +40,8 @@ const mainSlice = createSlice({
     loading: false,
     csrf_token: null,
     signer_attributes: undefined,
+    owned_multisign: [],
+    invited_multisign: [],
     signingData: {},
     size: "lg",
   },
@@ -76,10 +78,18 @@ const mainSlice = createSlice({
     resizeWindow(state) {
       state.size = window.innerWidth > 1200 ? "lg" : "sm";
     },
+    /**
+     * @public
+     * @function addOwned
+     * @desc Redux action to add an owned multisign request
+     */
+    addOwned(state, action) {
+      state.owned_multisign.push(action.payload);
+    },
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
-      state.signer_attributes = action.payload.payload.signer_attributes;
+      return action.payload.payload;
     },
   },
 });
@@ -89,6 +99,7 @@ export const {
   setCsrfToken,
   updateSigningForm,
   resizeWindow,
+  addOwned,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;
