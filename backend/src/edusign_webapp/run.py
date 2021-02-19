@@ -39,6 +39,12 @@ from werkzeug.wrappers import Response
 from edusign_webapp.api_client import APIClient
 
 
+# XXX Retrieve from some sensible place rether than hardcode here
+SCOPE_WHITELIST = [
+    "example.com"
+]
+
+
 class EduSignApp(Flask):
     """
     Edusign's Flask app, with blueprint with the views needed by the eduSign app.
@@ -57,6 +63,23 @@ class EduSignApp(Flask):
 
         self.register_blueprint(edusign_views)
 
+        self.config.from_object('edusign_webapp.config')
+
+        self.api_client = APIClient(self.config)
+
+        self.babel = Babel(self)
+
+        self.whitelist = SCOPE_WHITELIST
+
+    def is_whitelisted(self, address: str) -> bool:
+        """
+        Check whether a given email address is whitelisted for starting sign processes
+
+        :param address: the email address
+        :return: whether it is whitelisted
+        """
+        return address.split('@')[1] in self.whitelist
+
 
 def edusign_init_app(name: str) -> EduSignApp:
     """
@@ -66,12 +89,6 @@ def edusign_init_app(name: str) -> EduSignApp:
     :return: The Flask app.
     """
     app = EduSignApp(name)
-
-    app.config.from_object('edusign_webapp.config')
-
-    app.api_client = APIClient(app.config)
-
-    app.babel = Babel(app)
 
     app.logger.info(f'Init {name} app...')
 
