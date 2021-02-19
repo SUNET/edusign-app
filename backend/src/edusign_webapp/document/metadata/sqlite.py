@@ -62,6 +62,7 @@ CREATE TABLE [Invites]
 (      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
        [userID] INTEGER NOT NULL,
        [documentID] INTEGER NOT NULL,
+       [signed] INTEGER DEFAULT 0,
             FOREIGN KEY ([userID]) REFERENCES [Users] ([userID])
               ON DELETE NO ACTION ON UPDATE NO ACTION,
             FOREIGN KEY ([documentID]) REFERENCES [Documents] ([documentID])
@@ -85,11 +86,12 @@ DOCUMENT_QUERY_FROM_OWNER = "SELECT d.documentID, d.key, d.name, d.size, d.type 
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (documentID, userID) VALUES (?, ?)"
-INVITE_QUERY = "SELECT documentID FROM Invites WHERE userID = ?;"
 INVITE_QUERY_FROM_EMAIL = (
-    "SELECT Invites.documentID FROM Invites, Users WHERE Users.email = ? and Invites.userID = Users.userID;"
+    "SELECT Invites.documentID FROM Invites, Users WHERE Users.email = ? AND Invites.userID = Users.userID AND Invites.signed = 0;"
 )
-INVITE_QUERY_FROM_DOC = "SELECT userID FROM Invites WHERE documentID = ?;"
+INVITE_QUERY_FROM_DOC = "SELECT userID, signed FROM Invites WHERE documentID = ?;"
+INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT userID FROM Invites WHERE documentID = ? AND signed = 0;"
+INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE userID = ? and documentID = ?;"
 INVITE_DELETE = "DELETE FROM Invites WHERE userID = ? and documentID = ?;"
 INVITE_DELETE_ALL = "DELETE FROM Invites WHERE documentID = ?;"
 
@@ -270,7 +272,7 @@ class SqliteMD(ABCMetadata):
         document_id = document_result['documentID']
 
         self.logger.info(f"Removing invite for {email} to sign {key}")
-        self._db_execute(INVITE_DELETE, (user_id, document_id))
+        self._db_execute(INVITE_UPDATE, (user_id, document_id))
         self._db_execute(
             DOCUMENT_UPDATE,
             (
@@ -299,6 +301,7 @@ class SqliteMD(ABCMetadata):
         for document in documents:
             document['key'] = uuid.UUID(bytes=document['key'])
             document['pending'] = []
+            document['signed'] = []
             document_id = document['documentID']
             invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
             del document['documentID']
@@ -313,7 +316,10 @@ class SqliteMD(ABCMetadata):
                         f" references a non existing user with id {user_id}"
                     )
                     continue
-                document['pending'].append(email_result['email'])
+                if invite['signed'] == 0:
+                    document['pending'].append(email_result['email'])
+                else:
+                    document['signed'].append(email_result['email'])
 
         return documents
 
@@ -332,7 +338,7 @@ class SqliteMD(ABCMetadata):
             return False
 
         document_id = document_result['documentID']
-        invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
+        invites = self._db_query(INVITE_QUERY_UNSIGNED_FROM_DOC, (document_id,))
 
         if not force:
             if invites is None or isinstance(invites, dict):  # This should never happen, it's just to please mypy
