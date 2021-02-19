@@ -36,6 +36,16 @@ from marshmallow import Schema, fields
 from edusign_webapp.validators import validate_doc_type, validate_nonempty, validate_sign_requirement, validate_uuid4
 
 
+class _DocumentSchema(Schema):
+    """
+    Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
+    """
+
+    name = fields.String(required=True, validate=[validate_nonempty])
+    size = fields.Integer(required=True)
+    type = fields.String(required=True, validate=[validate_nonempty, validate_doc_type])
+
+
 class ConfigSchema(Schema):
     """
     Schema to marshall configuration sent to the frontend,
@@ -46,17 +56,21 @@ class ConfigSchema(Schema):
         name = fields.String(required=True, validate=[validate_nonempty])
         value = fields.String(required=True, validate=[validate_nonempty])
 
+    class PendingDocument(_DocumentSchema):
+        owner = fields.Email(required=True, validate=[validate_nonempty])
+
+    class OwnedDocument(_DocumentSchema):
+        pending = fields.List(fields.Email(required=True, validate=[validate_nonempty]))
+
     signer_attributes = fields.List(fields.Nested(SignerAttribute))
+    pending_multisign = fields.List(fields.Nested(PendingDocument))
+    owned_multisign = fields.List(fields.Nested(OwnedDocument))
 
 
-class DocumentSchema(Schema):
+class DocumentSchema(_DocumentSchema):
     """
     Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
     """
-
-    name = fields.String(required=True, validate=[validate_nonempty])
-    size = fields.Integer(required=True)
-    type = fields.String(required=True, validate=[validate_nonempty, validate_doc_type])
     blob = fields.Raw(required=True, validate=[validate_nonempty])
 
 
