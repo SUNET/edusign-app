@@ -16,17 +16,70 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 export const sendInvites = createAsyncThunk(
   "main/sendInvites",
   async (arg, thunkAPI) => {
-    await new Promise((resolve) => {
-      const state = thunkAPI.getState();
-      setTimeout(() => {
-        const data = {
-          documentId: state.invites.documentId,
-          invitees: state.invites.invitees,
-        };
-        console.log("Sending invites", data);
-        resolve();
-      }, 500);
-    });
+    const state = thunkAPI.getState();
+    const documentId = state.invites.documentId;
+    const invitees = state.invites.invitees;
+
+    const document = state.documents.documents.filter((doc) => {
+      return doc.id === documentId;
+    })[0];
+
+    const owner = state.main.signer_attributes.filter((attr) => {
+      return attr.name === 'mail';
+    })[0].value;
+
+    const dataToSend = {
+      owner: owner,
+      invites: invitees,
+      document: {
+        name: document.name,
+        blob: document.blob,
+        size: document.size,
+        type: document.type,
+      }
+    };
+    console.log("preparing document", dataToSend);
+    const body = preparePayload(thunkAPI.getState(), dataToSend);
+    let data = null;
+    let document = null;
+    try {
+      console.log("Using fetch to post to create-multi-sign", body);
+      const response = await fetch("/sign/create-multi-sign", {
+        ...postRequest,
+        body: body,
+      });
+      data = await checkStatus(response);
+      console.log("And got data", data);
+      extractCsrfToken(thunkAPI.dispatch, data);
+    } catch (err) {
+      console.log("Problem sending document for multi signing", err);
+      document = {
+        ...document,
+        state: "failed-multi-signing",
+        message: "XXX Problem creating multi sign request, please try again",
+      };
+    }
+    if ("payload" in data) {
+      const updatedDoc = {
+        ...document,
+        ...data.payload,
+        state: "multi-signing",
+      };
+      return updatedDoc;
+    }
+    let msg = "XXX XXX Problem creating multi sign request, please try again";
+    if ("message" in data) {
+      msg = data.message;
+    }
+    return {
+      ...document,
+      state: "failed-multi-signing",
+      message: msg,
+    };
+
+
+
+
   }
 );
 
@@ -66,7 +119,7 @@ const inviteSlice = createSlice({
     },
   },
   extraReducers: {
-    [sendInvites.fulfilled]: (state, action) => {
+    [sendInvites.fulfilled]: () => {
       return {
         showForm: false,
         documentId: null,
