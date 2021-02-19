@@ -401,55 +401,69 @@ export const downloadSigned = createAsyncThunk(
 
 /**
  * @public
- * @function sendMultiSignRequest
- * @desc Redux async thunk to send multi sign invites to the backend.
+ * @function sendInvites
+ * @desc Redux async thunk to create multi sign requests
  */
-export const sendMultiSignRequest = createAsyncThunk(
-  "invites/sendMultiSignRequest",
+export const sendInvites = createAsyncThunk(
+  "main/sendInvites",
   async (arg, thunkAPI) => {
     const state = thunkAPI.getState();
-    const document = state.documents.filter((doc) => arg.docId === doc.id)[0];
-    const payload = {
+    const documentId = state.invites.documentId;
+    const invitees = state.invites.invitees;
+
+    const document = state.documents.documents.filter((doc) => {
+      return doc.id === documentId;
+    })[0];
+
+    const owner = state.main.signer_attributes.filter((attr) => {
+      return attr.name === 'mail';
+    })[0].value;
+
+    const dataToSend = {
+      owner: owner,
+      invites: invitees,
       document: {
         name: document.name,
-        type: document.type,
-        size: document.size,
         blob: document.blob,
-      },
-      owner: state.main.signer_attributes.mail,
-      invites: arg.invites,
+        size: document.size,
+        type: document.type,
+      }
     };
-    const body = preparePayload(state, payload);
+    console.log("preparing document", dataToSend);
+    const body = preparePayload(thunkAPI.getState(), dataToSend);
     let data = null;
     try {
+      console.log("Using fetch to post to create-multi-sign", body);
       const response = await fetch("/sign/create-multi-sign", {
         ...postRequest,
         body: body,
       });
       data = await checkStatus(response);
+      console.log("And got data", data);
       extractCsrfToken(thunkAPI.dispatch, data);
-      if (data.error) {
-        throw new Error(data.message);
-      }
-      if ("message" in data) {
-        const level = data.error ? "danger" : "success";
-        thunkAPI.dispatch(
-          addNotification({ level: level, message: data.message })
-        );
-      }
-      thunkAPI.dispatch(
-        documentsSlice.actions.removeDocument(doc.name)
-      );
     } catch (err) {
-      console.log("Error getting signed documents", err);
-      thunkAPI.dispatch(
-        addNotification({
-          level: "danger",
-          message: "XXX Problem getting signed documents",
-        })
-      );
-      thunkAPI.dispatch(documentsSlice.actions.signFailure());
+      console.log("Problem sending document for multi signing", err);
+      return {
+        ...document,
+        state: "failed-multi-signing",
+        message: "XXX Problem creating multi sign request, please try again",
+      };
     }
+    if (data.error) {
+      return {
+        ...document,
+        state: "failed-multi-signing",
+      };
+    }
+    let msg = "XXX Waiting for multi sign request";
+    if ("message" in data) {
+      msg = data.message;
+    }
+    return {
+      ...document,
+      state: "multi-signing",
+      message: msg,
+    };
   }
 );
 
@@ -647,6 +661,17 @@ const documentsSlice = createSlice({
     },
 
     [prepareDocument.rejected]: (state, action) => {
+      dbSaveDocument(action.payload);
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload.name) {
+          return {
+            ...action.payload,
+          };
+        } else return doc;
+      });
+    },
+
+    [sendInvites.fulfilled]: (state, action) => {
       dbSaveDocument(action.payload);
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
