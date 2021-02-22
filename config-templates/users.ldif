@@ -13,6 +13,7 @@ objectClass: top
 objectClass: inetOrgPerson
 objectClass: eduPerson
 givenName: Stud
+displayName: Stud
 uid: student1
 sn: Ent
 cn: Stud Ent
@@ -27,6 +28,7 @@ objectClass: top
 objectClass: inetOrgPerson
 objectClass: eduPerson
 givenName: St
+displayName: St
 uid: staff1
 sn: aff
 cn: St aff
@@ -41,6 +43,7 @@ objectClass: top
 objectClass: inetOrgPerson
 objectClass: eduPerson
 givenName: Enrique
+displayName: Enrique Pérez
 uid: eperez2
 sn:: UMOpcmV6
 cn:: RW5yaXF1ZSBQw6lyZXo=
@@ -55,6 +58,7 @@ objectClass: top
 objectClass: inetOrgPerson
 objectClass: eduPerson
 givenName: Enrique
+displayName: Enrique Perez
 uid: eperez3
 sn: Perez
 cn: Enrique Perez

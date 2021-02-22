@@ -8,6 +8,12 @@
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+import {
+  checkStatus,
+  extractCsrfToken,
+  postRequest,
+  preparePayload,
+} from "slices/fetch-utils";
 import { addOwned } from "slices/Main";
 import { removeDocument } from "slices/Documents";
 import { addNotification } from "slices/Notifications";
@@ -38,7 +44,7 @@ export const sendInvites = createAsyncThunk(
       invites: invitees,
       document: {
         name: document.name,
-        blob: document.blob,
+        blob: document.blob.split(',')[1],
         size: document.size,
         type: document.type,
       }

@@ -44,7 +44,8 @@ from edusign_webapp.doc_store import ABCMetadata
 DB_SCHEMA = """
 CREATE TABLE [Users]
 (      [userID] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [email] VARCHAR(255) NOT NULL
+       [email] VARCHAR(255) NOT NULL,
+       [name] VARCHAR(255) NOT NULL
 );
 CREATE TABLE [Documents]
 (      [documentID] INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -76,9 +77,9 @@ CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([documentID]);
 """
 
 
-USER_INSERT = "INSERT INTO Users (email) VALUES (?);"
+USER_INSERT = "INSERT INTO Users (name, email) VALUES (?, ?);"
 USER_QUERY_ID = "SELECT userID FROM Users WHERE email = ?;"
-USER_QUERY = "SELECT email FROM Users WHERE userID = ?;"
+USER_QUERY = "SELECT name, email FROM Users WHERE userID = ?;"
 DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner) VALUES (?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT documentID FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner FROM Documents WHERE documentID = ?;"
@@ -159,7 +160,7 @@ class SqliteMD(ABCMetadata):
         db = get_db(self.db_path)
         db.commit()
 
-    def add(self, key: uuid.UUID, document: Dict[str, Any], owner: str, invites: List[str]):
+    def add(self, key: uuid.UUID, document: Dict[str, Any], owner: Dict[str, str], invites: List[Dict[str, str]]):
         """
         Store metadata for a new document.
 
@@ -168,14 +169,14 @@ class SqliteMD(ABCMetadata):
                          + name: The name of the document
                          + size: Size of the doc
                          + type: Content type of the doc
-        :param owner: email address of the user that has uploaded the document.
-        :param invites: List of the emails of the users that have been invited to sign the document.
+        :param owner: Name and email address of the user that has uploaded the document.
+        :param invites: List of the names and emails of the users that have been invited to sign the document.
         """
-        owner_result = self._db_query(USER_QUERY_ID, (owner,), one=True)
+        owner_result = self._db_query(USER_QUERY_ID, (owner['email'],), one=True)
         if owner_result is None:
-            self.logger.info(f"Adding new (owning) user: {owner}")
-            self._db_execute(USER_INSERT, (owner,))
-            owner_result = self._db_query(USER_QUERY_ID, (owner,), one=True)
+            self.logger.info(f"Adding new (owning) user: {owner['name']}, {owner['email']}")
+            self._db_execute(USER_INSERT, (owner['name'], owner['email']))
+            owner_result = self._db_query(USER_QUERY_ID, (owner['email'],), one=True)
 
         if owner_result is None or isinstance(owner_result, list):  # This should never happen, it's just to please mypy
             return
@@ -192,11 +193,11 @@ class SqliteMD(ABCMetadata):
 
         document_id = document_result['documentID']
 
-        for email in invites:
-            user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+        for user in invites:
+            user_result = self._db_query(USER_QUERY_ID, (user['email'],), one=True)
             if user_result is None:
-                self._db_execute(USER_INSERT, (email,))
-                user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+                self._db_execute(USER_INSERT, (user['name'], user['email']))
+                user_result = self._db_query(USER_QUERY_ID, (user['email'],), one=True)
 
             if user_result is None or isinstance(
                 user_result, list
@@ -208,7 +209,7 @@ class SqliteMD(ABCMetadata):
 
         self._db_commit()
 
-    def get_pending(self, email: str) -> List[Dict[str, str]]:
+    def get_pending(self, email: str) -> List[Dict[str, Any]]:
         """
         Given the email address of some user, return information about the documents
         she has been invited to sign, and has not yet signed.
@@ -220,7 +221,7 @@ class SqliteMD(ABCMetadata):
                  + name: The name of the document
                  + size: Size of the doc
                  + type: Content type of the doc
-                 + owner: Email of the user requesting the signature
+                 + owner: Email and name of the user requesting the signature
         """
         invites = self._db_query(INVITE_QUERY_FROM_EMAIL, (email,))
         if invites is None or isinstance(invites, dict):
@@ -243,7 +244,7 @@ class SqliteMD(ABCMetadata):
                 self.logger.error(f"Db seems corrupted, a document references a non existing owner {owner}")
                 continue
 
-            document['owner'] = email_result['email']
+            document['owner'] = email_result
             document['key'] = uuid.UUID(bytes=document['key'])
             pending.append(document)
 
@@ -317,9 +318,9 @@ class SqliteMD(ABCMetadata):
                     )
                     continue
                 if invite['signed'] == 0:
-                    document['pending'].append(email_result['email'])
+                    document['pending'].append(email_result)
                 else:
-                    document['signed'].append(email_result['email'])
+                    document['signed'].append(email_result)
 
         return documents
 

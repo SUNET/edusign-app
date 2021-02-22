@@ -347,9 +347,12 @@ def create_multi_sign_request(data: dict) -> dict:
     """
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
-        current_app.doc_store.add_document(data['document'], data['owner'], data['invites'])
+        owner = {'name': session['displayName'], 'email': data['owner']}
+        current_app.doc_store.add_document(data['document'], owner, data['invites'])
 
-        msg = Message(gettext("XXX Invite mail subject"), recipients=data['invites'])
+        recipients = [f"{invite['name']} <{invite['email']}>" for invite in data['invites']]
+
+        msg = Message(gettext("XXX Invite mail subject"), recipients=recipients)
         msg.body = gettext("XXX Invite mail body")
 
         current_app.mailer.send(msg)
