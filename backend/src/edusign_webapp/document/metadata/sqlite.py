@@ -37,7 +37,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Union
 
-from flask import current_app, g
+from flask import g
 
 from edusign_webapp.doc_store import ABCMetadata
 
@@ -115,13 +115,13 @@ def get_db(db_path):
 
         db.row_factory = make_dicts
 
-        @current_app.teardown_appcontext
-        def close_connection(exception):
-            db = getattr(g, '_database', None)
-            if db is not None:
-                db.close()
-
     return db
+
+
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
 
 
 class SqliteMD(ABCMetadata):

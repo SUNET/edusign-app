@@ -30,6 +30,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import pprint
+from importlib import import_module
 from typing import Callable
 
 from flask import Flask
@@ -78,6 +79,13 @@ def edusign_init_app(name: str) -> EduSignApp:
     app.doc_store = DocStore(app.config, app.logger)
 
     app.mailer = Mail(app)
+
+    to_tear_down = app.config['TO_TEAR_DOWN_WITH_APP_CONTEXT']
+    for func_path in to_tear_down:
+        module_path, func_name = func_path.rsplit('.', 1)
+        func = getattr(import_module(module_path), func_name)
+
+        app.teardown_appcontext(func)
 
     app.logger.info(f'Init {name} app...')
 

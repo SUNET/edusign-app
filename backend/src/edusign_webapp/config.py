@@ -84,6 +84,8 @@ LOCAL_STORAGE_BASE_DIR = '/tmp'
 DOC_METADATA_CLASS_PATH = 'edusign_webapp.document.metadata.sqlite.SqliteMD'
 SQLITE_MD_DB_PATH = '/tmp/test.db'
 
+TO_TEAR_DOWN_WITH_APP_CONTEXT = ['edusign_webapp.document.metadata.sqlite.close_connection']
+
 
 MAIL_SERVER = os.environ.get('MAIL_SERVER', default='localhost')
 MAIL_PORT = os.environ.get('MAIL_PORT', default=25)
