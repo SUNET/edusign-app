@@ -68,10 +68,12 @@ export const sendInvites = createAsyncThunk(
       return;
     }
     const owned = {
+      key: document.key,
       name: document.name,
       size: document.size,
       type: document.type,
-        invitees: invitees.map((invitee) => {return {invitee: invitee, signed: false}}),
+      pending: invitees,
+      signed: [],
     };
     thunkAPI.dispatch(addOwned(owned));
     thunkAPI.dispatch(removeDocument(document.name));

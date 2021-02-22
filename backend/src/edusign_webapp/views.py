@@ -106,8 +106,8 @@ def get_config() -> dict:
     return {
         'payload': {
             'signer_attributes': attrs,
-            'owned_multisign': current_app.doc_store.get_owned_documents(),
-            'invited_multisign': current_app.doc_store.get_pending_documents(),
+            'owned_multisign': current_app.doc_store.get_owned_documents(session['mail']),
+            'invited_multisign': current_app.doc_store.get_pending_documents(session['mail']),
         }
     }
 

@@ -13,7 +13,7 @@ import { connect } from "react-redux";
 import InviteForm from "components/InviteForm";
 
 import { closeInviteForm, updateInvitees } from "slices/Invite";
-import { sendInvites } from "slices/Documents";
+import { sendInvites } from "slices/Invite";
 
 const mapStateToProps = (state) => {
   return {

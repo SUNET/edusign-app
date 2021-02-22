@@ -46,11 +46,6 @@ class _DocumentSchema(Schema):
     type = fields.String(required=True, validate=[validate_nonempty, validate_doc_type])
 
 
-class Invitation(Schema):
-    invitee = fields.Email(required=True, validate=[validate_nonempty])
-    signed = fields.Boolean(required=True)
-
-
 class ConfigSchema(Schema):
     """
     Schema to marshall configuration sent to the frontend,
@@ -65,7 +60,8 @@ class ConfigSchema(Schema):
         owner = fields.Email(required=True, validate=[validate_nonempty])
 
     class OwnedDocument(_DocumentSchema):
-        pending = fields.List(fields.Email(fields.Nested(Invitation)))
+        pending = fields.List(fields.Email())
+        signed = fields.List(fields.Email())
 
     signer_attributes = fields.List(fields.Nested(SignerAttribute))
     pending_multisign = fields.List(fields.Nested(PendingDocument))

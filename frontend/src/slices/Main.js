@@ -89,7 +89,10 @@ const mainSlice = createSlice({
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
-      return action.payload.payload;
+      return {
+        ...state,
+        ...action.payload.payload,
+      }
     },
   },
 });
