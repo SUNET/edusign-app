@@ -92,8 +92,6 @@ const inviteSlice = createSlice({
     showForm: false,
     documentId: null,
     invitees: [{name: '', email: ''}],
-    owned: [],
-    invited: [],
   },
   reducers: {
     closeInviteForm(state) {
