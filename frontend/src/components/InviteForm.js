@@ -3,6 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 import { Formik, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage } from "react-intl";
 
@@ -35,12 +36,16 @@ const InviteForm = (props) => {
                       {fprops.values.invitees.length > 0 &&
                         fprops.values.invitees.map((invitee, index) => (
                           <div className="row" key={index}>
-                            <div className="col">
-                              <label htmlFor={`invitees.${index}.name`}>Name</label>
+
+                            <Form.Group controlId="invitation-field">
+                              <Form.Label htmlFor={`invitees.${index}.name`}>
+                                <FormattedMessage defaultMessage="Name" key="name-input-field" />
+                              </Form.Label>
                               <Field
                                 name={`invitees.${index}.name`}
                                 value={invitee.name}
                                 placeholder="Jane Doe"
+                                component={Form.Control}
                                 type="text"
                                 onChange={(e) => {fprops.handleSubmit(e); fprops.handleChange(e)}}
                               />
@@ -49,13 +54,14 @@ const InviteForm = (props) => {
                                 component="div"
                                 className="field-error"
                               />
-                            </div>
-                            <div className="col">
-                              <label htmlFor={`invitees.${index}.email`}>Email</label>
+                              <Form.Label htmlFor={`invitees.${index}.email`}>
+                                <FormattedMessage defaultMessage="Email" key="email-input-field" />
+                              </Form.Label>
                               <Field
                                 name={`invitees.${index}.email`}
                                 value={invitee.email}
-                                placeholder="jane@acme.com"
+                                placeholder="jane@example.com"
+                                component={Form.Control}
                                 type="email"
                                 onChange={(e) => {fprops.handleSubmit(e); fprops.handleChange(e)}}
                               />
@@ -64,7 +70,7 @@ const InviteForm = (props) => {
                                 component="div"
                                 className="field-error"
                               />
-                            </div>
+                            </Form.Group>
                             <div className="col">
                               <button
                                 type="button"
