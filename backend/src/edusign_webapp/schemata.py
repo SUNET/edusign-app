@@ -62,9 +62,11 @@ class ConfigSchema(Schema):
         value = fields.String(required=True, validate=[validate_nonempty])
 
     class PendingDocument(_DocumentSchema):
-        owner = fields.Email(required=True, validate=[validate_nonempty])
+        key = fields.String(required=True, validate=[validate_nonempty])
+        owner = fields.Nested(Invitee)
 
     class OwnedDocument(_DocumentSchema):
+        key = fields.String(required=True, validate=[validate_nonempty])
         pending = fields.List(fields.Nested(Invitee))
         signed = fields.List(fields.Nested(Invitee))
 

@@ -7,6 +7,7 @@ import LittleSpinner from "components/LittleSpinner";
 import DocPreviewContainer from "containers/DocPreview";
 import InviteFormContainer from "containers/InviteForm";
 import OwnedContainer from "containers/Owned";
+import InvitedContainer from "containers/Invited";
 import { humanFileSize, docToFile } from "components/utils";
 
 import "styles/DocManager.scss";
@@ -358,6 +359,7 @@ function DocManager(props) {
       </div>
       <div className="owned-multisign-container">
         <OwnedContainer />
+        <InvitedContainer />
       </div>
       {props.destinationUrl !== undefined &&
         props.destinationUrl !== "https://dummy.destination.url" && (

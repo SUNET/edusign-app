@@ -207,7 +207,7 @@ class DocStore(object):
         key = self.storage.add(document['blob'])
         self.metadata.add(key, document, owner, invites)
 
-    def get_pending_documents(self, email: str) -> List[Dict[str, str]]:
+    def get_pending_documents(self, email: str) -> List[Dict[str, Any]]:
         """
         Given the email address of some user, return information about the documents
         she has been invited to sign, and has not yet signed.
@@ -219,7 +219,7 @@ class DocStore(object):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + owner: Email of the user requesting the signature
+                 + owner: Email and name of the user requesting the signature
         """
         return self.metadata.get_pending(email)
 

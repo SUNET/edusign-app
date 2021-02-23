@@ -83,6 +83,7 @@ export const sendInvites = createAsyncThunk(
     };
     thunkAPI.dispatch(addOwned(owned));
     thunkAPI.dispatch(removeDocument(document.name));
+    thunkAPI.dispatch(inviteSlice.closeInviteForm());
   }
 );
 

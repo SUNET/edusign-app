@@ -41,7 +41,7 @@ const mainSlice = createSlice({
     csrf_token: null,
     signer_attributes: undefined,
     owned_multisign: [],
-    invited_multisign: [],
+    pending_multisign: [],
     signingData: {},
     size: "lg",
   },
