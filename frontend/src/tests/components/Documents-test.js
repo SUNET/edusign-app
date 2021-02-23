@@ -14,7 +14,10 @@ import { createDocument, loadDocuments } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
 
 describe("Document representations", function () {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    fetchMock.restore();
+  });
 
   it("It shows the document after createDocument action", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
@@ -288,6 +291,8 @@ describe("Document representations", function () {
           { name: "givenName", value: "Tester" },
           { name: "surname", value: "Testig" },
         ],
+        owned_multisign: [],
+        pending_multisign: [],
       },
     });
     store.dispatch(fetchConfig());

@@ -18,6 +18,8 @@ const initialState = {
     loading: false,
     size: "lg",
     signingData: {},
+    owned_multisign: [],
+    pending_multisign: [],
   },
   notifications: {
     message: null,
@@ -32,6 +34,11 @@ const initialState = {
   documents: {
     documents: [],
   },
+  invites: {
+    showForm: false,
+    documentId: null,
+    invitees: [],
+  }
 };
 
 /**

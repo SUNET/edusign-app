@@ -26,6 +26,8 @@ describe("Main Component", function () {
         loading: true,
         size: "lg",
         signingData: {},
+        owned_multisign: [],
+        pending_multisign: [],
       },
     });
 
@@ -60,7 +62,13 @@ describe("Main Component", function () {
 
   it("Displays Header", function () {
     const { unmount } = setupComponent(<Main />, {
-      main: { loading: false, size: "lg", signingData: {} },
+      main: {
+        loading: false,
+        size: "lg",
+        signingData: {},
+        owned_multisign: [],
+        pending_multisign: [],
+      },
     });
 
     const header = screen.getAllByTestId("edusign-banner-lg");
@@ -77,7 +85,13 @@ describe("Main Component", function () {
 
   it("Displays Footer", function () {
     const { unmount } = setupComponent(<Main />, {
-      main: { loading: false, size: "lg", signingData: {} },
+      main: {
+        loading: false,
+        size: "lg",
+        signingData: {},
+        owned_multisign: [],
+        pending_multisign: [],
+      },
     });
 
     const footer = screen.getAllByTestId("edusign-footer");
@@ -97,7 +111,13 @@ describe("Main Component", function () {
 
   it("Displays English lang selector in Footer", function () {
     const { unmount } = setupComponent(<Main />, {
-      main: { loading: false, size: "lg", signingData: {} },
+      main: {
+        loading: false,
+        size: "lg",
+        signingData: {},
+        owned_multisign: [],
+        pending_multisign: [],
+      },
       intl: { locale: "sv" },
     });
 
@@ -133,7 +153,13 @@ describe("Main Component", function () {
 
   it("Contains a Notifications area", function () {
     const { unmount } = setupComponent(<Main />, {
-      main: { loading: false, size: "lg", signingData: {} },
+      main: {
+        loading: false,
+        size: "lg",
+        signingData: {},
+        owned_multisign: [],
+        pending_multisign: [],
+      },
     });
 
     const notificationsArea = screen.getAllByTestId(
