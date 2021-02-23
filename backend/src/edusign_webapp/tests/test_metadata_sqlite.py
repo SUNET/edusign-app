@@ -92,7 +92,9 @@ def test_add_and_get_pending_not(sqlite_md, sample_metadata_1, sample_owner_1, s
     assert pending == []
 
 
-def test_add_two_and_get_pending(sqlite_md, sample_metadata_1, sample_metadata_2, sample_owner_1, sample_owner_2, sample_invites_1, sample_invites_2):
+def test_add_two_and_get_pending(
+    sqlite_md, sample_metadata_1, sample_metadata_2, sample_owner_1, sample_owner_2, sample_invites_1, sample_invites_2
+):
     tempdir, test_md = sqlite_md
     dummy_key_1 = uuid.uuid4()
     dummy_key_2 = uuid.uuid4()

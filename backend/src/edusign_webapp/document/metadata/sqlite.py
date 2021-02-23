@@ -87,9 +87,7 @@ DOCUMENT_QUERY_FROM_OWNER = "SELECT d.documentID, d.key, d.name, d.size, d.type 
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (documentID, userID) VALUES (?, ?)"
-INVITE_QUERY_FROM_EMAIL = (
-    "SELECT Invites.documentID FROM Invites, Users WHERE Users.email = ? AND Invites.userID = Users.userID AND Invites.signed = 0;"
-)
+INVITE_QUERY_FROM_EMAIL = "SELECT Invites.documentID FROM Invites, Users WHERE Users.email = ? AND Invites.userID = Users.userID AND Invites.signed = 0;"
 INVITE_QUERY_FROM_DOC = "SELECT userID, signed FROM Invites WHERE documentID = ?;"
 INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT userID FROM Invites WHERE documentID = ? AND signed = 0;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE userID = ? and documentID = ?;"

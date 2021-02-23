@@ -73,7 +73,8 @@ DEBUG_AUTHN_CONTEXT = os.environ.get(
 )
 
 RAW_SIGNER_ATTRIBUTES = os.environ.get(
-    'SIGNER_ATTRIBUTES', default='urn:oid:2.5.4.42,givenName;urn:oid:2.5.4.4,sn;urn:oid:0.9.2342.19200300.100.1.3,mail;urn:oid:2.16.840.1.113730.3.1.241,displayName'
+    'SIGNER_ATTRIBUTES',
+    default='urn:oid:2.5.4.42,givenName;urn:oid:2.5.4.4,sn;urn:oid:0.9.2342.19200300.100.1.3,mail;urn:oid:2.16.840.1.113730.3.1.241,displayName',
 )
 
 SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}
@@ -81,10 +82,14 @@ SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGN
 STORAGE_CLASS_PATH = os.environ.get('STORAGE_CLASS_PATH', default='edusign_webapp.document.storage.local.LocalStorage')
 LOCAL_STORAGE_BASE_DIR = os.environ.get('LOCAL_STORAGE_BASE_DIR', default='/tmp')
 
-DOC_METADATA_CLASS_PATH = os.environ.get('DOC_METADATA_CLASS_PATH', default='edusign_webapp.document.metadata.sqlite.SqliteMD')
+DOC_METADATA_CLASS_PATH = os.environ.get(
+    'DOC_METADATA_CLASS_PATH', default='edusign_webapp.document.metadata.sqlite.SqliteMD'
+)
 SQLITE_MD_DB_PATH = os.environ.get('SQLITE_MD_DB_PATH', default='/tmp/test.db')
 
-TO_TEAR_DOWN_WITH_APP_CONTEXT = os.environ.get('TO_TEAR_DOWN_WITH_APP_CONTEXT', default='edusign_webapp.document.metadata.sqlite.close_connection').split(',')
+TO_TEAR_DOWN_WITH_APP_CONTEXT = os.environ.get(
+    'TO_TEAR_DOWN_WITH_APP_CONTEXT', default='edusign_webapp.document.metadata.sqlite.close_connection'
+).split(',')
 
 
 MAIL_SERVER = os.environ.get('MAIL_SERVER', default='localhost')

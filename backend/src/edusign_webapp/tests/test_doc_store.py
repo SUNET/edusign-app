@@ -100,7 +100,9 @@ def test_add_and_get_content(doc_store_local_sqlite, sample_doc_1, sample_owner_
     assert content == sample_doc_1['blob']
 
 
-def test_add_and_update_and_get_content(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
+def test_add_and_update_and_get_content(
+    doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1
+):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():
@@ -123,7 +125,9 @@ def test_add_and_update_and_get_content(doc_store_local_sqlite, sample_doc_1, sa
     assert len(pending1) == 0
 
 
-def test_add_and_update_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
+def test_add_and_update_and_get_owned(
+    doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1
+):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():
@@ -145,7 +149,9 @@ def test_add_and_update_and_get_owned(doc_store_local_sqlite, sample_doc_1, samp
     assert sample_invites_1[1]['email'] not in [o['email'] for o in owned[0]['pending']]
 
 
-def test_add_two_and_update_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
+def test_add_two_and_update_and_get_owned(
+    doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1
+):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():
@@ -178,7 +184,9 @@ def test_add_two_and_update_and_get_owned(doc_store_local_sqlite, sample_doc_1, 
     assert sample_invites_1[1]['email'] in [o['email'] for o in owned[1]['pending']]
 
 
-def test_add_two_and_remove_not_one_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
+def test_add_two_and_remove_not_one_and_get_owned(
+    doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1
+):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():
@@ -200,7 +208,9 @@ def test_add_two_and_remove_not_one_and_get_owned(doc_store_local_sqlite, sample
     assert sample_invites_1[1]['email'] in [o['email'] for o in owned[1]['pending']]
 
 
-def test_add_two_and_remove_force_one_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
+def test_add_two_and_remove_force_one_and_get_owned(
+    doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1
+):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():
@@ -216,7 +226,9 @@ def test_add_two_and_remove_force_one_and_get_owned(doc_store_local_sqlite, samp
     assert reowned[0]['type'] == sample_doc_2['type']
 
 
-def test_add_two_and_remove_one_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
+def test_add_two_and_remove_one_and_get_owned(
+    doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1
+):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():

@@ -79,6 +79,7 @@ class DocumentSchema(_DocumentSchema):
     """
     Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
     """
+
     blob = fields.Raw(required=True, validate=[validate_nonempty])
 
 
