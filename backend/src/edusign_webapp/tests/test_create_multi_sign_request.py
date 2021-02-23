@@ -63,7 +63,7 @@ def test_create_multi_sign_request(client, monkeypatch, sample_doc_1):
         'payload': {
             'document': sample_doc_1,
             'owner': 'owner@example.com',
-            'invites': ['invite0@examle.com', 'invite1@examle.com'],
+            'invites': [{'name': 'invite0', 'email': 'invite0@example.com'}, {'name': 'invite1', 'email': 'invite1@example.com'}],
         },
     }
 

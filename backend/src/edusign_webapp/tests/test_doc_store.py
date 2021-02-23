@@ -36,13 +36,11 @@ import sqlite3
 from edusign_webapp import run
 
 
-def test_add(doc_store_local_sqlite, sample_doc_1):
+def test_add(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    owner = 'owner@example.com'
-    invites = ['invite1@example.com', 'invite2@example.com']
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, owner, invites)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
 
     assert len(os.listdir(doc_store.storage.base_dir)) == 2
     assert 'test.db' in os.listdir(doc_store.storage.base_dir)
@@ -58,68 +56,60 @@ def test_add(doc_store_local_sqlite, sample_doc_1):
     assert result[2:5] == (sample_doc_1['name'], sample_doc_1['size'], sample_doc_1['type'])
 
 
-def test_add_and_get_pending(doc_store_local_sqlite, sample_doc_1):
+def test_add_and_get_pending(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    owner = 'owner@example.com'
-    invites = ['invite1@example.com', 'invite2@example.com']
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, owner, invites)
-        pending = doc_store.get_pending_documents(invites[1])
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
 
     assert len(pending) == 1
     assert pending[0]['name'] == sample_doc_1['name']
     assert pending[0]['size'] == sample_doc_1['size']
     assert pending[0]['type'] == sample_doc_1['type']
-    assert pending[0]['owner'] == owner
+    assert pending[0]['owner'] == sample_owner_1
 
 
-def test_add_two_and_get_pending(doc_store_local_sqlite, sample_doc_1, sample_doc_2):
+def test_add_two_and_get_pending(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    owner = 'owner@example.com'
-    invites = ['invite1@example.com', 'invite2@example.com']
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, owner, invites)
-        doc_store.add_document(sample_doc_2, owner, invites)
-        pending = doc_store.get_pending_documents(invites[1])
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1)
+        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
 
     assert len(pending) == 2
     assert pending[0]['name'] == sample_doc_1['name']
     assert pending[0]['size'] == sample_doc_1['size']
     assert pending[0]['type'] == sample_doc_1['type']
-    assert pending[0]['owner'] == owner
+    assert pending[0]['owner'] == sample_owner_1
     assert pending[1]['name'] == sample_doc_2['name']
     assert pending[1]['size'] == sample_doc_2['size']
     assert pending[1]['type'] == sample_doc_2['type']
-    assert pending[1]['owner'] == owner
+    assert pending[1]['owner'] == sample_owner_1
 
 
-def test_add_and_get_content(doc_store_local_sqlite, sample_doc_1):
+def test_add_and_get_content(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    owner = 'owner@example.com'
-    invites = ['invite1@example.com', 'invite2@example.com']
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, owner, invites)
-        pending = doc_store.get_pending_documents(invites[1])
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
         content = doc_store.get_document_content(pending[0]['key'])
 
     assert content == sample_doc_1['blob']
 
 
-def test_add_and_update_and_get_content(doc_store_local_sqlite, sample_doc_1, sample_doc_2):
+def test_add_and_update_and_get_content(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    owner = 'owner@example.com'
-    invites = ['invite1@example.com', 'invite2@example.com']
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, owner, invites)
-        pending = doc_store.get_pending_documents(invites[1])
-        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], invites[1])
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
+        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], sample_invites_1[1]['email'])
         content = doc_store.get_document_content(pending[0]['key'])
-        pending0 = doc_store.get_pending_documents(invites[0])
-        pending1 = doc_store.get_pending_documents(invites[1])
+        pending0 = doc_store.get_pending_documents(sample_invites_1[0]['email'])
+        pending1 = doc_store.get_pending_documents(sample_invites_1[1]['email'])
 
     assert content != sample_doc_1['blob']
     assert content == sample_doc_2['blob']
@@ -128,22 +118,20 @@ def test_add_and_update_and_get_content(doc_store_local_sqlite, sample_doc_1, sa
     assert pending0[0]['name'] == sample_doc_1['name']
     assert pending0[0]['size'] == sample_doc_1['size']
     assert pending0[0]['type'] == sample_doc_1['type']
-    assert pending0[0]['owner'] == owner
+    assert pending0[0]['owner'] == sample_owner_1
 
     assert len(pending1) == 0
 
 
-def test_add_and_update_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2):
+def test_add_and_update_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    owner = 'owner@example.com'
-    invites = ['invite1@example.com', 'invite2@example.com']
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, owner, invites)
-        pending = doc_store.get_pending_documents(invites[1])
-        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], invites[1])
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
+        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], sample_invites_1[1]['email'])
         content = doc_store.get_document_content(pending[0]['key'])
-        owned = doc_store.get_owned_documents(owner)
+        owned = doc_store.get_owned_documents(sample_owner_1['email'])
 
     assert content != sample_doc_1['blob']
     assert content == sample_doc_2['blob']
@@ -153,22 +141,20 @@ def test_add_and_update_and_get_owned(doc_store_local_sqlite, sample_doc_1, samp
     assert owned[0]['size'] == sample_doc_1['size']
     assert owned[0]['type'] == sample_doc_1['type']
 
-    assert invites[0] in owned[0]['pending']
-    assert invites[1] not in owned[0]['pending']
+    assert sample_invites_1[0]['email'] in [o['email'] for o in owned[0]['pending']]
+    assert sample_invites_1[1]['email'] not in [o['email'] for o in owned[0]['pending']]
 
 
-def test_add_two_and_update_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2):
+def test_add_two_and_update_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    owner = 'owner@example.com'
-    invites = ['invite1@example.com', 'invite2@example.com']
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, owner, invites)
-        doc_store.add_document(sample_doc_2, owner, invites)
-        pending = doc_store.get_pending_documents(invites[1])
-        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], invites[1])
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1)
+        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
+        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], sample_invites_1[1]['email'])
         content = doc_store.get_document_content(pending[0]['key'])
-        owned = doc_store.get_owned_documents(owner)
+        owned = doc_store.get_owned_documents(sample_owner_1['email'])
 
     assert content != sample_doc_1['blob']
     assert content == sample_doc_2['blob']
@@ -185,48 +171,44 @@ def test_add_two_and_update_and_get_owned(doc_store_local_sqlite, sample_doc_1, 
     assert owned[1]['size'] == sample_doc_2['size']
     assert owned[1]['type'] == sample_doc_2['type']
 
-    assert invites[0] in owned[0]['pending']
-    assert invites[1] not in owned[0]['pending']
+    assert sample_invites_1[0]['email'] in [o['email'] for o in owned[0]['pending']]
+    assert sample_invites_1[1]['email'] not in [o['email'] for o in owned[0]['pending']]
 
-    assert invites[0] in owned[1]['pending']
-    assert invites[1] in owned[1]['pending']
+    assert sample_invites_1[0]['email'] in [o['email'] for o in owned[1]['pending']]
+    assert sample_invites_1[1]['email'] in [o['email'] for o in owned[1]['pending']]
 
 
-def test_add_two_and_remove_not_one_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2):
+def test_add_two_and_remove_not_one_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    owner = 'owner@example.com'
-    invites = ['invite1@example.com', 'invite2@example.com']
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, owner, invites)
-        doc_store.add_document(sample_doc_2, owner, invites)
-        owned = doc_store.get_owned_documents(owner)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1)
+        owned = doc_store.get_owned_documents(sample_owner_1['email'])
         doc_store.remove_document(owned[0]['key'])
-        reowned = doc_store.get_owned_documents(owner)
+        reowned = doc_store.get_owned_documents(sample_owner_1['email'])
 
     assert len(reowned) == 2
     assert reowned[0]['name'] == sample_doc_1['name']
     assert reowned[0]['size'] == sample_doc_1['size']
     assert reowned[0]['type'] == sample_doc_1['type']
 
-    assert invites[0] in owned[0]['pending']
-    assert invites[1] in owned[0]['pending']
+    assert sample_invites_1[0]['email'] in [o['email'] for o in owned[0]['pending']]
+    assert sample_invites_1[1]['email'] in [o['email'] for o in owned[0]['pending']]
 
-    assert invites[0] in owned[1]['pending']
-    assert invites[1] in owned[1]['pending']
+    assert sample_invites_1[0]['email'] in [o['email'] for o in owned[1]['pending']]
+    assert sample_invites_1[1]['email'] in [o['email'] for o in owned[1]['pending']]
 
 
-def test_add_two_and_remove_force_one_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2):
+def test_add_two_and_remove_force_one_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    owner = 'owner@example.com'
-    invites = ['invite1@example.com', 'invite2@example.com']
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, owner, invites)
-        doc_store.add_document(sample_doc_2, owner, invites)
-        owned = doc_store.get_owned_documents(owner)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1)
+        owned = doc_store.get_owned_documents(sample_owner_1['email'])
         doc_store.remove_document(owned[0]['key'], force=True)
-        reowned = doc_store.get_owned_documents(owner)
+        reowned = doc_store.get_owned_documents(sample_owner_1['email'])
 
     assert len(reowned) == 1
     assert reowned[0]['name'] == sample_doc_2['name']
@@ -234,19 +216,17 @@ def test_add_two_and_remove_force_one_and_get_owned(doc_store_local_sqlite, samp
     assert reowned[0]['type'] == sample_doc_2['type']
 
 
-def test_add_two_and_remove_one_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2):
+def test_add_two_and_remove_one_and_get_owned(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    owner = 'owner@example.com'
-    invites = ['invite1@example.com', 'invite2@example.com']
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, owner, invites)
-        doc_store.add_document(sample_doc_2, owner, invites)
-        pending = doc_store.get_pending_documents(invites[1])
-        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], invites[0])
-        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], invites[1])
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1)
+        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
+        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], sample_invites_1[0]['email'])
+        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], sample_invites_1[1]['email'])
         doc_store.remove_document(pending[0]['key'])
-        owned = doc_store.get_owned_documents(owner)
+        owned = doc_store.get_owned_documents(sample_owner_1['email'])
 
         content = doc_store.get_document_content(pending[0]['key'])
 

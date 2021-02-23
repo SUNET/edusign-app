@@ -65,6 +65,7 @@ def client(request):
     with run.app.test_client() as client:
         client.environ_base["HTTP_EDUPERSONPRINCIPALNAME"] = 'dummy-eppn'
         client.environ_base["HTTP_GIVENNAME"] = b64encode('<Attribute>Tëster</Attribute>'.encode("utf-8"))
+        client.environ_base["HTTP_DISPLAYNAME"] = b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8"))
         client.environ_base["HTTP_SN"] = b64encode(b'<Attribute>Testing</Attribute>')
         client.environ_base["HTTP_MAIL"] = b64encode(b'<Attribute>tester@example.org</Attribute>')
         client.environ_base["HTTP_SHIB_IDENTITY_PROVIDER"] = 'https://idp'
@@ -111,8 +112,15 @@ def sample_pdf_data():
 
 
 @pytest.fixture
+def sample_metadata_1():
+    return _sample_metadata_1
+
+
+@pytest.fixture
 def sample_doc_1():
-    return {'name': 'test1.pdf', 'size': 1500000, 'type': 'application/pdf', 'blob': _sample_pdf_data}
+    doc = {'blob': _sample_pdf_data}
+    doc.update(_sample_metadata_1)
+    return doc
 
 
 @pytest.fixture
@@ -121,8 +129,38 @@ def sample_pdf_data_2():
 
 
 @pytest.fixture
+def sample_metadata_2():
+    return _sample_metadata_2
+
+
+@pytest.fixture
 def sample_doc_2():
-    return {'name': 'test2.pdf', 'size': 1500000, 'type': 'application/pdf', 'blob': _sample_pdf_data_2}
+    doc = {'blob': _sample_pdf_data_2}
+    doc.update(_sample_metadata_2)
+    return doc
+
+
+@pytest.fixture
+def sample_invites_1():
+    return [{'name': 'invite0', 'email': 'invite0@example.com'}, {'name': 'invite1', 'email': 'invite1@example.com'}]
+
+
+@pytest.fixture
+def sample_invites_2():
+    return [{'name': 'invite0', 'email': 'invite0@example.com'}, {'name': 'invite2', 'email': 'invite2@example.com'}]
+
+
+@pytest.fixture
+def sample_owner_1():
+    return {'name': 'owner', 'email': 'owner@example.com'}
+
+
+@pytest.fixture
+def sample_owner_2():
+    return {'name': 'owner2', 'email': 'owner2@example.com'}
+
+
+_sample_metadata_1 = {'name': 'test1.pdf', 'size': 1500000, 'type': 'application/pdf'}
 
 
 _sample_pdf_data = (
@@ -158,6 +196,10 @@ _sample_pdf_data = (
     '2VzdCAoaHR0cDovL3d3dy5yZXBvcnRsYWIuY29tKQoKL0luZm8gNSAwIFIKL1Jvb3'
     'QgNCAwIFIKL1NpemUgMTAKPj4Kc3RhcnR4cmVmCjEwNzYKJSVFT0YK'
 )
+
+
+_sample_metadata_2 = {'name': 'test2.pdf', 'size': 1500000, 'type': 'application/pdf'}
+
 
 _sample_pdf_data_2 = (
     'JVBERi0xLjQKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQga'

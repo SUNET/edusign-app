@@ -78,13 +78,13 @@ RAW_SIGNER_ATTRIBUTES = os.environ.get(
 
 SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}
 
-STORAGE_CLASS_PATH = 'edusign_webapp.document.storage.local.LocalStorage'
-LOCAL_STORAGE_BASE_DIR = '/tmp'
+STORAGE_CLASS_PATH = os.environ.get('STORAGE_CLASS_PATH', default='edusign_webapp.document.storage.local.LocalStorage')
+LOCAL_STORAGE_BASE_DIR = os.environ.get('LOCAL_STORAGE_BASE_DIR', default='/tmp')
 
-DOC_METADATA_CLASS_PATH = 'edusign_webapp.document.metadata.sqlite.SqliteMD'
-SQLITE_MD_DB_PATH = '/tmp/test.db'
+DOC_METADATA_CLASS_PATH = os.environ.get('DOC_METADATA_CLASS_PATH', default='edusign_webapp.document.metadata.sqlite.SqliteMD')
+SQLITE_MD_DB_PATH = os.environ.get('SQLITE_MD_DB_PATH', default='/tmp/test.db')
 
-TO_TEAR_DOWN_WITH_APP_CONTEXT = ['edusign_webapp.document.metadata.sqlite.close_connection']
+TO_TEAR_DOWN_WITH_APP_CONTEXT = os.environ.get('TO_TEAR_DOWN_WITH_APP_CONTEXT', default='edusign_webapp.document.metadata.sqlite.close_connection').split(',')
 
 
 MAIL_SERVER = os.environ.get('MAIL_SERVER', default='localhost')
