@@ -1,0 +1,59 @@
+@import "./variables.scss";
+
+.owned-multisign-request {
+  padding: 0.3rem;
+  flex: none;
+  display: flex;
+  flex-flow: row wrap;
+  min-height: 3rem;
+  min-width: 80%;
+  align-items: center;
+  justify-content: left;
+
+  .name-flex-item {
+    flex: 5 0 auto;
+  }
+
+  .size-flex-item {
+    flex: none;
+    margin-right: 1rem;
+    color: $darker-dark-grey;
+  }
+}
+
+.owned-multisign-request-sm {
+  margin-top: 0.5rem;
+  padding: 1rem 0.2rem 0.2rem;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+  align-items: flex-start;
+  border-radius: 10px;
+  background-color: $lightest-gray;
+
+  .doc-container-first-row,
+  .doc-container-second-row,
+  .doc-container-third-row {
+    margin-bottom: 0.5rem;
+    flex: none;
+    display: flex;
+    justify-content: flex-start;
+
+    .size-flex-item {
+      flex: none;
+      margin-right: 1rem;
+      color: $darker-dark-grey;
+    }
+  }
+}
+
+.pending-invites {
+  margin-top: -0.5rem;
+  margin-left: 1rem;
+
+  .pending-invite-item {
+    margin-left: 1rem;
+    color: $darker-dark-grey;
+  }
+}
