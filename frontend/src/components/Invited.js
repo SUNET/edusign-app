@@ -19,16 +19,14 @@ class Invited extends Component {
         <div className="multisign-title">
           <FormattedMessage defaultMessage="Invitations to sign:" key="invitations-to-sign" />
         </div>
-        {this.props.invited.map((doc) => {
+        {this.props.invited.map((doc, index) => {
           return (
-            <>
-              <div className="invited-multisign-request">
-                <div className="size-flex-item">{humanFileSize(doc.size)}</div>
-                <div className="name-flex-item">{doc.name}</div>
-                <FormattedMessage defaultMessage="invited by" key="invited-by" />
-                <div className="owner-flex-item">{doc.owner.name} &lt;{doc.owner.email}&gt;</div>
-              </div>
-            </>
+            <div className="invited-multisign-request" key={index}>
+              <div className="size-flex-item">{humanFileSize(doc.size)}</div>
+              <div className="name-flex-item">{doc.name}</div>
+              <FormattedMessage defaultMessage="invited by" key="invited-by" />
+              <div className="owner-flex-item">{doc.owner.name} &lt;{doc.owner.email}&gt;</div>
+            </div>
           );
         })}
       </>

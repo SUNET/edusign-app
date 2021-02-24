@@ -82,8 +82,6 @@ describe("Document representations", function () {
     );
     expect(selector.length).to.equal(1);
 
-    fetchMock.restore();
-
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -142,8 +140,6 @@ describe("Document representations", function () {
 
     buttonRemove = await waitFor(() => screen.getAllByText(/Remove/i));
     expect(buttonRemove.length).to.equal(1);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -204,8 +200,6 @@ describe("Document representations", function () {
     buttonRemove = await waitFor(() => screen.getAllByText(/Malformed PDF/i));
     expect(buttonRemove.length).to.equal(1);
 
-    fetchMock.restore();
-
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -259,25 +253,23 @@ describe("Document representations", function () {
     fireEvent.click(rmButton[0]);
     await flushPromises(rerender, wrapped);
 
-    let filename = screen.queryByText(/test.pdf/i);
+    const filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
 
-    let filesize = screen.queryByText("1.5 KiB");
+    const filesize = screen.queryByText("1.5 KiB");
     expect(filesize).to.equal(null);
 
-    let previewButton = screen.queryByText("Preview");
+    const previewButton = screen.queryByText("Preview");
     expect(previewButton).to.equal(null);
 
-    let downloadButton = screen.queryByText("Download");
+    const downloadButton = screen.queryByText("Download");
     expect(downloadButton).to.equal(null);
 
-    let signButton = screen.queryByText("Sign");
+    const signButton = screen.queryByText("Sign");
     expect(signButton).to.equal(null);
 
     rmButton = screen.queryByText("Remove");
     expect(rmButton).to.equal(null);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -360,8 +352,6 @@ describe("Document representations", function () {
     );
     expect(closeButton.length).to.equal(1);
 
-    fetchMock.restore();
-
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -443,8 +433,6 @@ describe("Document representations", function () {
       screen.queryByTestId("preview-button-next")
     );
     expect(nextButton).to.equal(null);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -531,8 +519,6 @@ describe("Document representations", function () {
     const text = await waitFor(() => screen.getAllByText("signing ..."));
     expect(text.length).to.equal(1);
 
-    fetchMock.restore();
-
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -609,8 +595,6 @@ describe("Document representations", function () {
       screen.getAllByText("XXX Problem creating signature request")
     );
     expect(text.length).to.equal(1);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -695,8 +679,6 @@ describe("Document representations", function () {
     const text = await waitFor(() => screen.getAllByText("signing ..."));
     expect(text.length).to.equal(1);
 
-    fetchMock.restore();
-
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -771,8 +753,6 @@ describe("Document representations", function () {
       screen.getAllByText("XXX Problem creating signature request")
     );
     expect(text.length).to.equal(1);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -869,8 +849,6 @@ describe("Document representations", function () {
       screen.getAllByText("Download (signed)")
     );
     expect(buttonSigned.length).to.equal(1);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -969,8 +947,6 @@ describe("Document representations", function () {
       screen.getAllByText(/XXX Problem signing the document/i)
     );
     expect(errorMsg.length).to.equal(1);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();

@@ -37,15 +37,16 @@ const InviteForm = (props) => {
                         fprops.values.invitees.map((invitee, index) => (
                           <div className="row" key={index}>
 
-                            <Form.Group controlId="invitation-field">
+                            <Form.Group>
                               <Form.Label htmlFor={`invitees.${index}.name`}>
                                 <FormattedMessage defaultMessage="Name" key="name-input-field" />
                               </Form.Label>
                               <Field
                                 name={`invitees.${index}.name`}
+                                data-testid={`invitees.${index}.name`}
                                 value={invitee.name}
                                 placeholder="Jane Doe"
-                                component={Form.Control}
+                                as={Form.Control}
                                 type="text"
                                 onChange={(e) => {fprops.handleSubmit(e); fprops.handleChange(e)}}
                               />
@@ -54,14 +55,17 @@ const InviteForm = (props) => {
                                 component="div"
                                 className="field-error"
                               />
+                            <Form.Group>
+                            </Form.Group>
                               <Form.Label htmlFor={`invitees.${index}.email`}>
                                 <FormattedMessage defaultMessage="Email" key="email-input-field" />
                               </Form.Label>
                               <Field
                                 name={`invitees.${index}.email`}
+                                data-testid={`invitees.${index}.email`}
                                 value={invitee.email}
                                 placeholder="jane@example.com"
-                                component={Form.Control}
+                                as={Form.Control}
                                 type="email"
                                 onChange={(e) => {fprops.handleSubmit(e); fprops.handleChange(e)}}
                               />

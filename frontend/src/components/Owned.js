@@ -19,9 +19,9 @@ class Owned extends Component {
         <div className="multisign-title">
           <FormattedMessage defaultMessage="Requests for multiple signatures:" key="multisign-requests" />
         </div>
-        {this.props.owned.map((doc) => {
+        {this.props.owned.map((doc, index) => {
           return (
-            <>
+            <div key={index}>
               <div className="owned-multisign-request">
                 <div className="size-flex-item">{humanFileSize(doc.size)}</div>
                 <div className="name-flex-item">{doc.name}</div>
@@ -44,7 +44,7 @@ class Owned extends Component {
                   })}
                 </div>
               )}
-            </>
+            </div>
           );
         })}
       </>
