@@ -944,7 +944,7 @@ describe("Document representations", function () {
     expect(buttonRemove.length).to.equal(1);
 
     const errorMsg = await waitFor(() =>
-      screen.getAllByText(/XXX Problem signing the document/i)
+      screen.getAllByText(/Problem signing the document/i)
     );
     expect(errorMsg.length).to.equal(1);
 

@@ -81,9 +81,9 @@ export const sendInvites = createAsyncThunk(
       pending: invitees,
       signed: [],
     };
+    thunkAPI.dispatch(inviteSlice.actions.closeInviteForm());
     thunkAPI.dispatch(addOwned(owned));
     thunkAPI.dispatch(removeDocument(document.name));
-    thunkAPI.dispatch(inviteSlice.actions.closeInviteForm());
   }
 );
 

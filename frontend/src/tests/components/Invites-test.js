@@ -139,16 +139,28 @@ describe("Multi sign invitations", function () {
 
   it("It shows no invites form after clicking the send button", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-    fetchMock.get("/sign/config", {
-      payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
-        owned_multisign: [],
-        pending_multisign: [],
-      },
-    });
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          signer_attributes: [
+            { name: "givenName", value: "Tester" },
+            { name: "surname", value: "Testig" },
+          ],
+          owned_multisign: [],
+          pending_multisign: [],
+        },
+      })
+      .post("/sign/add-doc", {
+        message: "document added",
+        payload: {
+          ref: "dummy ref",
+          sign_requirement: "dummy sign requirement",
+        },
+      })
+      .post("/sign/create-multi-sign", {
+        message: "Success creating multi signature request",
+        error: false,
+      });
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -161,18 +173,6 @@ describe("Multi sign invitations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    fetchMock
-      .post("/sign/add-doc", {
-        message: "document added",
-        payload: {
-          ref: "dummy ref",
-          sign_requirement: "dummy sign requirement",
-        },
-      })
-      .post("/sign/create-multi-sign", {
-        message: "Success creating multi signature request",
-        error: false,
-      });
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
 
@@ -193,17 +193,19 @@ describe("Multi sign invitations", function () {
     expect(nameInput.length).to.equal(1);
     nameInput[0].value = "Dummy Doe";
 
-    const buttonSend = await waitFor(() => screen.getAllByText(/Add Invitation/i));
+    await flushPromises(rerender, wrapped);
+
+    const buttonSend = await waitFor(() => screen.getAllByText(/Send/i));
     expect(buttonSend.length).to.equal(1);
 
     fireEvent.click(buttonSend[0]);
     await flushPromises(rerender, wrapped);
 
-    emailInput = screen.queryByTestId("invitees.0.email");
-    expect(emailInput).to.equal(null);
+    emailInput = await waitFor(() => screen.queryAllByTestId("invitees.0.email"));
+    expect(emailInput.length).to.equal(0);
 
-    nameInput = screen.queryByTestId("invitees.0.name");
-    expect(nameInput).to.equal(null);
+    nameInput = await waitFor(() => screen.queryAllByTestId("invitees.0.name"));
+    expect(nameInput.length).to.equal(0);
 
     const inviteNotice = await waitFor(() => screen.getAllByText(/dummy@example.com/i));
     expect(inviteNotice.length).to.equal(1);

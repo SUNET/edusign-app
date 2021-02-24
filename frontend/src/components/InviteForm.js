@@ -8,6 +8,28 @@ import { Formik, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage } from "react-intl";
 
 
+const validateEmail = (value) => {
+  let error;
+
+  if (!value) {
+    error = <FormattedMessage defaultMessage="Required" key="required-field" />;
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
+    error = <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />;
+  }
+  return error;
+};
+
+
+const validateName = (value) => {
+  let error;
+
+  if (!value) {
+    error = <FormattedMessage defaultMessage="Required" key="required-field" />;
+  }
+  return error;
+};
+
+
 const InviteForm = (props) => {
 
   return (
@@ -48,7 +70,8 @@ const InviteForm = (props) => {
                                 placeholder="Jane Doe"
                                 as={Form.Control}
                                 type="text"
-                                onChange={(e) => {fprops.handleSubmit(e); fprops.handleChange(e)}}
+                                validate={validateName}
+                                onChange={(e) => {fprops.handleChange(e)}}
                               />
                               <ErrorMessage
                                 name={`invitees.${index}.name`}
@@ -67,7 +90,8 @@ const InviteForm = (props) => {
                                 placeholder="jane@example.com"
                                 as={Form.Control}
                                 type="email"
-                                onChange={(e) => {fprops.handleSubmit(e); fprops.handleChange(e)}}
+                                validate={validateEmail}
+                                onChange={(e) => {fprops.handleChange(e)}}
                               />
                               <ErrorMessage
                                 name={`invitees.${index}.email`}
