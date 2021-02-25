@@ -8,13 +8,18 @@ import {
   flushPromises,
   b64SamplePDFData,
   samplePDFData,
+  b64SamplePasswordPDFData,
+  samplePasswordPDFData,
 } from "tests/test-utils";
 import Main from "components/Main";
 import { createDocument, loadDocuments } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
 
 describe("Document representations", function () {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    fetchMock.restore();
+  });
 
   it("It shows the document after createDocument action", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
@@ -79,7 +84,55 @@ describe("Document representations", function () {
     );
     expect(selector.length).to.equal(1);
 
-    fetchMock.restore();
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows a warning after createDocument action with a password protected document", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock.get("/sign/config", {
+      payload: {
+        signer_attributes: [
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
+    });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
+    expect(clearButton.length).to.equal(1);
+
+    fireEvent.click(clearButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    let warning = screen.queryByText(/Please do not supply a password protected document/);
+    expect(warning).to.equal(null);
+
+    const fileObj = new File([samplePasswordPDFData], "test.pdf", {
+      type: "application/pdf",
+    });
+    const file = {
+      name: fileObj.name,
+      size: fileObj.size,
+      type: fileObj.type,
+      blob: "data:application/pdf;base64," + b64SamplePasswordPDFData,
+    };
+    fetchMock.post("/sign/add-doc", {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement",
+      },
+    });
+    store.dispatch(createDocument(file));
+    await flushPromises(rerender, wrapped);
+
+    warning = await waitFor(() => screen.getAllByText(/Please do not supply a password protected document/i));
+    expect(warning.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -140,8 +193,6 @@ describe("Document representations", function () {
     buttonRemove = await waitFor(() => screen.getAllByText(/Remove/i));
     expect(buttonRemove.length).to.equal(1);
 
-    fetchMock.restore();
-
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -200,8 +251,6 @@ describe("Document representations", function () {
 
     buttonRemove = await waitFor(() => screen.getAllByText(/Malformed PDF/i));
     expect(buttonRemove.length).to.equal(1);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -273,8 +322,6 @@ describe("Document representations", function () {
 
     rmButton = screen.queryByText("Remove");
     expect(rmButton).to.equal(null);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -354,8 +401,6 @@ describe("Document representations", function () {
       screen.getAllByTestId("preview-button-close")
     );
     expect(closeButton.length).to.equal(1);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -438,8 +483,6 @@ describe("Document representations", function () {
       screen.queryByTestId("preview-button-next")
     );
     expect(nextButton).to.equal(null);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -526,8 +569,6 @@ describe("Document representations", function () {
     const text = await waitFor(() => screen.getAllByText("signing ..."));
     expect(text.length).to.equal(1);
 
-    fetchMock.restore();
-
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -604,8 +645,6 @@ describe("Document representations", function () {
       screen.getAllByText("XXX Problem creating signature request")
     );
     expect(text.length).to.equal(1);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -690,8 +729,6 @@ describe("Document representations", function () {
     const text = await waitFor(() => screen.getAllByText("signing ..."));
     expect(text.length).to.equal(1);
 
-    fetchMock.restore();
-
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -766,8 +803,6 @@ describe("Document representations", function () {
       screen.getAllByText("XXX Problem creating signature request")
     );
     expect(text.length).to.equal(1);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -864,8 +899,6 @@ describe("Document representations", function () {
       screen.getAllByText("Download (signed)")
     );
     expect(buttonSigned.length).to.equal(1);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
@@ -964,8 +997,6 @@ describe("Document representations", function () {
       screen.getAllByText(/XXX Problem signing the document/i)
     );
     expect(errorMsg.length).to.equal(1);
-
-    fetchMock.restore();
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
