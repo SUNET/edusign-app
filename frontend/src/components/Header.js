@@ -25,9 +25,9 @@ class Header extends Component {
               />
             </span>
             <span id="signer-attributes">
-              {this.props.signer_attributes.map((attr) => {
+              {this.props.signer_attributes.map((attr, index) => {
                 return (
-                  <span className="signer-attribute">
+                  <span className="signer-attribute" key={index}>
                     <span className="attr-name">{attr.name}: </span>
                     <span className="attr-value">{attr.value}</span>
                   </span>
