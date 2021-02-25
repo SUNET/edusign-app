@@ -48,6 +48,7 @@ function DocPreview(props) {
             <Document
               file={props.docFile}
               onLoadSuccess={onDocumentLoadSuccess}
+              onPassword={(c) => {throw new Error("Never password")}}
             >
               <Page pageNumber={pageNumber} width={725} />
             </Document>

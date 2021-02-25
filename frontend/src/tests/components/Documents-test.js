@@ -8,6 +8,8 @@ import {
   flushPromises,
   b64SamplePDFData,
   samplePDFData,
+  b64SamplePasswordPDFData,
+  samplePasswordPDFData,
 } from "tests/test-utils";
 import Main from "components/Main";
 import { createDocument, loadDocuments } from "slices/Documents";
@@ -81,6 +83,56 @@ describe("Document representations", function () {
       screen.getAllByTestId("doc-selector-0")
     );
     expect(selector.length).to.equal(1);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows a warning after createDocument action with a password protected document", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock.get("/sign/config", {
+      payload: {
+        signer_attributes: [
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+      },
+    });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
+    expect(clearButton.length).to.equal(1);
+
+    fireEvent.click(clearButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    let warning = screen.queryByText(/Please do not supply a password protected document/);
+    expect(warning).to.equal(null);
+
+    const fileObj = new File([samplePasswordPDFData], "test.pdf", {
+      type: "application/pdf",
+    });
+    const file = {
+      name: fileObj.name,
+      size: fileObj.size,
+      type: fileObj.type,
+      blob: "data:application/pdf;base64," + b64SamplePasswordPDFData,
+    };
+    fetchMock.post("/sign/add-doc", {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement",
+      },
+    });
+    store.dispatch(createDocument(file));
+    await flushPromises(rerender, wrapped);
+
+    warning = await waitFor(() => screen.getAllByText(/Please do not supply a password protected document/i));
+    expect(warning.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
