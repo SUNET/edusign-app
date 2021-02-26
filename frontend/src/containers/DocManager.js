@@ -20,9 +20,6 @@ import {
   removeDocument,
   downloadSigned,
 } from "slices/Documents";
-import {
-  openInviteForm
-} from "slices/Invite";
 
 const mapStateToProps = (state) => {
   return {
@@ -64,11 +61,6 @@ const mapDispatchToProps = (dispatch) => {
     handleDlSigned: function (name) {
       return () => {
         dispatch(downloadSigned(name));
-      };
-    },
-    handleMultiSign: function (docId) {
-      return () => {
-        dispatch(openInviteForm(docId));
       };
     },
   };

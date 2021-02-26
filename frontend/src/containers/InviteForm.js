@@ -12,28 +12,18 @@ import { connect } from "react-redux";
 
 import InviteForm from "components/InviteForm";
 
-import { closeInviteForm, updateInvitees } from "slices/Invite";
-import { sendInvites } from "slices/Invite";
+import { sendInvites } from "slices/Documents";
 
 const mapStateToProps = (state) => {
   return {
-    show: state.invites.showForm,
-    invitees: state.invites.invitees,
-    documentId: state.invites.documentId,
+    size: state.main.size,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    handleClose: function () {
-      dispatch(closeInviteForm());
-    },
-    handleChange: function (invitees) {
-      dispatch(updateInvitees(invitees));
-    },
-    handleSubmit: function (e) {
-      e.preventDefault();
-      dispatch(sendInvites());
+    handleSubmit: function (values) {
+      dispatch(sendInvites(values));
     },
   };
 };

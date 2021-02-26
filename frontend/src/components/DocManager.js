@@ -135,24 +135,6 @@ function DocManager(props) {
       </>
     );
   }
-  function multiSignButton(doc) {
-    return (
-      <>
-        <div className="button-multisign-flex-item">
-          <Button
-            variant="outline-success"
-            size="sm"
-            onClick={props.handleMultiSign(doc.id)}
-          >
-            <FormattedMessage
-              defaultMessage="Multi sign"
-              key="multisign-button"
-            />
-          </Button>
-        </div>
-      </>
-    );
-  }
 
   let someSelected = false;
 
@@ -204,7 +186,7 @@ function DocManager(props) {
                   {docName(doc)}
                   {previewButton(doc)}
                   {removeButton(doc)}
-                  {multiSignButton(doc)}
+                  <InviteFormContainer docId={doc.id} />
                   <DocPreviewContainer doc={doc} docFile={docFile} />
                 </>
               )}
@@ -292,7 +274,7 @@ function DocManager(props) {
                   <div className="doc-container-second-row">
                     {previewButton(doc)}
                     {removeButton(doc)}
-                    {multiSignButton(doc)}
+                    <InviteFormContainer docId={doc.id} />
                   </div>
                   <DocPreviewContainer doc={doc} docFile={docFile} />
                 </>
@@ -392,7 +374,6 @@ function DocManager(props) {
           />
         </div>
       )}
-      <InviteFormContainer />
     </>
   );
 }
