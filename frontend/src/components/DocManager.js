@@ -186,7 +186,7 @@ function DocManager(props) {
                   {docName(doc)}
                   {previewButton(doc)}
                   {removeButton(doc)}
-                  <InviteFormContainer docId={doc.id} />
+                  <InviteFormContainer docId={doc.id} docName={doc.name} />
                   <DocPreviewContainer doc={doc} docFile={docFile} />
                 </>
               )}
@@ -274,7 +274,7 @@ function DocManager(props) {
                   <div className="doc-container-second-row">
                     {previewButton(doc)}
                     {removeButton(doc)}
-                    <InviteFormContainer docId={doc.id} />
+                    <InviteFormContainer docId={doc.id} docName={doc.name} />
                   </div>
                   <DocPreviewContainer doc={doc} docFile={docFile} />
                 </>

@@ -1,0 +1,22 @@
+@import "./variables.scss";
+
+.invitee-form-row {
+  display: flex;
+  margin: 1rem 3rem;
+  align-items: center;
+
+  .invitee-form-name,
+  .invitee-form-email {
+    flex: 1 0 auto;
+    margin-right: 1rem;
+  }
+  .invitee-form-dismiss {
+    flex: 0 0 auto;
+  }
+}
+
+.field-error {
+  display: inline-block;
+  color: $error-red;
+  margin-left: 2rem;
+}
