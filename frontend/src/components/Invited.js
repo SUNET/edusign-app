@@ -20,7 +20,7 @@ class Invited extends Component {
         {this.props.invited.map((doc, index) => {
           return (
             <div className="invited-multisign-request" key={index}>
-              <div className="name-flex-item">{doc.name}</div>
+              <div className="name-flex-item" onClick={this.props.startMultiSigning(doc.ref)}>{doc.name}</div>
               <div className="invited-flex-item">
                 <div className="invited-flex-label">
                   <FormattedMessage defaultMessage="invited by" key="invited-by" />

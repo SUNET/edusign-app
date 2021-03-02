@@ -37,11 +37,11 @@ from werkzeug.wrappers import Response
 edusign_unsecure_views = Blueprint('edusign_unsecure', __name__, url_prefix='/u', template_folder='templates')
 
 
-@edusign_unsecure_views.route('/', methods=['GET'])
+@edusign_unsecure_views.route('/start-multisign', methods=['GET'])
 def start_multisign() -> Response:
     """
     """
-    session['multi-signing-document'] = request.headers.get('multi-signing-document')
+    session['multi-signing-document'] = request.headers.get('document')
 
     url = url_for('edusign.create_invited_sign_request', _external=True)
 
