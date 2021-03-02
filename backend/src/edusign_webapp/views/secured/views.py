@@ -55,16 +55,7 @@ from edusign_webapp.schemata import (
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
 
 
-@edusign_views.route('/', methods=['GET'])
-def get_index() -> str:
-    """
-    View to get the index html that loads the frontside app.
-
-    This view assumes that it is secured by a Shibboleth SP, that has added some authn info as headers to the request,
-    and in case that info is not already in the session, adds it there.
-
-    :return: the rendered `index.jinja2` template as a string
-    """
+def add_attributes_to_session():
     if 'eppn' not in session:
         eppn = request.headers.get('Edupersonprincipalname')
         current_app.logger.info(f'User {eppn} started a session')
@@ -80,6 +71,19 @@ def get_index() -> str:
         session['idp'] = request.headers.get('Shib-Identity-Provider')
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
         session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
+
+
+@edusign_views.route('/', methods=['GET'])
+def get_index() -> str:
+    """
+    View to get the index html that loads the frontside app.
+
+    This view assumes that it is secured by a Shibboleth SP, that has added some authn info as headers to the request,
+    and in case that info is not already in the session, adds it there.
+
+    :return: the rendered `index.jinja2` template as a string
+    """
+    add_attributes_to_session()
 
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
 
@@ -364,3 +368,55 @@ def create_multi_sign_request(data: dict) -> dict:
     message = gettext("Success creating multi signature request")
 
     return {'message': message}
+
+
+@edusign_views.route('/invitation-to-sign', methods=['POST'])
+def create_invited_signature() -> dict:
+    """
+    :param documents: representation of the documents as returned by the ToRestartSigningSchema
+    :return: A dict with either the relevant information returned by the API's `create` sign request endpoint,
+             or information about some error obtained in the process.
+    """
+    add_attributes_to_session()
+
+    doc = current_app.doc_store.get_document(session['multi-signing-document'])
+
+    doc_data = _prepare_document(doc)
+
+    if 'error' in doc_data and doc_data['error']:
+        current_app.logger.error(f"Problem re-preparing document for user {session['eppn']}: {doc['name']}")
+        return doc_data
+
+    current_app.logger.info(f"Prepared {doc['name']} for multisigning by user {session['eppn']}")
+
+    new_doc = {
+        'name': doc['name'],
+        'type': doc['type'],
+        'ref': doc_data['updatedPdfDocumentReference'],
+        'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
+    }
+
+    try:
+        current_app.logger.info(f"Creating (multi) signature request for user {session['eppn']}")
+        create_data, documents_with_id = current_app.api_client.create_sign_request(new_doc)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem creating sign request: {e}')
+        return {'error': True, 'message': gettext('Communication error with the create endpoint of the eduSign API')}
+
+    try:
+        sign_data = {
+            'relay_state': create_data['relayState'],
+            'sign_request': create_data['signRequest'],
+            'binding': create_data['binding'],
+            'destination_url': create_data['destinationUrl'],
+            'documents': documents_with_id,
+        }
+    except KeyError:
+        current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
+        return {'error': True, 'message': create_data['message']}
+
+    message = gettext("Success creating sign request")
+
+    # XXX return redirect to POST
+    return {'message': message, 'payload': sign_data}
