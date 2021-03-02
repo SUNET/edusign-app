@@ -1,29 +1,43 @@
 @import "./variables.scss";
 
+.multisign-title {
+  font-size: 1.5rem;
+}
+
 .invited-multisign-request {
   padding: 0.3rem;
   flex: none;
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: column nowrap;
+  align-items: flex-start;
   min-height: 3rem;
-  min-width: 80%;
-  align-items: center;
-  justify-content: left;
+  width: 100%;
+  margin-top: 1rem;
+  margin-bottom: .75rem;
+  line-height: 1.5rem;
 
   .name-flex-item {
     flex: 5 0 auto;
     margin-right: 1rem;
+    font-size: 1.15rem;
   }
 
-  .size-flex-item {
+  .invited-flex-item {
     flex: none;
     margin-right: 1rem;
-    color: $darker-dark-grey;
-  }
+    margin-left: 1rem;
+    display: flex;
 
-  .owner-flex-item {
-    flex: none;
-    margin-right: 1rem;
+    .invited-flex-label {
+      flex: none;
+      margin-right: 1rem;
+      color: $darker-dark-grey;
+    }
+
+    .owner-flex-item {
+      flex: none;
+      margin-right: 1rem;
+    }
   }
 }
 

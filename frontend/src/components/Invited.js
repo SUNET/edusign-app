@@ -2,8 +2,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 
-import { humanFileSize } from "components/utils";
-
 import "styles/Invited.scss";
 
 /**
@@ -22,10 +20,13 @@ class Invited extends Component {
         {this.props.invited.map((doc, index) => {
           return (
             <div className="invited-multisign-request" key={index}>
-              <div className="size-flex-item">{humanFileSize(doc.size)}</div>
               <div className="name-flex-item">{doc.name}</div>
-              <FormattedMessage defaultMessage="invited by" key="invited-by" />
-              <div className="owner-flex-item">{doc.owner.name} &lt;{doc.owner.email}&gt;</div>
+              <div className="invited-flex-item">
+                <div className="invited-flex-label">
+                  <FormattedMessage defaultMessage="invited by" key="invited-by" />
+                </div>
+                <div className="owner-flex-item">{doc.owner.name} &lt;{doc.owner.email}&gt;</div>
+              </div>
             </div>
           );
         })}

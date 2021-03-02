@@ -339,9 +339,13 @@ function DocManager(props) {
           />
         </Button>
       </div>
-      <div className="owned-multisign-container">
-        <OwnedContainer />
-        <InvitedContainer />
+      <div className="multisign-container">
+        <div className="owned-multisign-container">
+          <OwnedContainer />
+        </div>
+        <div className="invited-multisign-container">
+          <InvitedContainer />
+        </div>
       </div>
       {props.destinationUrl !== undefined &&
         props.destinationUrl !== "https://dummy.destination.url" && (

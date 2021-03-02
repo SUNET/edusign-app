@@ -4,20 +4,18 @@
   padding: 0.3rem;
   flex: none;
   display: flex;
-  flex-flow: row wrap;
+  flex-flow: column nowrap;
+  align-items: flex-start;
   min-height: 3rem;
-  min-width: 80%;
-  align-items: center;
-  justify-content: left;
+  width: 100%;
+  margin-top: 1rem;
+  margin-bottom: .75rem;
+  line-height: 1.5rem;
 
   .name-flex-item {
     flex: 5 0 auto;
-  }
-
-  .size-flex-item {
-    flex: none;
     margin-right: 1rem;
-    color: $darker-dark-grey;
+    font-size: 1.15rem;
   }
 }
 
@@ -39,21 +37,24 @@
     flex: none;
     display: flex;
     justify-content: flex-start;
-
-    .size-flex-item {
-      flex: none;
-      margin-right: 1rem;
-      color: $darker-dark-grey;
-    }
   }
 }
 
 .pending-invites {
-  margin-top: -0.5rem;
+  flex: none;
   margin-left: 1rem;
+  margin-right: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+
+  .pending-invites-label {
+    margin-left: 1rem;
+    color: $darker-dark-grey;
+    flex: 0 0 auto;
+  }
 
   .pending-invite-item {
     margin-left: 1rem;
-    color: $darker-dark-grey;
+    flex: 0 0 auto;
   }
 }

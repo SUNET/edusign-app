@@ -142,3 +142,22 @@ div.failed-preparing {
 div.selected {
   background-color: $light-blue;
 }
+
+.multisign-container {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+  width: 100%;
+
+  .owned-multisign-container {
+    flex: 1 1 50%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .invited-multisign-container {
+    flex: 1 1 50%;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
