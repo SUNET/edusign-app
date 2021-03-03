@@ -134,9 +134,10 @@ class APIClient(object):
 
         return response
 
-    def _try_creating_sign_request(self, documents: list) -> tuple:
+    def _try_creating_sign_request(self, documents: list, single_sign=True) -> tuple:
         """
         :param documents: List with (already prepared) documents to include in the sign request.
+        :param single_sign:  Whether we are creating a request for a single or for multiple signatures
         :return: Pair of  Flask representation of the HTTP response from the API,
                  and list of mappings linking the documents' names with the generated ids.
         """
@@ -147,7 +148,10 @@ class APIClient(object):
             authn_context = self.config['DEBUG_AUTHN_CONTEXT']
 
         correlation_id = str(uuid4())
-        return_url = url_for('edusign.sign_service_callback', _external=True, _scheme='https')
+        if single_sign:
+            return_url = url_for('edusign.sign_service_callback', _external=True, _scheme='https')
+        else:
+            return_url = url_for('edusign.multi_sign_service_callback', _external=True, _scheme='https')
         attrs = [{'name': attr, 'value': session[name]} for attr, name in self.config['SIGNER_ATTRIBUTES'].items()]
 
         request_data = {

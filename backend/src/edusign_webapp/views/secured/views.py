@@ -33,11 +33,13 @@
 import asyncio
 import json
 from base64 import b64decode
+from typing import Union
 from xml.etree import cElementTree as ET
 
-from flask import Blueprint, abort, current_app, render_template, request, session
+from flask import Blueprint, abort, current_app, render_template, redirect, request, session
 from flask_babel import gettext
 from flask_mail import Message
+from werkzeug.wrappers import Response
 
 from edusign_webapp.marshal import Marshal, UnMarshal
 from edusign_webapp.schemata import (
@@ -340,7 +342,7 @@ def get_signed_documents(sign_data: dict) -> dict:
 
 @edusign_views.route('/create-multi-sign', methods=['POST'])
 @UnMarshal(MultiSignSchema)
-@Marshal()
+@Marshal()  # XXX marshal
 def create_multi_sign_request(data: dict) -> dict:
     """
     View to create requests for collectively signing a document
@@ -371,7 +373,9 @@ def create_multi_sign_request(data: dict) -> dict:
 
 
 @edusign_views.route('/invitation-to-sign', methods=['POST'])
-def create_invited_signature() -> dict:
+@UnMarshal()  # XXX marshal, unmarshal
+@Marshal()
+def create_invited_signature() -> Union[Response, str]:
     """
     :param documents: representation of the documents as returned by the ToRestartSigningSchema
     :return: A dict with either the relevant information returned by the API's `create` sign request endpoint,
@@ -384,8 +388,7 @@ def create_invited_signature() -> dict:
     doc_data = _prepare_document(doc)
 
     if 'error' in doc_data and doc_data['error']:
-        current_app.logger.error(f"Problem re-preparing document for user {session['eppn']}: {doc['name']}")
-        return doc_data
+        return render_template('error-generic.jinja2', message=f"Problem preparing document for multi sign by user {session['eppn']}: {doc['name']}")
 
     current_app.logger.info(f"Prepared {doc['name']} for multisigning by user {session['eppn']}")
 
@@ -402,21 +405,43 @@ def create_invited_signature() -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
-        return {'error': True, 'message': gettext('Communication error with the create endpoint of the eduSign API')}
+        return render_template('error-generic.jinja2', message=gettext('Communication error with the create endpoint of the eduSign API'))
+
+    # XXX add POST params to redirect (create_data['binding'] -> Binding,
+    #                                  create_data['relayState'] -> RelayState,
+    #                                  create_data['signRequest'] -> EidSignRequest)
+
+    return redirect(create_data['destinationUrl'], code=307)
+
+
+@edusign_views.route('/multisign-callback', methods=['POST'])
+def multi_sign_service_callback() -> str:
+    """
+    Callback to be called from the signature service, after the user has visited it
+    to finish signing some documents.
+
+    :return: The rendered template `index-with-sign-response.jinja2`, which loads the app like the index,
+             and in addition contains some information POSTed from the signature service, needed
+             to retrieve the signed documents.
+    """
+    try:
+        sign_response = request.form['EidSignResponse']
+        relay_state = request.form['RelayState']
+    except KeyError as e:
+        current_app.logger.error(f'Missing data in callback request: {e}')
+        abort(400)
 
     try:
-        sign_data = {
-            'relay_state': create_data['relayState'],
-            'sign_request': create_data['signRequest'],
-            'binding': create_data['binding'],
-            'destination_url': create_data['destinationUrl'],
-            'documents': documents_with_id,
-        }
-    except KeyError:
-        current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
-        return {'error': True, 'message': create_data['message']}
+        current_app.logger.info(f"Processing signature for {sign_response} for user {session['eppn']}")
+        process_data = current_app.api_client.process_sign_request(sign_response, relay_state)
 
-    message = gettext("Success creating sign request")
+    except Exception as e:
+        current_app.logger.error(f'Problem processing sign request: {e}')
+        return render_template('error-generic.jinja2', message=gettext('Communication error with the process endpoint of the eduSign API'))
 
-    # XXX return redirect to POST
-    return {'message': message, 'payload': sign_data}
+    doc = process_data['signedDocuments'][0]
+    current_app.doc_store.update_document(doc['id'], doc['signedContent'], session['mail'])
+
+    message = gettext("Success processing document sign request")
+
+    return render_template('success-generic.jinja2', message=message)
