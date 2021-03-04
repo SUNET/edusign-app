@@ -105,7 +105,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add(self, key: uuid.UUID, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]]):
+    def add(self, key: uuid.UUID, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]]) -> List[Dict[str, str]]:
         """
         Store metadata for a new document.
 
@@ -116,6 +116,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                          + size: Size of the doc
         :param owner: Email address and name of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
+        :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
 
     @abc.abstractmethod
@@ -166,6 +167,15 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :param key: The key identifying the document.
         """
 
+    @abc.abstractmethod
+    def get_invitation(self, key: uuid.UUID) -> Dict[str, Any]:
+        """
+        Get the invited user's name and email and the data on the document she's been invited to sign
+
+        :param key: The key identifying the signing invitation
+        :return: A dict with data on the user and the document
+        """
+
 
 class DocStore(object):
     """
@@ -192,7 +202,7 @@ class DocStore(object):
 
         self.metadata = docmd_class(config, logger)
 
-    def add_document(self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]]):
+    def add_document(self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]]) -> List[Dict[str, str]]:
         """
         Store document, to be signed by all users referenced in `invites`.
 
@@ -203,9 +213,10 @@ class DocStore(object):
                          + blob: Contents of the document, as a base64 string.
         :param owner: Email address and name of the user that has uploaded the document.
         :param invites: List of names and email addresses of the users that should sign the document.
+        :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
         key = self.storage.add(document['blob'])
-        self.metadata.add(key, document, owner, invites)
+        return self.metadata.add(key, document, owner, invites)
 
     def get_pending_documents(self, email: str) -> List[Dict[str, Any]]:
         """
@@ -281,3 +292,14 @@ class DocStore(object):
             self.storage.remove(key)
 
         return removed
+
+    def get_invitation(self, key: uuid.UUID) -> Dict[str, Any]:
+        """
+        Get the invited user's name and email and the data on the document she's been invited to sign
+
+        :param key: The key identifying the signing invitation
+        :return: A dict with data on the user and the document
+        """
+        data = self.storage.get_invitation(key)
+        data['doc']['blob'] = self.storage.get_content(data['doc']['key'])
+        return data

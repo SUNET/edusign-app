@@ -61,6 +61,7 @@ CREATE TABLE [Documents]
 );
 CREATE TABLE [Invites]
 (      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
+       [key] VARCHAR(255) NOT NULL,
        [userID] INTEGER NOT NULL,
        [documentID] INTEGER NOT NULL,
        [signed] INTEGER DEFAULT 0,
@@ -86,10 +87,11 @@ DOCUMENT_QUERY = "SELECT key, name, size, type, owner FROM Documents WHERE docum
 DOCUMENT_QUERY_FROM_OWNER = "SELECT d.documentID, d.key, d.name, d.size, d.type FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.userID;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
-INVITE_INSERT = "INSERT INTO Invites (documentID, userID) VALUES (?, ?)"
+INVITE_INSERT = "INSERT INTO Invites (key, documentID, userID) VALUES (?, ?, ?)"
 INVITE_QUERY_FROM_EMAIL = "SELECT Invites.documentID FROM Invites, Users WHERE Users.email = ? AND Invites.userID = Users.userID AND Invites.signed = 0;"
 INVITE_QUERY_FROM_DOC = "SELECT userID, signed FROM Invites WHERE documentID = ?;"
 INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT userID FROM Invites WHERE documentID = ? AND signed = 0;"
+INVITE_QUERY_FROM_KEY = "SELECT userID, documentID, signed FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE userID = ? and documentID = ?;"
 INVITE_DELETE = "DELETE FROM Invites WHERE userID = ? and documentID = ?;"
 INVITE_DELETE_ALL = "DELETE FROM Invites WHERE documentID = ?;"
@@ -169,6 +171,7 @@ class SqliteMD(ABCMetadata):
                          + type: Content type of the doc
         :param owner: Name and email address of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
+        :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
         owner_result = self._db_query(USER_QUERY_ID, (owner['email'],), one=True)
         if owner_result is None:
@@ -191,6 +194,8 @@ class SqliteMD(ABCMetadata):
 
         document_id = document_result['documentID']
 
+        updated_invites = []
+
         for user in invites:
             user_result = self._db_query(USER_QUERY_ID, (user['email'],), one=True)
             if user_result is None:
@@ -203,9 +208,15 @@ class SqliteMD(ABCMetadata):
                 continue
 
             user_id = user_result['userID']
-            self._db_execute(INVITE_INSERT, (document_id, user_id))
+            invite_key = str(uuid.uuid4())
+            self._db_execute(INVITE_INSERT, (invite_key, document_id, user_id))
+
+            updated_invite = {'key': invite_key}
+            updated_invite.update(user)
+            updated_invites.append(updated_invite)
 
         self._db_commit()
+        return updated_invites
 
     def get_pending(self, email: str) -> List[Dict[str, Any]]:
         """
@@ -353,3 +364,20 @@ class SqliteMD(ABCMetadata):
         self._db_commit()
 
         return True
+
+    def get_invitation(self, key: uuid.UUID) -> Dict[str, Any]:
+        """
+        Get the invited user's name and email and the data on the document she's been invited to sign
+
+        :param key: The key identifying the signing invitation
+        :return: A dict with data on the user and the document
+        """
+        invite = self._db_query(INVITE_QUERY_FROM_KEY, (key,), one=True)
+        if invite is None or isinstance(invite, list):
+            self.logger.error(f"Retrieving a non-existing invite with key {key}")
+            return {}
+
+        doc = self._db_query(DOCUMENT_QUERY, (invite['documentID'],), one=True)
+        user = self._db_query(USER_QUERY, (invite['userID'],), one=True)
+
+        return {'document': doc, 'user': user}

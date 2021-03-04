@@ -32,11 +32,9 @@
 #
 import asyncio
 import json
-from base64 import b64decode
 from typing import Union
-from xml.etree import cElementTree as ET
 
-from flask import Blueprint, abort, current_app, render_template, redirect, request, session
+from flask import Blueprint, abort, current_app, render_template, redirect, request, session, url_for
 from flask_babel import gettext
 from flask_mail import Message
 from werkzeug.wrappers import Response
@@ -53,26 +51,9 @@ from edusign_webapp.schemata import (
     ToRestartSigningSchema,
     ToSignSchema,
 )
+from edusign_webapp.views.secured.utils import add_attributes_to_session, prepare_document, create_signing_link
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
-
-
-def add_attributes_to_session():
-    if 'eppn' not in session:
-        eppn = request.headers.get('Edupersonprincipalname')
-        current_app.logger.info(f'User {eppn} started a session')
-        session['eppn'] = eppn
-
-        attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
-        for attr_in_session, attr_in_header in attrs:
-            current_app.logger.debug(
-                f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
-            )
-            session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
-
-        session['idp'] = request.headers.get('Shib-Identity-Provider')
-        session['authn_method'] = request.headers.get('Shib-Authentication-Method')
-        session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
 
 
 @edusign_views.route('/', methods=['GET'])
@@ -118,22 +99,6 @@ def get_config() -> dict:
     }
 
 
-def _prepare_document(document: dict) -> dict:
-    """
-    Send documents to the eduSign API to be prepared for signing.
-
-    :param document: a dict with metadata and contents of the document to be prepared.
-    :return: a dict with the reponse obtained from the API, or with an error message.
-    """
-    try:
-        current_app.logger.info(f"Sending document {document['name']} for preparation for user {session['eppn']}")
-        return current_app.api_client.prepare_document(document)
-
-    except Exception as e:
-        current_app.logger.error(f'Problem preparing document: {e}')
-        return {'error': True, 'message': gettext('Communication error with the prepare endpoint of the eduSign API')}
-
-
 @edusign_views.route('/add-doc', methods=['POST'])
 @UnMarshal(DocumentSchema)
 @Marshal(ReferenceSchema)
@@ -145,7 +110,7 @@ def add_document(document: dict) -> dict:
     :return: a dict with the data returned from the API after preparing the document,
              or with eerror information in case of some error.
     """
-    prepare_data = _prepare_document(document)
+    prepare_data = prepare_document(document)
 
     if 'error' in prepare_data and prepare_data['error']:  # XXX update error message, translate
         return prepare_data
@@ -224,7 +189,7 @@ def recreate_sign_request(documents: dict) -> dict:
     current_app.logger.debug(f'Data gotten in recreate view: {documents}')
 
     async def prepare(doc):
-        return _prepare_document(doc)
+        return prepare_document(doc)
 
     current_app.logger.info(f"Re-preparing documents for user {session['eppn']}")
     loop = asyncio.new_event_loop()
@@ -342,7 +307,7 @@ def get_signed_documents(sign_data: dict) -> dict:
 
 @edusign_views.route('/create-multi-sign', methods=['POST'])
 @UnMarshal(MultiSignSchema)
-@Marshal()  # XXX marshal
+@Marshal()
 def create_multi_sign_request(data: dict) -> dict:
     """
     View to create requests for collectively signing a document
@@ -354,14 +319,21 @@ def create_multi_sign_request(data: dict) -> dict:
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
         owner = {'name': session['displayName'], 'email': data['owner']}
-        current_app.doc_store.add_document(data['document'], owner, data['invites'])
+        invites = current_app.doc_store.add_document(data['document'], owner, data['invites'])
 
-        recipients = [f"{invite['name']} <{invite['email']}>" for invite in data['invites']]
+        for invite in invites:
+            recipients = [f"{invite['name']} <{invite['email']}>"]
+            msg = Message(gettext("XXX Invite mail subject"), recipients=recipients)
+            invited_link = url_for('edusign.create_invited_signature', invite_key=invite['key'], _external=True)
+            context = {
+                'document_name': data['document'].name,
+                'inviter_name': f"{owner['name']} <{owner['email']}>",
+                'invited_link': invited_link,
+            }
+            msg.body = render_template('invitation_email.txt.jinja2', **context)
+            msg.html = render_template('invitation_email.html.jinja2', **context)
 
-        msg = Message(gettext("XXX Invite mail subject"), recipients=recipients)
-        msg.body = gettext("XXX Invite mail body")
-
-        current_app.mailer.send(msg)
+            current_app.mailer.send(msg)
 
     except Exception as e:
         current_app.logger.error(f'Problem processing multi sign request: {e}')
@@ -372,23 +344,25 @@ def create_multi_sign_request(data: dict) -> dict:
     return {'message': message}
 
 
-@edusign_views.route('/invitation-to-sign', methods=['POST'])
-@UnMarshal()  # XXX marshal, unmarshal
-@Marshal()
-def create_invited_signature() -> Union[Response, str]:
+@edusign_views.route('/invitation-to-sign/{invite_key}', methods=['POST'])
+def create_invited_signature(signing_key) -> str:
     """
-    :param documents: representation of the documents as returned by the ToRestartSigningSchema
-    :return: A dict with either the relevant information returned by the API's `create` sign request endpoint,
-             or information about some error obtained in the process.
     """
     add_attributes_to_session()
 
-    doc = current_app.doc_store.get_document(session['multi-signing-document'])
+    data = current_app.doc_store.get_invitation(signing_key)
+    doc = data['doc']
+    user = data['user']
 
-    doc_data = _prepare_document(doc)
+    if user['email'] != session['mail']:
+        message = gettext("The invited email does not coincide with yours")
+        return render_template('error-generic.jinja2', message=message)
+
+    doc_data = prepare_document(doc)
 
     if 'error' in doc_data and doc_data['error']:
-        return render_template('error-generic.jinja2', message=f"Problem preparing document for multi sign by user {session['eppn']}: {doc['name']}")
+        message = gettext("Problem preparing document for multi sign by user %s: %s") % ({session['eppn']}, {doc['name']})
+        return render_template('error-generic.jinja2', message=message)
 
     current_app.logger.info(f"Prepared {doc['name']} for multisigning by user {session['eppn']}")
 
@@ -407,11 +381,7 @@ def create_invited_signature() -> Union[Response, str]:
         current_app.logger.error(f'Problem creating sign request: {e}')
         return render_template('error-generic.jinja2', message=gettext('Communication error with the create endpoint of the eduSign API'))
 
-    # XXX add POST params to redirect (create_data['binding'] -> Binding,
-    #                                  create_data['relayState'] -> RelayState,
-    #                                  create_data['signRequest'] -> EidSignRequest)
-
-    return redirect(create_data['destinationUrl'], code=307)
+    return render_template('autoform.jinja2', **create_data)
 
 
 @edusign_views.route('/multisign-callback', methods=['POST'])
