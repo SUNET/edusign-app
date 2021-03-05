@@ -301,5 +301,8 @@ class DocStore(object):
         :return: A dict with data on the user and the document
         """
         data = self.metadata.get_invitation(key)
-        data['document']['blob'] = self.storage.get_content(data['document']['key'])
+        if not data:
+            return {}
+
+        data['document']['blob'] = self.storage.get_content(uuid.UUID(bytes=data['document']['key']))
         return data

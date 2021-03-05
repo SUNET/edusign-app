@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import asyncio
+import uuid
 import json
 
 from flask import Blueprint, abort, current_app, render_template, request, session, url_for
@@ -350,6 +351,12 @@ def create_invited_signature(invite_key) -> str:
     add_attributes_to_session()
 
     data = current_app.doc_store.get_invitation(invite_key)
+    current_app.logger.info(f"Invitation data: {data}")
+
+    if not data:
+        message = gettext("There seems to be no invitation for you")
+        return render_template('error-generic.jinja2', message=message)
+
     doc = data['document']
     user = data['user']
 
@@ -374,7 +381,7 @@ def create_invited_signature(invite_key) -> str:
 
     try:
         current_app.logger.info(f"Creating (multi) signature request for user {session['eppn']}")
-        create_data, documents_with_id = current_app.api_client.create_sign_request(new_doc)
+        create_data, documents_with_id = current_app.api_client.create_sign_request([new_doc], single_sign=False)
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
@@ -400,8 +407,10 @@ def multi_sign_service_callback() -> str:
         current_app.logger.error(f'Missing data in callback request: {e}')
         abort(400)
 
+    current_app.logger.debug(f"Session contains {session.items()}")
+
     try:
-        current_app.logger.info(f"Processing signature for {sign_response} for user {session['eppn']}")
+        current_app.logger.info(f"Processing signature for {sign_response}")
         process_data = current_app.api_client.process_sign_request(sign_response, relay_state)
 
     except Exception as e:
@@ -409,7 +418,9 @@ def multi_sign_service_callback() -> str:
         return render_template('error-generic.jinja2', message=gettext('Communication error with the process endpoint of the eduSign API'))
 
     doc = process_data['signedDocuments'][0]
-    current_app.doc_store.update_document(doc['id'], doc['signedContent'], session['mail'])
+
+    key = uuid.UUID(doc['id'])
+    current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
 
     message = gettext("Success processing document sign request")
 

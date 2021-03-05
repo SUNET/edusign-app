@@ -113,6 +113,7 @@ class APIClient(object):
         current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
 
         doc_data = document['blob']
+        current_app.logger.debug(f"Document to send to the prepare endpoint: {doc_data}")
         if ',' in doc_data:
             doc_data = doc_data.split(',')[1]
 
@@ -184,18 +185,19 @@ class APIClient(object):
 
         return self._post(api_url, request_data), documents_with_id
 
-    def create_sign_request(self, documents: list) -> tuple:
+    def create_sign_request(self, documents: list, single_sign=True) -> tuple:
         """
         Send request to the `create` endpoint of the API.
         This API method will create and return the DSS SignRequest message
         that is to be sent to the signature service.
 
         :param documents: List with (already prepared) documents to include in the sign request.
+        :param single_sign:  Whether we are creating a request for a single or for multiple signatures
         :raises ExpiredCache: When the response from the API indicates that the documents to sign have dissapeared from the API's cache.
         :return: Pair of  Flask representation of the HTTP response from the API,
                  and list of mappings linking the documents' names with the generated ids.
         """
-        response_data, documents_with_id = self._try_creating_sign_request(documents)
+        response_data, documents_with_id = self._try_creating_sign_request(documents, single_sign=single_sign)
 
         if (
             'status' in response_data
