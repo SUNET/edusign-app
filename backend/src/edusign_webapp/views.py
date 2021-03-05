@@ -32,12 +32,10 @@
 #
 import asyncio
 import json
-from typing import Union
 
-from flask import Blueprint, abort, current_app, render_template, redirect, request, session, url_for
+from flask import Blueprint, abort, current_app, render_template, request, session, url_for
 from flask_babel import gettext
 from flask_mail import Message
-from werkzeug.wrappers import Response
 
 from edusign_webapp.marshal import Marshal, UnMarshal
 from edusign_webapp.schemata import (
@@ -51,7 +49,7 @@ from edusign_webapp.schemata import (
     ToRestartSigningSchema,
     ToSignSchema,
 )
-from edusign_webapp.views.secured.utils import add_attributes_to_session, prepare_document, create_signing_link
+from edusign_webapp.utils import add_attributes_to_session, prepare_document
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
 
@@ -326,11 +324,12 @@ def create_multi_sign_request(data: dict) -> dict:
             msg = Message(gettext("XXX Invite mail subject"), recipients=recipients)
             invited_link = url_for('edusign.create_invited_signature', invite_key=invite['key'], _external=True)
             context = {
-                'document_name': data['document'].name,
+                'document_name': data['document']['name'],
                 'inviter_name': f"{owner['name']} <{owner['email']}>",
                 'invited_link': invited_link,
             }
             msg.body = render_template('invitation_email.txt.jinja2', **context)
+            current_app.logger.debug(f"Sending email to user {session['eppn']}:\n{msg.body}")
             msg.html = render_template('invitation_email.html.jinja2', **context)
 
             current_app.mailer.send(msg)
@@ -344,14 +343,14 @@ def create_multi_sign_request(data: dict) -> dict:
     return {'message': message}
 
 
-@edusign_views.route('/invitation-to-sign/{invite_key}', methods=['POST'])
-def create_invited_signature(signing_key) -> str:
+@edusign_views.route('/invitation-to-sign/<invite_key>', methods=['GET'])
+def create_invited_signature(invite_key) -> str:
     """
     """
     add_attributes_to_session()
 
-    data = current_app.doc_store.get_invitation(signing_key)
-    doc = data['doc']
+    data = current_app.doc_store.get_invitation(invite_key)
+    doc = data['document']
     user = data['user']
 
     if user['email'] != session['mail']:
@@ -361,7 +360,7 @@ def create_invited_signature(signing_key) -> str:
     doc_data = prepare_document(doc)
 
     if 'error' in doc_data and doc_data['error']:
-        message = gettext("Problem preparing document for multi sign by user %s: %s") % ({session['eppn']}, {doc['name']})
+        message = gettext("Problem preparing document for multi sign by user %s: %s") % (session['eppn'], doc['name'])
         return render_template('error-generic.jinja2', message=message)
 
     current_app.logger.info(f"Prepared {doc['name']} for multisigning by user {session['eppn']}")

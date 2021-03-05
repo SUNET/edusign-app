@@ -300,6 +300,6 @@ class DocStore(object):
         :param key: The key identifying the signing invitation
         :return: A dict with data on the user and the document
         """
-        data = self.storage.get_invitation(key)
-        data['doc']['blob'] = self.storage.get_content(data['doc']['key'])
+        data = self.metadata.get_invitation(key)
+        data['document']['blob'] = self.storage.get_content(data['document']['key'])
         return data

@@ -30,7 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from base64 import b64decode, b64encode
+from base64 import b64decode
 from xml.etree import cElementTree as ET
 
 from flask import current_app, request, session
@@ -69,7 +69,3 @@ def prepare_document(document: dict) -> dict:
     except Exception as e:
         current_app.logger.error(f'Problem preparing document: {e}')
         return {'error': True, 'message': gettext('Communication error with the prepare endpoint of the eduSign API')}
-
-
-def create_signing_link(owner, document):
-    pass
