@@ -33,7 +33,7 @@
 import json
 from pprint import pformat
 from urllib.parse import urljoin
-from uuid import uuid4
+import uuid
 
 import requests
 from flask import current_app, session, url_for
@@ -151,11 +151,13 @@ class APIClient(object):
             idp = self.config['DEBUG_IDP']
             authn_context = self.config['DEBUG_AUTHN_CONTEXT']
 
-        correlation_id = str(uuid4())
+        correlation_id = str(uuid.uuid4())
         if single_sign:
             return_url = url_for('edusign.sign_service_callback', _external=True, _scheme='https')
         else:
-            return_url = url_for('edusign.multi_sign_service_callback', _external=True, _scheme='https')
+            current_app.logger.debug(f"Doc key for multi sign: {documents[0]['key']} :: {type(documents[0]['key'])}")
+            doc_key = documents[0]['key']
+            return_url = url_for('edusign.multi_sign_service_callback', doc_key=doc_key, _external=True, _scheme='https')
         attrs = [{'name': attr, 'value': session[name]} for attr, name in self.config['SIGNER_ATTRIBUTES'].items()]
 
         request_data = {
@@ -171,11 +173,10 @@ class APIClient(object):
         }
         documents_with_id = []
         for document in documents:
-            document_id = str(uuid4())
-            documents_with_id.append({'name': document['name'], 'id': document_id})
+            documents_with_id.append({'name': document['name'], 'key': document['key']})
             request_data['tbsDocuments'].append(
                 {
-                    "id": document_id,
+                    "id": document['key'],
                     "contentReference": document['ref'],
                     "mimeType": document['type'],
                     "visiblePdfSignatureRequirement": json.loads(document['sign_requirement']),

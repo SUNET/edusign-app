@@ -54,21 +54,19 @@ class LocalStorage(ABCStorage):
         self.logger = logger
         self.base_dir = config['LOCAL_STORAGE_BASE_DIR']
 
-    def add(self, content: str) -> uuid.UUID:
+    def add(self, key: uuid.UUID, content: str):
         """
         Store a new document.
 
+        :param key: UUID key identifying the document
         :param content: Contents of the document, as a base64 string.
-        :return: A key that uniquely identifies the document in the store.
         """
-        key = uuid.uuid4()
         path = os.path.join(self.base_dir, str(key))
         bcontent = base64.b64decode(content.encode('utf8'))
         with open(path, 'wb') as f:
             f.write(bcontent)
 
         self.logger.info(f"Saved document contents with key {key}")
-        return key
 
     def get_content(self, key: uuid.UUID) -> Optional[str]:
         """

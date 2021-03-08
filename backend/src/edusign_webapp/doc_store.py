@@ -51,12 +51,12 @@ class ABCStorage(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add(self, content: str) -> uuid.UUID:
+    def add(self, key: uuid.UUID, content: str):
         """
         Store a new document.
 
+        :param key: UUID key identifying the document
         :param content: Contents of the document, as a base64 string.
-        :return: A key that uniquely identifies the document in the store.
         """
 
     @abc.abstractmethod
@@ -207,6 +207,7 @@ class DocStore(object):
         Store document, to be signed by all users referenced in `invites`.
 
         :param document: Content and metadata of the document. Dictionary containing 4 keys:
+                         + key: UUID identifying the document
                          + name: The name of the document
                          + type: Content type of the doc
                          + size: Size of the doc
@@ -215,7 +216,8 @@ class DocStore(object):
         :param invites: List of names and email addresses of the users that should sign the document.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
-        key = self.storage.add(document['blob'])
+        key = uuid.UUID(document['key'])
+        self.storage.add(key, document['blob'])
         return self.metadata.add(key, document, owner, invites)
 
     def get_pending_documents(self, email: str) -> List[Dict[str, Any]]:

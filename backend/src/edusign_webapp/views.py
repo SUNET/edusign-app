@@ -120,10 +120,11 @@ def add_document(document: dict) -> dict:
 
     doc_ref = prepare_data['updatedPdfDocumentReference']
     sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])
+    key = str(uuid.uuid4())
 
     message = gettext("Success preparing document %(doc)s", doc=document['name'])
 
-    return {'message': message, 'payload': {'ref': doc_ref, 'sign_requirement': sign_req}}
+    return {'message': message, 'payload': {'key': key, 'ref': doc_ref, 'sign_requirement': sign_req}}
 
 
 @edusign_views.route('/create-sign-request', methods=['POST'])
@@ -179,7 +180,7 @@ def recreate_sign_request(documents: dict) -> dict:
     and to send the results of the preparations to create a sign request.
 
     This is used when a call to the `create` sign request API method has failed
-    due to the prepared documents havingg been evicted from the API's cache.
+    due to the prepared documents having been evicted from the API's cache.
 
     :param documents: representation of the documents as returned by the ToRestartSigningSchema
     :return: A dict with either the relevant information returned by the API's `create` sign request endpoint,
@@ -373,6 +374,7 @@ def create_invited_signature(invite_key) -> str:
     current_app.logger.info(f"Prepared {doc['name']} for multisigning by user {session['eppn']}")
 
     new_doc = {
+        'key': str(uuid.UUID(bytes=doc['key'])),
         'name': doc['name'],
         'type': doc['type'],
         'ref': doc_data['updatedPdfDocumentReference'],
@@ -390,8 +392,8 @@ def create_invited_signature(invite_key) -> str:
     return render_template('autoform.jinja2', **create_data)
 
 
-@edusign_views.route('/multisign-callback', methods=['POST'])
-def multi_sign_service_callback() -> str:
+@edusign_views.route('/multisign-callback/<doc_key>', methods=['POST'])
+def multi_sign_service_callback(doc_key) -> str:
     """
     Callback to be called from the signature service, after the user has visited it
     to finish signing some documents.
@@ -419,7 +421,7 @@ def multi_sign_service_callback() -> str:
 
     doc = process_data['signedDocuments'][0]
 
-    key = uuid.UUID(doc['id'])
+    key = uuid.UUID(doc_key)
     current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
 
     message = gettext("Success processing document sign request")

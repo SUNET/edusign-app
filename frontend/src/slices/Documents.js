@@ -252,6 +252,7 @@ export const startSigningDocuments = createAsyncThunk(
           name: doc.name,
           type: doc.type,
           ref: doc.ref,
+          key: doc.key,
           sign_requirement: doc.sign_requirement,
         });
         thunkAPI.dispatch(
@@ -318,6 +319,7 @@ export const restartSigningDocuments = createAsyncThunk(
       if (doc.state === "signing") {
         docsToSign.push({
           name: doc.name,
+          key: doc.key,
           blob: doc.blob,
           type: doc.type,
           size: doc.size,
@@ -451,6 +453,7 @@ export const sendInvites = createAsyncThunk(
       owner: owner,
       invites: invitees,
       document: {
+        key: document.key,
         name: document.name,
         blob: document.blob.split(',')[1],
         size: document.size,
@@ -603,7 +606,7 @@ const documentsSlice = createSlice({
         if (doc.name === action.payload.name) {
           const document = {
             ...doc,
-            signing_id: action.payload.id,
+            signing_id: action.payload.key,
           };
           dbSaveDocument(document);
           return document;

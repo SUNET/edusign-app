@@ -10,6 +10,21 @@ import "styles/Owned.scss";
  * @component
  */
 class Owned extends Component {
+  removeButton(doc) {
+    return (
+      <>
+        <div className="button-remove-invitation">
+          <Button
+            variant="outline-danger"
+            size="sm"
+            onClick={props.handleRemove(doc.name)}
+          >
+            <FormattedMessage defaultMessage="Remove" key="remove-button" />
+          </Button>
+        </div>
+      </>
+    );
+  }
   render() {
     if (this.props.owned.length === 0) return '';
     return (

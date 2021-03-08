@@ -62,11 +62,11 @@ class ConfigSchema(Schema):
         value = fields.String(required=True, validate=[validate_nonempty])
 
     class PendingDocument(_DocumentSchema):
-        key = fields.String(required=True, validate=[validate_nonempty])
+        key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
         owner = fields.Nested(Invitee)
 
     class OwnedDocument(_DocumentSchema):
-        key = fields.String(required=True, validate=[validate_nonempty])
+        key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
         pending = fields.List(fields.Nested(Invitee))
         signed = fields.List(fields.Nested(Invitee))
 
@@ -83,12 +83,22 @@ class DocumentSchema(_DocumentSchema):
     blob = fields.Raw(required=True, validate=[validate_nonempty])
 
 
+class DocumentSchemaWithKey(_DocumentSchema):
+    """
+    Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
+    """
+
+    key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+    blob = fields.Raw(required=True, validate=[validate_nonempty])
+
+
 class ReferenceSchema(Schema):
     """
     Schema to marshal data returned from the `prepare` API endpoint
     referencing a document just prepared for signing.
     """
 
+    key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     ref = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     sign_requirement = fields.String(required=True, validate=[validate_nonempty, validate_sign_requirement])
 
@@ -127,7 +137,6 @@ class SignRequestSchema(Schema):
 
     class DocumentWithIdSchema(ReferenceSchema):
         name = fields.String(required=True, validate=[validate_nonempty])
-        id = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
 
     documents = fields.List(fields.Nested(DocumentWithIdSchema))
 
@@ -158,6 +167,6 @@ class MultiSignSchema(Schema):
     Schema to unmarshal requests for multi signatures.
     """
 
-    document = fields.Nested(DocumentSchema, many=False)
+    document = fields.Nested(DocumentSchemaWithKey, many=False)
     invites = fields.List(fields.Nested(Invitee))
     owner = fields.Email(required=True)
