@@ -22,6 +22,23 @@ const removeButton = (props, doc) =>  {
   );
 }
 
+
+const signButton = (props, doc) =>  {
+  return (
+    <>
+      <div className="button-sign-invitation">
+        <Button
+          variant="outline-success"
+          size="sm"
+          onClick={props.handleSign(doc)}
+        >
+          <FormattedMessage defaultMessage="Sign" key="sign-button" />
+        </Button>
+      </div>
+    </>
+  );
+}
+
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
  *
@@ -44,14 +61,17 @@ class Owned extends Component {
                 </div>
                 <div className="owned-multisign-request">
                   <div className="name-flex-item">{doc.name}</div>
-                  <div className="pending-invites">
-                    <span className="pending-invites-label">
-                      <FormattedMessage defaultMessage="Waiting for signatures by:" key="multisign-owned-waiting" />
-                    </span>
-                    {doc.pending.map((invite, index) => {
-                      return <span className="pending-invite-item" key={index}>{invite.name} &lt;{invite.email}&gt;</span>
-                    })}
-                  </div>
+                  {(doc.pending.length > 0) && (
+                    <div className="pending-invites">
+                      <span className="pending-invites-label">
+                        <FormattedMessage defaultMessage="Waiting for signatures by:" key="multisign-owned-waiting" />
+                      </span>
+                      {doc.pending.map((invite, index) => {
+                        return <span className="pending-invite-item" key={index}>{invite.name} &lt;{invite.email}&gt;</span>
+                      })}
+                    </div>
+                  )}
+                  {(doc.pending.length === 0) && signButton(this.props, doc)}
                   {(doc.signed.length > 0) && (
                     <div className="signed-invites">
                       <span className="signed-invites-label">

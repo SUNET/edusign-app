@@ -5,7 +5,7 @@
  */
 import { connect } from "react-redux";
 
-import { removeInvites } from "slices/Documents";
+import { removeInvites, signInvitedDoc } from "slices/Documents";
 import Owned from "components/Owned";
 
 const mapStateToProps = (state) => {
@@ -19,6 +19,11 @@ const mapDispatchToProps = (dispatch) => {
     handleRemove: function (doc) {
       return () => {
         dispatch(removeInvites(doc));
+      };
+    },
+    handleSign: function (doc) {
+      return () => {
+        dispatch(signInvitedDoc(doc));
       };
     },
   };

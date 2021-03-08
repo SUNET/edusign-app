@@ -549,6 +549,19 @@ export const removeInvites = createAsyncThunk(
   }
 );
 
+
+/**
+ * @public
+ * @function signInvitedDoc
+ * @desc Redux async thunk to finally sign a multi signed document
+ */
+export const signInvitedDoc = createAsyncThunk(
+  "main/signInvitedDoc",
+  async (doc, thunkAPI) => {
+    console.log("About to finally sign invitation for", doc);
+  }
+);
+
 const documentsSlice = createSlice({
   name: "documents",
   initialState: {
