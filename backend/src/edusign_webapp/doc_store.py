@@ -286,8 +286,8 @@ class DocStore(object):
         by all requested parties and has been handed to the owner.
 
         :param key: The key identifying the document in the `storage`.
-        :param force: If True, remove document even if there are peding signatures.
-        :return: whther the document has been removed.
+        :param force: If True, remove document even if there are pending signatures.
+        :return: whether the document has been removed.
         """
         removed = self.metadata.remove(key, force=force)
         if removed:

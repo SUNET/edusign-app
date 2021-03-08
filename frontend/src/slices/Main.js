@@ -86,6 +86,17 @@ const mainSlice = createSlice({
     addOwned(state, action) {
       state.owned_multisign.push(action.payload);
     },
+    /**
+     * @public
+     * @function removeOwned
+     * @desc Redux action to add an owned multisign request
+     */
+    removeOwned(state, action) {
+      console.log("Removing doc from multisign owned", action);
+      state.owned_multisign = state.owned_multisign.filter((doc) => {
+        return doc.key !== action.payload.key; 
+      });
+    },
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
@@ -103,6 +114,7 @@ export const {
   updateSigningForm,
   resizeWindow,
   addOwned,
+  removeOwned,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;

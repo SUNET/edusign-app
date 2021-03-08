@@ -170,3 +170,11 @@ class MultiSignSchema(Schema):
     document = fields.Nested(DocumentSchemaWithKey, many=False)
     invites = fields.List(fields.Nested(Invitee))
     owner = fields.Email(required=True)
+
+
+class RemoveMultiSignSchema(Schema):
+    """
+    Schema to unmarshal requests for removing multi signatures.
+    """
+
+    key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])

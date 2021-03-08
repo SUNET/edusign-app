@@ -5,6 +5,7 @@
  */
 import { connect } from "react-redux";
 
+import { removeInvites } from "slices/Documents";
 import Owned from "components/Owned";
 
 const mapStateToProps = (state) => {
@@ -13,4 +14,14 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps)(Owned);
+const mapDispatchToProps = (dispatch) => {
+  return {
+    handleRemove: function (doc) {
+      return () => {
+        dispatch(removeInvites(doc));
+      };
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Owned);

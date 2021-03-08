@@ -44,6 +44,7 @@ from edusign_webapp.schemata import (
     DocumentSchema,
     MultiSignSchema,
     ReferenceSchema,
+    RemoveMultiSignSchema,
     SignedDocumentsSchema,
     SigningSchema,
     SignRequestSchema,
@@ -314,7 +315,7 @@ def create_multi_sign_request(data: dict) -> dict:
 
     :param data: The document to sign, the owner of the document,
                  and the emails of the users invited to sign the doc.
-    :return: A dict wit the signed documents, or with error information if some error has ocurred.
+    :return: A message about the result of the procedure
     """
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
@@ -341,6 +342,32 @@ def create_multi_sign_request(data: dict) -> dict:
         return {'error': True, 'message': gettext('Problem storing the document to be multi signed')}
 
     message = gettext("Success creating multi signature request")
+
+    return {'message': message}
+
+
+@edusign_views.route('/remove-multi-sign', methods=['POST'])
+@UnMarshal(RemoveMultiSignSchema)
+@Marshal()
+def remove_multi_sign_request(data: dict) -> dict:
+    """
+    View to remove requests for collectively signing a document
+
+    :param data: The key of the document to remove
+    :return: A message about the result of the procedure
+    """
+    try:
+        removed = current_app.doc_store.remove_document(uuid.UUID(data['key']), force=True)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem removing multi sign request: {e}')
+        return {'error': True, 'message': gettext('Problem removing the document to be multi signed')}
+
+    if not removed:
+        current_app.logger.error('Could not remove the multi sign request')
+        return {'error': True, 'message': gettext('Cuold not remove the document to be multi signed')}
+
+    message = gettext("Success removing multi signature request")
 
     return {'message': message}
 

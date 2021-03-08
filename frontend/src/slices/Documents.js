@@ -16,7 +16,7 @@ import {
   preparePayload,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { updateSigningForm, addOwned } from "slices/Main";
+import { updateSigningForm, addOwned, removeOwned } from "slices/Main";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
 
@@ -479,7 +479,7 @@ export const sendInvites = createAsyncThunk(
       return;
     }
     if (data.error) {
-      console.log("Problem creating document for multi signing", err);
+      console.log("Problem creating document for multi signing");
       const message = "XXX Problem creating multi sign request, please try again";
       thunkAPI.dispatch(addNotification({level: 'danger', message: message}));
       return;
@@ -494,6 +494,58 @@ export const sendInvites = createAsyncThunk(
     };
     thunkAPI.dispatch(addOwned(owned));
     return document.id;
+  }
+);
+
+
+/**
+ * @public
+ * @function removeInvites
+ * @desc Redux async thunk to remove multi sign requests
+ */
+export const removeInvites = createAsyncThunk(
+  "main/removeInvites",
+  async (doc, thunkAPI) => {
+    console.log("About to remove invitations for", doc);
+
+    const state = thunkAPI.getState();
+
+    const document = state.main.owned_multisign.filter((docu) => {
+      return doc.key === docu.key;
+    })[0];
+
+    const dataToSend = {
+      key: document.key,
+    };
+    const body = preparePayload(state, dataToSend);
+    let data = null;
+    try {
+      console.log("Using fetch to post to remove-multi-sign", body);
+      const response = await fetch("/sign/remove-multi-sign", {
+        ...postRequest,
+        body: body,
+      });
+      data = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, data);
+    } catch (err) {
+      console.log("Problem removing document for multi signing", err);
+      const message = "XXX Problem removing multi sign request, please try again";
+      thunkAPI.dispatch(addNotification({level: 'danger', message: message}));
+      return;
+    }
+    if (data.error) {
+      console.log("Problem removing document for multi signing");
+      const message = "XXX Problem removing multi sign request, please try again";
+      thunkAPI.dispatch(addNotification({level: 'danger', message: message}));
+      return;
+    }
+    const owned = {
+      key: document.key,
+    };
+    thunkAPI.dispatch(removeOwned(owned));
+    const message = "XXX Success removing multi sign request";
+    thunkAPI.dispatch(addNotification({level: 'success', message: message}));
+    return document.key;
   }
 );
 

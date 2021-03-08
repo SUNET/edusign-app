@@ -1,21 +1,29 @@
 @import "./variables.scss";
 
-.owned-multisign-request {
-  padding: 0.3rem;
-  flex: none;
+.owned-multisign {
   display: flex;
-  flex-flow: column nowrap;
-  align-items: flex-start;
-  min-height: 3rem;
-  width: 100%;
-  margin-top: 1rem;
-  margin-bottom: .75rem;
-  line-height: 1.5rem;
 
-  .name-flex-item {
-    flex: 5 0 auto;
-    margin-right: 1rem;
-    font-size: 1.15rem;
+  .owned-multisign-remove {
+    flex: none;
+  }
+
+  .owned-multisign-request {
+    padding: 0.3rem;
+    flex: none;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+    min-height: 3rem;
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: .75rem;
+    line-height: 1.5rem;
+
+    .name-flex-item {
+      flex: 5 0 auto;
+      margin-right: 1rem;
+      font-size: 1.15rem;
+    }
   }
 }
 
