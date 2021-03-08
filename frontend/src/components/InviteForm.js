@@ -54,6 +54,7 @@ const InviteForm = (props) => {
           variant="outline-success"
           size="sm"
           onClick={handleShow}
+          data-docid={props.docId}
         >
           <FormattedMessage
             defaultMessage="Multi sign"
@@ -64,6 +65,7 @@ const InviteForm = (props) => {
 
       <Formik
         initialValues={initialValues(props.docId)}
+        enableReinitialize={true}
         onSubmit={(values) => {
           handleClose();
           props.handleSubmit(values);
