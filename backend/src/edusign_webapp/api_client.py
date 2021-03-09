@@ -138,7 +138,7 @@ class APIClient(object):
 
         return response
 
-    def _try_creating_sign_request(self, documents: list, single_sign=True) -> tuple:
+    def _try_creating_sign_request(self, documents: list, single_sign=True, add_blob=False) -> tuple:
         """
         :param documents: List with (already prepared) documents to include in the sign request.
         :param single_sign:  Whether we are creating a request for a single or for multiple signatures
@@ -173,7 +173,13 @@ class APIClient(object):
         }
         documents_with_id = []
         for document in documents:
-            documents_with_id.append({'name': document['name'], 'key': document['key']})
+            doc_with_id = {'name': document['name'], 'key': document['key']}
+            if add_blob:
+                doc_with_id['blob'] = document['blob']
+                doc_with_id['size'] = document['size']
+                doc_with_id['size'] = document['size']
+                doc_with_id['type'] = document['type']
+            documents_with_id.append(doc_with_id)
             request_data['tbsDocuments'].append(
                 {
                     "id": document['key'],
@@ -186,7 +192,7 @@ class APIClient(object):
 
         return self._post(api_url, request_data), documents_with_id
 
-    def create_sign_request(self, documents: list, single_sign=True) -> tuple:
+    def create_sign_request(self, documents: list, single_sign=True, add_blob=False) -> tuple:
         """
         Send request to the `create` endpoint of the API.
         This API method will create and return the DSS SignRequest message
@@ -198,7 +204,7 @@ class APIClient(object):
         :return: Pair of  Flask representation of the HTTP response from the API,
                  and list of mappings linking the documents' names with the generated ids.
         """
-        response_data, documents_with_id = self._try_creating_sign_request(documents, single_sign=single_sign)
+        response_data, documents_with_id = self._try_creating_sign_request(documents, single_sign=single_sign, add_blob=add_blob)
 
         if (
             'status' in response_data

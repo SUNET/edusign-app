@@ -137,6 +137,9 @@ class SignRequestSchema(Schema):
 
     class DocumentWithIdSchema(ReferenceSchema):
         name = fields.String(required=True, validate=[validate_nonempty])
+        size = fields.Integer(required=False)
+        type = fields.String(required=False)
+        blob = fields.Raw(required=False)
 
     documents = fields.List(fields.Nested(DocumentWithIdSchema))
 

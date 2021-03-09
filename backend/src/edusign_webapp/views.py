@@ -294,6 +294,11 @@ def get_signed_documents(sign_data: dict) -> dict:
         current_app.logger.error(f'Problem processing sign request: {e}')
         return {'error': True, 'message': gettext('Communication error with the process endpoint of the eduSign API')}
 
+    if 'errorCode' in process_data:
+        current_app.logger.error(f"Problem processing sign request, error code received: {process_data}")
+        # XXX capture more error conditions, inform end user
+        return {'error': True, 'message': gettext('Communication error with the process endpoint of the eduSign API')}
+
     message = gettext("Success processing document sign request")
 
     return {
@@ -458,34 +463,41 @@ def multi_sign_service_callback(doc_key) -> str:
 
 @edusign_views.route('/final-sign-request', methods=['POST'])
 @UnMarshal(KeyedMultiSignSchema)
-@Marshal()
+@Marshal(SignRequestSchema)
 def final_multisign_signature(data: dict) -> dict:
     """
     View to add the final signature to a multisigned document.
 
     :param data: The key of the document to remove
-    :return: A message about the result of the procedure
+    :return: Sign data to send to the edusign API
     """
 
-    doc = current_app.doc_store.get_signed_document(data['key'])
+    doc = current_app.doc_store.get_signed_document(uuid.UUID(data['key']))
+    if not doc:
+        current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
+        return {'error': True, 'message': gettext('Multisigned document not found in the doc store')}
+
     doc_data = prepare_document(doc)
 
     if 'error' in doc_data and doc_data['error']:
-        current_app.logger.error(f"Problem preparing multisigned document for user {session['eppn']}: {doc['name']}")
+        current_app.logger.error(f"Problem preparing multisigned document for user {session['eppn']}: {data['key']}")
         return doc_data
 
     current_app.logger.info(f"Prepared multisigned {doc['name']} for user {session['eppn']}")
 
     doc_list = [{
+        'key': data['key'],
         'name': doc['name'],
         'type': doc['type'],
+        'size': doc['size'],
+        'blob': doc['blob'],
         'ref': doc_data['updatedPdfDocumentReference'],
         'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
     }]
 
     try:
         current_app.logger.info(f"Creating signature request for multisigned doc for user {session['eppn']}")
-        create_data, documents_with_id = current_app.api_client.create_sign_request(doc_list)
+        create_data, documents_with_id = current_app.api_client.create_sign_request(doc_list, add_blob=True)
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request for multisigned doc: {e}')

@@ -11,7 +11,7 @@
 import { connect } from "react-redux";
 
 import DnDArea from "components/DnDArea";
-import { createDocument } from "slices/Documents";
+import { createDocument, prepareDocument } from "slices/Documents";
 import { setWaiting, setLoading, setReceiving } from "slices/DnDArea";
 import { addNotification } from "slices/Notifications";
 

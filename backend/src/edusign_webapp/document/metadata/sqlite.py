@@ -394,9 +394,9 @@ class SqliteMD(ABCMetadata):
                  + type: Content type of the doc
                  + size: Size of the doc
         """
-        document_result = self._db_query(DOCUMENT_QUERY_ALL, (key,), one=True)
+        document_result = self._db_query(DOCUMENT_QUERY_ALL, (key.bytes,), one=True)
         if document_result is None or isinstance(document_result, list):
-            self.logger.error(f"Trying to delete a non-existing document with key {key}")
+            self.logger.error(f"Trying to find a non-existing document with key {key}")
             return {}
 
         return document_result

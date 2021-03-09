@@ -113,6 +113,44 @@ async function validateDoc(doc) {
 
 /**
  * @public
+ * @function saveDocumentToDb
+ * @desc Redux async thunk to add a new document to IndexedDB
+ */
+const saveDocumentToDb = async (document) => {
+  const db = await getDb();
+  console.log("Got db", db);
+  if (db !== null) {
+    const newDoc = await new Promise((resolve, reject) => {
+      console.log("Waiting to save document being created");
+      const transaction = db.transaction(["documents"], "readwrite");
+      transaction.onerror = (event) => {
+        console.log("Problem with create transaction", event);
+        reject("Problem with create transaction");
+      };
+      const docStore = transaction.objectStore("documents");
+      console.log("saving document to db", document.name);
+      const docRequest = docStore.add(document);
+      docRequest.onsuccess = (event) => {
+        console.log("saving document", event);
+        resolve({
+          ...document,
+          id: event.target.result,
+        });
+      };
+      docRequest.onerror = () => {
+        reject("Problem saving document");
+      };
+    });
+    return newDoc;
+  } else {
+    console.log("Cannot save the doc, db absent");
+    throw new Error("DB absent, cannot save document");
+  }
+}
+
+
+/**
+ * @public
  * @function createDocument
  * @desc Redux async thunk to add a new document to IndexedDB
  * and to the store.
@@ -123,49 +161,14 @@ export const createDocument = createAsyncThunk(
     console.log("Validating document", document.name);
     document = await validateDoc(document);
     if (document.state === 'failed-loading') return document;
-    console.log("Creating document", document);
-    const db = await getDb();
-    console.log("Got db", db);
-    if (db !== null) {
-      try {
-        const newDoc = await new Promise((resolve, reject) => {
-          console.log("Waiting to save document being created");
-          const transaction = db.transaction(["documents"], "readwrite");
-          transaction.onerror = (event) => {
-            console.log("Problem with create transaction", event);
-            reject("Problem with create transaction");
-          };
-          const docStore = transaction.objectStore("documents");
-          console.log("saving document to db", document.name);
-          const docRequest = docStore.add(document);
-          docRequest.onsuccess = (event) => {
-            console.log("saving document", event);
-            resolve({
-              ...document,
-              id: event.target.result,
-            });
-          };
-          docRequest.onerror = () => {
-            reject("Problem saving document");
-          };
-        });
-        console.log("About to prepare document", newDoc);
-        thunkAPI.dispatch(prepareDocument(newDoc));
-        return newDoc;
-      } catch (err) {
-        console.log("Problem saving document to db", err);
-        thunkAPI.dispatch(
-          addNotification({
-            level: "danger",
-            message:
-              "XXX Problem saving document(s) in session, will not persist",
-          })
-        );
-        document.state = "loaded";
-        thunkAPI.rejectWithValue(document);
-      }
-    } else {
-      console.log("Cannot save the doc, db absent");
+
+    try {
+      const newDoc = await saveDocumentToDb(document);
+      console.log("About to prepare document", newDoc);
+      thunkAPI.dispatch(prepareDocument(newDoc));
+      return newDoc;
+    } catch(err) {
+      console.log("Cannot save the doc", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -559,6 +562,44 @@ export const signInvitedDoc = createAsyncThunk(
   "main/signInvitedDoc",
   async (doc, thunkAPI) => {
     console.log("About to finally sign invitation for", doc);
+    const state = thunkAPI.getState();
+    let data = null;
+    const docToSign = {
+      key: doc.key,
+    }
+    const body = preparePayload(state, docToSign);
+    try {
+      const response = await fetch("/sign/final-sign-request", {
+        ...postRequest,
+        body: body,
+      });
+      data = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, data);
+      if (data.error) {
+        throw new Error(data.message);
+      }
+      const doc = {
+        ...data.payload.documents[0],
+        state: 'signing',
+        show: false
+      }
+      doc.blob = 'data:application/pdf;base64,' + doc.blob
+      await saveDocumentToDb(doc);
+      delete data.payload.documents;
+
+      thunkAPI.dispatch(updateSigningForm(data.payload));
+      const form = document.getElementById("signing-form");
+      form.requestSubmit();
+    } catch (err) {
+      console.log("Error creating sign request for multisigned doc", err);
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: "XXX Problem creating signature request",
+        })
+      );
+      thunkAPI.dispatch(documentsSlice.actions.signFailure());
+    }
   }
 );
 
@@ -685,7 +726,7 @@ const documentsSlice = createSlice({
      */
     updateDocumentWithSignedContent(state, action) {
       state.documents = state.documents.map((doc) => {
-        if (doc.signing_id === action.payload.id) {
+        if (doc.signing_id === action.payload.id || doc.key === action.payload.id) {
           const document = {
             ...doc,
             signedContent:
