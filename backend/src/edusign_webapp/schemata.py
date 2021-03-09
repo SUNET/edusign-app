@@ -172,7 +172,7 @@ class MultiSignSchema(Schema):
     owner = fields.Email(required=True)
 
 
-class RemoveMultiSignSchema(Schema):
+class KeyedMultiSignSchema(Schema):
     """
     Schema to unmarshal requests for removing multi signatures.
     """

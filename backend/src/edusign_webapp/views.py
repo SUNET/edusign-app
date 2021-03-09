@@ -44,7 +44,7 @@ from edusign_webapp.schemata import (
     DocumentSchema,
     MultiSignSchema,
     ReferenceSchema,
-    RemoveMultiSignSchema,
+    KeyedMultiSignSchema,
     SignedDocumentsSchema,
     SigningSchema,
     SignRequestSchema,
@@ -347,7 +347,7 @@ def create_multi_sign_request(data: dict) -> dict:
 
 
 @edusign_views.route('/remove-multi-sign', methods=['POST'])
-@UnMarshal(RemoveMultiSignSchema)
+@UnMarshal(KeyedMultiSignSchema)
 @Marshal()
 def remove_multi_sign_request(data: dict) -> dict:
     """
@@ -454,3 +454,55 @@ def multi_sign_service_callback(doc_key) -> str:
     message = gettext("Success processing document sign request")
 
     return render_template('success-generic.jinja2', message=message)
+
+
+@edusign_views.route('/final-sign-request', methods=['POST'])
+@UnMarshal(KeyedMultiSignSchema)
+@Marshal()
+def final_multisign_signature(data: dict) -> dict:
+    """
+    View to add the final signature to a multisigned document.
+
+    :param data: The key of the document to remove
+    :return: A message about the result of the procedure
+    """
+
+    doc = current_app.doc_store.get_signed_document(data['key'])
+    doc_data = prepare_document(doc)
+
+    if 'error' in doc_data and doc_data['error']:
+        current_app.logger.error(f"Problem preparing multisigned document for user {session['eppn']}: {doc['name']}")
+        return doc_data
+
+    current_app.logger.info(f"Prepared multisigned {doc['name']} for user {session['eppn']}")
+
+    doc_list = [{
+        'name': doc['name'],
+        'type': doc['type'],
+        'ref': doc_data['updatedPdfDocumentReference'],
+        'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
+    }]
+
+    try:
+        current_app.logger.info(f"Creating signature request for multisigned doc for user {session['eppn']}")
+        create_data, documents_with_id = current_app.api_client.create_sign_request(doc_list)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem creating sign request for multisigned doc: {e}')
+        return {'error': True, 'message': gettext('Communication error with the create endpoint of the eduSign API')}
+
+    try:
+        sign_data = {
+            'relay_state': create_data['relayState'],
+            'sign_request': create_data['signRequest'],
+            'binding': create_data['binding'],
+            'destination_url': create_data['destinationUrl'],
+            'documents': documents_with_id,
+        }
+    except KeyError:
+        current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
+        return {'error': True, 'message': create_data['message']}
+
+    message = gettext("Success creating sign request")
+
+    return {'message': message, 'payload': sign_data}

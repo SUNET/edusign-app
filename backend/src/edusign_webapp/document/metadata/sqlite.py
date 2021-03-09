@@ -83,6 +83,7 @@ USER_QUERY_ID = "SELECT userID FROM Users WHERE email = ?;"
 USER_QUERY = "SELECT name, email FROM Users WHERE userID = ?;"
 DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner) VALUES (?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT documentID FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_ALL = "SELECT key, name, size, type FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner FROM Documents WHERE documentID = ?;"
 DOCUMENT_QUERY_FROM_OWNER = "SELECT d.documentID, d.key, d.name, d.size, d.type FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.userID;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
@@ -381,3 +382,22 @@ class SqliteMD(ABCMetadata):
         user = self._db_query(USER_QUERY, (invite['userID'],), one=True)
 
         return {'document': doc, 'user': user}
+
+    def get_signed(self, key: uuid.UUID) -> Dict[str, Any]:
+        """
+        Get information about some document that has been signed by all invitees.
+
+        :param key: The key identifying the document
+        :return: A dictionary with information about the document, with keys:
+                 + key: Key of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+        """
+        document_result = self._db_query(DOCUMENT_QUERY_ALL, (key,), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.error(f"Trying to delete a non-existing document with key {key}")
+            return {}
+
+        return document_result
+

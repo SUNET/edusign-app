@@ -176,6 +176,19 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :return: A dict with data on the user and the document
         """
 
+    @abc.abstractmethod
+    def get_signed(self, key: uuid.UUID) -> Dict[str, Any]:
+        """
+        Get information about some document that has been signed by all invitees.
+
+        :param key: The key identifying the document
+        :return: A dictionary with information about the document, with keys:
+                 + key: Key of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+        """
+
 
 class DocStore(object):
     """
@@ -308,3 +321,10 @@ class DocStore(object):
 
         data['document']['blob'] = self.storage.get_content(uuid.UUID(bytes=data['document']['key']))
         return data
+
+    def get_signed_document(self, key: uuid.UUID) -> List[Dict[str, Any]]:
+        """
+        """
+        doc = self.metadata.get_signed(key)
+        doc['blob'] = self.storage.get_content(key)
+        return doc
