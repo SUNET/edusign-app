@@ -383,7 +383,7 @@ def remove_multi_sign_request(data: dict) -> dict:
     return {'message': message}
 
 
-@edusign_views.route('/invitation-to-sign/<invite_key>', methods=['GET'])
+@edusign_views.route('/invitation/<invite_key>', methods=['GET'])
 def create_invited_signature(invite_key) -> str:
     """
     """

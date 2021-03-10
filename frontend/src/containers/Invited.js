@@ -6,7 +6,6 @@
 import { connect } from "react-redux";
 
 import Invited from "components/Invited";
-import { startMultisignRequest } from "slices/Invited";
 
 const mapStateToProps = (state) => {
   return {
@@ -17,9 +16,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     startMultiSigning: (docRef) => {
-      return (e) => {
-          e.preventDefault();
-        dispatch(startMultisignRequest(docRef));
+      return () => {
+        window.document.location.href = '/sign/invitation/' + docRef;
       }
     },
   };
