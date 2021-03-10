@@ -7,6 +7,7 @@
  * in whatever stage of the signing procedure they may be.
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import * as pdfjs from 'pdfjs-dist';
 
 import {
   postRequest,
@@ -86,6 +87,30 @@ export const loadDocuments = createAsyncThunk(
   }
 );
 
+
+async function validateDoc(doc) {
+  return await pdfjs.getDocument({url: doc.blob, password: ""}).promise
+    .then((validated) => {
+      console.log("Validated document", validated);
+      doc.show = false;
+      doc.state = "loading";
+      return doc;
+    })
+    .catch((err) => {
+      console.log("Error validating doc", err);
+      if (err.name === 'PasswordException') {
+        doc.message = "XXX Please do not supply a password protected document";
+      } else if (err.message.startsWith('Invalid')) {
+        doc.message = "XXX Document seems corrupted";
+      } else {
+        doc.message = "XXX Document is unreadable";
+      }
+      doc.state = "failed-loading";
+      return doc;
+    });
+}
+
+
 /**
  * @public
  * @function createDocument
@@ -95,9 +120,10 @@ export const loadDocuments = createAsyncThunk(
 export const createDocument = createAsyncThunk(
   "documents/createDocument",
   async (document, thunkAPI) => {
+    console.log("Validating document", document.name);
+    document = await validateDoc(document);
+    if (document.state === 'failed-loading') return document;
     console.log("Creating document", document);
-    document.show = false;
-    document.state = "loading";
     const db = await getDb();
     console.log("Got db", db);
     if (db !== null) {
@@ -445,7 +471,9 @@ const documentsSlice = createSlice({
     removeDocument(state, action) {
       state.documents.forEach((doc) => {
         if (doc.name === action.payload) {
-          dbRemoveDocument(doc);
+          if (doc.id !== undefined) {
+            dbRemoveDocument(doc);
+          }
         }
       });
       state.documents = state.documents.filter((doc) => {
