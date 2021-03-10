@@ -244,6 +244,7 @@ class UnMarshal(object):
                 return f(unmarshal_result['payload'])
             except ValidationError as e:
                 error = e.normalized_messages()
+                current_app.logger.debug(f"Errors Unmarshaling: {error}")
                 if isinstance(error, dict):
                     if 'payload' in error:
                         error_msgs = []

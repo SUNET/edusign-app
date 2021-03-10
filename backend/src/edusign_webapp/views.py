@@ -212,6 +212,7 @@ def recreate_sign_request(documents: dict) -> dict:
             {
                 'name': doc['name'],
                 'type': doc['type'],
+                'key': doc['key'],
                 'ref': doc_data['updatedPdfDocumentReference'],
                 'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
             }

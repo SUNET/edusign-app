@@ -122,7 +122,7 @@ class ToRestartSigningSchema(Schema):
     having been evicted from the API's cache.
     """
 
-    documents = fields.List(fields.Nested(DocumentSchema))
+    documents = fields.List(fields.Nested(DocumentSchemaWithKey))
 
 
 class SignRequestSchema(Schema):
