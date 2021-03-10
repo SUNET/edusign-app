@@ -33,11 +33,12 @@
 import asyncio
 import json
 from base64 import b64decode
-from typing import Any, Dict
+from typing import Any, Dict, Union
 from xml.etree import cElementTree as ET
 
-from flask import Blueprint, abort, current_app, render_template, request, session
+from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
 from flask_babel import gettext
+from werkzeug.wrappers import Response
 
 from edusign_webapp.marshal import Marshal, UnMarshal
 from edusign_webapp.schemata import (
@@ -279,8 +280,8 @@ def recreate_sign_request(documents: dict) -> dict:
     return {'message': message, 'payload': sign_data}
 
 
-@edusign_views.route('/callback', methods=['POST'])
-def sign_service_callback() -> str:
+@edusign_views.route('/callback', methods=['POST', 'GET'])
+def sign_service_callback() -> Union[str, Response]:
     """
     Callback to be called from the signature service, after the user has visited it
     to finish signing some documents.
@@ -289,6 +290,9 @@ def sign_service_callback() -> str:
              and in addition contains some information POSTed from the signature service, needed
              to retrieve the signed documents.
     """
+    if request.method == 'GET':
+        return redirect(url_for('edusign.get_index'))
+
     bundle_name = 'main-bundle'
     if current_app.config['DEBUG']:
         bundle_name += '.dev'
