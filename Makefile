@@ -172,7 +172,8 @@ back-typecheck:
 .PHONY: back-test
 back-test:
 	@cd $(BACK_DIR); \
-		./venv/bin/pytest --log-cli-level DEBUG $(BACK_SOURCE)
+		./venv/bin/pytest --log-cli-level DEBUG $(BACK_SOURCE) ; \
+		./venv/bin/coverage html
 
 ## -- Misc --
 
