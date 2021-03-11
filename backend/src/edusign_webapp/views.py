@@ -334,6 +334,7 @@ def create_multi_sign_request(data: dict) -> dict:
         invites = current_app.doc_store.add_document(data['document'], owner, data['invites'])
 
         for invite in invites:
+            current_app.logger.debug(f"Adding invitation {invite} for {data['document']['name']}")
             recipients = [f"{invite['name']} <{invite['email']}>"]
             msg = Message(gettext("XXX Invite mail subject"), recipients=recipients)
             invited_link = url_for('edusign.create_invited_signature', invite_key=invite['key'], _external=True)

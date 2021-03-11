@@ -31,7 +31,7 @@
 #
 import pprint
 from importlib import import_module
-from typing import Callable
+from typing import Callable, Optional
 
 from flask import Flask
 from flask_babel import Babel
@@ -61,16 +61,19 @@ class EduSignApp(Flask):
         self.register_blueprint(edusign_views)
 
 
-def edusign_init_app(name: str) -> EduSignApp:
+def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
     """
     Create an instance of an edusign data app.
 
     :param name: Name for the Flask app
+    :param config: To update the config, mainly used in tests
     :return: The Flask app.
     """
     app = EduSignApp(name)
 
     app.config.from_object('edusign_webapp.config')
+    if config is not None:
+        app.config.update(config)
 
     app.api_client = APIClient(app.config)
 

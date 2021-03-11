@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import json
+import uuid
 
 from edusign_webapp import run
 from edusign_webapp.marshal import ResponseSchema
@@ -76,6 +77,7 @@ def test_create_sign_request(client, monkeypatch):
         'payload': {
             'documents': [
                 {
+                    'key': str(uuid.uuid4()),
                     'name': 'test.pdf',
                     'type': 'application/pdf',
                     'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
@@ -137,6 +139,7 @@ def test_create_sign_request_post_raises(client, monkeypatch):
         'payload': {
             'documents': [
                 {
+                    'key': str(uuid.uuid4()),
                     'name': 'test.pdf',
                     'type': 'application/pdf',
                     'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
@@ -215,6 +218,7 @@ def test_create_sign_request_doc_no_name(client, monkeypatch):
     data_payload = {
         'documents': [
             {
+                'key': str(uuid.uuid4()),
                 'type': 'application/pdf',
                 'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
                 'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
@@ -231,6 +235,7 @@ def test_create_sign_request_doc_no_ref(client, monkeypatch):
     data_payload = {
         'documents': [
             {
+                'key': str(uuid.uuid4()),
                 'name': 'test.pdf',
                 'type': 'application/pdf',
                 'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
@@ -247,6 +252,7 @@ def test_create_sign_request_doc_invalid_ref_1(client, monkeypatch):
     data_payload = {
         'documents': [
             {
+                'key': str(uuid.uuid4()),
                 'name': 'test.pdf',
                 'type': 'application/pdf',
                 'ref': '6913-47ed-82f5-fd0e89ee5f07',
@@ -264,6 +270,7 @@ def test_create_sign_request_doc_invalid_ref_2(client, monkeypatch):
     data_payload = {
         'documents': [
             {
+                'key': str(uuid.uuid4()),
                 'name': 'test.pdf',
                 'type': 'application/pdf',
                 'ref': 'invalid ref',
@@ -281,6 +288,7 @@ def test_create_sign_request_doc_invalid_sign_req_1(client, monkeypatch):
     data_payload = {
         'documents': [
             {
+                'key': str(uuid.uuid4()),
                 'name': 'test.pdf',
                 'type': 'application/pdf',
                 'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
@@ -298,6 +306,7 @@ def test_create_sign_request_doc_invalid_sign_req_2(client, monkeypatch):
     data_payload = {
         'documents': [
             {
+                'key': str(uuid.uuid4()),
                 'name': 'test.pdf',
                 'type': 'application/pdf',
                 'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
@@ -315,6 +324,7 @@ def test_create_sign_request_doc_invalid_sign_req_3(client, monkeypatch):
     data_payload = {
         'documents': [
             {
+                'key': str(uuid.uuid4()),
                 'name': 'test.pdf',
                 'type': 'application/pdf',
                 'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
@@ -332,6 +342,7 @@ def test_create_sign_request_doc_no_csrf(client, monkeypatch):
     data_payload = {
         'documents': [
             {
+                'key': str(uuid.uuid4()),
                 'name': 'test.pdf',
                 'type': 'application/pdf',
                 'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
@@ -349,6 +360,7 @@ def test_create_sign_request_doc_wrong_csrf(client, monkeypatch):
     data_payload = {
         'documents': [
             {
+                'key': str(uuid.uuid4()),
                 'name': 'test.pdf',
                 'type': 'application/pdf',
                 'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
@@ -399,6 +411,7 @@ def test_create_sign_request_expired(client, monkeypatch):
         'payload': {
             'documents': [
                 {
+                    'key': str(uuid.uuid4()),
                     'name': 'test.pdf',
                     'type': 'application/pdf',
                     'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
@@ -424,3 +437,38 @@ def test_create_sign_request_expired(client, monkeypatch):
 
     assert resp_data['error']
     assert resp_data['message'] == 'expired cache'
+
+
+def test_create_sign_request_doc_no_key(client, monkeypatch):
+    data_payload = {
+        'documents': [
+            {
+                'ref': str(uuid.uuid4()),
+                'name': 'test.pdf',
+                'type': 'application/pdf',
+                'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
+            }
+        ]
+    }
+    resp_data = _create_sign_request(client, monkeypatch, data_payload)
+
+    assert resp_data['error']
+    assert resp_data['message'] == 'Document data seems corrupted'
+
+
+def test_create_sign_request_doc_invalid_key(client, monkeypatch):
+    data_payload = {
+        'documents': [
+            {
+                'key': 'invalid key',
+                'ref': str(uuid.uuid4()),
+                'name': 'test.pdf',
+                'type': 'application/pdf',
+                'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
+            }
+        ]
+    }
+    resp_data = _create_sign_request(client, monkeypatch, data_payload)
+
+    assert resp_data['error']
+    assert resp_data['message'] == 'Document data seems corrupted'

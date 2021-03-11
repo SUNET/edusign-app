@@ -32,17 +32,21 @@
 #
 import json
 
-from edusign_webapp import run
 from edusign_webapp.marshal import ResponseSchema
 
 
-def test_create_multi_sign_request(client, monkeypatch, sample_doc_1):
+def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
+
+    _, app = app
+
+    client = app.test_client()
+    client.environ_base.update(environ_base)
 
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
+    with app.test_request_context():
         with client.session_transaction() as sess:
 
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']

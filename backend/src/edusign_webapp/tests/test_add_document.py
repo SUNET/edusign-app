@@ -36,7 +36,12 @@ from edusign_webapp import run
 from edusign_webapp.marshal import ResponseSchema
 
 
-def test_add_document(client, monkeypatch):
+def test_add_document(app, environ_base, monkeypatch):
+
+    _, app = app
+
+    client = app.test_client()
+    client.environ_base.update(environ_base)
 
     from edusign_webapp.api_client import APIClient
 
@@ -68,7 +73,7 @@ def test_add_document(client, monkeypatch):
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
+    with app.test_request_context():
         with client.session_transaction() as sess:
 
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']

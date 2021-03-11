@@ -33,6 +33,7 @@
 import logging
 import os
 import tempfile
+import uuid
 from base64 import b64encode
 
 import pytest
@@ -57,22 +58,50 @@ config_pro = {
 }
 
 
+_environ_base = {
+    "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn',
+    "HTTP_GIVENNAME": b64encode('<Attribute>Tëster</Attribute>'.encode("utf-8")),
+    "HTTP_DISPLAYNAME": b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8")),
+    "HTTP_SN": b64encode(b'<Attribute>Testing</Attribute>'),
+    "HTTP_MAIL": b64encode(b'<Attribute>tester@example.org</Attribute>'),
+    "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
+    "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
+    "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
+}
+
+
+@pytest.fixture
+def environ_base():
+    yield _environ_base
+
+
 @pytest.fixture(params=[config_dev, config_pro])
 def client(request):
-    run.app.config.update(request.param)
-    run.app.api_client.api_base_url = 'https://dummy.edusign.api'
+    app = run.edusign_init_app('testing')
+    app.config.update(request.param)
+    app.api_client.api_base_url = 'https://dummy.edusign.api'
 
-    with run.app.test_client() as client:
-        client.environ_base["HTTP_EDUPERSONPRINCIPALNAME"] = 'dummy-eppn'
-        client.environ_base["HTTP_GIVENNAME"] = b64encode('<Attribute>Tëster</Attribute>'.encode("utf-8"))
-        client.environ_base["HTTP_DISPLAYNAME"] = b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8"))
-        client.environ_base["HTTP_SN"] = b64encode(b'<Attribute>Testing</Attribute>')
-        client.environ_base["HTTP_MAIL"] = b64encode(b'<Attribute>tester@example.org</Attribute>')
-        client.environ_base["HTTP_SHIB_IDENTITY_PROVIDER"] = 'https://idp'
-        client.environ_base["HTTP_SHIB_AUTHENTICATION_METHOD"] = 'dummy'
-        client.environ_base["HTTP_SHIB_AUTHNCONTEXT_CLASS"] = 'dummy'
+    with app.test_client() as client:
+        client.environ_base.update(_environ_base)
 
         yield client
+
+
+def _get_test_app(config):
+    tempdir = tempfile.TemporaryDirectory()
+    db_path = os.path.join(tempdir.name, 'test.db')
+    config = {'LOCAL_STORAGE_BASE_DIR': tempdir.name,
+              'SQLITE_MD_DB_PATH': db_path}
+    app = run.edusign_init_app('testing', config)
+    app.config.update(config)
+    app.api_client.api_base_url = 'https://dummy.edusign.api'
+    return tempdir, app
+
+
+@pytest.fixture(params=[config_dev, config_pro])
+def app(request):
+
+    yield _get_test_app(request.param)
 
 
 @pytest.fixture
@@ -80,7 +109,7 @@ def local_storage():
     tempdir = tempfile.TemporaryDirectory()
     config = {'LOCAL_STORAGE_BASE_DIR': tempdir.name}
     # return tempdir, since once it goes out of scope, it is removed
-    return tempdir, LocalStorage(config, logging.getLogger(__name__))
+    yield tempdir, LocalStorage(config, logging.getLogger(__name__))
 
 
 @pytest.fixture
@@ -89,7 +118,7 @@ def sqlite_md():
     db_path = os.path.join(tempdir.name, 'test.db')
     config = {'SQLITE_MD_DB_PATH': db_path}
     # return tempdir, since once it goes out of scope, it is removed
-    return tempdir, SqliteMD(config, logging.getLogger(__name__))
+    yield tempdir, SqliteMD(config, logging.getLogger(__name__))
 
 
 @pytest.fixture
@@ -103,64 +132,64 @@ def doc_store_local_sqlite():
         'SQLITE_MD_DB_PATH': db_path,
     }
     # return tempdir, since once it goes out of scope, it is removed
-    return tempdir, DocStore(config, logging.getLogger(__name__))
+    yield tempdir, DocStore(config, logging.getLogger(__name__))
 
 
 @pytest.fixture
 def sample_pdf_data():
-    return _sample_pdf_data
+    yield _sample_pdf_data
 
 
 @pytest.fixture
 def sample_metadata_1():
-    return _sample_metadata_1
+    yield _sample_metadata_1
 
 
 @pytest.fixture
 def sample_doc_1():
     doc = {'blob': _sample_pdf_data}
     doc.update(_sample_metadata_1)
-    return doc
+    yield doc
 
 
 @pytest.fixture
 def sample_pdf_data_2():
-    return _sample_pdf_data_2
+    yield _sample_pdf_data_2
 
 
 @pytest.fixture
 def sample_metadata_2():
-    return _sample_metadata_2
+    yield _sample_metadata_2
 
 
 @pytest.fixture
 def sample_doc_2():
     doc = {'blob': _sample_pdf_data_2}
     doc.update(_sample_metadata_2)
-    return doc
+    yield doc
 
 
 @pytest.fixture
 def sample_invites_1():
-    return [{'name': 'invite0', 'email': 'invite0@example.com'}, {'name': 'invite1', 'email': 'invite1@example.com'}]
+    yield [{'name': 'invite0', 'email': 'invite0@example.com'}, {'name': 'invite1', 'email': 'invite1@example.com'}]
 
 
 @pytest.fixture
 def sample_invites_2():
-    return [{'name': 'invite0', 'email': 'invite0@example.com'}, {'name': 'invite2', 'email': 'invite2@example.com'}]
+    yield [{'name': 'invite0', 'email': 'invite0@example.com'}, {'name': 'invite2', 'email': 'invite2@example.com'}]
 
 
 @pytest.fixture
 def sample_owner_1():
-    return {'name': 'owner', 'email': 'owner@example.com'}
+    yield {'name': 'owner', 'email': 'owner@example.com'}
 
 
 @pytest.fixture
 def sample_owner_2():
-    return {'name': 'owner2', 'email': 'owner2@example.com'}
+    yield {'name': 'owner2', 'email': 'owner2@example.com'}
 
 
-_sample_metadata_1 = {'name': 'test1.pdf', 'size': 1500000, 'type': 'application/pdf'}
+_sample_metadata_1 = {'name': 'test1.pdf', 'size': 1500000, 'type': 'application/pdf', 'key': str(uuid.uuid4())}
 
 
 _sample_pdf_data = (
@@ -198,7 +227,7 @@ _sample_pdf_data = (
 )
 
 
-_sample_metadata_2 = {'name': 'test2.pdf', 'size': 1500000, 'type': 'application/pdf'}
+_sample_metadata_2 = {'name': 'test2.pdf', 'size': 1500000, 'type': 'application/pdf', 'key': str(uuid.uuid4())}
 
 
 _sample_pdf_data_2 = (

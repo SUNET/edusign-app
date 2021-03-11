@@ -31,18 +31,21 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import os
+import uuid
 
 
 def test_add(local_storage, sample_pdf_data):
     _, storage = local_storage
-    key = storage.add(sample_pdf_data)
+    key = str(uuid.uuid4())
+    storage.add(key, sample_pdf_data)
 
     assert os.listdir(storage.base_dir) == [str(key)]
 
 
 def test_add_and_retrieve(local_storage, sample_pdf_data):
     _, storage = local_storage
-    key = storage.add(sample_pdf_data)
+    key = str(uuid.uuid4())
+    storage.add(key, sample_pdf_data)
     content = storage.get_content(key)
 
     assert content == sample_pdf_data
@@ -50,7 +53,8 @@ def test_add_and_retrieve(local_storage, sample_pdf_data):
 
 def test_add_update_and_retrieve(local_storage, sample_pdf_data, sample_pdf_data_2):
     _, storage = local_storage
-    key = storage.add(sample_pdf_data)
+    key = str(uuid.uuid4())
+    storage.add(key, sample_pdf_data)
 
     storage.update(key, sample_pdf_data_2)
 
@@ -62,8 +66,10 @@ def test_add_update_and_retrieve(local_storage, sample_pdf_data, sample_pdf_data
 
 def test_add_two_update_and_retrieve(local_storage, sample_pdf_data, sample_pdf_data_2):
     _, storage = local_storage
-    key1 = storage.add(sample_pdf_data)
-    key2 = storage.add(sample_pdf_data_2)
+    key1 = str(uuid.uuid4())
+    key2 = str(uuid.uuid4())
+    storage.add(key1, sample_pdf_data)
+    storage.add(key2, sample_pdf_data_2)
 
     storage.update(key1, sample_pdf_data_2)
 
@@ -76,7 +82,8 @@ def test_add_two_update_and_retrieve(local_storage, sample_pdf_data, sample_pdf_
 
 def test_add_and_remove(local_storage, sample_pdf_data):
     _, storage = local_storage
-    key = storage.add(sample_pdf_data)
+    key = str(uuid.uuid4())
+    storage.add(key, sample_pdf_data)
 
     storage.remove(key)
 
@@ -85,8 +92,10 @@ def test_add_and_remove(local_storage, sample_pdf_data):
 
 def test_add_two_and_remove(local_storage, sample_pdf_data, sample_pdf_data_2):
     _, storage = local_storage
-    key1 = storage.add(sample_pdf_data)
-    key2 = storage.add(sample_pdf_data_2)
+    key1 = str(uuid.uuid4())
+    key2 = str(uuid.uuid4())
+    storage.add(key1, sample_pdf_data)
+    storage.add(key2, sample_pdf_data_2)
 
     storage.remove(key1)
 
