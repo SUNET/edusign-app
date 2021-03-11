@@ -31,8 +31,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import asyncio
-import uuid
 import json
+import uuid
 from typing import Union
 
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
@@ -44,9 +44,9 @@ from edusign_webapp.marshal import Marshal, UnMarshal
 from edusign_webapp.schemata import (
     ConfigSchema,
     DocumentSchema,
+    KeyedMultiSignSchema,
     MultiSignSchema,
     ReferenceSchema,
-    KeyedMultiSignSchema,
     SignedDocumentsSchema,
     SigningSchema,
     SignRequestSchema,
@@ -385,8 +385,7 @@ def remove_multi_sign_request(data: dict) -> dict:
 
 @edusign_views.route('/invitation/<invite_key>', methods=['GET'])
 def create_invited_signature(invite_key) -> str:
-    """
-    """
+    """"""
     add_attributes_to_session()
 
     data = current_app.doc_store.get_invitation(invite_key)
@@ -425,7 +424,9 @@ def create_invited_signature(invite_key) -> str:
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
-        return render_template('error-generic.jinja2', message=gettext('Communication error with the create endpoint of the eduSign API'))
+        return render_template(
+            'error-generic.jinja2', message=gettext('Communication error with the create endpoint of the eduSign API')
+        )
 
     return render_template('autoform.jinja2', **create_data)
 
@@ -455,7 +456,9 @@ def multi_sign_service_callback(doc_key) -> str:
 
     except Exception as e:
         current_app.logger.error(f'Problem processing sign request: {e}')
-        return render_template('error-generic.jinja2', message=gettext('Communication error with the process endpoint of the eduSign API'))
+        return render_template(
+            'error-generic.jinja2', message=gettext('Communication error with the process endpoint of the eduSign API')
+        )
 
     doc = process_data['signedDocuments'][0]
 
@@ -491,15 +494,17 @@ def final_multisign_signature(data: dict) -> dict:
 
     current_app.logger.info(f"Prepared multisigned {doc['name']} for user {session['eppn']}")
 
-    doc_list = [{
-        'key': data['key'],
-        'name': doc['name'],
-        'type': doc['type'],
-        'size': doc['size'],
-        'blob': doc['blob'],
-        'ref': doc_data['updatedPdfDocumentReference'],
-        'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
-    }]
+    doc_list = [
+        {
+            'key': data['key'],
+            'name': doc['name'],
+            'type': doc['type'],
+            'size': doc['size'],
+            'blob': doc['blob'],
+            'ref': doc_data['updatedPdfDocumentReference'],
+            'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
+        }
+    ]
 
     try:
         current_app.logger.info(f"Creating signature request for multisigned doc for user {session['eppn']}")

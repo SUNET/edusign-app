@@ -31,9 +31,9 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import json
+import uuid
 from pprint import pformat
 from urllib.parse import urljoin
-import uuid
 
 import requests
 from flask import current_app, session, url_for
@@ -157,7 +157,9 @@ class APIClient(object):
         else:
             current_app.logger.debug(f"Doc key for multi sign: {documents[0]['key']} :: {type(documents[0]['key'])}")
             doc_key = documents[0]['key']
-            return_url = url_for('edusign.multi_sign_service_callback', doc_key=doc_key, _external=True, _scheme='https')
+            return_url = url_for(
+                'edusign.multi_sign_service_callback', doc_key=doc_key, _external=True, _scheme='https'
+            )
         attrs = [{'name': attr, 'value': session[name]} for attr, name in self.config['SIGNER_ATTRIBUTES'].items()]
 
         request_data = {
@@ -204,7 +206,9 @@ class APIClient(object):
         :return: Pair of  Flask representation of the HTTP response from the API,
                  and list of mappings linking the documents' names with the generated ids.
         """
-        response_data, documents_with_id = self._try_creating_sign_request(documents, single_sign=single_sign, add_blob=add_blob)
+        response_data, documents_with_id = self._try_creating_sign_request(
+            documents, single_sign=single_sign, add_blob=add_blob
+        )
 
         if (
             'status' in response_data

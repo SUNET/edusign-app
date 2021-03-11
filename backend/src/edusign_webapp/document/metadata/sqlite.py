@@ -401,4 +401,3 @@ class SqliteMD(ABCMetadata):
             return {}
 
         return document_result
-
