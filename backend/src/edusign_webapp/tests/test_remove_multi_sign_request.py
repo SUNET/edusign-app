@@ -35,7 +35,7 @@ import json
 from edusign_webapp.marshal import ResponseSchema
 
 
-def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
+def _test_remove_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
 
     _, app = app
 
@@ -86,69 +86,57 @@ def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
 
     assert response.status == '200 OK'
 
-    resp_data = json.loads(response.data)
+    rm_data = {
+        'csrf_token': csrf_token,
+        'payload': {
+            'key': sample_doc_1['key'],
+        },
+    }
 
-    assert resp_data['message'] == 'Success creating multi signature request'
+    response = client.post(
+        '/sign/remove-multi-sign',
+        headers={
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://test.localhost',
+            'X-Forwarded-Host': 'test.localhost',
+        },
+        json=rm_data,
+    )
+
+    return json.loads(response.data)
 
 
-def test_create_multi_sign_request_raises(app, environ_base, monkeypatch, sample_doc_1):
+def test_remove_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
 
-    _, app = app
+    resp_data = _test_remove_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
 
-    client = app.test_client()
-    client.environ_base.update(environ_base)
+    assert resp_data['message'] == 'Success removing multi signature request'
 
-    def mock_add_document(*args):
-        raise Exception()
+
+def _test_remove_multi_sign_request_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_remove):
 
     from edusign_webapp.doc_store import DocStore
 
-    monkeypatch.setattr(DocStore, 'add_document', mock_add_document)
+    monkeypatch.setattr(DocStore, 'remove_document', mock_remove)
 
-    response1 = client.get('/sign/')
+    return _test_remove_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
 
-    assert response1.status == '200 OK'
 
-    with app.test_request_context():
-        with client.session_transaction() as sess:
+def test_remove_multi_sign_request_raises(app, environ_base, monkeypatch, sample_doc_1):
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+    def mock_remove(*args, **kwargs):
+        raise Exception()
 
-    from flask.sessions import SecureCookieSession
+    resp_data = _test_remove_multi_sign_request_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_remove)
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+    assert resp_data['message'] == 'Problem removing the document to be multi signed'
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'document': sample_doc_1,
-            'owner': 'owner@example.com',
-            'invites': [
-                {'name': 'invite0', 'email': 'invite0@example.com'},
-                {'name': 'invite1', 'email': 'invite1@example.com'},
-            ],
-        },
-    }
+def test_remove_multi_sign_request_doesnt(app, environ_base, monkeypatch, sample_doc_1):
 
-    response = client.post(
-        '/sign/create-multi-sign',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+    def mock_remove(*args, **kwargs):
+        return False
 
-    assert response.status == '200 OK'
+    resp_data = _test_remove_multi_sign_request_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_remove)
 
-    resp_data = json.loads(response.data)
-
-    assert resp_data['message'] == 'Problem storing the document to be multi signed'
+    assert resp_data['message'] == 'Could not remove the document to be multi signed'
