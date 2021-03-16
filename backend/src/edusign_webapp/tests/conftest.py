@@ -35,6 +35,7 @@ import os
 import tempfile
 import uuid
 from base64 import b64encode
+from copy import deepcopy
 
 import pytest
 
@@ -49,12 +50,14 @@ here = os.path.abspath(os.path.dirname(__file__))
 config_dev = {
     'TESTING': True,
     'ENVIRONMENT': 'development',
+    'SCOPE_WHITELIST': 'example.org',
 }
 
 
 config_pro = {
     'TESTING': True,
     'ENVIRONMENT': 'production',
+    'SCOPE_WHITELIST': 'example.org',
 }
 
 
@@ -83,6 +86,20 @@ def client(request):
 
     with app.test_client() as client:
         client.environ_base.update(_environ_base)
+
+        yield client
+
+
+@pytest.fixture(params=[config_dev, config_pro])
+def client_non_whitelisted(request):
+    app = run.edusign_init_app('testing')
+    app.config.update(request.param)
+    app.api_client.api_base_url = 'https://dummy.edusign.api'
+
+    with app.test_client() as client:
+        environ = deepcopy(_environ_base)
+        environ['HTTP_MAIL'] = b64encode(b'<Attribute>tester@example.com</Attribute>')
+        client.environ_base.update(environ)
 
         yield client
 

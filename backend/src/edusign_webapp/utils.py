@@ -31,9 +31,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 from base64 import b64decode
+from typing import Any, Dict
 from xml.etree import cElementTree as ET
 
-from flask import current_app, request, session
+from flask import current_app, render_template, request, session
 from flask_babel import gettext
 
 
@@ -41,15 +42,27 @@ def add_attributes_to_session():
     if 'eppn' not in session:
         eppn = request.headers.get('Edupersonprincipalname')
         current_app.logger.info(f'User {eppn} started a session')
-        session['eppn'] = eppn
+
+        pre_session: Dict[str, Any] = {}
 
         attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
         for attr_in_session, attr_in_header in attrs:
             current_app.logger.debug(
                 f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
             )
-            session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
+            if attr_in_session == 'mail':
+                mail = ET.fromstring(b64decode(request.headers[attr_in_header])).text
+                if not current_app.is_whitelisted(mail):
+                    current_app.logger.info(f"Rejecting user with {mail} address")
+                    return render_template('reject.jinja2', mail=mail)
+                else:
+                    pre_session['mail'] = mail
 
+            else:
+                pre_session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
+
+        session.update(pre_session)
+        session['eppn'] = eppn
         session['idp'] = request.headers.get('Shib-Identity-Provider')
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
         session['authn_context'] = request.headers.get('Shib-Authncontext-Class')

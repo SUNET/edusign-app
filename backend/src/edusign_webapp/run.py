@@ -60,6 +60,15 @@ class EduSignApp(Flask):
 
         self.register_blueprint(edusign_views)
 
+    def is_whitelisted(self, address: str) -> bool:
+        """
+        Check whether a given email address is whitelisted for starting sign processes
+
+        :param address: the email address
+        :return: whether it is whitelisted
+        """
+        return address.split('@')[1] in self.config['SCOPE_WHITELIST']
+
 
 def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
     """
