@@ -35,12 +35,16 @@ import json
 from edusign_webapp.marshal import ResponseSchema
 
 
-def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
+def _test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, doc_data, mock_add_document=None):
 
     _, app = app
 
     client = app.test_client()
     client.environ_base.update(environ_base)
+
+    if mock_add_document is not None:
+        from edusign_webapp.doc_store import DocStore
+        monkeypatch.setattr(DocStore, 'add_document', mock_add_document)
 
     response1 = client.get('/sign/')
 
@@ -62,8 +66,22 @@ def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
 
     monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
+    doc_data['csrf_token'] = csrf_token
+
+    return client.post(
+        '/sign/create-multi-sign',
+        headers={
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://test.localhost',
+            'X-Forwarded-Host': 'test.localhost',
+        },
+        json=doc_data,
+    )
+
+
+def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
+
     doc_data = {
-        'csrf_token': csrf_token,
         'payload': {
             'document': sample_doc_1,
             'owner': 'tester@example.org',
@@ -74,15 +92,7 @@ def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
         },
     }
 
-    response = client.post(
-        '/sign/create-multi-sign',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+    response = _test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, doc_data)
 
     assert response.status == '200 OK'
 
@@ -93,40 +103,7 @@ def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
 
 def test_create_multi_sign_request_raises(app, environ_base, monkeypatch, sample_doc_1):
 
-    _, app = app
-
-    client = app.test_client()
-    client.environ_base.update(environ_base)
-
-    def mock_add_document(*args):
-        raise Exception()
-
-    from edusign_webapp.doc_store import DocStore
-
-    monkeypatch.setattr(DocStore, 'add_document', mock_add_document)
-
-    response1 = client.get('/sign/')
-
-    assert response1.status == '200 OK'
-
-    with app.test_request_context():
-        with client.session_transaction() as sess:
-
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
-
-    from flask.sessions import SecureCookieSession
-
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
-
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
-
     doc_data = {
-        'csrf_token': csrf_token,
         'payload': {
             'document': sample_doc_1,
             'owner': 'tester@example.org',
@@ -137,18 +114,38 @@ def test_create_multi_sign_request_raises(app, environ_base, monkeypatch, sample
         },
     }
 
-    response = client.post(
-        '/sign/create-multi-sign',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+    def mock_add_document(*args):
+        raise Exception()
+
+    response = _test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, doc_data, mock_add_document=mock_add_document)
 
     assert response.status == '200 OK'
 
     resp_data = json.loads(response.data)
 
     assert resp_data['message'] == 'Problem storing the document to be multi signed'
+
+
+def test_create_multi_sign_wrong_owner(app, environ_base, monkeypatch, sample_doc_1):
+
+    doc_data = {
+        'payload': {
+            'document': sample_doc_1,
+            'owner': 'non-tester@example.org',
+            'invites': [
+                {'name': 'invite0', 'email': 'invite0@example.org'},
+                {'name': 'invite1', 'email': 'invite1@example.org'},
+            ],
+        },
+    }
+
+    def mock_add_document(*args):
+        raise Exception()
+
+    response = _test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, doc_data, mock_add_document=mock_add_document)
+
+    assert response.status == '200 OK'
+
+    resp_data = json.loads(response.data)
+
+    assert "You cannot invite as" in resp_data['message']
