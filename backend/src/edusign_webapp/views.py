@@ -73,6 +73,8 @@ def get_index() -> str:
     except KeyError:
         current_app.logger.error('There is some misconfiguration and Shibboleth SP does not seem to be securing the edusign app.')
         abort(500)
+    except ValueError:
+        abort(400)
 
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
 
@@ -391,7 +393,7 @@ def remove_multi_sign_request(data: dict) -> dict:
 @edusign_views.route('/invitation/<invite_key>', methods=['GET'])
 def create_invited_signature(invite_key) -> str:
     """"""
-    add_attributes_to_session()
+    add_attributes_to_session(check_whitelisted=False)
 
     data = current_app.doc_store.get_invitation(invite_key)
     current_app.logger.info(f"Invitation data: {data}")

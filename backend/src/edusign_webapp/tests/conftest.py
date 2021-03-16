@@ -107,10 +107,10 @@ def client_non_whitelisted(request):
 def _get_test_app(config):
     tempdir = tempfile.TemporaryDirectory()
     db_path = os.path.join(tempdir.name, 'test.db')
-    config = {'LOCAL_STORAGE_BASE_DIR': tempdir.name,
-              'SQLITE_MD_DB_PATH': db_path}
-    app = run.edusign_init_app('testing', config)
-    app.config.update(config)
+    more_config = {'LOCAL_STORAGE_BASE_DIR': tempdir.name,
+                   'SQLITE_MD_DB_PATH': db_path}
+    more_config.update(config)
+    app = run.edusign_init_app('testing', more_config)
     app.api_client.api_base_url = 'https://dummy.edusign.api'
     return tempdir, app
 
@@ -188,22 +188,22 @@ def sample_doc_2():
 
 @pytest.fixture
 def sample_invites_1():
-    yield [{'name': 'invite0', 'email': 'invite0@example.com'}, {'name': 'invite1', 'email': 'invite1@example.com'}]
+    yield [{'name': 'invite0', 'email': 'invite0@example.org'}, {'name': 'invite1', 'email': 'invite1@example.org'}]
 
 
 @pytest.fixture
 def sample_invites_2():
-    yield [{'name': 'invite0', 'email': 'invite0@example.com'}, {'name': 'invite2', 'email': 'invite2@example.com'}]
+    yield [{'name': 'invite0', 'email': 'invite0@example.org'}, {'name': 'invite2', 'email': 'invite2@example.org'}]
 
 
 @pytest.fixture
 def sample_owner_1():
-    yield {'name': 'owner', 'email': 'owner@example.com'}
+    yield {'name': 'owner', 'email': 'owner@example.org'}
 
 
 @pytest.fixture
 def sample_owner_2():
-    yield {'name': 'owner2', 'email': 'owner2@example.com'}
+    yield {'name': 'owner2', 'email': 'owner2@example.org'}
 
 
 _sample_metadata_1 = {'name': 'test1.pdf', 'size': 1500000, 'type': 'application/pdf', 'key': str(uuid.uuid4())}

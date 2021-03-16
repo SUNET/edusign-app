@@ -76,8 +76,6 @@ def test_index_non_whitelisted(client_non_whitelisted):
 
     response = client_non_whitelisted.get('/sign/')
 
-    assert response.status == '200 OK'
-
-    assert b"You are not allowed to create sign requests at eduSign" in response.data
+    assert '400' in response.status
 
     assert 'eppn' not in session

@@ -69,7 +69,7 @@ def test_get_signed_documents(client, monkeypatch):
                         'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.6',
                         'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
                         'type': 'saml',
-                        'value': 'dummy-dummy@example.com',
+                        'value': 'dummy-dummy@example.org',
                     },
                     {
                         'name': 'urn:oid:2.5.4.42',
@@ -81,7 +81,7 @@ def test_get_signed_documents(client, monkeypatch):
                         'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.9',
                         'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
                         'type': 'saml',
-                        'value': 'affiliate@example.com',
+                        'value': 'affiliate@example.org',
                     },
                     {
                         'name': 'urn:oid:2.5.4.6',
@@ -99,7 +99,7 @@ def test_get_signed_documents(client, monkeypatch):
                         'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.13',
                         'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
                         'type': 'saml',
-                        'value': 'dummy@example.com',
+                        'value': 'dummy@example.org',
                     },
                     {
                         'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11',
@@ -123,7 +123,7 @@ def test_get_signed_documents(client, monkeypatch):
                         'name': 'urn:oid:0.9.2342.19200300.100.1.3',
                         'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
                         'type': 'saml',
-                        'value': 'dummy@example.com',
+                        'value': 'dummy@example.org',
                     },
                 ],
             },

@@ -64,20 +64,20 @@ def test_add_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sampl
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
 
-        pending1 = test_md.get_pending('invite0@example.com')
-        pending2 = test_md.get_pending('invite1@example.com')
+        pending1 = test_md.get_pending('invite0@example.org')
+        pending2 = test_md.get_pending('invite1@example.org')
 
     assert len(pending1) == 1
     assert pending1[0]['name'] == 'test1.pdf'
     assert pending1[0]['size'] == 1500000
     assert pending1[0]['type'] == 'application/pdf'
-    assert pending1[0]['owner']['email'] == 'owner@example.com'
+    assert pending1[0]['owner']['email'] == 'owner@example.org'
 
     assert len(pending2) == 1
     assert pending2[0]['name'] == 'test1.pdf'
     assert pending2[0]['size'] == 1500000
     assert pending2[0]['type'] == 'application/pdf'
-    assert pending2[0]['owner']['email'] == 'owner@example.com'
+    assert pending2[0]['owner']['email'] == 'owner@example.org'
 
 
 def test_add_and_get_pending_not(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
@@ -87,7 +87,7 @@ def test_add_and_get_pending_not(sqlite_md, sample_metadata_1, sample_owner_1, s
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
 
-        pending = test_md.get_pending('invite3@example.com')
+        pending = test_md.get_pending('invite3@example.org')
 
     assert pending == []
 
@@ -103,19 +103,19 @@ def test_add_two_and_get_pending(
         test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1)
         test_md.add(dummy_key_2, sample_metadata_2, sample_owner_2, sample_invites_2)
 
-        pending = test_md.get_pending('invite0@example.com')
+        pending = test_md.get_pending('invite0@example.org')
 
     assert len(pending) == 2
 
     assert pending[0]['name'] == 'test1.pdf'
     assert pending[0]['size'] == 1500000
     assert pending[0]['type'] == 'application/pdf'
-    assert pending[0]['owner']['email'] == 'owner@example.com'
+    assert pending[0]['owner']['email'] == 'owner@example.org'
 
     assert pending[1]['name'] == 'test2.pdf'
     assert pending[1]['size'] == 1500000
     assert pending[1]['type'] == 'application/pdf'
-    assert pending[1]['owner']['email'] == 'owner2@example.com'
+    assert pending[1]['owner']['email'] == 'owner2@example.org'
 
 
 def test_update_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
@@ -127,8 +127,8 @@ def test_update_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sa
 
         test_md.update(dummy_key, sample_invites_1[0]['email'])
 
-        pending1 = test_md.get_pending('invite0@example.com')
-        pending2 = test_md.get_pending('invite1@example.com')
+        pending1 = test_md.get_pending('invite0@example.org')
+        pending2 = test_md.get_pending('invite1@example.org')
 
     assert len(pending1) == 0
 
@@ -136,7 +136,7 @@ def test_update_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sa
     assert pending2[0]['name'] == 'test1.pdf'
     assert pending2[0]['size'] == 1500000
     assert pending2[0]['type'] == 'application/pdf'
-    assert pending2[0]['owner']['email'] == 'owner@example.com'
+    assert pending2[0]['owner']['email'] == 'owner@example.org'
 
 
 def test_updated_timestamp(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
@@ -161,7 +161,7 @@ def test_updated_timestamp(sqlite_md, sample_metadata_1, sample_owner_1, sample_
     assert datetime.fromisoformat(result[5]) == datetime.fromisoformat(result[6])
 
     with run.app.app_context():
-        test_md.update(dummy_key, 'invite1@example.com')
+        test_md.update(dummy_key, 'invite1@example.org')
 
     result = get_doc()
 
@@ -175,14 +175,14 @@ def test_add_and_get_owned(sqlite_md, sample_metadata_1, sample_owner_1, sample_
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
 
-        owned = test_md.get_owned('owner@example.com')
+        owned = test_md.get_owned('owner@example.org')
 
     assert len(owned) == 1
     assert owned[0]['key'] == dummy_key
     assert owned[0]['name'] == 'test1.pdf'
     assert owned[0]['size'] == 1500000
     assert owned[0]['type'] == 'application/pdf'
-    assert [p['email'] for p in owned[0]['pending']] == ['invite0@example.com', 'invite1@example.com']
+    assert [p['email'] for p in owned[0]['pending']] == ['invite0@example.org', 'invite1@example.org']
 
 
 def test_add_and_remove(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
@@ -195,7 +195,7 @@ def test_add_and_remove(sqlite_md, sample_metadata_1, sample_owner_1, sample_inv
         test_md.update(dummy_key, sample_invites_1[1]['email'])
         test_md.remove(dummy_key)
 
-        owned = test_md.get_owned('owner@example.com')
+        owned = test_md.get_owned('owner@example.org')
 
     assert len(owned) == 0
 
@@ -208,6 +208,6 @@ def test_add_and_remove_not(sqlite_md, sample_metadata_1, sample_owner_1, sample
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
         test_md.remove(dummy_key)
 
-        owned = test_md.get_owned('owner@example.com')
+        owned = test_md.get_owned('owner@example.org')
 
     assert len(owned) == 1

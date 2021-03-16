@@ -66,10 +66,10 @@ def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1):
         'csrf_token': csrf_token,
         'payload': {
             'document': sample_doc_1,
-            'owner': 'owner@example.com',
+            'owner': 'owner@example.org',
             'invites': [
-                {'name': 'invite0', 'email': 'invite0@example.com'},
-                {'name': 'invite1', 'email': 'invite1@example.com'},
+                {'name': 'invite0', 'email': 'invite0@example.org'},
+                {'name': 'invite1', 'email': 'invite1@example.org'},
             ],
         },
     }
@@ -85,6 +85,7 @@ def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1):
     )
 
     assert response.status == '200 OK'
+    import pdb;pdb.set_trace()
 
     from edusign_webapp.api_client import APIClient
 

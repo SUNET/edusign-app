@@ -34,11 +34,11 @@ from base64 import b64decode
 from typing import Any, Dict
 from xml.etree import cElementTree as ET
 
-from flask import current_app, render_template, request, session
+from flask import current_app, request, session
 from flask_babel import gettext
 
 
-def add_attributes_to_session():
+def add_attributes_to_session(check_whitelisted=True):
     if 'eppn' not in session:
         eppn = request.headers.get('Edupersonprincipalname')
         current_app.logger.info(f'User {eppn} started a session')
@@ -50,11 +50,11 @@ def add_attributes_to_session():
             current_app.logger.debug(
                 f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
             )
-            if attr_in_session == 'mail':
+            if check_whitelisted and attr_in_session == 'mail':
                 mail = ET.fromstring(b64decode(request.headers[attr_in_header])).text
                 if not current_app.is_whitelisted(mail):
                     current_app.logger.info(f"Rejecting user with {mail} address")
-                    return render_template('reject.jinja2', mail=mail)
+                    raise ValueError('Unauthorized user')
                 else:
                     pre_session['mail'] = mail
 
