@@ -77,3 +77,9 @@ RAW_SIGNER_ATTRIBUTES = os.environ.get(
 )
 
 SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}
+
+RAW_SCOPE_WHITELIST = os.environ.get(
+    'SCOPE_WHITELIST', default='sunet.se,emergya.com'
+)
+
+SCOPE_WHITELIST = [scope.strip() for scope in RAW_SCOPE_WHITELIST.split(',')]

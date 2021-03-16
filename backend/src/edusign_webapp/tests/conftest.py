@@ -39,12 +39,14 @@ from edusign_webapp import run
 config_dev = {
     'TESTING': True,
     'ENVIRONMENT': 'development',
+    'SCOPE_WHITELIST': 'example.org',
 }
 
 
 config_pro = {
     'TESTING': True,
     'ENVIRONMENT': 'production',
+    'SCOPE_WHITELIST': 'example.org',
 }
 
 
@@ -58,6 +60,23 @@ def client(request):
         client.environ_base["HTTP_GIVENNAME"] = b64encode('<Attribute>Tëster</Attribute>'.encode("utf-8"))
         client.environ_base["HTTP_SN"] = b64encode(b'<Attribute>Testing</Attribute>')
         client.environ_base["HTTP_MAIL"] = b64encode(b'<Attribute>tester@example.org</Attribute>')
+        client.environ_base["HTTP_SHIB_IDENTITY_PROVIDER"] = 'https://idp'
+        client.environ_base["HTTP_SHIB_AUTHENTICATION_METHOD"] = 'dummy'
+        client.environ_base["HTTP_SHIB_AUTHNCONTEXT_CLASS"] = 'dummy'
+
+        yield client
+
+
+@pytest.fixture(params=[config_dev, config_pro])
+def client_non_whitelisted(request):
+    run.app.config.update(request.param)
+    run.app.api_client.api_base_url = 'https://dummy.edusign.api'
+
+    with run.app.test_client() as client:
+        client.environ_base["HTTP_EDUPERSONPRINCIPALNAME"] = 'dummy-eppn'
+        client.environ_base["HTTP_GIVENNAME"] = b64encode('<Attribute>Tëster</Attribute>'.encode("utf-8"))
+        client.environ_base["HTTP_SN"] = b64encode(b'<Attribute>Testing</Attribute>')
+        client.environ_base["HTTP_MAIL"] = b64encode(b'<Attribute>tester@example.com</Attribute>')
         client.environ_base["HTTP_SHIB_IDENTITY_PROVIDER"] = 'https://idp'
         client.environ_base["HTTP_SHIB_AUTHENTICATION_METHOD"] = 'dummy'
         client.environ_base["HTTP_SHIB_AUTHNCONTEXT_CLASS"] = 'dummy'
