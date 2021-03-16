@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-version = '0.1.3'
+version = '0.1.4'
 
 requires = [x for x in open(os.path.join(here, 'requirements.txt')).read().split('\n') if len(x) > 0]
 test_requires = [x for x in open(os.path.join(here, 'test_requirements.txt')).read().split('\n')
