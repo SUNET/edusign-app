@@ -68,7 +68,11 @@ def get_index() -> str:
 
     :return: the rendered `index.jinja2` template as a string
     """
-    add_attributes_to_session()
+    try:
+        add_attributes_to_session()
+    except KeyError:
+        current_app.logger.error('There is some misconfiguration and Shibboleth SP does not seem to be securing the edusign app.')
+        abort(500)
 
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
 
