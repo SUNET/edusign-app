@@ -30,12 +30,12 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import json
 
+from edusign_webapp.doc_store import DocStore
 from edusign_webapp.marshal import ResponseSchema
 
 
-def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1):
+def _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, prepare_data=None, error_creation=False):
 
     _, app = app
 
@@ -85,12 +85,13 @@ def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1):
     )
 
     assert response.status == '200 OK'
-    import pdb;pdb.set_trace()
 
     from edusign_webapp.api_client import APIClient
 
     def mock_post(self, url, *args, **kwargs):
         if 'prepare' in url:
+            if prepare_data is not None:
+                return prepare_data
             return {
                 'policy': 'edusign-test',
                 'updatedPdfDocumentReference': 'ba26478f-f8e0-43db-991c-08af7c65ed58',
@@ -112,6 +113,9 @@ def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1):
                 },
             }
 
+        if error_creation:
+            raise Exception()
+
         return {
             'binding': 'POST/XML/1.0',
             'destinationUrl': 'https://sig.idsec.se/sigservice-dev/request',
@@ -122,8 +126,13 @@ def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1):
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
 
-    response2 = client.get(
-        '/sign/invitation/' + response.json['key'],
+    def mock_get_invitation(*args):
+        return mock_invitation
+
+    monkeypatch.setattr(DocStore, 'get_invitation', mock_get_invitation)
+
+    return client.get(
+        '/sign/invitation/11111111-1111-1111-1111-111111111111',
         headers={
             'X-Requested-With': 'XMLHttpRequest',
             'Origin': 'https://test.localhost',
@@ -131,4 +140,90 @@ def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1):
         },
     )
 
-    assert 'id="form"' in response2.body
+
+def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1):
+    mock_invitation = {
+        'document': {
+            'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+            'name': 'test.pdf',
+            'size': '1KB',
+            'type': 'application/pdf',
+            'owner': 'tester@example.org',
+            'blob': 'dummy blob',
+        },
+        'user': {
+            'name': 'invite0',
+            'email': 'tester@example.org',
+        },
+    }
+    response = _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation)
+
+    assert b'id="form"' in response.data
+
+
+def test_create_invited_signature_wrong_invitee(app, environ_base, monkeypatch, sample_doc_1):
+    mock_invitation = {
+        'document': {
+            'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+            'name': 'test.pdf',
+            'size': '1KB',
+            'type': 'application/pdf',
+            'owner': 'tester@example.org',
+            'blob': 'dummy blob',
+        },
+        'user': {
+            'name': 'invite0',
+            'email': 'non-tester@example.org',
+        },
+    }
+    response = _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation)
+
+    assert b"The invited email does not coincide with yours" in response.data
+
+
+def test_create_invited_signature_unknown_invitee(app, environ_base, monkeypatch, sample_doc_1):
+    mock_invitation = {}
+    response = _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation)
+
+    assert b"There seems to be no invitation for you" in response.data
+
+
+def test_create_invited_signature_prepare_error(app, environ_base, monkeypatch, sample_doc_1):
+    mock_invitation = {
+        'document': {
+            'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+            'name': 'test.pdf',
+            'size': '1KB',
+            'type': 'application/pdf',
+            'owner': 'tester@example.org',
+            'blob': 'dummy blob',
+        },
+        'user': {
+            'name': 'invite0',
+            'email': 'tester@example.org',
+        },
+    }
+    prepare_data = {'error': True}
+    response = _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, prepare_data=prepare_data)
+
+    assert b"Problem preparing document for multi sign by user" in response.data
+
+
+def test_create_invited_signature_create_error(app, environ_base, monkeypatch, sample_doc_1):
+    mock_invitation = {
+        'document': {
+            'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+            'name': 'test.pdf',
+            'size': '1KB',
+            'type': 'application/pdf',
+            'owner': 'tester@example.org',
+            'blob': 'dummy blob',
+        },
+        'user': {
+            'name': 'invite0',
+            'email': 'tester@example.org',
+        },
+    }
+    response = _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, error_creation=True)
+
+    assert b"Communication error with the create endpoint of the eduSign API" in response.data

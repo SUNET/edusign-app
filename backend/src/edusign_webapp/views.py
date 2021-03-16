@@ -334,6 +334,10 @@ def create_multi_sign_request(data: dict) -> dict:
                  and the emails of the users invited to sign the doc.
     :return: A message about the result of the procedure
     """
+    if session['mail'] != data['owner']:
+        current_app.logger.error(f"User {session['mail']} is trying to create an invitation as {data['owner']}")
+        return {'error': True, 'message': gettext(f"You cannot invite as {data['owner']}")}
+
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
         owner = {'name': session['displayName'], 'email': data['owner']}
@@ -350,7 +354,7 @@ def create_multi_sign_request(data: dict) -> dict:
                 'invited_link': invited_link,
             }
             msg.body = render_template('invitation_email.txt.jinja2', **context)
-            current_app.logger.debug(f"Sending email to user {session['eppn']}:\n{msg.body}")
+            current_app.logger.debug(f"Sending email to user {invite['email']}:\n{msg.body}")
             msg.html = render_template('invitation_email.html.jinja2', **context)
 
             current_app.mailer.send(msg)
