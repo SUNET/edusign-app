@@ -66,32 +66,36 @@ def get_index() -> str:
     :return: the rendered `index.jinja2` template as a string
     """
     if 'eppn' not in session:
-        eppn = request.headers.get('Edupersonprincipalname')
-        current_app.logger.info(f'User {eppn} started a session')
+        try:
+            eppn = request.headers.get('Edupersonprincipalname')
+            current_app.logger.info(f'User {eppn} started a session')
 
-        pre_session: Dict[str, Any] = {}
+            pre_session: Dict[str, Any] = {}
 
-        attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
-        for attr_in_session, attr_in_header in attrs:
-            current_app.logger.debug(
-                f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
-            )
-            if attr_in_session == 'mail':
-                mail = ET.fromstring(b64decode(request.headers[attr_in_header])).text
-                if not current_app.is_whitelisted(mail):
-                    current_app.logger.info(f"Rejecting user with {mail} address")
-                    return render_template('reject.jinja2', mail=mail)
+            attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
+            for attr_in_session, attr_in_header in attrs:
+                current_app.logger.debug(
+                    f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
+                )
+                if attr_in_session == 'mail':
+                    mail = ET.fromstring(b64decode(request.headers[attr_in_header])).text
+                    if not current_app.is_whitelisted(mail):
+                        current_app.logger.info(f"Rejecting user with {mail} address")
+                        return render_template('reject.jinja2', mail=mail)
+                    else:
+                        pre_session['mail'] = mail
+
                 else:
-                    pre_session['mail'] = mail
+                    pre_session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
 
-            else:
-                pre_session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
-
-        session.update(pre_session)
-        session['eppn'] = eppn
-        session['idp'] = request.headers.get('Shib-Identity-Provider')
-        session['authn_method'] = request.headers.get('Shib-Authentication-Method')
-        session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
+            session.update(pre_session)
+            session['eppn'] = eppn
+            session['idp'] = request.headers.get('Shib-Identity-Provider')
+            session['authn_method'] = request.headers.get('Shib-Authentication-Method')
+            session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
+        except KeyError:
+            current_app.logger.error('There is some misconfiguration and Shibboleth SP does not seem to be securing the edusign app.')
+            abort(500)
 
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
 
