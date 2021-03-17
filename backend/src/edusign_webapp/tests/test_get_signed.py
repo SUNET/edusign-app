@@ -36,11 +36,14 @@ from edusign_webapp import run
 from edusign_webapp.marshal import ResponseSchema
 
 
-def test_get_signed_documents(client, monkeypatch):
+def _test_get_signed_documents(client, monkeypatch, process_data=None):
 
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
+        if process_data is not None:
+            return process_data
+
         return {
             'correlationId': '2a08e13e-8719-4b53-8586-662037f153ec',
             'id': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
@@ -156,7 +159,7 @@ def test_get_signed_documents(client, monkeypatch):
 
     monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    response = client.post(
+    return client.post(
         '/sign/get-signed',
         headers={
             'X-Requested-With': 'XMLHttpRequest',
@@ -166,11 +169,27 @@ def test_get_signed_documents(client, monkeypatch):
         json=doc_data,
     )
 
+
+def test_get_signed_documents(client, monkeypatch):
+
+    response = _test_get_signed_documents(client, monkeypatch)
+
     assert response.status == '200 OK'
 
-    resp_data = json.loads(response.data)
+    assert b'Dummy signed content' in response.data
 
-    assert resp_data['payload']['documents'][0]['signed_content'] == 'Dummy signed content'
+
+def test_get_signed_documents_process_error(client, monkeypatch):
+
+    process_data = {
+        'errorCode': 'error.dss'
+    }
+
+    response = _test_get_signed_documents(client, monkeypatch, process_data=process_data)
+
+    assert response.status == '200 OK'
+
+    assert b'Communication error with the process endpoint' in response.data
 
 
 def test_get_signed_documents_post_raises(client, monkeypatch):

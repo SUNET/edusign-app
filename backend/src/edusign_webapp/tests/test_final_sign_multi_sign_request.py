@@ -35,7 +35,7 @@ from edusign_webapp.doc_store import DocStore
 from edusign_webapp.marshal import ResponseSchema
 
 
-def _test_final_sign_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, create_sign_request=True, prepare_data=None, error_creation=False):
+def _test_final_sign_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, create_sign_request=True, prepare_data=None, create_data=None, error_creation=False):
 
     _, app = app
 
@@ -118,6 +118,9 @@ def _test_final_sign_multi_sign_request(app, environ_base, monkeypatch, sample_d
         if error_creation:
             raise Exception()
 
+        if create_data is not None:
+            return create_data
+
         return {
             'binding': 'POST/XML/1.0',
             'destinationUrl': 'https://sig.idsec.se/sigservice-dev/request',
@@ -172,3 +175,76 @@ def test_final_sign_multi_sign_request_no_doc(app, environ_base, monkeypatch, sa
     response = _test_final_sign_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, create_sign_request=False)
 
     assert b"Multisigned document not found in the doc store" in response.data
+
+
+def test_final_sign_multi_sign_request_prepare_error(app, environ_base, monkeypatch, sample_doc_1):
+    mock_invitation = {
+        'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+        'name': 'test.pdf',
+        'size': '1',
+        'type': 'application/pdf',
+        'owner': 'tester@example.org',
+        'blob': 'dummy blob',
+    }
+    prepare_data = {'error': True, 'message': "Problem preparing multisigned document"}
+    response = _test_final_sign_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, prepare_data=prepare_data)
+
+    assert b"Problem preparing multisigned document" in response.data
+
+
+def test_final_sign_multi_sign_request_create_error(app, environ_base, monkeypatch, sample_doc_1):
+    mock_invitation = {
+        'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+        'name': 'test.pdf',
+        'size': '1',
+        'type': 'application/pdf',
+        'owner': 'tester@example.org',
+        'blob': 'dummy blob',
+    }
+    response = _test_final_sign_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, error_creation=True)
+
+    assert b"Communication error with the create endpoint of the eduSign API" in response.data
+
+
+def test_final_sign_multi_sign_request_no_relay_state(app, environ_base, monkeypatch, sample_doc_1):
+    mock_invitation = {
+        'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+        'name': 'test.pdf',
+        'size': '1',
+        'type': 'application/pdf',
+        'owner': 'tester@example.org',
+        'blob': 'dummy blob',
+    }
+
+    create_data = {
+        'binding': 'POST/XML/1.0',
+        'destinationUrl': 'https://sig.idsec.se/sigservice-dev/request',
+        'signRequest': 'DUMMY SIGN REQUEST',
+        'state': {'id': '31dc573b-ab7d-496c-845e-cae8792ba063'},
+        'message': 'Dummy error message',
+    }
+    response = _test_final_sign_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, create_data=create_data)
+
+    assert b"Dummy error message" in response.data
+
+
+def test_final_sign_multi_sign_request_no_sign_request(app, environ_base, monkeypatch, sample_doc_1):
+    mock_invitation = {
+        'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+        'name': 'test.pdf',
+        'size': '1',
+        'type': 'application/pdf',
+        'owner': 'tester@example.org',
+        'blob': 'dummy blob',
+    }
+
+    create_data = {
+        'binding': 'POST/XML/1.0',
+        'destinationUrl': 'https://sig.idsec.se/sigservice-dev/request',
+        'relayState': '31dc573b-ab7d-496c-845e-cae8792ba063',
+        'state': {'id': '31dc573b-ab7d-496c-845e-cae8792ba063'},
+        'message': 'Dummy error message',
+    }
+    response = _test_final_sign_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, create_data=create_data)
+
+    assert b"Dummy error message" in response.data
