@@ -32,7 +32,7 @@
 #
 
 
-def test_sign_sevice_callback(client):
+def test_sign_service_callback(client):
 
     response1 = client.get('/sign/')
 
@@ -55,7 +55,7 @@ def test_sign_sevice_callback(client):
     assert b"Dummy Sign Response" in response.data
 
 
-def test_sign_sevice_callback_no_sign_response(client):
+def test_sign_service_callback_no_sign_response(client):
 
     response1 = client.get('/sign/')
 
@@ -74,7 +74,7 @@ def test_sign_sevice_callback_no_sign_response(client):
     assert response.status == '400 BAD REQUEST'
 
 
-def test_sign_sevice_callback_no_relay_state(client):
+def test_sign_service_callback_no_relay_state(client):
 
     response1 = client.get('/sign/')
 
