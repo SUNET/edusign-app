@@ -844,6 +844,7 @@ describe("Document representations", function () {
       .post("/sign/add-doc", {
         message: "document added",
         payload: {
+          key: "dummy key",
           ref: "dummy ref",
           sign_requirement: "dummy sign requirement",
         },
@@ -854,14 +855,14 @@ describe("Document representations", function () {
           sign_request: "dummy sign request",
           binding: "dummy binding",
           destination_url: "https://dummy.destination.url",
-          documents: [{ name: "test.pdf", id: "dummy-id" }],
+          documents: [{ name: "test.pdf", key: "dummy key", ref: "dummy ref", sign_requirement: "dummy sign requirement" }],
         },
       })
       .post("/sign/get-signed", {
         message: "documents signed",
         payload: {
           documents: [
-            { id: "dummy-id", signed_content: "dummy signed content" },
+            { id: "dummy key", signed_content: "dummy signed content" },
           ],
         },
       });

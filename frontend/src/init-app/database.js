@@ -74,7 +74,7 @@ const documentDo = (action, document) => {
   if (docStore !== null) {
     let docRequest = null;
     if (action === "saving") {
-      console.log("saving document to db", document.name);
+      console.log("saving document to db", document);
       docRequest = docStore.put(document);
     } else if (action === "removing") {
       console.log("removing document from db", document.name);

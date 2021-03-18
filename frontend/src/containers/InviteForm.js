@@ -23,6 +23,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     handleSubmit: function (values) {
+      console.log("Sending invites", values);
       dispatch(sendInvites(values));
     },
   };

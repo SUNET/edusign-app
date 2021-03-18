@@ -47,6 +47,7 @@ describe("Multi sign invitations", function () {
       message: "document added",
       payload: {
         ref: "dummy ref",
+        key: "dummy key",
         sign_requirement: "dummy sign requirement",
       },
     });
@@ -62,7 +63,7 @@ describe("Multi sign invitations", function () {
     fireEvent.click(button[0]);
     await flushPromises(rerender, wrapped);
 
-    const title = await waitFor(() => screen.getAllByText(/Invite people to sign document/i));
+    const title = await waitFor(() => screen.getAllByText(/Invite people to sign/i));
     expect(title.length).to.equal(1);
 
     const emailInput = await waitFor(() => screen.getAllByTestId(/invitees.0.email/i));
@@ -153,6 +154,7 @@ describe("Multi sign invitations", function () {
       .post("/sign/add-doc", {
         message: "document added",
         payload: {
+          key: "dummy key",
           ref: "dummy ref",
           sign_requirement: "dummy sign requirement",
         },
@@ -164,7 +166,7 @@ describe("Multi sign invitations", function () {
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const fileObj = new File([samplePDFData], "test.pdf", {
+    const fileObj = new File([samplePDFData], "testost.pdf", {
       type: "application/pdf",
     });
     const file = {
@@ -176,7 +178,7 @@ describe("Multi sign invitations", function () {
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
 
-    const filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
+    const filename = await waitFor(() => screen.getAllByText(/testost.pdf/i));
     expect(filename.length).to.equal(1);
 
     const button = await waitFor(() => screen.getAllByText(/Multi sign/i));
@@ -187,11 +189,13 @@ describe("Multi sign invitations", function () {
 
     let emailInput = await waitFor(() => screen.getAllByTestId(/invitees.0.email/i));
     expect(emailInput.length).to.equal(1);
-    emailInput[0].value = "dummy@example.com";
+
+    fireEvent.change(emailInput[0], {target: {value: "dummy@example.com"}});
 
     let nameInput = await waitFor(() => screen.getAllByTestId(/invitees.0.name/i));
     expect(nameInput.length).to.equal(1);
-    nameInput[0].value = "Dummy Doe";
+
+    fireEvent.change(nameInput[0], {target: {value: "Dummy Doe"}});
 
     await flushPromises(rerender, wrapped);
 
@@ -201,14 +205,13 @@ describe("Multi sign invitations", function () {
     fireEvent.click(buttonSend[0]);
     await flushPromises(rerender, wrapped);
 
+    rerender();
+
     emailInput = await waitFor(() => screen.queryAllByTestId("invitees.0.email"));
     expect(emailInput.length).to.equal(0);
 
     nameInput = await waitFor(() => screen.queryAllByTestId("invitees.0.name"));
     expect(nameInput.length).to.equal(0);
-
-    const inviteNotice = await waitFor(() => screen.getAllByText(/dummy@example.com/i));
-    expect(inviteNotice.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();

@@ -73,7 +73,7 @@ const InviteForm = (props) => {
       >
         {(fprops) => (
           <Modal show={show} onHide={handleClose} size="lg">
-            <Form>
+            <Form data-testid={'invite-form-' + props.docName}>
               <Field type="hidden" name="documentId" value={fprops.values.documentId} />
               <Modal.Header closeButton>
                 <Modal.Title>
