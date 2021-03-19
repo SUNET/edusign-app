@@ -10,6 +10,8 @@ import {
   samplePDFData,
   b64SamplePasswordPDFData,
   samplePasswordPDFData,
+  b64Sample2pPDFData,
+  sample2pPDFData,
 } from "tests/test-utils";
 import Main from "components/Main";
 import { createDocument, loadDocuments } from "slices/Documents";
@@ -403,6 +405,96 @@ describe("Document representations", function () {
       screen.getAllByTestId("preview-button-close")
     );
     expect(closeButton.length).to.equal(1);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows the preview after clicking on the preview button", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock.get("/sign/config", {
+      payload: {
+        signer_attributes: [
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+        owned_multisign: [],
+        pending_multisign: [],
+      },
+    });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const clearButton = await waitFor(() =>
+      screen.getAllByTestId("clear-in-header")
+    );
+    expect(clearButton.length).to.equal(1);
+
+    fireEvent.click(clearButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const fileObj = new File([sample2pPDFData], "test.pdf", {
+      type: "application/pdf",
+    });
+    const file = {
+      name: fileObj.name,
+      size: fileObj.size,
+      type: fileObj.type,
+      blob: "data:application/pdf;base64," + b64Sample2pPDFData,
+    };
+    fetchMock.post("/sign/add-doc", {
+      message: "document added",
+      payload: {
+        ref: "dummy ref",
+        sign_requirement: "dummy sign requirement",
+      },
+    });
+    store.dispatch(createDocument(file));
+    await flushPromises(rerender, wrapped);
+
+    let pdf = await waitFor(() => screen.queryByText(/Test page 1/));
+    expect(pdf).to.equal(null);
+
+    let pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
+    expect(pdf2).to.equal(null);
+
+    const previewButton = await waitFor(() => screen.getAllByText("Preview"));
+    expect(previewButton.length).to.equal(1);
+
+    fireEvent.click(previewButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    pdf = await waitFor(() => screen.getAllByText(/Test page 1/));
+    expect(pdf.length).to.equal(1);
+
+    pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
+    expect(pdf2).to.equal(null);
+
+    const nextButton = await waitFor(() => screen.getAllByTestId("preview-button-next"));
+    expect(nextButton.length).to.equal(1);
+
+    fireEvent.click(nextButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    pdf = await waitFor(() => screen.queryByText(/Test page 1/));
+    expect(pdf).to.equal(null);
+
+    pdf2 = await waitFor(() => screen.getAllByText(/Test page 2/));
+    expect(pdf2.length).to.equal(1);
+
+    const prevButton = await waitFor(() =>
+      screen.getAllByTestId("preview-button-prev")
+    );
+    expect(prevButton.length).to.equal(1);
+
+    fireEvent.click(prevButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    pdf = await waitFor(() => screen.getAllByText(/Test page 1/));
+    expect(pdf.length).to.equal(1);
+
+    pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
+    expect(pdf2).to.equal(null);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
