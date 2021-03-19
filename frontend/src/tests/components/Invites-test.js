@@ -216,4 +216,312 @@ describe("Multi sign invitations", function () {
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
+
+  it("It shows invitation", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          signer_attributes: [
+            { name: "givenName", value: "Tester" },
+            { name: "surname", value: "Testig" },
+          ],
+          owned_multisign: [
+            {
+              name: 'test1.pdf',
+              type: 'application/pdf',
+              size: 1500,
+              key: '11111111-1111-1111-1111-111111111111',
+              signed: [],
+              pending: [
+                {
+                  name: 'Tester Invited1',
+                  email: 'invited1@example.org',
+                },
+              ],
+            },
+          ],
+          pending_multisign: [],
+        },
+      });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const inviteTitle = await waitFor(() => screen.getAllByText(/Requests for multiple signatures/));
+    expect(inviteTitle.length).to.equal(1);
+
+    const inviteWaiting = await waitFor(() => screen.getAllByText(/Waiting for signatures by/));
+    expect(inviteWaiting.length).to.equal(1);
+
+    const inviteName = await waitFor(() => screen.getAllByText(/Tester Invited1/));
+    expect(inviteName.length).to.equal(1);
+
+    const signedWaiting = await waitFor(() => screen.queryAllByText(/Already signed by/));
+    expect(signedWaiting.length).to.equal(0);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows invitation with 2 invitees", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          signer_attributes: [
+            { name: "givenName", value: "Tester" },
+            { name: "surname", value: "Testig" },
+          ],
+          owned_multisign: [
+            {
+              name: 'test1.pdf',
+              type: 'application/pdf',
+              size: 1500,
+              key: '11111111-1111-1111-1111-111111111111',
+              signed: [],
+              pending: [
+                {
+                  name: 'Tester Invited1',
+                  email: 'invited1@example.org',
+                },
+                {
+                  name: 'Tester Invited2',
+                  email: 'invited2@example.org',
+                },
+              ],
+            },
+          ],
+          pending_multisign: [],
+        },
+      });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const inviteTitle = await waitFor(() => screen.getAllByText(/Requests for multiple signatures/));
+    expect(inviteTitle.length).to.equal(1);
+
+    const inviteWaiting = await waitFor(() => screen.getAllByText(/Waiting for signatures by/));
+    expect(inviteWaiting.length).to.equal(1);
+
+    const inviteName = await waitFor(() => screen.getAllByText(/Tester Invited1/));
+    expect(inviteName.length).to.equal(1);
+
+    const signedWaiting = await waitFor(() => screen.queryAllByText(/Already signed by/));
+    expect(signedWaiting.length).to.equal(0);
+
+    const invite2Name = await waitFor(() => screen.getAllByText(/Tester Invited2/));
+    expect(invite2Name.length).to.equal(1);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows invitation with 2 invitees, one signed", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          signer_attributes: [
+            { name: "givenName", value: "Tester" },
+            { name: "surname", value: "Testig" },
+          ],
+          owned_multisign: [
+            {
+              name: 'test1.pdf',
+              type: 'application/pdf',
+              size: 1500,
+              key: '11111111-1111-1111-1111-111111111111',
+              signed: [
+                {
+                  name: 'Tester Invited1',
+                  email: 'invited1@example.org',
+                },
+              ],
+              pending: [
+                {
+                  name: 'Tester Invited2',
+                  email: 'invited2@example.org',
+                },
+              ],
+            },
+          ],
+          pending_multisign: [],
+        },
+      });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const inviteTitle = await waitFor(() => screen.getAllByText(/Requests for multiple signatures/));
+    expect(inviteTitle.length).to.equal(1);
+
+    const inviteWaiting = await waitFor(() => screen.getAllByText(/Waiting for signatures by/));
+    expect(inviteWaiting.length).to.equal(1);
+
+    const inviteName = await waitFor(() => screen.getAllByText(/Tester Invited1/));
+    expect(inviteName.length).to.equal(1);
+
+    const signedWaiting = await waitFor(() => screen.getAllByText(/Already signed by/));
+    expect(signedWaiting.length).to.equal(1);
+
+    const invite2Name = await waitFor(() => screen.getAllByText(/Tester Invited2/));
+    expect(invite2Name.length).to.equal(1);
+
+    const signButton = await waitFor(() => screen.queryAllByText(/Add Final Signature/));
+    expect(signButton.length).to.equal(0);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows invitation with 2 invitees, both signed", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          signer_attributes: [
+            { name: "givenName", value: "Tester" },
+            { name: "surname", value: "Testig" },
+          ],
+          owned_multisign: [
+            {
+              name: 'test1.pdf',
+              type: 'application/pdf',
+              size: 1500,
+              key: '11111111-1111-1111-1111-111111111111',
+              signed: [
+                {
+                  name: 'Tester Invited1',
+                  email: 'invited1@example.org',
+                },
+                {
+                  name: 'Tester Invited2',
+                  email: 'invited2@example.org',
+                },
+              ],
+              pending: [],
+            },
+          ],
+          pending_multisign: [],
+        },
+      });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const inviteTitle = await waitFor(() => screen.getAllByText(/Requests for multiple signatures/));
+    expect(inviteTitle.length).to.equal(1);
+
+    const inviteWaiting = await waitFor(() => screen.queryAllByText(/Waiting for signatures by/));
+    expect(inviteWaiting.length).to.equal(0);
+
+    const inviteName = await waitFor(() => screen.getAllByText(/Tester Invited1/));
+    expect(inviteName.length).to.equal(1);
+
+    const signedWaiting = await waitFor(() => screen.getAllByText(/Already signed by/));
+    expect(signedWaiting.length).to.equal(1);
+
+    const invite2Name = await waitFor(() => screen.getAllByText(/Tester Invited2/));
+    expect(invite2Name.length).to.equal(1);
+
+    const signButton = await waitFor(() => screen.getAllByText(/Add Final Signature/));
+    expect(signButton.length).to.equal(1);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It removes multisign invitation", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          signer_attributes: [
+            { name: "givenName", value: "Tester" },
+            { name: "surname", value: "Testig" },
+          ],
+          owned_multisign: [
+            {
+              name: 'test1.pdf',
+              type: 'application/pdf',
+              size: 1500,
+              key: '11111111-1111-1111-1111-111111111111',
+              signed: [
+                {
+                  name: 'Tester Invited1',
+                  email: 'invited1@example.org',
+                },
+                {
+                  name: 'Tester Invited2',
+                  email: 'invited2@example.org',
+                },
+              ],
+              pending: [],
+            },
+          ],
+          pending_multisign: [],
+        },
+      })
+      .post("/sign/remove-multi-sign", {
+        error: false,
+        message: "Success removing invitation",
+      });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const rmButton = await waitFor(() => screen.getAllByTestId("rm-invitation-test1.pdf"));
+    expect(rmButton.length).to.equal(1);
+
+    fireEvent.click(rmButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const inviteTitle = await waitFor(() => screen.queryAllByText(/Requests for multiple signatures/));
+    expect(inviteTitle.length).to.equal(0);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows invitation for us", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          signer_attributes: [
+            { name: "givenName", value: "Tester" },
+            { name: "surname", value: "Testig" },
+          ],
+          owned_multisign: [],
+          pending_multisign: [
+            {
+              name: 'test1.pdf',
+              type: 'application/pdf',
+              size: 1500,
+              key: '11111111-1111-1111-1111-111111111111',
+              invite_key: '22222222-2222-2222-2222-222222222222',
+              owner: {
+                name: 'Tester Inviter',
+                email: 'inviter@example.org',
+              },
+              pending: [],
+            },
+          ],
+        },
+      });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const inviteTitle = await waitFor(() => screen.queryAllByText(/Requests for multiple signatures/));
+    expect(inviteTitle.length).to.equal(0);
+
+    const invitedTitle = await waitFor(() => screen.getAllByText(/Invitations to sign/));
+    expect(invitedTitle.length).to.equal(1);
+
+    const signedWaiting = await waitFor(() => screen.getAllByText(/Invited by/));
+    expect(signedWaiting.length).to.equal(1);
+
+    const inviteName = await waitFor(() => screen.getAllByText(/Tester Inviter/));
+    expect(inviteName.length).to.equal(1);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
 });

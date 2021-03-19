@@ -14,6 +14,7 @@ const removeButton = (props, doc) =>  {
           variant="outline-danger"
           size="sm"
           onClick={props.handleRemove(doc)}
+          data-testid={"rm-invitation-" + doc.name}
         >×</Button>
       </div>
     </>

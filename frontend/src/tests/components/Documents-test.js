@@ -410,7 +410,7 @@ describe("Document representations", function () {
     unmount();
   });
 
-  it("It shows the preview after clicking on the preview button", async () => {
+  it("It changes pages of the preview with the next and prev buttons", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
     fetchMock.get("/sign/config", {
       payload: {

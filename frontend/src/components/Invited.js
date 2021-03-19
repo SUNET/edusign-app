@@ -23,7 +23,7 @@ class Invited extends Component {
               <div className="name-flex-item">{doc.name}</div>
               <div className="invited-flex-item">
                 <div className="invited-flex-label">
-                  <FormattedMessage defaultMessage="invited by" key="invited-by" />
+                  <FormattedMessage defaultMessage="Invited by" key="invited-by" />
                 </div>
                 <div className="owner-flex-item">{doc.owner.name} &lt;{doc.owner.email}&gt;</div>
               </div>
