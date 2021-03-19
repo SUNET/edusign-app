@@ -373,6 +373,7 @@ function DocManager(props) {
             data-testid="signing-form"
             onSubmit={(e) => {
               e.preventDefault();
+              console.log("Mock submitting signing form");
               return false;
             }}
           />

@@ -524,4 +524,60 @@ describe("Multi sign invitations", function () {
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
+
+  it("It starts final signature of multisigned doc", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          signer_attributes: [
+            { name: "givenName", value: "Tester" },
+            { name: "surname", value: "Testig" },
+          ],
+          owned_multisign: [
+            {
+              name: 'test1.pdf',
+              type: 'application/pdf',
+              size: 1500,
+              key: '11111111-1111-1111-1111-111111111111',
+              signed: [
+                {
+                  name: 'Tester Invited1',
+                  email: 'invited1@example.org',
+                },
+                {
+                  name: 'Tester Invited2',
+                  email: 'invited2@example.org',
+                },
+              ],
+              pending: [],
+            },
+          ],
+          pending_multisign: [],
+        },
+      })
+      .post("/sign/final-sign-request", {
+        payload: {
+          relay_state: "dummy relay state",
+          sign_request: "dummy sign request",
+          binding: "dummy binding",
+          destination_url: "https://dummy.destination.url",
+          documents: [{ name: "test1.pdf", key: '11111111-1111-1111-1111-111111111111' }],
+        },
+      });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const signButton = await waitFor(() => screen.getAllByText(/Add Final Signature/));
+    expect(signButton.length).to.equal(1);
+
+    fireEvent.click(signButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const inviteForm = await waitFor(() => screen.queryAllByTestId("signing-form"));
+    expect(inviteForm.length).to.equal(1);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
 });

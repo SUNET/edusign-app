@@ -22,8 +22,8 @@ const mapDispatchToProps = (dispatch) => {
       };
     },
     handleSign: function (doc) {
-      return () => {
-        dispatch(signInvitedDoc(doc));
+      return async () => {
+        await dispatch(signInvitedDoc(doc));
       };
     },
   };

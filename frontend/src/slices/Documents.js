@@ -496,7 +496,7 @@ export const sendInvites = createAsyncThunk(
       signed: [],
     };
     thunkAPI.dispatch(addOwned(owned));
-    return document.id;
+    return document.key;
   }
 );
 
@@ -584,7 +584,7 @@ export const signInvitedDoc = createAsyncThunk(
         show: false
       }
       doc.blob = 'data:application/pdf;base64,' + doc.blob
-      await saveDocumentToDb(doc);
+      saveDocumentToDb(doc);
       delete data.payload.documents;
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
@@ -811,12 +811,12 @@ const documentsSlice = createSlice({
 
     [sendInvites.fulfilled]: (state, action) => {
       state.documents.forEach((doc) => {
-        if (doc.id === action.payload) {
+        if (doc.key === action.payload) {
           dbRemoveDocument(doc);
         }
       });
       state.documents = state.documents.filter((doc) => {
-        return doc.id !== action.payload;
+        return doc.key !== action.payload;
       });
     },
   },
