@@ -73,7 +73,7 @@ describe("Multi sign invitations", function () {
     unmount();
   });
 
-  it("It shows two invites form after clicking the add invitation button", async () => {
+  it("It shows two invites in form after clicking the add invitation button", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
     fetchMock.get("/sign/config", {
       payload: {
@@ -144,6 +144,7 @@ describe("Multi sign invitations", function () {
       .get("/sign/config", {
         payload: {
           signer_attributes: [
+            { name: "mail", value: "tester@example.org" },
             { name: "givenName", value: "Tester" },
             { name: "surname", value: "Testig" },
           ],
@@ -212,6 +213,15 @@ describe("Multi sign invitations", function () {
 
     nameInput = await waitFor(() => screen.queryAllByTestId("invitees.0.name"));
     expect(nameInput.length).to.equal(0);
+
+    const inviteTitle = await waitFor(() => screen.getAllByText(/Requests for multiple signatures/));
+    expect(inviteTitle.length).to.equal(1);
+
+    const inviteWaiting = await waitFor(() => screen.getAllByText(/Waiting for signatures by/));
+    expect(inviteWaiting.length).to.equal(1);
+
+    const inviteName = await waitFor(() => screen.getAllByText(/Dummy Doe/));
+    expect(inviteName.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
