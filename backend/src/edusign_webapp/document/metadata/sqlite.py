@@ -37,7 +37,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Union
 
-from flask import g
+from flask import g, current_app
 
 from edusign_webapp.doc_store import ABCMetadata
 
@@ -53,10 +53,14 @@ CREATE TABLE [Documents]
        [name] VARCHAR(255) NOT NULL,
        [size] INTEGER NOT NULL,
        [type] VARCHAR(50) NOT NULL,
-       [created] TEXT DEFAULT CURRENT_TIMESTAMP,
-       [updated] TEXT DEFAULT CURRENT_TIMESTAMP,
+       [created] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       [updated] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
        [owner] INTEGER NOT NULL,
+       [locked] TIMESTAMP DEFAULT NULL,
+       [lockedBy] INTEGER DEFAULT NULL,
             FOREIGN KEY ([owner]) REFERENCES [Users] ([userID])
+              ON DELETE NO ACTION ON UPDATE NO ACTION
+            FOREIGN KEY ([lockedBy]) REFERENCES [Users] ([userID])
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 CREATE TABLE [Invites]
@@ -83,10 +87,13 @@ USER_QUERY_ID = "SELECT userID FROM Users WHERE email = ?;"
 USER_QUERY = "SELECT name, email FROM Users WHERE userID = ?;"
 DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner) VALUES (?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT documentID FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_ALL = "SELECT key, name, size, type FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, documentID FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_LOCK = "SELECT locked, lockedBy FROM Documents WHERE documentID = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner FROM Documents WHERE documentID = ?;"
 DOCUMENT_QUERY_FROM_OWNER = "SELECT d.documentID, d.key, d.name, d.size, d.type FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.userID;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
+DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, lockedBy = NULL WHERE documentID = ?;"
+DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, lockedBy = ? WHERE documentID = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (key, documentID, userID) VALUES (?, ?, ?)"
 INVITE_QUERY_FROM_EMAIL = "SELECT Invites.documentID, Invites.key FROM Invites, Users WHERE Users.email = ? AND Invites.userID = Users.userID AND Invites.signed = 0;"
@@ -374,7 +381,7 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the signing invitation
         :return: A dict with data on the user and the document
         """
-        invite = self._db_query(INVITE_QUERY_FROM_KEY, (key,), one=True)
+        invite = self._db_query(INVITE_QUERY_FROM_KEY, (str(key),), one=True)
         if invite is None or isinstance(invite, list):
             self.logger.error(f"Retrieving a non-existing invite with key {key}")
             return {}
@@ -384,9 +391,9 @@ class SqliteMD(ABCMetadata):
 
         return {'document': doc, 'user': user}
 
-    def get_signed(self, key: uuid.UUID) -> Dict[str, Any]:
+    def get_document(self, key: uuid.UUID) -> Dict[str, Any]:
         """
-        Get information about some document that has been signed by all invitees.
+        Get information about some document
 
         :param key: The key identifying the document
         :return: A dictionary with information about the document, with keys:
@@ -401,3 +408,105 @@ class SqliteMD(ABCMetadata):
             return {}
 
         return document_result
+
+    def add_lock(self, doc_id: int, locked_by: str) -> bool:
+        """
+        Lock document to avoid it being signed by more than one invitee in parallel.
+        This will first check that the doc is not already locked.
+
+        :param doc_id: the pk for the document in the documents table
+        :param locked_by: Email of the user locking the document
+        :return: Whether the document has been locked.
+        """
+        lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
+        if lock_info is None or isinstance(lock_info, list):
+            self.logger.error(f"Trying to lock a non-existing document with id {doc_id}")
+            return False
+
+        user_result = self._db_query(USER_QUERY_ID, (locked_by,), one=True)
+        if user_result is None or isinstance(user_result, list):
+            self.logger.error(f"Trying to lock a document for non-existing {locked_by}")
+            return False
+
+        now = datetime.now()
+
+        if isinstance(lock_info['locked'], str):
+            locked = datetime.fromisoformat(lock_info['locked'])
+        else:
+            locked = lock_info['locked']
+
+        if locked is None or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT'] or lock_info['lockedBy'] == locked_by:
+            self._db_execute(DOCUMENT_ADD_LOCK, (now, user_result['userID'], doc_id))
+            return True
+
+        return False
+
+    def rm_lock(self, doc_id: int, unlocked_by: str) -> bool:
+        """
+        Remove lock from document. If the document is not locked, do nothing.
+        The user unlocking must be that same user that locked it.
+
+        :param doc_id: the pk for the document in the documents table
+        :param unlocked_by: Email of the user unlocking the document
+        :return: Whether the document has been unlocked.
+        """
+        lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
+        if lock_info is None or isinstance(lock_info, list):
+            self.logger.error(f"Trying to unlock a non-existing document with id {doc_id}")
+            return False
+
+        if lock_info['locked'] is None:
+            return True
+
+        user_result = self._db_query(USER_QUERY_ID, (unlocked_by,), one=True)
+        if user_result is None or isinstance(user_result, list):
+            self.logger.error(f"Trying to unlock a document for non-existing {unlocked_by}")
+            return False
+
+        now = datetime.now()
+
+        if isinstance(lock_info['locked'], str):
+            locked = datetime.fromisoformat(lock_info['locked'])
+        else:
+            locked = lock_info['locked']
+
+        if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['lockedBy'] == user_result['userID']:
+            self._db_execute(DOCUMENT_RM_LOCK, (doc_id, ))
+            return True
+
+        return False
+
+    def check_lock(self, doc_id: int, locked_by: str) -> bool:
+        """
+        Check whether the document identified by doc_id is locked.
+        This will remove stale locks (older than the configured timeout).
+
+        :param doc_id: the pk for the document in the documents table
+        :param locked_by: Email of the user locking the document
+        :return: Whether the document is locked by the user with `locked_by` email
+        """
+        lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
+        if lock_info is None or isinstance(lock_info, list):
+            self.logger.error(f"Trying to check a non-existing document with id {doc_id}")
+            return False
+
+        if lock_info['locked'] is None:
+            return False
+
+        if isinstance(lock_info['locked'], str):
+            locked = datetime.fromisoformat(lock_info['locked'])
+        else:
+            locked = lock_info['locked']
+
+        now = datetime.now()
+
+        if (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']:
+            self._db_execute(DOCUMENT_RM_LOCK, (doc_id, ))
+            return False
+
+        user_info = self._db_query(USER_QUERY, (lock_info['lockedBy'],), one=True)
+        if user_info is None or isinstance(user_info, list):
+            self.logger.error(f"Trying to check with a non-existing user with id {lock_info['lockedBy']}")
+            return False
+
+        return locked_by == user_info['email']

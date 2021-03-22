@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-def _test_multisign_sevice_callback(client, monkeypatch, data, mock_post=None):
+def _test_multisign_sevice_callback(client, monkeypatch, data, mock_post=None, mock_locked=True):
 
     from edusign_webapp.api_client import APIClient
 
@@ -127,6 +127,11 @@ def _test_multisign_sevice_callback(client, monkeypatch, data, mock_post=None):
 
     monkeypatch.setattr(DocStore, 'update_document', mock_update)
 
+    def mock_doc_locked(*args):
+        return mock_locked
+
+    monkeypatch.setattr(DocStore, 'check_document_locked', mock_doc_locked)
+
     return client.post(
         '/sign/multisign-callback/11111111-1111-1111-1111-111111111111',
         data=data,
@@ -146,6 +151,21 @@ def test_multisign_sevice_callback(client, monkeypatch):
 
     assert b"<title>eduSign</title>" in response.data
     assert b"Success processing document sign request" in response.data
+
+
+def test_multisign_sevice_callback_not_locked(client, monkeypatch):
+
+    data = {
+        'Binding': 'POST/XML/1.0',
+        'RelayState': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
+        'EidSignResponse': 'Dummy Sign Response',
+    }
+    response = _test_multisign_sevice_callback(client, monkeypatch, data, mock_locked=False)
+
+    assert response.status == '200 OK'
+
+    assert b"<title>eduSign</title>" in response.data
+    assert b"Timeout signing the document, please try again" in response.data
 
 
 def test_multisign_sevice_callback_no_relay_state(client, monkeypatch):

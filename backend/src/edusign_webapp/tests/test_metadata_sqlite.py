@@ -211,3 +211,80 @@ def test_add_and_remove_not(sqlite_md, sample_metadata_1, sample_owner_1, sample
         owned = test_md.get_owned('owner@example.org')
 
     assert len(owned) == 1
+
+
+def test_add_and_get_invitation(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        key = uuid.UUID(invites[0]['key'])
+        invitation = test_md.get_invitation(key)
+
+    assert invitation['document']['key'] == dummy_key.bytes
+
+
+def test_add_and_lock(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        key = uuid.UUID(invites[0]['key'])
+        invitation = test_md.get_invitation(key)
+        doc_id = test_md.get_document(uuid.UUID(bytes=invitation['document']['key']))['documentID']
+        test_md.add_lock(doc_id, sample_invites_1[0]['email'])
+        locked = test_md.check_lock(doc_id, sample_invites_1[0]['email'])
+
+    assert locked
+
+
+def test_add_and_lock_wrong_email(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        key = uuid.UUID(invites[0]['key'])
+        invitation = test_md.get_invitation(key)
+        doc_id = test_md.get_document(uuid.UUID(bytes=invitation['document']['key']))['documentID']
+        test_md.add_lock(doc_id, sample_invites_1[0]['email'])
+        locked = test_md.check_lock(doc_id, 'dummy@example.org')
+
+    assert not locked
+
+
+def test_add_and_rm_lock(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        key = uuid.UUID(invites[0]['key'])
+        invitation = test_md.get_invitation(key)
+        doc_id = test_md.get_document(uuid.UUID(bytes=invitation['document']['key']))['documentID']
+        test_md.add_lock(doc_id, sample_invites_1[0]['email'])
+        removed = test_md.rm_lock(doc_id, sample_invites_1[0]['email'])
+
+    assert removed
+
+
+def test_add_and_rm_lock_wrong_email(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        key = uuid.UUID(invites[0]['key'])
+        invitation = test_md.get_invitation(key)
+        doc_id = test_md.get_document(uuid.UUID(bytes=invitation['document']['key']))['documentID']
+        test_md.add_lock(doc_id, sample_invites_1[0]['email'])
+        removed = test_md.rm_lock(doc_id, 'dummy@exmple.org')
+
+    assert not removed

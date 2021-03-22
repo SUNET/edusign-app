@@ -395,27 +395,35 @@ def remove_multi_sign_request(data: dict) -> dict:
 
 
 @edusign_views.route('/invitation/<invite_key>', methods=['GET'])
-def create_invited_signature(invite_key) -> str:
+def create_invited_signature(invite_key: str) -> str:
     """"""
-    add_attributes_to_session(check_whitelisted=False)
+    try:
+        data = current_app.doc_store.get_invitation(uuid.UUID(invite_key))
+    except current_app.doc_store.DocumentLocked:
+        message = gettext("Someone else is signing the document right now, please try again in a few minutes")
+        return render_template('error-generic.jinja2', message=message)
 
-    data = current_app.doc_store.get_invitation(invite_key)
     current_app.logger.info(f"Invitation data: {data}")
 
     if not data:
         message = gettext("There seems to be no invitation for you")
         return render_template('error-generic.jinja2', message=message)
 
+    add_attributes_to_session(check_whitelisted=False)
+
     doc = data['document']
     user = data['user']
+    key = uuid.UUID(bytes=doc['key'])
 
     if user['email'] != session['mail']:
+        current_app.doc_store.unlock_document(key, user['email'])
         message = gettext("The invited email does not coincide with yours")
         return render_template('error-generic.jinja2', message=message)
 
     doc_data = prepare_document(doc)
 
     if 'error' in doc_data and doc_data['error']:
+        current_app.doc_store.unlock_document(key, user['email'])
         message = gettext("Problem preparing document for multi sign by user %s: %s") % (session['eppn'], doc['name'])
         return render_template('error-generic.jinja2', message=message)
 
@@ -434,6 +442,7 @@ def create_invited_signature(invite_key) -> str:
         create_data, documents_with_id = current_app.api_client.create_sign_request([new_doc], single_sign=False)
 
     except Exception as e:
+        current_app.doc_store.unlock_document(key, user['email'])
         current_app.logger.error(f'Problem creating sign request: {e}')
         return render_template(
             'error-generic.jinja2', message=gettext('Communication error with the create endpoint of the eduSign API')
@@ -446,12 +455,17 @@ def create_invited_signature(invite_key) -> str:
 def multi_sign_service_callback(doc_key) -> str:
     """
     Callback to be called from the signature service, after the user has visited it
-    to finish signing some documents.
+    to finish signing some invited document.
 
-    :return: The rendered template `index-with-sign-response.jinja2`, which loads the app like the index,
-             and in addition contains some information POSTed from the signature service, needed
-             to retrieve the signed documents.
+    :return: The rendered template with information on the result of the process.
     """
+    key = uuid.UUID(doc_key)
+    if not current_app.doc_store.check_document_locked(key, session['mail']):
+        current_app.logger.error(f'Trying to add signature to unlocked document with key: {doc_key}')
+        return render_template(
+            'error-generic.jinja2', message=gettext('Timeout signing the document, please try again')
+        )
+
     try:
         sign_response = request.form['EidSignResponse']
         relay_state = request.form['RelayState']
@@ -473,8 +487,8 @@ def multi_sign_service_callback(doc_key) -> str:
 
     doc = process_data['signedDocuments'][0]
 
-    key = uuid.UUID(doc_key)
     current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
+    current_app.doc_store.unlock_document(key, session['mail'])
 
     message = gettext("Success processing document sign request")
 

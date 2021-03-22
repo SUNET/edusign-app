@@ -179,9 +179,9 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def get_signed(self, key: uuid.UUID) -> Dict[str, Any]:
+    def get_document(self, key: uuid.UUID) -> Dict[str, Any]:
         """
-        Get information about some document that has been signed by all invitees.
+        Get information about some document
 
         :param key: The key identifying the document
         :return: A dictionary with information about the document, with keys:
@@ -191,11 +191,47 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + size: Size of the doc
         """
 
+    @abc.abstractmethod
+    def add_lock(self, doc_id: int, locked_by: str) -> bool:
+        """
+        Lock document to avoid it being signed by more than one invitee in parallel.
+        This will first check that the doc is not already locked.
+
+        :param doc_id: the pk for the document in the documents table
+        :param locked_by: Email of the user locking the document
+        :return: Whether the document has been locked.
+        """
+
+    @abc.abstractmethod
+    def rm_lock(self, doc_id: int, unlocked_by: str) -> bool:
+        """
+        Remove lock from document. If the document is not locked, do nothing.
+        The user unlocking must be that same user that locked it.
+
+        :param doc_id: the pk for the document in the documents table
+        :param unlocked_by: Email of the user unlocking the document
+        :return: Whether the document has been unlocked.
+        """
+
+    @abc.abstractmethod
+    def check_lock(self, doc_id: int, locked_by: str) -> bool:
+        """
+        Check whether the document identified by doc_id is locked.
+        This will remove stale locks (older than the configured timeout).
+
+        :param doc_id: the pk for the document in the documents table
+        :param locked_by: Email of the user locking the document
+        :return: Whether the document is locked by the user with `locked_by` email
+        """
+
 
 class DocStore(object):
     """
     Interface to deal with multi-sign documents.
     """
+
+    class DocumentLocked(Exception):
+        pass
 
     def __init__(self, config: dict, logger: logging.Logger):
         """
@@ -323,11 +359,44 @@ class DocStore(object):
         if not data:
             return {}
 
+        locked = self.metadata.add_lock(data['document']['documentID'], data['user']['email'])
+
+        if not locked:
+            raise self.DocumentLocked()
+
         data['document']['blob'] = self.storage.get_content(uuid.UUID(bytes=data['document']['key']))
         return data
 
+    def unlock_document(self, key: uuid.UUID, unlocked_by: str) -> bool:
+        """
+        Unlock document
+
+        :param key: The key identifying the document to unlock
+        :param locked_by: Email of the user unlocking the document
+        :return: Whether the document is unlocked
+        """
+        doc = self.metadata.get_document(key)
+        if not doc:
+            return False
+
+        return self.metadata.rm_lock(doc['documentID'], unlocked_by)
+
+    def check_document_locked(self, key: uuid.UUID, locked_by: str) -> bool:
+        """
+        Check that the document is locked by the user with email `locked_by`
+
+        :param key: The key identifying the document to unlock
+        :param locked_by: Email of the user locking the document
+        :return: Whether the document is unlocked
+        """
+        doc = self.metadata.get_document(key)
+        if not doc:
+            return False
+
+        return self.metadata.check_lock(doc['documentID'], locked_by)
+
     def get_signed_document(self, key: uuid.UUID) -> List[Dict[str, Any]]:
         """"""
-        doc = self.metadata.get_signed(key)
+        doc = self.metadata.get_document(key)
         doc['blob'] = self.storage.get_content(key)
         return doc

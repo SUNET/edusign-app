@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+import datetime
 import os
 
 DEBUG = os.environ.get('DEBUG', default=False)
@@ -93,6 +94,10 @@ DOC_METADATA_CLASS_PATH = os.environ.get(
     'DOC_METADATA_CLASS_PATH', default='edusign_webapp.document.metadata.sqlite.SqliteMD'
 )
 SQLITE_MD_DB_PATH = os.environ.get('SQLITE_MD_DB_PATH', default='/tmp/test.db')
+
+DOC_LOCK_TIMEOUT_RAW = os.environ.get('DOC_LOCK_TIMEOUT', default='300')
+
+DOC_LOCK_TIMEOUT = datetime.timedelta(seconds=int(DOC_LOCK_TIMEOUT_RAW))
 
 TO_TEAR_DOWN_WITH_APP_CONTEXT = os.environ.get(
     'TO_TEAR_DOWN_WITH_APP_CONTEXT', default='edusign_webapp.document.metadata.sqlite.close_connection'

@@ -35,7 +35,7 @@ from edusign_webapp.doc_store import DocStore
 from edusign_webapp.marshal import ResponseSchema
 
 
-def _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, prepare_data=None, error_creation=False):
+def _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, prepare_data=None, error_creation=False, doc_is_locked=False):
 
     _, app = app
 
@@ -127,6 +127,9 @@ def _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1,
     monkeypatch.setattr(APIClient, '_post', mock_post)
 
     def mock_get_invitation(*args):
+        if doc_is_locked:
+            raise DocStore.DocumentLocked()
+
         return mock_invitation
 
     monkeypatch.setattr(DocStore, 'get_invitation', mock_get_invitation)
@@ -159,6 +162,26 @@ def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1):
     response = _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation)
 
     assert b'id="form"' in response.data
+
+
+def test_create_invited_signature_doc_locked(app, environ_base, monkeypatch, sample_doc_1):
+    mock_invitation = {
+        'document': {
+            'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+            'name': 'test.pdf',
+            'size': '1KB',
+            'type': 'application/pdf',
+            'owner': 'tester@example.org',
+            'blob': 'dummy blob',
+        },
+        'user': {
+            'name': 'invite0',
+            'email': 'tester@example.org',
+        },
+    }
+    response = _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, doc_is_locked=True)
+
+    assert b'Someone else is signing the document right now, please try again in a few minutes' in response.data
 
 
 def test_create_invited_signature_wrong_invitee(app, environ_base, monkeypatch, sample_doc_1):
