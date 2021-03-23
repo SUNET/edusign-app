@@ -35,7 +35,16 @@ from edusign_webapp.doc_store import DocStore
 from edusign_webapp.marshal import ResponseSchema
 
 
-def _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, prepare_data=None, error_creation=False, doc_is_locked=False):
+def _test_create_invited_signature(
+    app,
+    environ_base,
+    monkeypatch,
+    sample_doc_1,
+    mock_invitation,
+    prepare_data=None,
+    error_creation=False,
+    doc_is_locked=False,
+):
 
     _, app = app
 
@@ -179,7 +188,9 @@ def test_create_invited_signature_doc_locked(app, environ_base, monkeypatch, sam
             'email': 'tester@example.org',
         },
     }
-    response = _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, doc_is_locked=True)
+    response = _test_create_invited_signature(
+        app, environ_base, monkeypatch, sample_doc_1, mock_invitation, doc_is_locked=True
+    )
 
     assert b'Someone else is signing the document right now, please try again in a few minutes' in response.data
 
@@ -227,7 +238,9 @@ def test_create_invited_signature_prepare_error(app, environ_base, monkeypatch, 
         },
     }
     prepare_data = {'error': True}
-    response = _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, prepare_data=prepare_data)
+    response = _test_create_invited_signature(
+        app, environ_base, monkeypatch, sample_doc_1, mock_invitation, prepare_data=prepare_data
+    )
 
     assert b"Problem preparing document for multi sign by user" in response.data
 
@@ -247,6 +260,8 @@ def test_create_invited_signature_create_error(app, environ_base, monkeypatch, s
             'email': 'tester@example.org',
         },
     }
-    response = _test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, mock_invitation, error_creation=True)
+    response = _test_create_invited_signature(
+        app, environ_base, monkeypatch, sample_doc_1, mock_invitation, error_creation=True
+    )
 
     assert b"Communication error with the create endpoint of the eduSign API" in response.data

@@ -107,8 +107,7 @@ def client_non_whitelisted(request):
 def _get_test_app(config):
     tempdir = tempfile.TemporaryDirectory()
     db_path = os.path.join(tempdir.name, 'test.db')
-    more_config = {'LOCAL_STORAGE_BASE_DIR': tempdir.name,
-                   'SQLITE_MD_DB_PATH': db_path}
+    more_config = {'LOCAL_STORAGE_BASE_DIR': tempdir.name, 'SQLITE_MD_DB_PATH': db_path}
     more_config.update(config)
     app = run.edusign_init_app('testing', more_config)
     app.api_client.api_base_url = 'https://dummy.edusign.api'

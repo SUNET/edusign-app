@@ -37,7 +37,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Union
 
-from flask import g, current_app
+from flask import current_app, g
 
 from edusign_webapp.doc_store import ABCMetadata
 
@@ -435,7 +435,11 @@ class SqliteMD(ABCMetadata):
         else:
             locked = lock_info['locked']
 
-        if locked is None or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT'] or lock_info['lockedBy'] == locked_by:
+        if (
+            locked is None
+            or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']
+            or lock_info['lockedBy'] == locked_by
+        ):
             self._db_execute(DOCUMENT_ADD_LOCK, (now, user_result['userID'], doc_id))
             return True
 
@@ -471,7 +475,7 @@ class SqliteMD(ABCMetadata):
             locked = lock_info['locked']
 
         if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['lockedBy'] == user_result['userID']:
-            self._db_execute(DOCUMENT_RM_LOCK, (doc_id, ))
+            self._db_execute(DOCUMENT_RM_LOCK, (doc_id,))
             return True
 
         return False
@@ -501,7 +505,7 @@ class SqliteMD(ABCMetadata):
         now = datetime.now()
 
         if (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']:
-            self._db_execute(DOCUMENT_RM_LOCK, (doc_id, ))
+            self._db_execute(DOCUMENT_RM_LOCK, (doc_id,))
             return False
 
         user_info = self._db_query(USER_QUERY, (lock_info['lockedBy'],), one=True)

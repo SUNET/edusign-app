@@ -479,10 +479,7 @@ def test_create_sign_request_bad_api_response(client, monkeypatch):
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
-        return {
-            'errorCode': 'dummy code',
-            'message': 'dummy message'
-        }
+        return {'errorCode': 'dummy code', 'message': 'dummy message'}
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
 

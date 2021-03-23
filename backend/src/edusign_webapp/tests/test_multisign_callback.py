@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+
 def _test_multisign_sevice_callback(client, monkeypatch, data, mock_post=None, mock_locked=True):
 
     from edusign_webapp.api_client import APIClient

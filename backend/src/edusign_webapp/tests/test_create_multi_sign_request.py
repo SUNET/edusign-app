@@ -44,6 +44,7 @@ def _test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1
 
     if mock_add_document is not None:
         from edusign_webapp.doc_store import DocStore
+
         monkeypatch.setattr(DocStore, 'add_document', mock_add_document)
 
     response1 = client.get('/sign/')
@@ -117,7 +118,9 @@ def test_create_multi_sign_request_raises(app, environ_base, monkeypatch, sample
     def mock_add_document(*args):
         raise Exception()
 
-    response = _test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, doc_data, mock_add_document=mock_add_document)
+    response = _test_create_multi_sign_request(
+        app, environ_base, monkeypatch, sample_doc_1, doc_data, mock_add_document=mock_add_document
+    )
 
     assert response.status == '200 OK'
 
@@ -142,7 +145,9 @@ def test_create_multi_sign_wrong_owner(app, environ_base, monkeypatch, sample_do
     def mock_add_document(*args):
         raise Exception()
 
-    response = _test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, doc_data, mock_add_document=mock_add_document)
+    response = _test_create_multi_sign_request(
+        app, environ_base, monkeypatch, sample_doc_1, doc_data, mock_add_document=mock_add_document
+    )
 
     assert response.status == '200 OK'
 

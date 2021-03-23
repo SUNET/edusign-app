@@ -181,9 +181,7 @@ def test_get_signed_documents(client, monkeypatch):
 
 def test_get_signed_documents_process_error(client, monkeypatch):
 
-    process_data = {
-        'errorCode': 'error.dss'
-    }
+    process_data = {'errorCode': 'error.dss'}
 
     response = _test_get_signed_documents(client, monkeypatch, process_data=process_data)
 

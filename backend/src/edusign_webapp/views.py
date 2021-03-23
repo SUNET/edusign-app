@@ -71,7 +71,9 @@ def get_index() -> str:
     try:
         add_attributes_to_session()
     except KeyError:
-        current_app.logger.error('There is some misconfiguration and Shibboleth SP does not seem to be securing the edusign app.')
+        current_app.logger.error(
+            'There is some misconfiguration and Shibboleth SP does not seem to be securing the edusign app.'
+        )
         abort(500)
     except ValueError:
         abort(400)

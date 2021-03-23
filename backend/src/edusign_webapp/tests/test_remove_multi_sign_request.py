@@ -123,7 +123,6 @@ def _test_remove_multi_sign_request_with_problem(app, environ_base, monkeypatch,
 
 
 def test_remove_multi_sign_request_raises(app, environ_base, monkeypatch, sample_doc_1):
-
     def mock_remove(*args, **kwargs):
         raise Exception()
 
@@ -133,7 +132,6 @@ def test_remove_multi_sign_request_raises(app, environ_base, monkeypatch, sample
 
 
 def test_remove_multi_sign_request_doesnt(app, environ_base, monkeypatch, sample_doc_1):
-
     def mock_remove(*args, **kwargs):
         return False
 
