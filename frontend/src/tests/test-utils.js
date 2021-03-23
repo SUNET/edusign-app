@@ -38,7 +38,7 @@ const initialState = {
     showForm: false,
     documentId: null,
     invitees: [],
-  }
+  },
 };
 
 /**
@@ -1048,7 +1048,7 @@ export const b64SamplePasswordPDFData =
   "KMDAwMDA0ODI3NiAwMDAwMCBuIAp0cmFpbGVyCjw8IAogICAvUm9vdCAxIDAgUgogICAvSW5mby" +
   "A3IDAgUgogICAvRW5jcnlwdCA1MiAwIFIKICAgL0lEIFs8MzRCMUI2RTU5Mzc4N0FGNjgxQTlCN" +
   "jNGQThCRjU2M0I+IDwzNEIxQjZFNTkzNzg3QUY2ODFBOUI2M0ZBOEJGNTYzQj4gXQogICAvU2l6" +
-  "ZSA1Mwo+PgpzdGFydHhyZWYKNDg1MDYKJSVFT0YK"
+  "ZSA1Mwo+PgpzdGFydHhyZWYKNDg1MDYKJSVFT0YK";
 
 /**
  * @public
@@ -1056,7 +1056,6 @@ export const b64SamplePasswordPDFData =
  * @desc binary string holding a sample password protected PDF doc.
  */
 export const samplePasswordPDFData = atob(b64SamplePasswordPDFData);
-
 
 /**
  * @public

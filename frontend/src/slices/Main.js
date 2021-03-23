@@ -94,7 +94,7 @@ const mainSlice = createSlice({
     removeOwned(state, action) {
       console.log("Removing doc from multisign owned", action);
       state.owned_multisign = state.owned_multisign.filter((doc) => {
-        return doc.key !== action.payload.key; 
+        return doc.key !== action.payload.key;
       });
     },
   },
@@ -103,7 +103,7 @@ const mainSlice = createSlice({
       return {
         ...state,
         ...action.payload.payload,
-      }
+      };
     },
   },
 });

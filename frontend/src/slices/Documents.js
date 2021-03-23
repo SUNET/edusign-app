@@ -7,7 +7,7 @@
  * in whatever stage of the signing procedure they may be.
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import * as pdfjs from 'pdfjs-dist';
+import * as pdfjs from "pdfjs-dist";
 
 import {
   postRequest,
@@ -87,10 +87,10 @@ export const loadDocuments = createAsyncThunk(
   }
 );
 
-
 async function validateDoc(doc) {
-  return await pdfjs.getDocument({url: doc.blob, password: ""}).promise
-    .then((validated) => {
+  return await pdfjs
+    .getDocument({ url: doc.blob, password: "" })
+    .promise.then((validated) => {
       console.log("Validated document", validated);
       doc.show = false;
       doc.state = "loading";
@@ -98,9 +98,9 @@ async function validateDoc(doc) {
     })
     .catch((err) => {
       console.log("Error validating doc", err);
-      if (err.name === 'PasswordException') {
+      if (err.name === "PasswordException") {
         doc.message = "XXX Please do not supply a password protected document";
-      } else if (err.message.startsWith('Invalid')) {
+      } else if (err.message.startsWith("Invalid")) {
         doc.message = "XXX Document seems corrupted";
       } else {
         doc.message = "XXX Document is unreadable";
@@ -109,7 +109,6 @@ async function validateDoc(doc) {
       return doc;
     });
 }
-
 
 /**
  * @public
@@ -146,8 +145,7 @@ const saveDocumentToDb = async (document) => {
     console.log("Cannot save the doc, db absent");
     throw new Error("DB absent, cannot save document");
   }
-}
-
+};
 
 /**
  * @public
@@ -160,14 +158,14 @@ export const createDocument = createAsyncThunk(
   async (document, thunkAPI) => {
     console.log("Validating document", document.name);
     document = await validateDoc(document);
-    if (document.state === 'failed-loading') return document;
+    if (document.state === "failed-loading") return document;
 
     try {
       const newDoc = await saveDocumentToDb(document);
       console.log("About to prepare document", newDoc);
       thunkAPI.dispatch(prepareDocument(newDoc));
       return newDoc;
-    } catch(err) {
+    } catch (err) {
       console.log("Cannot save the doc", err);
       thunkAPI.dispatch(
         addNotification({
@@ -430,7 +428,6 @@ export const downloadSigned = createAsyncThunk(
   }
 );
 
-
 /**
  * @public
  * @function sendInvites
@@ -449,7 +446,7 @@ export const sendInvites = createAsyncThunk(
     })[0];
 
     const owner = state.main.signer_attributes.filter((attr) => {
-      return attr.name === 'mail';
+      return attr.name === "mail";
     })[0].value;
 
     const dataToSend = {
@@ -458,10 +455,10 @@ export const sendInvites = createAsyncThunk(
       document: {
         key: document.key,
         name: document.name,
-        blob: document.blob.split(',')[1],
+        blob: document.blob.split(",")[1],
         size: document.size,
         type: document.type,
-      }
+      },
     };
     console.log("preparing document", dataToSend);
     const body = preparePayload(thunkAPI.getState(), dataToSend);
@@ -477,14 +474,16 @@ export const sendInvites = createAsyncThunk(
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
       console.log("Problem sending document for multi signing", err);
-      const message = "XXX Problem sending multi sign request, please try again";
-      thunkAPI.dispatch(addNotification({level: 'danger', message: message}));
+      const message =
+        "XXX Problem sending multi sign request, please try again";
+      thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
     if (data.error) {
       console.log("Problem creating document for multi signing");
-      const message = "XXX Problem creating multi sign request, please try again";
-      thunkAPI.dispatch(addNotification({level: 'danger', message: message}));
+      const message =
+        "XXX Problem creating multi sign request, please try again";
+      thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
     const owned = {
@@ -499,7 +498,6 @@ export const sendInvites = createAsyncThunk(
     return document.key;
   }
 );
-
 
 /**
  * @public
@@ -532,14 +530,16 @@ export const removeInvites = createAsyncThunk(
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
       console.log("Problem removing document for multi signing", err);
-      const message = "XXX Problem removing multi sign request, please try again";
-      thunkAPI.dispatch(addNotification({level: 'danger', message: message}));
+      const message =
+        "XXX Problem removing multi sign request, please try again";
+      thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
     if (data.error) {
       console.log("Problem removing document for multi signing");
-      const message = "XXX Problem removing multi sign request, please try again";
-      thunkAPI.dispatch(addNotification({level: 'danger', message: message}));
+      const message =
+        "XXX Problem removing multi sign request, please try again";
+      thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
     const owned = {
@@ -547,11 +547,10 @@ export const removeInvites = createAsyncThunk(
     };
     thunkAPI.dispatch(removeOwned(owned));
     const message = "XXX Success removing multi sign request";
-    thunkAPI.dispatch(addNotification({level: 'success', message: message}));
+    thunkAPI.dispatch(addNotification({ level: "success", message: message }));
     return document.key;
   }
 );
-
 
 /**
  * @public
@@ -566,7 +565,7 @@ export const signInvitedDoc = createAsyncThunk(
     let data = null;
     const docToSign = {
       key: doc.key,
-    }
+    };
     const body = preparePayload(state, docToSign);
     try {
       const response = await fetch("/sign/final-sign-request", {
@@ -580,10 +579,10 @@ export const signInvitedDoc = createAsyncThunk(
       }
       const doc = {
         ...data.payload.documents[0],
-        state: 'signing',
-        show: false
-      }
-      doc.blob = 'data:application/pdf;base64,' + doc.blob
+        state: "signing",
+        show: false,
+      };
+      doc.blob = "data:application/pdf;base64," + doc.blob;
       saveDocumentToDb(doc);
       delete data.payload.documents;
 
@@ -726,7 +725,10 @@ const documentsSlice = createSlice({
      */
     updateDocumentWithSignedContent(state, action) {
       state.documents = state.documents.map((doc) => {
-        if (doc.signing_id === action.payload.id || doc.key === action.payload.id) {
+        if (
+          doc.signing_id === action.payload.id ||
+          doc.key === action.payload.id
+        ) {
           const document = {
             ...doc,
             signedContent:

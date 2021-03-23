@@ -111,7 +111,9 @@ describe("Document representations", function () {
     fireEvent.click(clearButton[0]);
     await flushPromises(rerender, wrapped);
 
-    let warning = screen.queryByText(/Please do not supply a password protected document/);
+    let warning = screen.queryByText(
+      /Please do not supply a password protected document/
+    );
     expect(warning).to.equal(null);
 
     const fileObj = new File([samplePasswordPDFData], "test.pdf", {
@@ -133,7 +135,9 @@ describe("Document representations", function () {
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
 
-    warning = await waitFor(() => screen.getAllByText(/Please do not supply a password protected document/i));
+    warning = await waitFor(() =>
+      screen.getAllByText(/Please do not supply a password protected document/i)
+    );
     expect(warning.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
@@ -470,7 +474,9 @@ describe("Document representations", function () {
     pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
     expect(pdf2).to.equal(null);
 
-    const nextButton = await waitFor(() => screen.getAllByTestId("preview-button-next"));
+    const nextButton = await waitFor(() =>
+      screen.getAllByTestId("preview-button-next")
+    );
     expect(nextButton.length).to.equal(1);
 
     fireEvent.click(nextButton[0]);
@@ -947,7 +953,14 @@ describe("Document representations", function () {
           sign_request: "dummy sign request",
           binding: "dummy binding",
           destination_url: "https://dummy.destination.url",
-          documents: [{ name: "test.pdf", key: "dummy key", ref: "dummy ref", sign_requirement: "dummy sign requirement" }],
+          documents: [
+            {
+              name: "test.pdf",
+              key: "dummy key",
+              ref: "dummy ref",
+              sign_requirement: "dummy sign requirement",
+            },
+          ],
         },
       })
       .post("/sign/get-signed", {

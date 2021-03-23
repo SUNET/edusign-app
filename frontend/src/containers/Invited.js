@@ -17,11 +17,10 @@ const mapDispatchToProps = (dispatch) => {
   return {
     startMultiSigning: (docRef) => {
       return () => {
-        window.document.location.href = '/sign/invitation/' + docRef;
-      }
+        window.document.location.href = "/sign/invitation/" + docRef;
+      };
     },
   };
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Invited);
-

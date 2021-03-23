@@ -11,21 +11,33 @@ import "styles/Invited.scss";
  */
 class Invited extends Component {
   render() {
-    if (this.props.invited.length === 0) return '';
+    if (this.props.invited.length === 0) return "";
     return (
       <>
         <div className="multisign-title">
-          <FormattedMessage defaultMessage="Invitations to sign:" key="invitations-to-sign" />
+          <FormattedMessage
+            defaultMessage="Invitations to sign:"
+            key="invitations-to-sign"
+          />
         </div>
         {this.props.invited.map((doc, index) => {
           return (
-            <div className="invited-multisign-request" key={index} onClick={this.props.startMultiSigning(doc.invite_key)}>
+            <div
+              className="invited-multisign-request"
+              key={index}
+              onClick={this.props.startMultiSigning(doc.invite_key)}
+            >
               <div className="name-flex-item">{doc.name}</div>
               <div className="invited-flex-item">
                 <div className="invited-flex-label">
-                  <FormattedMessage defaultMessage="Invited by" key="invited-by" />
+                  <FormattedMessage
+                    defaultMessage="Invited by"
+                    key="invited-by"
+                  />
                 </div>
-                <div className="owner-flex-item">{doc.owner.name} &lt;{doc.owner.email}&gt;</div>
+                <div className="owner-flex-item">
+                  {doc.owner.name} &lt;{doc.owner.email}&gt;
+                </div>
               </div>
             </div>
           );

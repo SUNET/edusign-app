@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
@@ -9,18 +8,18 @@ import { FormattedMessage } from "react-intl";
 
 import "styles/InviteForm.scss";
 
-
 const validateEmail = (value) => {
   let error;
 
   if (!value) {
     error = <FormattedMessage defaultMessage="Required" key="required-field" />;
   } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
-    error = <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />;
+    error = (
+      <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
+    );
   }
   return error;
 };
-
 
 const validateName = (value) => {
   let error;
@@ -35,8 +34,8 @@ const initialValues = (docId) => ({
   documentId: docId,
   invitees: [
     {
-      name: '',
-      email: '',
+      name: "",
+      email: "",
     },
   ],
 });
@@ -73,14 +72,18 @@ const InviteForm = (props) => {
       >
         {(fprops) => (
           <Modal show={show} onHide={handleClose} size="lg">
-            <Form data-testid={'invite-form-' + props.docName}>
-              <Field type="hidden" name="documentId" value={fprops.values.documentId} />
+            <Form data-testid={"invite-form-" + props.docName}>
+              <Field
+                type="hidden"
+                name="documentId"
+                value={fprops.values.documentId}
+              />
               <Modal.Header closeButton>
                 <Modal.Title>
                   <FormattedMessage
                     defaultMessage={"Invite people to sign {docName}"}
                     key="invite-people"
-                    values={{docName: props.docName}}
+                    values={{ docName: props.docName }}
                   />
                 </Modal.Title>
               </Modal.Header>
@@ -91,13 +94,16 @@ const InviteForm = (props) => {
                       {fprops.values.invitees.length > 0 &&
                         fprops.values.invitees.map((invitee, index) => (
                           <div className="row" key={index}>
-
                             <div className="invitee-form-row">
                               <div className="invitee-form-name">
-
                                 <BForm.Group>
-                                  <BForm.Label htmlFor={`invitees.${index}.name`}>
-                                    <FormattedMessage defaultMessage="Name" key="name-input-field" />
+                                  <BForm.Label
+                                    htmlFor={`invitees.${index}.name`}
+                                  >
+                                    <FormattedMessage
+                                      defaultMessage="Name"
+                                      key="name-input-field"
+                                    />
                                   </BForm.Label>
                                   <ErrorMessage
                                     name={`invitees.${index}.name`}
@@ -117,8 +123,13 @@ const InviteForm = (props) => {
                               </div>
                               <div className="invitee-form-email">
                                 <BForm.Group>
-                                  <BForm.Label htmlFor={`invitees.${index}.email`}>
-                                    <FormattedMessage defaultMessage="Email" key="email-input-field" />
+                                  <BForm.Label
+                                    htmlFor={`invitees.${index}.email`}
+                                  >
+                                    <FormattedMessage
+                                      defaultMessage="Email"
+                                      key="email-input-field"
+                                    />
                                   </BForm.Label>
                                   <ErrorMessage
                                     name={`invitees.${index}.email`}
@@ -150,7 +161,9 @@ const InviteForm = (props) => {
                         ))}
                       <Button
                         variant="secondary"
-                        onClick={() => arrayHelpers.push({ name: '', email: '' })}
+                        onClick={() =>
+                          arrayHelpers.push({ name: "", email: "" })
+                        }
                       >
                         <FormattedMessage
                           defaultMessage="Add Invitation"
@@ -169,10 +182,7 @@ const InviteForm = (props) => {
                   />
                 </Button>
                 <Button variant="primary" type="submit">
-                  <FormattedMessage
-                    defaultMessage="Send"
-                    key="send-invite"
-                  />
+                  <FormattedMessage defaultMessage="Send" key="send-invite" />
                 </Button>
               </Modal.Footer>
             </Form>
@@ -180,9 +190,8 @@ const InviteForm = (props) => {
         )}
       </Formik>
     </>
-  )
+  );
 };
-
 
 InviteForm.propTypes = {
   show: PropTypes.bool,

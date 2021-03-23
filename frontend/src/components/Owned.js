@@ -5,8 +5,7 @@ import Button from "react-bootstrap/Button";
 
 import "styles/Owned.scss";
 
-
-const removeButton = (props, doc) =>  {
+const removeButton = (props, doc) => {
   return (
     <>
       <div className="button-remove-invitation">
@@ -15,14 +14,15 @@ const removeButton = (props, doc) =>  {
           size="sm"
           onClick={props.handleRemove(doc)}
           data-testid={"rm-invitation-" + doc.name}
-        >×</Button>
+        >
+          ×
+        </Button>
       </div>
     </>
   );
-}
+};
 
-
-const signButton = (props, doc) =>  {
+const signButton = (props, doc) => {
   return (
     <>
       <div className="button-sign-container">
@@ -32,13 +32,16 @@ const signButton = (props, doc) =>  {
             size="sm"
             onClick={props.handleSign(doc)}
           >
-            <FormattedMessage defaultMessage="Add Final Signature" key="final-sign-button" />
+            <FormattedMessage
+              defaultMessage="Add Final Signature"
+              key="final-sign-button"
+            />
           </Button>
         </div>
       </div>
     </>
   );
-}
+};
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
@@ -47,38 +50,55 @@ const signButton = (props, doc) =>  {
  */
 class Owned extends Component {
   render() {
-    if (this.props.owned.length === 0) return '';
+    if (this.props.owned.length === 0) return "";
     return (
       <>
         <div className="multisign-title">
-          <FormattedMessage defaultMessage="Requests for multiple signatures:" key="multisign-requests" />
+          <FormattedMessage
+            defaultMessage="Requests for multiple signatures:"
+            key="multisign-requests"
+          />
         </div>
         {this.props.owned.map((doc, index) => {
           return (
             <div className="owned-multisign" key={index}>
               <div className="owned-multisign-request">
                 <div className="name-flex-item">{doc.name}</div>
-                {(doc.pending.length > 0) && (
+                {doc.pending.length > 0 && (
                   <div className="pending-invites">
                     <span className="pending-invites-label">
-                      <FormattedMessage defaultMessage="Waiting for signatures by:" key="multisign-owned-waiting" />
+                      <FormattedMessage
+                        defaultMessage="Waiting for signatures by:"
+                        key="multisign-owned-waiting"
+                      />
                     </span>
                     {doc.pending.map((invite, index) => {
-                      return <span className="pending-invite-item" key={index}>{invite.name} &lt;{invite.email}&gt;</span>
+                      return (
+                        <span className="pending-invite-item" key={index}>
+                          {invite.name} &lt;{invite.email}&gt;
+                        </span>
+                      );
                     })}
                   </div>
                 )}
-                {(doc.signed.length > 0) && (
+                {doc.signed.length > 0 && (
                   <div className="signed-invites">
                     <span className="signed-invites-label">
-                      <FormattedMessage defaultMessage="Already signed by:" key="multisign-owned-signed" />
+                      <FormattedMessage
+                        defaultMessage="Already signed by:"
+                        key="multisign-owned-signed"
+                      />
                     </span>
                     {doc.signed.map((invite, index) => {
-                      return <span className="signed-invite-item" key={index}>{invite.name} &lt;{invite.email}&gt;</span>
+                      return (
+                        <span className="signed-invite-item" key={index}>
+                          {invite.name} &lt;{invite.email}&gt;
+                        </span>
+                      );
                     })}
                   </div>
                 )}
-                {(doc.pending.length === 0) && signButton(this.props, doc)}
+                {doc.pending.length === 0 && signButton(this.props, doc)}
               </div>
               <div className="owned-multisign-remove">
                 {removeButton(this.props, doc)}
