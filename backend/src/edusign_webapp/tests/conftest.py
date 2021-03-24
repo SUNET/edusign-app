@@ -34,10 +34,11 @@ import logging
 import os
 import tempfile
 import uuid
-from base64 import b64encode
+from base64 import b64encode, b64decode
 from copy import deepcopy
 
 import pytest
+from botocore.stub import Stubber
 
 from edusign_webapp import run
 from edusign_webapp.doc_store import DocStore
@@ -120,6 +121,23 @@ def app(request):
     yield _get_test_app(request.param)
 
 
+def _get_test_s3_app(config):
+    more_config = {'STORAGE_CLASS_PATH': 'edusign_webapp.document.storage.s3.S3Storage'}
+    more_config.update(config)
+    app = run.edusign_init_app('testing', more_config)
+    app.api_client.api_base_url = 'https://dummy.edusign.api'
+    return app
+
+
+@pytest.fixture(params=[config_dev, config_pro])
+def s3_app(request):
+
+    app = _get_test_s3_app(request.param)
+    with Stubber(app.doc_store.storage.s3_bucket.meta.client) as stubber:
+        yield app, stubber
+        stubber.assert_no_pending_responses()
+
+
 @pytest.fixture
 def local_storage():
     tempdir = tempfile.TemporaryDirectory()
@@ -154,6 +172,11 @@ def doc_store_local_sqlite():
 @pytest.fixture
 def sample_pdf_data():
     yield _sample_pdf_data
+
+
+@pytest.fixture
+def sample_binary_pdf_data():
+    yield b64decode(_sample_pdf_data.encode('utf8'))
 
 
 @pytest.fixture

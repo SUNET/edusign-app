@@ -71,7 +71,8 @@ class S3Storage(ABCStorage):
         :param content: Contents of the document, as a base64 string.
         """
         bcontent = base64.b64decode(content.encode('utf8'))
-        self.s3_bucket.upload_fileobj(bcontent, str(key))
+        f = io.BytesIO(bcontent)
+        self.s3_bucket.upload_fileobj(f, str(key))
 
         self.logger.info(f"Saved document contents with key {key}")
 

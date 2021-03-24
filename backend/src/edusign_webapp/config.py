@@ -88,6 +88,11 @@ SCOPE_WHITELIST = [scope.strip() for scope in RAW_SCOPE_WHITELIST.split(',')]
 STORAGE_CLASS_PATH = os.environ.get('STORAGE_CLASS_PATH', default='edusign_webapp.document.storage.local.LocalStorage')
 LOCAL_STORAGE_BASE_DIR = os.environ.get('LOCAL_STORAGE_BASE_DIR', default='/tmp')
 
+AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY', default='dummy')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', default='dummy')
+AWS_REGION_NAME = os.environ.get('AWS_REGION_NAME', default='eu-north-1')
+AWS_BUCKET_NAME = os.environ.get('AWS_BUCKET_NAME', default='edusign-storage')
+
 DOC_METADATA_CLASS_PATH = os.environ.get(
     'DOC_METADATA_CLASS_PATH', default='edusign_webapp.document.metadata.sqlite.SqliteMD'
 )
