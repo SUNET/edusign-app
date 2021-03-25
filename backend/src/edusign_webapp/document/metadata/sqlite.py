@@ -188,6 +188,7 @@ class SqliteMD(ABCMetadata):
             owner_result = self._db_query(USER_QUERY_ID, (owner['email'],), one=True)
 
         if owner_result is None or isinstance(owner_result, list):  # This should never happen, it's just to please mypy
+            self._db_commit()
             return
 
         owner_id = owner_result['userID']
@@ -198,6 +199,7 @@ class SqliteMD(ABCMetadata):
         if document_result is None or isinstance(
             document_result, list
         ):  # This should never happen, it's just to please mypy
+            self._db_commit()
             return
 
         document_id = document_result['documentID']
@@ -387,6 +389,11 @@ class SqliteMD(ABCMetadata):
             return {}
 
         doc = self._db_query(DOCUMENT_QUERY, (invite['documentID'],), one=True)
+        if doc is None or isinstance(doc, list):
+            self.logger.error(f"Retrieving a non-existing document with key {key}")
+            return {}
+
+        doc['documentID'] = invite['documentID']
         user = self._db_query(USER_QUERY, (invite['userID'],), one=True)
 
         return {'document': doc, 'user': user}
@@ -397,6 +404,7 @@ class SqliteMD(ABCMetadata):
 
         :param key: The key identifying the document
         :return: A dictionary with information about the document, with keys:
+                 + documentID: pk of the doc in the storage.
                  + key: Key of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
@@ -419,6 +427,7 @@ class SqliteMD(ABCMetadata):
         :return: Whether the document has been locked.
         """
         lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
+        self.logger.debug(f"Checking lock for {locked_by} in document with id {doc_id}: {lock_info}")
         if lock_info is None or isinstance(lock_info, list):
             self.logger.error(f"Trying to lock a non-existing document with id {doc_id}")
             return False
@@ -438,9 +447,11 @@ class SqliteMD(ABCMetadata):
         if (
             locked is None
             or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']
-            or lock_info['lockedBy'] == locked_by
+            or user_result['email'] == locked_by
         ):
+            self.logger.debug(f"Adding lock for {locked_by} in document with id {doc_id}: {lock_info}")
             self._db_execute(DOCUMENT_ADD_LOCK, (now, user_result['userID'], doc_id))
+            self._db_commit()
             return True
 
         return False
@@ -476,6 +487,7 @@ class SqliteMD(ABCMetadata):
 
         if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['lockedBy'] == user_result['userID']:
             self._db_execute(DOCUMENT_RM_LOCK, (doc_id,))
+            self._db_commit()
             return True
 
         return False
@@ -495,6 +507,7 @@ class SqliteMD(ABCMetadata):
             return False
 
         if lock_info['locked'] is None:
+            self.logger.debug(f"Check a non-locked document with id {doc_id}")
             return False
 
         if isinstance(lock_info['locked'], str):
@@ -505,7 +518,9 @@ class SqliteMD(ABCMetadata):
         now = datetime.now()
 
         if (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']:
+            self.logger.debug(f"Lock for document with id {doc_id} has expired")
             self._db_execute(DOCUMENT_RM_LOCK, (doc_id,))
+            self._db_commit()
             return False
 
         user_info = self._db_query(USER_QUERY, (lock_info['lockedBy'],), one=True)
@@ -513,4 +528,5 @@ class SqliteMD(ABCMetadata):
             self.logger.error(f"Trying to check with a non-existing user with id {lock_info['lockedBy']}")
             return False
 
+        self.logger.debug(f"Checking lock for {doc_id} by {user_info['email']} for {locked_by}")
         return locked_by == user_info['email']

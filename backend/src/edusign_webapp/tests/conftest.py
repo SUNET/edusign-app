@@ -122,7 +122,7 @@ def app(request):
 
 
 def _get_test_s3_app(config):
-    more_config = {'STORAGE_CLASS_PATH': 'edusign_webapp.document.storage.s3.S3Storage'}
+    more_config = {'STORAGE_CLASS_PATH': 'edusign_webapp.document.storage.s3.S3Storage', 'AWS_REGION_NAME': 'us-east-1'}
     more_config.update(config)
     app = run.edusign_init_app('testing', more_config)
     app.api_client.api_base_url = 'https://dummy.edusign.api'
@@ -132,10 +132,7 @@ def _get_test_s3_app(config):
 @pytest.fixture(params=[config_dev, config_pro])
 def s3_app(request):
 
-    app = _get_test_s3_app(request.param)
-    with Stubber(app.doc_store.storage.s3_bucket.meta.client) as stubber:
-        yield app, stubber
-        stubber.assert_no_pending_responses()
+    yield _get_test_s3_app(request.param)
 
 
 @pytest.fixture

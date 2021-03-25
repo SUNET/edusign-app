@@ -450,7 +450,7 @@ def create_invited_signature(invite_key: str) -> str:
             'error-generic.jinja2', message=gettext('Communication error with the create endpoint of the eduSign API')
         )
 
-    return render_template('autoform.jinja2', **create_data)
+    return render_template('vanity-form.jinja2', **create_data)
 
 
 @edusign_views.route('/multisign-callback/<doc_key>', methods=['POST'])

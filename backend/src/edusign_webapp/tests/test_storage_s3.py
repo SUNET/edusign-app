@@ -30,85 +30,89 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import io
 import uuid
 
-from botocore.response import StreamingBody
-from s3transfer.utils import ReadFileChunk
+from moto import mock_s3
 
 
+def _create_bucket(app):
+    app.doc_store.storage.s3.create_bucket(Bucket='edusign-storage')
+
+
+@mock_s3
 def test_add(s3_app, sample_pdf_data, sample_binary_pdf_data):
-    app, stub = s3_app
+    _create_bucket(s3_app)
     key = str(uuid.uuid4())
-    f = io.BytesIO(sample_binary_pdf_data)
-    chunk = ReadFileChunk(f, len(sample_binary_pdf_data), len(sample_binary_pdf_data))
-    stub.add_response(
-        'put_object',
-        expected_params={'Key': str(key), 'Bucket': 'edusign-storage', 'Body': chunk},
-        service_response={}
-    )
 
-    result = app.doc_store.storage.add(key, sample_pdf_data)
+    s3_app.doc_store.storage.add(key, sample_pdf_data)
 
-    assert result is None
+    assert list(s3_app.doc_store.storage.s3_bucket.objects.all())[0].key == key
 
-#  
-#  def test_add_and_retrieve(local_storage, sample_pdf_data):
-#      _, storage = local_storage
-#      key = str(uuid.uuid4())
-#      storage.add(key, sample_pdf_data)
-#      content = storage.get_content(key)
-#  
-#      assert content == sample_pdf_data
-#  
-#  
-#  def test_add_update_and_retrieve(local_storage, sample_pdf_data, sample_pdf_data_2):
-#      _, storage = local_storage
-#      key = str(uuid.uuid4())
-#      storage.add(key, sample_pdf_data)
-#  
-#      storage.update(key, sample_pdf_data_2)
-#  
-#      content = storage.get_content(key)
-#  
-#      assert content != sample_pdf_data
-#      assert content == sample_pdf_data_2
-#  
-#  
-#  def test_add_two_update_and_retrieve(local_storage, sample_pdf_data, sample_pdf_data_2):
-#      _, storage = local_storage
-#      key1 = str(uuid.uuid4())
-#      key2 = str(uuid.uuid4())
-#      storage.add(key1, sample_pdf_data)
-#      storage.add(key2, sample_pdf_data_2)
-#  
-#      storage.update(key1, sample_pdf_data_2)
-#  
-#      content1 = storage.get_content(key1)
-#      content2 = storage.get_content(key2)
-#  
-#      assert content1 == sample_pdf_data_2
-#      assert content1 == content2
-#  
-#  
-#  def test_add_and_remove(local_storage, sample_pdf_data):
-#      _, storage = local_storage
-#      key = str(uuid.uuid4())
-#      storage.add(key, sample_pdf_data)
-#  
-#      storage.remove(key)
-#  
-#      assert os.listdir(storage.base_dir) == []
-#  
-#  
-#  def test_add_two_and_remove(local_storage, sample_pdf_data, sample_pdf_data_2):
-#      _, storage = local_storage
-#      key1 = str(uuid.uuid4())
-#      key2 = str(uuid.uuid4())
-#      storage.add(key1, sample_pdf_data)
-#      storage.add(key2, sample_pdf_data_2)
-#  
-#      storage.remove(key1)
-#  
-#      assert os.listdir(storage.base_dir) == [str(key2)]
-#  
+
+@mock_s3
+def test_add_and_retrieve(s3_app, sample_pdf_data):
+    _create_bucket(s3_app)
+    key = str(uuid.uuid4())
+    s3_app.doc_store.storage.add(key, sample_pdf_data)
+    content = s3_app.doc_store.storage.get_content(key)
+
+    assert content == sample_pdf_data
+
+
+@mock_s3
+def test_add_update_and_retrieve(s3_app, sample_pdf_data, sample_pdf_data_2):
+    _create_bucket(s3_app)
+    key = str(uuid.uuid4())
+    s3_app.doc_store.storage.add(key, sample_pdf_data)
+
+    s3_app.doc_store.storage.update(key, sample_pdf_data_2)
+
+    content = s3_app.doc_store.storage.get_content(key)
+
+    assert content != sample_pdf_data
+    assert content == sample_pdf_data_2
+
+
+@mock_s3
+def test_add_two_update_and_retrieve(s3_app, sample_pdf_data, sample_pdf_data_2):
+    _create_bucket(s3_app)
+    key1 = str(uuid.uuid4())
+    key2 = str(uuid.uuid4())
+    s3_app.doc_store.storage.add(key1, sample_pdf_data)
+    s3_app.doc_store.storage.add(key2, sample_pdf_data_2)
+
+    s3_app.doc_store.storage.update(key1, sample_pdf_data_2)
+
+    content1 = s3_app.doc_store.storage.get_content(key1)
+    content2 = s3_app.doc_store.storage.get_content(key2)
+
+    assert content1 == sample_pdf_data_2
+    assert content1 == content2
+
+
+@mock_s3
+def test_add_and_remove(s3_app, sample_pdf_data):
+    _create_bucket(s3_app)
+    key = str(uuid.uuid4())
+    s3_app.doc_store.storage.add(key, sample_pdf_data)
+
+    s3_app.doc_store.storage.remove(key)
+
+    assert len(list(s3_app.doc_store.storage.s3_bucket.objects.all())) == 0
+
+
+@mock_s3
+def test_add_2_and_remove_1(s3_app, sample_pdf_data, sample_pdf_data_2):
+    _create_bucket(s3_app)
+    key = str(uuid.uuid4())
+    s3_app.doc_store.storage.add(key, sample_pdf_data)
+    key2 = str(uuid.uuid4())
+    s3_app.doc_store.storage.add(key2, sample_pdf_data_2)
+
+    s3_app.doc_store.storage.remove(key)
+
+    assert len(list(s3_app.doc_store.storage.s3_bucket.objects.all())) == 1
+
+    content2 = s3_app.doc_store.storage.get_content(key2)
+
+    assert content2 == sample_pdf_data_2

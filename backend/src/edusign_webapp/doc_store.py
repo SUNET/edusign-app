@@ -185,6 +185,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
         :param key: The key identifying the document
         :return: A dictionary with information about the document, with keys:
+                 + documentID: pk of the doc in the storage.
                  + key: Key of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
@@ -392,6 +393,7 @@ class DocStore(object):
         doc = self.metadata.get_document(key)
         if not doc:
             return False
+        self.logger.debug(f"Checked doc {doc['name']} for {locked_by}")
 
         return self.metadata.check_lock(doc['documentID'], locked_by)
 

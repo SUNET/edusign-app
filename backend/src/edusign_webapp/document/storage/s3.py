@@ -86,6 +86,7 @@ class S3Storage(ABCStorage):
         """
         f = io.BytesIO()
         self.s3_bucket.download_fileobj(str(key), f)
+        f.seek(0)
         bcontent = f.read()
         f.close()
         return base64.b64encode(bcontent).decode('utf8')
@@ -98,7 +99,8 @@ class S3Storage(ABCStorage):
         :param content: base64 string with the contents of the new version of the document.
         """
         bcontent = base64.b64decode(content.encode('utf8'))
-        self.s3_bucket.upload_fileobj(bcontent, str(key))
+        f = io.BytesIO(bcontent)
+        self.s3_bucket.upload_fileobj(f, str(key))
 
         self.logger.info(f"Updated document contents with key {key}")
 
@@ -108,6 +110,6 @@ class S3Storage(ABCStorage):
 
         :param key: The key identifying the document.
         """
-        self.s3_bucket.delete_object(Key=str(key))
+        self.s3_bucket.delete_objects(Delete={'Objects': [{'Key': str(key)}]})
 
         self.logger.info(f"Removed document contents with key {key}")
