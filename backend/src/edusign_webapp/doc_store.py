@@ -217,12 +217,21 @@ class ABCMetadata(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def check_lock(self, doc_id: int, locked_by: str) -> bool:
         """
-        Check whether the document identified by doc_id is locked.
-        This will remove stale locks (older than the configured timeout).
+        Check whether the document identified by `doc_id` is locked by user with email `locked_by`.
+        This will remove (or update) stale locks (older than the configured timeout).
 
         :param doc_id: the pk for the document in the documents table
         :param locked_by: Email of the user locking the document
         :return: Whether the document is locked by the user with `locked_by` email
+        """
+
+    @abc.abstractmethod
+    def get_user(self, user_id: int) -> Dict[str, Any]:
+        """
+        Return information on some user.
+
+        :param user_id: the pk for the user in the users table
+        :return: Name and email of the user
         """
 
 
@@ -402,3 +411,13 @@ class DocStore(object):
         doc = self.metadata.get_document(key)
         doc['blob'] = self.storage.get_content(key)
         return doc
+
+    def get_owner_data(self, key: uuid.UUID) -> Dict[str, Any]:
+        doc = self.metadata.get_document(key)
+        user = self.metadata.get_user(doc['owner'])
+
+        return {
+            'name': user['name'],
+            'email': user['email'],
+            'docname': doc['name'],
+        }

@@ -492,6 +492,21 @@ def multi_sign_service_callback(doc_key) -> str:
     current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
     current_app.doc_store.unlock_document(key, session['mail'])
 
+    owner_data = current_app.doc_store.get_owner_data(key)
+
+    recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
+    msg = Message(gettext(f"XXX {owner_data['name']} has signed {owner_data['docname']}"), recipients=recipients)
+    context = {
+        'document_name': owner_data['docname'],
+        'invited_name': session['displayName'],
+        'invited_email': session['mail'],
+    }
+    msg.body = render_template('signed_by_email.txt.jinja2', **context)
+    current_app.logger.debug(f"Sending email to user {owner_data['email']}:\n{msg.body}")
+    msg.html = render_template('signed_by_email.html.jinja2', **context)
+
+    current_app.mailer.send(msg)
+
     message = gettext("Success processing document sign request")
 
     return render_template('success-generic.jinja2', message=message)

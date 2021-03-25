@@ -87,7 +87,7 @@ USER_QUERY_ID = "SELECT userID FROM Users WHERE email = ?;"
 USER_QUERY = "SELECT name, email FROM Users WHERE userID = ?;"
 DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner) VALUES (?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT documentID FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, documentID FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, documentID, owner FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOCK = "SELECT locked, lockedBy FROM Documents WHERE documentID = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner FROM Documents WHERE documentID = ?;"
 DOCUMENT_QUERY_FROM_OWNER = "SELECT d.documentID, d.key, d.name, d.size, d.type FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.userID;"
@@ -530,3 +530,17 @@ class SqliteMD(ABCMetadata):
 
         self.logger.debug(f"Checking lock for {doc_id} by {user_info['email']} for {locked_by}")
         return locked_by == user_info['email']
+
+    def get_user(self, user_id: int) -> Dict[str, Any]:
+        """
+        Return information on some user.
+
+        :param user_id: the pk for the user in the users table
+        :return: Name and email of the user
+        """
+        user_info = self._db_query(USER_QUERY, (user_id,), one=True)
+        if user_info is None or isinstance(user_info, list):
+            self.logger.error(f"Trying to find with a non-existing user with id {user_id}")
+            return {}
+
+        return user_info
