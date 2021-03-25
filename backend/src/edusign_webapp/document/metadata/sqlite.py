@@ -314,6 +314,7 @@ class SqliteMD(ABCMetadata):
                  + type: Content type of the doc
                  + size: Size of the doc
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails of the users invited to sign the document who have already done so.
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (email,))
         if documents is None or isinstance(documents, dict):

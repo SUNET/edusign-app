@@ -158,6 +158,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + type: Content type of the doc
                  + size: Size of the doc
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails of the users invited to sign the document who have already done so.
         """
 
     @abc.abstractmethod

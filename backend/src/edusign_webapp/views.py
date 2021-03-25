@@ -370,6 +370,50 @@ def create_multi_sign_request(data: dict) -> dict:
     return {'message': message}
 
 
+@edusign_views.route('/send-multisign-reminder', methods=['POST'])
+@UnMarshal(KeyedMultiSignSchema)
+@Marshal()
+def send_multisign_reminder(data: dict) -> dict:
+    """
+    Send emails to remind people to sign some document
+
+    XXX get document name, and add UI to trigger
+
+    :param data: The key of the document pending signatures
+    :return: A message about the result of the procedure
+    """
+    try:
+        pending = current_app.doc_store.get_pending_invites(uuid.UUID(data['key']))
+
+    except Exception as e:
+        current_app.logger.error(f'Problem finding users pending to multi sign: {e}')
+        return {'error': True, 'message': gettext('Problem finding the users pending to multi sign')}
+
+    if not pending:
+        current_app.logger.error('Could not find users pending signing the multi sign request')
+        return {'error': True, 'message': gettext('Could not find users to multi sign the document')}
+
+    for invite in pending:
+        current_app.logger.debug(f"Sending reminder to {invite} for {data['document']['name']}")
+        recipients = [f"{invite['name']} <{invite['email']}>"]
+        msg = Message(gettext("XXX Reminder mail subject"), recipients=recipients)
+        invited_link = url_for('edusign.create_invited_signature', invite_key=invite['key'], _external=True)
+        context = {
+            'document_name': "XXX",
+            'inviter_name': f"{session['displayName']} <{session['mail']}>",
+            'invited_link': invited_link,
+        }
+        msg.body = render_template('reminder_email.txt.jinja2', **context)
+        current_app.logger.debug(f"Sending email to user {invite['email']}:\n{msg.body}")
+        msg.html = render_template('reminder_email.html.jinja2', **context)
+
+        current_app.mailer.send(msg)
+
+    message = gettext("Success reminding pending users")
+
+    return {'message': message}
+
+
 @edusign_views.route('/remove-multi-sign', methods=['POST'])
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal()
