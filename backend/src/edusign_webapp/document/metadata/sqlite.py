@@ -97,7 +97,7 @@ DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, lockedBy = ? WHERE documen
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (key, documentID, userID) VALUES (?, ?, ?)"
 INVITE_QUERY_FROM_EMAIL = "SELECT Invites.documentID, Invites.key FROM Invites, Users WHERE Users.email = ? AND Invites.userID = Users.userID AND Invites.signed = 0;"
-INVITE_QUERY_FROM_DOC = "SELECT userID, signed FROM Invites WHERE documentID = ?;"
+INVITE_QUERY_FROM_DOC = "SELECT userID, signed, key FROM Invites WHERE documentID = ?;"
 INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT userID FROM Invites WHERE documentID = ? AND signed = 0;"
 INVITE_QUERY_FROM_KEY = "SELECT userID, documentID, signed FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE userID = ? and documentID = ?;"
@@ -344,6 +344,45 @@ class SqliteMD(ABCMetadata):
                     document['signed'].append(email_result)
 
         return documents
+
+    def get_invited(self, key: uuid.UUID) -> List[Dict[str, Any]]:
+        """
+        Get information about the users that have been invited to sign the document identified by `key`
+
+        :param key: The key of the document
+        :return: A list of dictionaries with information about the users, each of them with keys:
+                 + name: The name of the user
+                 + email: The email of the user
+                 + signed: Whether the user has already signed the document
+                 + key: the key identifying the invite
+        """
+        invitees: List[Dict[str, Any]] = []
+
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.error(f"Trying to remind invitees to sign non-existing document with key {key}")
+            return invitees
+
+        invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_result['documentID'],))
+        if invites is None or isinstance(invites, dict):
+            self.logger.error(f"Trying to remind non-existing invitees to sign document with key {key}")
+            return invitees
+
+        for invite in invites:
+            user_id = invite['userID']
+            email_result = self._db_query(USER_QUERY, (user_id,), one=True)
+            if email_result is None or isinstance(email_result, list):
+                self.logger.error(
+                    f"Db seems corrupted, an invite for document {key}"
+                    f" references a non existing user with id {user_id}"
+                )
+                continue
+
+            email_result['signed'] = bool(invite['signed'])
+            email_result['key'] = invite['key']
+            invitees.append(email_result)
+
+        return invitees
 
     def remove(self, key: uuid.UUID, force: bool = False) -> bool:
         """

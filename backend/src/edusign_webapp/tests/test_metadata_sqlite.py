@@ -118,6 +118,51 @@ def test_add_two_and_get_pending(
     assert pending[1]['owner']['email'] == 'owner2@example.org'
 
 
+def test_add_and_get_pending_invites(
+    sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1
+):
+    tempdir, test_md = sqlite_md
+    dummy_key_1 = uuid.uuid4()
+
+    with run.app.app_context():
+        test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        pending = test_md.get_invited(dummy_key_1)
+
+    assert len(pending) == 2
+
+    assert pending[0]['name'] == 'invite0'
+    assert pending[0]['email'] == 'invite0@example.org'
+    assert not pending[0]['signed']
+
+    assert pending[1]['name'] == 'invite1'
+    assert pending[1]['email'] == 'invite1@example.org'
+    assert not pending[1]['signed']
+
+
+def test_add_update_and_get_pending_invites(
+    sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1
+):
+    tempdir, test_md = sqlite_md
+    dummy_key_1 = uuid.uuid4()
+
+    with run.app.app_context():
+        test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        test_md.update(dummy_key_1, sample_invites_1[0]['email'])
+        pending = test_md.get_invited(dummy_key_1)
+
+    assert len(pending) == 2
+
+    assert pending[0]['name'] == 'invite0'
+    assert pending[0]['email'] == 'invite0@example.org'
+    assert pending[0]['signed']
+
+    assert pending[1]['name'] == 'invite1'
+    assert pending[1]['email'] == 'invite1@example.org'
+    assert not pending[1]['signed']
+
+
 def test_update_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()

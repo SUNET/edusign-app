@@ -162,6 +162,19 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def get_invited(self, key: uuid.UUID) -> List[Dict[str, Any]]:
+        """
+        Get information about the users that have been invited to sign the document identified by `key`
+
+        :param key: The key of the document
+        :return: A list of dictionaries with information about the users, each of them with keys:
+                 + name: The name of the user
+                 + email: The email of the user
+                 + signed: Whether the user has already signed the document
+                 + key: the key identifying the invite
+        """
+
+    @abc.abstractmethod
     def remove(self, key: uuid.UUID, force: bool = False) -> bool:
         """
         Remove from the store the metadata corresponding to the document identified by the `key`,
@@ -341,6 +354,7 @@ class DocStore(object):
                  + type: Content type of the doc
                  + size: Size of the doc
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails of the users invited to sign the document who have already done so.
         """
         return self.metadata.get_owned(email)
 
@@ -396,7 +410,7 @@ class DocStore(object):
         """
         Check that the document is locked by the user with email `locked_by`
 
-        :param key: The key identifying the document to unlock
+        :param key: the key identifying the document to unlock
         :param locked_by: Email of the user locking the document
         :return: Whether the document is unlocked
         """
@@ -408,13 +422,46 @@ class DocStore(object):
         return self.metadata.check_lock(doc['documentID'], locked_by)
 
     def get_signed_document(self, key: uuid.UUID) -> List[Dict[str, Any]]:
-        """"""
+        """
+        Get document - called once all invitees have signed
+
+        :param key: the key identifying the document
+        :return: A dict with document data, with keys:
+                 + documentID: pk of the doc in the storage.
+                 + key: Key of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + blob: Contents of the document, as a base64 string.
+        """
         doc = self.metadata.get_document(key)
         doc['blob'] = self.storage.get_content(key)
         return doc
 
-    def get_owner_data(self, key: uuid.UUID) -> Dict[str, Any]:
+    def get_document_name(self, key: uuid.UUID) -> str:
+        """
+        Get document name
+
+        :param key: the key identifying the document
+        :return: the document name
+        """
         doc = self.metadata.get_document(key)
+        return doc['name']
+
+    def get_owner_data(self, key: uuid.UUID) -> Dict[str, Any]:
+        """
+        Get data on the owner of the document
+
+        :param key: the key identifying the document
+        :return: A dict with owner data, with keys:
+                 + name: The name of the owner
+                 + email: The email of the owner
+                 + docname: The name of the document
+        """
+        doc = self.metadata.get_document(key)
+        if not doc:
+            return {}
+
         user = self.metadata.get_user(doc['owner'])
 
         return {
@@ -422,3 +469,16 @@ class DocStore(object):
             'email': user['email'],
             'docname': doc['name'],
         }
+
+    def get_pending_invites(self, key: uuid.UUID) -> Dict[str, Any]:
+        """
+        Get information about the users that have been invited to sign the document identified by `key`
+
+        :param key: The key of the document
+        :return: A list of dictionaries with information about the users, each of them with keys:
+                 + name: The name of the user
+                 + email: The email of the user
+                 + signed: Whether the user has already signed the document
+                 + key: the key identifying the invite
+        """
+        return self.metadata.get_invited(key)

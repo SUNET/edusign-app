@@ -377,29 +377,32 @@ def send_multisign_reminder(data: dict) -> dict:
     """
     Send emails to remind people to sign some document
 
-    XXX get document name, and add UI to trigger
-
     :param data: The key of the document pending signatures
     :return: A message about the result of the procedure
     """
     try:
         pending = current_app.doc_store.get_pending_invites(uuid.UUID(data['key']))
+        docname = current_app.doc_store.get_document_name(uuid.UUID(data['key']))
 
     except Exception as e:
         current_app.logger.error(f'Problem finding users pending to multi sign: {e}')
         return {'error': True, 'message': gettext('Problem finding the users pending to multi sign')}
 
     if not pending:
-        current_app.logger.error('Could not find users pending signing the multi sign request')
+        current_app.logger.error(f"Could not find users pending signing the multi sign request {data['key']}")
+        return {'error': True, 'message': gettext('Could not find users to multi sign the document')}
+
+    if not docname:
+        current_app.logger.error(f"Could not find document {data['key']} pending signing the multi sign request")
         return {'error': True, 'message': gettext('Could not find users to multi sign the document')}
 
     for invite in pending:
-        current_app.logger.debug(f"Sending reminder to {invite} for {data['document']['name']}")
+        current_app.logger.debug(f"Sending reminder to {invite} for {docname}")
         recipients = [f"{invite['name']} <{invite['email']}>"]
         msg = Message(gettext("XXX Reminder mail subject"), recipients=recipients)
         invited_link = url_for('edusign.create_invited_signature', invite_key=invite['key'], _external=True)
         context = {
-            'document_name': "XXX",
+            'document_name': docname,
             'inviter_name': f"{session['displayName']} <{session['mail']}>",
             'invited_link': invited_link,
         }
@@ -537,6 +540,11 @@ def multi_sign_service_callback(doc_key) -> str:
     current_app.doc_store.unlock_document(key, session['mail'])
 
     owner_data = current_app.doc_store.get_owner_data(key)
+    if not owner_data:
+        current_app.logger.error(f"Problem signing document {key} for {session['mail']} with no owner data")
+        return render_template(
+            'error-generic.jinja2', message=gettext('There is no owner data for this document')
+        )
 
     recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
     msg = Message(gettext(f"XXX {owner_data['name']} has signed {owner_data['docname']}"), recipients=recipients)
