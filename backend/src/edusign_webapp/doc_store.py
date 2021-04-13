@@ -36,6 +36,8 @@ import uuid
 from importlib import import_module
 from typing import Any, Dict, List, Optional
 
+from flask import Flask
+
 
 class ABCStorage(metaclass=abc.ABCMeta):
     """
@@ -44,10 +46,9 @@ class ABCStorage(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __init__(self, config: dict, logger: logging.Logger):
+    def __init__(self, app: Flask):
         """
-        :param config: Dict like object with the configuration parameters provided to the Flask app.
-        :param logger: Logger
+        :param app: flask app
         """
 
     @abc.abstractmethod
@@ -98,10 +99,9 @@ class ABCMetadata(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __init__(self, config: dict, logger: logging.Logger):
+    def __init__(self, app: Flask):
         """
-        :param config: Dict like object with the configuration parameters provided to the Flask app.
-        :param logger: Logger
+        :param app: flask app
         """
 
     @abc.abstractmethod
@@ -257,25 +257,26 @@ class DocStore(object):
     class DocumentLocked(Exception):
         pass
 
-    def __init__(self, config: dict, logger: logging.Logger):
+    def __init__(self, app: Flask):
         """
-        :param config: Dict containing the configuration parameters provided to Flask.
+        :param app: flask app
         """
 
-        self.config = config
-        self.logger = logger
+        self.app = app
+        self.config = app.config
+        self.logger = app.logger
 
-        storage_class_path = config['STORAGE_CLASS_PATH']
+        storage_class_path = app.config['STORAGE_CLASS_PATH']
         storage_module_path, storage_class_name = storage_class_path.rsplit('.', 1)
         storage_class = getattr(import_module(storage_module_path), storage_class_name)
 
-        self.storage = storage_class(config, logger)
+        self.storage = storage_class(app)
 
-        docmd_class_path = config['DOC_METADATA_CLASS_PATH']
+        docmd_class_path = app.config['DOC_METADATA_CLASS_PATH']
         docmd_module_path, docmd_class_name = docmd_class_path.rsplit('.', 1)
         docmd_class = getattr(import_module(docmd_module_path), docmd_class_name)
 
-        self.metadata = docmd_class(config, logger)
+        self.metadata = docmd_class(app)
 
     def add_document(
         self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]]

@@ -32,11 +32,11 @@
 #
 import base64
 import io
-import logging
 import uuid
 from typing import Optional
 
 import boto3
+from flask import Flask
 
 from edusign_webapp.doc_store import ABCStorage
 
@@ -47,21 +47,21 @@ class S3Storage(ABCStorage):
     so that they can be consecutively signedby more than one user.
     """
 
-    def __init__(self, config: dict, logger: logging.Logger):
+    def __init__(self, app: Flask):
         """
-        :param config: Dict like object with the configuration parameters provided to the Flask app.
-        :param logger: Logger
+        :param app: flask app
         """
-        self.config = config
-        self.logger = logger
+        self.app = app
+        self.config = app.config
+        self.logger = app.logger
         self.s3_session = boto3.session.Session()
         self.s3 = self.s3_session.resource(
             's3',
-            region_name=config['AWS_REGION_NAME'],
-            aws_access_key_id=config['AWS_ACCESS_KEY'],
-            aws_secret_access_key=config['AWS_SECRET_ACCESS_KEY'],
+            region_name=app.config['AWS_REGION_NAME'],
+            aws_access_key_id=app.config['AWS_ACCESS_KEY'],
+            aws_secret_access_key=app.config['AWS_SECRET_ACCESS_KEY'],
         )
-        self.s3_bucket = self.s3.Bucket(config['AWS_BUCKET_NAME'])
+        self.s3_bucket = self.s3.Bucket(app.config['AWS_BUCKET_NAME'])
 
     def add(self, key: uuid.UUID, content: str):
         """

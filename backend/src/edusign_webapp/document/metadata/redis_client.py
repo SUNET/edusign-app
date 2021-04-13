@@ -30,111 +30,238 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import os
-import sqlite3
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
 
-from flask import current_app, g, Flask
+from flask import current_app, Flask
+from flask_redis import FlaskRedis
 
 from edusign_webapp.doc_store import ABCMetadata
 
-DB_SCHEMA = """
-CREATE TABLE [Users]
-(      [userID] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [email] VARCHAR(255) NOT NULL,
-       [name] VARCHAR(255) NOT NULL
-);
-CREATE TABLE [Documents]
-(      [documentID] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [key] VARCHAR(255) NOT NULL,
-       [name] VARCHAR(255) NOT NULL,
-       [size] INTEGER NOT NULL,
-       [type] VARCHAR(50) NOT NULL,
-       [created] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-       [updated] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-       [owner] INTEGER NOT NULL,
-       [locked] TIMESTAMP DEFAULT NULL,
-       [lockedBy] INTEGER DEFAULT NULL,
-            FOREIGN KEY ([owner]) REFERENCES [Users] ([userID])
-              ON DELETE NO ACTION ON UPDATE NO ACTION
-            FOREIGN KEY ([lockedBy]) REFERENCES [Users] ([userID])
-              ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-CREATE TABLE [Invites]
-(      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [key] VARCHAR(255) NOT NULL,
-       [userID] INTEGER NOT NULL,
-       [documentID] INTEGER NOT NULL,
-       [signed] INTEGER DEFAULT 0,
-            FOREIGN KEY ([userID]) REFERENCES [Users] ([userID])
-              ON DELETE NO ACTION ON UPDATE NO ACTION,
-            FOREIGN KEY ([documentID]) REFERENCES [Documents] ([documentID])
-              ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-CREATE UNIQUE INDEX IF NOT EXISTS [EmailIX] ON [Users] ([email]);
-CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
-CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([owner]);
-CREATE INDEX IF NOT EXISTS [InviteeIX] ON [Invites] ([userID]);
-CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([documentID]);
-"""
+
+class RedisStorageBackend:
+
+    def __init__(self, redis_client):
+        self.redis = redis_client
+
+    def insert_user(self, name, email):
+        user_id = self.redis.incr('user-counter')
+        self.redis.hset(f"user:{user_id}", mapping=dict(name=name, email=email))
+        self.redis.set(f"user:email:{email}", user_id)
+        return user_id
+
+    def query_user_id(self, email):
+        user_id = self.redis.get(f'user:email:{email}')
+        if user_id is not None:
+            return int(user_id)
+
+    def query_user(self, user_id):
+        b_user = self.redis.hgetall(f"user:{user_id}")
+        user = {
+            'name': b_user[b'name'].decode('utf8'),
+            'email': b_user[b'email'].decode('utf8'),
+        }
+        return user
+
+    def insert_document(self, key, name, size, type, owner):
+        doc_id = self.redis.incr('doc-counter')
+        now = datetime.now().timestamp()
+        mapping = dict(
+            key=key,
+            name=name,
+            size=size,
+            type=type,
+            owner=owner,
+            created=now,
+            updated=now,
+            locked=None,
+            locked_by=None,
+        )
+        self.redis.hset(f"doc:{doc_id}", mapping=mapping)
+        self.redis.set(f"doc:key:{key}", doc_id)
+        self.redis.sadd(f"doc:owner:{owner}", doc_id)
+        return doc_id
+
+    def query_document_id(self, key):
+        doc_id = self.redis.get(f"doc:key:{key}")
+        return int(doc_id)
+
+    def query_document_all(self, key):
+        doc_id = self.query_document_id(key)
+        b_doc = self.redis.hgetall(f"doc:{doc_id}")
+        doc = dict(
+            key=key,
+            name=b_doc[b'name'].decode('utf8'),
+            size=b_doc[b'size'].decode('utf8'),
+            type=b_doc[b'type'].decode('utf8'),
+            doc_id=doc_id,
+            owner=int(b_doc[b'owner']),
+        )
+        return doc
+
+    def query_document_lock(self, doc_id):
+        b_doc = self.redis.hgetall(f"doc:{doc_id}")
+        doc = dict(
+            locked=None if b_doc['locked'] is None else datetime.fromtimestamp(float(b_doc['locked'])),
+            locked_by=None if b_doc['locked_by'] is None else int(b_doc['locked_by']),
+        )
+        return doc
+
+    def query_document(self, doc_id):
+        b_doc = self.redis.hgetall(f"doc:{doc_id}")
+        doc = dict(
+            key=uuid.UUID(bytes=b_doc[b'key']),
+            name=b_doc[b'name'].decode('utf8'),
+            size=b_doc[b'size'].decode('utf8'),
+            type=b_doc[b'type'].decode('utf8'),
+            owner=int(b_doc[b'owner']),
+        )
+        return doc
+
+    def query_documents_from_owner(self, email):
+        user_id = int(self.redis.get(f'user:email:{email}'))
+        doc_ids = self.redis.get(f'doc:owner:{user_id}')
+        docs = []
+        for b_doc_id in doc_ids:
+            doc_id = int(b_doc_id)
+            b_doc = self.redis.hgetall(f"doc:{doc_id}")
+            doc = dict(
+                doc_id=doc_id,
+                key=uuid.UUID(bytes=b_doc[b'key']),
+                name=b_doc[b'name'].decode('utf8'),
+                size=b_doc[b'size'].decode('utf8'),
+                type=b_doc[b'type'].decode('utf8'),
+            )
+            docs.append(doc)
+        return docs
+
+    def update_document(self, key, updated):
+        doc_id = self.redis.get(f"doc:key:{key}")
+        self.redis.hset(f"doc:{doc_id}", mapping=dict(updated=updated))
+
+    def rm_document_lock(self, doc_id):
+        self.redis.hset(f"doc:{doc_id}", mapping=dict(locked=None, locked_by=None))
+
+    def add_document_lock(self, doc_id, locked, locked_by):
+        self.redis.hset(f"doc:{doc_id}", mapping=dict(locked=locked, locked_by=locked_by))
+
+    def delete_document(self, key):
+        doc_id = self.redis.get(f"doc:key:{key}")
+        b_doc = self.redis.hgetall(f"doc:{doc_id}")
+        owner = int(b_doc[b'owner'])
+        self.redis.delete(f"doc:{doc_id}")
+        self.redis.delete(f"doc:key:{key}")
+        self.redis.delete(f"doc:owner:{owner}")
+
+    def insert_invite(self, key, doc_id, user_id, owner_id):
+        invite_id = self.redis.incr('invite-counter')
+        mapping = dict(
+            key=key,
+            doc_id=doc_id,
+            user_id=user_id,
+            owner_id=owner_id,
+            signed=0,
+        )
+        self.redis.hset(f"invite:{invite_id}", mapping=mapping)
+        self.redis.set(f"invite:key:{key}", invite_id)
+        self.redis.sadd(f"invites:unsigned:owner:{owner_id}", invite_id)
+        self.redis.sadd(f"invites:unsigned:document:{doc_id}", invite_id)
+        self.redis.sadd(f"invites:unsigned:invited:{user_id}", invite_id)
+        return invite_id
+
+    def query_invites_from_email(self, email):
+        user_id = int(self.redis.get(f'user:email:{email}'))
+        invite_ids = self.redis.smembers(f'invites:unsigned:invited:{user_id}')
+        invites = []
+        for invite_id in invite_ids:
+            b_invite = self.redis.hgetall(f"invite:{invite_id}")
+            invites.append({
+                'doc_id': int(b_invite[b'doc_id']),
+                'key': b_invite[b'key'].decode('utf8'),
+            })
+        return invites
+
+    def query_invites_from_doc(self, doc_id):
+        invite_ids = self.redis.sunion(f'invites:unsigned:document:{doc_id}', f'invites:signed:document:{doc_id}')
+        invites = []
+        for invite_id in invite_ids:
+            b_invite = self.redis.hgetall(f"invite:{invite_id}")
+            invites.append({
+                'user_id': int(b_invite[b'user_id']),
+                'key': b_invite[b'key'].decode('utf8'),
+                'signed': int(b_invite[b'signed']),
+            })
+        return invites
+
+    def query_unsigned_invites_from_doc(self, doc_id):
+        invite_ids = self.redis.smembers(f'invites:unsigned:document:{doc_id}')
+        invites = []
+        for invite_id in invite_ids:
+            b_invite = self.redis.hgetall(f"invite:{invite_id}")
+            invites.append({
+                'user_id': int(b_invite[b'user_id']),
+                'key': b_invite[b'key'].decode('utf8'),
+                'signed': 0,
+            })
+        return invites
+
+    def query_invite_id(self, key):
+        invite_id = self.redis.get(f"invite:key:{key}")
+        return int(invite_id)
+
+    def query_invite_from_key(self, key):
+        invite_id = self.query_invite_id(key)
+        b_invite = self.redis.hgetall(f"invite:{invite_id}")
+        invite = dict(
+            user_id=int(b_invite[b'user_id']),
+            doc_id=int(b_invite[b'doc_id']),
+            signed=int(b_invite[b'signed']),
+        )
+        return invite
+
+    def update_invite(self, user_id, doc_id):
+        invite_ids = self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:invited:{user_id}")
+        assert len(invite_ids) == 1
+        invite_id = int(invite_ids[0])
+        self.redis.hset(f"invite:{invite_id}", mapping={'signed': 1})
+        owner_id = int(self.redis.hget(f"invite:{invite_id}", 'owner'))
+        self.redis.smove(f"invites:unsigned:owner:{owner_id}", f"invites:signed:owner:{owner_id}", invite_id)
+        self.redis.smove(f"invites:unsigned:invited:{user_id}", f"invites:signed:invited:{user_id}", invite_id)
+        self.redis.smove(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}", invite_id)
+
+    def delete_invite(self, user_id, doc_id):
+        invite_ids = self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:invited:{user_id}")
+        invite_ids.extend(self.redis.sinter(f"invites:signed:document:{doc_id}", f"invites:signed:invited:{user_id}"))
+        assert len(invite_ids) == 1
+        invite_id = int(invite_ids[0])
+        owner_id = int(self.redis.hget(f"invite:{invite_id}", 'owner'))
+        self.redis.delete(f"invite:{invite_id}")
+        self.redis.delete(f"invites:unsigned:owner:{owner_id}")
+        self.redis.delete(f"invites:unsigned:document:{doc_id}")
+        self.redis.delete(f"invites:unsigned:invited:{user_id}")
+        self.redis.delete(f"invites:signed:owner:{owner_id}")
+        self.redis.delete(f"invites:signed:document:{doc_id}")
+        self.redis.delete(f"invites:signed:invited:{user_id}")
+
+    def delete_invites_all(self, doc_id):
+        invite_ids = self.redis.sunion(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}")
+        for b_invite_id in invite_ids:
+            invite_id = int(b_invite_id)
+            owner_id = int(self.redis.hget(f"invite:{invite_id}", 'owner'))
+            user_id = int(self.redis.hget(f"invite:{invite_id}", 'user_id'))
+            self.redis.delete(f"invite:{invite_id}")
+            self.redis.delete(f"invites:unsigned:owner:{owner_id}")
+            self.redis.delete(f"invites:unsigned:document:{doc_id}")
+            self.redis.delete(f"invites:unsigned:invited:{user_id}")
+            self.redis.delete(f"invites:signed:owner:{owner_id}")
+            self.redis.delete(f"invites:signed:document:{doc_id}")
+            self.redis.delete(f"invites:signed:invited:{user_id}")
 
 
-USER_INSERT = "INSERT INTO Users (name, email) VALUES (?, ?);"
-USER_QUERY_ID = "SELECT userID FROM Users WHERE email = ?;"
-USER_QUERY = "SELECT name, email FROM Users WHERE userID = ?;"
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner) VALUES (?, ?, ?, ?, ?);"
-DOCUMENT_QUERY_ID = "SELECT documentID FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, documentID, owner FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_LOCK = "SELECT locked, lockedBy FROM Documents WHERE documentID = ?;"
-DOCUMENT_QUERY = "SELECT key, name, size, type, owner FROM Documents WHERE documentID = ?;"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT d.documentID, d.key, d.name, d.size, d.type FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.userID;"
-DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
-DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, lockedBy = NULL WHERE documentID = ?;"
-DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, lockedBy = ? WHERE documentID = ?;"
-DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
-INVITE_INSERT = "INSERT INTO Invites (key, documentID, userID) VALUES (?, ?, ?)"
-INVITE_QUERY_FROM_EMAIL = "SELECT Invites.documentID, Invites.key FROM Invites, Users WHERE Users.email = ? AND Invites.userID = Users.userID AND Invites.signed = 0;"
-INVITE_QUERY_FROM_DOC = "SELECT userID, signed, key FROM Invites WHERE documentID = ?;"
-INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT userID FROM Invites WHERE documentID = ? AND signed = 0;"
-INVITE_QUERY_FROM_KEY = "SELECT userID, documentID, signed FROM Invites WHERE key = ?;"
-INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE userID = ? and documentID = ?;"
-INVITE_DELETE = "DELETE FROM Invites WHERE userID = ? and documentID = ?;"
-INVITE_DELETE_ALL = "DELETE FROM Invites WHERE documentID = ?;"
-
-
-def make_dicts(cursor, row):
+class RedisMD(ABCMetadata):
     """
-    See https://flask.palletsprojects.com/en/1.1.x/patterns/sqlite3
-    """
-    return dict((cursor.description[idx][0], value) for idx, value in enumerate(row))
-
-
-def get_db(db_path):
-    db = getattr(g, '_database', None)
-    if db is None:
-        exists = os.path.isfile(db_path)
-        db = g._database = sqlite3.connect(db_path)
-
-        if not exists:
-            db.cursor().executescript(DB_SCHEMA)
-            db.commit()
-
-        db.row_factory = make_dicts
-
-    return db
-
-
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
-
-
-class SqliteMD(ABCMetadata):
-    """
-    Sqlite backend to deal with the metadata associated to documents
+    Redis backend to deal with the metadata associated to documents
     to be signed by more than one user.
 
     This metadata includes data about the document (name, size, type),
@@ -149,23 +276,8 @@ class SqliteMD(ABCMetadata):
         self.app = app
         self.config = app.config
         self.logger = app.logger
-        self.db_path = app.config['SQLITE_MD_DB_PATH']
-
-    def _db_execute(self, stmt: str, args: tuple = ()):
-        db = get_db(self.db_path)
-        db.execute(stmt, args)
-
-    def _db_query(
-        self, query: str, args: tuple = (), one: bool = False
-    ) -> Union[List[Dict[str, Any]], Dict[str, Any], None]:
-        cur = get_db(self.db_path).execute(query, args)
-        rv = cur.fetchall()
-        cur.close()
-        return (rv[0] if rv else None) if one else rv
-
-    def _db_commit(self):
-        db = get_db(self.db_path)
-        db.commit()
+        client = FlaskRedis(app)
+        self.client = RedisStorageBackend(client)
 
     def add(self, key: uuid.UUID, document: Dict[str, Any], owner: Dict[str, str], invites: List[Dict[str, str]]):
         """
@@ -180,51 +292,36 @@ class SqliteMD(ABCMetadata):
         :param invites: List of the names and emails of the users that have been invited to sign the document.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
-        owner_result = self._db_query(USER_QUERY_ID, (owner['email'],), one=True)
-        if owner_result is None:
+        owner_id = self.client.query_user_id(owner['email'])
+        if owner_id is None:
             self.logger.info(f"Adding new (owning) user: {owner['name']}, {owner['email']}")
-            self._db_execute(USER_INSERT, (owner['name'], owner['email']))
-            owner_result = self._db_query(USER_QUERY_ID, (owner['email'],), one=True)
+            owner_id = self.client.insert_user(owner['name'], owner['email'])
 
-        if owner_result is None or isinstance(owner_result, list):  # This should never happen, it's just to please mypy
-            self._db_commit()
+        if owner_id is None:  # This should never happen, it's just to please mypy
             return
 
-        owner_id = owner_result['userID']
+        document_id = self.client.insert_document(key.bytes, document['name'], document['size'], document['type'], owner_id)
 
-        self._db_execute(DOCUMENT_INSERT, (key.bytes, document['name'], document['size'], document['type'], owner_id))
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
-
-        if document_result is None or isinstance(
-            document_result, list
-        ):  # This should never happen, it's just to please mypy
-            self._db_commit()
+        if document_id is None:  # This should never happen, it's just to please mypy
             return
-
-        document_id = document_result['documentID']
 
         updated_invites = []
 
         for user in invites:
-            user_result = self._db_query(USER_QUERY_ID, (user['email'],), one=True)
-            if user_result is None:
-                self._db_execute(USER_INSERT, (user['name'], user['email']))
-                user_result = self._db_query(USER_QUERY_ID, (user['email'],), one=True)
+            user_id = self.client.query_user_id(user['email'])
+            if user_id is None:
+                user_id = self.client.insert_user(user['name'], user['email'])
 
-            if user_result is None or isinstance(
-                user_result, list
-            ):  # This should never happen, it's just to please mypy
+            if user_id is None:  # This should never happen, it's just to please mypy
                 continue
 
-            user_id = user_result['userID']
             invite_key = str(uuid.uuid4())
-            self._db_execute(INVITE_INSERT, (invite_key, document_id, user_id))
+            self.client.insert_invite(invite_key, document_id, user_id, owner_id)
 
             updated_invite = {'key': invite_key}
             updated_invite.update(user)
             updated_invites.append(updated_invite)
 
-        self._db_commit()
         return updated_invites
 
     def get_pending(self, email: str) -> List[Dict[str, Any]]:
@@ -241,24 +338,24 @@ class SqliteMD(ABCMetadata):
                  + type: Content type of the doc
                  + owner: Email and name of the user requesting the signature
         """
-        invites = self._db_query(INVITE_QUERY_FROM_EMAIL, (email,))
+        invites = self.client.query_invites_from_email(email)
         if invites is None or isinstance(invites, dict):
             return []
 
         pending = []
         for invite in invites:
-            document_id = invite['documentID']
-            document = self._db_query(DOCUMENT_QUERY, (document_id,), one=True)
+            doc_id = invite['doc_id']
+            document = self.client.query_document(doc_id)
             if document is None or isinstance(document, list):
                 self.logger.error(
                     f"Db seems corrupted, an invite for {email}"
-                    f" references a non existing document with id {document_id}"
+                    f" references a non existing document with id {doc_id}"
                 )
                 continue
 
             owner = document['owner']
-            email_result = self._db_query(USER_QUERY, (owner,), one=True)
-            if email_result is None or isinstance(email_result, list):
+            email_result = self.client.query_user(owner)
+            if email_result is None:
                 self.logger.error(f"Db seems corrupted, a document references a non existing owner {owner}")
                 continue
 
@@ -277,30 +374,21 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the document in the `storage`.
         :param email: email address of the user that has just signed the document.
         """
-        user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
-        if user_result is None or isinstance(user_result, list):
+        user_id = self.client.query_user_id(email)
+        if user_id is None:
             self.logger.error(f"Trying to update a document with the signature of non-existing {email}")
             return
 
-        user_id = user_result['userID']
-
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
-        if document_result is None or isinstance(document_result, list):
+        document_id = self.client.query_document_id(key.bytes)
+        if document_id is None:
             self.logger.error(f"Trying to update a non-existing document with the signature of {email}")
             return
 
-        document_id = document_result['documentID']
-
         self.logger.info(f"Removing invite for {email} to sign {key}")
-        self._db_execute(INVITE_UPDATE, (user_id, document_id))
-        self._db_execute(
-            DOCUMENT_UPDATE,
-            (
-                datetime.now().isoformat(),
-                key.bytes,
-            ),
-        )
-        self._db_commit()
+        self.client.update_invite(user_id, document_id)
+        self.client.update_document(user_id, document_id)
+
+        self.client.update_document(datetime.now().timestamp(), key.bytes)
 
     def get_owned(self, email: str) -> List[Dict[str, Any]]:
         """
@@ -315,7 +403,7 @@ class SqliteMD(ABCMetadata):
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
                  + signed: List of emails of the users invited to sign the document who have already done so.
         """
-        documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (email,))
+        documents = self.client.query_documents_from_owner(email)
         if documents is None or isinstance(documents, dict):
             return []
 
@@ -323,15 +411,15 @@ class SqliteMD(ABCMetadata):
             document['key'] = uuid.UUID(bytes=document['key'])
             document['pending'] = []
             document['signed'] = []
-            document_id = document['documentID']
-            invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
-            del document['documentID']
+            document_id = document['doc_id']
+            invites = self.client.query_invites_from_doc(document_id)
+            del document['doc_id']
             if invites is None or isinstance(invites, dict):
                 continue
             for invite in invites:
                 user_id = invite['userID']
-                email_result = self._db_query(USER_QUERY, (user_id,), one=True)
-                if email_result is None or isinstance(email_result, list):
+                email_result = self.client.query_user(user_id)
+                if email_result is None:
                     self.logger.error(
                         f"Db seems corrupted, an invite for {document_id}"
                         f" references a non existing user with id {user_id}"
@@ -357,19 +445,19 @@ class SqliteMD(ABCMetadata):
         """
         invitees: List[Dict[str, Any]] = []
 
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
-        if document_result is None or isinstance(document_result, list):
+        document_id = self.client.query_document_id(key.bytes)
+        if document_id is None:
             self.logger.error(f"Trying to remind invitees to sign non-existing document with key {key}")
             return invitees
 
-        invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_result['documentID'],))
+        invites = self.client.query_invites_from_doc(document_id)
         if invites is None or isinstance(invites, dict):
             self.logger.error(f"Trying to remind non-existing invitees to sign document with key {key}")
             return invitees
 
         for invite in invites:
-            user_id = invite['userID']
-            email_result = self._db_query(USER_QUERY, (user_id,), one=True)
+            user_id = invite['user_id']
+            email_result = self.client.query_user(user_id)
             if email_result is None or isinstance(email_result, list):
                 self.logger.error(
                     f"Db seems corrupted, an invite for document {key}"
@@ -392,13 +480,12 @@ class SqliteMD(ABCMetadata):
         :param force: whether to remove the doc even if there are pending signatures
         :return: whether the document has been removed
         """
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
-        if document_result is None or isinstance(document_result, list):
+        document_id = self.client.query_document_id(key.bytes)
+        if document_id is None:
             self.logger.error(f"Trying to delete a non-existing document with key {key}")
             return False
 
-        document_id = document_result['documentID']
-        invites = self._db_query(INVITE_QUERY_UNSIGNED_FROM_DOC, (document_id,))
+        invites = self.client.query_unsigned_invites_from_doc(document_id)
 
         if not force:
             if invites is None or isinstance(invites, dict):  # This should never happen, it's just to please mypy
@@ -408,10 +495,9 @@ class SqliteMD(ABCMetadata):
                 return False
 
         else:
-            self._db_execute(INVITE_DELETE_ALL, (document_id,))
+            self.client.delete_invites_all(document_id)
 
-        self._db_execute(DOCUMENT_DELETE, (key.bytes,))
-        self._db_commit()
+        self.client.delete_document(key.bytes)
 
         return True
 
@@ -422,18 +508,18 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the signing invitation
         :return: A dict with data on the user and the document
         """
-        invite = self._db_query(INVITE_QUERY_FROM_KEY, (str(key),), one=True)
+        invite = self.client.query_invite_from_key(key.bytes)
         if invite is None or isinstance(invite, list):
             self.logger.error(f"Retrieving a non-existing invite with key {key}")
             return {}
 
-        doc = self._db_query(DOCUMENT_QUERY, (invite['documentID'],), one=True)
+        doc = self.client.query_document(invite['doc_id'])
         if doc is None or isinstance(doc, list):
             self.logger.error(f"Retrieving a non-existing document with key {key}")
             return {}
 
-        doc['documentID'] = invite['documentID']
-        user = self._db_query(USER_QUERY, (invite['userID'],), one=True)
+        doc['doc_id'] = invite['doc_id']
+        user = self.client.query_user(invite['user_id'])
 
         return {'document': doc, 'user': user}
 
@@ -449,8 +535,8 @@ class SqliteMD(ABCMetadata):
                  + type: Content type of the doc
                  + size: Size of the doc
         """
-        document_result = self._db_query(DOCUMENT_QUERY_ALL, (key.bytes,), one=True)
-        if document_result is None or isinstance(document_result, list):
+        document_result = self.client.query_document_all(key.bytes)
+        if document_result is None:
             self.logger.error(f"Trying to find a non-existing document with key {key}")
             return {}
 
@@ -465,32 +551,27 @@ class SqliteMD(ABCMetadata):
         :param locked_by: Email of the user locking the document
         :return: Whether the document has been locked.
         """
-        lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
+        lock_info = self.client.query_document_lock(doc_id)
         self.logger.debug(f"Checking lock for {locked_by} in document with id {doc_id}: {lock_info}")
-        if lock_info is None or isinstance(lock_info, list):
+        if lock_info is None:
             self.logger.error(f"Trying to lock a non-existing document with id {doc_id}")
             return False
 
-        user_result = self._db_query(USER_QUERY_ID, (locked_by,), one=True)
-        if user_result is None or isinstance(user_result, list):
+        user_id = self.client.query_user_id(locked_by)
+        if user_id is None:
             self.logger.error(f"Trying to lock a document for non-existing {locked_by}")
             return False
 
         now = datetime.now()
 
-        if isinstance(lock_info['locked'], str):
-            locked = datetime.fromisoformat(lock_info['locked'])
-        else:
-            locked = lock_info['locked']
+        locked = datetime.fromtimestamp(lock_info['locked'])
+        user_result = self.client.query_user(user_id)
 
-        if (
-            locked is None
-            or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']
-            or user_result['email'] == locked_by
-        ):
+        now_ts = now.timestamp()
+
+        if (locked is None or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT'] or user_result['email'] == locked_by):
             self.logger.debug(f"Adding lock for {locked_by} in document with id {doc_id}: {lock_info}")
-            self._db_execute(DOCUMENT_ADD_LOCK, (now, user_result['userID'], doc_id))
-            self._db_commit()
+            self.client.add_document_lock(now_ts, user_id, doc_id)
             return True
 
         return False
@@ -504,7 +585,7 @@ class SqliteMD(ABCMetadata):
         :param unlocked_by: Email of the user unlocking the document
         :return: Whether the document has been unlocked.
         """
-        lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
+        lock_info = self.client.query_document_lock(doc_id)
         if lock_info is None or isinstance(lock_info, list):
             self.logger.error(f"Trying to unlock a non-existing document with id {doc_id}")
             return False
@@ -512,12 +593,13 @@ class SqliteMD(ABCMetadata):
         if lock_info['locked'] is None:
             return True
 
-        user_result = self._db_query(USER_QUERY_ID, (unlocked_by,), one=True)
-        if user_result is None or isinstance(user_result, list):
+        user_id = self.client.query_user_id(unlocked_by)
+        if user_id is None:
             self.logger.error(f"Trying to unlock a document for non-existing {unlocked_by}")
             return False
 
         now = datetime.now()
+        user_result = self.client.query_user(user_id)
 
         if isinstance(lock_info['locked'], str):
             locked = datetime.fromisoformat(lock_info['locked'])
@@ -525,8 +607,7 @@ class SqliteMD(ABCMetadata):
             locked = lock_info['locked']
 
         if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['lockedBy'] == user_result['userID']:
-            self._db_execute(DOCUMENT_RM_LOCK, (doc_id,))
-            self._db_commit()
+            self.client.rm_document_lock(doc_id)
             return True
 
         return False
@@ -540,7 +621,7 @@ class SqliteMD(ABCMetadata):
         :param locked_by: Email of the user locking the document
         :return: Whether the document is locked by the user with `locked_by` email
         """
-        lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
+        lock_info = self.client.query_document_lock(doc_id)
         if lock_info is None or isinstance(lock_info, list):
             self.logger.error(f"Trying to check a non-existing document with id {doc_id}")
             return False
@@ -558,14 +639,15 @@ class SqliteMD(ABCMetadata):
 
         if (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']:
             self.logger.debug(f"Lock for document with id {doc_id} has expired")
-            self._db_execute(DOCUMENT_RM_LOCK, (doc_id,))
-            self._db_commit()
+            self.client.rm_document_lock(doc_id)
             return False
 
-        user_info = self._db_query(USER_QUERY, (lock_info['lockedBy'],), one=True)
-        if user_info is None or isinstance(user_info, list):
+        user_id = self.client.query_user_id(lock_info['locked_by'])
+        if user_id is None:
             self.logger.error(f"Trying to check with a non-existing user with id {lock_info['lockedBy']}")
             return False
+
+        user_info = self.client.query_user(user_id)
 
         self.logger.debug(f"Checking lock for {doc_id} by {user_info['email']} for {locked_by}")
         return locked_by == user_info['email']
@@ -577,9 +659,10 @@ class SqliteMD(ABCMetadata):
         :param user_id: the pk for the user in the users table
         :return: Name and email of the user
         """
-        user_info = self._db_query(USER_QUERY, (user_id,), one=True)
-        if user_info is None or isinstance(user_info, list):
+        user_info = self.client.query_user(user_id)
+        if user_info is None:
             self.logger.error(f"Trying to find with a non-existing user with id {user_id}")
             return {}
 
         return user_info
+

@@ -88,7 +88,7 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
     app.babel = Babel(app)
 
-    app.doc_store = DocStore(app.config, app.logger)
+    app.doc_store = DocStore(app)
 
     app.mailer = Mail(app)
 
