@@ -46,9 +46,10 @@ class ABCStorage(metaclass=abc.ABCMeta):
     """
 
     @abc.abstractmethod
-    def __init__(self, app: Flask):
+    def __init__(self, config: dict, logger: logging.Logger):
         """
-        :param app: flask app
+        :param config: Dict like object with the configuration parameters provided to the Flask app.
+        :param logger: Logger
         """
 
     @abc.abstractmethod
@@ -270,7 +271,7 @@ class DocStore(object):
         storage_module_path, storage_class_name = storage_class_path.rsplit('.', 1)
         storage_class = getattr(import_module(storage_module_path), storage_class_name)
 
-        self.storage = storage_class(app)
+        self.storage = storage_class(app.config, app.logger)
 
         docmd_class_path = app.config['DOC_METADATA_CLASS_PATH']
         docmd_module_path, docmd_class_name = docmd_class_path.rsplit('.', 1)

@@ -98,6 +98,8 @@ DOC_METADATA_CLASS_PATH = os.environ.get(
 )
 SQLITE_MD_DB_PATH = os.environ.get('SQLITE_MD_DB_PATH', default='/tmp/test.db')
 
+REDIS_URL = os.environ.get('REDIS_URL', default='redis://localhost:6379/0')
+
 DOC_LOCK_TIMEOUT_RAW = os.environ.get('DOC_LOCK_TIMEOUT', default='300')
 
 DOC_LOCK_TIMEOUT = datetime.timedelta(seconds=int(DOC_LOCK_TIMEOUT_RAW))

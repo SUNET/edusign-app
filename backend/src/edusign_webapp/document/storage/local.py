@@ -31,11 +31,10 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import base64
+import logging
 import os
 import uuid
 from typing import Optional
-
-from flask import Flask
 
 from edusign_webapp.doc_store import ABCStorage
 
@@ -46,14 +45,14 @@ class LocalStorage(ABCStorage):
     so that they can be consecutively signedby more than one user.
     """
 
-    def __init__(self, app: Flask):
+    def __init__(self, config: dict, logger: logging.Logger):
         """
-        :param app: flask app
+        :param config: Dict like object with the configuration parameters provided to the Flask app.
+        :param logger: Logger
         """
-        self.app = app
-        self.config = app.config
-        self.logger = app.logger
-        self.base_dir = app.config['LOCAL_STORAGE_BASE_DIR']
+        self.config = config
+        self.logger = logger
+        self.base_dir = config['LOCAL_STORAGE_BASE_DIR']
 
     def add(self, key: uuid.UUID, content: str):
         """

@@ -38,11 +38,11 @@ from base64 import b64encode, b64decode
 from copy import deepcopy
 
 import pytest
-from botocore.stub import Stubber
 
 from edusign_webapp import run
 from edusign_webapp.doc_store import DocStore
 from edusign_webapp.document.metadata.sqlite import SqliteMD
+from edusign_webapp.document.metadata.redis_client import RedisMD
 from edusign_webapp.document.storage.local import LocalStorage
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -139,6 +139,7 @@ def s3_app(request):
 def local_storage():
     tempdir = tempfile.TemporaryDirectory()
     config = {'LOCAL_STORAGE_BASE_DIR': tempdir.name}
+    config.update(config_dev)
     # return tempdir, since once it goes out of scope, it is removed
     yield tempdir, LocalStorage(config, logging.getLogger(__name__))
 
@@ -148,8 +149,21 @@ def sqlite_md():
     tempdir = tempfile.TemporaryDirectory()
     db_path = os.path.join(tempdir.name, 'test.db')
     config = {'SQLITE_MD_DB_PATH': db_path}
+    config.update(config_dev)
+    app = run.edusign_init_app('testing', config)
     # return tempdir, since once it goes out of scope, it is removed
-    yield tempdir, SqliteMD(config, logging.getLogger(__name__))
+    yield tempdir, SqliteMD(app)
+
+
+@pytest.fixture
+def redis_md():
+    tempdir = tempfile.TemporaryDirectory()
+    db_path = os.path.join(tempdir.name, 'test.db')
+    config = {'SQLITE_MD_DB_PATH': db_path}
+    config.update(config_dev)
+    app = run.edusign_init_app('testing', config)
+    # return tempdir, since once it goes out of scope, it is removed
+    yield tempdir, RedisMD(app)
 
 
 @pytest.fixture
@@ -162,8 +176,24 @@ def doc_store_local_sqlite():
         'LOCAL_STORAGE_BASE_DIR': tempdir.name,
         'SQLITE_MD_DB_PATH': db_path,
     }
+    config.update(config_dev)
+    app = run.edusign_init_app('testing', config)
     # return tempdir, since once it goes out of scope, it is removed
-    yield tempdir, DocStore(config, logging.getLogger(__name__))
+    yield tempdir, DocStore(app)
+
+
+@pytest.fixture
+def doc_store_local_redis():
+    tempdir = tempfile.TemporaryDirectory()
+    config = {
+        'STORAGE_CLASS_PATH': 'edusign_webapp.document.storage.local.LocalStorage',
+        'DOC_METADATA_CLASS_PATH': 'edusign_webapp.document.metadata.redis_client.RedisMD',
+        'LOCAL_STORAGE_BASE_DIR': tempdir.name,
+    }
+    config.update(config_dev)
+    app = run.edusign_init_app('testing', config)
+    # return tempdir, since once it goes out of scope, it is removed
+    yield tempdir, DocStore(app)
 
 
 @pytest.fixture
