@@ -107,15 +107,11 @@ def test_add_two_and_get_pending(
 
     assert len(pending) == 2
 
-    assert pending[0]['name'] == 'test1.pdf'
-    assert pending[0]['size'] == 1500000
-    assert pending[0]['type'] == 'application/pdf'
-    assert pending[0]['owner']['email'] == 'owner@example.org'
-
-    assert pending[1]['name'] == 'test2.pdf'
-    assert pending[1]['size'] == 1500000
-    assert pending[1]['type'] == 'application/pdf'
-    assert pending[1]['owner']['email'] == 'owner2@example.org'
+    for p in pending:
+        assert p['name'] in ['test1.pdf', 'test2.pdf']
+        assert p['size'] == 1500000
+        assert p['type'] == 'application/pdf'
+        assert p['owner']['email'] in ['owner@example.org', 'owner2@example.org']
 
 
 def test_add_and_get_pending_invites(
@@ -227,7 +223,8 @@ def test_add_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_i
     assert owned[0]['name'] == 'test1.pdf'
     assert owned[0]['size'] == 1500000
     assert owned[0]['type'] == 'application/pdf'
-    assert [p['email'] for p in owned[0]['pending']] == ['invite0@example.org', 'invite1@example.org']
+    for p in owned[0]['pending']:
+        assert p['email'] in ['invite0@example.org', 'invite1@example.org']
 
 
 def test_add_and_remove(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
@@ -268,7 +265,7 @@ def test_add_and_get_invitation(redis_md, sample_metadata_1, sample_owner_1, sam
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
 
-    assert invitation['document']['key'] == dummy_key.bytes
+    assert invitation['document']['key'] == dummy_key
 
 
 def test_add_and_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
@@ -281,8 +278,9 @@ def test_add_and_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invite
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
         doc_id = test_md.get_document(invitation['document']['key'])['doc_id']
-        test_md.add_lock(doc_id, sample_invites_1[0]['email'])
-        locked = test_md.check_lock(doc_id, sample_invites_1[0]['email'])
+        user_id = test_md.client.query_user_id(sample_invites_1[0]['email'])
+        test_md.add_lock(doc_id, user_id)
+        locked = test_md.check_lock(doc_id, user_id)
 
     assert locked
 

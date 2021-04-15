@@ -200,7 +200,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
         :param key: The key identifying the document
         :return: A dictionary with information about the document, with keys:
-                 + documentID: pk of the doc in the storage.
+                 + doc_id: pk of the doc in the storage.
                  + key: Key of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
@@ -386,7 +386,7 @@ class DocStore(object):
         if not data:
             return {}
 
-        locked = self.metadata.add_lock(data['document']['documentID'], data['user']['email'])
+        locked = self.metadata.add_lock(data['document']['doc_id'], data['user']['email'])
 
         if not locked:
             raise self.DocumentLocked()
@@ -406,7 +406,7 @@ class DocStore(object):
         if not doc:
             return False
 
-        return self.metadata.rm_lock(doc['documentID'], unlocked_by)
+        return self.metadata.rm_lock(doc['doc_id'], unlocked_by)
 
     def check_document_locked(self, key: uuid.UUID, locked_by: str) -> bool:
         """
@@ -421,7 +421,7 @@ class DocStore(object):
             return False
         self.logger.debug(f"Checked doc {doc['name']} for {locked_by}")
 
-        return self.metadata.check_lock(doc['documentID'], locked_by)
+        return self.metadata.check_lock(doc['doc_id'], locked_by)
 
     def get_signed_document(self, key: uuid.UUID) -> List[Dict[str, Any]]:
         """
@@ -429,7 +429,7 @@ class DocStore(object):
 
         :param key: the key identifying the document
         :return: A dict with document data, with keys:
-                 + documentID: pk of the doc in the storage.
+                 + doc_id: pk of the doc in the storage.
                  + key: Key of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc

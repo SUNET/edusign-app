@@ -62,6 +62,7 @@ class RedisStorageBackend:
         user = {
             'name': b_user[b'name'].decode('utf8'),
             'email': b_user[b'email'].decode('utf8'),
+            'user_id': user_id,
         }
         return user
 
@@ -93,7 +94,7 @@ class RedisStorageBackend:
         doc = dict(
             key=key,
             name=b_doc[b'name'].decode('utf8'),
-            size=b_doc[b'size'].decode('utf8'),
+            size=int(b_doc[b'size']),
             type=b_doc[b'type'].decode('utf8'),
             doc_id=doc_id,
             owner=int(b_doc[b'owner']),
@@ -113,7 +114,7 @@ class RedisStorageBackend:
         doc = dict(
             key=uuid.UUID(bytes=b_doc[b'key']),
             name=b_doc[b'name'].decode('utf8'),
-            size=b_doc[b'size'].decode('utf8'),
+            size=int(b_doc[b'size']),
             type=b_doc[b'type'].decode('utf8'),
             owner=int(b_doc[b'owner']),
         )
@@ -121,7 +122,7 @@ class RedisStorageBackend:
 
     def query_documents_from_owner(self, email):
         user_id = int(self.redis.get(f'user:email:{email}'))
-        doc_ids = self.redis.get(f'doc:owner:{user_id}')
+        doc_ids = self.redis.smembers(f'doc:owner:{user_id}')
         docs = []
         for b_doc_id in doc_ids:
             doc_id = int(b_doc_id)
@@ -130,7 +131,7 @@ class RedisStorageBackend:
                 doc_id=doc_id,
                 key=uuid.UUID(bytes=b_doc[b'key']),
                 name=b_doc[b'name'].decode('utf8'),
-                size=b_doc[b'size'].decode('utf8'),
+                size=int(b_doc[b'size']),
                 type=b_doc[b'type'].decode('utf8'),
             )
             docs.append(doc)
@@ -141,7 +142,8 @@ class RedisStorageBackend:
         self.redis.hset(f"doc:{doc_id}", mapping=dict(updated=updated))
 
     def rm_document_lock(self, doc_id):
-        self.redis.hset(f"doc:{doc_id}", mapping=dict(locked=None, locked_by=None))
+        self.redis.hdel(f"doc:{doc_id}", 'locked')
+        self.redis.hdel(f"doc:{doc_id}", 'locked_by')
 
     def add_document_lock(self, doc_id, locked, locked_by):
         self.redis.hset(f"doc:{doc_id}", mapping=dict(locked=locked, locked_by=locked_by))
@@ -177,7 +179,7 @@ class RedisStorageBackend:
             user_id = int(b_user_id)
             invite_ids = self.redis.smembers(f'invites:unsigned:invited:{user_id}')
             for invite_id in invite_ids:
-                b_invite = self.redis.hgetall(f"invite:{invite_id}")
+                b_invite = self.redis.hgetall(f"invite:{int(invite_id)}")
                 invites.append({
                     'doc_id': int(b_invite[b'doc_id']),
                     'key': b_invite[b'key'].decode('utf8'),
@@ -188,7 +190,7 @@ class RedisStorageBackend:
         invite_ids = self.redis.sunion(f'invites:unsigned:document:{doc_id}', f'invites:signed:document:{doc_id}')
         invites = []
         for invite_id in invite_ids:
-            b_invite = self.redis.hgetall(f"invite:{invite_id}")
+            b_invite = self.redis.hgetall(f"invite:{int(invite_id)}")
             invites.append({
                 'user_id': int(b_invite[b'user_id']),
                 'key': b_invite[b'key'].decode('utf8'),
@@ -368,8 +370,8 @@ class RedisMD(ABCMetadata):
                 continue
 
             document['owner'] = email_result
-            document['key'] = uuid.UUID(bytes=document['key'])
-            document['invite_key'] = uuid.UUID(invite['key'])
+            document['key'] = document['key']
+            document['invite_key'] = invite['key']
             pending.append(document)
 
         return pending
@@ -416,7 +418,7 @@ class RedisMD(ABCMetadata):
             return []
 
         for document in documents:
-            document['key'] = uuid.UUID(bytes=document['key'])
+            document['key'] = document['key']
             document['pending'] = []
             document['signed'] = []
             document_id = document['doc_id']
@@ -425,7 +427,7 @@ class RedisMD(ABCMetadata):
             if invites is None or isinstance(invites, dict):
                 continue
             for invite in invites:
-                user_id = invite['userID']
+                user_id = invite['user_id']
                 email_result = self.client.query_user(user_id)
                 if email_result is None:
                     self.logger.error(
@@ -537,7 +539,7 @@ class RedisMD(ABCMetadata):
 
         :param key: The key identifying the document
         :return: A dictionary with information about the document, with keys:
-                 + documentID: pk of the doc in the storage.
+                 + doc_id: pk of the doc in the storage.
                  + key: Key of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
@@ -565,7 +567,7 @@ class RedisMD(ABCMetadata):
             self.logger.error(f"Trying to lock a non-existing document with id {doc_id}")
             return False
 
-        user_id = self.client.query_user_id(locked_by)
+        user_id = locked_by
         if user_id is None:
             self.logger.error(f"Trying to lock a document for non-existing {locked_by}")
             return False
@@ -573,13 +575,12 @@ class RedisMD(ABCMetadata):
         now = datetime.now()
 
         locked = None if lock_info['locked'] is None else datetime.fromtimestamp(lock_info['locked'])
-        user_result = self.client.query_user(user_id)
 
         now_ts = now.timestamp()
 
-        if (locked is None or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT'] or user_result['email'] == locked_by):
+        if (locked is None or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT'] or user_id == locked_by):
             self.logger.debug(f"Adding lock for {locked_by} in document with id {doc_id}: {lock_info}")
-            self.client.add_document_lock(now_ts, user_id, doc_id)
+            self.client.add_document_lock(doc_id, now_ts, user_id)
             return True
 
         return False
@@ -614,7 +615,7 @@ class RedisMD(ABCMetadata):
         else:
             locked = lock_info['locked']
 
-        if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['lockedBy'] == user_result['userID']:
+        if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['locked_by'] == user_result['user_id']:
             self.client.rm_document_lock(doc_id)
             return True
 
@@ -650,15 +651,13 @@ class RedisMD(ABCMetadata):
             self.client.rm_document_lock(doc_id)
             return False
 
-        user_id = self.client.query_user_id(lock_info['locked_by'])
+        user_id = lock_info['locked_by']
         if user_id is None:
-            self.logger.error(f"Trying to check with a non-existing user with id {lock_info['lockedBy']}")
+            self.logger.error(f"Trying to check with a non-existing user with id {lock_info['locked_by']}")
             return False
 
-        user_info = self.client.query_user(user_id)
-
-        self.logger.debug(f"Checking lock for {doc_id} by {user_info['email']} for {locked_by}")
-        return locked_by == user_info['email']
+        self.logger.debug(f"Checking lock for {doc_id} by {user_id} for {locked_by}")
+        return locked_by == user_id
 
     def get_user(self, user_id: int) -> Dict[str, Any]:
         """
