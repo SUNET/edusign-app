@@ -479,7 +479,7 @@ def create_invited_signature(invite_key: str) -> str:
     current_app.logger.info(f"Prepared {doc['name']} for multisigning by user {session['eppn']}")
 
     new_doc = {
-        'key': str(uuid.UUID(doc['key'])),
+        'key': doc['key'],
         'name': doc['name'],
         'type': doc['type'],
         'ref': doc_data['updatedPdfDocumentReference'],
