@@ -127,13 +127,10 @@ def test_add_and_get_pending_invites(
 
     assert len(pending) == 2
 
-    assert pending[0]['name'] == 'invite0'
-    assert pending[0]['email'] == 'invite0@example.org'
-    assert not pending[0]['signed']
-
-    assert pending[1]['name'] == 'invite1'
-    assert pending[1]['email'] == 'invite1@example.org'
-    assert not pending[1]['signed']
+    for p in pending:
+        assert p['name'] in ['invite0', 'invite1']
+        assert p['email'] in ['invite0@example.org', 'invite1@example.org']
+        assert not p['signed']
 
 
 def test_add_update_and_get_pending_invites(
@@ -150,13 +147,11 @@ def test_add_update_and_get_pending_invites(
 
     assert len(pending) == 2
 
-    assert pending[0]['name'] == 'invite0'
-    assert pending[0]['email'] == 'invite0@example.org'
-    assert pending[0]['signed']
+    for p in pending:
+        assert p['name'] in ['invite0', 'invite1']
+        assert p['email'] in ['invite0@example.org', 'invite1@example.org']
 
-    assert pending[1]['name'] == 'invite1'
-    assert pending[1]['email'] == 'invite1@example.org'
-    assert not pending[1]['signed']
+    assert pending[0]['signed'] is not pending[1]['signed']
 
 
 def test_update_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
@@ -278,9 +273,8 @@ def test_add_and_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invite
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
         doc_id = test_md.get_document(invitation['document']['key'])['doc_id']
-        user_id = test_md.client.query_user_id(sample_invites_1[0]['email'])
-        test_md.add_lock(doc_id, user_id)
-        locked = test_md.check_lock(doc_id, user_id)
+        test_md.add_lock(doc_id, sample_invites_1[0]['email'])
+        locked = test_md.check_lock(doc_id, sample_invites_1[0]['email'])
 
     assert locked
 

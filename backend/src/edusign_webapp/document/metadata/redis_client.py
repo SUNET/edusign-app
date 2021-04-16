@@ -89,7 +89,7 @@ class RedisStorageBackend:
             return int(doc_id)
 
     def query_document_all(self, key):
-        doc_id = self.query_document_id(key.bytes)
+        doc_id = self.query_document_id(str(key))
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         doc = dict(
             key=key,
@@ -112,7 +112,7 @@ class RedisStorageBackend:
     def query_document(self, doc_id):
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         doc = dict(
-            key=uuid.UUID(bytes=b_doc[b'key']),
+            key=uuid.UUID(b_doc[b'key'].decode('utf8')),
             name=b_doc[b'name'].decode('utf8'),
             size=int(b_doc[b'size']),
             type=b_doc[b'type'].decode('utf8'),
@@ -129,7 +129,7 @@ class RedisStorageBackend:
             b_doc = self.redis.hgetall(f"doc:{doc_id}")
             doc = dict(
                 doc_id=doc_id,
-                key=uuid.UUID(bytes=b_doc[b'key']),
+                key=uuid.UUID(b_doc[b'key'].decode('utf8')),
                 name=b_doc[b'name'].decode('utf8'),
                 size=int(b_doc[b'size']),
                 type=b_doc[b'type'].decode('utf8'),
@@ -149,7 +149,7 @@ class RedisStorageBackend:
         self.redis.hset(f"doc:{doc_id}", mapping=dict(locked=locked, locked_by=locked_by))
 
     def delete_document(self, key):
-        doc_id = self.redis.get(f"doc:key:{key}")
+        doc_id = int(self.redis.get(f"doc:key:{key}"))
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         owner = int(b_doc[b'owner'])
         self.redis.delete(f"doc:{doc_id}")
@@ -202,7 +202,7 @@ class RedisStorageBackend:
         invite_ids = self.redis.smembers(f'invites:unsigned:document:{doc_id}')
         invites = []
         for invite_id in invite_ids:
-            b_invite = self.redis.hgetall(f"invite:{invite_id}")
+            b_invite = self.redis.hgetall(f"invite:{int(invite_id)}")
             invites.append({
                 'user_id': int(b_invite[b'user_id']),
                 'key': b_invite[b'key'].decode('utf8'),
@@ -229,9 +229,9 @@ class RedisStorageBackend:
     def update_invite(self, user_id, doc_id):
         invite_ids = self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:invited:{user_id}")
         assert len(invite_ids) == 1
-        invite_id = int(invite_ids[0])
+        invite_id = int(list(invite_ids)[0])
         self.redis.hset(f"invite:{invite_id}", mapping={'signed': 1})
-        owner_id = int(self.redis.hget(f"invite:{invite_id}", 'owner'))
+        owner_id = int(self.redis.hget(f"invite:{invite_id}", 'owner_id'))
         self.redis.smove(f"invites:unsigned:owner:{owner_id}", f"invites:signed:owner:{owner_id}", invite_id)
         self.redis.smove(f"invites:unsigned:invited:{user_id}", f"invites:signed:invited:{user_id}", invite_id)
         self.redis.smove(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}", invite_id)
@@ -310,7 +310,7 @@ class RedisMD(ABCMetadata):
         if owner_id is None:  # This should never happen, it's just to please mypy
             return
 
-        document_id = self.client.insert_document(key.bytes, document['name'], document['size'], document['type'], owner_id)
+        document_id = self.client.insert_document(str(key), document['name'], document['size'], document['type'], owner_id)
 
         if document_id is None:  # This should never happen, it's just to please mypy
             return
@@ -398,7 +398,7 @@ class RedisMD(ABCMetadata):
         self.client.update_invite(user_id, document_id)
         self.client.update_document(user_id, document_id)
 
-        self.client.update_document(datetime.now().timestamp(), key.bytes)
+        self.client.update_document(datetime.now().timestamp(), str(key))
 
     def get_owned(self, email: str) -> List[Dict[str, Any]]:
         """
@@ -507,7 +507,7 @@ class RedisMD(ABCMetadata):
         else:
             self.client.delete_invites_all(document_id)
 
-        self.client.delete_document(key.bytes)
+        self.client.delete_document(str(key))
 
         return True
 
@@ -567,7 +567,7 @@ class RedisMD(ABCMetadata):
             self.logger.error(f"Trying to lock a non-existing document with id {doc_id}")
             return False
 
-        user_id = locked_by
+        user_id = self.client.query_user_id(locked_by)
         if user_id is None:
             self.logger.error(f"Trying to lock a document for non-existing {locked_by}")
             return False
@@ -575,10 +575,11 @@ class RedisMD(ABCMetadata):
         now = datetime.now()
 
         locked = None if lock_info['locked'] is None else datetime.fromtimestamp(lock_info['locked'])
+        user_result = self.client.query_user(user_id)
 
         now_ts = now.timestamp()
 
-        if (locked is None or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT'] or user_id == locked_by):
+        if (locked is None or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT'] or user_result['email'] == locked_by):
             self.logger.debug(f"Adding lock for {locked_by} in document with id {doc_id}: {lock_info}")
             self.client.add_document_lock(doc_id, now_ts, user_id)
             return True
@@ -657,7 +658,8 @@ class RedisMD(ABCMetadata):
             return False
 
         self.logger.debug(f"Checking lock for {doc_id} by {user_id} for {locked_by}")
-        return locked_by == user_id
+        locker_id = self.client.query_user_id(locked_by)
+        return locker_id == user_id
 
     def get_user(self, user_id: int) -> Dict[str, Any]:
         """
