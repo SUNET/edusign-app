@@ -35,14 +35,13 @@ from datetime import datetime
 from typing import Any, Dict, List
 
 from fakeredis import FakeStrictRedis
-from flask import current_app, Flask
+from flask import Flask, current_app
 from flask_redis import FlaskRedis
 
 from edusign_webapp.doc_store import ABCMetadata
 
 
 class RedisStorageBackend:
-
     def __init__(self, redis_client):
         self.redis = redis_client
 
@@ -104,7 +103,9 @@ class RedisStorageBackend:
     def query_document_lock(self, doc_id):
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         doc = dict(
-            locked=None if b'locked' not in b_doc or b_doc[b'locked'] is None else datetime.fromtimestamp(float(b_doc[b'locked'])),
+            locked=None
+            if b'locked' not in b_doc or b_doc[b'locked'] is None
+            else datetime.fromtimestamp(float(b_doc[b'locked'])),
             locked_by=None if b'locked_by' not in b_doc or b_doc[b'locked_by'] is None else int(b_doc[b'locked_by']),
         )
         return doc
@@ -180,10 +181,12 @@ class RedisStorageBackend:
             invite_ids = self.redis.smembers(f'invites:unsigned:invited:{user_id}')
             for invite_id in invite_ids:
                 b_invite = self.redis.hgetall(f"invite:{int(invite_id)}")
-                invites.append({
-                    'doc_id': int(b_invite[b'doc_id']),
-                    'key': b_invite[b'key'].decode('utf8'),
-                })
+                invites.append(
+                    {
+                        'doc_id': int(b_invite[b'doc_id']),
+                        'key': b_invite[b'key'].decode('utf8'),
+                    }
+                )
         return invites
 
     def query_invites_from_doc(self, doc_id):
@@ -191,11 +194,13 @@ class RedisStorageBackend:
         invites = []
         for invite_id in invite_ids:
             b_invite = self.redis.hgetall(f"invite:{int(invite_id)}")
-            invites.append({
-                'user_id': int(b_invite[b'user_id']),
-                'key': b_invite[b'key'].decode('utf8'),
-                'signed': int(b_invite[b'signed']),
-            })
+            invites.append(
+                {
+                    'user_id': int(b_invite[b'user_id']),
+                    'key': b_invite[b'key'].decode('utf8'),
+                    'signed': int(b_invite[b'signed']),
+                }
+            )
         return invites
 
     def query_unsigned_invites_from_doc(self, doc_id):
@@ -203,11 +208,13 @@ class RedisStorageBackend:
         invites = []
         for invite_id in invite_ids:
             b_invite = self.redis.hgetall(f"invite:{int(invite_id)}")
-            invites.append({
-                'user_id': int(b_invite[b'user_id']),
-                'key': b_invite[b'key'].decode('utf8'),
-                'signed': 0,
-            })
+            invites.append(
+                {
+                    'user_id': int(b_invite[b'user_id']),
+                    'key': b_invite[b'key'].decode('utf8'),
+                    'signed': 0,
+                }
+            )
         return invites
 
     def query_invite_id(self, key):
@@ -310,7 +317,9 @@ class RedisMD(ABCMetadata):
         if owner_id is None:  # This should never happen, it's just to please mypy
             return
 
-        document_id = self.client.insert_document(str(key), document['name'], document['size'], document['type'], owner_id)
+        document_id = self.client.insert_document(
+            str(key), document['name'], document['size'], document['type'], owner_id
+        )
 
         if document_id is None:  # This should never happen, it's just to please mypy
             return
@@ -358,8 +367,7 @@ class RedisMD(ABCMetadata):
             document = self.client.query_document(doc_id)
             if document is None or isinstance(document, list):
                 self.logger.error(
-                    f"Db seems corrupted, an invite for {email}"
-                    f" references a non existing document with id {doc_id}"
+                    f"Db seems corrupted, an invite for {email}" f" references a non existing document with id {doc_id}"
                 )
                 continue
 
@@ -578,7 +586,11 @@ class RedisMD(ABCMetadata):
 
         now_ts = now.timestamp()
 
-        if (locked is None or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT'] or user_result['email'] == locked_by):
+        if (
+            locked is None
+            or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']
+            or user_result['email'] == locked_by
+        ):
             self.logger.debug(f"Adding lock for {locked_by} in document with id {doc_id}: {lock_info}")
             self.client.add_document_lock(doc_id, now_ts, user_id)
             return True
@@ -673,4 +685,3 @@ class RedisMD(ABCMetadata):
             return {}
 
         return user_info
-

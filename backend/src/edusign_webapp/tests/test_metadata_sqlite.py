@@ -118,9 +118,7 @@ def test_add_two_and_get_pending(
     assert pending[1]['owner']['email'] == 'owner2@example.org'
 
 
-def test_add_and_get_pending_invites(
-    sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1
-):
+def test_add_and_get_pending_invites(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key_1 = uuid.uuid4()
 
@@ -140,9 +138,7 @@ def test_add_and_get_pending_invites(
     assert not pending[1]['signed']
 
 
-def test_add_update_and_get_pending_invites(
-    sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1
-):
+def test_add_update_and_get_pending_invites(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key_1 = uuid.uuid4()
 

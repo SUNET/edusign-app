@@ -36,7 +36,7 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List, Union
 
-from flask import current_app, g, Flask
+from flask import Flask, current_app, g
 
 from edusign_webapp.doc_store import ABCMetadata
 

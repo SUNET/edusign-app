@@ -34,15 +34,15 @@ import logging
 import os
 import tempfile
 import uuid
-from base64 import b64encode, b64decode
+from base64 import b64decode, b64encode
 from copy import deepcopy
 
 import pytest
 
 from edusign_webapp import run
 from edusign_webapp.doc_store import DocStore
-from edusign_webapp.document.metadata.sqlite import SqliteMD
 from edusign_webapp.document.metadata.redis_client import RedisMD
+from edusign_webapp.document.metadata.sqlite import SqliteMD
 from edusign_webapp.document.storage.local import LocalStorage
 
 here = os.path.abspath(os.path.dirname(__file__))

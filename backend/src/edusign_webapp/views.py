@@ -542,9 +542,7 @@ def multi_sign_service_callback(doc_key) -> str:
     owner_data = current_app.doc_store.get_owner_data(key)
     if not owner_data:
         current_app.logger.error(f"Problem signing document {key} for {session['mail']} with no owner data")
-        return render_template(
-            'error-generic.jinja2', message=gettext('There is no owner data for this document')
-        )
+        return render_template('error-generic.jinja2', message=gettext('There is no owner data for this document'))
 
     recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
     msg = Message(gettext(f"XXX {owner_data['name']} has signed {owner_data['docname']}"), recipients=recipients)
