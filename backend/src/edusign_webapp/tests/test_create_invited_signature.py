@@ -156,7 +156,7 @@ def _test_create_invited_signature(
 def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1):
     mock_invitation = {
         'document': {
-            'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+            'key': '11111111-1111-1111-1111-111111111111',
             'name': 'test.pdf',
             'size': '1KB',
             'type': 'application/pdf',
@@ -176,7 +176,7 @@ def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1):
 def test_create_invited_signature_doc_locked(app, environ_base, monkeypatch, sample_doc_1):
     mock_invitation = {
         'document': {
-            'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+            'key': '11111111-1111-1111-1111-111111111111',
             'name': 'test.pdf',
             'size': '1KB',
             'type': 'application/pdf',
@@ -198,7 +198,7 @@ def test_create_invited_signature_doc_locked(app, environ_base, monkeypatch, sam
 def test_create_invited_signature_wrong_invitee(app, environ_base, monkeypatch, sample_doc_1):
     mock_invitation = {
         'document': {
-            'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+            'key': '11111111-1111-1111-1111-111111111111',
             'name': 'test.pdf',
             'size': '1KB',
             'type': 'application/pdf',
@@ -225,7 +225,7 @@ def test_create_invited_signature_unknown_invitee(app, environ_base, monkeypatch
 def test_create_invited_signature_prepare_error(app, environ_base, monkeypatch, sample_doc_1):
     mock_invitation = {
         'document': {
-            'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+            'key': '11111111-1111-1111-1111-111111111111',
             'name': 'test.pdf',
             'size': '1KB',
             'type': 'application/pdf',
@@ -248,7 +248,7 @@ def test_create_invited_signature_prepare_error(app, environ_base, monkeypatch, 
 def test_create_invited_signature_create_error(app, environ_base, monkeypatch, sample_doc_1):
     mock_invitation = {
         'document': {
-            'key': b'\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11\x11',
+            'key': '11111111-1111-1111-1111-111111111111',
             'name': 'test.pdf',
             'size': '1KB',
             'type': 'application/pdf',

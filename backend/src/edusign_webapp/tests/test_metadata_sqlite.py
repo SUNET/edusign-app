@@ -54,7 +54,7 @@ def test_add(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     conn.close()
 
     # Remove timestamps from the result
-    assert result[:5] == (1, dummy_key.bytes, 'test1.pdf', 1500000, 'application/pdf')
+    assert result[:5] == (1, str(dummy_key), 'test1.pdf', 1500000, 'application/pdf')
 
 
 def test_add_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
@@ -268,7 +268,7 @@ def test_add_and_get_invitation(sqlite_md, sample_metadata_1, sample_owner_1, sa
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
 
-    assert invitation['document']['key'] == dummy_key.bytes
+    assert invitation['document']['key'] == str(dummy_key)
 
 
 def test_add_and_lock(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
@@ -280,7 +280,7 @@ def test_add_and_lock(sqlite_md, sample_metadata_1, sample_owner_1, sample_invit
 
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
-        doc_id = test_md.get_document(uuid.UUID(bytes=invitation['document']['key']))['doc_id']
+        doc_id = test_md.get_document(uuid.UUID(invitation['document']['key']))['doc_id']
         test_md.add_lock(doc_id, sample_invites_1[0]['email'])
         locked = test_md.check_lock(doc_id, sample_invites_1[0]['email'])
 
@@ -296,7 +296,7 @@ def test_add_and_lock_wrong_email(sqlite_md, sample_metadata_1, sample_owner_1, 
 
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
-        doc_id = test_md.get_document(uuid.UUID(bytes=invitation['document']['key']))['doc_id']
+        doc_id = test_md.get_document(uuid.UUID(invitation['document']['key']))['doc_id']
         test_md.add_lock(doc_id, sample_invites_1[0]['email'])
         locked = test_md.check_lock(doc_id, 'dummy@example.org')
 
@@ -312,7 +312,7 @@ def test_add_and_rm_lock(sqlite_md, sample_metadata_1, sample_owner_1, sample_in
 
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
-        doc_id = test_md.get_document(uuid.UUID(bytes=invitation['document']['key']))['doc_id']
+        doc_id = test_md.get_document(uuid.UUID(invitation['document']['key']))['doc_id']
         test_md.add_lock(doc_id, sample_invites_1[0]['email'])
         removed = test_md.rm_lock(doc_id, sample_invites_1[0]['email'])
 
@@ -328,7 +328,7 @@ def test_add_and_rm_lock_wrong_email(sqlite_md, sample_metadata_1, sample_owner_
 
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
-        doc_id = test_md.get_document(uuid.UUID(bytes=invitation['document']['key']))['doc_id']
+        doc_id = test_md.get_document(uuid.UUID(invitation['document']['key']))['doc_id']
         test_md.add_lock(doc_id, sample_invites_1[0]['email'])
         removed = test_md.rm_lock(doc_id, 'dummy@exmple.org')
 

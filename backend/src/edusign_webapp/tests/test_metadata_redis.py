@@ -30,31 +30,26 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import os
-import sqlite3
 import uuid
 from datetime import datetime
 
 from edusign_webapp import run
 
 
-#  def test_add(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-#      tempdir, test_md = redis_md
-#      dummy_key = uuid.uuid4()
-#  
-#      with run.app.app_context():
-#          test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
-#  
-#      db_path = os.path.join(tempdir.name, 'test.db')
-#      conn = sqlite3.connect(db_path)
-#      cur = conn.cursor()
-#      cur.execute("SELECT * FROM Documents")
-#      result = cur.fetchone()
-#      cur.close()
-#      conn.close()
-#  
-#      # Remove timestamps from the result
-#      assert result[:5] == (1, dummy_key.bytes, 'test1.pdf', 1500000, 'application/pdf')
+def test_add(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+    doc_id = int(test_md.client.redis.get(f"doc:key:{str(dummy_key)}"))
+    result = test_md.client.redis.hgetall(f"doc:{doc_id}")
+
+    assert result[b'name'].decode('utf8') == 'test1.pdf'
+    assert int(result[b'size']) == 1500000
+    assert result[b'type'].decode('utf8') == 'application/pdf'
+    assert int(result[b'owner']) > 0
 
 
 def test_add_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
@@ -175,33 +170,27 @@ def test_update_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sam
     assert pending2[0]['owner']['email'] == 'owner@example.org'
 
 
-#  def test_updated_timestamp(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-#      tempdir, test_md = sqlite_md
-#      dummy_key = uuid.uuid4()
-#  
-#      with run.app.app_context():
-#          test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
-#  
-#      def get_doc():
-#          db_path = os.path.join(tempdir.name, 'test.db')
-#          conn = sqlite3.connect(db_path)
-#          cur = conn.cursor()
-#          cur.execute("SELECT * FROM Documents")
-#          result = cur.fetchone()
-#          cur.close()
-#          conn.close()
-#          return result
-#  
-#      result = get_doc()
-#  
-#      assert datetime.fromisoformat(result[5]) == datetime.fromisoformat(result[6])
-#  
-#      with run.app.app_context():
-#          test_md.update(dummy_key, 'invite1@example.org')
-#  
-#      result = get_doc()
-#  
-#      assert datetime.fromisoformat(result[5]) < datetime.fromisoformat(result[6])
+def test_updated_timestamp(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+    def get_doc():
+        doc_id = int(test_md.client.redis.get(f"doc:key:{str(dummy_key)}"))
+        return test_md.client.redis.hgetall(f"doc:{doc_id}")
+
+    result = get_doc()
+
+    assert datetime.fromtimestamp(float(result[b'created'])) == datetime.fromtimestamp(float(result[b'updated']))
+
+    with run.app.app_context():
+        test_md.update(dummy_key, 'invite1@example.org')
+
+    result = get_doc()
+
+    assert datetime.fromtimestamp(float(result[b'created'])) < datetime.fromtimestamp(float(result[b'updated']))
 
 
 def test_add_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):

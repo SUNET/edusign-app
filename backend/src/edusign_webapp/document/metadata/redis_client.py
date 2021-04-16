@@ -138,7 +138,7 @@ class RedisStorageBackend:
         return docs
 
     def update_document(self, key, updated):
-        doc_id = self.redis.get(f"doc:key:{key}")
+        doc_id = int(self.redis.get(f"doc:key:{key}"))
         self.redis.hset(f"doc:{doc_id}", mapping=dict(updated=updated))
 
     def rm_document_lock(self, doc_id):
@@ -396,9 +396,8 @@ class RedisMD(ABCMetadata):
 
         self.logger.info(f"Removing invite for {email} to sign {key}")
         self.client.update_invite(user_id, document_id)
-        self.client.update_document(user_id, document_id)
 
-        self.client.update_document(datetime.now().timestamp(), str(key))
+        self.client.update_document(str(key), datetime.now().timestamp())
 
     def get_owned(self, email: str) -> List[Dict[str, Any]]:
         """

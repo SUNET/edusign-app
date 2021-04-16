@@ -192,8 +192,8 @@ class SqliteMD(ABCMetadata):
 
         owner_id = owner_result['user_id']
 
-        self._db_execute(DOCUMENT_INSERT, (key.bytes, document['name'], document['size'], document['type'], owner_id))
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
+        self._db_execute(DOCUMENT_INSERT, (str(key), document['name'], document['size'], document['type'], owner_id))
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
 
         if document_result is None or isinstance(
             document_result, list
@@ -263,7 +263,7 @@ class SqliteMD(ABCMetadata):
                 continue
 
             document['owner'] = email_result
-            document['key'] = uuid.UUID(bytes=document['key'])
+            document['key'] = uuid.UUID(document['key'])
             document['invite_key'] = uuid.UUID(invite['key'])
             pending.append(document)
 
@@ -284,7 +284,7 @@ class SqliteMD(ABCMetadata):
 
         user_id = user_result['user_id']
 
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.error(f"Trying to update a non-existing document with the signature of {email}")
             return
@@ -297,7 +297,7 @@ class SqliteMD(ABCMetadata):
             DOCUMENT_UPDATE,
             (
                 datetime.now().isoformat(),
-                key.bytes,
+                str(key),
             ),
         )
         self._db_commit()
@@ -320,7 +320,7 @@ class SqliteMD(ABCMetadata):
             return []
 
         for document in documents:
-            document['key'] = uuid.UUID(bytes=document['key'])
+            document['key'] = uuid.UUID(document['key'])
             document['pending'] = []
             document['signed'] = []
             document_id = document['doc_id']
@@ -357,7 +357,7 @@ class SqliteMD(ABCMetadata):
         """
         invitees: List[Dict[str, Any]] = []
 
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.error(f"Trying to remind invitees to sign non-existing document with key {key}")
             return invitees
@@ -392,7 +392,7 @@ class SqliteMD(ABCMetadata):
         :param force: whether to remove the doc even if there are pending signatures
         :return: whether the document has been removed
         """
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (key.bytes,), one=True)
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.error(f"Trying to delete a non-existing document with key {key}")
             return False
@@ -410,7 +410,7 @@ class SqliteMD(ABCMetadata):
         else:
             self._db_execute(INVITE_DELETE_ALL, (document_id,))
 
-        self._db_execute(DOCUMENT_DELETE, (key.bytes,))
+        self._db_execute(DOCUMENT_DELETE, (str(key),))
         self._db_commit()
 
         return True
@@ -449,7 +449,7 @@ class SqliteMD(ABCMetadata):
                  + type: Content type of the doc
                  + size: Size of the doc
         """
-        document_result = self._db_query(DOCUMENT_QUERY_ALL, (key.bytes,), one=True)
+        document_result = self._db_query(DOCUMENT_QUERY_ALL, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.error(f"Trying to find a non-existing document with key {key}")
             return {}
