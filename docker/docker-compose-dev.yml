@@ -41,6 +41,12 @@ services:
     ports:
      - "9830:9830"
 
+  redis:
+    image: redis:latest
+    networks:
+      edusign-dev:
+        ipv4_address: 172.20.10.205
+
   sp:
     build: ./edusign/
     expose:
@@ -73,6 +79,7 @@ services:
     env_file: .env
     depends_on:
       - sp
+      - redis
 
 networks:
   edusign-back:

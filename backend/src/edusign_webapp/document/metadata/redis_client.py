@@ -34,7 +34,6 @@ import uuid
 from datetime import datetime
 from typing import Any, Dict, List
 
-from fakeredis import FakeStrictRedis
 from flask import Flask, current_app
 from flask_redis import FlaskRedis
 
@@ -122,9 +121,12 @@ class RedisStorageBackend:
         return doc
 
     def query_documents_from_owner(self, email):
-        user_id = int(self.redis.get(f'user:email:{email}'))
-        doc_ids = self.redis.smembers(f'doc:owner:{user_id}')
         docs = []
+        raw_user_id = self.redis.get(f'user:email:{email}')
+        if raw_user_id is None:
+            return docs
+        user_id = int(raw_user_id)
+        doc_ids = self.redis.smembers(f'doc:owner:{user_id}')
         for b_doc_id in doc_ids:
             doc_id = int(b_doc_id)
             b_doc = self.redis.hgetall(f"doc:{doc_id}")
@@ -290,6 +292,7 @@ class RedisMD(ABCMetadata):
         self.config = app.config
         self.logger = app.logger
         if app.testing:
+            from fakeredis import FakeStrictRedis
             client = FlaskRedis.from_custom_provider(FakeStrictRedis)
         else:
             client = FlaskRedis()

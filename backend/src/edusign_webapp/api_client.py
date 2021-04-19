@@ -93,6 +93,7 @@ class APIClient(object):
 
         settings = requests_session.merge_environment_settings(prepped.url, {}, None, None, None)
         response = requests_session.send(prepped, **settings)
+        current_app.logger.debug(f"Response from the API's {url} method: {response}")
         return response.json()
 
     def prepare_document(self, document: dict) -> requests.Response:

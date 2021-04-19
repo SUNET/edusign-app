@@ -6,3 +6,4 @@ requests>=2.25.0
 Flask-Mail==0.9.1
 boto3==1.17.34
 flask-redis==0.4.0
+fakeredis==1.5.0
