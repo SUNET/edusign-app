@@ -65,38 +65,46 @@ class Owned extends Component {
               <div className="owned-multisign-request">
                 <div className="name-flex-item">{doc.name}</div>
                 {doc.pending.length > 0 && (
-                  <div className="pending-invites">
-                    <span className="pending-invites-label">
-                      <FormattedMessage
-                        defaultMessage="Waiting for signatures by:"
-                        key="multisign-owned-waiting"
-                      />
-                    </span>
-                    {doc.pending.map((invite, index) => {
-                      return (
-                        <span className="pending-invite-item" key={index}>
-                          {invite.name} &lt;{invite.email}&gt;
-                        </span>
-                      );
-                    })}
-                  </div>
+                  <>
+                    <div className="pending-invites-title">
+                      <span className="pending-invites-label">
+                        <FormattedMessage
+                          defaultMessage="Waiting for signatures by:"
+                          key="multisign-owned-waiting"
+                        />
+                      </span>
+                    </div>
+                    <div className="pending-invites">
+                      {doc.pending.map((invite, index) => {
+                        return (
+                          <span className="pending-invite-item" key={index}>
+                            {invite.name} &lt;{invite.email}&gt;
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </>
                 )}
                 {doc.signed.length > 0 && (
-                  <div className="signed-invites">
-                    <span className="signed-invites-label">
-                      <FormattedMessage
-                        defaultMessage="Already signed by:"
-                        key="multisign-owned-signed"
-                      />
-                    </span>
-                    {doc.signed.map((invite, index) => {
-                      return (
-                        <span className="signed-invite-item" key={index}>
-                          {invite.name} &lt;{invite.email}&gt;
-                        </span>
-                      );
-                    })}
-                  </div>
+                  <>
+                    <div className="signed-invites-title">
+                      <span className="signed-invites-label">
+                        <FormattedMessage
+                          defaultMessage="Already signed by:"
+                          key="multisign-owned-signed"
+                        />
+                      </span>
+                    </div>
+                    <div className="signed-invites">
+                      {doc.signed.map((invite, index) => {
+                        return (
+                          <span className="signed-invite-item" key={index}>
+                            {invite.name} &lt;{invite.email}&gt;
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </>
                 )}
                 {doc.pending.length === 0 && signButton(this.props, doc)}
               </div>

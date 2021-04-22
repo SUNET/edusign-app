@@ -1,7 +1,7 @@
 @import "./variables.scss";
 
 .doc-flex-container {
-  padding: 0.3rem;
+  padding: 0.5rem;
   flex: none;
   display: flex;
   flex-flow: row wrap;
@@ -9,6 +9,9 @@
   min-width: 80%;
   align-items: center;
   justify-content: left;
+  border: $orange-opaque solid 2px;
+  border-radius: 3px;
+  margin-bottom: 0.3rem;
 
   .doc-selector-flex-item {
     flex: none;
@@ -66,14 +69,16 @@
 
 .doc-flex-container-sm {
   margin-top: 0.5rem;
-  padding: 1rem 0.2rem 0.2rem;
+  padding: 0.5rem;
   flex: none;
   display: flex;
   flex-direction: column;
   min-width: 100%;
   align-items: flex-start;
-  border-radius: 10px;
   background-color: $lightest-gray;
+  border: $orange-opaque solid 2px;
+  border-radius: 3px;
+  margin-bottom: 0.3rem;
 
   .doc-container-first-row,
   .doc-container-second-row,
@@ -123,6 +128,14 @@
       }
     }
   }
+}
+
+.dummy-button-sign-flex-item-lg {
+  height: 5rem;
+}
+
+.dummy-button-sign-flex-item-sm {
+  height: 2rem;
 }
 
 #adjust-vertical-space {

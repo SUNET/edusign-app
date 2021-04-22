@@ -137,10 +137,14 @@ function DocManager(props) {
   }
 
   let someSelected = false;
+  let showSignButton = false;
 
   return (
     <>
       {props.documents.map((doc, index) => {
+        if (['loaded', 'selected', 'failed-signing'].includes(doc.state)) {
+          showSignButton = true;
+        }
         const docFile = docToFile(doc);
         if (docFile === null) {
           doc = {
@@ -325,20 +329,24 @@ function DocManager(props) {
         }
       })}
       <div id="adjust-vertical-space" />
-      <div className="button-sign-flex-item">
-        <Button
-          variant="outline-success"
-          id="button-sign"
-          size="lg"
-          disabled={!someSelected}
-          onClick={props.handleSubmitToSign}
-        >
-          <FormattedMessage
-            defaultMessage="Sign Selected Documents"
-            key="sign-selected-button"
-          />
-        </Button>
-      </div>
+      {showSignButton && (
+        <div className="button-sign-flex-item">
+          <Button
+            variant="outline-success"
+            id="button-sign"
+            size="lg"
+            disabled={!someSelected}
+            onClick={props.handleSubmitToSign}
+          >
+            <FormattedMessage
+              defaultMessage="Sign Selected Documents"
+              key="sign-selected-button"
+            />
+          </Button>
+        </div>
+      ) || (
+        <div className={'dummy-button-sign-flex-item-' + props.size} />
+      )}
       <div className="multisign-container">
         <div className="owned-multisign-container">
           <OwnedContainer />

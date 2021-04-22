@@ -1,14 +1,14 @@
 @import "./variables.scss";
 
 .owned-multisign {
-  padding: 0.3rem;
+  padding: 0.5rem;
   display: flex;
   flex: none;
   min-height: 3rem;
   width: 100%;
   margin-top: 1rem;
   margin-bottom: 0.75rem;
-  border: $orange-highlight solid 1px;
+  border: $orange-opaque solid 2px;
   border-radius: 3px;
 
   .owned-multisign-remove {
@@ -26,7 +26,6 @@
     .name-flex-item {
       flex: 5 0 auto;
       margin-right: 1rem;
-      font-size: 1.15rem;
     }
   }
 }
@@ -52,6 +51,15 @@
   }
 }
 
+.pending-invites-title {
+  flex: none;
+
+  .pending-invites-label {
+    color: $darker-dark-grey;
+    font-size: 0.8rem;
+  }
+}
+
 .pending-invites {
   flex: none;
   margin-left: 1rem;
@@ -59,15 +67,19 @@
   display: flex;
   flex-wrap: wrap;
 
-  .pending-invites-label {
-    margin-left: 1rem;
-    color: $darker-dark-grey;
-    flex: 0 0 auto;
-  }
-
   .pending-invite-item {
     margin-left: 1rem;
     flex: 0 0 auto;
+    font-size: 0.8rem;
+  }
+}
+
+.signed-invites-title {
+  flex: none;
+
+  .signed-invites-label {
+    color: $darker-dark-grey;
+    font-size: 0.8rem;
   }
 }
 
@@ -78,15 +90,10 @@
   display: flex;
   flex-wrap: wrap;
 
-  .signed-invites-label {
-    margin-left: 1rem;
-    color: $darker-dark-grey;
-    flex: 0 0 auto;
-  }
-
   .signed-invite-item {
     margin-left: 1rem;
     flex: 0 0 auto;
+    font-size: 0.8rem;
   }
 }
 
@@ -99,5 +106,13 @@
 
   .button-sign-invitation {
     flex: none;
+  }
+}
+
+.button-remove-invitation {
+
+  button {
+    border: none;
+    font-size: 1.2rem;
   }
 }
