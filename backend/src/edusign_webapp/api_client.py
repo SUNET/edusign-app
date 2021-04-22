@@ -157,7 +157,7 @@ class APIClient(object):
             return_url = url_for('edusign.sign_service_callback', _external=True, _scheme='https')
         else:
             current_app.logger.debug(f"Doc key for multi sign: {documents[0]['key']} :: {type(documents[0]['key'])}")
-            doc_key = documents[0]['key']
+            doc_key = str(documents[0]['key'])
             return_url = url_for(
                 'edusign.multi_sign_service_callback', doc_key=doc_key, _external=True, _scheme='https'
             )
@@ -176,7 +176,7 @@ class APIClient(object):
         }
         documents_with_id = []
         for document in documents:
-            doc_with_id = {'name': document['name'], 'key': document['key']}
+            doc_with_id = {'name': document['name'], 'key': str(document['key'])}
             if add_blob:
                 doc_with_id['blob'] = document['blob']
                 doc_with_id['size'] = document['size']
@@ -185,7 +185,7 @@ class APIClient(object):
             documents_with_id.append(doc_with_id)
             request_data['tbsDocuments'].append(
                 {
-                    "id": document['key'],
+                    "id": str(document['key']),
                     "contentReference": document['ref'],
                     "mimeType": document['type'],
                     "visiblePdfSignatureRequirement": json.loads(document['sign_requirement']),

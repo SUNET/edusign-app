@@ -391,7 +391,7 @@ class DocStore(object):
         if not locked:
             raise self.DocumentLocked()
 
-        data['document']['blob'] = self.storage.get_content(uuid.UUID(data['document']['key']))
+        data['document']['blob'] = self.storage.get_content(data['document']['key'])
         return data
 
     def unlock_document(self, key: uuid.UUID, unlocked_by: str) -> bool:

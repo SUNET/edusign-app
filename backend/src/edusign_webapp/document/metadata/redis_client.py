@@ -584,7 +584,7 @@ class RedisMD(ABCMetadata):
 
         now = datetime.now()
 
-        locked = None if lock_info['locked'] is None else datetime.fromtimestamp(lock_info['locked'])
+        locked = None if lock_info['locked'] is None else lock_info['locked']
         user_result = self.client.query_user(user_id)
 
         now_ts = now.timestamp()

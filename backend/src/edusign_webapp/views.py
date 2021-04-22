@@ -462,7 +462,7 @@ def create_invited_signature(invite_key: str) -> str:
 
     doc = data['document']
     user = data['user']
-    key = uuid.UUID(doc['key'])
+    key = doc['key']
 
     if user['email'] != session['mail']:
         current_app.doc_store.unlock_document(key, user['email'])
