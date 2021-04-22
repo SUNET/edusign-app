@@ -293,6 +293,7 @@ class RedisMD(ABCMetadata):
         self.logger = app.logger
         if app.testing:
             from fakeredis import FakeStrictRedis
+
             client = FlaskRedis.from_custom_provider(FakeStrictRedis)
         else:
             client = FlaskRedis()
