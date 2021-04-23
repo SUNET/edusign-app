@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA3ElEQVQ4y83SMUoEQRCF4a+1AwMjI5nIQJjME6iJYOABBPECgoGBzCFkTDb1DJp5Bw0MTRpBTFyMFzERtk2GZRGn2THRgqapqv4LXvXjryPAuKn3cZFZHQA+VG06il1+jrWQ3S46IAdPECGzErLH6jKdDpUQfyq+NvV64LDAveO6atMk9ujbwKiswR6OY0/7HssF/EawOZMQmAqMm3r+0fQ7VbVJ92uz3lJ3v8gO8Fk4u6UlngnulH3w3DugatMEV79xYuw0naAewG3hbc5IeUcO2wvbOPiQtf5FfAEKjDf+u4objAAAAABJRU5ErkJggg==">
+    <style type="text/css">
+header {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 50px;
+  padding-right: 100px;
+  padding-left: 100px;
+}
+#edusign-logo {
+  flex: none;
+  width: 160px;
+  height: 50px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin: 0;
+}
+#sunet-logo {
+  flex: none;
+  width: 50px;
+  height: 50px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin: 0;
+}
+#body {
+  margin-top: 100px;
+  margin-left: 200px;
+  margin-right: 200px;
+}
+#title {
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+}
+#message {
+  font-size: 1.5rem;
+}
+#footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 16px;
+  border-top: 6px solid #ff4500;
+  background-color: #f4f4f4;
+  margin-right: 100px;
+  margin-left: 100px;
+  margin-top: 200px;
+}
+#copyright {
+  flex: none;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-top: 0;
+  margin-bottom: 0;
+  border-bottom: solid 1px transparent;
+}
+    </style>
+    <title>eduSign</title>
+  </head>
+  <body>
+    <div id="root">
+      <header>
+        <div id="edusign-logo">
+          <img src="data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDI3LjIgOC43IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCAyNy4yIDguNzsiIHhtbDpzcGFjZT0icHJlc2VydmUiPiA8c3R5bGUgdHlwZT0idGV4dC9jc3MiPiAuc3Qwe2VuYWJsZS1iYWNrZ3JvdW5kOm5ldyAgICA7fSAuc3Qxe2ZpbGw6IzkwOTA5MDt9IC5zdDJ7ZmlsbDojRkY1MDBEO30gPC9zdHlsZT4gPGcgaWQ9ImVkdVNpZ25fMV8iPiA8ZyBjbGFzcz0ic3QwIj4gPHBhdGggY2xhc3M9InN0MSIgZD0iTTIuMyw2LjdjLTAuNiwwLTEuMS0wLjItMS41LTAuNlMwLjMsNS4yLDAuMyw0LjZWNC41YzAtMC40LDAuMS0wLjgsMC4yLTEuMVMxLDIuNywxLjMsMi42czAuNi0wLjMsMS0wLjMgYzAuNiwwLDEsMC4yLDEuMywwLjZTNCwzLjcsNCw0LjR2MC40SDEuM2MwLDAuMywwLjEsMC42LDAuMywwLjhzMC41LDAuMywwLjgsMC4zYzAuNCwwLDAuOC0wLjIsMS4xLTAuNUw0LDUuOSBDMy44LDYuMSwzLjYsNi4zLDMuMyw2LjVTMi43LDYuNywyLjMsNi43eiBNMi4yLDNDMiwzLDEuOCwzLjEsMS42LDMuM1MxLjMsMy44LDEuMyw0LjFoMS44VjRjMC0wLjMtMC4xLTAuNi0wLjMtMC43UzIuNSwzLDIuMiwzeiAiLz4gPHBhdGggY2xhc3M9InN0MSIgZD0iTTQuMyw0LjRjMC0wLjcsMC4yLTEuMiwwLjUtMS42czAuNy0wLjYsMS4yLTAuNmMwLjQsMCwwLjgsMC4yLDEuMSwwLjVWMC42SDh2Nkg3LjFsMC0wLjQgQzYuOCw2LjUsNi40LDYuNyw1LjksNi43QzUuNCw2LjcsNSw2LjUsNC43LDYuMVM0LjMsNS4xLDQuMyw0LjR6IE01LjIsNC41YzAsMC40LDAuMSwwLjgsMC4yLDFzMC40LDAuNCwwLjcsMC40IGMwLjQsMCwwLjctMC4yLDAuOS0wLjVWMy42QzYuOSwzLjIsNi42LDMuMSw2LjIsMy4xYy0wLjMsMC0wLjUsMC4xLTAuNywwLjRTNS4yLDQsNS4yLDQuNXoiLz4gPHBhdGggY2xhc3M9InN0MSIgZD0iTTExLjIsNi4yYy0wLjMsMC4zLTAuNywwLjUtMS4yLDAuNWMtMC41LDAtMC44LTAuMS0xLTAuNFM4LjYsNS42LDguNiw1LjFWMi40aDAuOXYyLjdjMCwwLjUsMC4yLDAuOCwwLjcsMC44IGMwLjUsMCwwLjgtMC4yLDAuOS0wLjV2LTNoMC45djQuMmgtMC45TDExLjIsNi4yeiIvPiA8L2c+IDxnIGNsYXNzPSJzdDAiPiA8cGF0aCBjbGFzcz0ic3QyIiBkPSJNMTUuOCw1LjFjMC0wLjItMC4xLTAuNC0wLjMtMC42cy0wLjUtMC4zLTEtMC40Yy0wLjUtMC4xLTAuOC0wLjMtMS4xLTAuNWMtMC41LTAuMy0wLjgtMC44LTAuOC0xLjMgYzAtMC41LDAuMi0wLjgsMC42LTEuMXMwLjktMC40LDEuNS0wLjRjMC40LDAsMC43LDAuMSwxLjEsMC4yYzAuMywwLjEsMC42LDAuNCwwLjcsMC42YzAuMiwwLjMsMC4zLDAuNiwwLjMsMC45aC0xIGMwLTAuMy0wLjEtMC41LTAuMy0wLjdjLTAuMi0wLjItMC41LTAuMy0wLjgtMC4zYy0wLjMsMC0wLjYsMC4xLTAuOCwwLjJjLTAuMiwwLjEtMC4zLDAuMy0wLjMsMC42YzAsMC4yLDAuMSwwLjQsMC4zLDAuNSBjMC4yLDAuMSwwLjUsMC4zLDEsMC40YzAuNCwwLjEsMC44LDAuMywxLjEsMC40YzAuMywwLjIsMC41LDAuNCwwLjYsMC42czAuMiwwLjUsMC4yLDAuOGMwLDAuNS0wLjIsMC45LTAuNSwxLjFzLTAuOSwwLjQtMS41LDAuNCBjLTAuNCwwLTAuOC0wLjEtMS4xLTAuMnMtMC42LTAuNC0wLjgtMC42cy0wLjMtMC42LTAuMy0wLjloMWMwLDAuMywwLjEsMC42LDAuMywwLjhjMC4yLDAuMiwwLjUsMC4zLDAuOSwwLjMgYzAuMywwLDAuNi0wLjEsMC44LTAuMkMxNS44LDUuNSwxNS44LDUuMywxNS44LDUuMXoiLz4gPHBhdGggY2xhc3M9InN0MiIgZD0iTTE3LjMsMS4zYzAtMC4xLDAtMC4zLDAuMS0wLjRjMC4xLTAuMSwwLjItMC4xLDAuNC0wLjFzMC4zLDAsMC40LDAuMXMwLjEsMC4yLDAuMSwwLjRjMCwwLjEsMCwwLjMtMC4xLDAuNCBTMTgsMS44LDE3LjgsMS44cy0wLjMsMC0wLjQtMC4xQzE3LjMsMS41LDE3LjMsMS40LDE3LjMsMS4zeiBNMTguMyw2LjZoLTAuOVYyLjRoMC45VjYuNnoiLz4gPHBhdGggY2xhc3M9InN0MiIgZD0iTTE4LjgsNC40YzAtMC43LDAuMi0xLjIsMC41LTEuNnMwLjctMC42LDEuMi0wLjZjMC41LDAsMC45LDAuMiwxLjEsMC41bDAtMC40aDAuOXY0LjFjMCwwLjYtMC4yLDEtMC41LDEuMyBjLTAuMywwLjMtMC44LDAuNS0xLjQsMC41Yy0wLjMsMC0wLjYtMC4xLTAuOS0wLjJjLTAuMy0wLjEtMC41LTAuMy0wLjctMC41TDE5LjUsN2MwLjMsMC4zLDAuNywwLjUsMS4xLDAuNSBjMC4zLDAsMC42LTAuMSwwLjctMC4zYzAuMi0wLjIsMC4zLTAuNCwwLjMtMC44VjYuMmMtMC4zLDAuMy0wLjYsMC41LTEuMSwwLjVjLTAuNSwwLTAuOS0wLjItMS4yLTAuNkMxOSw1LjcsMTguOCw1LjEsMTguOCw0LjR6IE0xOS44LDQuNWMwLDAuNCwwLjEsMC44LDAuMywxYzAuMiwwLjIsMC40LDAuNCwwLjcsMC40YzAuNCwwLDAuNy0wLjIsMC45LTAuNVYzLjVjLTAuMi0wLjMtMC41LTAuNS0wLjgtMC41IGMtMC4zLDAtMC42LDAuMS0wLjcsMC40QzE5LjksMy43LDE5LjgsNCwxOS44LDQuNXoiLz4gPHBhdGggY2xhc3M9InN0MiIgZD0iTTI0LjEsMi40bDAsMC41YzAuMy0wLjQsMC43LTAuNiwxLjItMC42YzAuOSwwLDEuMywwLjUsMS4zLDEuNXYyLjhoLTAuOVYzLjhjMC0wLjMtMC4xLTAuNS0wLjItMC42IGMtMC4xLTAuMS0wLjMtMC4yLTAuNi0wLjJjLTAuNCwwLTAuNywwLjItMC45LDAuNXYzaC0wLjlWMi40SDI0LjF6Ii8+IDwvZz4gPC9nPiA8L3N2Zz4=" />
+        </div>
+        <div id="sunet-logo">
+          <a href="https://sunet.se">
+            <img src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDI0LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPgo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4IgoJIHZpZXdCb3g9IjAgMCAxOC44IDIxLjkiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDE4LjggMjEuOTsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8c3R5bGUgdHlwZT0idGV4dC9jc3MiPgoJLnN0MHtmaWxsLXJ1bGU6ZXZlbm9kZDtjbGlwLXJ1bGU6ZXZlbm9kZDtmaWxsOiM4MDgwODA7fQo8L3N0eWxlPgo8ZyBpZD0iQTRfLV8yIj4KCTxnIGlkPSJHcm91cCI+CgkJPHBhdGggaWQ9IkZpbGxfOSIgY2xhc3M9InN0MCIgZD0iTTIuOSw5LjJWMi44YzAsMCwwLjEtMC4yLDAuMi0wLjJoMTQuNVYwLjhjLTUuOCwwLTE0LjUsMC0xNC41LDBjLTAuNywwLTEuOSwwLjMtMS45LDJ2Ni40CgkJCWMwLDEuMiwwLjcsMiwxLjksMmg5VjkuNGgtOUMzLDkuNCwyLjksOS4zLDIuOSw5LjIiLz4KCQk8cGF0aCBpZD0iRmlsbF8xMSIgY2xhc3M9InN0MCIgZD0iTTE1LjgsN3Y2LjRjMCwwLTAuMSwwLjItMC4yLDAuMkgxLjF2MS44YzUuOCwwLDE0LjUsMCwxNC41LDBjMC43LDAsMS45LTAuMywxLjktMlY3CgkJCWMwLTEuMi0wLjctMi0xLjktMmgtOXYxLjhoOUMxNS43LDYuOSwxNS44LDcsMTUuOCw3Ii8+Cgk8L2c+CjwvZz4KPGc+Cgk8cGF0aCBkPSJNMS41LDIwLjRjMC4yLDAuMSwwLjUsMC4zLDAuOSwwLjNjMC41LDAsMC44LTAuMywwLjgtMC43YzAtMC40LTAuMi0wLjYtMC43LTAuOGMtMC42LTAuMi0xLTAuNS0xLTEuMWMwLTAuNiwwLjUtMSwxLjItMQoJCWMwLjQsMCwwLjcsMC4xLDAuOCwwLjJsLTAuMSwwLjRjLTAuMS0wLjEtMC40LTAuMi0wLjctMC4yYy0wLjUsMC0wLjcsMC4zLTAuNywwLjZjMCwwLjQsMC4yLDAuNSwwLjgsMC43YzAuNiwwLjMsMSwwLjYsMSwxLjEKCQljMCwwLjYtMC40LDEuMS0xLjMsMS4xYy0wLjQsMC0wLjgtMC4xLTEtMC4yTDEuNSwyMC40eiIvPgoJPHBhdGggZD0iTTQuOSwxNy4ydjIuM2MwLDAuOSwwLjQsMS4yLDAuOSwxLjJjMC42LDAsMC45LTAuNCwwLjktMS4ydi0yLjNoMC41djIuMmMwLDEuMi0wLjYsMS43LTEuNSwxLjdjLTAuOCwwLTEuNC0wLjUtMS40LTEuNgoJCXYtMi4zSDQuOXoiLz4KCTxwYXRoIGQ9Ik04LjEsMjF2LTMuOGgwLjVsMS4yLDEuOWMwLjMsMC40LDAuNSwwLjksMC43LDEuMmwwLDBjMC0wLjUtMC4xLTEtMC4xLTEuNnYtMS42SDExVjIxaC0wLjVsLTEuMi0xLjkKCQljLTAuMy0wLjQtMC41LTAuOS0wLjctMS4zbDAsMGMwLDAuNSwwLDAuOSwwLDEuNlYyMUg4LjF6Ii8+Cgk8cGF0aCBkPSJNMTMuOCwxOS4yaC0xLjV2MS40SDE0VjIxaC0yLjJ2LTMuOGgyLjF2MC40aC0xLjZ2MS4yaDEuNVYxOS4yeiIvPgoJPHBhdGggZD0iTTE1LjUsMTcuNmgtMS4ydi0wLjRoMi44djAuNEgxNlYyMWgtMC41VjE3LjZ6Ii8+CjwvZz4KPC9zdmc+Cg==" />
+          </a>
+        </div>
+      </header>
+      <section id="body">
+        <div id="title">
+          {% block title %}{% endblock %}
+        </div>
+        <div id="message">
+          {% block message %}{% endblock %}
+        </div>
+      </section>
+      <footer id="footer">
+        <p id="copyright">
+          <span>©&nbsp;SUNET 2020</span>
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
