@@ -536,6 +536,12 @@ def multi_sign_service_callback(doc_key) -> str:
             'error-generic.jinja2', message=gettext('Communication error with the process endpoint of the eduSign API')
         )
 
+    if 'dssError' in process_data:
+        current_app.logger.error(f'Problem in the processing sign response: {process_data}')
+        return render_template(
+            'error-generic.jinja2', message=gettext('Data error with the process endpoint of the eduSign API')
+        )
+
     doc = process_data['signedDocuments'][0]
 
     current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
