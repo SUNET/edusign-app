@@ -313,14 +313,17 @@ def get_signed_documents(sign_data: dict) -> dict:
         # XXX capture more error conditions, inform end user
         return {'error': True, 'message': gettext('Communication error with the process endpoint of the eduSign API')}
 
+    docs = []
+    for doc in process_data['signedDocuments']:
+        current_app.doc_store.remove_document(doc['id'])
+        docs.append({'id': doc['id'], 'signed_content': doc['signedContent']})
+
     message = gettext("Success processing document sign request")
 
     return {
         'message': message,
         'payload': {
-            'documents': [
-                {'id': doc['id'], 'signed_content': doc['signedContent']} for doc in process_data['signedDocuments']
-            ]
+            'documents': docs
         },
     }
 
@@ -435,8 +438,7 @@ def remove_multi_sign_request(data: dict) -> dict:
         return {'error': True, 'message': gettext('Problem removing the document to be multi signed')}
 
     if not removed:
-        current_app.logger.error('Could not remove the multi sign request')
-        return {'error': True, 'message': gettext('Could not remove the document to be multi signed')}
+        current_app.logger.error(f'Could not remove the multi sign request corresponding to data: {data}')
 
     message = gettext("Success removing multi signature request")
 
