@@ -2,10 +2,11 @@ const autoprefixer = require("autoprefixer");
 const path = require("path");
 const precss = require("precss");
 const webpack = require("webpack");
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
-  mode: "development",
+  mode: "production",
   devServer: {
     contentBase: path.join(__dirname, "public"),
     compress: true,
@@ -57,7 +58,8 @@ module.exports = {
       LOCALIZED_MESSAGES: require("./edusign.config.js").LOCALIZED_MESSAGES,
     }),
     new webpack.HotModuleReplacementPlugin(),
-    // new BundleAnalyzerPlugin(),
+    new BundleAnalyzerPlugin(),
+    new CompressionPlugin(),
     new webpack.LoaderOptionsPlugin({
       // test: /\.xxx$/, // may apply this only for some modules
       options: {

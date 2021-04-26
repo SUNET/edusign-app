@@ -30,7 +30,6 @@
     "bootstrap": "^4.5.2",
     "chai": "^4.2.0",
     "chai-dom": "^1.8.2",
-    "compression-webpack-plugin": "^6.1.1",
     "coverage-istanbul": "^1.1.0",
     "es6-promise": "^4.2.8",
     "fetch-mock": "^9.11.0",
@@ -71,6 +70,7 @@
     "babel-plugin-react-intl-auto": "^3.3.0",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "better-docs": "^2.3.2",
+    "compression-webpack-plugin": "^6.1.1",
     "css-loader": "^4.3.0",
     "extract-react-intl-messages": "^4.1.1",
     "jsdoc": "^3.6.6",
@@ -88,6 +88,7 @@
     "terser-webpack-plugin": "^4.2.3",
     "url-loader": "^4.1.0",
     "webpack": "^4.44.2",
+    "webpack-bundle-analyzer": "^4.4.1",
     "webpack-cli": "^3.3.12",
     "whatwg-fetch": "^3.4.1"
   }
