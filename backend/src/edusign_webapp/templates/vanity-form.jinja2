@@ -2,7 +2,7 @@
 
     {%block body %}
         <div id="title">
-          {{ title }}
+            {% trans %}Finish Signing{% endtrans %}
         </div>
         <div id="message">
             {% trans %}Press the button below to finish the signing process{% endtrans %}
@@ -11,6 +11,6 @@
           <input type="hidden" name="Binding" value={{ binding }} />
           <input type="hidden" name="RelayState" value={{ relayState }} />
           <input type="hidden" name="EidSignRequest" value={{ signRequest }} />
-          <button type="submit">{% trans %}Fnish Signing{% endtrans %}</button>
+          <button type="submit">{% trans %}Finish Signing{% endtrans %}</button>
         </form>
     {% endblock %}
