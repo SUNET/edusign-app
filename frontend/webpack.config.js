@@ -58,7 +58,7 @@ module.exports = {
       LOCALIZED_MESSAGES: require("./edusign.config.js").LOCALIZED_MESSAGES,
     }),
     new webpack.HotModuleReplacementPlugin(),
-    new BundleAnalyzerPlugin(),
+    // new BundleAnalyzerPlugin(),
     new CompressionPlugin(),
     new webpack.LoaderOptionsPlugin({
       // test: /\.xxx$/, // may apply this only for some modules

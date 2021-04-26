@@ -341,7 +341,7 @@ def create_multi_sign_request(data: dict) -> dict:
     """
     if session['mail'] != data['owner']:
         current_app.logger.error(f"User {session['mail']} is trying to create an invitation as {data['owner']}")
-        return {'error': True, 'message': gettext(f"You cannot invite as {data['owner']}")}
+        return {'error': True, 'message': gettext("You cannot invite as %(owner)s") % {'owner': data['owner']}}
 
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
@@ -553,7 +553,7 @@ def multi_sign_service_callback(doc_key) -> str:
         return render_template('error-generic.jinja2', message=gettext('There is no owner data for this document'))
 
     recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
-    msg = Message(gettext(f"XXX {owner_data['name']} has signed {owner_data['docname']}"), recipients=recipients)
+    msg = Message(gettext("User %(name)s has signed %(docname)s") % {'name': owner_data['name'], 'docname': owner_data['docname']}, recipients=recipients)
     context = {
         'document_name': owner_data['docname'],
         'invited_name': session['displayName'],
