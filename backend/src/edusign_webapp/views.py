@@ -322,9 +322,7 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     return {
         'message': message,
-        'payload': {
-            'documents': docs
-        },
+        'payload': {'documents': docs},
     }
 
 
@@ -553,7 +551,11 @@ def multi_sign_service_callback(doc_key) -> str:
         return render_template('error-generic.jinja2', message=gettext('There is no owner data for this document'))
 
     recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
-    msg = Message(gettext("User %(name)s has signed %(docname)s") % {'name': owner_data['name'], 'docname': owner_data['docname']}, recipients=recipients)
+    msg = Message(
+        gettext("User %(name)s has signed %(docname)s")
+        % {'name': owner_data['name'], 'docname': owner_data['docname']},
+        recipients=recipients,
+    )
     context = {
         'document_name': owner_data['docname'],
         'invited_name': session['displayName'],
