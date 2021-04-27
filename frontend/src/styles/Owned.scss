@@ -97,6 +97,7 @@
   }
 }
 
+.button-resend-container,
 .button-sign-container {
   flex: none;
   display: flex;
@@ -104,6 +105,7 @@
   width: 100%;
   margin-top: 1rem;
 
+  .button-resend-invitation,
   .button-sign-invitation {
     flex: none;
   }

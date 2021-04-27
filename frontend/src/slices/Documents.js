@@ -561,6 +561,59 @@ export const removeInvites = createAsyncThunk(
 
 /**
  * @public
+ * @function resendInvitations
+ * @desc Redux async thunk to resend invitations to sign to pending users
+ */
+export const resendInvitations = createAsyncThunk(
+  "main/resendInvitations",
+  async (doc, thunkAPI) => {
+    console.log("About to resend invitations for", doc);
+
+    const state = thunkAPI.getState();
+
+    const documentList = state.main.owned_multisign.filter((docu) => {
+      return doc.key === docu.key || doc.id === docu.key;
+    });
+
+    if (documentList.length === 0) {return}
+
+    const document = documentList[0];
+
+    const dataToSend = {
+      key: document.key,
+    };
+    const body = preparePayload(state, dataToSend);
+    let data = null;
+    try {
+      console.log("Using fetch to post to send-multisign-reminder", body);
+      const response = await fetch("/sign/send-multisign-reminder", {
+        ...postRequest,
+        body: body,
+      });
+      data = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, data);
+    } catch (err) {
+      console.log("Problem resending invitations for multi signing", err);
+      const message =
+        "XXX Problem sending invitations to sign, please try again";
+      thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
+      return;
+    }
+    if (data.error) {
+      console.log("Problem resending invitations for multi signing a document");
+      const message =
+        "XXX Problem sending invitations to sign, please try again";
+      thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
+      return;
+    }
+    const message = "XXX Success resending invitations to sign";
+    thunkAPI.dispatch(addNotification({ level: "success", message: message }));
+    return document.key;
+  }
+);
+
+/**
+ * @public
  * @function signInvitedDoc
  * @desc Redux async thunk to finally sign a multi signed document
  */

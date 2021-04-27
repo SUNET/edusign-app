@@ -53,6 +53,35 @@ const signButton = (props, doc, help) => {
   );
 };
 
+const resendButton = (props, doc, help) => {
+  return (
+    <>
+      <OverlayTrigger
+        trigger={["hover", "focus"]}
+        overlay={
+          <Tooltip placement="auto">
+            {help}
+          </Tooltip>
+        }>
+        <div className="button-resend-container">
+          <div className="button-resend-invitation">
+            <Button
+              variant="outline-success"
+              size="sm"
+              onClick={props.handleResend(doc)}
+            >
+              <FormattedMessage
+                defaultMessage="Resend invitations"
+                key="resend-invitations-button"
+              />
+            </Button>
+          </div>
+        </div>
+      </OverlayTrigger>
+    </>
+  );
+};
+
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
  *
@@ -71,6 +100,12 @@ class Owned extends Component {
         {
           defaultMessage: "All requested users have alredy signed the document, click here to add your final signature",
           id: "owned-sign-button-help",
+        },
+      ),
+      "resend-button-help": this.props.intl.formatMessage(
+        {
+          defaultMessage: "Click here to re-send an invitation email to all pending users",
+          id: "owned-resend-button-help",
         },
       ),
     };
@@ -134,6 +169,7 @@ class Owned extends Component {
                   </>
                 )}
                 {doc.pending.length === 0 && signButton(this.props, doc, this.getHelp('sign-button-help'))}
+                {doc.pending.length > 0 && resendButton(this.props, doc, this.getHelp('resend-button-help'))}
               </div>
             <OverlayTrigger
               trigger={["hover", "focus"]}
