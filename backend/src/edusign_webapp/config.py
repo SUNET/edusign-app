@@ -83,7 +83,7 @@ SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGN
 
 RAW_SCOPE_WHITELIST = os.environ.get('SCOPE_WHITELIST', default='sunet.se,emergya.com')
 
-SCOPE_WHITELIST = [scope.strip() for scope in RAW_SCOPE_WHITELIST.split(',')]
+SCOPE_WHITELIST = 'sunet.se'
 
 STORAGE_CLASS_PATH = os.environ.get('STORAGE_CLASS_PATH', default='edusign_webapp.document.storage.local.LocalStorage')
 LOCAL_STORAGE_BASE_DIR = os.environ.get('LOCAL_STORAGE_BASE_DIR', default='/tmp')

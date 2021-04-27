@@ -99,6 +99,9 @@ def get_config() -> dict:
 
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
+    if 'mail' not in session or not current_app.is_whitelisted(session['mail']):
+        return {'error': True, 'message': gettext('Unauthorized')}
+
     session['site_visitor'] = True
     attrs = [{'name': attr, 'value': session[attr]} for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
     return {
@@ -121,6 +124,9 @@ def add_document(document: dict) -> dict:
     :return: a dict with the data returned from the API after preparing the document,
              or with eerror information in case of some error.
     """
+    if 'mail' not in session or not current_app.is_whitelisted(session['mail']):
+        return {'error': True, 'message': gettext('Unauthorized')}
+
     prepare_data = prepare_document(document)
 
     if 'error' in prepare_data and prepare_data['error']:  # XXX update error message, translate
@@ -151,6 +157,9 @@ def create_sign_request(documents: dict) -> dict:
     :return: A dict with either the relevant information returned by the API,
              or information about some error obtained in the process.
     """
+    if 'mail' not in session or not current_app.is_whitelisted(session['mail']):
+        return {'error': True, 'message': gettext('Unauthorized')}
+
     current_app.logger.debug(f'Data gotten in create view: {documents}')
     try:
         current_app.logger.info(f"Creating signature request for user {session['eppn']}")
@@ -198,6 +207,9 @@ def recreate_sign_request(documents: dict) -> dict:
     :return: A dict with either the relevant information returned by the API's `create` sign request endpoint,
              or information about some error obtained in the process.
     """
+    if 'mail' not in session or not current_app.is_whitelisted(session['mail']):
+        return {'error': True, 'message': gettext('Unauthorized')}
+
     current_app.logger.debug(f'Data gotten in recreate view: {documents}')
 
     async def prepare(doc):
@@ -338,6 +350,9 @@ def create_multi_sign_request(data: dict) -> dict:
                  and the emails of the users invited to sign the doc.
     :return: A message about the result of the procedure
     """
+    if 'mail' not in session or not current_app.is_whitelisted(session['mail']):
+        return {'error': True, 'message': gettext('Unauthorized')}
+
     if session['mail'] != data['owner']:
         current_app.logger.error(f"User {session['mail']} is trying to create an invitation as {data['owner']}")
         return {'error': True, 'message': gettext("You cannot invite as %(owner)s") % {'owner': data['owner']}}

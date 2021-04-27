@@ -175,7 +175,7 @@ export const createDocument = createAsyncThunk(
         })
       );
       document.state = "loaded";
-      thunkAPI.rejectWithValue(document);
+      return thunkAPI.rejectWithValue(document);
     }
   }
 );

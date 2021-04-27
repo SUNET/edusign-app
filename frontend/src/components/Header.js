@@ -17,35 +17,48 @@ class Header extends Component {
     if (!this.props.loading) {
       name = (
         <div id="name-and-clear-in-header">
-          <span id="name-in-header">
-            <span id="signing-with-span">
-              <FormattedMessage
-                defaultMessage="Signing with: "
-                key="signing-with"
-              />
-            </span>
-            <span id="signer-attributes">
-              {this.props.signer_attributes.map((attr, index) => {
-                return (
-                  <span className="signer-attribute" key={index}>
-                    <span className="attr-name">{attr.name}: </span>
-                    <span className="attr-value">{attr.value}</span>
+            {(this.props.signer_attributes !== undefined && this.props.signer_attributes.length > 0)  && (
+              <>
+                <span id="name-in-header">
+                  <span id="signing-with-span">
+                    <FormattedMessage
+                      defaultMessage="Signing with: "
+                      key="signing-with"
+                    />
                   </span>
-                );
-              })}
+                  <span id="signer-attributes">
+                    {this.props.signer_attributes.map((attr, index) => {
+                      return (
+                        <span className="signer-attribute" key={index}>
+                          <span className="attr-name">{attr.name}: </span>
+                          <span className="attr-value">{attr.value}</span>
+                        </span>
+                      );
+                    })}
+                  </span>
+                </span>
+                <span id="sep-in-header">|</span>
+                <span
+                  id="clear-in-header"
+                  data-testid="clear-in-header"
+                  onClick={this.props.clearDb}
+                >
+                  <FormattedMessage
+                    defaultMessage="Clear session"
+                    key="clear-session"
+                  />
+                </span>
+              </>
+            ) || (
+            <span id="name-in-header">
+              <span id="signing-with-span">
+                <FormattedMessage
+                  defaultMessage="You don't seem to be authorized to use this site at this moment"
+                  key="header-unauthz-for-site"
+                />
+              </span>
             </span>
-          </span>
-          <span id="sep-in-header">|</span>
-          <span
-            id="clear-in-header"
-            data-testid="clear-in-header"
-            onClick={this.props.clearDb}
-          >
-            <FormattedMessage
-              defaultMessage="Clear session"
-              key="clear-session"
-            />
-          </span>
+          )}
         </div>
       );
     }
