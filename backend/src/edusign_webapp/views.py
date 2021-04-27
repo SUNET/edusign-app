@@ -99,6 +99,7 @@ def get_config() -> dict:
 
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
+    session['site_visitor'] = True
     attrs = [{'name': attr, 'value': session[attr]} for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
     return {
         'payload': {
@@ -500,6 +501,9 @@ def create_invited_signature(invite_key: str) -> str:
         title = gettext("Problem signing the document")
         message = gettext('Communication error with the create endpoint of the eduSign API')
         return render_template('error-generic.jinja2', title=title, message=message)
+
+    if 'site_visitor' in session and session['site_visitor']:
+        return render_template('autoform.jinja2', **create_data)
 
     return render_template('vanity-form.jinja2', **create_data)
 
