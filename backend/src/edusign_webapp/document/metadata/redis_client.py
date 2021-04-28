@@ -157,7 +157,7 @@ class RedisStorageBackend:
         owner = int(b_doc[b'owner'])
         self.redis.delete(f"doc:{doc_id}")
         self.redis.delete(f"doc:key:{key}")
-        self.redis.delete(f"doc:owner:{owner}")
+        self.redis.srem(f"doc:owner:{owner}", doc_id)
 
     def insert_invite(self, key, doc_id, user_id, owner_id):
         invite_id = self.redis.incr('invite-counter')
@@ -174,6 +174,20 @@ class RedisStorageBackend:
         self.redis.sadd(f"invites:unsigned:document:{doc_id}", invite_id)
         self.redis.sadd(f"invites:unsigned:invited:{user_id}", invite_id)
         return invite_id
+
+    def delete_invites_all(self, doc_id):
+        invite_ids = self.redis.sunion(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}")
+        for b_invite_id in invite_ids:
+            invite_id = int(b_invite_id)
+            owner_id = int(self.redis.hget(f"invite:{invite_id}", 'owner_id'))
+            user_id = int(self.redis.hget(f"invite:{invite_id}", 'user_id'))
+            self.redis.delete(f"invite:{invite_id}")
+            self.redis.srem(f"invites:unsigned:owner:{owner_id}", invite_id)
+            self.redis.delete(f"invites:unsigned:document:{doc_id}")
+            self.redis.srem(f"invites:unsigned:invited:{user_id}", invite_id)
+            self.redis.srem(f"invites:signed:owner:{owner_id}", invite_id)
+            self.redis.delete(f"invites:signed:document:{doc_id}")
+            self.redis.srem(f"invites:signed:invited:{user_id}", invite_id)
 
     def query_invites_from_email(self, email):
         b_user_id = self.redis.get(f'user:email:{email}')
@@ -244,34 +258,6 @@ class RedisStorageBackend:
         self.redis.smove(f"invites:unsigned:owner:{owner_id}", f"invites:signed:owner:{owner_id}", invite_id)
         self.redis.smove(f"invites:unsigned:invited:{user_id}", f"invites:signed:invited:{user_id}", invite_id)
         self.redis.smove(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}", invite_id)
-
-    def delete_invite(self, user_id, doc_id):
-        invite_ids = self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:invited:{user_id}")
-        invite_ids.extend(self.redis.sinter(f"invites:signed:document:{doc_id}", f"invites:signed:invited:{user_id}"))
-        assert len(invite_ids) == 1
-        invite_id = int(invite_ids[0])
-        owner_id = int(self.redis.hget(f"invite:{invite_id}", 'owner'))
-        self.redis.delete(f"invite:{invite_id}")
-        self.redis.delete(f"invites:unsigned:owner:{owner_id}")
-        self.redis.delete(f"invites:unsigned:document:{doc_id}")
-        self.redis.delete(f"invites:unsigned:invited:{user_id}")
-        self.redis.delete(f"invites:signed:owner:{owner_id}")
-        self.redis.delete(f"invites:signed:document:{doc_id}")
-        self.redis.delete(f"invites:signed:invited:{user_id}")
-
-    def delete_invites_all(self, doc_id):
-        invite_ids = self.redis.sunion(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}")
-        for b_invite_id in invite_ids:
-            invite_id = int(b_invite_id)
-            owner_id = int(self.redis.hget(f"invite:{invite_id}", 'owner'))
-            user_id = int(self.redis.hget(f"invite:{invite_id}", 'user_id'))
-            self.redis.delete(f"invite:{invite_id}")
-            self.redis.delete(f"invites:unsigned:owner:{owner_id}")
-            self.redis.delete(f"invites:unsigned:document:{doc_id}")
-            self.redis.delete(f"invites:unsigned:invited:{user_id}")
-            self.redis.delete(f"invites:signed:owner:{owner_id}")
-            self.redis.delete(f"invites:signed:document:{doc_id}")
-            self.redis.delete(f"invites:signed:invited:{user_id}")
 
 
 class RedisMD(ABCMetadata):
