@@ -5,6 +5,12 @@ from setuptools import setup, find_packages
 
 here = os.path.abspath(os.path.dirname(__file__))
 
+# To bump versions:
+# * Bump here
+# * bump version in package.json de frontend
+# * create git tag and push
+# * reference new tag in docker-edusign-app/backend/Dockerfile
+# * reference new tag in docker-edusign-app/nginx/Dockerfile
 version = '0.2.0'
 
 requires = [x for x in open(os.path.join(here, 'requirements.txt')).read().split('\n') if len(x) > 0]
