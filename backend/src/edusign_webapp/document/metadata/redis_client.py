@@ -43,11 +43,23 @@ from edusign_webapp.doc_store import ABCMetadata
 class RedisStorageBackend:
     def __init__(self, redis_client):
         self.redis = redis_client
+        self.transaction = None
+
+    def pipeline(self):
+        self.transaction = self.redis.pipeline()
+
+    def commit(self):
+        self.transaction.execute()
+        self.transaction = None
+
+    def abort(self):
+        self.transaction.reset()
+        self.transaction = None
 
     def insert_user(self, name, email):
         user_id = self.redis.incr('user-counter')
-        self.redis.hset(f"user:{user_id}", mapping=dict(name=name, email=email))
-        self.redis.set(f"user:email:{email}", user_id)
+        self.transaction.hset(f"user:{user_id}", mapping=dict(name=name, email=email))
+        self.transaction.set(f"user:email:{email}", user_id)
         return user_id
 
     def query_user_id(self, email):
@@ -76,9 +88,9 @@ class RedisStorageBackend:
             created=now,
             updated=now,
         )
-        self.redis.hset(f"doc:{doc_id}", mapping=mapping)
-        self.redis.set(f"doc:key:{key}", doc_id)
-        self.redis.sadd(f"doc:owner:{owner}", doc_id)
+        self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
+        self.transaction.set(f"doc:key:{key}", doc_id)
+        self.transaction.sadd(f"doc:owner:{owner}", doc_id)
         return doc_id
 
     def query_document_id(self, key):
@@ -142,22 +154,22 @@ class RedisStorageBackend:
 
     def update_document(self, key, updated):
         doc_id = int(self.redis.get(f"doc:key:{key}"))
-        self.redis.hset(f"doc:{doc_id}", mapping=dict(updated=updated))
+        self.transaction.hset(f"doc:{doc_id}", mapping=dict(updated=updated))
 
     def rm_document_lock(self, doc_id):
-        self.redis.hdel(f"doc:{doc_id}", 'locked')
-        self.redis.hdel(f"doc:{doc_id}", 'locked_by')
+        self.transaction.hdel(f"doc:{doc_id}", 'locked')
+        self.transaction.hdel(f"doc:{doc_id}", 'locked_by')
 
     def add_document_lock(self, doc_id, locked, locked_by):
-        self.redis.hset(f"doc:{doc_id}", mapping=dict(locked=locked, locked_by=locked_by))
+        self.transaction.hset(f"doc:{doc_id}", mapping=dict(locked=locked, locked_by=locked_by))
 
     def delete_document(self, key):
         doc_id = int(self.redis.get(f"doc:key:{key}"))
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         owner = int(b_doc[b'owner'])
-        self.redis.delete(f"doc:{doc_id}")
-        self.redis.delete(f"doc:key:{key}")
-        self.redis.srem(f"doc:owner:{owner}", doc_id)
+        self.transaction.delete(f"doc:{doc_id}")
+        self.transaction.delete(f"doc:key:{key}")
+        self.transaction.srem(f"doc:owner:{owner}", doc_id)
 
     def insert_invite(self, key, doc_id, user_id, owner_id):
         invite_id = self.redis.incr('invite-counter')
@@ -168,11 +180,11 @@ class RedisStorageBackend:
             owner_id=owner_id,
             signed=0,
         )
-        self.redis.hset(f"invite:{invite_id}", mapping=mapping)
-        self.redis.set(f"invite:key:{key}", invite_id)
-        self.redis.sadd(f"invites:unsigned:owner:{owner_id}", invite_id)
-        self.redis.sadd(f"invites:unsigned:document:{doc_id}", invite_id)
-        self.redis.sadd(f"invites:unsigned:invited:{user_id}", invite_id)
+        self.transaction.hset(f"invite:{invite_id}", mapping=mapping)
+        self.transaction.set(f"invite:key:{key}", invite_id)
+        self.transaction.sadd(f"invites:unsigned:owner:{owner_id}", invite_id)
+        self.transaction.sadd(f"invites:unsigned:document:{doc_id}", invite_id)
+        self.transaction.sadd(f"invites:unsigned:invited:{user_id}", invite_id)
         return invite_id
 
     def delete_invites_all(self, doc_id):
@@ -181,13 +193,13 @@ class RedisStorageBackend:
             invite_id = int(b_invite_id)
             owner_id = int(self.redis.hget(f"invite:{invite_id}", 'owner_id'))
             user_id = int(self.redis.hget(f"invite:{invite_id}", 'user_id'))
-            self.redis.delete(f"invite:{invite_id}")
-            self.redis.srem(f"invites:unsigned:owner:{owner_id}", invite_id)
-            self.redis.delete(f"invites:unsigned:document:{doc_id}")
-            self.redis.srem(f"invites:unsigned:invited:{user_id}", invite_id)
-            self.redis.srem(f"invites:signed:owner:{owner_id}", invite_id)
-            self.redis.delete(f"invites:signed:document:{doc_id}")
-            self.redis.srem(f"invites:signed:invited:{user_id}", invite_id)
+            self.transaction.delete(f"invite:{invite_id}")
+            self.transaction.srem(f"invites:unsigned:owner:{owner_id}", invite_id)
+            self.transaction.delete(f"invites:unsigned:document:{doc_id}")
+            self.transaction.srem(f"invites:unsigned:invited:{user_id}", invite_id)
+            self.transaction.srem(f"invites:signed:owner:{owner_id}", invite_id)
+            self.transaction.delete(f"invites:signed:document:{doc_id}")
+            self.transaction.srem(f"invites:signed:invited:{user_id}", invite_id)
 
     def query_invites_from_email(self, email):
         b_user_id = self.redis.get(f'user:email:{email}')
@@ -253,11 +265,11 @@ class RedisStorageBackend:
         invite_ids = self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:invited:{user_id}")
         assert len(invite_ids) == 1
         invite_id = int(list(invite_ids)[0])
-        self.redis.hset(f"invite:{invite_id}", mapping={'signed': 1})
+        self.transaction.hset(f"invite:{invite_id}", mapping={'signed': 1})
         owner_id = int(self.redis.hget(f"invite:{invite_id}", 'owner_id'))
-        self.redis.smove(f"invites:unsigned:owner:{owner_id}", f"invites:signed:owner:{owner_id}", invite_id)
-        self.redis.smove(f"invites:unsigned:invited:{user_id}", f"invites:signed:invited:{user_id}", invite_id)
-        self.redis.smove(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}", invite_id)
+        self.transaction.smove(f"invites:unsigned:owner:{owner_id}", f"invites:signed:owner:{owner_id}", invite_id)
+        self.transaction.smove(f"invites:unsigned:invited:{user_id}", f"invites:signed:invited:{user_id}", invite_id)
+        self.transaction.smove(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}", invite_id)
 
 
 class RedisMD(ABCMetadata):
@@ -299,12 +311,14 @@ class RedisMD(ABCMetadata):
         :param invites: List of the names and emails of the users that have been invited to sign the document.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
+        self.client.pipeline()
         owner_id = self.client.query_user_id(owner['email'])
         if owner_id is None:
             self.logger.info(f"Adding new (owning) user: {owner['name']}, {owner['email']}")
             owner_id = self.client.insert_user(owner['name'], owner['email'])
 
         if owner_id is None:  # This should never happen, it's just to please mypy
+            self.client.abort()
             return
 
         document_id = self.client.insert_document(
@@ -312,6 +326,7 @@ class RedisMD(ABCMetadata):
         )
 
         if document_id is None:  # This should never happen, it's just to please mypy
+            self.client.abort()
             return
 
         updated_invites = []
@@ -331,6 +346,7 @@ class RedisMD(ABCMetadata):
             updated_invite.update(user)
             updated_invites.append(updated_invite)
 
+        self.client.commit()
         return updated_invites
 
     def get_pending(self, email: str) -> List[Dict[str, Any]]:
@@ -382,20 +398,24 @@ class RedisMD(ABCMetadata):
         :param key: The key identifying the document in the `storage`.
         :param email: email address of the user that has just signed the document.
         """
+        self.client.pipeline()
         user_id = self.client.query_user_id(email)
         if user_id is None:
             self.logger.error(f"Trying to update a document with the signature of non-existing {email}")
+            self.client.abort()
             return
 
         document_id = self.client.query_document_id(str(key))
         if document_id is None:
             self.logger.error(f"Trying to update a non-existing document with the signature of {email}")
+            self.client.abort()
             return
 
         self.logger.info(f"Removing invite for {email} to sign {key}")
         self.client.update_invite(user_id, document_id)
 
         self.client.update_document(str(key), datetime.now().timestamp())
+        self.client.commit()
 
     def get_owned(self, email: str) -> List[Dict[str, Any]]:
         """
@@ -487,9 +507,11 @@ class RedisMD(ABCMetadata):
         :param force: whether to remove the doc even if there are pending signatures
         :return: whether the document has been removed
         """
+        self.client.pipeline()
         document_id = self.client.query_document_id(str(key))
         if document_id is None:
             self.logger.error(f"Trying to delete a non-existing document with key {key}")
+            self.client.abort()
             return False
 
         invites = self.client.query_unsigned_invites_from_doc(document_id)
@@ -499,6 +521,7 @@ class RedisMD(ABCMetadata):
                 pass
             elif len(invites) != 0:
                 self.logger.error(f"Refusing to remove document {key} with pending emails")
+                self.client.abort()
                 return False
 
         else:
@@ -506,6 +529,7 @@ class RedisMD(ABCMetadata):
 
         self.client.delete_document(str(key))
 
+        self.client.commit()
         return True
 
     def get_invitation(self, key: uuid.UUID) -> Dict[str, Any]:
@@ -558,15 +582,18 @@ class RedisMD(ABCMetadata):
         :param locked_by: Email of the user locking the document
         :return: Whether the document has been locked.
         """
+        self.client.pipeline()
         lock_info = self.client.query_document_lock(doc_id)
         self.logger.debug(f"Checking lock for {locked_by} in document with id {doc_id}: {lock_info}")
         if lock_info is None:
             self.logger.error(f"Trying to lock a non-existing document with id {doc_id}")
+            self.client.abort()
             return False
 
         user_id = self.client.query_user_id(locked_by)
         if user_id is None:
             self.logger.error(f"Trying to lock a document for non-existing {locked_by}")
+            self.client.abort()
             return False
 
         now = datetime.now()
@@ -583,8 +610,10 @@ class RedisMD(ABCMetadata):
         ):
             self.logger.debug(f"Adding lock for {locked_by} in document with id {doc_id}: {lock_info}")
             self.client.add_document_lock(doc_id, now_ts, user_id)
+            self.client.commit()
             return True
 
+        self.client.abort()
         return False
 
     def rm_lock(self, doc_id: int, unlocked_by: str) -> bool:
@@ -596,17 +625,21 @@ class RedisMD(ABCMetadata):
         :param unlocked_by: Email of the user unlocking the document
         :return: Whether the document has been unlocked.
         """
+        self.client.pipeline()
         lock_info = self.client.query_document_lock(doc_id)
         if lock_info is None or isinstance(lock_info, list):
             self.logger.error(f"Trying to unlock a non-existing document with id {doc_id}")
+            self.client.abort()
             return False
 
         if lock_info['locked'] is None:
+            self.client.abort()
             return True
 
         user_id = self.client.query_user_id(unlocked_by)
         if user_id is None:
             self.logger.error(f"Trying to unlock a document for non-existing {unlocked_by}")
+            self.client.abort()
             return False
 
         now = datetime.now()
@@ -619,8 +652,10 @@ class RedisMD(ABCMetadata):
 
         if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['locked_by'] == user_result['user_id']:
             self.client.rm_document_lock(doc_id)
+            self.client.commit()
             return True
 
+        self.client.abort()
         return False
 
     def check_lock(self, doc_id: int, locked_by: str) -> bool:
@@ -650,7 +685,9 @@ class RedisMD(ABCMetadata):
 
         if (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']:
             self.logger.debug(f"Lock for document with id {doc_id} has expired")
+            self.client.pipeline()
             self.client.rm_document_lock(doc_id)
+            self.client.commit()
             return False
 
         user_id = lock_info['locked_by']
