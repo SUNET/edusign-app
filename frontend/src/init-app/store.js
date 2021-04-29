@@ -5,6 +5,7 @@ import main from "slices/Main";
 import notifications from "slices/Notifications";
 import documents from "slices/Documents";
 import dnd from "slices/DnDArea";
+import confirm from "slices/ConfirmDialog";
 
 /**
  * @public
@@ -16,5 +17,6 @@ export default combineReducers({
   notifications,
   documents,
   dnd,
+  confirm,
   intl: intlReducer,
 });

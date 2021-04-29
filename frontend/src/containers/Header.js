@@ -13,6 +13,7 @@ import { connect } from "react-redux";
 import Header from "components/Header";
 import { clearDocStore } from "init-app/database";
 import { removeAllDocuments } from "slices/Documents";
+import { askConfirmation } from "slices/ConfirmDialog";
 
 const mapStateToProps = (state) => {
   if (state.main.signer_attributes === undefined) {
@@ -33,6 +34,11 @@ const mapDispatchToProps = (dispatch) => {
     clearDb: function () {
       clearDocStore(dispatch);
       dispatch(removeAllDocuments());
+    },
+    showConfirm: function (confirmId) {
+      return () => {
+        dispatch(askConfirmation(confirmId));
+      }
     },
   };
 };

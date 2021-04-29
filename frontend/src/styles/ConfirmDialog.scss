@@ -1,0 +1,15 @@
+@import "./variables.scss";
+
+div.modal-header {
+  font-size: 1.3rem;
+}
+
+div.confirm-buttons {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+
+  button {
+    flex: none;
+  }
+}

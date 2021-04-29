@@ -1,8 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, injectIntl } from "react-intl";
 
 import NotificationsContainer from "containers/Notifications";
+import ConfirmDialogContainer from "containers/ConfirmDialog";
 
 import "styles/Header.scss";
 
@@ -41,13 +42,28 @@ class Header extends Component {
                 <span
                   id="clear-in-header"
                   data-testid="clear-in-header"
-                  onClick={this.props.clearDb}
+                  onClick={this.props.showConfirm("confirm-clear-session")}
                 >
                   <FormattedMessage
                     defaultMessage="Clear session"
                     key="clear-session"
                   />
                 </span>
+                <ConfirmDialogContainer
+                  confirmId="confirm-clear-session"
+                  title={this.props.intl.formatMessage(
+                    {
+                      defaultMessage: "Confirm Clear Session",
+                      id: "header-confirm-clear-title",
+                    }
+                  )}
+                  mainText={this.props.intl.formatMessage(
+                    {
+                      defaultMessage: 'Clicking "Confirm" will remove all documents from your session',
+                      id: "header-confirm-clear-text",
+                    }
+                  )}
+                  confirm={this.props.clearDb} />
               </>
             ) || (
             <span id="name-in-header">
@@ -118,4 +134,4 @@ Header.propTypes = {
   clearDb: PropTypes.func,
 };
 
-export default Header;
+export default injectIntl(Header);
