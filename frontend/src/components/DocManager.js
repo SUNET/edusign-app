@@ -32,14 +32,20 @@ import "styles/DocManager.scss";
  * Depending on the state, it will show a different set of controls.
  * @component
  */
-function DocManager(props) {
-  function docName(doc) {
+class DocManager extends React.Component {
+  constructor(props){
+    super(props);
+    props.documents.forEach((doc)=> {
+      this["invite-form-" + doc.id] = React.createRef();
+    });
+  }
+  docName(doc) {
     return <div className="name-flex-item">{doc.name}</div>;
   }
-  function docSize(doc) {
+  docSize(doc) {
     return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
   }
-  function namedSpinner(index, name) {
+  namedSpinner(index, name) {
     return (
       <>
         <LittleSpinner index={index} />
@@ -47,14 +53,14 @@ function DocManager(props) {
       </>
     );
   }
-  function previewButton(doc) {
+  previewButton(doc) {
     return (
       <>
         <div className="button-preview-flex-item">
           <Button
             variant="outline-dark"
             size="sm"
-            onClick={props.handlePreview(doc.name)}
+            onClick={this.props.handlePreview(doc.name)}
           >
             <FormattedMessage defaultMessage="Preview" key="preview-button" />
           </Button>
@@ -62,14 +68,14 @@ function DocManager(props) {
       </>
     );
   }
-  function retryButton(doc) {
+  retryButton(doc) {
     return (
       <>
         <div className="button-retry-flex-item">
           <Button
             variant="outline-success"
             size="sm"
-            onClick={props.handleRetry(doc)}
+            onClick={this.props.handleRetry(doc)}
           >
             <FormattedMessage defaultMessage="Retry" key="retry-button" />
           </Button>
@@ -77,35 +83,35 @@ function DocManager(props) {
       </>
     );
   }
-  function selectDoc(index, doc) {
+  selectDoc(index, doc) {
     return (
       <>
         <div className="doc-selector-flex-item">
           <input
             type="checkbox"
             data-testid={"doc-selector-" + index}
-            onClick={props.handleDocSelection(doc.name)}
+            onClick={this.props.handleDocSelection(doc.name)}
             defaultChecked={doc.state === "selected"}
           />
         </div>
       </>
     );
   }
-  function dummySelectDoc() {
+  dummySelectDoc() {
     return (
       <>
         <div className="doc-selector-flex-item" />
       </>
     );
   }
-  function removeButton(doc) {
+  removeButton(doc) {
     return (
       <>
         <div className="button-remove-flex-item">
           <Button
             variant="outline-danger"
             size="sm"
-            onClick={props.handleRemove(doc.name)}
+            onClick={this.props.handleRemove(doc.name)}
           >
             <FormattedMessage defaultMessage="Remove" key="remove-button" />
           </Button>
@@ -113,14 +119,14 @@ function DocManager(props) {
       </>
     );
   }
-  function dlSignedButton(doc) {
+  dlSignedButton(doc) {
     return (
       <>
         <div className="button-signed-flex-item">
           <Button
             variant="outline-success"
             size="sm"
-            onClick={props.handleDlSigned(doc.name)}
+            onClick={this.props.handleDlSigned(doc.name)}
           >
             <FormattedMessage
               defaultMessage="Download (signed)"
@@ -131,7 +137,26 @@ function DocManager(props) {
       </>
     );
   }
-  function showMessage(doc) {
+  multiSignButton(doc, onClick) {
+    return (
+      <>
+        <div className="button-multisign-flex-item">
+          <Button
+            variant="outline-success"
+            size="sm"
+            onClick={onClick}
+            data-docid={doc.id}
+          >
+            <FormattedMessage
+              defaultMessage="Multi sign"
+              key="multisign-button"
+            />
+          </Button>
+        </div>
+      </>
+    );
+  }
+  showMessage(doc) {
     return (
       <>
         <div className="message-flex-item">
@@ -140,99 +165,99 @@ function DocManager(props) {
       </>
     );
   }
-  function getHelp(msg) {
+  getHelp(msg) {
     const msgs = {
-      "loading-title": props.intl.formatMessage(
+      "loading-title": this.props.intl.formatMessage(
         {
           defaultMessage: "Loading document",
           id: "docmanager-help-loading-title",
         },
       ),
-      "loading": props.intl.formatMessage(
+      "loading": this.props.intl.formatMessage(
         {
           defaultMessage: "Please wait while the document loads",
           id: "docmanager-help-loading",
         },
       ),
-      "loaded-title": props.intl.formatMessage(
+      "loaded-title": this.props.intl.formatMessage(
         {
           defaultMessage: 'Document loaded',
           id: "docmanager-help-loaded",
         },
       ),
-      "loaded": props.intl.formatMessage(
+      "loaded": this.props.intl.formatMessage(
         {
           defaultMessage: 'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign Selected Documents"',
           id: "docmanager-help-loaded",
         },
       ),
-      "failed-loading-title": props.intl.formatMessage(
+      "failed-loading-title": this.props.intl.formatMessage(
         {
           defaultMessage: "Failed loading document",
           id: "docmanager-help-failed-loading-title",
         },
       ),
-      "failed-loading": props.intl.formatMessage(
+      "failed-loading": this.props.intl.formatMessage(
         {
           defaultMessage: "This does not seem to be a valid document",
           id: "docmanager-help-failed-loading",
         },
       ),
-      "selected-title": props.intl.formatMessage(
+      "selected-title": this.props.intl.formatMessage(
         {
           defaultMessage: 'Document selected for signing',
           id: "docmanager-help-selected-title",
         },
       ),
-      "selected": props.intl.formatMessage(
+      "selected": this.props.intl.formatMessage(
         {
           defaultMessage: 'Click on the button below labelled "Sign Selected Documents" to sign this document',
           id: "docmanager-help-selected",
         },
       ),
-      "failed-preparing-title": props.intl.formatMessage(
+      "failed-preparing-title": this.props.intl.formatMessage(
         {
           defaultMessage: 'Failed preparing document',
           id: "docmanager-help-failed-preparing-title",
         },
       ),
-      "failed-preparing": props.intl.formatMessage(
+      "failed-preparing": this.props.intl.formatMessage(
         {
           defaultMessage: 'There was a problem preparing the document for signing, clik on the button labelled "retry" to try again',
           id: "docmanager-help-failed-preparing",
         },
       ),
-      "signing-title": props.intl.formatMessage(
+      "signing-title": this.props.intl.formatMessage(
         {
           defaultMessage: "Signing document",
           id: "docmanager-help-signing-title",
         },
       ),
-      "signing": props.intl.formatMessage(
+      "signing": this.props.intl.formatMessage(
         {
           defaultMessage: "Please wait while the document is signed",
           id: "docmanager-help-signing",
         },
       ),
-      "failed-signing-title": props.intl.formatMessage(
+      "failed-signing-title": this.props.intl.formatMessage(
         {
           defaultMessage: 'Failed signing document',
           id: "docmanager-help-failed-signing-title",
         },
       ),
-      "failed-signing": props.intl.formatMessage(
+      "failed-signing": this.props.intl.formatMessage(
         {
           defaultMessage: 'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign Selected Documents"',
           id: "docmanager-help-failed-signing",
         },
       ),
-      "signed-title": props.intl.formatMessage(
+      "signed-title": this.props.intl.formatMessage(
         {
           defaultMessage: 'Document signed',
           id: "docmanager-help-signed-title",
         },
       ),
-      "signed": props.intl.formatMessage(
+      "signed": this.props.intl.formatMessage(
         {
           defaultMessage: 'Document succesfully signed, click on the button labelled "Download (signed)" to download it',
           id: "docmanager-help-signed",
@@ -242,282 +267,291 @@ function DocManager(props) {
     return msgs[msg];
   }
 
-  let someSelected = false;
-  let showSignButton = false;
+  render () {
+    let someSelected = false;
+    let showSignButton = false;
+    let inviteForms = new Array();
 
-  return (
-    <>
-      {props.documents.map((doc, index) => {
-        if (['loaded', 'selected', 'failed-signing'].includes(doc.state)) {
-          showSignButton = true;
-        }
-        const docFile = docToFile(doc);
-        if (docFile === null) {
-          doc = {
-            ...doc,
-            state: "failed-loading",
-            message: "XXX Malformed PDF",
-          };
-        }
-        if (doc.state === "selected") someSelected = true;
-        if (props.size === "lg") {
-          return (
-            <OverlayTrigger
-              key={index}
-              trigger={["hover", "focus"]}
-              overlay={
-                <Popover placement="auto">
-                  <PopoverTitle>
-                    {getHelp(doc.state + '-title')}
-                  </PopoverTitle>
-                  <PopoverContent>
-                    {getHelp(doc.state)}
-                  </PopoverContent>
-                </Popover>
-              }>
-              <div className={"doc-flex-container " + doc.state} key={index}>
-                {doc.state === "loading" && (
-                  <>
-                    {dummySelectDoc()}
-                    {docSize(doc)}
-                    {docName(doc)}
-                    {namedSpinner(index, "loading")}
-                  </>
-                )}
-                {doc.state === "failed-loading" && (
-                  <>
-                    {dummySelectDoc()}
-                    {docName(doc)}
-                    {showMessage(doc)}
-                    {removeButton(doc)}
-                  </>
-                )}
-                {doc.state === "failed-preparing" && (
-                  <>
-                    {dummySelectDoc()}
-                    {docSize(doc)}
-                    {docName(doc)}
-                    {showMessage(doc)}
-                    {retryButton(doc)}
-                    {removeButton(doc)}
-                  </>
-                )}
-                {(doc.state === "loaded" || doc.state === "selected") && (
-                  <>
-                    {selectDoc(index, doc)}
-                    {docSize(doc)}
-                    {docName(doc)}
-                    {previewButton(doc)}
-                    {removeButton(doc)}
-                    <InviteFormContainer docId={doc.id} docName={doc.name} />
-                    <DocPreviewContainer doc={doc} docFile={docFile} />
-                  </>
-                )}
-                {doc.state === "signing" && (
-                  <>
-                    {dummySelectDoc()}
-                    {docSize(doc)}
-                    {docName(doc)}
-                    {namedSpinner(index, "signing")}
-                  </>
-                )}
-                {doc.state === "signed" && (
-                  <>
-                    {dummySelectDoc()}
-                    {docSize(doc)}
-                    {docName(doc)}
-                    {dlSignedButton(doc)}
-                  </>
-                )}
-                {doc.state === "failed-signing" && (
-                  <>
-                    {selectDoc(index, doc)}
-                    {docSize(doc)}
-                    {docName(doc)}
-                    {showMessage(doc)}
-                    {previewButton(doc)}
-                    {removeButton(doc)}
-                    <DocPreviewContainer doc={doc} docFile={docFile} />
-                  </>
-                )}
-              </div>
-            </OverlayTrigger>
-          );
-        } else if (props.size === "sm") {
-          return (
-            <OverlayTrigger
-              trigger={["hover", "focus"]}
-              key={index}
-              overlay={
-                <Tooltip placement="auto">
-                  {getHelp(doc.state)}
-                </Tooltip>
-              }>
-              <div className={"doc-flex-container-sm " + doc.state}>
-                {doc.state === "loading" && (
-                  <>
-                    <div className="doc-container-first-row">
-                      {dummySelectDoc()}
-                      {docSize(doc)}
-                      {docName(doc)}
-                    </div>
-                    <div className="doc-container-second-row">
-                      {namedSpinner(index, "loading")}
-                    </div>
-                  </>
-                )}
-                {doc.state === "failed-loading" && (
-                  <>
-                    <div className="doc-container-first-row">
-                      {dummySelectDoc()}
-                      {docName(doc)}
-                    </div>
-                    <div className="doc-container-second-row">
-                      {showMessage(doc)}
-                    </div>
-                    <div className="doc-container-third-row">
-                      {removeButton(doc)}
-                    </div>
-                  </>
-                )}
-                {doc.state === "failed-preparing" && (
-                  <>
-                    <div className="doc-container-first-row">
-                      {dummySelectDoc()}
-                      {docSize(doc)}
-                      {docName(doc)}
-                    </div>
-                    <div className="doc-container-second-row">
-                      {showMessage(doc)}
-                    </div>
-                    <div className="doc-container-third-row">
-                      {retryButton(doc)}
-                      {removeButton(doc)}
-                    </div>
-                  </>
-                )}
-                {(doc.state === "loaded" || doc.state === "selected") && (
-                  <>
-                    <div className="doc-container-first-row">
-                      {selectDoc(index, doc)}
-                      {docSize(doc)}
-                      {docName(doc)}
-                    </div>
-                    <div className="doc-container-second-row">
-                      {previewButton(doc)}
-                      {removeButton(doc)}
-                      <InviteFormContainer docId={doc.id} docName={doc.name} />
-                    </div>
-                    <DocPreviewContainer doc={doc} docFile={docFile} />
-                  </>
-                )}
-                {doc.state === "signing" && (
-                  <>
-                    <div className="doc-container-first-row">
-                      {dummySelectDoc()}
-                      {docSize(doc)}
-                      {docName(doc)}
-                    </div>
-                    <div className="doc-container-second-row">
-                      {namedSpinner(index, "signing")}
-                    </div>
-                  </>
-                )}
-                {doc.state === "signed" && (
-                  <>
-                    <div className="doc-container-first-row">
-                      {dummySelectDoc()}
-                      {docSize(doc)}
-                      {docName(doc)}
-                    </div>
-                    <div className="doc-container-second-row">
-                      {dlSignedButton(doc)}
-                    </div>
-                  </>
-                )}
-                {doc.state === "failed-signing" && (
-                  <>
-                    <div className="doc-container-first-row">
-                      {selectDoc(index, doc)}
-                      {docSize(doc)}
-                      {docName(doc)}
-                    </div>
-                    <div className="doc-container-second-row">
-                      {showMessage(doc)}
-                    </div>
-                    <div className="doc-container-third-row">
-                      {previewButton(doc)}
-                      {removeButton(doc)}
-                    </div>
-                    <DocPreviewContainer doc={doc} docFile={docFile} />
-                  </>
-                )}
-              </div>
-            </OverlayTrigger>
-          );
-        }
-      })}
-      <div id="adjust-vertical-space" />
-      {showSignButton && (
-        <div className="button-sign-flex-item">
-          <Button
-            variant="outline-success"
-            id="button-sign"
-            size="lg"
-            disabled={!someSelected}
-            onClick={props.handleSubmitToSign}
-          >
-            <FormattedMessage
-              defaultMessage="Sign Selected Documents"
-              key="sign-selected-button"
-            />
-          </Button>
+    return (
+      <>
+        {this.props.documents.map((doc, index) => {
+          if (['loaded', 'selected', 'failed-signing'].includes(doc.state)) {
+            showSignButton = true;
+          }
+          const docFile = docToFile(doc);
+          if (docFile === null) {
+            doc = {
+              ...doc,
+              state: "failed-loading",
+              message: "XXX Malformed PDF",
+            };
+          }
+          if (doc.state === "selected") someSelected = true;
+          if (this.props.size === "lg") {
+            return (
+              <OverlayTrigger
+                key={index}
+                trigger={["hover", "focus"]}
+                overlay={
+                  <Popover placement="auto">
+                    <PopoverTitle>
+                      {this.getHelp(doc.state + '-title')}
+                    </PopoverTitle>
+                    <PopoverContent>
+                      {this.getHelp(doc.state)}
+                    </PopoverContent>
+                  </Popover>
+                }>
+                <div className={"doc-flex-container " + doc.state} key={index}>
+                  {doc.state === "loading" && (
+                    <>
+                      {this.dummySelectDoc()}
+                      {this.docSize(doc)}
+                      {this.docName(doc)}
+                      {this.namedSpinner(index, "loading")}
+                    </>
+                  )}
+                  {doc.state === "failed-loading" && (
+                    <>
+                      {this.dummySelectDoc()}
+                      {this.docName(doc)}
+                      {this.showMessage(doc)}
+                      {this.removeButton(doc)}
+                    </>
+                  )}
+                  {doc.state === "failed-preparing" && (
+                    <>
+                      {this.dummySelectDoc()}
+                      {this.docSize(doc)}
+                      {this.docName(doc)}
+                      {this.showMessage(doc)}
+                      {this.retryButton(doc)}
+                      {this.removeButton(doc)}
+                    </>
+                  )}
+                  {(doc.state === "loaded" || doc.state === "selected") && (
+                    <>
+                      {this.selectDoc(index, doc)}
+                      {this.docSize(doc)}
+                      {this.docName(doc)}
+                      {this.previewButton(doc)}
+                      {this.removeButton(doc)}
+                      {(() => {
+                        inviteForms.push(
+                          <InviteFormContainer docId={doc.id} docName={doc.name} ref={this["invite-form-" + doc.id]} key={index} />
+                        );
+                        return this.multiSignButton(doc, (e) => this["invite-form-" + doc.id].current.handleOpen().bind(this));
+                      }).call(null)}
+                      <DocPreviewContainer doc={doc} docFile={docFile} />
+                    </>
+                  )}
+                  {doc.state === "signing" && (
+                    <>
+                      {this.dummySelectDoc()}
+                      {this.docSize(doc)}
+                      {this.docName(doc)}
+                      {this.namedSpinner(index, "signing")}
+                    </>
+                  )}
+                  {doc.state === "signed" && (
+                    <>
+                      {this.dummySelectDoc()}
+                      {this.docSize(doc)}
+                      {this.docName(doc)}
+                      {this.dlSignedButton(doc)}
+                    </>
+                  )}
+                  {doc.state === "failed-signing" && (
+                    <>
+                      {this.selectDoc(index, doc)}
+                      {this.docSize(doc)}
+                      {this.docName(doc)}
+                      {this.showMessage(doc)}
+                      {this.previewButton(doc)}
+                      {this.removeButton(doc)}
+                      <DocPreviewContainer doc={doc} docFile={docFile} />
+                    </>
+                  )}
+                </div>
+              </OverlayTrigger>
+            );
+          } else if (this.props.size === "sm") {
+            return (
+              <OverlayTrigger
+                trigger={["hover", "focus"]}
+                key={index}
+                overlay={
+                  <Tooltip placement="auto">
+                    {this.getHelp(doc.state)}
+                  </Tooltip>
+                }>
+                <div className={"doc-flex-container-sm " + doc.state}>
+                  {doc.state === "loading" && (
+                    <>
+                      <div className="doc-container-first-row">
+                        {this.dummySelectDoc()}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                      </div>
+                      <div className="doc-container-second-row">
+                        {this.namedSpinner(index, "loading")}
+                      </div>
+                    </>
+                  )}
+                  {doc.state === "failed-loading" && (
+                    <>
+                      <div className="doc-container-first-row">
+                        {this.dummySelectDoc()}
+                        {this.docName(doc)}
+                      </div>
+                      <div className="doc-container-second-row">
+                        {this.showMessage(doc)}
+                      </div>
+                      <div className="doc-container-third-row">
+                        {this.removeButton(doc)}
+                      </div>
+                    </>
+                  )}
+                  {doc.state === "failed-preparing" && (
+                    <>
+                      <div className="doc-container-first-row">
+                        {this.dummySelectDoc()}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                      </div>
+                      <div className="doc-container-second-row">
+                        {this.showMessage(doc)}
+                      </div>
+                      <div className="doc-container-third-row">
+                        {this.retryButton(doc)}
+                        {this.removeButton(doc)}
+                      </div>
+                    </>
+                  )}
+                  {(doc.state === "loaded" || doc.state === "selected") && (
+                    <>
+                      <div className="doc-container-first-row">
+                        {this.selectDoc(index, doc)}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                      </div>
+                      <div className="doc-container-second-row">
+                        {this.previewButton(doc)}
+                        {this.removeButton(doc)}
+                        <InviteFormContainer docId={doc.id} docName={doc.name} />
+                      </div>
+                      <DocPreviewContainer doc={doc} docFile={docFile} />
+                    </>
+                  )}
+                  {doc.state === "signing" && (
+                    <>
+                      <div className="doc-container-first-row">
+                        {this.dummySelectDoc()}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                      </div>
+                      <div className="doc-container-second-row">
+                        {this.namedSpinner(index, "signing")}
+                      </div>
+                    </>
+                  )}
+                  {doc.state === "signed" && (
+                    <>
+                      <div className="doc-container-first-row">
+                        {this.dummySelectDoc()}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                      </div>
+                      <div className="doc-container-second-row">
+                        {this.dlSignedButton(doc)}
+                      </div>
+                    </>
+                  )}
+                  {doc.state === "failed-signing" && (
+                    <>
+                      <div className="doc-container-first-row">
+                        {this.selectDoc(index, doc)}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                      </div>
+                      <div className="doc-container-second-row">
+                        {this.showMessage(doc)}
+                      </div>
+                      <div className="doc-container-third-row">
+                        {this.previewButton(doc)}
+                        {this.removeButton(doc)}
+                      </div>
+                      <DocPreviewContainer doc={doc} docFile={docFile} />
+                    </>
+                  )}
+                </div>
+              </OverlayTrigger>
+            );
+          }
+        })}
+        <div id="adjust-vertical-space" />
+        {showSignButton && (
+          <div className="button-sign-flex-item">
+            <Button
+              variant="outline-success"
+              id="button-sign"
+              size="lg"
+              disabled={!someSelected}
+              onClick={this.props.handleSubmitToSign}
+            >
+              <FormattedMessage
+                defaultMessage="Sign Selected Documents"
+                key="sign-selected-button"
+              />
+            </Button>
+          </div>
+        ) || (
+          <div className={'dummy-button-sign-flex-item-' + this.props.size} />
+        )}
+        {inviteForms}
+        <div className="multisign-container">
+          <div className="owned-multisign-container">
+            <OwnedContainer />
+          </div>
+          <div className="invited-multisign-container">
+            <InvitedContainer />
+          </div>
         </div>
-      ) || (
-        <div className={'dummy-button-sign-flex-item-' + props.size} />
-      )}
-      <div className="multisign-container">
-        <div className="owned-multisign-container">
-          <OwnedContainer />
-        </div>
-        <div className="invited-multisign-container">
-          <InvitedContainer />
-        </div>
-      </div>
-      {props.destinationUrl !== undefined &&
-        props.destinationUrl !== "https://dummy.destination.url" && (
+        {this.props.destinationUrl !== undefined &&
+          this.props.destinationUrl !== "https://dummy.destination.url" && (
+            <div>
+              <form
+                id="signing-form"
+                data-testid="signing-form"
+                action={this.props.destinationUrl}
+                method="post"
+              >
+                <input type="hidden" name="Binding" value={this.props.binding} />
+                <input type="hidden" name="RelayState" value={this.props.relayState} />
+                <input
+                  type="hidden"
+                  name="EidSignRequest"
+                  value={this.props.signRequest}
+                />
+              </form>
+            </div>
+          )}
+        {this.props.destinationUrl === "https://dummy.destination.url" && (
           <div>
             <form
               id="signing-form"
               data-testid="signing-form"
-              action={props.destinationUrl}
-              method="post"
-            >
-              <input type="hidden" name="Binding" value={props.binding} />
-              <input type="hidden" name="RelayState" value={props.relayState} />
-              <input
-                type="hidden"
-                name="EidSignRequest"
-                value={props.signRequest}
-              />
-            </form>
+              onSubmit={(e) => {
+                e.preventDefault();
+                console.log("Mock submitting signing form");
+                return false;
+              }}
+            />
           </div>
         )}
-      {props.destinationUrl === "https://dummy.destination.url" && (
-        <div>
-          <form
-            id="signing-form"
-            data-testid="signing-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              console.log("Mock submitting signing form");
-              return false;
-            }}
-          />
-        </div>
-      )}
-    </>
-  );
+      </>
+    );
+  }
 }
 
 DocManager.propTypes = {
