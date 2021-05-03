@@ -244,17 +244,12 @@ function DocManager(props) {
 
   let someSelected = false;
   let showSignButton = false;
-  let confirmDialogs = new Array();
-  let docPreviews = new Array();
 
   return (
     <>
       {props.documents.map((doc, index) => {
         if (['loaded', 'selected', 'failed-signing'].includes(doc.state)) {
           showSignButton = true;
-        }
-        if (['loaded', 'selected'].includes(doc.state)) {
-          confirmDialogs.push([doc.id, doc.name]);
         }
         const docFile = docToFile(doc);
         if (docFile === null) {
@@ -314,6 +309,7 @@ function DocManager(props) {
                     {docName(doc)}
                     {previewButton(doc)}
                     {removeButton(doc)}
+                    <InviteFormContainer docId={doc.id} docName={doc.name} />
                     <DocPreviewContainer doc={doc} docFile={docFile} />
                   </>
                 )}
@@ -410,6 +406,7 @@ function DocManager(props) {
                     <div className="doc-container-second-row">
                       {previewButton(doc)}
                       {removeButton(doc)}
+                      <InviteFormContainer docId={doc.id} docName={doc.name} />
                     </div>
                     <DocPreviewContainer doc={doc} docFile={docFile} />
                   </>
@@ -460,13 +457,6 @@ function DocManager(props) {
           );
         }
       })}
-      <>
-        {confirmDialogs.map((doc) => {
-          return (
-            <InviteFormContainer docId={doc.id} docName={doc.name} />
-          );
-        })}
-      </>
       <div id="adjust-vertical-space" />
       {showSignButton && (
         <div className="button-sign-flex-item">
