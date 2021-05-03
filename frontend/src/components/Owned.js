@@ -4,6 +4,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import ConfirmDialogContainer from "containers/ConfirmDialog";
 
 import "styles/Owned.scss";
 
@@ -14,11 +15,26 @@ const removeButton = (props, doc) => {
         <Button
           variant="outline-danger"
           size="sm"
-          onClick={props.handleRemove(doc)}
+          onClick={props.showConfirm("confirm-remove-owned")}
           data-testid={"rm-invitation-" + doc.name}
         >
           ×
         </Button>
+        <ConfirmDialogContainer
+          confirmId="confirm-remove-owned"
+          title={props.intl.formatMessage(
+            {
+              defaultMessage: "Confirm Removal of invitation",
+              id: "header-confirm-remove-owned-title",
+            }
+          )}
+          mainText={props.intl.formatMessage(
+            {
+              defaultMessage: 'Clicking "Confirm" will remove all invitations to sign the document',
+              id: "header-confirm-remove-owned-text",
+            }
+          )}
+          confirm={props.handleRemove(doc)} />
       </div>
     </>
   );
