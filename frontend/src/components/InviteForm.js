@@ -41,18 +41,6 @@ const initialValues = (docId) => ({
 });
 
 class InviteForm extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      show: false,
-    };
-  }
-  handleClose () {
-    this.setState({show: false});
-  }
-  handleOpen () {
-    this.setState({show: true});
-  }
 
   render () {
     return (
@@ -61,12 +49,12 @@ class InviteForm extends React.Component {
           initialValues={initialValues(this.props.docId)}
           enableReinitialize={true}
           onSubmit={(values) => {
-            this.handleClose();
+            this.props.handleClose();
             this.props.handleSubmit(values);
           }}
         >
           {(fprops) => (
-            <Modal.Dialog show={this.state.show} onHide={this.handleClose} size="lg">
+            <Modal show={this.props.show} onHide={this.props.handleClose} size={this.props.size}>
               <Form data-testid={"invite-form-" + this.props.docName}>
                 <Field
                   type="hidden"
@@ -88,8 +76,17 @@ class InviteForm extends React.Component {
                       <div>
                         {fprops.values.invitees.length > 0 &&
                           fprops.values.invitees.map((invitee, index) => (
-                            <div className="row" key={index}>
-                              <div className="invitee-form-row">
+                            <div className="invitation-fields">
+                              <div className="invitee-form-dismiss">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => arrayHelpers.remove(index)}
+                                >
+                                  ×
+                                </Button>
+                              </div>
+                              <div className="invitee-form-row" key={index}>
                                 <div className="invitee-form-name">
                                   <BForm.Group>
                                     <BForm.Label
@@ -142,20 +139,11 @@ class InviteForm extends React.Component {
                                     />
                                   </BForm.Group>
                                 </div>
-                                <div className="invitee-form-dismiss">
-                                  <Button
-                                    variant="outline-danger"
-                                    size="sm"
-                                    onClick={() => arrayHelpers.remove(index)}
-                                  >
-                                    ×
-                                  </Button>
-                                </div>
                               </div>
                             </div>
                           ))}
                         <Button
-                          variant="secondary"
+                          variant="outline-secondary"
                           onClick={() =>
                             arrayHelpers.push({ name: "", email: "" })
                           }
@@ -170,18 +158,18 @@ class InviteForm extends React.Component {
                   </FieldArray>
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant="secondary" onClick={this.handleClose}>
+                  <Button variant="outline-secondary" onClick={this.props.handleClose}>
                     <FormattedMessage
                       defaultMessage="Cancel"
                       key="cancel-invite"
                     />
                   </Button>
-                  <Button variant="primary" type="submit">
+                  <Button variant="outline-success" type="submit">
                     <FormattedMessage defaultMessage="Send" key="send-invite" />
                   </Button>
                 </Modal.Footer>
               </Form>
-            </Modal.Dialog>
+            </Modal>
           )}
         </Formik>
       </>
@@ -191,8 +179,11 @@ class InviteForm extends React.Component {
 
 InviteForm.propTypes = {
   show: PropTypes.bool,
+  size: PropTypes.number,
   docId: PropTypes.number,
   docName: PropTypes.string,
+  handleClose: PropTypes.func,
+  handleSubmit: PropTypes.func,
 };
 
 export default InviteForm;

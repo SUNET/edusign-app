@@ -33,12 +33,6 @@ import "styles/DocManager.scss";
  * @component
  */
 class DocManager extends React.Component {
-  constructor(props){
-    super(props);
-    props.documents.forEach((doc)=> {
-      this["invite-form-" + doc.id] = React.createRef();
-    });
-  }
   docName(doc) {
     return <div className="name-flex-item">{doc.name}</div>;
   }
@@ -137,14 +131,14 @@ class DocManager extends React.Component {
       </>
     );
   }
-  multiSignButton(doc, onClick) {
+  multiSignButton(doc) {
     return (
       <>
         <div className="button-multisign-flex-item">
           <Button
             variant="outline-success"
             size="sm"
-            onClick={onClick}
+            onClick={this.props.openInviteForm(doc)}
             data-docid={doc.id}
           >
             <FormattedMessage
@@ -287,205 +281,205 @@ class DocManager extends React.Component {
             };
           }
           if (doc.state === "selected") someSelected = true;
+          inviteForms.push({doc: doc, index: index});
+
           if (this.props.size === "lg") {
             return (
-              <OverlayTrigger
-                key={index}
-                trigger={["hover", "focus"]}
-                overlay={
-                  <Popover placement="auto">
-                    <PopoverTitle>
-                      {this.getHelp(doc.state + '-title')}
-                    </PopoverTitle>
-                    <PopoverContent>
-                      {this.getHelp(doc.state)}
-                    </PopoverContent>
-                  </Popover>
-                }>
-                <div className={"doc-flex-container " + doc.state} key={index}>
-                  {doc.state === "loading" && (
-                    <>
-                      {this.dummySelectDoc()}
-                      {this.docSize(doc)}
-                      {this.docName(doc)}
-                      {this.namedSpinner(index, "loading")}
-                    </>
-                  )}
-                  {doc.state === "failed-loading" && (
-                    <>
-                      {this.dummySelectDoc()}
-                      {this.docName(doc)}
-                      {this.showMessage(doc)}
-                      {this.removeButton(doc)}
-                    </>
-                  )}
-                  {doc.state === "failed-preparing" && (
-                    <>
-                      {this.dummySelectDoc()}
-                      {this.docSize(doc)}
-                      {this.docName(doc)}
-                      {this.showMessage(doc)}
-                      {this.retryButton(doc)}
-                      {this.removeButton(doc)}
-                    </>
-                  )}
-                  {(doc.state === "loaded" || doc.state === "selected") && (
-                    <>
-                      {this.selectDoc(index, doc)}
-                      {this.docSize(doc)}
-                      {this.docName(doc)}
-                      {this.previewButton(doc)}
-                      {this.removeButton(doc)}
-                      {(() => {
-                        inviteForms.push(
-                          <InviteFormContainer docId={doc.id} docName={doc.name} ref={this["invite-form-" + doc.id]} key={index} />
-                        );
-                        return this.multiSignButton(doc, (e) => this["invite-form-" + doc.id].current.handleOpen().bind(this));
-                      }).call(null)}
-                      <DocPreviewContainer doc={doc} docFile={docFile} />
-                    </>
-                  )}
-                  {doc.state === "signing" && (
-                    <>
-                      {this.dummySelectDoc()}
-                      {this.docSize(doc)}
-                      {this.docName(doc)}
-                      {this.namedSpinner(index, "signing")}
-                    </>
-                  )}
-                  {doc.state === "signed" && (
-                    <>
-                      {this.dummySelectDoc()}
-                      {this.docSize(doc)}
-                      {this.docName(doc)}
-                      {this.dlSignedButton(doc)}
-                    </>
-                  )}
-                  {doc.state === "failed-signing" && (
-                    <>
-                      {this.selectDoc(index, doc)}
-                      {this.docSize(doc)}
-                      {this.docName(doc)}
-                      {this.showMessage(doc)}
-                      {this.previewButton(doc)}
-                      {this.removeButton(doc)}
-                      <DocPreviewContainer doc={doc} docFile={docFile} />
-                    </>
-                  )}
-                </div>
-              </OverlayTrigger>
+              <>
+                <InviteFormContainer docId={doc.id} docName={doc.name} />
+                <DocPreviewContainer doc={doc} docFile={docFile} />
+                <OverlayTrigger
+                  trigger={["hover", "focus"]}
+                  overlay={
+                    <Popover placement="auto">
+                      <PopoverTitle>
+                        {this.getHelp(doc.state + '-title')}
+                      </PopoverTitle>
+                      <PopoverContent>
+                        {this.getHelp(doc.state)}
+                      </PopoverContent>
+                    </Popover>
+                  }>
+                  <div className={"doc-flex-container " + doc.state}>
+                    {doc.state === "loading" && (
+                      <>
+                        {this.dummySelectDoc()}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                        {this.namedSpinner(index, "loading")}
+                      </>
+                    )}
+                    {doc.state === "failed-loading" && (
+                      <>
+                        {this.dummySelectDoc()}
+                        {this.docName(doc)}
+                        {this.showMessage(doc)}
+                        {this.removeButton(doc)}
+                      </>
+                    )}
+                    {doc.state === "failed-preparing" && (
+                      <>
+                        {this.dummySelectDoc()}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                        {this.showMessage(doc)}
+                        {this.retryButton(doc)}
+                        {this.removeButton(doc)}
+                      </>
+                    )}
+                    {(doc.state === "loaded" || doc.state === "selected") && (
+                      <>
+                        {this.selectDoc(index, doc)}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                        {this.previewButton(doc)}
+                        {this.removeButton(doc)}
+                        {this.multiSignButton(doc)}
+                      </>
+                    )}
+                    {doc.state === "signing" && (
+                      <>
+                        {this.dummySelectDoc()}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                        {this.namedSpinner(index, "signing")}
+                      </>
+                    )}
+                    {doc.state === "signed" && (
+                      <>
+                        {this.dummySelectDoc()}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                        {this.dlSignedButton(doc)}
+                      </>
+                    )}
+                    {doc.state === "failed-signing" && (
+                      <>
+                        {this.selectDoc(index, doc)}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                        {this.showMessage(doc)}
+                        {this.previewButton(doc)}
+                        {this.removeButton(doc)}
+                      </>
+                    )}
+                  </div>
+                </OverlayTrigger>
+              </>
             );
           } else if (this.props.size === "sm") {
             return (
-              <OverlayTrigger
-                trigger={["hover", "focus"]}
-                key={index}
-                overlay={
-                  <Tooltip placement="auto">
-                    {this.getHelp(doc.state)}
-                  </Tooltip>
-                }>
-                <div className={"doc-flex-container-sm " + doc.state}>
-                  {doc.state === "loading" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {this.dummySelectDoc()}
-                        {this.docSize(doc)}
-                        {this.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {this.namedSpinner(index, "loading")}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "failed-loading" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {this.dummySelectDoc()}
-                        {this.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {this.showMessage(doc)}
-                      </div>
-                      <div className="doc-container-third-row">
-                        {this.removeButton(doc)}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "failed-preparing" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {this.dummySelectDoc()}
-                        {this.docSize(doc)}
-                        {this.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {this.showMessage(doc)}
-                      </div>
-                      <div className="doc-container-third-row">
-                        {this.retryButton(doc)}
-                        {this.removeButton(doc)}
-                      </div>
-                    </>
-                  )}
-                  {(doc.state === "loaded" || doc.state === "selected") && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {this.selectDoc(index, doc)}
-                        {this.docSize(doc)}
-                        {this.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {this.previewButton(doc)}
-                        {this.removeButton(doc)}
-                        <InviteFormContainer docId={doc.id} docName={doc.name} />
-                      </div>
-                      <DocPreviewContainer doc={doc} docFile={docFile} />
-                    </>
-                  )}
-                  {doc.state === "signing" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {this.dummySelectDoc()}
-                        {this.docSize(doc)}
-                        {this.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {this.namedSpinner(index, "signing")}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "signed" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {this.dummySelectDoc()}
-                        {this.docSize(doc)}
-                        {this.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {this.dlSignedButton(doc)}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "failed-signing" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {this.selectDoc(index, doc)}
-                        {this.docSize(doc)}
-                        {this.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {this.showMessage(doc)}
-                      </div>
-                      <div className="doc-container-third-row">
-                        {this.previewButton(doc)}
-                        {this.removeButton(doc)}
-                      </div>
-                      <DocPreviewContainer doc={doc} docFile={docFile} />
-                    </>
-                  )}
-                </div>
-              </OverlayTrigger>
+              <>
+                <InviteFormContainer docId={doc.id} docName={doc.name} />
+                <DocPreviewContainer doc={doc} docFile={docFile} />
+                <OverlayTrigger
+                  trigger={["hover", "focus"]}
+                  key={index}
+                  overlay={
+                    <Tooltip placement="auto">
+                      {this.getHelp(doc.state)}
+                    </Tooltip>
+                  }>
+                  <div className={"doc-flex-container-sm " + doc.state}>
+                    {doc.state === "loading" && (
+                      <>
+                        <div className="doc-container-first-row">
+                          {this.dummySelectDoc()}
+                          {this.docSize(doc)}
+                          {this.docName(doc)}
+                        </div>
+                        <div className="doc-container-second-row">
+                          {this.namedSpinner(index, "loading")}
+                        </div>
+                      </>
+                    )}
+                    {doc.state === "failed-loading" && (
+                      <>
+                        <div className="doc-container-first-row">
+                          {this.dummySelectDoc()}
+                          {this.docName(doc)}
+                        </div>
+                        <div className="doc-container-second-row">
+                          {this.showMessage(doc)}
+                        </div>
+                        <div className="doc-container-third-row">
+                          {this.removeButton(doc)}
+                        </div>
+                      </>
+                    )}
+                    {doc.state === "failed-preparing" && (
+                      <>
+                        <div className="doc-container-first-row">
+                          {this.dummySelectDoc()}
+                          {this.docSize(doc)}
+                          {this.docName(doc)}
+                        </div>
+                        <div className="doc-container-second-row">
+                          {this.showMessage(doc)}
+                        </div>
+                        <div className="doc-container-third-row">
+                          {this.retryButton(doc)}
+                          {this.removeButton(doc)}
+                        </div>
+                      </>
+                    )}
+                    {(doc.state === "loaded" || doc.state === "selected") && (
+                      <>
+                        <div className="doc-container-first-row">
+                          {this.selectDoc(index, doc)}
+                          {this.docSize(doc)}
+                          {this.docName(doc)}
+                        </div>
+                        <div className="doc-container-second-row">
+                          {this.previewButton(doc)}
+                          {this.removeButton(doc)}
+                          {this.multiSignButton(doc)}
+                        </div>
+                      </>
+                    )}
+                    {doc.state === "signing" && (
+                      <>
+                        <div className="doc-container-first-row">
+                          {this.dummySelectDoc()}
+                          {this.docSize(doc)}
+                          {this.docName(doc)}
+                        </div>
+                        <div className="doc-container-second-row">
+                          {this.namedSpinner(index, "signing")}
+                        </div>
+                      </>
+                    )}
+                    {doc.state === "signed" && (
+                      <>
+                        <div className="doc-container-first-row">
+                          {this.dummySelectDoc()}
+                          {this.docSize(doc)}
+                          {this.docName(doc)}
+                        </div>
+                        <div className="doc-container-second-row">
+                          {this.dlSignedButton(doc)}
+                        </div>
+                      </>
+                    )}
+                    {doc.state === "failed-signing" && (
+                      <>
+                        <div className="doc-container-first-row">
+                          {this.selectDoc(index, doc)}
+                          {this.docSize(doc)}
+                          {this.docName(doc)}
+                        </div>
+                        <div className="doc-container-second-row">
+                          {this.showMessage(doc)}
+                        </div>
+                        <div className="doc-container-third-row">
+                          {this.previewButton(doc)}
+                          {this.removeButton(doc)}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </OverlayTrigger>
+              </>
             );
           }
         })}
@@ -508,7 +502,6 @@ class DocManager extends React.Component {
         ) || (
           <div className={'dummy-button-sign-flex-item-' + this.props.size} />
         )}
-        {inviteForms}
         <div className="multisign-container">
           <div className="owned-multisign-container">
             <OwnedContainer />

@@ -20,6 +20,7 @@ import {
   removeDocument,
   downloadSigned,
 } from "slices/Documents";
+import { showForm } from "slices/Modals";
 
 const mapStateToProps = (state) => {
   return {
@@ -63,6 +64,11 @@ const mapDispatchToProps = (dispatch) => {
         dispatch(downloadSigned(name));
       };
     },
+    openInviteForm: function (doc) {
+      return () => {
+        dispatch(showForm(doc.id));
+      }
+    }
   };
 };
 

@@ -13,19 +13,27 @@ import { connect } from "react-redux";
 import InviteForm from "components/InviteForm";
 
 import { sendInvites } from "slices/Documents";
+import { hideForm } from "slices/Modals";
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, props) => {
+  let show = false;
+  if (state.modals.show_form && state.modals.form_id === props.docId) {
+    show = true;
+  }
   return {
     size: state.main.size,
+    show: show,
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: function (values) {
-      console.log("Sending invites", values);
       dispatch(sendInvites(values));
     },
+    handleClose: function () {
+      dispatch(hideForm());
+    }
   };
 };
 
