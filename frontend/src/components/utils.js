@@ -71,12 +71,13 @@ export function humanFileSize(bytes, si = false, dp = 1) {
 export function docToFile(doc) {
   let newFile = null;
   try {
-    const fileContents = b64toBlob(doc.blob.split(",")[1]);
+    const fileContents = b64toBlob(doc.blob.split(",")[1], doc.type);
     newFile = new File([fileContents], doc.name, {
       type: doc.type,
     });
+    return newFile;
   } catch (err) {
     console.log("Error loading document", err);
+    return null;
   }
-  return newFile;
 }

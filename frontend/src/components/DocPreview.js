@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf";
 
+import "../../node_modules/pdfjs-dist/web/pdf_viewer.css";
 import "styles/DocPreview.scss";
 
 /**
@@ -33,78 +34,74 @@ function DocPreview(props) {
 
   return (
     <>
-      {props.doc.show ? (
-        <Modal
-          show={true}
-          onHide={props.handleClose(props.doc.name)}
-          size="lg"
-          centered
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>{props.doc.name}</Modal.Title>
-          </Modal.Header>
+      <Modal
+        show={props.doc.show}
+        onHide={props.handleClose(props.doc.name)}
+        size={props.size}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{props.doc.name}</Modal.Title>
+        </Modal.Header>
 
-          <Modal.Body>
-            <Document
-              file={props.docFile}
-              onLoadSuccess={onDocumentLoadSuccess}
-              onPassword={(c) => {
-                throw new Error("Never password");
-              }}
-            >
-              <Page pageNumber={pageNumber} width={725} />
-            </Document>
-          </Modal.Body>
+        <Modal.Body>
+          <Document
+            file={props.docFile}
+            onLoadSuccess={onDocumentLoadSuccess}
+            onPassword={(c) => {
+              throw new Error("Never password");
+            }}
+          >
+            <Page pageNumber={pageNumber} width={725} />
+          </Document>
+        </Modal.Body>
 
-          <Modal.Footer>
-            <div className="pdf-navigation">
-              <p>
-                <FormattedMessage
-                  defaultMessage="Page {num} of {total}"
-                  key="pdf-preview-page-nav"
-                  values={{
-                    num: pageNumber || (numPages ? 1 : "--"),
-                    total: numPages || "--",
-                  }}
-                />
-              </p>
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                disabled={Number(pageNumber) <= 1}
-                onClick={previousPage}
-                data-testid="preview-button-prev"
-              >
-                <FormattedMessage
-                  defaultMessage="Previous"
-                  key="pdf-preview-prev-button"
-                />
-              </Button>
-              <Button
-                variant="outline-secondary"
-                size="sm"
-                disabled={Number(pageNumber) >= Number(numPages)}
-                onClick={nextPage}
-                data-testid="preview-button-next"
-              >
-                <FormattedMessage
-                  defaultMessage="Next"
-                  key="pdf-preview-next-button"
-                />
-              </Button>
-            </div>
+        <Modal.Footer>
+          <div className="pdf-navigation">
+            <p>
+              <FormattedMessage
+                defaultMessage="Page {num} of {total}"
+                key="pdf-preview-page-nav"
+                values={{
+                  num: pageNumber || (numPages ? 1 : "--"),
+                  total: numPages || "--",
+                }}
+              />
+            </p>
             <Button
-              variant="secondary"
-              onClick={props.handleClose(props.doc.name)}
-              data-testid="preview-button-close"
+              variant="outline-secondary"
+              size="sm"
+              disabled={Number(pageNumber) <= 1}
+              onClick={previousPage}
+              data-testid="preview-button-prev"
             >
-              <FormattedMessage defaultMessage="Close" key="button-close" />
+              <FormattedMessage
+                defaultMessage="Previous"
+                key="pdf-preview-prev-button"
+              />
             </Button>
-          </Modal.Footer>
-        </Modal>
-      ) : (
-        ""
-      )}
+            <Button
+              variant="outline-secondary"
+              size="sm"
+              disabled={Number(pageNumber) >= Number(numPages)}
+              onClick={nextPage}
+              data-testid="preview-button-next"
+            >
+              <FormattedMessage
+                defaultMessage="Next"
+                key="pdf-preview-next-button"
+              />
+            </Button>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={props.handleClose(props.doc.name)}
+            data-testid="preview-button-close"
+          >
+            <FormattedMessage defaultMessage="Close" key="button-close" />
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

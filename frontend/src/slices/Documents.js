@@ -171,7 +171,7 @@ export const createDocument = createAsyncThunk(
         addNotification({
           level: "danger",
           message:
-            "XXX Problem saving document(s) in session, will not persist",
+            "Problem saving document(s) in session, will not persist",
         })
       );
       document.state = "loaded";

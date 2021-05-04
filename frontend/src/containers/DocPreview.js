@@ -10,6 +10,12 @@ import { connect } from "react-redux";
 import DocPreview from "components/DocPreview";
 import { hidePreview } from "slices/Documents";
 
+const mapStateToProps = (state) => {
+  return {
+    size: state.main.size,
+  }
+}
+
 const mapDispatchToProps = (dispatch) => {
   return {
     handleClose: function (name) {
@@ -20,4 +26,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(() => ({}), mapDispatchToProps)(DocPreview);
+export default connect(mapStateToProps, mapDispatchToProps)(DocPreview);
