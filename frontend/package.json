@@ -50,7 +50,7 @@
     "react-dropzone": "^11.2.0",
     "react-intl": "^5.8.3",
     "react-intl-redux": "^2.2.0",
-    "react-pdf": "^5.0.0",
+    "react-pdf": "^5.2.0",
     "react-redux": "^7.2.1",
     "redux": "^4.0.5",
     "redux-mock-store": "^1.5.4",
