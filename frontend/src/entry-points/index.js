@@ -30,14 +30,6 @@ if (!Element.prototype.closest)
 
 // end Polyfill
 
-// PDF.js worker
-
-import { pdfjs } from "react-pdf";
-
-pdfjs.GlobalWorkerOptions.workerSrc = "/js/pdf.worker.js";
-
-// End of PDF.js worker
-
 import Main from "containers/Main";
 import init_app from "init-app/init-app";
 

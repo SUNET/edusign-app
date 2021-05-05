@@ -3,9 +3,8 @@ import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import { Document, Page } from "react-pdf";
+import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
 
-import "../../node_modules/pdfjs-dist/web/pdf_viewer.css";
 import "styles/DocPreview.scss";
 
 /**
@@ -24,6 +23,10 @@ function DocPreview(props) {
     setPageNumber((prevPageNumber) => prevPageNumber + offset);
   }
 
+  function firstPage() {
+    setPageNumber((prevPageNumber) => 1);
+  }
+
   function previousPage() {
     changePage(-1);
   }
@@ -32,12 +35,16 @@ function DocPreview(props) {
     changePage(1);
   }
 
+  function lastPage() {
+    setPageNumber((prevPageNumber) => numPages);
+  }
+
   return (
     <>
       <Modal
         show={props.doc.show}
         onHide={props.handleClose(props.doc.name)}
-        size={props.size}
+        size="lg"
         centered
       >
         <Modal.Header closeButton>
@@ -52,49 +59,52 @@ function DocPreview(props) {
               throw new Error("Never password");
             }}
           >
-            <Page pageNumber={pageNumber} width={725} />
+            <Page pageNumber={pageNumber} width={props.width < 550 && (props.width - 20)} />
           </Document>
         </Modal.Body>
 
         <Modal.Footer>
           <div className="pdf-navigation">
-            <p>
-              <FormattedMessage
-                defaultMessage="Page {num} of {total}"
-                key="pdf-preview-page-nav"
-                values={{
-                  num: pageNumber || (numPages ? 1 : "--"),
-                  total: numPages || "--",
-                }}
-              />
-            </p>
             <Button
-              variant="outline-secondary"
+              variant="outline"
+              size="sm"
+              disabled={Number(pageNumber) <= 1}
+              onClick={firstPage}
+              data-testid="preview-button-first"
+            >
+              &#x23EA;
+            </Button>
+            <Button
+              variant="outline"
               size="sm"
               disabled={Number(pageNumber) <= 1}
               onClick={previousPage}
               data-testid="preview-button-prev"
             >
-              <FormattedMessage
-                defaultMessage="Previous"
-                key="pdf-preview-prev-button"
-              />
+              &#x25C4;
             </Button>
+            <span>&nbsp;{(pageNumber || (numPages ? 1 : "--")) + " / " + (numPages || "--")}&nbsp;</span>
             <Button
-              variant="outline-secondary"
+              variant="outline"
               size="sm"
               disabled={Number(pageNumber) >= Number(numPages)}
               onClick={nextPage}
               data-testid="preview-button-next"
             >
-              <FormattedMessage
-                defaultMessage="Next"
-                key="pdf-preview-next-button"
-              />
+              &#x25BA;
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={Number(pageNumber) >= Number(numPages)}
+              onClick={lastPage}
+              data-testid="preview-button-last"
+            >
+              &#x23E9;
             </Button>
           </div>
           <Button
-            variant="secondary"
+            variant="outline-secondary"
             onClick={props.handleClose(props.doc.name)}
             data-testid="preview-button-close"
           >

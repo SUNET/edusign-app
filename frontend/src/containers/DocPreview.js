@@ -13,6 +13,7 @@ import { hidePreview } from "slices/Documents";
 const mapStateToProps = (state) => {
   return {
     size: state.main.size,
+    width: state.main.width,
   }
 }
 

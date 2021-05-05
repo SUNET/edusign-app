@@ -51,6 +51,7 @@ const mainSlice = createSlice({
     pending_multisign: [],
     signingData: {},
     size: "lg",
+    width: 0,
   },
   reducers: {
     /**
@@ -84,6 +85,7 @@ const mainSlice = createSlice({
      */
     resizeWindow(state) {
       state.size = window.innerWidth > 1200 ? "lg" : "sm";
+      state.width = window.innerWidth;
     },
     /**
      * @public
