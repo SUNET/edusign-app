@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 import NotificationsContainer from "containers/Notifications";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
@@ -39,16 +41,28 @@ class Header extends Component {
                   </span>
                 </span>
                 <span id="sep-in-header">|</span>
-                <span
-                  id="clear-in-header"
-                  data-testid="clear-in-header"
-                  onClick={this.props.showConfirm("confirm-clear-session")}
-                >
-                  <FormattedMessage
-                    defaultMessage="Clear session"
-                    key="clear-session"
-                  />
-                </span>
+                <OverlayTrigger
+                  trigger={["hover", "focus"]}
+                  rootClose={true}
+                  overlay={(props) => (
+                    <Tooltip id="tooltip-clear-docs" {...props}>
+                      <FormattedMessage
+                        defaultMessage="Discard all documents"
+                        key="clear-docs-tootip"
+                      />
+                    </Tooltip>
+                  )}>
+                  <span
+                    id="clear-in-header"
+                    data-testid="clear-in-header"
+                    onClick={this.props.showConfirm("confirm-clear-session")}
+                  >
+                    <FormattedMessage
+                      defaultMessage="Clear session"
+                      key="clear-session"
+                    />
+                  </span>
+                </OverlayTrigger>
                 <ConfirmDialogContainer
                   confirmId="confirm-clear-session"
                   title={this.props.intl.formatMessage(

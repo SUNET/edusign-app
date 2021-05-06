@@ -5,6 +5,8 @@ import Button from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage } from "react-intl";
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 import "styles/InviteForm.scss";
 
@@ -64,7 +66,7 @@ class InviteForm extends React.Component {
                 <Modal.Header closeButton>
                   <Modal.Title>
                     <FormattedMessage
-                      defaultMessage={"Invite people to sign {docName}"}
+                      defaultMessage={"Invite people to sign <strong>{docName}</strong>"}
                       key="invite-people"
                       values={{ docName: this.props.docName }}
                     />
@@ -78,13 +80,25 @@ class InviteForm extends React.Component {
                           fprops.values.invitees.map((invitee, index) => (
                             <div className="invitation-fields">
                               <div className="invitee-form-dismiss">
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => arrayHelpers.remove(index)}
-                                >
-                                  ×
-                                </Button>
+                                <OverlayTrigger
+                                  trigger={["hover", "focus"]}
+                                  rootClose={true}
+                                  overlay={(props) => (
+                                    <Tooltip id="tooltip-rm-invitation" {...props}>
+                                      <FormattedMessage
+                                        defaultMessage="Remove this entry from invitation"
+                                        key="rm-invitation-tootip"
+                                      />
+                                    </Tooltip>
+                                  )}>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => arrayHelpers.remove(index)}
+                                  >
+                                    ×
+                                  </Button>
+                                </OverlayTrigger>
                               </div>
                               <div className="invitee-form-row" key={index}>
                                 <div className="invitee-form-name">
@@ -142,31 +156,67 @@ class InviteForm extends React.Component {
                               </div>
                             </div>
                           ))}
-                        <Button
-                          variant="outline-secondary"
-                          onClick={() =>
-                            arrayHelpers.push({ name: "", email: "" })
-                          }
-                        >
-                          <FormattedMessage
-                            defaultMessage="Add Invitation"
-                            key="add-invite"
-                          />
-                        </Button>
+                        <OverlayTrigger
+                          trigger={["hover", "focus"]}
+                          rootClose={true}
+                          overlay={(props) => (
+                            <Tooltip id="tooltip-add-invitation" {...props}>
+                              <FormattedMessage
+                                defaultMessage="Invite one more person to sign this document"
+                                key="add-invitation-tootip"
+                              />
+                            </Tooltip>
+                          )}>
+                          <Button
+                            variant="outline-secondary"
+                            onClick={() =>
+                              arrayHelpers.push({ name: "", email: "" })
+                            }
+                          >
+                            <FormattedMessage
+                              defaultMessage="Add Invitation"
+                              key="add-invite"
+                            />
+                          </Button>
+                        </OverlayTrigger>
                       </div>
                     )}
                   </FieldArray>
                 </Modal.Body>
                 <Modal.Footer>
+                  <OverlayTrigger
+                    trigger={["hover", "focus"]}
+                    rootClose={true}
+                    overlay={(props) => (
+                      <Tooltip id="tooltip-cancel-invitation" {...props}>
+                        <FormattedMessage
+                          defaultMessage="Dismiss invitation form"
+                          key="cancel-invitation-tootip"
+                        />
+                      </Tooltip>
+                    )}>
                   <Button variant="outline-secondary" onClick={this.props.handleClose}>
                     <FormattedMessage
                       defaultMessage="Cancel"
                       key="cancel-invite"
                     />
                   </Button>
-                  <Button variant="outline-success" type="submit">
-                    <FormattedMessage defaultMessage="Send" key="send-invite" />
-                  </Button>
+                  </OverlayTrigger>
+                  <OverlayTrigger
+                    trigger={["hover", "focus"]}
+                    rootClose={true}
+                    overlay={(props) => (
+                      <Tooltip id="tooltip-send-invitation" {...props}>
+                        <FormattedMessage
+                          defaultMessage="Send invitations to sign to indicated people"
+                          key="send-invitation-tootip"
+                        />
+                      </Tooltip>
+                    )}>
+                    <Button variant="outline-success" type="submit">
+                      <FormattedMessage defaultMessage="Invite" key="send-invite" />
+                    </Button>
+                  </OverlayTrigger>
                 </Modal.Footer>
               </Form>
             </Modal>

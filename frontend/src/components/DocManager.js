@@ -3,8 +3,8 @@ import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
 import Tooltip from 'react-bootstrap/Tooltip';
+import Popover from 'react-bootstrap/Popover';
 import PopoverContent from 'react-bootstrap/PopoverContent';
 import PopoverTitle from 'react-bootstrap/PopoverTitle';
 import LittleSpinner from "components/LittleSpinner";
@@ -51,13 +51,25 @@ class DocManager extends React.Component {
     return (
       <>
         <div className="button-preview-flex-item">
-          <Button
-            variant="outline-dark"
-            size="sm"
-            onClick={this.props.handlePreview(doc.name)}
-          >
-            <FormattedMessage defaultMessage="Preview" key="preview-button" />
-          </Button>
+          <OverlayTrigger
+            trigger={["hover", "focus"]}
+            rootClose={true}
+            overlay={(props) => (
+              <Tooltip id="tooltip-button-preview" {...props}>
+                <FormattedMessage
+                  defaultMessage="Display a preview of the unsigned document"
+                  key="preview-button-tootip"
+                />
+              </Tooltip>
+            )}>
+            <Button
+              variant="outline-dark"
+              size="sm"
+              onClick={this.props.handlePreview(doc.name)}
+            >
+              <FormattedMessage defaultMessage="Preview" key="preview-button" />
+            </Button>
+          </OverlayTrigger>
         </div>
       </>
     );
@@ -66,13 +78,25 @@ class DocManager extends React.Component {
     return (
       <>
         <div className="button-retry-flex-item">
-          <Button
-            variant="outline-success"
-            size="sm"
-            onClick={this.props.handleRetry(doc)}
-          >
-            <FormattedMessage defaultMessage="Retry" key="retry-button" />
-          </Button>
+          <OverlayTrigger
+            trigger={["hover", "focus"]}
+            rootClose={true}
+            overlay={(props) => (
+              <Tooltip id="tooltip-button-retry" {...props}>
+                <FormattedMessage
+                  defaultMessage="Try again to prepare the document for signing"
+                  key="retry-button-tootip"
+                />
+              </Tooltip>
+            )}>
+            <Button
+              variant="outline-success"
+              size="sm"
+              onClick={this.props.handleRetry(doc)}
+            >
+              <FormattedMessage defaultMessage="Retry" key="retry-button" />
+            </Button>
+          </OverlayTrigger>
         </div>
       </>
     );
@@ -81,12 +105,24 @@ class DocManager extends React.Component {
     return (
       <>
         <div className="doc-selector-flex-item">
-          <input
-            type="checkbox"
-            data-testid={"doc-selector-" + index}
-            onClick={this.props.handleDocSelection(doc.name)}
-            defaultChecked={doc.state === "selected"}
-          />
+          <OverlayTrigger
+            trigger={["hover", "focus"]}
+            rootClose={true}
+            overlay={(props) => (
+              <Tooltip id="tooltip-select-doc" {...props}>
+                <FormattedMessage
+                  defaultMessage="Select the document for signing"
+                  key="select-doc-tootip"
+                />
+              </Tooltip>
+            )}>
+            <input
+              type="checkbox"
+              data-testid={"doc-selector-" + index}
+              onClick={this.props.handleDocSelection(doc.name)}
+              defaultChecked={doc.state === "selected"}
+            />
+          </OverlayTrigger>
         </div>
       </>
     );
@@ -102,13 +138,25 @@ class DocManager extends React.Component {
     return (
       <>
         <div className="button-remove-flex-item">
-          <Button
-            variant="outline-danger"
-            size="sm"
-            onClick={this.props.handleRemove(doc.name)}
-          >
-            <FormattedMessage defaultMessage="Remove" key="remove-button" />
-          </Button>
+          <OverlayTrigger
+            trigger={["hover", "focus"]}
+            rootClose={true}
+            overlay={(props) => (
+              <Tooltip id="tooltip-button-remove" {...props}>
+                <FormattedMessage
+                  defaultMessage="Discard document"
+                  key="button-remove-tootip"
+                />
+              </Tooltip>
+            )}>
+            <Button
+              variant="outline-danger"
+              size="sm"
+              onClick={this.props.handleRemove(doc.name)}
+            >
+              <FormattedMessage defaultMessage="Remove" key="remove-button" />
+            </Button>
+          </OverlayTrigger>
         </div>
       </>
     );
@@ -117,16 +165,28 @@ class DocManager extends React.Component {
     return (
       <>
         <div className="button-signed-flex-item">
-          <Button
-            variant="outline-success"
-            size="sm"
-            onClick={this.props.handleDlSigned(doc.name)}
-          >
-            <FormattedMessage
-              defaultMessage="Download (signed)"
-              key="signed-button"
-            />
-          </Button>
+          <OverlayTrigger
+            trigger={["hover", "focus"]}
+            rootClose={true}
+            overlay={(props) => (
+              <Tooltip id="tooltip-button-download" {...props}>
+                <FormattedMessage
+                  defaultMessage="Download signed document. Be sure to save the original rather than a copy."
+                  key="button-download-tootip"
+                />
+              </Tooltip>
+            )}>
+            <Button
+              variant="outline-success"
+              size="sm"
+              onClick={this.props.handleDlSigned(doc.name)}
+            >
+              <FormattedMessage
+                defaultMessage="Download (signed)"
+                key="signed-button"
+              />
+            </Button>
+          </OverlayTrigger>
         </div>
       </>
     );
@@ -135,17 +195,29 @@ class DocManager extends React.Component {
     return (
       <>
         <div className="button-multisign-flex-item">
-          <Button
-            variant="outline-success"
-            size="sm"
-            onClick={this.props.openInviteForm(doc)}
-            data-docid={doc.id}
-          >
-            <FormattedMessage
-              defaultMessage="Multi sign"
-              key="multisign-button"
-            />
-          </Button>
+          <OverlayTrigger
+            trigger={["hover", "focus"]}
+            rootClose={true}
+            overlay={(props) => (
+              <Tooltip id="tooltip-button-multisign" {...props}>
+                <FormattedMessage
+                  defaultMessage="Invite other users to sign the document. After all invitees sign, you'll be asked to add a final signature."
+                  key="button-multisign-tootip"
+                />
+              </Tooltip>
+            )}>
+            <Button
+              variant="outline-success"
+              size="sm"
+              onClick={this.props.openInviteForm(doc)}
+              data-docid={doc.id}
+            >
+              <FormattedMessage
+                defaultMessage="Multi sign"
+                key="multisign-button"
+              />
+            </Button>
+          </OverlayTrigger>
         </div>
       </>
     );
@@ -286,10 +358,15 @@ class DocManager extends React.Component {
           if (this.props.size === "lg") {
             return (
               <>
-                <InviteFormContainer docId={doc.id} docName={doc.name} />
-                <DocPreviewContainer doc={doc} docFile={docFile} />
+                {["loaded", "selected"].includes(doc.state) && (
+                  <InviteFormContainer docId={doc.id} docName={doc.name} />
+                )}
+                {["loaded", "selected", "failed-signing"].includes(doc.state) && (
+                  <DocPreviewContainer doc={doc} docFile={docFile} />
+                )}
                 <OverlayTrigger
                   trigger={["hover", "focus"]}
+                  rootClose={true}
                   overlay={
                     <Popover placement="auto">
                       <PopoverTitle>
@@ -370,10 +447,15 @@ class DocManager extends React.Component {
           } else if (this.props.size === "sm") {
             return (
               <>
-                <InviteFormContainer docId={doc.id} docName={doc.name} />
-                <DocPreviewContainer doc={doc} docFile={docFile} />
+                {["loaded", "selected"].includes(doc.state) && (
+                  <InviteFormContainer docId={doc.id} docName={doc.name} />
+                )}
+                {["loaded", "selected", "failed-signing"].includes(doc.state) && (
+                  <DocPreviewContainer doc={doc} docFile={docFile} />
+                )}
                 <OverlayTrigger
                   trigger={["hover", "focus"]}
+                  rootClose={true}
                   key={index}
                   overlay={
                     <Tooltip placement="auto">
@@ -486,19 +568,34 @@ class DocManager extends React.Component {
         <div id="adjust-vertical-space" />
         {showSignButton && (
           <div className="button-sign-flex-item">
-            <Button
-              variant="outline-success"
-              id="button-sign"
-              size="lg"
-              disabled={!someSelected}
-              onClick={this.props.handleSubmitToSign}
-            >
-              <FormattedMessage
-                defaultMessage="Sign Selected Documents"
-                key="sign-selected-button"
-              />
-            </Button>
-          </div>
+            <OverlayTrigger
+              trigger={["hover", "focus"]}
+              rootClose={true}
+              overlay={(props) => (
+                <Tooltip id="tooltip-button-sign" {...props}>
+                  <FormattedMessage
+                    defaultMessage="Select documents above and click here to send them for signing."
+                    key="button-sign-tootip"
+                  />
+                </Tooltip>
+              )}>
+              <div id="button-sign-wrapper">
+                <Button
+                  variant="outline-success"
+                  id="button-sign"
+                  size="lg"
+                  disabled={!someSelected}
+                  style={someSelected ? {} : { pointerEvents: 'none' }}
+                  onClick={this.props.handleSubmitToSign}
+                >
+                  <FormattedMessage
+                    defaultMessage="Sign Selected Documents"
+                    key="sign-selected-button"
+                  />
+                </Button>
+              </div>
+            </OverlayTrigger
+            ></div>
         ) || (
           <div className={'dummy-button-sign-flex-item-' + this.props.size} />
         )}
