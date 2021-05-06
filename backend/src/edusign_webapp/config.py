@@ -71,7 +71,7 @@ SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.ids
 
 DEBUG_IDP = os.environ.get('DEBUG_IDP', default='https://login.idp.eduid.se/idp.xml')
 DEBUG_AUTHN_CONTEXT = os.environ.get(
-    'DEBUG_AUTHN_CONTEXT', default='https://www.swamid.se/specs/id-fido-u2f-ce-transports'
+    'DEBUG_AUTHN_CONTEXT', default='https://refeds.org/profile/mfa'
 )
 
 RAW_SIGNER_ATTRIBUTES = os.environ.get(
