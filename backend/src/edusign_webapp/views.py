@@ -372,7 +372,7 @@ def create_multi_sign_request(data: dict) -> dict:
                 'inviter_name_and_email': f"{owner['name']} <{owner['email']}>",
                 'inviter_name': f"{owner['name']}",
                 'invited_link': invited_link,
-                'text': data['text']
+                'text': data['text'],
             }
             msg.body = render_template('invitation_email.txt.jinja2', **context)
             current_app.logger.debug(f"Sending email to user {invite['email']}:\n{msg.body}")

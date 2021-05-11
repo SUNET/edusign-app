@@ -70,9 +70,7 @@ EDUSIGN_API_PASSWORD = os.environ.get('EDUSIGN_API_PASSWORD', default='dummy')
 SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.idsec.se/shibboleth")
 
 DEBUG_IDP = os.environ.get('DEBUG_IDP', default='https://login.idp.eduid.se/idp.xml')
-DEBUG_AUTHN_CONTEXT = os.environ.get(
-    'DEBUG_AUTHN_CONTEXT', default='https://refeds.org/profile/mfa'
-)
+DEBUG_AUTHN_CONTEXT = os.environ.get('DEBUG_AUTHN_CONTEXT', default='https://refeds.org/profile/mfa')
 
 RAW_SIGNER_ATTRIBUTES = os.environ.get(
     'SIGNER_ATTRIBUTES',
