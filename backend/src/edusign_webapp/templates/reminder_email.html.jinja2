@@ -4,10 +4,17 @@
 <body>
 {% trans invited_link=invited_link, inviter_name=inviter_name, document_name=document_name %}
 
-<p>This is to remind you that you have been invited by {{ inviter_name }}
+<p>This is to remind you that you have been invited by {{ inviter_name_and_email }}
 to digitally sign a document named {{ document_name }}.</p>
 
 <p><a href="{{ invited_link }}">You can follow this link to do so.</a></p>
+
+<p>Message from {{ inviter_name }}:</p>
+
+<pre>
+{{ text }}
+</pre>
+
 {% endtrans %}
 </body>
 </html>

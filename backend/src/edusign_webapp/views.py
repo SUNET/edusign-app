@@ -45,6 +45,7 @@ from edusign_webapp.schemata import (
     ConfigSchema,
     DocumentSchema,
     KeyedMultiSignSchema,
+    ResendMultiSignSchema,
     MultiSignSchema,
     ReferenceSchema,
     SignedDocumentsSchema,
@@ -390,7 +391,7 @@ def create_multi_sign_request(data: dict) -> dict:
 
 
 @edusign_views.route('/send-multisign-reminder', methods=['POST'])
-@UnMarshal(KeyedMultiSignSchema)
+@UnMarshal(ResendMultiSignSchema)
 @Marshal()
 def send_multisign_reminder(data: dict) -> dict:
     """
@@ -422,8 +423,10 @@ def send_multisign_reminder(data: dict) -> dict:
         invited_link = url_for('edusign.create_invited_signature', invite_key=invite['key'], _external=True)
         context = {
             'document_name': docname,
+            'inviter_name_and_email': f"{session['displayName']} <{session['mail']}>",
             'inviter_name': f"{session['displayName']} <{session['mail']}>",
             'invited_link': invited_link,
+            'text': data['text'],
         }
         msg.body = render_template('reminder_email.txt.jinja2', **context)
         current_app.logger.debug(f"Sending email to user {invite['email']}:\n{msg.body}")

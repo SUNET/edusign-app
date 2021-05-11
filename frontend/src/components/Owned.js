@@ -6,6 +6,8 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 
+import ReInviteFormContainer from "containers/ReInviteForm";
+
 import "styles/Owned.scss";
 
 const removeButton = (props, doc) => {
@@ -86,6 +88,7 @@ const resendButton = (props, doc, help) => {
           </div>
         </div>
       </OverlayTrigger>
+      <ReInviteFormContainer docId={doc.id} docName={doc.name} />
     </>
   );
 };

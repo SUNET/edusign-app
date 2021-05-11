@@ -532,12 +532,15 @@ export const removeInvites = createAsyncThunk(
  */
 export const resendInvitations = createAsyncThunk(
   "main/resendInvitations",
-  async (doc, thunkAPI) => {
+  async (values, thunkAPI) => {
+
+    const docId = values.documentId;
+    const text = values.invitationText;
 
     const state = thunkAPI.getState();
 
-    const documentList = state.main.owned_multisign.filter((docu) => {
-      return doc.key === docu.key || doc.id === docu.key;
+    const documentList = state.main.owned_multisign.filter((doc) => {
+      return docId === doc.key;
     });
 
     if (documentList.length === 0) {
@@ -548,6 +551,7 @@ export const resendInvitations = createAsyncThunk(
 
     const dataToSend = {
       key: document.key,
+      text: text,
     };
     const body = preparePayload(state, dataToSend);
     let data = null;

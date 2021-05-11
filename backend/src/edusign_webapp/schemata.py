@@ -183,3 +183,11 @@ class KeyedMultiSignSchema(Schema):
     """
 
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+
+
+class ResendMultiSignSchema(KeyedMultiSignSchema):
+    """
+    Schema to unmarshal requests for re-sending invitations for multi signatures.
+    """
+
+    text = fields.String()

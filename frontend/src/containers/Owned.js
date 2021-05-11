@@ -8,10 +8,10 @@ import { connect } from "react-redux";
 import {
   removeInvites,
   signInvitedDoc,
-  resendInvitations,
 } from "slices/Documents";
 import Owned from "components/Owned";
 import { askConfirmation } from "slices/ConfirmDialog";
+import { showResend } from "slices/Modals";
 
 const mapStateToProps = (state) => {
   return {
@@ -32,8 +32,8 @@ const mapDispatchToProps = (dispatch) => {
       };
     },
     handleResend: function (doc) {
-      return async () => {
-        await dispatch(resendInvitations(doc));
+      return () => {
+        dispatch(showResend(doc.id));
       };
     },
     showConfirm: function (confirmId) {

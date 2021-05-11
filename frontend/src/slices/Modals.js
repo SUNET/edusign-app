@@ -10,6 +10,8 @@ const modalsSlice = createSlice({
   initialState: {
     show_form: false,
     form_id: null,
+    show_resend: false,
+    resend_id: null,
     show_preview: false,
     preview_id: null,
   },
@@ -31,6 +33,24 @@ const modalsSlice = createSlice({
     hideForm(state) {
       state.show_form = false;
       state.form_id = null;
+    },
+    /**
+     * @public
+     * @function showForm
+     * @desc Redux action to trigger opening an re-invite form modal
+     */
+    showResend(state, action) {
+      state.show_resend = true;
+      state.resend_id = action.payload;
+    },
+    /**
+     * @public
+     * @function hideForm
+     * @desc Redux action to trigger hiding an re-invite form modal
+     */
+    hideResend(state) {
+      state.show_resend = false;
+      state.resend_id = null;
     },
     /**
      * @public
@@ -56,6 +76,8 @@ const modalsSlice = createSlice({
 export const {
   showForm,
   hideForm,
+  showResend,
+  hideResend,
   showPreview,
   hidePreview,
 } = modalsSlice.actions;
