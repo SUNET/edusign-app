@@ -455,6 +455,7 @@ export const sendInvites = createAsyncThunk(
     const dataToSend = {
       owner: owner,
       invites: invitees,
+      text: values.invitationText,
       document: {
         key: document.key,
         name: document.name,

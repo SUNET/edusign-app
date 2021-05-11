@@ -33,6 +33,7 @@ const validateName = (value) => {
 };
 
 const initialValues = (docId) => ({
+  invitationText: "",
   documentId: docId,
   invitees: [
     {
@@ -66,13 +67,31 @@ class InviteForm extends React.Component {
                 <Modal.Header closeButton>
                   <Modal.Title>
                     <FormattedMessage
-                      defaultMessage={"Invite people to sign <strong>{docName}</strong>"}
+                      defaultMessage={`Invite people to sign {docName}`}
                       key="invite-people"
                       values={{ docName: this.props.docName }}
                     />
                   </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                  <div className="invitation-text-holder">
+                    <BForm.Group className="invitation-text-group">
+                      <BForm.Label
+                        className="invitation-text-label"
+                        htmlFor="invitation-text-input"
+                      >
+                        <FormattedMessage
+                          defaultMessage="Add a message to send to all invitees"
+                          key="invitation-text-field"
+                        />
+                      </BForm.Label>
+                      <Field
+                        name="invitationText"
+                        data-testid="invitation-text-input"
+                        className="invitation-text"
+                        as="textarea" />
+                    </BForm.Group>
+                  </div>
                   <FieldArray name="invitees">
                     {(arrayHelpers) => (
                       <div>

@@ -1,10 +1,14 @@
 {% trans invited_link=invited_link, inviter_name=inviter_name, document_name=document_name %}
 
-You have been invited by {{ inviter_name }}
+You have been invited by {{ inviter_name_and_email }}
 to digitally sign a document named {{ document_name }}.
 
 You can follow this link to do so:
 
 {{ invited_link }}
+
+Message from {{ inviter_name }}:
+
+{{ text }}
 
 {% endtrans %}

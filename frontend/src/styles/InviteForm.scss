@@ -40,6 +40,32 @@
   }
 }
 
+.invitation-text-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 10%;
+  margin-left: 10%;
+
+  .invitation-text-label {
+    align-self: flex-start;
+  }
+  .invitation-text {
+    height: 4rem;
+    width: 100%;
+    color: $form-field-text;
+    border: 1px solid $form-field-border-unfocused;
+    border-radius: 0.25rem;
+    transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+  }
+
+  .invitation-text:focus {
+    border-color: $form-field-border;
+    box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
+    outline: 0;
+  }
+}
+
 @media (max-width: 1200px) {
 
   .invitation-fields {
