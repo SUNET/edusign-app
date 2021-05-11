@@ -26,16 +26,20 @@ export const fetchConfig = createAsyncThunk(
       extractCsrfToken(thunkAPI.dispatch, configData);
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
       if (configData.error) {
-          console.log('there is a configData.error');
-          thunkAPI.dispatch(addNotification({level: 'danger', message: configData.message}));
+        console.log("there is a configData.error");
+        thunkAPI.dispatch(
+          addNotification({ level: "danger", message: configData.message })
+        );
         return thunkAPI.rejectWithValue(configData.message);
       } else {
-          console.log('there is NOT a configData.error');
+        console.log("there is NOT a configData.error");
         return configData;
       }
     } catch (err) {
       console.log("Error fetching config", err);
-        thunkAPI.dispatch(addNotification({level: 'danger', message: "XXX TODO"}));
+      thunkAPI.dispatch(
+        addNotification({ level: "danger", message: "XXX TODO" })
+      );
       return thunkAPI.rejectWithValue(err.toString());
     }
   }
@@ -117,7 +121,7 @@ const mainSlice = createSlice({
     [fetchConfig.rejected]: (state, action) => {
       return {
         ...state,
-        signer_attributes: []
+        signer_attributes: [],
       };
     },
   },

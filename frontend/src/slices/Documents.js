@@ -170,8 +170,7 @@ export const createDocument = createAsyncThunk(
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message:
-            "Problem saving document(s) in session, will not persist",
+          message: "Problem saving document(s) in session, will not persist",
         })
       );
       document.state = "loaded";
@@ -391,9 +390,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem) => {
       thunkAPI.dispatch(
         documentsSlice.actions.updateDocumentWithSignedContent(doc)
       );
-      thunkAPI.dispatch(
-        removeInvites(doc)
-      );
+      thunkAPI.dispatch(removeInvites(doc));
     });
   } catch (err) {
     console.log("Error getting signed documents", err);
@@ -519,7 +516,9 @@ export const removeInvites = createAsyncThunk(
       return doc.key === docu.key || doc.id === docu.key;
     });
 
-    if (documentList.length === 0) {return}
+    if (documentList.length === 0) {
+      return;
+    }
 
     const document = documentList[0];
 
@@ -576,7 +575,9 @@ export const resendInvitations = createAsyncThunk(
       return doc.key === docu.key || doc.id === docu.key;
     });
 
-    if (documentList.length === 0) {return}
+    if (documentList.length === 0) {
+      return;
+    }
 
     const document = documentList[0];
 

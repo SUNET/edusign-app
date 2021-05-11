@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 import NotificationsContainer from "containers/Notifications";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
@@ -20,7 +20,8 @@ class Header extends Component {
     if (!this.props.loading) {
       name = (
         <div id="name-and-clear-in-header">
-            {(this.props.signer_attributes !== undefined && this.props.signer_attributes.length > 0)  && (
+          {(this.props.signer_attributes !== undefined &&
+            this.props.signer_attributes.length > 0 && (
               <>
                 <span id="name-in-header">
                   <span id="signing-with-span">
@@ -51,7 +52,8 @@ class Header extends Component {
                         key="clear-docs-tootip"
                       />
                     </Tooltip>
-                  )}>
+                  )}
+                >
                   <span
                     id="clear-in-header"
                     data-testid="clear-in-header"
@@ -65,21 +67,19 @@ class Header extends Component {
                 </OverlayTrigger>
                 <ConfirmDialogContainer
                   confirmId="confirm-clear-session"
-                  title={this.props.intl.formatMessage(
-                    {
-                      defaultMessage: "Confirm Clear Session",
-                      id: "header-confirm-clear-title",
-                    }
-                  )}
-                  mainText={this.props.intl.formatMessage(
-                    {
-                      defaultMessage: 'Clicking "Confirm" will remove all documents from your session',
-                      id: "header-confirm-clear-text",
-                    }
-                  )}
-                  confirm={this.props.clearDb} />
+                  title={this.props.intl.formatMessage({
+                    defaultMessage: "Confirm Clear Session",
+                    id: "header-confirm-clear-title",
+                  })}
+                  mainText={this.props.intl.formatMessage({
+                    defaultMessage:
+                      'Clicking "Confirm" will remove all documents from your session',
+                    id: "header-confirm-clear-text",
+                  })}
+                  confirm={this.props.clearDb}
+                />
               </>
-            ) || (
+            )) || (
             <span id="name-in-header">
               <span id="signing-with-span">
                 <FormattedMessage

@@ -2,22 +2,18 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 import "styles/Invited.scss";
-
 
 const signButton = (props, doc, help) => {
   return (
     <>
       <OverlayTrigger
         trigger={["hover", "focus"]}
-        overlay={
-          <Tooltip placement="auto">
-            {help}
-          </Tooltip>
-        }>
+        overlay={<Tooltip placement="auto">{help}</Tooltip>}
+      >
         <div className="button-sign-container">
           <div className="button-sign-invitation">
             <Button
@@ -25,10 +21,7 @@ const signButton = (props, doc, help) => {
               size="sm"
               onClick={props.startMultiSigning(doc.invite_key)}
             >
-              <FormattedMessage
-                defaultMessage="Sign"
-                key="sign-button"
-              />
+              <FormattedMessage defaultMessage="Sign" key="sign-button" />
             </Button>
           </div>
         </div>
@@ -45,12 +38,10 @@ const signButton = (props, doc, help) => {
 class Invited extends Component {
   getHelp(msg) {
     const msgs = {
-      "sign-button-help": this.props.intl.formatMessage(
-        {
-          defaultMessage: "Click here to sign the document",
-          id: "invited-sign-button-help",
-        },
-      ),
+      "sign-button-help": this.props.intl.formatMessage({
+        defaultMessage: "Click here to sign the document",
+        id: "invited-sign-button-help",
+      }),
     };
     return msgs[msg];
   }
@@ -68,10 +59,7 @@ class Invited extends Component {
           {this.props.invited.map((doc, index) => {
             return (
               <div className="invited-multisign" key={index}>
-                <div
-                  className="invited-multisign-request"
-                  key={index}
-                >
+                <div className="invited-multisign-request" key={index}>
                   <div className="name-flex-item">{doc.name}</div>
                   <div className="invited-flex-item">
                     <div className="invited-flex-label">
@@ -84,7 +72,11 @@ class Invited extends Component {
                       {doc.owner.name} &lt;{doc.owner.email}&gt;
                     </div>
                   </div>
-                  {signButton(this.props, doc, this.getHelp('sign-button-help'))}
+                  {signButton(
+                    this.props,
+                    doc,
+                    this.getHelp("sign-button-help")
+                  )}
                 </div>
               </div>
             );

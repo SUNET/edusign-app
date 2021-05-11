@@ -38,7 +38,7 @@ const mapDispatchToProps = (dispatch) => {
     showConfirm: function (confirmId) {
       return () => {
         dispatch(askConfirmation(confirmId));
-      }
+      };
     },
   };
 };

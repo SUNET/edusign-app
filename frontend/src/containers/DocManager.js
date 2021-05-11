@@ -67,8 +67,8 @@ const mapDispatchToProps = (dispatch) => {
     openInviteForm: function (doc) {
       return () => {
         dispatch(showForm(doc.id));
-      }
-    }
+      };
+    },
   };
 };
 

@@ -33,7 +33,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleClose: function () {
       dispatch(hideForm());
-    }
+    },
   };
 };
 

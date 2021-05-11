@@ -2,11 +2,11 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
-import Popover from 'react-bootstrap/Popover';
-import PopoverContent from 'react-bootstrap/PopoverContent';
-import PopoverTitle from 'react-bootstrap/PopoverTitle';
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+import Popover from "react-bootstrap/Popover";
+import PopoverContent from "react-bootstrap/PopoverContent";
+import PopoverTitle from "react-bootstrap/PopoverTitle";
 import LittleSpinner from "components/LittleSpinner";
 
 import DocPreviewContainer from "containers/DocPreview";
@@ -61,7 +61,8 @@ class DocManager extends React.Component {
                   key="preview-button-tootip"
                 />
               </Tooltip>
-            )}>
+            )}
+          >
             <Button
               variant="outline-dark"
               size="sm"
@@ -88,7 +89,8 @@ class DocManager extends React.Component {
                   key="retry-button-tootip"
                 />
               </Tooltip>
-            )}>
+            )}
+          >
             <Button
               variant="outline-success"
               size="sm"
@@ -115,7 +117,8 @@ class DocManager extends React.Component {
                   key="select-doc-tootip"
                 />
               </Tooltip>
-            )}>
+            )}
+          >
             <input
               type="checkbox"
               data-testid={"doc-selector-" + index}
@@ -148,7 +151,8 @@ class DocManager extends React.Component {
                   key="button-remove-tootip"
                 />
               </Tooltip>
-            )}>
+            )}
+          >
             <Button
               variant="outline-danger"
               size="sm"
@@ -175,7 +179,8 @@ class DocManager extends React.Component {
                   key="button-download-tootip"
                 />
               </Tooltip>
-            )}>
+            )}
+          >
             <Button
               variant="outline-success"
               size="sm"
@@ -205,7 +210,8 @@ class DocManager extends React.Component {
                   key="button-multisign-tootip"
                 />
               </Tooltip>
-            )}>
+            )}
+          >
             <Button
               variant="outline-success"
               size="sm"
@@ -233,107 +239,80 @@ class DocManager extends React.Component {
   }
   getHelp(msg) {
     const msgs = {
-      "loading-title": this.props.intl.formatMessage(
-        {
-          defaultMessage: "Loading document",
-          id: "docmanager-help-loading-title",
-        },
-      ),
-      "loading": this.props.intl.formatMessage(
-        {
-          defaultMessage: "Please wait while the document loads",
-          id: "docmanager-help-loading",
-        },
-      ),
-      "loaded-title": this.props.intl.formatMessage(
-        {
-          defaultMessage: 'Document loaded',
-          id: "docmanager-help-loaded",
-        },
-      ),
-      "loaded": this.props.intl.formatMessage(
-        {
-          defaultMessage: 'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign Selected Documents"',
-          id: "docmanager-help-loaded",
-        },
-      ),
-      "failed-loading-title": this.props.intl.formatMessage(
-        {
-          defaultMessage: "Failed loading document",
-          id: "docmanager-help-failed-loading-title",
-        },
-      ),
-      "failed-loading": this.props.intl.formatMessage(
-        {
-          defaultMessage: "This does not seem to be a valid document",
-          id: "docmanager-help-failed-loading",
-        },
-      ),
-      "selected-title": this.props.intl.formatMessage(
-        {
-          defaultMessage: 'Document selected for signing',
-          id: "docmanager-help-selected-title",
-        },
-      ),
-      "selected": this.props.intl.formatMessage(
-        {
-          defaultMessage: 'Click on the button below labelled "Sign Selected Documents" to sign this document',
-          id: "docmanager-help-selected",
-        },
-      ),
-      "failed-preparing-title": this.props.intl.formatMessage(
-        {
-          defaultMessage: 'Failed preparing document',
-          id: "docmanager-help-failed-preparing-title",
-        },
-      ),
-      "failed-preparing": this.props.intl.formatMessage(
-        {
-          defaultMessage: 'There was a problem preparing the document for signing, clik on the button labelled "retry" to try again',
-          id: "docmanager-help-failed-preparing",
-        },
-      ),
-      "signing-title": this.props.intl.formatMessage(
-        {
-          defaultMessage: "Signing document",
-          id: "docmanager-help-signing-title",
-        },
-      ),
-      "signing": this.props.intl.formatMessage(
-        {
-          defaultMessage: "Please wait while the document is signed",
-          id: "docmanager-help-signing",
-        },
-      ),
-      "failed-signing-title": this.props.intl.formatMessage(
-        {
-          defaultMessage: 'Failed signing document',
-          id: "docmanager-help-failed-signing-title",
-        },
-      ),
-      "failed-signing": this.props.intl.formatMessage(
-        {
-          defaultMessage: 'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign Selected Documents"',
-          id: "docmanager-help-failed-signing",
-        },
-      ),
-      "signed-title": this.props.intl.formatMessage(
-        {
-          defaultMessage: 'Document signed',
-          id: "docmanager-help-signed-title",
-        },
-      ),
-      "signed": this.props.intl.formatMessage(
-        {
-          defaultMessage: 'Document succesfully signed, click on the button labelled "Download (signed)" to download it',
-          id: "docmanager-help-signed",
-        },
-      ),
+      "loading-title": this.props.intl.formatMessage({
+        defaultMessage: "Loading document",
+        id: "docmanager-help-loading-title",
+      }),
+      loading: this.props.intl.formatMessage({
+        defaultMessage: "Please wait while the document loads",
+        id: "docmanager-help-loading",
+      }),
+      "loaded-title": this.props.intl.formatMessage({
+        defaultMessage: "Document loaded",
+        id: "docmanager-help-loaded",
+      }),
+      loaded: this.props.intl.formatMessage({
+        defaultMessage:
+          'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign Selected Documents"',
+        id: "docmanager-help-loaded",
+      }),
+      "failed-loading-title": this.props.intl.formatMessage({
+        defaultMessage: "Failed loading document",
+        id: "docmanager-help-failed-loading-title",
+      }),
+      "failed-loading": this.props.intl.formatMessage({
+        defaultMessage: "This does not seem to be a valid document",
+        id: "docmanager-help-failed-loading",
+      }),
+      "selected-title": this.props.intl.formatMessage({
+        defaultMessage: "Document selected for signing",
+        id: "docmanager-help-selected-title",
+      }),
+      selected: this.props.intl.formatMessage({
+        defaultMessage:
+          'Click on the button below labelled "Sign Selected Documents" to sign this document',
+        id: "docmanager-help-selected",
+      }),
+      "failed-preparing-title": this.props.intl.formatMessage({
+        defaultMessage: "Failed preparing document",
+        id: "docmanager-help-failed-preparing-title",
+      }),
+      "failed-preparing": this.props.intl.formatMessage({
+        defaultMessage:
+          'There was a problem preparing the document for signing, clik on the button labelled "retry" to try again',
+        id: "docmanager-help-failed-preparing",
+      }),
+      "signing-title": this.props.intl.formatMessage({
+        defaultMessage: "Signing document",
+        id: "docmanager-help-signing-title",
+      }),
+      signing: this.props.intl.formatMessage({
+        defaultMessage: "Please wait while the document is signed",
+        id: "docmanager-help-signing",
+      }),
+      "failed-signing-title": this.props.intl.formatMessage({
+        defaultMessage: "Failed signing document",
+        id: "docmanager-help-failed-signing-title",
+      }),
+      "failed-signing": this.props.intl.formatMessage({
+        defaultMessage:
+          'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign Selected Documents"',
+        id: "docmanager-help-failed-signing",
+      }),
+      "signed-title": this.props.intl.formatMessage({
+        defaultMessage: "Document signed",
+        id: "docmanager-help-signed-title",
+      }),
+      signed: this.props.intl.formatMessage({
+        defaultMessage:
+          'Document succesfully signed, click on the button labelled "Download (signed)" to download it',
+        id: "docmanager-help-signed",
+      }),
     };
     return msgs[msg];
   }
 
-  render () {
+  render() {
     let someSelected = false;
     let showSignButton = false;
     let inviteForms = new Array();
@@ -341,7 +320,7 @@ class DocManager extends React.Component {
     return (
       <>
         {this.props.documents.map((doc, index) => {
-          if (['loaded', 'selected', 'failed-signing'].includes(doc.state)) {
+          if (["loaded", "selected", "failed-signing"].includes(doc.state)) {
             showSignButton = true;
           }
           const docFile = docToFile(doc);
@@ -353,7 +332,7 @@ class DocManager extends React.Component {
             };
           }
           if (doc.state === "selected") someSelected = true;
-          inviteForms.push({doc: doc, index: index});
+          inviteForms.push({ doc: doc, index: index });
 
           if (this.props.size === "lg") {
             return (
@@ -361,22 +340,21 @@ class DocManager extends React.Component {
                 {["loaded", "selected"].includes(doc.state) && (
                   <InviteFormContainer docId={doc.id} docName={doc.name} />
                 )}
-                {["loaded", "selected", "failed-signing"].includes(doc.state) && (
-                  <DocPreviewContainer doc={doc} docFile={docFile} />
-                )}
+                {["loaded", "selected", "failed-signing"].includes(
+                  doc.state
+                ) && <DocPreviewContainer doc={doc} docFile={docFile} />}
                 <OverlayTrigger
                   trigger={["hover", "focus"]}
                   rootClose={true}
                   overlay={
                     <Popover placement="auto">
                       <PopoverTitle>
-                        {this.getHelp(doc.state + '-title')}
+                        {this.getHelp(doc.state + "-title")}
                       </PopoverTitle>
-                      <PopoverContent>
-                        {this.getHelp(doc.state)}
-                      </PopoverContent>
+                      <PopoverContent>{this.getHelp(doc.state)}</PopoverContent>
                     </Popover>
-                  }>
+                  }
+                >
                   <div className={"doc-flex-container " + doc.state}>
                     {doc.state === "loading" && (
                       <>
@@ -450,9 +428,9 @@ class DocManager extends React.Component {
                 {["loaded", "selected"].includes(doc.state) && (
                   <InviteFormContainer docId={doc.id} docName={doc.name} />
                 )}
-                {["loaded", "selected", "failed-signing"].includes(doc.state) && (
-                  <DocPreviewContainer doc={doc} docFile={docFile} />
-                )}
+                {["loaded", "selected", "failed-signing"].includes(
+                  doc.state
+                ) && <DocPreviewContainer doc={doc} docFile={docFile} />}
                 <OverlayTrigger
                   trigger={["hover", "focus"]}
                   rootClose={true}
@@ -461,7 +439,8 @@ class DocManager extends React.Component {
                     <Tooltip placement="auto">
                       {this.getHelp(doc.state)}
                     </Tooltip>
-                  }>
+                  }
+                >
                   <div className={"doc-flex-container-sm " + doc.state}>
                     {doc.state === "loading" && (
                       <>
@@ -566,7 +545,7 @@ class DocManager extends React.Component {
           }
         })}
         <div id="adjust-vertical-space" />
-        {showSignButton && (
+        {(showSignButton && (
           <div className="button-sign-flex-item">
             <OverlayTrigger
               trigger={["hover", "focus"]}
@@ -578,14 +557,15 @@ class DocManager extends React.Component {
                     key="button-sign-tootip"
                   />
                 </Tooltip>
-              )}>
+              )}
+            >
               <div id="button-sign-wrapper">
                 <Button
                   variant="outline-success"
                   id="button-sign"
                   size="lg"
                   disabled={!someSelected}
-                  style={someSelected ? {} : { pointerEvents: 'none' }}
+                  style={someSelected ? {} : { pointerEvents: "none" }}
                   onClick={this.props.handleSubmitToSign}
                 >
                   <FormattedMessage
@@ -594,10 +574,10 @@ class DocManager extends React.Component {
                   />
                 </Button>
               </div>
-            </OverlayTrigger
-            ></div>
-        ) || (
-          <div className={'dummy-button-sign-flex-item-' + this.props.size} />
+            </OverlayTrigger>
+          </div>
+        )) || (
+          <div className={"dummy-button-sign-flex-item-" + this.props.size} />
         )}
         <div className="multisign-container">
           <div className="owned-multisign-container">
@@ -616,8 +596,16 @@ class DocManager extends React.Component {
                 action={this.props.destinationUrl}
                 method="post"
               >
-                <input type="hidden" name="Binding" value={this.props.binding} />
-                <input type="hidden" name="RelayState" value={this.props.relayState} />
+                <input
+                  type="hidden"
+                  name="Binding"
+                  value={this.props.binding}
+                />
+                <input
+                  type="hidden"
+                  name="RelayState"
+                  value={this.props.relayState}
+                />
                 <input
                   type="hidden"
                   name="EidSignRequest"

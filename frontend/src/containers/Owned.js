@@ -5,7 +5,11 @@
  */
 import { connect } from "react-redux";
 
-import { removeInvites, signInvitedDoc, resendInvitations } from "slices/Documents";
+import {
+  removeInvites,
+  signInvitedDoc,
+  resendInvitations,
+} from "slices/Documents";
 import Owned from "components/Owned";
 import { askConfirmation } from "slices/ConfirmDialog";
 
@@ -35,7 +39,7 @@ const mapDispatchToProps = (dispatch) => {
     showConfirm: function (confirmId) {
       return () => {
         dispatch(askConfirmation(confirmId));
-      }
+      };
     },
   };
 };

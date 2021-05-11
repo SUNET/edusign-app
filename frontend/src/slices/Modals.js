@@ -11,7 +11,7 @@ const modalsSlice = createSlice({
     show_form: false,
     form_id: null,
     show_preview: false,
-    preview_id: null
+    preview_id: null,
   },
   reducers: {
     /**
@@ -50,7 +50,7 @@ const modalsSlice = createSlice({
       state.show_preview = false;
       state.preview_id = null;
     },
-  }
+  },
 });
 
 export const {

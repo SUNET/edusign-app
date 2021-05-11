@@ -14,8 +14,8 @@ const mapStateToProps = (state) => {
   return {
     size: state.main.size,
     width: state.main.width,
-  }
-}
+  };
+};
 
 const mapDispatchToProps = (dispatch) => {
   return {

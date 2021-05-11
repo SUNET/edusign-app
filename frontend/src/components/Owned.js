@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 
 import "styles/Owned.scss";
@@ -22,19 +22,17 @@ const removeButton = (props, doc) => {
         </Button>
         <ConfirmDialogContainer
           confirmId="confirm-remove-owned"
-          title={props.intl.formatMessage(
-            {
-              defaultMessage: "Confirm Removal of invitation",
-              id: "header-confirm-remove-owned-title",
-            }
-          )}
-          mainText={props.intl.formatMessage(
-            {
-              defaultMessage: 'Clicking "Confirm" will remove all invitations to sign the document',
-              id: "header-confirm-remove-owned-text",
-            }
-          )}
-          confirm={props.handleRemove(doc)} />
+          title={props.intl.formatMessage({
+            defaultMessage: "Confirm Removal of invitation",
+            id: "header-confirm-remove-owned-title",
+          })}
+          mainText={props.intl.formatMessage({
+            defaultMessage:
+              'Clicking "Confirm" will remove all invitations to sign the document',
+            id: "header-confirm-remove-owned-text",
+          })}
+          confirm={props.handleRemove(doc)}
+        />
       </div>
     </>
   );
@@ -45,11 +43,8 @@ const signButton = (props, doc, help) => {
     <>
       <OverlayTrigger
         trigger={["hover", "focus"]}
-        overlay={
-          <Tooltip placement="auto">
-            {help}
-          </Tooltip>
-        }>
+        overlay={<Tooltip placement="auto">{help}</Tooltip>}
+      >
         <div className="button-sign-container">
           <div className="button-sign-invitation">
             <Button
@@ -74,11 +69,8 @@ const resendButton = (props, doc, help) => {
     <>
       <OverlayTrigger
         trigger={["hover", "focus"]}
-        overlay={
-          <Tooltip placement="auto">
-            {help}
-          </Tooltip>
-        }>
+        overlay={<Tooltip placement="auto">{help}</Tooltip>}
+      >
         <div className="button-resend-container">
           <div className="button-resend-invitation">
             <Button
@@ -106,24 +98,20 @@ const resendButton = (props, doc, help) => {
 class Owned extends Component {
   getHelp(msg) {
     const msgs = {
-      "close-button-help": this.props.intl.formatMessage(
-        {
-          defaultMessage: "Cancel Request",
-          id: "owned-close-button-help",
-        },
-      ),
-      "sign-button-help": this.props.intl.formatMessage(
-        {
-          defaultMessage: "All requested users have alredy signed the document, click here to add your final signature",
-          id: "owned-sign-button-help",
-        },
-      ),
-      "resend-button-help": this.props.intl.formatMessage(
-        {
-          defaultMessage: "Click here to re-send an invitation email to all pending users",
-          id: "owned-resend-button-help",
-        },
-      ),
+      "close-button-help": this.props.intl.formatMessage({
+        defaultMessage: "Cancel Request",
+        id: "owned-close-button-help",
+      }),
+      "sign-button-help": this.props.intl.formatMessage({
+        defaultMessage:
+          "All requested users have alredy signed the document, click here to add your final signature",
+        id: "owned-sign-button-help",
+      }),
+      "resend-button-help": this.props.intl.formatMessage({
+        defaultMessage:
+          "Click here to re-send an invitation email to all pending users",
+        id: "owned-resend-button-help",
+      }),
     };
     return msgs[msg];
   }
@@ -184,20 +172,27 @@ class Owned extends Component {
                     </div>
                   </>
                 )}
-                {doc.pending.length === 0 && signButton(this.props, doc, this.getHelp('sign-button-help'))}
-                {doc.pending.length > 0 && resendButton(this.props, doc, this.getHelp('resend-button-help'))}
+                {doc.pending.length === 0 &&
+                  signButton(this.props, doc, this.getHelp("sign-button-help"))}
+                {doc.pending.length > 0 &&
+                  resendButton(
+                    this.props,
+                    doc,
+                    this.getHelp("resend-button-help")
+                  )}
               </div>
-            <OverlayTrigger
-              trigger={["hover", "focus"]}
-              overlay={
-                <Tooltip placement="auto">
-                  {this.getHelp('close-button-help')}
-                </Tooltip>
-              }>
+              <OverlayTrigger
+                trigger={["hover", "focus"]}
+                overlay={
+                  <Tooltip placement="auto">
+                    {this.getHelp("close-button-help")}
+                  </Tooltip>
+                }
+              >
                 <div className="owned-multisign-remove">
                   {removeButton(this.props, doc)}
                 </div>
-            </OverlayTrigger>
+              </OverlayTrigger>
             </div>
           );
         })}

@@ -59,7 +59,10 @@ function DocPreview(props) {
               throw new Error("Never password");
             }}
           >
-            <Page pageNumber={pageNumber} width={props.width < 550 && (props.width - 20)} />
+            <Page
+              pageNumber={pageNumber}
+              width={props.width < 550 && props.width - 20}
+            />
           </Document>
         </Modal.Body>
 
@@ -83,7 +86,13 @@ function DocPreview(props) {
             >
               &#x25C4;
             </Button>
-            <span>&nbsp;{(pageNumber || (numPages ? 1 : "--")) + " / " + (numPages || "--")}&nbsp;</span>
+            <span>
+              &nbsp;
+              {(pageNumber || (numPages ? 1 : "--")) +
+                " / " +
+                (numPages || "--")}
+              &nbsp;
+            </span>
             <Button
               variant="outline"
               size="sm"

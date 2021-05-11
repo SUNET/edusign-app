@@ -7,16 +7,14 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import "styles/ConfirmDialog.scss";
 
 class ConfirmDialog extends Component {
-
   handleConfirm(props) {
     return () => {
       props.confirm();
       props.closeConfirm();
-    }
+    };
   }
 
   render() {
-
     return (
       <div
         id={this.props.confirmId}
@@ -35,7 +33,7 @@ class ConfirmDialog extends Component {
           <Modal.Footer>
             <div className="confirm-buttons">
               <Button
-                id={this.props.confirmId + '-confirm-button'}
+                id={this.props.confirmId + "-confirm-button"}
                 variant="outline-success"
                 size="sm"
                 onClick={this.handleConfirm(this.props)}
@@ -46,7 +44,7 @@ class ConfirmDialog extends Component {
                 />
               </Button>
               <Button
-                id={this.props.confirmId + '-cancel-button'}
+                id={this.props.confirmId + "-cancel-button"}
                 variant="outline-danger"
                 size="sm"
                 onClick={this.props.closeConfirm}

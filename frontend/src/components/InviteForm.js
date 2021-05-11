@@ -5,8 +5,8 @@ import Button from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage } from "react-intl";
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 import "styles/InviteForm.scss";
 
@@ -44,8 +44,7 @@ const initialValues = (docId) => ({
 });
 
 class InviteForm extends React.Component {
-
-  render () {
+  render() {
     return (
       <>
         <Formik
@@ -57,7 +56,11 @@ class InviteForm extends React.Component {
           }}
         >
           {(fprops) => (
-            <Modal show={this.props.show} onHide={this.props.handleClose} size={this.props.size}>
+            <Modal
+              show={this.props.show}
+              onHide={this.props.handleClose}
+              size={this.props.size}
+            >
               <Form data-testid={"invite-form-" + this.props.docName}>
                 <Field
                   type="hidden"
@@ -89,7 +92,8 @@ class InviteForm extends React.Component {
                         name="invitationText"
                         data-testid="invitation-text-input"
                         className="invitation-text"
-                        as="textarea" />
+                        as="textarea"
+                      />
                     </BForm.Group>
                   </div>
                   <FieldArray name="invitees">
@@ -103,13 +107,17 @@ class InviteForm extends React.Component {
                                   trigger={["hover", "focus"]}
                                   rootClose={true}
                                   overlay={(props) => (
-                                    <Tooltip id="tooltip-rm-invitation" {...props}>
+                                    <Tooltip
+                                      id="tooltip-rm-invitation"
+                                      {...props}
+                                    >
                                       <FormattedMessage
                                         defaultMessage="Remove this entry from invitation"
                                         key="rm-invitation-tootip"
                                       />
                                     </Tooltip>
-                                  )}>
+                                  )}
+                                >
                                   <Button
                                     variant="outline"
                                     size="sm"
@@ -185,7 +193,8 @@ class InviteForm extends React.Component {
                                 key="add-invitation-tootip"
                               />
                             </Tooltip>
-                          )}>
+                          )}
+                        >
                           <Button
                             variant="outline-secondary"
                             onClick={() =>
@@ -213,13 +222,17 @@ class InviteForm extends React.Component {
                           key="cancel-invitation-tootip"
                         />
                       </Tooltip>
-                    )}>
-                  <Button variant="outline-secondary" onClick={this.props.handleClose}>
-                    <FormattedMessage
-                      defaultMessage="Cancel"
-                      key="cancel-invite"
-                    />
-                  </Button>
+                    )}
+                  >
+                    <Button
+                      variant="outline-secondary"
+                      onClick={this.props.handleClose}
+                    >
+                      <FormattedMessage
+                        defaultMessage="Cancel"
+                        key="cancel-invite"
+                      />
+                    </Button>
                   </OverlayTrigger>
                   <OverlayTrigger
                     trigger={["hover", "focus"]}
@@ -231,9 +244,13 @@ class InviteForm extends React.Component {
                           key="send-invitation-tootip"
                         />
                       </Tooltip>
-                    )}>
+                    )}
+                  >
                     <Button variant="outline-success" type="submit">
-                      <FormattedMessage defaultMessage="Invite" key="send-invite" />
+                      <FormattedMessage
+                        defaultMessage="Invite"
+                        key="send-invite"
+                      />
                     </Button>
                   </OverlayTrigger>
                 </Modal.Footer>
@@ -244,7 +261,7 @@ class InviteForm extends React.Component {
       </>
     );
   }
-};
+}
 
 InviteForm.propTypes = {
   show: PropTypes.bool,
