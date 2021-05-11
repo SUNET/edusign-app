@@ -249,7 +249,7 @@ class DocManager extends React.Component {
       }),
       "loaded-title": this.props.intl.formatMessage({
         defaultMessage: "Document loaded",
-        id: "docmanager-help-loaded",
+        id: "docmanager-help-loaded-title",
       }),
       loaded: this.props.intl.formatMessage({
         defaultMessage:
