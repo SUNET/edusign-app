@@ -31,7 +31,6 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(setWaiting());
     },
     handleFileDrop: function (fileObjs) {
-      console.log("Starting to handle dropping of files", fileObjs);
       dispatch(setLoading());
       const maxIndex = fileObjs.length - 1;
       fileObjs.forEach((fileObj, index) => {
@@ -47,14 +46,12 @@ const mapDispatchToProps = (dispatch) => {
             ...file,
             blob: reader.result,
           };
-          console.log("loaded file", updatedFile);
           dispatch(createDocument(updatedFile));
           if (index === maxIndex) {
             dispatch(setWaiting());
           }
         };
         reader.onerror = (e) => {
-          console.log("Error reading Document", e);
           const errorMsg = this.props.intl.formatMessage(
             {
               defaultMessage: "Error loading {name}",
@@ -69,7 +66,6 @@ const mapDispatchToProps = (dispatch) => {
           dispatch(setWaiting());
         };
         reader.readAsDataURL(fileObj);
-        console.log("Finished handling dropping of files");
       });
     },
     handleRejected: function (rejecteds, e) {

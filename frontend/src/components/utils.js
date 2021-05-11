@@ -77,7 +77,6 @@ export function docToFile(doc) {
     });
     return newFile;
   } catch (err) {
-    console.log("Error loading document", err);
     return null;
   }
 }

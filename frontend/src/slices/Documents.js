@@ -28,16 +28,13 @@ import { getDb } from "init-app/database";
 export const loadDocuments = createAsyncThunk(
   "documents/loadDocuments",
   async (arg, thunkAPI) => {
-    console.log("loading persisted documents");
     const db = await getDb();
-    console.log("loaded db", db);
 
     if (db !== null) {
       let signing = false;
       const promisedDocuments = new Promise((resolve, reject) => {
         const transaction = db.transaction(["documents"]);
         transaction.onerror = (event) => {
-          console.log("cannot create a db transaction for reading", event);
           resolve([]);
         };
         const docStore = transaction.objectStore("documents");
@@ -46,7 +43,6 @@ export const loadDocuments = createAsyncThunk(
           const cursor = event.target.result;
           if (cursor) {
             const document = cursor.value;
-            console.log("retrieving document from db", document);
             docs.push(document);
             if (document.state === "signing") {
               signing = true;
@@ -79,7 +75,6 @@ export const loadDocuments = createAsyncThunk(
         documents: documents,
       };
     } else {
-      console.log("could not open db");
       return {
         documents: [],
       };
@@ -91,13 +86,11 @@ async function validateDoc(doc) {
   return await pdfjs
     .getDocument({ url: doc.blob, password: "" })
     .promise.then((validated) => {
-      console.log("Validated document", validated);
       doc.show = false;
       doc.state = "loading";
       return doc;
     })
     .catch((err) => {
-      console.log("Error validating doc", err);
       if (err.name === "PasswordException") {
         doc.message = "XXX Please do not supply a password protected document";
       } else if (err.message.startsWith("Invalid")) {
@@ -117,20 +110,15 @@ async function validateDoc(doc) {
  */
 const saveDocumentToDb = async (document) => {
   const db = await getDb();
-  console.log("Got db", db);
   if (db !== null) {
     const newDoc = await new Promise((resolve, reject) => {
-      console.log("Waiting to save document being created");
       const transaction = db.transaction(["documents"], "readwrite");
       transaction.onerror = (event) => {
-        console.log("Problem with create transaction", event);
         reject("Problem with create transaction");
       };
       const docStore = transaction.objectStore("documents");
-      console.log("saving document to db", document.name);
       const docRequest = docStore.add(document);
       docRequest.onsuccess = (event) => {
-        console.log("saving document", event);
         resolve({
           ...document,
           id: event.target.result,
@@ -142,7 +130,6 @@ const saveDocumentToDb = async (document) => {
     });
     return newDoc;
   } else {
-    console.log("Cannot save the doc, db absent");
     throw new Error("DB absent, cannot save document");
   }
 };
@@ -156,17 +143,14 @@ const saveDocumentToDb = async (document) => {
 export const createDocument = createAsyncThunk(
   "documents/createDocument",
   async (document, thunkAPI) => {
-    console.log("Validating document", document.name);
     document = await validateDoc(document);
     if (document.state === "failed-loading") return document;
 
     try {
       const newDoc = await saveDocumentToDb(document);
-      console.log("About to prepare document", newDoc);
       thunkAPI.dispatch(prepareDocument(newDoc));
       return newDoc;
     } catch (err) {
-      console.log("Cannot save the doc", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -194,21 +178,16 @@ export const prepareDocument = createAsyncThunk(
       size: document.size,
       type: document.type,
     };
-    console.log("preparing document", docToSend);
     const body = preparePayload(thunkAPI.getState(), docToSend);
     let data = null;
     try {
-      console.log("Using fetch to post to add-doc", body);
       const response = await fetch("/sign/add-doc", {
         ...postRequest,
         body: body,
       });
-      console.log("Used fetch to post to add-doc");
       data = await checkStatus(response);
-      console.log("And got data", data);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
-      console.log("Problem preparing document", err);
       return {
         ...document,
         state: "failed-preparing",
@@ -267,7 +246,6 @@ export const startSigningDocuments = createAsyncThunk(
         body: body,
       });
       data = await checkStatus(response);
-      console.log("Data received from the create-sign-request endpoint", data);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
         if (data.message === "expired cache") {
@@ -292,7 +270,6 @@ export const startSigningDocuments = createAsyncThunk(
       const form = document.getElementById("signing-form");
       form.requestSubmit();
     } catch (err) {
-      console.log("Error creating sign request", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -346,7 +323,6 @@ export const restartSigningDocuments = createAsyncThunk(
       const form = document.getElementById("signing-form");
       form.requestSubmit();
     } catch (err) {
-      console.log("Error creating sign request", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -393,7 +369,6 @@ const fetchSignedDocuments = async (thunkAPI, dataElem) => {
       thunkAPI.dispatch(removeInvites(doc));
     });
   } catch (err) {
-    console.log("Error getting signed documents", err);
     thunkAPI.dispatch(
       addNotification({
         level: "danger",
@@ -461,27 +436,22 @@ export const sendInvites = createAsyncThunk(
         type: document.type,
       },
     };
-    console.log("preparing document", dataToSend);
     const body = preparePayload(thunkAPI.getState(), dataToSend);
     let data = null;
     try {
-      console.log("Using fetch to post to create-multi-sign", body);
       const response = await fetch("/sign/create-multi-sign", {
         ...postRequest,
         body: body,
       });
       data = await checkStatus(response);
-      console.log("And got data", data);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
-      console.log("Problem sending document for multi signing", err);
       const message =
         "XXX Problem sending multi sign request, please try again";
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
     if (data.error) {
-      console.log("Problem creating document for multi signing");
       const message =
         "XXX Problem creating multi sign request, please try again";
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
@@ -508,7 +478,6 @@ export const sendInvites = createAsyncThunk(
 export const removeInvites = createAsyncThunk(
   "main/removeInvites",
   async (doc, thunkAPI) => {
-    console.log("About to remove invitations for", doc);
 
     const state = thunkAPI.getState();
 
@@ -528,7 +497,6 @@ export const removeInvites = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      console.log("Using fetch to post to remove-multi-sign", body);
       const response = await fetch("/sign/remove-multi-sign", {
         ...postRequest,
         body: body,
@@ -536,14 +504,12 @@ export const removeInvites = createAsyncThunk(
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
-      console.log("Problem removing document for multi signing", err);
       const message =
         "XXX Problem removing multi sign request, please try again";
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
     if (data.error) {
-      console.log("Problem removing document for multi signing");
       const message =
         "XXX Problem removing multi sign request, please try again";
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
@@ -567,7 +533,6 @@ export const removeInvites = createAsyncThunk(
 export const resendInvitations = createAsyncThunk(
   "main/resendInvitations",
   async (doc, thunkAPI) => {
-    console.log("About to resend invitations for", doc);
 
     const state = thunkAPI.getState();
 
@@ -587,7 +552,6 @@ export const resendInvitations = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      console.log("Using fetch to post to send-multisign-reminder", body);
       const response = await fetch("/sign/send-multisign-reminder", {
         ...postRequest,
         body: body,
@@ -595,14 +559,12 @@ export const resendInvitations = createAsyncThunk(
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
-      console.log("Problem resending invitations for multi signing", err);
       const message =
         "XXX Problem sending invitations to sign, please try again";
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
     if (data.error) {
-      console.log("Problem resending invitations for multi signing a document");
       const message =
         "XXX Problem sending invitations to sign, please try again";
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
@@ -622,7 +584,6 @@ export const resendInvitations = createAsyncThunk(
 export const signInvitedDoc = createAsyncThunk(
   "main/signInvitedDoc",
   async (doc, thunkAPI) => {
-    console.log("About to finally sign invitation for", doc);
     const state = thunkAPI.getState();
     let data = null;
     const docToSign = {
@@ -652,7 +613,6 @@ export const signInvitedDoc = createAsyncThunk(
       const form = document.getElementById("signing-form");
       form.requestSubmit();
     } catch (err) {
-      console.log("Error creating sign request for multisigned doc", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -810,7 +770,6 @@ const documentsSlice = createSlice({
      */
     signFailure(state) {
       state.documents = state.documents.map((doc) => {
-        console.log("Sign failure for !!", doc.state);
         if (doc.state === "signing") {
           const document = {
             ...doc,
@@ -844,9 +803,7 @@ const documentsSlice = createSlice({
       state.documents.push(action.payload);
     },
     [createDocument.rejected]: (state, action) => {
-      console.log("Documents after rejection", action);
       state.documents.push(action.payload);
-      console.log("Documents after rejection", state.documents);
     },
     [loadDocuments.fulfilled]: (state, action) => {
       state.documents = action.payload.documents;

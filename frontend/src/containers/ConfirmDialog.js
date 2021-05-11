@@ -19,7 +19,6 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch, props) => {
   return {
     closeConfirm: function () {
-      console.log("AAAAAAAAAAAAAAAAAAAAAA", props.confirmId, props);
       dispatch(closeConfirmation(props.confirmId));
     },
   };

@@ -26,17 +26,14 @@ export const fetchConfig = createAsyncThunk(
       extractCsrfToken(thunkAPI.dispatch, configData);
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
       if (configData.error) {
-        console.log("there is a configData.error");
         thunkAPI.dispatch(
           addNotification({ level: "danger", message: configData.message })
         );
         return thunkAPI.rejectWithValue(configData.message);
       } else {
-        console.log("there is NOT a configData.error");
         return configData;
       }
     } catch (err) {
-      console.log("Error fetching config", err);
       thunkAPI.dispatch(
         addNotification({ level: "danger", message: "XXX TODO" })
       );
@@ -105,7 +102,6 @@ const mainSlice = createSlice({
      * @desc Redux action to add an owned multisign request
      */
     removeOwned(state, action) {
-      console.log("Removing doc from multisign owned", action);
       state.owned_multisign = state.owned_multisign.filter((doc) => {
         return doc.key !== action.payload.key;
       });
