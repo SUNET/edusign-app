@@ -88,7 +88,7 @@ const resendButton = (props, doc, help) => {
           </div>
         </div>
       </OverlayTrigger>
-      <ReInviteFormContainer docId={doc.id} docName={doc.name} />
+      <ReInviteFormContainer doc={doc} />
     </>
   );
 };

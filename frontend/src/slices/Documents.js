@@ -540,7 +540,9 @@ export const resendInvitations = createAsyncThunk(
     const state = thunkAPI.getState();
 
     const documentList = state.main.owned_multisign.filter((doc) => {
-      return docId === doc.key;
+      console.log("in main", doc);
+      console.log("in props", docId);
+      return docId === doc.id;
     });
 
     if (documentList.length === 0) {
