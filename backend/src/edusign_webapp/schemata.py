@@ -190,4 +190,4 @@ class ResendMultiSignSchema(KeyedMultiSignSchema):
     Schema to unmarshal requests for re-sending invitations for multi signatures.
     """
 
-    text = fields.String()
+    text = fields.String(default="")

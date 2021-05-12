@@ -424,7 +424,7 @@ def send_multisign_reminder(data: dict) -> dict:
         context = {
             'document_name': docname,
             'inviter_name_and_email': f"{session['displayName']} <{session['mail']}>",
-            'inviter_name': f"{session['displayName']} <{session['mail']}>",
+            'inviter_name': f"{session['displayName']}",
             'invited_link': invited_link,
             'text': data['text'],
         }

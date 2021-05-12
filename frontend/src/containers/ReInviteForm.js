@@ -17,7 +17,7 @@ import { hideResend } from "slices/Modals";
 
 const mapStateToProps = (state, props) => {
   let show = false;
-  if (state.modals.show_resend && state.modals.resend_id === props.doc.id) {
+  if (state.modals.show_resend && state.modals.resend_id === props.doc.key) {
     show = true;
   }
   return {

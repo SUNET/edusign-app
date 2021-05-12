@@ -33,7 +33,7 @@ const mapDispatchToProps = (dispatch) => {
     },
     handleResend: function (doc) {
       return () => {
-        dispatch(showResend(doc.id));
+        dispatch(showResend(doc));
       };
     },
     showConfirm: function (confirmId) {

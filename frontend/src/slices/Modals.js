@@ -41,7 +41,7 @@ const modalsSlice = createSlice({
      */
     showResend(state, action) {
       state.show_resend = true;
-      state.resend_id = action.payload;
+      state.resend_id = action.payload.key;
     },
     /**
      * @public
