@@ -52,6 +52,15 @@ def test_add(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     assert int(result[b'owner']) > 0
 
 
+def test_get_no_pending(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+
+    with run.app.app_context():
+        pending = test_md.get_pending('invite0@example.org')
+
+    assert pending == []
+
+
 def test_add_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -222,6 +231,21 @@ def test_add_and_remove(redis_md, sample_metadata_1, sample_owner_1, sample_invi
     assert len(owned) == 0
 
 
+def test_add_and_remove_wrong_key(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+        test_md.update(dummy_key, sample_invites_1[0]['email'])
+        test_md.update(dummy_key, sample_invites_1[1]['email'])
+        test_md.remove(uuid.uuid4())
+
+        owned = test_md.get_owned('owner@example.org')
+
+    assert len(owned) == 1
+
+
 def test_add_and_remove_not(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -235,6 +259,19 @@ def test_add_and_remove_not(redis_md, sample_metadata_1, sample_owner_1, sample_
     assert len(owned) == 1
 
 
+def test_add_and_remove_force(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+        test_md.remove(dummy_key, force=True)
+
+        owned = test_md.get_owned('owner@example.org')
+
+    assert len(owned) == 0
+
+
 def test_add_and_get_invitation(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -246,6 +283,30 @@ def test_add_and_get_invitation(redis_md, sample_metadata_1, sample_owner_1, sam
         invitation = test_md.get_invitation(key)
 
     assert invitation['document']['key'] == dummy_key
+
+
+def test_add_and_get_invitation_wrong_key(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        invitation = test_md.get_invitation(uuid.uuid4())
+
+    assert invitation == {}
+
+
+def test_get_no_document(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        doc = test_md.get_document(uuid.uuid4())
+
+    assert doc == {}
 
 
 def test_add_and_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
@@ -310,3 +371,64 @@ def test_add_and_rm_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1
         removed = test_md.rm_lock(doc_id, 'dummy@exmple.org')
 
     assert not removed
+
+
+def test_add_and_lock_before(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        key = uuid.UUID(invites[0]['key'])
+        invitation = test_md.get_invitation(key)
+        doc_id = test_md.get_document(invitation['document']['key'])['doc_id']
+        locked = test_md.check_lock(doc_id, sample_invites_1[0]['email'])
+
+        assert not locked
+
+
+def test_add_and_lock_timeout(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        import datetime
+        old = run.app.config['DOC_LOCK_TIMEOUT']
+        run.app.config['DOC_LOCK_TIMEOUT'] = datetime.timedelta(seconds=0)
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        key = uuid.UUID(invites[0]['key'])
+        invitation = test_md.get_invitation(key)
+        doc_id = test_md.get_document(invitation['document']['key'])['doc_id']
+        test_md.add_lock(doc_id, sample_invites_1[0]['email'])
+        locked = test_md.check_lock(doc_id, sample_invites_1[0]['email'])
+
+        run.app.config['DOC_LOCK_TIMEOUT'] = old
+
+    assert not locked
+
+
+def test_add_and_get_user(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        user_id = int(invites[0]['id'])
+        user = test_md.get_user(user_id)
+
+    assert user['email'] == sample_invites_1[0]['email']
+
+
+def test_add_and_get_no_user(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)
+
+        user = test_md.get_user(1000000)
+
+    assert user == {}

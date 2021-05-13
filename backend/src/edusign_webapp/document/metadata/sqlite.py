@@ -222,6 +222,7 @@ class SqliteMD(ABCMetadata):
 
             updated_invite = {'key': invite_key}
             updated_invite.update(user)
+            updated_invite['id'] = user_id
             updated_invites.append(updated_invite)
 
         self._db_commit()
@@ -486,7 +487,7 @@ class SqliteMD(ABCMetadata):
         if (
             locked is None
             or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']
-            or user_result['email'] == locked_by
+            or lock_info['locked_by'] == locked_by
         ):
             self.logger.debug(f"Adding lock for {locked_by} in document with id {doc_id}: {lock_info}")
             self._db_execute(DOCUMENT_ADD_LOCK, (now, user_result['user_id'], doc_id))

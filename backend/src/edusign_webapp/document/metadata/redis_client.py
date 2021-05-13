@@ -69,6 +69,8 @@ class RedisStorageBackend:
 
     def query_user(self, user_id):
         b_user = self.redis.hgetall(f"user:{user_id}")
+        if not b_user:
+            return
         user = {
             'name': b_user[b'name'].decode('utf8'),
             'email': b_user[b'email'].decode('utf8'),
@@ -100,6 +102,8 @@ class RedisStorageBackend:
 
     def query_document_all(self, key):
         doc_id = self.query_document_id(str(key))
+        if doc_id is None:
+            return
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         doc = dict(
             key=key,
@@ -344,6 +348,7 @@ class RedisMD(ABCMetadata):
 
             updated_invite = {'key': invite_key}
             updated_invite.update(user)
+            updated_invite['id'] = user_id
             updated_invites.append(updated_invite)
 
         self.client.commit()
@@ -551,6 +556,9 @@ class RedisMD(ABCMetadata):
 
         doc['doc_id'] = invite['doc_id']
         user = self.client.query_user(invite['user_id'])
+        if not user:
+            self.logger.error(f"Retrieving a non-existing user with id {invite['user_id']}")
+            return {}
 
         return {'document': doc, 'user': user}
 
@@ -600,6 +608,10 @@ class RedisMD(ABCMetadata):
 
         locked = None if lock_info['locked'] is None else lock_info['locked']
         user_result = self.client.query_user(user_id)
+        if not user_result:
+            self.logger.error(f"The user record with email {locked_by} seems corrupted")
+            self.client.abort()
+            return False
 
         now_ts = now.timestamp()
 
@@ -644,6 +656,10 @@ class RedisMD(ABCMetadata):
 
         now = datetime.now()
         user_result = self.client.query_user(user_id)
+        if not user_result:
+            self.logger.error(f"The user record with mail {unlocked_by} seems corrupted")
+            self.client.abort()
+            return False
 
         if isinstance(lock_info['locked'], str):
             locked = datetime.fromisoformat(lock_info['locked'])
@@ -707,7 +723,7 @@ class RedisMD(ABCMetadata):
         :return: Name and email of the user
         """
         user_info = self.client.query_user(user_id)
-        if user_info is None:
+        if not user_info:
             self.logger.error(f"Trying to find with a non-existing user with id {user_id}")
             return {}
 

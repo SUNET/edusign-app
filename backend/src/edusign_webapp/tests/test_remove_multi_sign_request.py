@@ -137,4 +137,4 @@ def test_remove_multi_sign_request_doesnt(app, environ_base, monkeypatch, sample
 
     resp_data = _test_remove_multi_sign_request_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_remove)
 
-    assert resp_data['message'] == 'Could not remove the document to be multi signed'
+    assert resp_data['message'] == 'Document has not been removed'

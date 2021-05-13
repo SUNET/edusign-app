@@ -89,6 +89,7 @@ def _test_send_reminders(app, environ_base, monkeypatch, sample_doc_1):
     reminder_data = {
         'csrf_token': csrf_token,
         'payload': {
+            'text': 'Test text',
             'key': sample_doc_1['key'],
         },
     }

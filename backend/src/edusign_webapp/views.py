@@ -458,6 +458,7 @@ def remove_multi_sign_request(data: dict) -> dict:
 
     if not removed:
         current_app.logger.error(f'Could not remove the multi sign request corresponding to data: {data}')
+        return {'error': True, 'message': gettext('Document has not been removed')}
 
     message = gettext("Success removing multi signature request")
 

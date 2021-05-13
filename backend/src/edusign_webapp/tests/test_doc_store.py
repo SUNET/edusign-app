@@ -30,8 +30,10 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+import base64
 import os
 import sqlite3
+import uuid
 
 from edusign_webapp import run
 
@@ -248,3 +250,123 @@ def test_add_two_and_remove_one_and_get_owned(
     assert owned[0]['type'] == sample_doc_2['type']
 
     assert content is None
+
+
+def test_add_and_get_invitation(
+    doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    tempdir, doc_store = doc_store_local_sqlite
+
+    with run.app.app_context():
+        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        invitation = doc_store.get_invitation(invites[0]['key'])
+
+    assert len(invites) == 2
+    assert invitation['user']['email'] == 'invite0@example.org'
+
+
+def test_add_and_get_invitation_twice(
+    doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    tempdir, doc_store = doc_store_local_sqlite
+
+    with run.app.app_context():
+        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        doc_store.get_invitation(invites[0]['key'])
+        try:
+            doc_store.get_invitation(invites[1]['key'])
+        except Exception as e:
+            assert isinstance(e, doc_store.DocumentLocked)
+
+
+def test_get_invitation_none(
+    doc_store_local_sqlite
+):
+    tempdir, doc_store = doc_store_local_sqlite
+
+    with run.app.app_context():
+        data = doc_store.get_invitation(uuid.uuid4())
+
+    assert data == {}
+
+
+def test_add_and_get_invitation_twice_unlocking(
+    doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    tempdir, doc_store = doc_store_local_sqlite
+
+    with run.app.app_context():
+        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        doc_store.get_invitation(invites[0]['key'])
+        doc_store.unlock_document(sample_doc_1['key'], invites[0]['email'])
+        invitation = doc_store.get_invitation(invites[1]['key'])
+
+    assert invitation['user']['email'] == 'invite1@example.org'
+
+
+def test_add_and_get_invitation_and_check_lock(
+    doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    tempdir, doc_store = doc_store_local_sqlite
+
+    with run.app.app_context():
+        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        doc_store.get_invitation(invites[0]['key'])
+
+        assert doc_store.check_document_locked(sample_doc_1['key'], invites[0]['email'])
+        assert not doc_store.check_document_locked(sample_doc_1['key'], 'dummy@example.org')
+
+
+def test_check_locked_none(
+    doc_store_local_sqlite
+):
+    tempdir, doc_store = doc_store_local_sqlite
+
+    with run.app.app_context():
+        assert not doc_store.check_document_locked(uuid.uuid4(), 'dummy@example.org')
+
+
+def test_add_and_get_invitation_twice_unlocking_check(
+    doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    tempdir, doc_store = doc_store_local_sqlite
+
+    with run.app.app_context():
+        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        doc_store.get_invitation(invites[0]['key'])
+        doc_store.unlock_document(sample_doc_1['key'], invites[0]['email'])
+        doc_store.get_invitation(invites[1]['key'])
+
+        assert not doc_store.check_document_locked(sample_doc_1['key'], invites[0]['email'])
+        assert doc_store.check_document_locked(sample_doc_1['key'], invites[1]['email'])
+
+
+def test_add_and_sign_and_get_signed(
+    doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    tempdir, doc_store = doc_store_local_sqlite
+
+    with run.app.app_context():
+        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+
+        content_1 = base64.b64encode(b"dummy content 1").decode('utf8')
+        content_2 = base64.b64encode(b"dummy content 2").decode('utf8')
+        doc_store.update_document(sample_doc_1['key'], content_1, invites[0]['email'])
+        doc_store.update_document(sample_doc_1['key'], content_2, invites[1]['email'])
+
+        signed = doc_store.get_signed_document(sample_doc_1['key'])
+
+        assert signed['key'] == sample_doc_1['key']
+        assert signed['blob'] == content_2
+
+
+def test_add_and_get_invitation_and_get_owner_data(
+    doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    tempdir, doc_store = doc_store_local_sqlite
+
+    with run.app.app_context():
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1)
+        owner = doc_store.get_owner_data(sample_doc_1['key'])
+
+    assert owner['email'] == sample_owner_1['email']
