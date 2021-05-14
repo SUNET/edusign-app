@@ -130,73 +130,75 @@ class Owned extends Component {
         </div>
         {this.props.owned.map((doc, index) => {
           return (
-            <div className="owned-multisign" key={index}>
-              <div className="owned-multisign-request">
-                <div className="name-flex-item">{doc.name}</div>
-                {doc.pending.length > 0 && (
-                  <>
-                    <div className="pending-invites-title">
-                      <span className="pending-invites-label">
-                        <FormattedMessage
-                          defaultMessage="Waiting for signatures by:"
-                          key="multisign-owned-waiting"
-                        />
-                      </span>
-                    </div>
-                    <div className="pending-invites">
-                      {doc.pending.map((invite, index) => {
-                        return (
-                          <span className="pending-invite-item" key={index}>
-                            {invite.name} &lt;{invite.email}&gt;
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-                {doc.signed.length > 0 && (
-                  <>
-                    <div className="signed-invites-title">
-                      <span className="signed-invites-label">
-                        <FormattedMessage
-                          defaultMessage="Already signed by:"
-                          key="multisign-owned-signed"
-                        />
-                      </span>
-                    </div>
-                    <div className="signed-invites">
-                      {doc.signed.map((invite, index) => {
-                        return (
-                          <span className="signed-invite-item" key={index}>
-                            {invite.name} &lt;{invite.email}&gt;
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-                {doc.pending.length === 0 &&
-                  signButton(this.props, doc, this.getHelp("sign-button-help"))}
-                {doc.pending.length > 0 &&
-                  resendButton(
-                    this.props,
-                    doc,
-                    this.getHelp("resend-button-help")
+            <>
+              <div className="owned-multisign" key={index}>
+                <div className="owned-multisign-request">
+                  <div className="name-flex-item">{doc.name}</div>
+                  {doc.pending.length > 0 && (
+                    <>
+                      <div className="pending-invites-title">
+                        <span className="pending-invites-label">
+                          <FormattedMessage
+                            defaultMessage="Waiting for signatures by:"
+                            key="multisign-owned-waiting"
+                          />
+                        </span>
+                      </div>
+                      <div className="pending-invites">
+                        {doc.pending.map((invite, index) => {
+                          return (
+                            <span className="pending-invite-item" key={index}>
+                              {invite.name} &lt;{invite.email}&gt;
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </>
                   )}
-              </div>
-              <OverlayTrigger
-                trigger={["hover", "focus"]}
-                overlay={
-                  <Tooltip placement="auto">
-                    {this.getHelp("close-button-help")}
-                  </Tooltip>
-                }
-              >
-                <div className="owned-multisign-remove">
-                  {removeButton(this.props, doc)}
+                  {doc.signed.length > 0 && (
+                    <>
+                      <div className="signed-invites-title">
+                        <span className="signed-invites-label">
+                          <FormattedMessage
+                            defaultMessage="Already signed by:"
+                            key="multisign-owned-signed"
+                          />
+                        </span>
+                      </div>
+                      <div className="signed-invites">
+                        {doc.signed.map((invite, index) => {
+                          return (
+                            <span className="signed-invite-item" key={index}>
+                              {invite.name} &lt;{invite.email}&gt;
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                  {doc.pending.length === 0 &&
+                    signButton(this.props, doc, this.getHelp("sign-button-help"))}
+                  {doc.pending.length > 0 &&
+                    resendButton(
+                      this.props,
+                      doc,
+                      this.getHelp("resend-button-help")
+                    )}
                 </div>
-              </OverlayTrigger>
-            </div>
+                <OverlayTrigger
+                  trigger={["hover", "focus"]}
+                  overlay={
+                    <Tooltip placement="auto">
+                      {this.getHelp("close-button-help")}
+                    </Tooltip>
+                  }
+                >
+                  <div className="owned-multisign-remove">
+                    {removeButton(this.props, doc)}
+                  </div>
+                </OverlayTrigger>
+              </div>
+            </>
           );
         })}
       </>

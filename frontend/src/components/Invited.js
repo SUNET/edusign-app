@@ -58,27 +58,29 @@ class Invited extends Component {
         <>
           {this.props.invited.map((doc, index) => {
             return (
-              <div className="invited-multisign" key={index}>
-                <div className="invited-multisign-request" key={index}>
-                  <div className="name-flex-item">{doc.name}</div>
-                  <div className="invited-flex-item">
-                    <div className="invited-flex-label">
-                      <FormattedMessage
-                        defaultMessage="Invited by"
-                        key="invited-by"
-                      />
+              <>
+                <div className="invited-multisign" key={index}>
+                  <div className="invited-multisign-request" key={index}>
+                    <div className="name-flex-item">{doc.name}</div>
+                    <div className="invited-flex-item">
+                      <div className="invited-flex-label">
+                        <FormattedMessage
+                          defaultMessage="Invited by"
+                          key="invited-by"
+                        />
+                      </div>
+                      <div className="owner-flex-item">
+                        {doc.owner.name} &lt;{doc.owner.email}&gt;
+                      </div>
                     </div>
-                    <div className="owner-flex-item">
-                      {doc.owner.name} &lt;{doc.owner.email}&gt;
-                    </div>
+                    {signButton(
+                      this.props,
+                      doc,
+                      this.getHelp("sign-button-help")
+                    )}
                   </div>
-                  {signButton(
-                    this.props,
-                    doc,
-                    this.getHelp("sign-button-help")
-                  )}
                 </div>
-              </div>
+              </>
             );
           })}
         </>

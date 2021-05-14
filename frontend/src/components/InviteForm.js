@@ -265,7 +265,7 @@ class InviteForm extends React.Component {
 
 InviteForm.propTypes = {
   show: PropTypes.bool,
-  size: PropTypes.number,
+  size: PropTypes.string,
   docId: PropTypes.number,
   docName: PropTypes.string,
   handleClose: PropTypes.func,
