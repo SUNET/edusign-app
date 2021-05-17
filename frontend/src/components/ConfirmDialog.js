@@ -34,6 +34,7 @@ class ConfirmDialog extends Component {
             <div className="confirm-buttons">
               <Button
                 id={this.props.confirmId + "-confirm-button"}
+                data-testid={this.props.confirmId + "-confirm-button"}
                 variant="outline-success"
                 size="sm"
                 onClick={this.handleConfirm(this.props)}
@@ -45,6 +46,7 @@ class ConfirmDialog extends Component {
               </Button>
               <Button
                 id={this.props.confirmId + "-cancel-button"}
+                data-testid={this.props.confirmId + "-cancel-button"}
                 variant="outline-danger"
                 size="sm"
                 onClick={this.props.closeConfirm}

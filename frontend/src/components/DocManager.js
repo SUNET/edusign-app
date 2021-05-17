@@ -47,7 +47,7 @@ class DocManager extends React.Component {
       </>
     );
   }
-  previewButton(doc) {
+  previewButton(index, doc) {
     return (
       <>
         <div className="button-preview-flex-item">
@@ -65,6 +65,7 @@ class DocManager extends React.Component {
           >
             <Button
               variant="outline-dark"
+              data-testid={"button-preview-" + index}
               size="sm"
               onClick={this.props.handlePreview(doc.name)}
             >
@@ -137,7 +138,7 @@ class DocManager extends React.Component {
       </>
     );
   }
-  removeButton(doc) {
+  removeButton(index, doc) {
     return (
       <>
         <div className="button-remove-flex-item">
@@ -156,7 +157,7 @@ class DocManager extends React.Component {
             <Button
               variant="outline-danger"
               size="sm"
-              data-testid={"rm-button-" + doc.id}
+              data-testid={"rm-button-" + index}
               onClick={this.props.handleRemove(doc.name)}
             >
               <FormattedMessage defaultMessage="Remove" key="remove-button" />
@@ -341,7 +342,7 @@ class DocManager extends React.Component {
                 )}
                 {["loaded", "selected", "failed-signing"].includes(
                   doc.state
-                ) && <DocPreviewContainer doc={doc} docFile={docFile} />}
+                ) && <DocPreviewContainer doc={doc} docFile={docFile} index={index} />}
                 <OverlayTrigger
                   trigger={["hover", "focus"]}
                   rootClose={true}
@@ -368,7 +369,7 @@ class DocManager extends React.Component {
                         {this.dummySelectDoc()}
                         {this.docName(doc)}
                         {this.showMessage(doc)}
-                        {this.removeButton(doc)}
+                        {this.removeButton(index,doc)}
                       </>
                     )}
                     {doc.state === "failed-preparing" && (
@@ -378,7 +379,7 @@ class DocManager extends React.Component {
                         {this.docName(doc)}
                         {this.showMessage(doc)}
                         {this.retryButton(doc)}
-                        {this.removeButton(doc)}
+                        {this.removeButton(index, doc)}
                       </>
                     )}
                     {(doc.state === "loaded" || doc.state === "selected") && (
@@ -386,8 +387,8 @@ class DocManager extends React.Component {
                         {this.selectDoc(index, doc)}
                         {this.docSize(doc)}
                         {this.docName(doc)}
-                        {this.previewButton(doc)}
-                        {this.removeButton(doc)}
+                        {this.previewButton(index, doc)}
+                        {this.removeButton(index, doc)}
                         {this.multiSignButton(doc)}
                       </>
                     )}
@@ -413,8 +414,8 @@ class DocManager extends React.Component {
                         {this.docSize(doc)}
                         {this.docName(doc)}
                         {this.showMessage(doc)}
-                        {this.previewButton(doc)}
-                        {this.removeButton(doc)}
+                        {this.previewButton(index, doc)}
+                        {this.removeButton(index, doc)}
                       </>
                     )}
                   </div>
@@ -429,7 +430,7 @@ class DocManager extends React.Component {
                 )}
                 {["loaded", "selected", "failed-signing"].includes(
                   doc.state
-                ) && <DocPreviewContainer doc={doc} docFile={docFile} />}
+                ) && <DocPreviewContainer doc={doc} docFile={docFile} index={index} />}
                 <OverlayTrigger
                   trigger={["hover", "focus"]}
                   rootClose={true}
@@ -463,7 +464,7 @@ class DocManager extends React.Component {
                           {this.showMessage(doc)}
                         </div>
                         <div className="doc-container-third-row">
-                          {this.removeButton(doc)}
+                          {this.removeButton(index, doc)}
                         </div>
                       </>
                     )}
@@ -479,7 +480,7 @@ class DocManager extends React.Component {
                         </div>
                         <div className="doc-container-third-row">
                           {this.retryButton(doc)}
-                          {this.removeButton(doc)}
+                          {this.removeButton(index, doc)}
                         </div>
                       </>
                     )}
@@ -491,8 +492,8 @@ class DocManager extends React.Component {
                           {this.docName(doc)}
                         </div>
                         <div className="doc-container-second-row">
-                          {this.previewButton(doc)}
-                          {this.removeButton(doc)}
+                          {this.previewButton(index, doc)}
+                          {this.removeButton(index, doc)}
                           {this.multiSignButton(doc)}
                         </div>
                       </>
@@ -532,8 +533,8 @@ class DocManager extends React.Component {
                           {this.showMessage(doc)}
                         </div>
                         <div className="doc-container-third-row">
-                          {this.previewButton(doc)}
-                          {this.removeButton(doc)}
+                          {this.previewButton(index, doc)}
+                          {this.removeButton(index, doc)}
                         </div>
                       </>
                     )}

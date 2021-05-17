@@ -218,7 +218,7 @@ describe("Multi sign invitations", function () {
 
     await flushPromises(rerender, wrapped);
 
-    const buttonSend = await waitFor(() => screen.getAllByText(/Send/i));
+    const buttonSend = await waitFor(() => screen.getAllByTestId("button-send-invites-testost.pdf"));
     expect(buttonSend.length).to.equal(1);
 
     fireEvent.click(buttonSend[0]);
@@ -547,10 +547,91 @@ describe("Multi sign invitations", function () {
     fireEvent.click(rmButton[0]);
     await flushPromises(rerender, wrapped);
 
-    const inviteTitle = await waitFor(() =>
+    let inviteTitle = await waitFor(() =>
+      screen.queryAllByText(/Requests for multiple signatures/)
+    );
+    expect(inviteTitle.length).to.equal(1);
+
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-remove-owned-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    inviteTitle = await waitFor(() =>
       screen.queryAllByText(/Requests for multiple signatures/)
     );
     expect(inviteTitle.length).to.equal(0);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It cancels removing multisign invitation", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          signer_attributes: [
+            { name: "givenName", value: "Tester" },
+            { name: "surname", value: "Testig" },
+          ],
+          owned_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              signed: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+                {
+                  name: "Tester Invited2",
+                  email: "invited2@example.org",
+                },
+              ],
+              pending: [],
+            },
+          ],
+          pending_multisign: [],
+        },
+      })
+      .post("/sign/remove-multi-sign", {
+        error: false,
+        message: "Success removing invitation",
+      });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const rmButton = await waitFor(() =>
+      screen.getAllByTestId("rm-invitation-test1.pdf")
+    );
+    expect(rmButton.length).to.equal(1);
+
+    fireEvent.click(rmButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    let inviteTitle = await waitFor(() =>
+      screen.queryAllByText(/Requests for multiple signatures/)
+    );
+    expect(inviteTitle.length).to.equal(1);
+
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-remove-owned-cancel-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    inviteTitle = await waitFor(() =>
+      screen.queryAllByText(/Requests for multiple signatures/)
+    );
+    expect(inviteTitle.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();

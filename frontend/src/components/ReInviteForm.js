@@ -123,7 +123,7 @@ class ReInviteForm extends React.Component {
 
 ReInviteForm.propTypes = {
   show: PropTypes.bool,
-  size: PropTypes.number,
+  size: PropTypes.string,
   doc: PropTypes.object,
   handleClose: PropTypes.func,
   handleSubmit: PropTypes.func,

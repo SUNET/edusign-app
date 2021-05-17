@@ -78,7 +78,7 @@ describe("Document representations", function () {
     buttonPreview = await waitFor(() => screen.getAllByText(/Preview/i));
     expect(buttonPreview.length).to.equal(1);
 
-    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-2"));
+    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(buttonRemove.length).to.equal(1);
 
     const selector = await waitFor(() =>
@@ -171,7 +171,7 @@ describe("Document representations", function () {
     let buttonRetry = screen.queryByText(/Retry/i);
     expect(buttonRetry).to.equal(null);
 
-    let buttonRemove = screen.queryByTestId("rm-button-3");
+    let buttonRemove = screen.queryByTestId("rm-button-0");
     expect(buttonRemove).to.equal(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -196,7 +196,7 @@ describe("Document representations", function () {
     buttonRetry = await waitFor(() => screen.getAllByText(/Retry/i));
     expect(buttonRetry.length).to.equal(1);
 
-    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-3"));
+    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(buttonRemove.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
@@ -1095,7 +1095,7 @@ describe("Document representations", function () {
     const filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
     expect(filename.length).to.equal(1);
 
-    const buttonPreview = await waitFor(() => screen.getAllByText(/Preview/i));
+    const buttonPreview = await waitFor(() => screen.getAllByTestId("button-preview-0"));
     expect(buttonPreview.length).to.equal(1);
 
     const buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
@@ -1104,7 +1104,7 @@ describe("Document representations", function () {
     const errorMsg = await waitFor(() =>
       screen.getAllByText(/Problem signing the document/i)
     );
-    expect(errorMsg.length).to.equal(1);
+    expect(errorMsg.length).to.equal(5);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
