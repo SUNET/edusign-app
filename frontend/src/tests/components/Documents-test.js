@@ -78,7 +78,7 @@ describe("Document representations", function () {
     buttonPreview = await waitFor(() => screen.getAllByText(/Preview/i));
     expect(buttonPreview.length).to.equal(1);
 
-    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
+    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-2"));
     expect(buttonRemove.length).to.equal(1);
 
     const selector = await waitFor(() =>
@@ -171,7 +171,7 @@ describe("Document representations", function () {
     let buttonRetry = screen.queryByText(/Retry/i);
     expect(buttonRetry).to.equal(null);
 
-    let buttonRemove = screen.queryByTestId("rm-button-test.pdf");
+    let buttonRemove = screen.queryByTestId("rm-button-3");
     expect(buttonRemove).to.equal(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -196,7 +196,7 @@ describe("Document representations", function () {
     buttonRetry = await waitFor(() => screen.getAllByText(/Retry/i));
     expect(buttonRetry.length).to.equal(1);
 
-    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
+    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-3"));
     expect(buttonRemove.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
