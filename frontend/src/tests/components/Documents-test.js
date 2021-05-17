@@ -44,6 +44,14 @@ describe("Document representations", function () {
     fireEvent.click(clearButton[0]);
     await flushPromises(rerender, wrapped);
 
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
+    await flushPromises(rerender, wrapped);
+
     let filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
 
@@ -111,6 +119,14 @@ describe("Document representations", function () {
     fireEvent.click(clearButton[0]);
     await flushPromises(rerender, wrapped);
 
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
+    await flushPromises(rerender, wrapped);
+
     let warning = screen.queryByText(
       /Please do not supply a password protected document/
     );
@@ -163,6 +179,14 @@ describe("Document representations", function () {
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
     await flushPromises(rerender, wrapped);
 
     let filename = screen.queryByText("test.pdf");
@@ -224,6 +248,14 @@ describe("Document representations", function () {
     fireEvent.click(clearButton[0]);
     await flushPromises(rerender, wrapped);
 
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
+    await flushPromises(rerender, wrapped);
+
     let filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
 
@@ -281,6 +313,14 @@ describe("Document representations", function () {
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
     await flushPromises(rerender, wrapped);
 
     let rmButton = screen.queryByTestId("rm-button-test.pdf");
@@ -354,6 +394,14 @@ describe("Document representations", function () {
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
     await flushPromises(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -435,6 +483,14 @@ describe("Document representations", function () {
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
     await flushPromises(rerender, wrapped);
 
     const fileObj = new File([sample2pPDFData], "test.pdf", {
@@ -527,6 +583,14 @@ describe("Document representations", function () {
     fireEvent.click(clearButton[0]);
     await flushPromises(rerender, wrapped);
 
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
+    await flushPromises(rerender, wrapped);
+
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
     });
@@ -607,6 +671,14 @@ describe("Document representations", function () {
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
     await flushPromises(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -694,6 +766,14 @@ describe("Document representations", function () {
     fireEvent.click(clearButton[0]);
     await flushPromises(rerender, wrapped);
 
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
+    await flushPromises(rerender, wrapped);
+
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
     });
@@ -769,6 +849,14 @@ describe("Document representations", function () {
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
     await flushPromises(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -854,6 +942,14 @@ describe("Document representations", function () {
     fireEvent.click(clearButton[0]);
     await flushPromises(rerender, wrapped);
 
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
+    await flushPromises(rerender, wrapped);
+
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
     });
@@ -927,6 +1023,14 @@ describe("Document representations", function () {
     expect(clearButton.length).to.equal(1);
 
     fireEvent.click(clearButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
     await flushPromises(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -1033,6 +1137,14 @@ describe("Document representations", function () {
     fireEvent.click(clearButton[0]);
     await flushPromises(rerender, wrapped);
 
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("confirm-clear-session-confirm-button")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
+    await flushPromises(rerender, wrapped);
+
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
     });
@@ -1104,7 +1216,7 @@ describe("Document representations", function () {
     const errorMsg = await waitFor(() =>
       screen.getAllByText(/Problem signing the document/i)
     );
-    expect(errorMsg.length).to.equal(5);
+    expect(errorMsg.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
