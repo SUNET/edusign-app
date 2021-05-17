@@ -156,6 +156,7 @@ class DocManager extends React.Component {
             <Button
               variant="outline-danger"
               size="sm"
+              data-testid={"rm-button-" + doc.id}
               onClick={this.props.handleRemove(doc.name)}
             >
               <FormattedMessage defaultMessage="Remove" key="remove-button" />
@@ -334,7 +335,7 @@ class DocManager extends React.Component {
 
           if (this.props.size === "lg") {
             return (
-              <div key={index}>
+              <React.Fragment key={index}>
                 {["loaded", "selected"].includes(doc.state) && (
                   <InviteFormContainer docId={doc.id} docName={doc.name} />
                 )}
@@ -418,11 +419,11 @@ class DocManager extends React.Component {
                     )}
                   </div>
                 </OverlayTrigger>
-              </div>
+              </React.Fragment>
             );
           } else if (this.props.size === "sm") {
             return (
-              <div key={index}>
+              <React.Fragment key={index}>
                 {["loaded", "selected"].includes(doc.state) && (
                   <InviteFormContainer docId={doc.id} docName={doc.name} />
                 )}
@@ -538,100 +539,92 @@ class DocManager extends React.Component {
                     )}
                   </div>
                 </OverlayTrigger>
-              </div>
+              </React.Fragment>
             );
           }
         })}
         <div id="adjust-vertical-space" />
         {(showSignButton && (
-          <>
-            <div className="button-sign-flex-item">
-              <OverlayTrigger
-                trigger={["hover", "focus"]}
-                rootClose={true}
-                overlay={(props) => (
-                  <Tooltip id="tooltip-button-sign" {...props}>
-                    <FormattedMessage
-                      defaultMessage="Select documents above and click here to send them for signing."
-                      key="button-sign-tootip"
-                    />
-                  </Tooltip>
-                )}
-              >
-                <div id="button-sign-wrapper">
-                  <Button
-                    variant="outline-success"
-                    id="button-sign"
-                    size="lg"
-                    disabled={!someSelected}
-                    style={someSelected ? {} : { pointerEvents: "none" }}
-                    onClick={this.props.handleSubmitToSign}
-                  >
-                    <FormattedMessage
-                      defaultMessage="Sign Selected Documents"
-                      key="sign-selected-button"
-                    />
-                  </Button>
-                </div>
-              </OverlayTrigger>
-            </div>
-          </>
+          <div className="button-sign-flex-item">
+            <OverlayTrigger
+              trigger={["hover", "focus"]}
+              rootClose={true}
+              overlay={(props) => (
+                <Tooltip id="tooltip-button-sign" {...props}>
+                  <FormattedMessage
+                    defaultMessage="Select documents above and click here to send them for signing."
+                    key="button-sign-tootip"
+                  />
+                </Tooltip>
+              )}
+            >
+              <div id="button-sign-wrapper">
+                <Button
+                  variant="outline-success"
+                  id="button-sign"
+                  size="lg"
+                  disabled={!someSelected}
+                  style={someSelected ? {} : { pointerEvents: "none" }}
+                  onClick={this.props.handleSubmitToSign}
+                >
+                  <FormattedMessage
+                    defaultMessage="Sign Selected Documents"
+                    key="sign-selected-button"
+                  />
+                </Button>
+              </div>
+            </OverlayTrigger>
+          </div>
         )) || (
           <div className={"dummy-button-sign-flex-item-" + this.props.size} />
         )}
-        <>
-          <div className="multisign-container">
-            <div className="owned-multisign-container">
-              <OwnedContainer />
-            </div>
-            <div className="invited-multisign-container">
-              <InvitedContainer />
-            </div>
+        <div className="multisign-container">
+          <div className="owned-multisign-container">
+            <OwnedContainer />
           </div>
-          {this.props.destinationUrl !== undefined &&
-            this.props.destinationUrl !== "https://dummy.destination.url" && (
-              <>
-                <div>
-                  <form
-                    id="signing-form"
-                    data-testid="signing-form"
-                    action={this.props.destinationUrl}
-                    method="post"
-                  >
-                    <input
-                      type="hidden"
-                      name="Binding"
-                      value={this.props.binding}
-                    />
-                    <input
-                      type="hidden"
-                      name="RelayState"
-                      value={this.props.relayState}
-                    />
-                    <input
-                      type="hidden"
-                      name="EidSignRequest"
-                      value={this.props.signRequest}
-                    />
-                  </form>
-                </div>
-              </>
-            )}
-          {this.props.destinationUrl === "https://dummy.destination.url" && (
-            <>
-              <div>
-                <form
-                  id="signing-form"
-                  data-testid="signing-form"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    return false;
-                  }}
+          <div className="invited-multisign-container">
+            <InvitedContainer />
+          </div>
+        </div>
+        {this.props.destinationUrl !== undefined &&
+          this.props.destinationUrl !== "https://dummy.destination.url" && (
+            <div>
+              <form
+                id="signing-form"
+                data-testid="signing-form"
+                action={this.props.destinationUrl}
+                method="post"
+              >
+                <input
+                  type="hidden"
+                  name="Binding"
+                  value={this.props.binding}
                 />
-              </div>
-            </>
+                <input
+                  type="hidden"
+                  name="RelayState"
+                  value={this.props.relayState}
+                />
+                <input
+                  type="hidden"
+                  name="EidSignRequest"
+                  value={this.props.signRequest}
+                />
+              </form>
+            </div>
           )}
-        </>
+        {this.props.destinationUrl === "https://dummy.destination.url" && (
+          <div>
+            <form
+              id="signing-form"
+              data-testid="signing-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                return false;
+              }}
+            />
+          </div>
+        )}
       </>
     );
   }

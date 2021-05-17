@@ -50,7 +50,7 @@ describe("Document representations", function () {
     let buttonPreview = screen.queryByText(/Preview/i);
     expect(buttonPreview).to.equal(null);
 
-    let buttonRemove = screen.queryByText(/Remove/i);
+    let buttonRemove = screen.queryByTestId("rm-button-test.pdf");
     expect(buttonRemove).to.equal(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -78,7 +78,7 @@ describe("Document representations", function () {
     buttonPreview = await waitFor(() => screen.getAllByText(/Preview/i));
     expect(buttonPreview.length).to.equal(1);
 
-    buttonRemove = await waitFor(() => screen.getAllByText(/Remove/i));
+    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(buttonRemove.length).to.equal(1);
 
     const selector = await waitFor(() =>
@@ -171,7 +171,7 @@ describe("Document representations", function () {
     let buttonRetry = screen.queryByText(/Retry/i);
     expect(buttonRetry).to.equal(null);
 
-    let buttonRemove = screen.queryByText(/Remove/i);
+    let buttonRemove = screen.queryByTestId("rm-button-test.pdf");
     expect(buttonRemove).to.equal(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -196,7 +196,7 @@ describe("Document representations", function () {
     buttonRetry = await waitFor(() => screen.getAllByText(/Retry/i));
     expect(buttonRetry.length).to.equal(1);
 
-    buttonRemove = await waitFor(() => screen.getAllByText(/Remove/i));
+    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(buttonRemove.length).to.equal(1);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
@@ -230,7 +230,7 @@ describe("Document representations", function () {
     let buttonPreview = screen.queryByText(/Preview/i);
     expect(buttonPreview).to.equal(null);
 
-    let buttonRemove = screen.queryByText(/Remove/i);
+    let buttonRemove = screen.queryByTestId("rm-button-test.pdf");
     expect(buttonRemove).to.equal(null);
 
     const file = {
@@ -252,7 +252,7 @@ describe("Document representations", function () {
     filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
     expect(filename.length).to.equal(1);
 
-    buttonRemove = await waitFor(() => screen.getAllByText(/Remove/i));
+    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(buttonRemove.length).to.equal(1);
 
     buttonRemove = await waitFor(() => screen.getAllByText(/Malformed PDF/i));
@@ -283,7 +283,7 @@ describe("Document representations", function () {
     fireEvent.click(clearButton[0]);
     await flushPromises(rerender, wrapped);
 
-    let rmButton = screen.queryByText("Remove");
+    let rmButton = screen.queryByTestId("rm-button-test.pdf");
     expect(rmButton).to.equal(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -305,7 +305,7 @@ describe("Document representations", function () {
     store.dispatch(createDocument(file));
     await flushPromises(rerender, wrapped);
 
-    rmButton = await waitFor(() => screen.getAllByText("Remove"));
+    rmButton = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(rmButton.length).to.equal(1);
 
     fireEvent.click(rmButton[0]);
@@ -326,7 +326,7 @@ describe("Document representations", function () {
     const signButton = screen.queryByText("Sign");
     expect(signButton).to.equal(null);
 
-    rmButton = screen.queryByText("Remove");
+    rmButton = screen.queryByText("rm-button-test.pdf");
     expect(rmButton).to.equal(null);
 
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
@@ -396,17 +396,17 @@ describe("Document representations", function () {
     expect(pdf.length).to.equal(1);
 
     const prevButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-prev")
+      screen.getAllByTestId("preview-button-prev-0")
     );
     expect(prevButton.length).to.equal(1);
 
     const nextButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-next")
+      screen.getAllByTestId("preview-button-next-0")
     );
     expect(nextButton.length).to.equal(1);
 
     const closeButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-close")
+      screen.getAllByTestId("preview-button-close-0")
     );
     expect(closeButton.length).to.equal(1);
 
@@ -475,7 +475,7 @@ describe("Document representations", function () {
     expect(pdf2).to.equal(null);
 
     const nextButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-next")
+      screen.getAllByTestId("preview-button-next-0")
     );
     expect(nextButton.length).to.equal(1);
 
@@ -489,7 +489,7 @@ describe("Document representations", function () {
     expect(pdf2.length).to.equal(1);
 
     const prevButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-prev")
+      screen.getAllByTestId("preview-button-prev-0")
     );
     expect(prevButton.length).to.equal(1);
 
@@ -564,12 +564,12 @@ describe("Document representations", function () {
     await flushPromises(rerender, wrapped);
 
     let nextButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-next")
+      screen.getAllByTestId("preview-button-next-0")
     );
     expect(nextButton.length).to.equal(1);
 
     const closeButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-close")
+      screen.getAllByTestId("preview-button-close-0")
     );
     expect(closeButton.length).to.equal(1);
 
@@ -580,7 +580,7 @@ describe("Document representations", function () {
     expect(pdf).to.equal(null);
 
     nextButton = await waitFor(() =>
-      screen.queryByTestId("preview-button-next")
+      screen.queryByTestId("preview-button-next-test.pdf")
     );
     expect(nextButton).to.equal(null);
 
@@ -1098,7 +1098,7 @@ describe("Document representations", function () {
     const buttonPreview = await waitFor(() => screen.getAllByText(/Preview/i));
     expect(buttonPreview.length).to.equal(1);
 
-    const buttonRemove = await waitFor(() => screen.getAllByText(/Remove/i));
+    const buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(buttonRemove.length).to.equal(1);
 
     const errorMsg = await waitFor(() =>

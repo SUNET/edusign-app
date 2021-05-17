@@ -73,7 +73,7 @@ function DocPreview(props) {
               size="sm"
               disabled={Number(pageNumber) <= 1}
               onClick={firstPage}
-              data-testid="preview-button-first"
+              data-testid={"preview-button-first-" + props.doc.id}
             >
               &#x23EA;
             </Button>
@@ -82,7 +82,7 @@ function DocPreview(props) {
               size="sm"
               disabled={Number(pageNumber) <= 1}
               onClick={previousPage}
-              data-testid="preview-button-prev"
+              data-testid={"preview-button-prev-" + props.doc.id}
             >
               &#x25C4;
             </Button>
@@ -98,7 +98,7 @@ function DocPreview(props) {
               size="sm"
               disabled={Number(pageNumber) >= Number(numPages)}
               onClick={nextPage}
-              data-testid="preview-button-next"
+              data-testid={"preview-button-next-" + props.doc.id}
             >
               &#x25BA;
             </Button>
@@ -107,7 +107,7 @@ function DocPreview(props) {
               size="sm"
               disabled={Number(pageNumber) >= Number(numPages)}
               onClick={lastPage}
-              data-testid="preview-button-last"
+              data-testid={"preview-button-last-" + props.doc.id}
             >
               &#x23E9;
             </Button>
@@ -115,7 +115,7 @@ function DocPreview(props) {
           <Button
             variant="outline-secondary"
             onClick={props.handleClose(props.doc.name)}
-            data-testid="preview-button-close"
+            data-testid={"preview-button-close-" + props.doc.id}
           >
             <FormattedMessage defaultMessage="Close" key="button-close" />
           </Button>
