@@ -426,7 +426,7 @@ def send_multisign_reminder(data: dict) -> dict:
             'inviter_name_and_email': f"{session['displayName']} <{session['mail']}>",
             'inviter_name': f"{session['displayName']}",
             'invited_link': invited_link,
-            'text': data['text'],
+            'text': 'text' in data and data['text'] or "",
         }
         msg.body = render_template('reminder_email.txt.jinja2', **context)
         current_app.logger.debug(f"Sending email to user {invite['email']}:\n{msg.body}")

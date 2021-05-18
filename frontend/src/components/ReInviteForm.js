@@ -85,6 +85,7 @@ class ReInviteForm extends React.Component {
                     <Button
                       variant="outline-secondary"
                       onClick={this.props.handleClose}
+                      data-testid={"button-cancel-resend-" + this.props.doc.name}
                     >
                       <FormattedMessage
                         defaultMessage="Cancel"
@@ -104,7 +105,7 @@ class ReInviteForm extends React.Component {
                       </Tooltip>
                     )}
                   >
-                    <Button variant="outline-success" type="submit">
+                    <Button variant="outline-success" type="submit" data-testid={"button-resend-" + this.props.doc.name}>
                       <FormattedMessage
                         defaultMessage="Resend"
                         key="resend-invite"

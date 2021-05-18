@@ -304,6 +304,175 @@ describe("Multi sign invitations", function () {
     unmount();
   });
 
+  it("It resends invitations", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock.get("/sign/config", {
+      payload: {
+        signer_attributes: [
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+        owned_multisign: [
+          {
+            name: "test1.pdf",
+            type: "application/pdf",
+            size: 1500,
+            key: "11111111-1111-1111-1111-111111111111",
+            signed: [],
+            pending: [
+              {
+                name: "Tester Invited1",
+                email: "invited1@example.org",
+              },
+            ],
+          },
+        ],
+        pending_multisign: [],
+      },
+    });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const inviteTitle = await waitFor(() =>
+      screen.getAllByText(/Requests for multiple signatures/)
+    );
+    expect(inviteTitle.length).to.equal(1);
+
+    const inviteWaiting = await waitFor(() =>
+      screen.getAllByText(/Waiting for signatures by/)
+    );
+    expect(inviteWaiting.length).to.equal(1);
+
+    const inviteName = await waitFor(() =>
+      screen.getAllByText(/Tester Invited1/)
+    );
+    expect(inviteName.length).to.equal(1);
+
+    let resendLabel = await waitFor(() =>
+      screen.queryAllByText(/Resend invitation to people pending to sign/)
+    );
+    expect(resendLabel.length).to.equal(0);
+
+    const openResendButton = await waitFor(() =>
+      screen.getAllByTestId("button-open-resend-test1.pdf")
+    );
+    expect(openResendButton.length).to.equal(1);
+
+    fireEvent.click(openResendButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    resendLabel = await waitFor(() =>
+      screen.getAllByText(/Resend invitation to people pending to sign/)
+    );
+    expect(resendLabel.length).to.equal(1);
+
+    const resendButton = await waitFor(() =>
+      screen.getAllByTestId("button-resend-test1.pdf")
+    );
+    expect(resendButton.length).to.equal(1);
+
+    fetchMock.post("/sign/send-multisign-reminder", {
+      csrf_token: 'dummy token',
+      error: false,
+      message: "Success resending invitations to sign"
+    });
+
+    fireEvent.click(resendButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const message = await waitFor(() =>
+      screen.getAllByText(/Success resending invitations to sign/)
+    );
+    expect(message.length).to.equal(1);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It cancels resending invitations", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    fetchMock.get("/sign/config", {
+      payload: {
+        signer_attributes: [
+          { name: "givenName", value: "Tester" },
+          { name: "surname", value: "Testig" },
+        ],
+        owned_multisign: [
+          {
+            name: "test1.pdf",
+            type: "application/pdf",
+            size: 1500,
+            key: "11111111-1111-1111-1111-111111111111",
+            signed: [],
+            pending: [
+              {
+                name: "Tester Invited1",
+                email: "invited1@example.org",
+              },
+            ],
+          },
+        ],
+        pending_multisign: [],
+      },
+    });
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const inviteTitle = await waitFor(() =>
+      screen.getAllByText(/Requests for multiple signatures/)
+    );
+    expect(inviteTitle.length).to.equal(1);
+
+    const inviteWaiting = await waitFor(() =>
+      screen.getAllByText(/Waiting for signatures by/)
+    );
+    expect(inviteWaiting.length).to.equal(1);
+
+    const inviteName = await waitFor(() =>
+      screen.getAllByText(/Tester Invited1/)
+    );
+    expect(inviteName.length).to.equal(1);
+
+    let resendLabel = await waitFor(() =>
+      screen.queryAllByText(/Resend invitation to people pending to sign/)
+    );
+    expect(resendLabel.length).to.equal(0);
+
+    const openResendButton = await waitFor(() =>
+      screen.getAllByTestId("button-open-resend-test1.pdf")
+    );
+    expect(openResendButton.length).to.equal(1);
+
+    fireEvent.click(openResendButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    resendLabel = await waitFor(() =>
+      screen.getAllByText(/Resend invitation to people pending to sign/)
+    );
+    expect(resendLabel.length).to.equal(1);
+
+    let resendButton = await waitFor(() =>
+      screen.getAllByTestId("button-resend-test1.pdf")
+    );
+    expect(resendButton.length).to.equal(1);
+
+    let cancelButton = await waitFor(() =>
+      screen.getAllByTestId("button-cancel-resend-test1.pdf")
+    );
+    expect(cancelButton.length).to.equal(1);
+
+    fireEvent.click(cancelButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    // resendLabel = await waitFor(() =>
+    //   screen.getAllByText(/Resend invitation to people pending to sign/)
+    // );
+    // expect(resendLabel.length).to.equal(0);
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
   it("It shows invitation with 2 invitees", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
     fetchMock.get("/sign/config", {

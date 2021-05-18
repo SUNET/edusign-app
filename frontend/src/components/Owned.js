@@ -78,6 +78,7 @@ const resendButton = (props, doc, help) => {
             <Button
               variant="outline-success"
               size="sm"
+              data-testid={"button-open-resend-" + doc.name}
               onClick={props.handleResend(doc)}
             >
               <FormattedMessage
