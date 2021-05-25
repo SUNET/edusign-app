@@ -14,6 +14,7 @@ import Header from "components/Header";
 import { clearDocStore } from "init-app/database";
 import { removeAllDocuments } from "slices/Documents";
 import { askConfirmation } from "slices/ConfirmDialog";
+import { loadDocuments } from "slices/Documents";
 
 const mapStateToProps = (state) => {
   if (state.main.signer_attributes === undefined) {
@@ -29,7 +30,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch, props) => {
   return {
     clearDb: function () {
       clearDocStore(dispatch);
@@ -39,6 +40,9 @@ const mapDispatchToProps = (dispatch) => {
       return () => {
         dispatch(askConfirmation(confirmId));
       };
+    },
+    handleLoad: function () {
+      dispatch(loadDocuments({intl: props.intl}));
     },
   };
 };

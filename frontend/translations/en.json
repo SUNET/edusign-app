@@ -74,6 +74,7 @@
   "header-confirm-remove-owned-text": "Clicking \"Confirm\" will remove all invitations to sign the document",
   "header-confirm-remove-owned-title": "Confirm Removal of invitation",
   "invited-sign-button-help": "Click here to sign the document",
+  "load-doc-prolem-signing": "There was a problem signing the document",
   "owned-close-button-help": "Cancel Request",
   "owned-resend-button-help": "Click here to re-send an invitation email to all pending users",
   "owned-sign-button-help": "All requested users have alredy signed the document, click here to add your final signature"

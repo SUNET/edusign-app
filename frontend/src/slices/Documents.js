@@ -27,7 +27,7 @@ import { getDb } from "init-app/database";
  */
 export const loadDocuments = createAsyncThunk(
   "documents/loadDocuments",
-  async (arg, thunkAPI) => {
+  async (args, thunkAPI) => {
     const db = await getDb();
 
     if (db !== null) {
@@ -58,14 +58,14 @@ export const loadDocuments = createAsyncThunk(
       if (signing) {
         const dataElem = document.getElementById("sign-response-holder");
         if (dataElem !== null) {
-          fetchSignedDocuments(thunkAPI, dataElem);
+          fetchSignedDocuments(thunkAPI, dataElem, args.intl);
         } else {
           documents = documents.map((doc) => {
             if (doc.state === "signing") {
               return {
                 ...doc,
                 state: "failed-signing",
-                message: "XXX Thre was a problem signing the document",
+                message: args.intl.formatMessage({defaultMessage: "There was a problem signing the document", id: "load-doc-problem-signing"}),
               };
             } else return doc;
           });
@@ -82,7 +82,12 @@ export const loadDocuments = createAsyncThunk(
   }
 );
 
-async function validateDoc(doc) {
+/**
+ * @public
+ * @function validateDoc
+ * @desc Redux async action to validate PDF documents
+ */
+async function validateDoc(doc, intl) {
   return await pdfjs
     .getDocument({ url: doc.blob, password: "" })
     .promise.then((validated) => {
@@ -92,11 +97,11 @@ async function validateDoc(doc) {
     })
     .catch((err) => {
       if (err.name === "PasswordException") {
-        doc.message = "XXX Please do not supply a password protected document";
+        doc.message = args.intl.formatMessage({defaultMessage: "Please do not supply a password protected document", id: "validate-problem-password"});
       } else if (err.message.startsWith("Invalid")) {
-        doc.message = "XXX Document seems corrupted";
+        doc.message = args.intl.formatMessage({defaultMessage: "Document seems corrupted", id: "validate-problem-corrupted"});
       } else {
-        doc.message = "XXX Document is unreadable";
+        doc.message = args.intl.formatMessage({defaultMessage: "Document is unreadable", id: "validate-problem-unreadable"});
       }
       doc.state = "failed-loading";
       return doc;
@@ -142,8 +147,8 @@ const saveDocumentToDb = async (document) => {
  */
 export const createDocument = createAsyncThunk(
   "documents/createDocument",
-  async (document, thunkAPI) => {
-    document = await validateDoc(document);
+  async (args, thunkAPI) => {
+    document = await validateDoc(args.doc, args.intl);
     if (document.state === "failed-loading") return document;
 
     try {
@@ -154,7 +159,8 @@ export const createDocument = createAsyncThunk(
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message: "Problem saving document(s) in session, will not persist",
+          message: "",
+          message: args.intl.formatMessage({defaultMessage: "Problem saving document(s) in session, will not persist", id: "save-doc-problem-session"}),
         })
       );
       document.state = "loaded";
@@ -171,7 +177,8 @@ export const createDocument = createAsyncThunk(
  */
 export const prepareDocument = createAsyncThunk(
   "documents/prepareDocument",
-  async (document, thunkAPI) => {
+  async (args, thunkAPI) => {
+    const document = args.doc;
     const docToSend = {
       name: document.name,
       blob: document.blob,
@@ -191,7 +198,7 @@ export const prepareDocument = createAsyncThunk(
       return {
         ...document,
         state: "failed-preparing",
-        message: "XXX Problem preparing document, please try again",
+        message: args.intl.formatMessage({defaultMessage: "Problem preparing document, please try again", id: "prepare-doc-problem"}),
       };
     }
     if ("payload" in data) {
@@ -202,7 +209,7 @@ export const prepareDocument = createAsyncThunk(
       };
       return updatedDoc;
     }
-    let msg = "XXX XXX Problem preparing document, please try again";
+    let msg = args.intl.formatMessage({defaultMessage: "Problem preparing document, please try again", id: "prepare-doc-problem"});
     if ("message" in data) {
       msg = data.message;
     }
@@ -221,7 +228,7 @@ export const prepareDocument = createAsyncThunk(
  */
 export const startSigningDocuments = createAsyncThunk(
   "documents/startSigningDocuments",
-  async (arg, thunkAPI) => {
+  async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     const docsToSign = [];
     let data = null;
@@ -252,10 +259,10 @@ export const startSigningDocuments = createAsyncThunk(
           thunkAPI.dispatch(
             addNotification({
               level: "success",
-              message: "XXX Please wait ...",
+              message: args.intl.formatMessage({defaultMessage: "Please wait...", id: "start-signing-please-wait"}),
             })
           );
-          thunkAPI.dispatch(restartSigningDocuments());
+          thunkAPI.dispatch(restartSigningDocuments({intl: args.intl}));
           return;
         }
 
@@ -273,7 +280,7 @@ export const startSigningDocuments = createAsyncThunk(
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message: "XXX Problem creating signature request",
+          message: args.intl.formatMessage({defaultMessage: "Problem creating signature request", id: "problem-creating-sign-request"}),
         })
       );
       thunkAPI.dispatch(documentsSlice.actions.signFailure());
@@ -288,7 +295,7 @@ export const startSigningDocuments = createAsyncThunk(
  */
 export const restartSigningDocuments = createAsyncThunk(
   "documents/restartSigningDocuments",
-  async (arg, thunkAPI) => {
+  async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     const docsToSign = [];
     let data = null;
@@ -326,7 +333,7 @@ export const restartSigningDocuments = createAsyncThunk(
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message: "XXX Problem creating signature request",
+          message: args.intl.formatMessage({defaultMessage: "Problem creating signature request", id: "problem-creating-sign-request"}),
         })
       );
       thunkAPI.dispatch(documentsSlice.actions.signFailure());
@@ -339,7 +346,7 @@ export const restartSigningDocuments = createAsyncThunk(
  * @function fetchSignedDocuments
  * @desc async funtion to get signed documents from the backend.
  */
-const fetchSignedDocuments = async (thunkAPI, dataElem) => {
+const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
   const payload = {
     sign_response: dataElem.dataset.signresponse,
     relay_state: dataElem.dataset.relaystate,
@@ -372,7 +379,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem) => {
     thunkAPI.dispatch(
       addNotification({
         level: "danger",
-        message: "XXX Problem getting signed documents",
+        message: args.intl.formatMessage({defaultMessage: "Problem getting signed documents", id: "problem-getting-signed"}),
       })
     );
     thunkAPI.dispatch(documentsSlice.actions.signFailure());
@@ -410,9 +417,9 @@ export const downloadSigned = createAsyncThunk(
  */
 export const sendInvites = createAsyncThunk(
   "main/sendInvites",
-  async (values, thunkAPI) => {
-    const documentId = values.documentId;
-    const invitees = values.invitees;
+  async (args, thunkAPI) => {
+    const documentId = args.values.documentId;
+    const invitees = args.values.invitees;
 
     const state = thunkAPI.getState();
 
@@ -427,7 +434,7 @@ export const sendInvites = createAsyncThunk(
     const dataToSend = {
       owner: owner,
       invites: invitees,
-      text: values.invitationText,
+      text: args.values.invitationText,
       document: {
         key: document.key,
         name: document.name,
@@ -446,14 +453,12 @@ export const sendInvites = createAsyncThunk(
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
-      const message =
-        "XXX Problem sending multi sign request, please try again";
+      const message = args.intl.formatMessage({defaultMessage: "Problem sending multi sign request, please try again", id: "problem-sending-multisign"});
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
     if (data.error) {
-      const message =
-        "XXX Problem creating multi sign request, please try again";
+      const message = args.intl.formatMessage({defaultMessage: "Problem creating multi sign request, please try again", id: "problem-creating-multisign"});
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
@@ -477,12 +482,12 @@ export const sendInvites = createAsyncThunk(
  */
 export const removeInvites = createAsyncThunk(
   "main/removeInvites",
-  async (doc, thunkAPI) => {
+  async (args, thunkAPI) => {
 
     const state = thunkAPI.getState();
 
-    const documentList = state.main.owned_multisign.filter((docu) => {
-      return doc.key === docu.key || doc.id === docu.key;
+    const documentList = state.main.owned_multisign.filter((doc) => {
+      return args.doc.key === doc.key || args.doc.id === doc.key;
     });
 
     if (documentList.length === 0) {
@@ -504,14 +509,12 @@ export const removeInvites = createAsyncThunk(
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
-      const message =
-        "XXX Problem removing multi sign request, please try again";
+      const message = args.intl.formatMessage({defaultMessage: "Problem removing multi sign request, please try again", id: "problem-removing-multisign"});
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
     if (data.error) {
-      const message =
-        "XXX Problem removing multi sign request, please try again";
+      const message = args.intl.formatMessage({defaultMessage: "Problem removing multi sign request, please try again", id: "problem-removing-multisign"});
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
@@ -519,7 +522,7 @@ export const removeInvites = createAsyncThunk(
       key: document.key,
     };
     thunkAPI.dispatch(removeOwned(owned));
-    const message = "XXX Success removing multi sign request";
+    const message = args.intl.formatMessage({defaultMessage: "Success removing multi sign request", id: "success-removing-multisign"});
     thunkAPI.dispatch(addNotification({ level: "success", message: message }));
     return document.key;
   }
@@ -532,10 +535,10 @@ export const removeInvites = createAsyncThunk(
  */
 export const resendInvitations = createAsyncThunk(
   "main/resendInvitations",
-  async (values, thunkAPI) => {
+  async (args, thunkAPI) => {
 
-    const docId = values.documentId;
-    const text = values['re-invitationText'];
+    const docId = args.values.documentId;
+    const text = args.values['re-invitationText'];
 
     const state = thunkAPI.getState();
 
@@ -563,18 +566,16 @@ export const resendInvitations = createAsyncThunk(
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
-      const message =
-        "XXX Problem sending invitations to sign, please try again";
+      const message = args.intl.formatMessage({defaultMessage: "Problem sending invitations to sign, please try again", id: "problem-sending-invitations"});
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
     if (data.error) {
-      const message =
-        "XXX Problem sending invitations to sign, please try again";
+      const message = args.intl.formatMessage({defaultMessage: "Problem sending invitations to sign, please try again", id: "problem-sending-invitations"});
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return;
     }
-    const message = "XXX Success resending invitations to sign";
+    const message = args.intl.formatMessage({defaultMessage: "Success resending invitations to sign", id: "success-sending-invitations"});
     thunkAPI.dispatch(addNotification({ level: "success", message: message }));
     return document.key;
   }
@@ -587,11 +588,11 @@ export const resendInvitations = createAsyncThunk(
  */
 export const signInvitedDoc = createAsyncThunk(
   "main/signInvitedDoc",
-  async (doc, thunkAPI) => {
+  async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     let data = null;
     const docToSign = {
-      key: doc.key,
+      key: args.doc.key,
     };
     const body = preparePayload(state, docToSign);
     try {
@@ -620,7 +621,7 @@ export const signInvitedDoc = createAsyncThunk(
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message: "XXX Problem creating signature request",
+          message: args.intl.formatMessage({defaultMessage: "Problem creating signature request", id: "problem-creating-sign-request"}),
         })
       );
       thunkAPI.dispatch(documentsSlice.actions.signFailure());

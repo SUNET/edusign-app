@@ -13,7 +13,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import rootReducer from "init-app/store";
 import { fetchConfig, resizeWindow } from "slices/Main";
-import { loadDocuments } from "slices/Documents";
 
 /*
  * internationalization.
@@ -46,7 +45,6 @@ const store = edusignStore();
  */
 const appIsRendered = function () {
   store.dispatch(fetchConfig());
-  store.dispatch(loadDocuments());
 };
 
 /**

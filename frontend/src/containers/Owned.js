@@ -23,7 +23,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     handleRemove: function (doc) {
       return () => {
-        dispatch(removeInvites(doc));
+        dispatch(removeInvites({doc: doc, intl: this.props.intl}));
       };
     },
     handleSign: function (doc) {

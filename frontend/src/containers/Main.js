@@ -11,7 +11,13 @@ import Main from "components/Main";
 const mapStateToProps = (state) => {
   return {
     size: state.main.size,
+    loaded: state.main.signer_attributes !== undefined,
   };
 };
 
-export default connect(mapStateToProps)(Main);
+const mapDispatchToProps = (dispatch, props) => {
+  return {
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Main);
