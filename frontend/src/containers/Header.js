@@ -42,7 +42,7 @@ const mapDispatchToProps = (dispatch, props) => {
       };
     },
     handleLoad: function () {
-      dispatch(loadDocuments({intl: props.intl}));
+      dispatch(loadDocuments({ intl: props.intl }));
     },
   };
 };

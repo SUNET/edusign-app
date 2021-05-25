@@ -51,8 +51,7 @@ export async function getDb() {
 const getDocStore = () => {
   if (db !== null) {
     const transaction = db.transaction(["documents"], "readwrite");
-    transaction.onerror = (event) => {
-    };
+    transaction.onerror = (event) => {};
     return transaction.objectStore("documents");
   } else {
     return null;
@@ -73,8 +72,7 @@ const documentDo = (action, document) => {
     } else if (action === "removing") {
       docRequest = docStore.delete(document.id);
     }
-    docRequest.onerror = (event) => {
-    };
+    docRequest.onerror = (event) => {};
   } else {
   }
 };

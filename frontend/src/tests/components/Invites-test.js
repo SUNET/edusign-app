@@ -218,7 +218,9 @@ describe("Multi sign invitations", function () {
 
     await flushPromises(rerender, wrapped);
 
-    const buttonSend = await waitFor(() => screen.getAllByTestId("button-send-invites-testost.pdf"));
+    const buttonSend = await waitFor(() =>
+      screen.getAllByTestId("button-send-invites-testost.pdf")
+    );
     expect(buttonSend.length).to.equal(1);
 
     fireEvent.click(buttonSend[0]);
@@ -372,9 +374,9 @@ describe("Multi sign invitations", function () {
     expect(resendButton.length).to.equal(1);
 
     fetchMock.post("/sign/send-multisign-reminder", {
-      csrf_token: 'dummy token',
+      csrf_token: "dummy token",
       error: false,
-      message: "Success resending invitations to sign"
+      message: "Success resending invitations to sign",
     });
 
     fireEvent.click(resendButton[0]);

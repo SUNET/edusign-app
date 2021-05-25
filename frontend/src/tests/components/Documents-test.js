@@ -193,30 +193,38 @@ describe("Document representations", function () {
   });
 
   it("It changes pages of the preview with the last and first buttons", async () => {
-    await changesPagesOfThePreviewWithTheNextAndPrevButtons({
-      payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
-        owned_multisign: [],
-        pending_multisign: [],
+    await changesPagesOfThePreviewWithTheNextAndPrevButtons(
+      {
+        payload: {
+          signer_attributes: [
+            { name: "givenName", value: "Tester" },
+            { name: "surname", value: "Testig" },
+          ],
+          owned_multisign: [],
+          pending_multisign: [],
+        },
       },
-    }, "first", "last");
+      "first",
+      "last"
+    );
   });
 
   it("It changes pages of the preview with the last and first buttons - sm", async () => {
-    await changesPagesOfThePreviewWithTheNextAndPrevButtons({
-      payload: {
-        size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
-        owned_multisign: [],
-        pending_multisign: [],
+    await changesPagesOfThePreviewWithTheNextAndPrevButtons(
+      {
+        payload: {
+          size: "sm",
+          signer_attributes: [
+            { name: "givenName", value: "Tester" },
+            { name: "surname", value: "Testig" },
+          ],
+          owned_multisign: [],
+          pending_multisign: [],
+        },
       },
-    }, "first", "last");
+      "first",
+      "last"
+    );
   });
 
   it("It hides the preview after clicking on the close button", async () => {
@@ -444,16 +452,16 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
   buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
   expect(buttonRemove.length).to.equal(1);
 
-  const selector = await waitFor(() =>
-    screen.getAllByTestId("doc-selector-0")
-  );
+  const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
   expect(selector.length).to.equal(1);
 
   // if we don't unmount here, mounted components (DocPreview) leak to other tests
   unmount();
 };
 
-const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument = async (payload) => {
+const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument = async (
+  payload
+) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   fetchMock.get("/sign/config", payload);
   store.dispatch(fetchConfig());
@@ -508,7 +516,9 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument = asy
   unmount();
 };
 
-const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (payload) => {
+const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
+  payload
+) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   fetchMock.get("/sign/config", payload);
   store.dispatch(fetchConfig());
@@ -790,7 +800,11 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
   unmount();
 };
 
-const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (payload, fst="prev", lst="next") => {
+const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
+  payload,
+  fst = "prev",
+  lst = "next"
+) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   fetchMock.get("/sign/config", payload);
   store.dispatch(fetchConfig());
@@ -880,7 +894,6 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (payload, fst="p
   // if we don't unmount here, mounted components (DocPreview) leak to other tests
   unmount();
 };
-
 
 const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
@@ -1023,9 +1036,7 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
   store.dispatch(createDocument(file));
   await flushPromises(rerender, wrapped);
 
-  const selector = await waitFor(() =>
-    screen.getAllByTestId("doc-selector-0")
-  );
+  const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
   expect(selector.length).to.equal(1);
 
   fireEvent.click(selector[0]);
@@ -1051,7 +1062,9 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
   unmount();
 };
 
-const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (payload) => {
+const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
+  payload
+) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   fetchMock.get("/sign/config", payload);
   store.dispatch(fetchConfig());
@@ -1104,9 +1117,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (payloa
   store.dispatch(createDocument(file));
   await flushPromises(rerender, wrapped);
 
-  const selector = await waitFor(() =>
-    screen.getAllByTestId("doc-selector-0")
-  );
+  const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
   expect(selector.length).to.equal(1);
 
   fireEvent.click(selector[0]);
@@ -1129,7 +1140,9 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (payloa
   unmount();
 };
 
-const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (payload) => {
+const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
+  payload
+) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   fetchMock.get("/sign/config", payload);
   store.dispatch(fetchConfig());
@@ -1185,9 +1198,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (payload)
   store.dispatch(createDocument(file));
   await flushPromises(rerender, wrapped);
 
-  const selector = await waitFor(() =>
-    screen.getAllByTestId("doc-selector-0")
-  );
+  const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
   expect(selector.length).to.equal(1);
 
   fireEvent.click(selector[0]);
@@ -1213,7 +1224,9 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (payload)
   unmount();
 };
 
-const showsErrorMessageAfterRecreateSignRequestReturnsError = async (payload) => {
+const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
+  payload
+) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   fetchMock.get("/sign/config", payload);
   store.dispatch(fetchConfig());
@@ -1264,9 +1277,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (payload) =>
   store.dispatch(createDocument(file));
   await flushPromises(rerender, wrapped);
 
-  const selector = await waitFor(() =>
-    screen.getAllByTestId("doc-selector-0")
-  );
+  const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
   expect(selector.length).to.equal(1);
 
   fireEvent.click(selector[0]);
@@ -1357,9 +1368,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
   store.dispatch(createDocument(file));
   await flushPromises(rerender, wrapped);
 
-  const selector = await waitFor(() =>
-    screen.getAllByTestId("doc-selector-0")
-  );
+  const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
   expect(selector.length).to.equal(1);
 
   fireEvent.click(selector[0]);
@@ -1450,9 +1459,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
   store.dispatch(createDocument(file));
   await flushPromises(rerender, wrapped);
 
-  const selector = await waitFor(() =>
-    screen.getAllByTestId("doc-selector-0")
-  );
+  const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
   expect(selector.length).to.equal(1);
 
   fireEvent.click(selector[0]);
@@ -1478,10 +1485,14 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
   const filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
   expect(filename.length).to.equal(1);
 
-  const buttonPreview = await waitFor(() => screen.getAllByTestId("button-preview-0"));
+  const buttonPreview = await waitFor(() =>
+    screen.getAllByTestId("button-preview-0")
+  );
   expect(buttonPreview.length).to.equal(1);
 
-  const buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
+  const buttonRemove = await waitFor(() =>
+    screen.getAllByTestId("rm-button-0")
+  );
   expect(buttonRemove.length).to.equal(1);
 
   const errorMsg = await waitFor(() =>

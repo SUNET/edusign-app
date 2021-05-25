@@ -342,7 +342,13 @@ class DocManager extends React.Component {
                 )}
                 {["loaded", "selected", "failed-signing"].includes(
                   doc.state
-                ) && <DocPreviewContainer doc={doc} docFile={docFile} index={index} />}
+                ) && (
+                  <DocPreviewContainer
+                    doc={doc}
+                    docFile={docFile}
+                    index={index}
+                  />
+                )}
                 <OverlayTrigger
                   trigger={["hover", "focus"]}
                   rootClose={true}
@@ -369,7 +375,7 @@ class DocManager extends React.Component {
                         {this.dummySelectDoc()}
                         {this.docName(doc)}
                         {this.showMessage(doc)}
-                        {this.removeButton(index,doc)}
+                        {this.removeButton(index, doc)}
                       </>
                     )}
                     {doc.state === "failed-preparing" && (
@@ -430,7 +436,13 @@ class DocManager extends React.Component {
                 )}
                 {["loaded", "selected", "failed-signing"].includes(
                   doc.state
-                ) && <DocPreviewContainer doc={doc} docFile={docFile} index={index} />}
+                ) && (
+                  <DocPreviewContainer
+                    doc={doc}
+                    docFile={docFile}
+                    index={index}
+                  />
+                )}
                 <OverlayTrigger
                   trigger={["hover", "focus"]}
                   rootClose={true}

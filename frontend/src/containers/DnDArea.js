@@ -46,7 +46,7 @@ const mapDispatchToProps = (dispatch) => {
             ...file,
             blob: reader.result,
           };
-          dispatch(createDocument({doc: updatedFile, intl: this.props.intl}));
+          dispatch(createDocument({ doc: updatedFile, intl: this.props.intl }));
           if (index === maxIndex) {
             dispatch(setWaiting());
           }
@@ -62,7 +62,7 @@ const mapDispatchToProps = (dispatch) => {
           dispatch(addNotification({ level: "danger", message: errorMsg }));
           file.state = "failed-loading";
           file.message = "XXX Document could not be loaded";
-          dispatch(createDocument({doc: file, intl: this.props.intl}));
+          dispatch(createDocument({ doc: file, intl: this.props.intl }));
           dispatch(setWaiting());
         };
         reader.readAsDataURL(fileObj);

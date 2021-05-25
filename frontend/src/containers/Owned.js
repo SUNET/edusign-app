@@ -5,10 +5,7 @@
  */
 import { connect } from "react-redux";
 
-import {
-  removeInvites,
-  signInvitedDoc,
-} from "slices/Documents";
+import { removeInvites, signInvitedDoc } from "slices/Documents";
 import Owned from "components/Owned";
 import { askConfirmation } from "slices/ConfirmDialog";
 import { showResend } from "slices/Modals";
@@ -23,7 +20,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     handleRemove: function (doc) {
       return () => {
-        dispatch(removeInvites({doc: doc, intl: this.props.intl}));
+        dispatch(removeInvites({ doc: doc, intl: this.props.intl }));
       };
     },
     handleSign: function (doc) {

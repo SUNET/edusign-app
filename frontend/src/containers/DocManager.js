@@ -47,7 +47,7 @@ const mapDispatchToProps = (dispatch) => {
     },
     handleRetry: function (doc) {
       return () => {
-        dispatch(prepareDocument({doc: doc, intl: this.props.intl}));
+        dispatch(prepareDocument({ doc: doc, intl: this.props.intl }));
         dispatch(setState({ name: doc.name, state: "loading" }));
       };
     },
@@ -57,7 +57,7 @@ const mapDispatchToProps = (dispatch) => {
       };
     },
     handleSubmitToSign: function () {
-      dispatch(startSigningDocuments({intl: this.props.intl}));
+      dispatch(startSigningDocuments({ intl: this.props.intl }));
     },
     handleDlSigned: function (name) {
       return () => {

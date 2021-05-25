@@ -246,7 +246,7 @@ class InviteForm extends React.Component {
                       </Tooltip>
                     )}
                   >
-                    <Button 
+                    <Button
                       variant="outline-success"
                       type="submit"
                       data-testid={"button-send-invites-" + this.props.docName}
