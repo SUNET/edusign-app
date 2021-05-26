@@ -95,7 +95,7 @@ class DocManager extends React.Component {
             <Button
               variant="outline-success"
               size="sm"
-              onClick={this.props.handleRetry(doc)}
+              onClick={this.props.handleRetry(doc, this.props)}
             >
               <FormattedMessage defaultMessage="Retry" key="retry-button" />
             </Button>
@@ -578,7 +578,7 @@ class DocManager extends React.Component {
                   size="lg"
                   disabled={!someSelected}
                   style={someSelected ? {} : { pointerEvents: "none" }}
-                  onClick={this.props.handleSubmitToSign}
+                  onClick={this.props.handleSubmitToSign.bind(this)}
                 >
                   <FormattedMessage
                     defaultMessage="Sign Selected Documents"

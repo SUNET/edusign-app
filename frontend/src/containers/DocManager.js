@@ -45,9 +45,9 @@ const mapDispatchToProps = (dispatch) => {
         dispatch(removeDocument(name));
       };
     },
-    handleRetry: function (doc) {
+    handleRetry: function (doc, props) {
       return () => {
-        dispatch(prepareDocument({ doc: doc, intl: this.props.intl }));
+        dispatch(prepareDocument({ doc: doc, intl: props.intl }));
         dispatch(setState({ name: doc.name, state: "loading" }));
       };
     },

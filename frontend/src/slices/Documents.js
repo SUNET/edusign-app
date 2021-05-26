@@ -99,18 +99,19 @@ async function validateDoc(doc, intl) {
       return doc;
     })
     .catch((err) => {
+    console.log('err', err);
       if (err.name === "PasswordException") {
-        doc.message = args.intl.formatMessage({
+        doc.message = intl.formatMessage({
           defaultMessage: "Please do not supply a password protected document",
           id: "validate-problem-password",
         });
       } else if (err.message.startsWith("Invalid")) {
-        doc.message = args.intl.formatMessage({
+        doc.message = intl.formatMessage({
           defaultMessage: "Document seems corrupted",
           id: "validate-problem-corrupted",
         });
       } else {
-        doc.message = args.intl.formatMessage({
+        doc.message = intl.formatMessage({
           defaultMessage: "Document is unreadable",
           id: "validate-problem-unreadable",
         });
@@ -160,12 +161,13 @@ const saveDocumentToDb = async (document) => {
 export const createDocument = createAsyncThunk(
   "documents/createDocument",
   async (args, thunkAPI) => {
-    document = await validateDoc(args.doc, args.intl);
-    if (document.state === "failed-loading") return document;
+    console.log('creating', args);
+    const doc = await validateDoc(args.doc, args.intl);
+    if (doc.state === "failed-loading") return doc;
 
     try {
-      const newDoc = await saveDocumentToDb(document);
-      thunkAPI.dispatch(prepareDocument(newDoc));
+      const newDoc = await saveDocumentToDb(doc);
+      thunkAPI.dispatch(prepareDocument({doc: newDoc, intl: args.intl}));
       return newDoc;
     } catch (err) {
       thunkAPI.dispatch(
@@ -179,8 +181,8 @@ export const createDocument = createAsyncThunk(
           }),
         })
       );
-      document.state = "loaded";
-      return thunkAPI.rejectWithValue(document);
+      doc.state = "loaded";
+      return thunkAPI.rejectWithValue(doc);
     }
   }
 );
@@ -194,12 +196,12 @@ export const createDocument = createAsyncThunk(
 export const prepareDocument = createAsyncThunk(
   "documents/prepareDocument",
   async (args, thunkAPI) => {
-    const document = args.doc;
+    const doc = args.doc;
     const docToSend = {
-      name: document.name,
-      blob: document.blob,
-      size: document.size,
-      type: document.type,
+      name: doc.name,
+      blob: doc.blob,
+      size: doc.size,
+      type: doc.type,
     };
     const body = preparePayload(thunkAPI.getState(), docToSend);
     let data = null;
@@ -212,7 +214,7 @@ export const prepareDocument = createAsyncThunk(
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
       return {
-        ...document,
+        ...doc,
         state: "failed-preparing",
         message: args.intl.formatMessage({
           defaultMessage: "Problem preparing document, please try again",
@@ -222,7 +224,7 @@ export const prepareDocument = createAsyncThunk(
     }
     if ("payload" in data) {
       const updatedDoc = {
-        ...document,
+        ...doc,
         ...data.payload,
         state: "loaded",
       };
@@ -236,7 +238,7 @@ export const prepareDocument = createAsyncThunk(
       msg = data.message;
     }
     return {
-      ...document,
+      ...doc,
       state: "failed-preparing",
       message: msg,
     };

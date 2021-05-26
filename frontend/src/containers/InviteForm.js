@@ -28,8 +28,8 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleSubmit: function (values) {
-      dispatch(sendInvites({ values: values, intl: this.props.intl }));
+    handleSubmit: function (values, props) {
+      dispatch(sendInvites({ values: values, intl: props.intl }));
     },
     handleClose: function () {
       dispatch(hideForm());

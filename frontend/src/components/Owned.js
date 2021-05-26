@@ -33,7 +33,7 @@ const removeButton = (props, doc) => {
               'Clicking "Confirm" will remove all invitations to sign the document',
             id: "header-confirm-remove-owned-text",
           })}
-          confirm={props.handleRemove(doc)}
+          confirm={props.handleRemove(doc, props)}
         />
       </div>
     </>

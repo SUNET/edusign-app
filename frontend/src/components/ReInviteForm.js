@@ -24,7 +24,7 @@ class ReInviteForm extends React.Component {
           enableReinitialize={true}
           onSubmit={(values) => {
             this.props.handleClose();
-            this.props.handleSubmit(values);
+            this.props.handleSubmit(values, this.props);
           }}
         >
           {(fprops) => (

@@ -51,7 +51,7 @@ describe("Multi sign invitations", function () {
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(createDocument(file));
+    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
     await flushPromises(rerender, wrapped);
 
     const filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
@@ -108,7 +108,7 @@ describe("Multi sign invitations", function () {
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(createDocument(file));
+    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
     await flushPromises(rerender, wrapped);
 
     const filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
@@ -190,7 +190,7 @@ describe("Multi sign invitations", function () {
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
     };
-    store.dispatch(createDocument(file));
+    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
     await flushPromises(rerender, wrapped);
 
     const filename = await waitFor(() => screen.getAllByText(/testost.pdf/i));

@@ -30,56 +30,63 @@ const mapDispatchToProps = (dispatch) => {
     handleDragLeave: function () {
       dispatch(setWaiting());
     },
-    handleFileDrop: function (fileObjs) {
-      dispatch(setLoading());
-      const maxIndex = fileObjs.length - 1;
-      fileObjs.forEach((fileObj, index) => {
-        const file = {
-          name: fileObj.name,
-          size: fileObj.size,
-          type: fileObj.type,
-          blob: null,
-        };
-        const reader = new FileReader();
-        reader.onload = () => {
-          const updatedFile = {
-            ...file,
-            blob: reader.result,
+    handleFileDrop: function (intl) {
+      return (fileObjs) => {
+        dispatch(setLoading());
+        const maxIndex = fileObjs.length - 1;
+        fileObjs.forEach((fileObj, index) => {
+          const file = {
+            name: fileObj.name,
+            size: fileObj.size,
+            type: fileObj.type,
+            blob: null,
           };
-          dispatch(createDocument({ doc: updatedFile, intl: this.props.intl }));
-          if (index === maxIndex) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const updatedFile = {
+              ...file,
+              blob: reader.result,
+            };
+            dispatch(createDocument({ doc: updatedFile, intl: intl }));
+            if (index === maxIndex) {
+              dispatch(setWaiting());
+            }
+          };
+          reader.onerror = (e) => {
+            const errorMsg = intl.formatMessage(
+              {
+                defaultMessage: "Error loading {name}",
+                id: "containers.DnDArea.loading-error",
+              },
+              { name: fileObj.name }
+            );
+            dispatch(addNotification({ level: "danger", message: errorMsg }));
+            file.state = "failed-loading";
+            file.message = intl.formatMessage({
+                  defaultMessage: "Document could not be loaded",
+                  id: "dnd-doc-not-loaded",
+                }),
+            dispatch(createDocument({ doc: file, intl: intl }));
             dispatch(setWaiting());
-          }
-        };
-        reader.onerror = (e) => {
-          const errorMsg = this.props.intl.formatMessage(
+          };
+          reader.readAsDataURL(fileObj);
+        });
+      }
+    },
+    handleRejected: function (intl) {
+      return (rejecteds, e) => {
+        rejecteds.forEach((rejected) => {
+          const errorMsg = intl.formatMessage(
             {
-              defaultMessage: "Error loading {name}",
-              id: "containers.DnDArea.loading-error",
+              id: "containers.DnDArea.rejected-doc",
+              defaultMessage: "Not a PDF: {name} (type {type})",
             },
-            { name: fileObj.name }
+            { name: rejected.file.name, type: rejected.file.type }
           );
           dispatch(addNotification({ level: "danger", message: errorMsg }));
-          file.state = "failed-loading";
-          file.message = "XXX Document could not be loaded";
-          dispatch(createDocument({ doc: file, intl: this.props.intl }));
-          dispatch(setWaiting());
-        };
-        reader.readAsDataURL(fileObj);
-      });
-    },
-    handleRejected: function (rejecteds, e) {
-      rejecteds.forEach((rejected) => {
-        const errorMsg = this.props.intl.formatMessage(
-          {
-            id: "containers.DnDArea.rejected-doc",
-            defaultMessage: "Not a PDF: {name} (type {type})",
-          },
-          { name: rejected.file.name, type: rejected.file.type }
-        );
-        dispatch(addNotification({ level: "danger", message: errorMsg }));
-        dispatch(updateDocumentFail({ name: rejected.file.name }));
-      });
+          dispatch(updateDocumentFail({ name: rejected.file.name }));
+        });
+      }
     },
   };
 };

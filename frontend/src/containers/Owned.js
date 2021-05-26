@@ -18,9 +18,9 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    handleRemove: function (doc) {
+    handleRemove: function (doc, props) {
       return () => {
-        dispatch(removeInvites({ doc: doc, intl: this.props.intl }));
+        dispatch(removeInvites({ doc: doc, intl: props.intl }));
       };
     },
     handleSign: function (doc) {

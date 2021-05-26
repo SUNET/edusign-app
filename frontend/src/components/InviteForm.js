@@ -4,7 +4,7 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, injectIntl } from "react-intl";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 
@@ -50,10 +50,10 @@ class InviteForm extends React.Component {
         <Formik
           initialValues={initialValues(this.props.docId)}
           enableReinitialize={true}
-          onSubmit={(values) => {
+          onSubmit={function (values) {
             this.props.handleClose();
-            this.props.handleSubmit(values);
-          }}
+            this.props.handleSubmit(values, this.props);
+          }.bind(this)}
         >
           {(fprops) => (
             <Modal
@@ -276,4 +276,4 @@ InviteForm.propTypes = {
   handleSubmit: PropTypes.func,
 };
 
-export default InviteForm;
+export default injectIntl(InviteForm);

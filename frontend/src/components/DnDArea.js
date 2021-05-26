@@ -18,10 +18,10 @@ class DnDArea extends Component {
     return (
       <Dropzone
         accept={["application/pdf"]}
-        onDrop={this.props.handleFileDrop.bind(this)}
+        onDrop={this.props.handleFileDrop(this.props.intl)}
         onDragEnter={this.props.handleDragEnter}
         onDragLeave={this.props.handleDragLeave}
-        onDropRejected={this.props.handleRejected.bind(this)}
+        onDropRejected={this.props.handleRejected(this.props.intl)}
       >
         {({ getRootProps, getInputProps }) => {
           if (this.props.status === "waiting") {
