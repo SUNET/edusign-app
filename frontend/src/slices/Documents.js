@@ -100,7 +100,7 @@ async function validateDoc(doc, intl) {
     })
     .catch((err) => {
     console.log('err', err);
-      if (err.name === "PasswordException") {
+      if (err.message === "No password given") {
         doc.message = intl.formatMessage({
           defaultMessage: "Please do not supply a password protected document",
           id: "validate-problem-password",
