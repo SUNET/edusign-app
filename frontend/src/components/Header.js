@@ -18,7 +18,6 @@ class Header extends Component {
   render() {
     let name = "";
     if (!this.props.loading) {
-      this.props.handleLoad();
       name = (
         <div id="name-and-clear-in-header">
           {(this.props.signer_attributes !== undefined &&

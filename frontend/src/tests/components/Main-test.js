@@ -31,8 +31,15 @@ describe("Main Component", function () {
       },
     });
 
-    const splashArray = screen.getAllByTestId("edusign-splash-screen");
-    expect(splashArray.length).to.equal(1);
+    try {
+
+      const splashArray = screen.getAllByTestId("edusign-splash-screen");
+      expect(splashArray.length).to.equal(1);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });
@@ -40,8 +47,15 @@ describe("Main Component", function () {
   it("Doesn't show splash screen", function () {
     const { unmount } = setupComponent(<Main />, {});
 
-    const splash = screen.queryByTestId("edusign-splash-screen");
-    expect(splash).to.equal(null);
+    try {
+
+      const splash = screen.queryByTestId("edusign-splash-screen");
+      expect(splash).to.equal(null);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });
@@ -49,13 +63,20 @@ describe("Main Component", function () {
   it("Doesn't show splash screen after appLoaded event", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
-    store.dispatch(appLoaded());
-    await flushPromises(rerender, wrapped);
+    try {
 
-    const splash = await waitFor(() =>
-      screen.queryByTestId("edusign-splash-screen")
-    );
-    expect(splash).to.equal(null);
+      store.dispatch(appLoaded());
+      await flushPromises(rerender, wrapped);
+
+      const splash = await waitFor(() =>
+        screen.queryByTestId("edusign-splash-screen")
+      );
+      expect(splash).to.equal(null);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });
@@ -71,14 +92,21 @@ describe("Main Component", function () {
       },
     });
 
-    const header = screen.getAllByTestId("edusign-banner-lg");
-    expect(header.length).to.equal(1);
+    try {
 
-    const eduSignLogo = screen.getAllByTestId("edusign-logo");
-    expect(eduSignLogo.length).to.equal(1);
+      const header = screen.getAllByTestId("edusign-banner-lg");
+      expect(header.length).to.equal(1);
 
-    const sunetLogo = screen.getAllByTestId("sunet-logo");
-    expect(sunetLogo.length).to.equal(1);
+      const eduSignLogo = screen.getAllByTestId("edusign-logo");
+      expect(eduSignLogo.length).to.equal(1);
+
+      const sunetLogo = screen.getAllByTestId("sunet-logo");
+      expect(sunetLogo.length).to.equal(1);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });
@@ -94,17 +122,24 @@ describe("Main Component", function () {
       },
     });
 
-    const footer = screen.getAllByTestId("edusign-footer");
-    expect(footer.length).to.equal(1);
+    try {
 
-    const copyright = screen.getAllByText("SUNET 2020", { exact: false });
-    expect(copyright.length).to.equal(1);
+      const footer = screen.getAllByTestId("edusign-footer");
+      expect(footer.length).to.equal(1);
 
-    const langSelectorSv = screen.getAllByText("Svenska");
-    expect(langSelectorSv.length).to.equal(1);
+      const copyright = screen.getAllByText("SUNET 2020", { exact: false });
+      expect(copyright.length).to.equal(1);
 
-    const langSelectorEn = screen.queryByText("English");
-    expect(langSelectorEn).to.equal(null);
+      const langSelectorSv = screen.getAllByText("Svenska");
+      expect(langSelectorSv.length).to.equal(1);
+
+      const langSelectorEn = screen.queryByText("English");
+      expect(langSelectorEn).to.equal(null);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });
@@ -121,11 +156,18 @@ describe("Main Component", function () {
       intl: { locale: "sv" },
     });
 
-    const langSelectorEn = screen.getAllByText("English");
-    expect(langSelectorEn.length).to.equal(1);
+    try {
 
-    const langSelectorSv = screen.queryByText("Svenska");
-    expect(langSelectorSv).to.equal(null);
+      const langSelectorEn = screen.getAllByText("English");
+      expect(langSelectorEn.length).to.equal(1);
+
+      const langSelectorSv = screen.queryByText("Svenska");
+      expect(langSelectorSv).to.equal(null);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });
@@ -133,20 +175,27 @@ describe("Main Component", function () {
   it("Clicking lang selector in Footer changes language", async () => {
     const { wrapped, rerender, unmount } = setupReduxComponent(<Main />);
 
-    let langSelectorSv = screen.getAllByText("Svenska");
-    expect(langSelectorSv.length).to.equal(1);
+    try {
 
-    let langSelectorEn = screen.queryByText("English");
-    expect(langSelectorEn).to.equal(null);
+      let langSelectorSv = screen.getAllByText("Svenska");
+      expect(langSelectorSv.length).to.equal(1);
 
-    fireEvent.click(langSelectorSv[0]);
-    await flushPromises(rerender, wrapped);
+      let langSelectorEn = screen.queryByText("English");
+      expect(langSelectorEn).to.equal(null);
 
-    langSelectorEn = await waitFor(() => screen.getAllByText("English"));
-    expect(langSelectorEn.length).to.equal(1);
+      fireEvent.click(langSelectorSv[0]);
+      await flushPromises(rerender, wrapped);
 
-    langSelectorSv = await waitFor(() => screen.queryByText("Svenska"));
-    expect(langSelectorSv).to.equal(null);
+      langSelectorEn = await waitFor(() => screen.getAllByText("English"));
+      expect(langSelectorEn.length).to.equal(1);
+
+      langSelectorSv = await waitFor(() => screen.queryByText("Svenska"));
+      expect(langSelectorSv).to.equal(null);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });
@@ -162,10 +211,17 @@ describe("Main Component", function () {
       },
     });
 
-    const notificationsArea = screen.getAllByTestId(
-      "edusign-notifications-area"
-    );
-    expect(notificationsArea.length).to.equal(1);
+    try {
+
+      const notificationsArea = screen.getAllByTestId(
+        "edusign-notifications-area"
+      );
+      expect(notificationsArea.length).to.equal(1);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });
@@ -177,8 +233,15 @@ describe("Main Component", function () {
       },
     });
 
-    const notification = screen.getAllByText("ho ho ho");
-    expect(notification.length).to.equal(1);
+    try {
+
+      const notification = screen.getAllByText("ho ho ho");
+      expect(notification.length).to.equal(1);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });
@@ -186,16 +249,23 @@ describe("Main Component", function () {
   it("Notifications are added to the notifications area", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
-    store.dispatch(
-      addNotification({
-        message: "ho ho ho",
-        level: "danger",
-      })
-    );
-    await flushPromises(rerender, wrapped);
+    try {
 
-    let notification = await waitFor(() => screen.getAllByText("ho ho ho"));
-    expect(notification.length).to.equal(1);
+      store.dispatch(
+        addNotification({
+          message: "ho ho ho",
+          level: "danger",
+        })
+      );
+      await flushPromises(rerender, wrapped);
+
+      let notification = await waitFor(() => screen.getAllByText("ho ho ho"));
+      expect(notification.length).to.equal(1);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });
@@ -203,38 +273,45 @@ describe("Main Component", function () {
   it("Notifications are removed from the notifications area", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
-    store.dispatch(
-      addNotification({
-        message: "ho ho ho",
-        level: "danger",
-      })
-    );
+    try {
 
-    store.dispatch(
-      addNotification({
-        message: "hi hi hi",
-        level: "danger",
-      })
-    );
-    await flushPromises(rerender, wrapped);
+      store.dispatch(
+        addNotification({
+          message: "ho ho ho",
+          level: "danger",
+        })
+      );
 
-    let notification = await waitFor(() => screen.queryByText("ho ho ho"));
-    expect(notification).to.equal(null);
+      store.dispatch(
+        addNotification({
+          message: "hi hi hi",
+          level: "danger",
+        })
+      );
+      await flushPromises(rerender, wrapped);
 
-    let notification2 = await waitFor(() => screen.getAllByText("hi hi hi"));
-    expect(notification2.length).to.equal(1);
+      let notification = await waitFor(() => screen.queryByText("ho ho ho"));
+      expect(notification).to.equal(null);
 
-    const closeLink = screen.getAllByText("×");
-    expect(closeLink.length).to.equal(1);
+      let notification2 = await waitFor(() => screen.getAllByText("hi hi hi"));
+      expect(notification2.length).to.equal(1);
 
-    fireEvent.click(closeLink[0]);
-    await flushPromises(rerender, wrapped);
+      const closeLink = screen.getAllByText("×");
+      expect(closeLink.length).to.equal(1);
 
-    notification = await waitFor(() => screen.queryByText("ho ho ho"));
-    expect(notification).to.equal(null);
+      fireEvent.click(closeLink[0]);
+      await flushPromises(rerender, wrapped);
 
-    notification2 = await waitFor(() => screen.queryByText("hi hi hi"));
-    expect(notification2).to.equal(null);
+      notification = await waitFor(() => screen.queryByText("ho ho ho"));
+      expect(notification).to.equal(null);
+
+      notification2 = await waitFor(() => screen.queryByText("hi hi hi"));
+      expect(notification2).to.equal(null);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });

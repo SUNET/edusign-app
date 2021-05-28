@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { injectIntl } from "react-intl";
 
 import HeaderContainer from "containers/Header";
 import SplashContainer from "containers/Splash";
@@ -41,4 +42,4 @@ Main.propTypes = {
   size: PropTypes.string,
 };
 
-export default Main;
+export default injectIntl(Main);

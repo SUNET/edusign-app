@@ -23,11 +23,18 @@ describe("DnDArea Component", function () {
       main: { loading: false, size: "lg" },
     });
 
-    const dndArea = screen.getAllByText("Drag & drop here or click to browse");
-    expect(dndArea.length).to.equal(1);
+    try {
 
-    const dndAreaDropping = screen.queryByText("Drop documents here");
-    expect(dndAreaDropping).to.equal(null);
+      const dndArea = screen.getAllByText("Drag & drop here or click to browse");
+      expect(dndArea.length).to.equal(1);
+
+      const dndAreaDropping = screen.queryByText("Drop documents here");
+      expect(dndAreaDropping).to.equal(null);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });
@@ -37,11 +44,18 @@ describe("DnDArea Component", function () {
       dnd: { state: "receiving" },
     });
 
-    const dndAreaDropping = screen.getAllByText("Drop documents here");
-    expect(dndAreaDropping.length).to.equal(1);
+    try {
 
-    const dndArea = screen.queryByText("Drag & drop here or click to browse");
-    expect(dndArea).to.equal(null);
+      const dndAreaDropping = screen.getAllByText("Drop documents here");
+      expect(dndAreaDropping.length).to.equal(1);
+
+      const dndArea = screen.queryByText("Drag & drop here or click to browse");
+      expect(dndArea).to.equal(null);
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
 
     unmount();
   });
@@ -51,32 +65,39 @@ describe("DnDArea Component", function () {
       <DnDAreaContainer />
     );
 
-    let dndArea = screen.getAllByText("Drag & drop here or click to browse");
-    expect(dndArea.length).to.equal(1);
+    try {
 
-    let dndAreaDropping = screen.queryByText("Drop documents here");
-    expect(dndAreaDropping).to.equal(null);
+      let dndArea = screen.getAllByText("Drag & drop here or click to browse");
+      expect(dndArea.length).to.equal(1);
 
-    const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
+      let dndAreaDropping = screen.queryByText("Drop documents here");
+      expect(dndAreaDropping).to.equal(null);
 
-    const file = new File([samplePDFData], "test.pdf", {
-      type: "application/pdf",
-    });
-    const data = mockFileData([file]);
+      const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
 
-    dispatchEvtWithData(dnd, "dragenter", data);
-    await flushPromises(rerender, wrapped);
+      const file = new File([samplePDFData], "test.pdf", {
+        type: "application/pdf",
+      });
+      const data = mockFileData([file]);
 
-    dndAreaDropping = await waitFor(() =>
-      screen.getAllByText("Drop documents here")
-    );
-    expect(dndAreaDropping.length).to.equal(1);
+      dispatchEvtWithData(dnd, "dragenter", data);
+      await flushPromises(rerender, wrapped);
 
-    dndArea = await waitFor(() =>
-      screen.queryByText("Drag & drop here or click to browse")
-    );
-    expect(dndArea).to.equal(null);
+      dndAreaDropping = await waitFor(() =>
+        screen.getAllByText("Drop documents here")
+      );
+      expect(dndAreaDropping.length).to.equal(1);
 
+      dndArea = await waitFor(() =>
+        screen.queryByText("Drag & drop here or click to browse")
+      );
+      expect(dndArea).to.equal(null);
+
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -86,41 +107,48 @@ describe("DnDArea Component", function () {
       <DnDAreaContainer />
     );
 
-    let dndArea = screen.getAllByText("Drag & drop here or click to browse");
-    expect(dndArea.length).to.equal(1);
+    try {
 
-    let dndAreaDropping = screen.queryByText("Drop documents here");
-    expect(dndAreaDropping).to.equal(null);
+      let dndArea = screen.getAllByText("Drag & drop here or click to browse");
+      expect(dndArea.length).to.equal(1);
 
-    const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
+      let dndAreaDropping = screen.queryByText("Drop documents here");
+      expect(dndAreaDropping).to.equal(null);
 
-    const file = new File([samplePDFData], "test.pdf", {
-      type: "application/pdf",
-    });
-    const data = mockFileData([file]);
+      const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
 
-    dispatchEvtWithData(dnd, "dragenter", data);
-    await flushPromises(rerender, wrapped);
+      const file = new File([samplePDFData], "test.pdf", {
+        type: "application/pdf",
+      });
+      const data = mockFileData([file]);
 
-    dndAreaDropping = await waitFor(() =>
-      screen.getAllByText("Drop documents here")
-    );
-    expect(dndAreaDropping.length).to.equal(1);
+      dispatchEvtWithData(dnd, "dragenter", data);
+      await flushPromises(rerender, wrapped);
 
-    dndArea = await waitFor(() =>
-      screen.queryByText("Drag & drop here or click to browse")
-    );
-    expect(dndArea).to.equal(null);
+      dndAreaDropping = await waitFor(() =>
+        screen.getAllByText("Drop documents here")
+      );
+      expect(dndAreaDropping.length).to.equal(1);
 
-    dispatchEvtWithData(dnd, "dragleave", data);
-    await flushPromises(rerender, wrapped);
+      dndArea = await waitFor(() =>
+        screen.queryByText("Drag & drop here or click to browse")
+      );
+      expect(dndArea).to.equal(null);
 
-    dndArea = screen.getAllByText("Drag & drop here or click to browse");
-    expect(dndArea.length).to.equal(1);
+      dispatchEvtWithData(dnd, "dragleave", data);
+      await flushPromises(rerender, wrapped);
 
-    dndAreaDropping = screen.queryByText("Drop documents here");
-    expect(dndAreaDropping).to.equal(null);
+      dndArea = screen.getAllByText("Drag & drop here or click to browse");
+      expect(dndArea.length).to.equal(1);
 
+      dndAreaDropping = screen.queryByText("Drop documents here");
+      expect(dndAreaDropping).to.equal(null);
+
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -128,50 +156,57 @@ describe("DnDArea Component", function () {
   it("It shows the file details after a drop event ", async () => {
     const { wrapped, rerender, unmount } = setupReduxComponent(<Main />);
 
-    let filename = screen.queryByText(/test.pdf/i);
-    expect(filename).to.equal(null);
+    try {
 
-    let filesize = screen.queryByText("1.5 KiB");
-    expect(filesize).to.equal(null);
+      let filename = screen.queryByText(/test.pdf/i);
+      expect(filename).to.equal(null);
 
-    let previewButton = screen.queryByText("Preview");
-    expect(previewButton).to.equal(null);
+      let filesize = screen.queryByText("1.5 KiB");
+      expect(filesize).to.equal(null);
 
-    let rmButton = screen.queryByText("Remove");
-    expect(rmButton).to.equal(null);
+      let previewButton = screen.queryByText("Preview");
+      expect(previewButton).to.equal(null);
 
-    const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
+      let rmButton = screen.queryByText("Remove");
+      expect(rmButton).to.equal(null);
 
-    const file = new File([samplePDFData], "test.pdf", {
-      type: "application/pdf",
-    });
-    const data = mockFileData([file]);
+      const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
 
-    fetchMock.post("/sign/add-doc", {
-      message: "document added",
-      payload: {
-        ref: "dummy ref",
-        sign_requirement: "dummy sign requirement",
-      },
-    });
+      const file = new File([samplePDFData], "test.pdf", {
+        type: "application/pdf",
+      });
+      const data = mockFileData([file]);
 
-    dispatchEvtWithData(dnd, "drop", data);
-    await flushPromises(rerender, wrapped);
+      fetchMock.post("/sign/add-doc", {
+        message: "document added",
+        payload: {
+          ref: "dummy ref",
+          sign_requirement: "dummy sign requirement",
+        },
+      });
 
-    filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
-    expect(filename.length).to.equal(1);
+      dispatchEvtWithData(dnd, "drop", data);
+      await flushPromises(rerender, wrapped);
 
-    filesize = await waitFor(() => screen.getAllByText("1.5 KiB"));
-    expect(filesize.length).to.equal(1);
+      filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
+      expect(filename.length).to.equal(1);
 
-    previewButton = await waitFor(() => screen.getAllByText("Preview"));
-    expect(previewButton.length).to.equal(1);
+      filesize = await waitFor(() => screen.getAllByText("1.5 KiB"));
+      expect(filesize.length).to.equal(1);
 
-    rmButton = await waitFor(() => screen.getAllByText("Remove"));
-    expect(rmButton.length).to.equal(1);
+      previewButton = await waitFor(() => screen.getAllByText("Preview"));
+      expect(previewButton.length).to.equal(1);
 
-    fetchMock.restore();
+      rmButton = await waitFor(() => screen.getAllByText("Remove"));
+      expect(rmButton.length).to.equal(1);
 
+      fetchMock.restore();
+
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
@@ -179,19 +214,26 @@ describe("DnDArea Component", function () {
   it("It doesn't show the file details after a drop event with wrong file type", async () => {
     const { wrapped, rerender, unmount } = setupReduxComponent(<Main />);
 
-    let errorMsg = screen.queryByText(/Not a PDF/);
-    expect(errorMsg).to.equal(null);
+    try {
 
-    const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
+      let errorMsg = screen.queryByText(/Not a PDF/);
+      expect(errorMsg).to.equal(null);
 
-    const data = mockFileData([edusignLogo]);
+      const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
 
-    dispatchEvtWithData(dnd, "drop", data);
-    await flushPromises(rerender, wrapped);
+      const data = mockFileData([edusignLogo]);
 
-    errorMsg = await waitFor(() => screen.getAllByText(/Not a PDF/));
-    expect(errorMsg.length).to.equal(1);
+      dispatchEvtWithData(dnd, "drop", data);
+      await flushPromises(rerender, wrapped);
 
+      errorMsg = await waitFor(() => screen.getAllByText(/Not a PDF/));
+      expect(errorMsg.length).to.equal(1);
+
+
+    } catch (err) {
+      unmount();
+      throw err;
+    }
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });

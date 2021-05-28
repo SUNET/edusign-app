@@ -76,7 +76,7 @@ class DocManager extends React.Component {
       </>
     );
   }
-  retryButton(doc) {
+  retryButton(index, doc) {
     return (
       <>
         <div className="button-retry-flex-item">
@@ -94,6 +94,7 @@ class DocManager extends React.Component {
           >
             <Button
               variant="outline-success"
+              data-testid={"button-retry-" + index}
               size="sm"
               onClick={this.props.handleRetry(doc, this.props)}
             >
@@ -167,7 +168,7 @@ class DocManager extends React.Component {
       </>
     );
   }
-  dlSignedButton(doc) {
+  dlSignedButton(index, doc) {
     return (
       <>
         <div className="button-signed-flex-item">
@@ -185,6 +186,7 @@ class DocManager extends React.Component {
           >
             <Button
               variant="outline-success"
+              data-testid={"button-dlsigned-" + index}
               size="sm"
               onClick={this.props.handleDlSigned(doc.name)}
             >
@@ -198,7 +200,7 @@ class DocManager extends React.Component {
       </>
     );
   }
-  multiSignButton(doc) {
+  multiSignButton(index, doc) {
     return (
       <>
         <div className="button-multisign-flex-item">
@@ -216,6 +218,7 @@ class DocManager extends React.Component {
           >
             <Button
               variant="outline-success"
+              data-testid={"button-multisign-" + index}
               size="sm"
               onClick={this.props.openInviteForm(doc)}
               data-docid={doc.id}
@@ -384,7 +387,7 @@ class DocManager extends React.Component {
                         {this.docSize(doc)}
                         {this.docName(doc)}
                         {this.showMessage(doc)}
-                        {this.retryButton(doc)}
+                        {this.retryButton(index, doc)}
                         {this.removeButton(index, doc)}
                       </>
                     )}
@@ -395,7 +398,7 @@ class DocManager extends React.Component {
                         {this.docName(doc)}
                         {this.previewButton(index, doc)}
                         {this.removeButton(index, doc)}
-                        {this.multiSignButton(doc)}
+                        {this.multiSignButton(index, doc)}
                       </>
                     )}
                     {doc.state === "signing" && (
@@ -411,7 +414,7 @@ class DocManager extends React.Component {
                         {this.dummySelectDoc()}
                         {this.docSize(doc)}
                         {this.docName(doc)}
-                        {this.dlSignedButton(doc)}
+                        {this.dlSignedButton(index, doc)}
                       </>
                     )}
                     {doc.state === "failed-signing" && (
@@ -491,7 +494,7 @@ class DocManager extends React.Component {
                           {this.showMessage(doc)}
                         </div>
                         <div className="doc-container-third-row">
-                          {this.retryButton(doc)}
+                          {this.retryButton(index, doc)}
                           {this.removeButton(index, doc)}
                         </div>
                       </>
@@ -506,7 +509,7 @@ class DocManager extends React.Component {
                         <div className="doc-container-second-row">
                           {this.previewButton(index, doc)}
                           {this.removeButton(index, doc)}
-                          {this.multiSignButton(doc)}
+                          {this.multiSignButton(index, doc)}
                         </div>
                       </>
                     )}
@@ -530,7 +533,7 @@ class DocManager extends React.Component {
                           {this.docName(doc)}
                         </div>
                         <div className="doc-container-second-row">
-                          {this.dlSignedButton(doc)}
+                          {this.dlSignedButton(index, doc)}
                         </div>
                       </>
                     )}
