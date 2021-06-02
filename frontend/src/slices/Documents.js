@@ -412,7 +412,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
     thunkAPI.dispatch(
       addNotification({
         level: "danger",
-        message: args.intl.formatMessage({
+        message: intl.formatMessage({
           defaultMessage: "Problem getting signed documents",
           id: "problem-getting-signed",
         }),

@@ -197,6 +197,7 @@ class InviteForm extends React.Component {
                         >
                           <Button
                             variant="outline-secondary"
+                            data-testid={"button-add-invitation-" + this.props.docName}
                             onClick={() =>
                               arrayHelpers.push({ name: "", email: "" })
                             }

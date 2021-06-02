@@ -8,9 +8,11 @@
  * - loading: to indicate whether the app is loading or has finished loading.
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createIntl } from 'react-intl';
 
 import { getRequest, checkStatus, extractCsrfToken } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
+import { loadDocuments } from "slices/Documents";
 
 /**
  * @public
@@ -19,7 +21,14 @@ import { addNotification } from "slices/Notifications";
  */
 export const fetchConfig = createAsyncThunk(
   "main/fetchConfig",
-  async (arg, thunkAPI) => {
+  async (args, thunkAPI) => {
+    let intl;
+    if (args === undefined) {
+      const state = thunkAPI.getState();
+      intl = createIntl(state.intl);
+    } else {
+      intl = args.intl;
+    }
     try {
       const response = await fetch("/sign/config", getRequest);
       const configData = await checkStatus(response);
@@ -31,11 +40,13 @@ export const fetchConfig = createAsyncThunk(
         );
         return thunkAPI.rejectWithValue(configData.message);
       } else {
+        thunkAPI.dispatch(loadDocuments({intl: intl}));
         return configData;
       }
     } catch (err) {
+      console.log("UUH", err);
       thunkAPI.dispatch(
-        addNotification({ level: "danger", message: "XXX TODO" })
+        addNotification({ level: "danger", message: intl.formatMessage({defaultMessage: "TODO", id: "main-todo"}) })
       );
       return thunkAPI.rejectWithValue(err.toString());
     }

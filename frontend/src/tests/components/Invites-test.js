@@ -33,7 +33,15 @@ describe("Multi sign invitations", function () {
           pending_multisign: [],
         },
       });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const fileObj = new File([samplePDFData], "test.pdf", {
@@ -56,24 +64,16 @@ describe("Multi sign invitations", function () {
       store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
       await flushPromises(rerender, wrapped);
 
-      const filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
-      expect(filename.length).to.equal(1);
-
-      const button = await waitFor(() => screen.getAllByText(/Multi sign/i));
+      const button = await waitFor(() => screen.getAllByTestId("button-multisign-0"));
       expect(button.length).to.equal(1);
 
       fireEvent.click(button[0]);
       await flushPromises(rerender, wrapped);
 
-      const title = await waitFor(() =>
-        screen.getAllByText(/Invite people to sign/i)
-      );
-      expect(title.length).to.equal(1);
-
       const emailInput = await waitFor(() =>
-        screen.getAllByTestId(/invitees.0.email/i)
+        screen.getAllByTestId("invitees.0.email")
       );
-      expect(emailInput.length).to.equal(1);
+      expect(emailInput.length).to.equal(2);
 
 
     } catch (err) {
@@ -98,7 +98,15 @@ describe("Multi sign invitations", function () {
           pending_multisign: [],
         },
       });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const fileObj = new File([samplePDFData], "test.pdf", {
@@ -120,40 +128,37 @@ describe("Multi sign invitations", function () {
       store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
       await flushPromises(rerender, wrapped);
 
-      const filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
-      expect(filename.length).to.equal(1);
-
-      const button = await waitFor(() => screen.getAllByText(/Multi sign/i));
+      const button = await waitFor(() => screen.getAllByTestId("button-multisign-0"));
       expect(button.length).to.equal(1);
 
       fireEvent.click(button[0]);
       await flushPromises(rerender, wrapped);
 
       const buttonAdd = await waitFor(() =>
-        screen.getAllByText(/Add Invitation/i)
+        screen.getAllByTestId("button-add-invitation-test.pdf")
       );
-      expect(buttonAdd.length).to.equal(1);
+      expect(buttonAdd.length).to.equal(4);
 
       fireEvent.click(buttonAdd[0]);
       await flushPromises(rerender, wrapped);
 
       const emailInput1 = await waitFor(() =>
-        screen.getAllByTestId(/invitees.0.email/i)
+        screen.getAllByTestId("invitees.0.email")
       );
-      expect(emailInput1.length).to.equal(1);
+      expect(emailInput1.length).to.equal(4);
 
       const emailInput2 = await waitFor(() =>
-        screen.getAllByTestId(/invitees.1.email/i)
+        screen.getAllByTestId("invitees.1.email")
       );
       expect(emailInput2.length).to.equal(1);
 
       const nameInput1 = await waitFor(() =>
-        screen.getAllByTestId(/invitees.0.name/i)
+        screen.getAllByTestId("invitees.0.name")
       );
-      expect(nameInput1.length).to.equal(1);
+      expect(nameInput1.length).to.equal(4);
 
       const nameInput2 = await waitFor(() =>
-        screen.getAllByTestId(/invitees.1.name/i)
+        screen.getAllByTestId("invitees.1.name")
       );
       expect(nameInput2.length).to.equal(1);
 
@@ -194,7 +199,15 @@ describe("Multi sign invitations", function () {
           message: "Success creating multi signature request",
           error: false,
         });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const fileObj = new File([samplePDFData], "testost.pdf", {
@@ -209,26 +222,26 @@ describe("Multi sign invitations", function () {
       store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
       await flushPromises(rerender, wrapped);
 
-      const filename = await waitFor(() => screen.getAllByText(/testost.pdf/i));
+      const filename = await waitFor(() => screen.getAllByText("testost.pdf"));
       expect(filename.length).to.equal(1);
 
-      const button = await waitFor(() => screen.getAllByText(/Multi sign/i));
+      const button = await waitFor(() => screen.getAllByTestId("button-multisign-0"));
       expect(button.length).to.equal(1);
 
       fireEvent.click(button[0]);
       await flushPromises(rerender, wrapped);
 
       let emailInput = await waitFor(() =>
-        screen.getAllByTestId(/invitees.0.email/i)
+        screen.getAllByTestId("invitees.0.email")
       );
-      expect(emailInput.length).to.equal(1);
+      expect(emailInput.length).to.equal(4);
 
       fireEvent.change(emailInput[0], { target: { value: "dummy@example.com" } });
 
       let nameInput = await waitFor(() =>
-        screen.getAllByTestId(/invitees.0.name/i)
+        screen.getAllByTestId("invitees.0.name")
       );
-      expect(nameInput.length).to.equal(1);
+      expect(nameInput.length).to.equal(4);
 
       fireEvent.change(nameInput[0], { target: { value: "Dummy Doe" } });
 
@@ -253,16 +266,16 @@ describe("Multi sign invitations", function () {
       expect(nameInput.length).to.equal(0);
 
       const inviteTitle = await waitFor(() =>
-        screen.getAllByText(/Requests for multiple signatures/)
+        screen.getAllByText("Requests for multiple signatures")
       );
       expect(inviteTitle.length).to.equal(1);
 
       const inviteWaiting = await waitFor(() =>
-        screen.getAllByText(/Waiting for signatures by/)
+        screen.getAllByText("Waiting for signatures by")
       );
       expect(inviteWaiting.length).to.equal(1);
 
-      const inviteName = await waitFor(() => screen.getAllByText(/Dummy Doe/));
+      const inviteName = await waitFor(() => screen.getAllByText("Dummy Doe"));
       expect(inviteName.length).to.equal(1);
 
 
@@ -302,7 +315,15 @@ describe("Multi sign invitations", function () {
           pending_multisign: [],
         },
       });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -362,7 +383,15 @@ describe("Multi sign invitations", function () {
           pending_multisign: [],
         },
       });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -454,7 +483,15 @@ describe("Multi sign invitations", function () {
           pending_multisign: [],
         },
       });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -549,7 +586,15 @@ describe("Multi sign invitations", function () {
           pending_multisign: [],
         },
       });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -619,7 +664,15 @@ describe("Multi sign invitations", function () {
           pending_multisign: [],
         },
       });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -693,7 +746,15 @@ describe("Multi sign invitations", function () {
           pending_multisign: [],
         },
       });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -772,7 +833,15 @@ describe("Multi sign invitations", function () {
           error: false,
           message: "Success removing invitation",
         });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const rmButton = await waitFor(() =>
@@ -847,7 +916,15 @@ describe("Multi sign invitations", function () {
           error: false,
           message: "Success removing invitation",
         });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const rmButton = await waitFor(() =>
@@ -912,7 +989,15 @@ describe("Multi sign invitations", function () {
           ],
         },
       });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -988,7 +1073,15 @@ describe("Multi sign invitations", function () {
             ],
           },
         });
-      store.dispatch(fetchConfig());
+      store.dispatch(fetchConfig({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+      await flushPromises(rerender, wrapped);
+
+      const clearButton = await waitFor(() =>
+        screen.getAllByTestId("clear-in-header")
+      );
+      expect(clearButton.length).to.equal(1);
+
+      fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
       const signButton = await waitFor(() =>
