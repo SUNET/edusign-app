@@ -52,7 +52,7 @@ const signButton = (props, doc, help) => {
             <Button
               variant="outline-success"
               size="sm"
-              onClick={props.handleSign(doc)}
+              onClick={props.handleSign(doc, props)}
             >
               <FormattedMessage
                 defaultMessage="Add Final Signature"

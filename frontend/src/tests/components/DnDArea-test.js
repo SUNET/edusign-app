@@ -16,7 +16,11 @@ import DnDAreaContainer from "containers/DnDArea";
 import * as edusignLogo from "../../../images/eduSign_logo.svg";
 
 describe("DnDArea Component", function () {
-  afterEach(cleanup);
+  afterEach(() => {
+    cleanup();
+    fetchMock.restore();
+  });
+
 
   it("Shows dnd area ready to accept documents", function () {
     const { unmount } = setupComponent(<DnDAreaContainer />, {

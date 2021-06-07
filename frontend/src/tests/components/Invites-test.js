@@ -44,6 +44,14 @@ describe("Multi sign invitations", function () {
       fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
+      await flushPromises(rerender, wrapped);
+
       const fileObj = new File([samplePDFData], "test.pdf", {
         type: "application/pdf",
       });
@@ -109,6 +117,14 @@ describe("Multi sign invitations", function () {
       fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
+      await flushPromises(rerender, wrapped);
+
       const fileObj = new File([samplePDFData], "test.pdf", {
         type: "application/pdf",
       });
@@ -137,7 +153,7 @@ describe("Multi sign invitations", function () {
       const buttonAdd = await waitFor(() =>
         screen.getAllByTestId("button-add-invitation-test.pdf")
       );
-      expect(buttonAdd.length).to.equal(4);
+      expect(buttonAdd.length).to.equal(1);
 
       fireEvent.click(buttonAdd[0]);
       await flushPromises(rerender, wrapped);
@@ -145,7 +161,7 @@ describe("Multi sign invitations", function () {
       const emailInput1 = await waitFor(() =>
         screen.getAllByTestId("invitees.0.email")
       );
-      expect(emailInput1.length).to.equal(4);
+      expect(emailInput1.length).to.equal(1);
 
       const emailInput2 = await waitFor(() =>
         screen.getAllByTestId("invitees.1.email")
@@ -155,7 +171,7 @@ describe("Multi sign invitations", function () {
       const nameInput1 = await waitFor(() =>
         screen.getAllByTestId("invitees.0.name")
       );
-      expect(nameInput1.length).to.equal(4);
+      expect(nameInput1.length).to.equal(1);
 
       const nameInput2 = await waitFor(() =>
         screen.getAllByTestId("invitees.1.name")
@@ -210,6 +226,14 @@ describe("Multi sign invitations", function () {
       fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
+      await flushPromises(rerender, wrapped);
+
       const fileObj = new File([samplePDFData], "testost.pdf", {
         type: "application/pdf",
       });
@@ -234,14 +258,14 @@ describe("Multi sign invitations", function () {
       let emailInput = await waitFor(() =>
         screen.getAllByTestId("invitees.0.email")
       );
-      expect(emailInput.length).to.equal(4);
+      expect(emailInput.length).to.equal(1);
 
       fireEvent.change(emailInput[0], { target: { value: "dummy@example.com" } });
 
       let nameInput = await waitFor(() =>
         screen.getAllByTestId("invitees.0.name")
       );
-      expect(nameInput.length).to.equal(4);
+      expect(nameInput.length).to.equal(1);
 
       fireEvent.change(nameInput[0], { target: { value: "Dummy Doe" } });
 
@@ -266,16 +290,16 @@ describe("Multi sign invitations", function () {
       expect(nameInput.length).to.equal(0);
 
       const inviteTitle = await waitFor(() =>
-        screen.getAllByText("Requests for multiple signatures")
+        screen.getAllByText("Requests for multiple signatures:")
       );
       expect(inviteTitle.length).to.equal(1);
 
       const inviteWaiting = await waitFor(() =>
-        screen.getAllByText("Waiting for signatures by")
+        screen.getAllByText("Waiting for signatures by:")
       );
       expect(inviteWaiting.length).to.equal(1);
 
-      const inviteName = await waitFor(() => screen.getAllByText("Dummy Doe"));
+      const inviteName = await waitFor(() => screen.getAllByText(/Dummy Doe/));
       expect(inviteName.length).to.equal(1);
 
 
@@ -324,6 +348,14 @@ describe("Multi sign invitations", function () {
       expect(clearButton.length).to.equal(1);
 
       fireEvent.click(clearButton[0]);
+      await flushPromises(rerender, wrapped);
+
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -392,6 +424,14 @@ describe("Multi sign invitations", function () {
       expect(clearButton.length).to.equal(1);
 
       fireEvent.click(clearButton[0]);
+      await flushPromises(rerender, wrapped);
+
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -492,6 +532,14 @@ describe("Multi sign invitations", function () {
       expect(clearButton.length).to.equal(1);
 
       fireEvent.click(clearButton[0]);
+      await flushPromises(rerender, wrapped);
+
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -597,6 +645,14 @@ describe("Multi sign invitations", function () {
       fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
+      await flushPromises(rerender, wrapped);
+
       const inviteTitle = await waitFor(() =>
         screen.getAllByText(/Requests for multiple signatures/)
       );
@@ -673,6 +729,14 @@ describe("Multi sign invitations", function () {
       expect(clearButton.length).to.equal(1);
 
       fireEvent.click(clearButton[0]);
+      await flushPromises(rerender, wrapped);
+
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -755,6 +819,14 @@ describe("Multi sign invitations", function () {
       expect(clearButton.length).to.equal(1);
 
       fireEvent.click(clearButton[0]);
+      await flushPromises(rerender, wrapped);
+
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -844,6 +916,14 @@ describe("Multi sign invitations", function () {
       fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
+      await flushPromises(rerender, wrapped);
+
       const rmButton = await waitFor(() =>
         screen.getAllByTestId("rm-invitation-test1.pdf")
       );
@@ -857,12 +937,12 @@ describe("Multi sign invitations", function () {
       );
       expect(inviteTitle.length).to.equal(1);
 
-      const confirmButton = await waitFor(() =>
+      const confirmButton2 = await waitFor(() =>
         screen.getAllByTestId("confirm-remove-owned-confirm-button")
       );
-      expect(confirmButton.length).to.equal(1);
+      expect(confirmButton2.length).to.equal(1);
 
-      fireEvent.click(confirmButton[0]);
+      fireEvent.click(confirmButton2[0]);
       await flushPromises(rerender, wrapped);
 
       inviteTitle = await waitFor(() =>
@@ -927,6 +1007,14 @@ describe("Multi sign invitations", function () {
       fireEvent.click(clearButton[0]);
       await flushPromises(rerender, wrapped);
 
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
+      await flushPromises(rerender, wrapped);
+
       const rmButton = await waitFor(() =>
         screen.getAllByTestId("rm-invitation-test1.pdf")
       );
@@ -940,12 +1028,12 @@ describe("Multi sign invitations", function () {
       );
       expect(inviteTitle.length).to.equal(1);
 
-      const confirmButton = await waitFor(() =>
+      const confirmButton2 = await waitFor(() =>
         screen.getAllByTestId("confirm-remove-owned-cancel-button")
       );
-      expect(confirmButton.length).to.equal(1);
+      expect(confirmButton2.length).to.equal(1);
 
-      fireEvent.click(confirmButton[0]);
+      fireEvent.click(confirmButton2[0]);
       await flushPromises(rerender, wrapped);
 
       inviteTitle = await waitFor(() =>
@@ -998,6 +1086,14 @@ describe("Multi sign invitations", function () {
       expect(clearButton.length).to.equal(1);
 
       fireEvent.click(clearButton[0]);
+      await flushPromises(rerender, wrapped);
+
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
       await flushPromises(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
@@ -1082,6 +1178,14 @@ describe("Multi sign invitations", function () {
       expect(clearButton.length).to.equal(1);
 
       fireEvent.click(clearButton[0]);
+      await flushPromises(rerender, wrapped);
+
+      const confirmButton = await waitFor(() =>
+        screen.getAllByTestId("confirm-clear-session-confirm-button")
+      );
+      expect(confirmButton.length).to.equal(1);
+
+      fireEvent.click(confirmButton[0]);
       await flushPromises(rerender, wrapped);
 
       const signButton = await waitFor(() =>

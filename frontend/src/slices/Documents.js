@@ -614,7 +614,9 @@ export const resendInvitations = createAsyncThunk(
       });
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
+      console.log("PREDATA", data);
     } catch (err) {
+      console.log("ERR", err);
       const message = args.intl.formatMessage({
         defaultMessage: "Problem sending invitations to sign, please try again",
         id: "problem-sending-invitations",
@@ -623,6 +625,7 @@ export const resendInvitations = createAsyncThunk(
       return;
     }
     if (data.error) {
+      console.log("DATA", data);
       const message = args.intl.formatMessage({
         defaultMessage: "Problem sending invitations to sign, please try again",
         id: "problem-sending-invitations",

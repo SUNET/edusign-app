@@ -23,9 +23,9 @@ const mapDispatchToProps = (dispatch) => {
         dispatch(removeInvites({ doc: doc, intl: props.intl }));
       };
     },
-    handleSign: function (doc) {
+    handleSign: function (doc, props) {
       return async () => {
-        await dispatch(signInvitedDoc(doc));
+        await dispatch(signInvitedDoc({doc: doc, intl: props.intl}));
       };
     },
     handleResend: function (doc) {

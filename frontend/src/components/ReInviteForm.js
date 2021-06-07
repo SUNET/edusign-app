@@ -4,7 +4,7 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, injectIntl } from "react-intl";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 
@@ -136,4 +136,4 @@ ReInviteForm.propTypes = {
   handleSubmit: PropTypes.func,
 };
 
-export default ReInviteForm;
+export default injectIntl(ReInviteForm);
