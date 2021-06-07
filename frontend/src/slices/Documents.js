@@ -99,7 +99,7 @@ async function validateDoc(doc, intl) {
       return doc;
     })
     .catch((err) => {
-    console.log('err', err);
+      console.log("err", err);
       if (err.message === "No password given") {
         doc.message = intl.formatMessage({
           defaultMessage: "Please do not supply a password protected document",
@@ -161,13 +161,13 @@ const saveDocumentToDb = async (document) => {
 export const createDocument = createAsyncThunk(
   "documents/createDocument",
   async (args, thunkAPI) => {
-    console.log('creating', args);
+    console.log("creating", args);
     const doc = await validateDoc(args.doc, args.intl);
     if (doc.state === "failed-loading") return doc;
 
     try {
       const newDoc = await saveDocumentToDb(doc);
-      thunkAPI.dispatch(prepareDocument({doc: newDoc, intl: args.intl}));
+      thunkAPI.dispatch(prepareDocument({ doc: newDoc, intl: args.intl }));
       return newDoc;
     } catch (err) {
       thunkAPI.dispatch(

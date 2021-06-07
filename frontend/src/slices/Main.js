@@ -8,7 +8,7 @@
  * - loading: to indicate whether the app is loading or has finished loading.
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createIntl } from 'react-intl';
+import { createIntl } from "react-intl";
 
 import { getRequest, checkStatus, extractCsrfToken } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
@@ -40,13 +40,19 @@ export const fetchConfig = createAsyncThunk(
         );
         return thunkAPI.rejectWithValue(configData.message);
       } else {
-        thunkAPI.dispatch(loadDocuments({intl: intl}));
+        thunkAPI.dispatch(loadDocuments({ intl: intl }));
         return configData;
       }
     } catch (err) {
       console.log("UUH", err);
       thunkAPI.dispatch(
-        addNotification({ level: "danger", message: intl.formatMessage({defaultMessage: "TODO", id: "main-todo"}) })
+        addNotification({
+          level: "danger",
+          message: intl.formatMessage({
+            defaultMessage: "TODO",
+            id: "main-todo",
+          }),
+        })
       );
       return thunkAPI.rejectWithValue(err.toString());
     }

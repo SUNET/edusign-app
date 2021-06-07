@@ -21,20 +21,19 @@ describe("DnDArea Component", function () {
     fetchMock.restore();
   });
 
-
   it("Shows dnd area ready to accept documents", function () {
     const { unmount } = setupComponent(<DnDAreaContainer />, {
       main: { loading: false, size: "lg" },
     });
 
     try {
-
-      const dndArea = screen.getAllByText("Drag & drop here or click to browse");
+      const dndArea = screen.getAllByText(
+        "Drag & drop here or click to browse"
+      );
       expect(dndArea.length).to.equal(1);
 
       const dndAreaDropping = screen.queryByText("Drop documents here");
       expect(dndAreaDropping).to.equal(null);
-
     } catch (err) {
       unmount();
       throw err;
@@ -49,13 +48,11 @@ describe("DnDArea Component", function () {
     });
 
     try {
-
       const dndAreaDropping = screen.getAllByText("Drop documents here");
       expect(dndAreaDropping.length).to.equal(1);
 
       const dndArea = screen.queryByText("Drag & drop here or click to browse");
       expect(dndArea).to.equal(null);
-
     } catch (err) {
       unmount();
       throw err;
@@ -70,7 +67,6 @@ describe("DnDArea Component", function () {
     );
 
     try {
-
       let dndArea = screen.getAllByText("Drag & drop here or click to browse");
       expect(dndArea.length).to.equal(1);
 
@@ -96,8 +92,6 @@ describe("DnDArea Component", function () {
         screen.queryByText("Drag & drop here or click to browse")
       );
       expect(dndArea).to.equal(null);
-
-
     } catch (err) {
       unmount();
       throw err;
@@ -112,7 +106,6 @@ describe("DnDArea Component", function () {
     );
 
     try {
-
       let dndArea = screen.getAllByText("Drag & drop here or click to browse");
       expect(dndArea.length).to.equal(1);
 
@@ -147,8 +140,6 @@ describe("DnDArea Component", function () {
 
       dndAreaDropping = screen.queryByText("Drop documents here");
       expect(dndAreaDropping).to.equal(null);
-
-
     } catch (err) {
       unmount();
       throw err;
@@ -161,7 +152,6 @@ describe("DnDArea Component", function () {
     const { wrapped, rerender, unmount } = setupReduxComponent(<Main />);
 
     try {
-
       let filename = screen.queryByText(/test.pdf/i);
       expect(filename).to.equal(null);
 
@@ -205,8 +195,6 @@ describe("DnDArea Component", function () {
       expect(rmButton.length).to.equal(1);
 
       fetchMock.restore();
-
-
     } catch (err) {
       unmount();
       throw err;
@@ -219,7 +207,6 @@ describe("DnDArea Component", function () {
     const { wrapped, rerender, unmount } = setupReduxComponent(<Main />);
 
     try {
-
       let errorMsg = screen.queryByText(/Not a PDF/);
       expect(errorMsg).to.equal(null);
 
@@ -232,8 +219,6 @@ describe("DnDArea Component", function () {
 
       errorMsg = await waitFor(() => screen.getAllByText(/Not a PDF/));
       expect(errorMsg.length).to.equal(1);
-
-
     } catch (err) {
       unmount();
       throw err;

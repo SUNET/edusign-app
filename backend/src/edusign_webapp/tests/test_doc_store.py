@@ -252,9 +252,7 @@ def test_add_two_and_remove_one_and_get_owned(
     assert content is None
 
 
-def test_add_and_get_invitation(
-    doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
-):
+def test_add_and_get_invitation(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():
@@ -265,9 +263,7 @@ def test_add_and_get_invitation(
     assert invitation['user']['email'] == 'invite0@example.org'
 
 
-def test_add_and_get_invitation_twice(
-    doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
-):
+def test_add_and_get_invitation_twice(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():
@@ -279,9 +275,7 @@ def test_add_and_get_invitation_twice(
             assert isinstance(e, doc_store.DocumentLocked)
 
 
-def test_get_invitation_none(
-    doc_store_local_sqlite
-):
+def test_get_invitation_none(doc_store_local_sqlite):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():
@@ -290,9 +284,7 @@ def test_get_invitation_none(
     assert data == {}
 
 
-def test_add_and_get_invitation_twice_unlocking(
-    doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
-):
+def test_add_and_get_invitation_twice_unlocking(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():
@@ -304,9 +296,7 @@ def test_add_and_get_invitation_twice_unlocking(
     assert invitation['user']['email'] == 'invite1@example.org'
 
 
-def test_add_and_get_invitation_and_check_lock(
-    doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
-):
+def test_add_and_get_invitation_and_check_lock(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():
@@ -317,9 +307,7 @@ def test_add_and_get_invitation_and_check_lock(
         assert not doc_store.check_document_locked(sample_doc_1['key'], 'dummy@example.org')
 
 
-def test_check_locked_none(
-    doc_store_local_sqlite
-):
+def test_check_locked_none(doc_store_local_sqlite):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():
@@ -341,9 +329,7 @@ def test_add_and_get_invitation_twice_unlocking_check(
         assert doc_store.check_document_locked(sample_doc_1['key'], invites[1]['email'])
 
 
-def test_add_and_sign_and_get_signed(
-    doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
-):
+def test_add_and_sign_and_get_signed(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
 
     with run.app.app_context():

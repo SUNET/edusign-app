@@ -394,6 +394,7 @@ def test_add_and_lock_timeout(redis_md, sample_metadata_1, sample_owner_1, sampl
 
     with run.app.app_context():
         import datetime
+
         old = run.app.config['DOC_LOCK_TIMEOUT']
         run.app.config['DOC_LOCK_TIMEOUT'] = datetime.timedelta(seconds=0)
         invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1)

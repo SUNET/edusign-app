@@ -441,19 +441,28 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
     filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
     expect(filename.length).to.equal(1);
 
-    buttonPreview = await waitFor(() => screen.getAllByTestId("button-preview-0"));
+    buttonPreview = await waitFor(() =>
+      screen.getAllByTestId("button-preview-0")
+    );
     expect(buttonPreview.length).to.equal(1);
 
     buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(buttonRemove.length).to.equal(1);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
   } catch (err) {
     unmount();
@@ -510,14 +519,18 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument = asy
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
     warning = await waitFor(() =>
       screen.getAllByText(/Please do not supply a password protected document/i)
     );
     expect(warning.length).to.equal(1);
-
   } catch (err) {
     unmount();
     throw err;
@@ -574,7 +587,12 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
       message: "dummy error in add-doc",
       error: true,
     });
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
     filename = await waitFor(() => screen.getAllByText("test.pdf"));
@@ -585,7 +603,6 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
 
     buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(buttonRemove.length).to.equal(1);
-
   } catch (err) {
     unmount();
     throw err;
@@ -640,7 +657,12 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
     filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
@@ -651,7 +673,6 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
 
     buttonRemove = await waitFor(() => screen.getAllByText(/Malformed PDF/i));
     expect(buttonRemove.length).to.equal(1);
-
   } catch (err) {
     unmount();
     throw err;
@@ -703,7 +724,12 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
     rmButton = await waitFor(() => screen.getAllByTestId("rm-button-0"));
@@ -726,7 +752,6 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
 
     rmButton = screen.queryByText("rm-button-test.pdf");
     expect(rmButton).to.equal(null);
-
   } catch (err) {
     unmount();
     throw err;
@@ -781,15 +806,27 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
-    store.dispatch(createDocument({doc: file2, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file2,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
     let pdf = await waitFor(() => screen.queryByText(/Sample PDF for testing/));
     expect(pdf).to.equal(null);
 
-    const previewButton = await waitFor(() => screen.getAllByTestId("button-preview-0"));
+    const previewButton = await waitFor(() =>
+      screen.getAllByTestId("button-preview-0")
+    );
     expect(previewButton.length).to.equal(1);
 
     fireEvent.click(previewButton[0]);
@@ -819,7 +856,6 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
       screen.getAllByTestId("preview-button-close-0")
     );
     expect(closeButton.length).to.equal(1);
-
   } catch (err) {
     unmount();
     throw err;
@@ -872,7 +908,12 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
     let pdf = await waitFor(() => screen.queryByText(/Test page 1/));
@@ -881,7 +922,9 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     let pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
     expect(pdf2).to.equal(null);
 
-    const previewButton = await waitFor(() => screen.getAllByTestId("button-preview-0"));
+    const previewButton = await waitFor(() =>
+      screen.getAllByTestId("button-preview-0")
+    );
     expect(previewButton.length).to.equal(1);
 
     fireEvent.click(previewButton[0]);
@@ -920,7 +963,6 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
 
     pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
     expect(pdf2).to.equal(null);
-
   } catch (err) {
     unmount();
     throw err;
@@ -975,15 +1017,27 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
-    store.dispatch(createDocument({doc: file2, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file2,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
     let pdf = await waitFor(() => screen.queryByText(/Sample PDF for testing/));
     expect(pdf).to.equal(null);
 
-    const previewButton = await waitFor(() => screen.getAllByTestId("button-preview-0"));
+    const previewButton = await waitFor(() =>
+      screen.getAllByTestId("button-preview-0")
+    );
     expect(previewButton.length).to.equal(1);
 
     fireEvent.click(previewButton[0]);
@@ -1009,7 +1063,6 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
       screen.queryByTestId("preview-button-next-test.pdf")
     );
     expect(nextButton).to.equal(null);
-
   } catch (err) {
     unmount();
     throw err;
@@ -1075,10 +1128,17 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
         }
       );
 
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fireEvent.click(selector[0]);
@@ -1096,7 +1156,6 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
       screen.getAllByTestId("little-spinner-0")
     );
     expect(spinner.length).to.equal(1);
-
   } catch (err) {
     unmount();
     throw err;
@@ -1159,10 +1218,17 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
         }
       );
 
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fireEvent.click(selector[0]);
@@ -1180,7 +1246,6 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
       screen.getAllByText("Problem creating signature request")
     );
     expect(text.length).to.equal(1);
-
   } catch (err) {
     unmount();
     throw err;
@@ -1246,10 +1311,17 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
         },
       });
 
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fireEvent.click(selector[0]);
@@ -1267,7 +1339,6 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
       screen.getAllByTestId("little-spinner-0")
     );
     expect(spinner.length).to.equal(1);
-
   } catch (err) {
     unmount();
     throw err;
@@ -1328,10 +1399,17 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
         error: true,
       });
 
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fireEvent.click(selector[0]);
@@ -1349,7 +1427,6 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
       screen.getAllByText("Problem creating signature request")
     );
     expect(text.length).to.equal(1);
-
   } catch (err) {
     unmount();
     throw err;
@@ -1425,10 +1502,17 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
         },
       });
 
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fireEvent.click(selector[0]);
@@ -1449,13 +1533,16 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     const body = window.document.getElementsByTagName("body")[0];
     body.appendChild(signHolder);
 
-    store.dispatch(loadDocuments({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      loadDocuments({
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
 
     const buttonSigned = await waitFor(() =>
       screen.getAllByTestId("button-dlsigned-0")
     );
     expect(buttonSigned.length).to.equal(1);
-
   } catch (err) {
     unmount();
     throw err;
@@ -1519,10 +1606,17 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
         error: true,
       });
 
-    store.dispatch(createDocument({doc: file, intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
     await flushPromises(rerender, wrapped);
 
-    const selector = await waitFor(() => screen.getAllByTestId("doc-selector-0"));
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
     expect(selector.length).to.equal(1);
 
     fireEvent.click(selector[0]);
@@ -1543,7 +1637,11 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     const body = window.document.getElementsByTagName("body")[0];
     body.appendChild(signHolder);
 
-    store.dispatch(loadDocuments({intl: {formatMessage: ({defaultMessage, id}) => defaultMessage}}));
+    store.dispatch(
+      loadDocuments({
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
 
     const buttonPreview = await waitFor(() =>
       screen.getAllByTestId("button-preview-0")
@@ -1559,7 +1657,6 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
       screen.getAllByText(/Problem signing the document/i)
     );
     expect(errorMsg.length).to.equal(1);
-
   } catch (err) {
     unmount();
     throw err;

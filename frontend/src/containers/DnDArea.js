@@ -62,16 +62,16 @@ const mapDispatchToProps = (dispatch) => {
             );
             dispatch(addNotification({ level: "danger", message: errorMsg }));
             file.state = "failed-loading";
-            file.message = intl.formatMessage({
-                  defaultMessage: "Document could not be loaded",
-                  id: "dnd-doc-not-loaded",
-                }),
-            dispatch(createDocument({ doc: file, intl: intl }));
+            (file.message = intl.formatMessage({
+              defaultMessage: "Document could not be loaded",
+              id: "dnd-doc-not-loaded",
+            })),
+              dispatch(createDocument({ doc: file, intl: intl }));
             dispatch(setWaiting());
           };
           reader.readAsDataURL(fileObj);
         });
-      }
+      };
     },
     handleRejected: function (intl) {
       return (rejecteds, e) => {
@@ -86,7 +86,7 @@ const mapDispatchToProps = (dispatch) => {
           dispatch(addNotification({ level: "danger", message: errorMsg }));
           dispatch(updateDocumentFail({ name: rejected.file.name }));
         });
-      }
+      };
     },
   };
 };

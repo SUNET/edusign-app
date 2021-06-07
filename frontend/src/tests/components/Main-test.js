@@ -32,10 +32,8 @@ describe("Main Component", function () {
     });
 
     try {
-
       const splashArray = screen.getAllByTestId("edusign-splash-screen");
       expect(splashArray.length).to.equal(1);
-
     } catch (err) {
       unmount();
       throw err;
@@ -48,10 +46,8 @@ describe("Main Component", function () {
     const { unmount } = setupComponent(<Main />, {});
 
     try {
-
       const splash = screen.queryByTestId("edusign-splash-screen");
       expect(splash).to.equal(null);
-
     } catch (err) {
       unmount();
       throw err;
@@ -64,7 +60,6 @@ describe("Main Component", function () {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-
       store.dispatch(appLoaded());
       await flushPromises(rerender, wrapped);
 
@@ -72,7 +67,6 @@ describe("Main Component", function () {
         screen.queryByTestId("edusign-splash-screen")
       );
       expect(splash).to.equal(null);
-
     } catch (err) {
       unmount();
       throw err;
@@ -93,7 +87,6 @@ describe("Main Component", function () {
     });
 
     try {
-
       const header = screen.getAllByTestId("edusign-banner-lg");
       expect(header.length).to.equal(1);
 
@@ -102,7 +95,6 @@ describe("Main Component", function () {
 
       const sunetLogo = screen.getAllByTestId("sunet-logo");
       expect(sunetLogo.length).to.equal(1);
-
     } catch (err) {
       unmount();
       throw err;
@@ -123,7 +115,6 @@ describe("Main Component", function () {
     });
 
     try {
-
       const footer = screen.getAllByTestId("edusign-footer");
       expect(footer.length).to.equal(1);
 
@@ -135,7 +126,6 @@ describe("Main Component", function () {
 
       const langSelectorEn = screen.queryByText("English");
       expect(langSelectorEn).to.equal(null);
-
     } catch (err) {
       unmount();
       throw err;
@@ -157,13 +147,11 @@ describe("Main Component", function () {
     });
 
     try {
-
       const langSelectorEn = screen.getAllByText("English");
       expect(langSelectorEn.length).to.equal(1);
 
       const langSelectorSv = screen.queryByText("Svenska");
       expect(langSelectorSv).to.equal(null);
-
     } catch (err) {
       unmount();
       throw err;
@@ -176,7 +164,6 @@ describe("Main Component", function () {
     const { wrapped, rerender, unmount } = setupReduxComponent(<Main />);
 
     try {
-
       let langSelectorSv = screen.getAllByText("Svenska");
       expect(langSelectorSv.length).to.equal(1);
 
@@ -191,7 +178,6 @@ describe("Main Component", function () {
 
       langSelectorSv = await waitFor(() => screen.queryByText("Svenska"));
       expect(langSelectorSv).to.equal(null);
-
     } catch (err) {
       unmount();
       throw err;
@@ -212,12 +198,10 @@ describe("Main Component", function () {
     });
 
     try {
-
       const notificationsArea = screen.getAllByTestId(
         "edusign-notifications-area"
       );
       expect(notificationsArea.length).to.equal(1);
-
     } catch (err) {
       unmount();
       throw err;
@@ -234,10 +218,8 @@ describe("Main Component", function () {
     });
 
     try {
-
       const notification = screen.getAllByText("ho ho ho");
       expect(notification.length).to.equal(1);
-
     } catch (err) {
       unmount();
       throw err;
@@ -250,7 +232,6 @@ describe("Main Component", function () {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-
       store.dispatch(
         addNotification({
           message: "ho ho ho",
@@ -261,7 +242,6 @@ describe("Main Component", function () {
 
       let notification = await waitFor(() => screen.getAllByText("ho ho ho"));
       expect(notification.length).to.equal(1);
-
     } catch (err) {
       unmount();
       throw err;
@@ -274,7 +254,6 @@ describe("Main Component", function () {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-
       store.dispatch(
         addNotification({
           message: "ho ho ho",
@@ -307,7 +286,6 @@ describe("Main Component", function () {
 
       notification2 = await waitFor(() => screen.queryByText("hi hi hi"));
       expect(notification2).to.equal(null);
-
     } catch (err) {
       unmount();
       throw err;
