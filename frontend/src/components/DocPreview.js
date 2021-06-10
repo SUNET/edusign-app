@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
+import { Document, Page } from "react-pdf";
 
 import "styles/DocPreview.scss";
 

@@ -9,6 +9,14 @@
 
 import React from "react";
 
+// PDF.js worker
+
+import { pdfjs } from "react-pdf";
+
+pdfjs.GlobalWorkerOptions.workerSrc = "/js/pdf.worker.min.js";
+
+// End of PDF.js worker
+
 if (!Element.prototype.matches)
   Element.prototype.matches =
     Element.prototype.msMatchesSelector ||
