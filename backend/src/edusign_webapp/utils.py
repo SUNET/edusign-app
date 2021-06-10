@@ -43,6 +43,11 @@ def add_attributes_to_session(check_whitelisted=True):
         eppn = request.headers.get('Edupersonprincipalname')
         current_app.logger.info(f'User {eppn} started a session')
 
+        if check_whitelisted:
+            if not current_app.is_whitelisted(eppn):
+                current_app.logger.info(f"Rejecting user with {eppn} address")
+                raise ValueError('Unauthorized user')
+
         pre_session: Dict[str, Any] = {}
 
         attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
@@ -50,16 +55,7 @@ def add_attributes_to_session(check_whitelisted=True):
             current_app.logger.debug(
                 f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
             )
-            if check_whitelisted and attr_in_session == 'mail':
-                mail = ET.fromstring(b64decode(request.headers[attr_in_header])).text
-                if not current_app.is_whitelisted(mail):
-                    current_app.logger.info(f"Rejecting user with {mail} address")
-                    raise ValueError('Unauthorized user')
-                else:
-                    pre_session['mail'] = mail
-
-            else:
-                pre_session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
+            pre_session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
 
         session.update(pre_session)
         session['eppn'] = eppn
