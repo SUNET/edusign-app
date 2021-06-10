@@ -21,24 +21,15 @@ class Header extends Component {
       name = (
         <div id="name-and-clear-in-header">
           {(this.props.signer_attributes !== undefined &&
-            this.props.signer_attributes.length > 0 && (
+            this.props.signer_attributes !== undefined && (
               <>
                 <span id="name-in-header">
                   <span id="signing-with-span">
                     <FormattedMessage
-                      defaultMessage="Signing with: "
+                      defaultMessage="Signed in as {name} ({eppn})"
                       key="signing-with"
+                      values={{...this.props.signer_attributes}}
                     />
-                  </span>
-                  <span id="signer-attributes">
-                    {this.props.signer_attributes.map((attr, index) => {
-                      return (
-                        <span className="signer-attribute" key={index}>
-                          <span className="attr-name">{attr.name}: </span>
-                          <span className="attr-value">{attr.value}</span>
-                        </span>
-                      );
-                    })}
                   </span>
                 </span>
                 <span id="sep-in-header">|</span>
@@ -136,7 +127,7 @@ Header.propTypes = {
   /**
    * The attributes used for signing the docs
    */
-  signer_attributes: PropTypes.array,
+  signer_attributes: PropTypes.object,
   /**
    * Size of the window: lg | sm
    */

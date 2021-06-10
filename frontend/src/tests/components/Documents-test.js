@@ -26,10 +26,7 @@ describe("Document representations", function () {
   it("It shows the document after createDocument action", async () => {
     await showsTheDocumentAfterCreateDocumentAction({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -38,10 +35,7 @@ describe("Document representations", function () {
     await showsTheDocumentAfterCreateDocumentAction({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -49,10 +43,7 @@ describe("Document representations", function () {
   it("It shows a warning after createDocument action with a password protected document", async () => {
     await showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -61,10 +52,7 @@ describe("Document representations", function () {
     await showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -72,10 +60,7 @@ describe("Document representations", function () {
   it("It shows the failed document after wrong createDocument action", async () => {
     await showsTheFailedDocumentAfterWrongCreateDocumentAction({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -84,10 +69,7 @@ describe("Document representations", function () {
     await showsTheFailedDocumentAfterWrongCreateDocumentAction({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -95,10 +77,7 @@ describe("Document representations", function () {
   it("It shows failed loading after createDocument with bad pdf", async () => {
     await showsFailedLoadingAfterCreateDocumentWithBadPdf({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -107,10 +86,7 @@ describe("Document representations", function () {
     await showsFailedLoadingAfterCreateDocumentWithBadPdf({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -118,10 +94,7 @@ describe("Document representations", function () {
   it("It hides the file details after clicking on the remove button", async () => {
     await hidesTheFileDetailsAfterClickingOnTheRemoveButton({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -130,10 +103,7 @@ describe("Document representations", function () {
     await hidesTheFileDetailsAfterClickingOnTheRemoveButton({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -141,10 +111,7 @@ describe("Document representations", function () {
   it("It shows the preview after clicking on the preview button", async () => {
     await showsThePreviewAfterClickingOnThePreviewButton({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
         owned_multisign: [],
         pending_multisign: [],
       },
@@ -155,10 +122,7 @@ describe("Document representations", function () {
     await showsThePreviewAfterClickingOnThePreviewButton({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
         owned_multisign: [],
         pending_multisign: [],
       },
@@ -168,10 +132,7 @@ describe("Document representations", function () {
   it("It changes pages of the preview with the next and prev buttons", async () => {
     await changesPagesOfThePreviewWithTheNextAndPrevButtons({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
         owned_multisign: [],
         pending_multisign: [],
       },
@@ -182,10 +143,7 @@ describe("Document representations", function () {
   //   await changesPagesOfThePreviewWithTheNextAndPrevButtons({
   //     payload: {
   //       size: "sm",
-  //       signer_attributes: [
-  //         { name: "givenName", value: "Tester" },
-  //         { name: "surname", value: "Testig" },
-  //       ],
+    //       signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
   //       owned_multisign: [],
   //       pending_multisign: [],
   //     },
@@ -196,10 +154,7 @@ describe("Document representations", function () {
   //   await changesPagesOfThePreviewWithTheNextAndPrevButtons(
   //     {
   //       payload: {
-  //         signer_attributes: [
-  //           { name: "givenName", value: "Tester" },
-  //           { name: "surname", value: "Testig" },
-  //         ],
+    //         signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
   //         owned_multisign: [],
   //         pending_multisign: [],
   //       },
@@ -214,10 +169,7 @@ describe("Document representations", function () {
   //     {
   //       payload: {
   //         size: "sm",
-  //         signer_attributes: [
-  //           { name: "givenName", value: "Tester" },
-  //           { name: "surname", value: "Testig" },
-  //         ],
+    //         signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
   //         owned_multisign: [],
   //         pending_multisign: [],
   //       },
@@ -230,10 +182,7 @@ describe("Document representations", function () {
   it("It hides the preview after clicking on the close button", async () => {
     await hidesThePreviewAfterClickingOnTheCloseButton({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
         owned_multisign: [],
         pending_multisign: [],
       },
@@ -244,10 +193,7 @@ describe("Document representations", function () {
     await hidesThePreviewAfterClickingOnTheCloseButton({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
         owned_multisign: [],
         pending_multisign: [],
       },
@@ -257,10 +203,7 @@ describe("Document representations", function () {
   it("It shows the spinner after clicking on the sign button", async () => {
     await showsTheSpinnerAfterClickingOnTheSignButton({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -269,10 +212,7 @@ describe("Document representations", function () {
     await showsTheSpinnerAfterClickingOnTheSignButton({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -280,10 +220,7 @@ describe("Document representations", function () {
   it("It shows error message after create sign request returns error message", async () => {
     await showsErrorMessageAfterCreateSignRequestReturnsErrorMessage({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -292,10 +229,7 @@ describe("Document representations", function () {
     await showsErrorMessageAfterCreateSignRequestReturnsErrorMessage({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -303,10 +237,7 @@ describe("Document representations", function () {
   it("It shows the spinner after create sign request returns expired cache", async () => {
     await showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -315,10 +246,7 @@ describe("Document representations", function () {
     await showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -326,10 +254,7 @@ describe("Document representations", function () {
   it("It shows error message after recreate sign request returns error", async () => {
     await showsErrorMessageAfterRecreateSignRequestReturnsError({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -338,10 +263,7 @@ describe("Document representations", function () {
     await showsErrorMessageAfterRecreateSignRequestReturnsError({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -349,10 +271,7 @@ describe("Document representations", function () {
   it("It carries the sign response after getting the signed docs", async () => {
     await carriesTheSignResponseAfterGettingTheSignedDocs({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -361,10 +280,7 @@ describe("Document representations", function () {
     await carriesTheSignResponseAfterGettingTheSignedDocs({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -372,10 +288,7 @@ describe("Document representations", function () {
   it("It shows error after a failure at the get-signed endpoint", async () => {
     await showsErrorAfterAfailureAtTheGetSignedEndpoint({
       payload: {
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -384,10 +297,7 @@ describe("Document representations", function () {
     await showsErrorAfterAfailureAtTheGetSignedEndpoint({
       payload: {
         size: "sm",
-        signer_attributes: [
-          { name: "givenName", value: "Tester" },
-          { name: "surname", value: "Testig" },
-        ],
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });

@@ -134,7 +134,7 @@ const mainSlice = createSlice({
     [fetchConfig.rejected]: (state, action) => {
       return {
         ...state,
-        signer_attributes: [],
+        signer_attributes: null,
       };
     },
   },

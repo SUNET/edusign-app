@@ -80,7 +80,7 @@ section#edusign-banner-sm {
     display: flex;
     justify-content: space-between;
 
-    #name-in-header #signer-attributes {
+    #name-in-header {
       display: flex;
       flex-wrap: wrap;
     }
@@ -95,17 +95,8 @@ section#edusign-banner-sm {
   }
 }
 
-.signer-attribute {
-  margin-left: 0.5rem;
-}
-
-#signing-with-span,
-.signer-attribute .attr-value {
+#signing-with-span {
   color: $darker-dark-grey;
-}
-
-.signer-attribute .attr-name {
-  color: $darker-grey;
 }
 
 #clear-in-header {

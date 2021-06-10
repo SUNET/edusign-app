@@ -57,9 +57,10 @@ class ConfigSchema(Schema):
     basically consisting on the signer attributes.
     """
 
-    class SignerAttribute(Schema):
+    class SignerAttributes(Schema):
+        eppn = fields.String(required=True, validate=[validate_nonempty])
         name = fields.String(required=True, validate=[validate_nonempty])
-        value = fields.String(required=True, validate=[validate_nonempty])
+        mail = fields.String(required=True, validate=[validate_nonempty])
 
     class PendingDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
@@ -71,7 +72,7 @@ class ConfigSchema(Schema):
         pending = fields.List(fields.Nested(Invitee))
         signed = fields.List(fields.Nested(Invitee))
 
-    signer_attributes = fields.List(fields.Nested(SignerAttribute))
+    signer_attributes = fields.Nested(SignerAttributes)
     pending_multisign = fields.List(fields.Nested(PendingDocument))
     owned_multisign = fields.List(fields.Nested(OwnedDocument))
 

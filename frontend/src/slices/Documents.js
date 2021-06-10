@@ -463,9 +463,7 @@ export const sendInvites = createAsyncThunk(
       return doc.id === documentId;
     })[0];
 
-    const owner = state.main.signer_attributes.filter((attr) => {
-      return attr.name === "mail";
-    })[0].value;
+    const owner = state.main.signer_attributes.mail;
 
     const dataToSend = {
       owner: owner,

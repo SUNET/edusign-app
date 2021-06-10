@@ -104,7 +104,12 @@ def get_config() -> dict:
         return {'error': True, 'message': gettext('Unauthorized')}
 
     session['site_visitor'] = True
-    attrs = [{'name': attr, 'value': session[attr]} for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
+    attrs = {'eppn': session['eppn'], "mail": session["mail"]}
+    if 'displayName' in session:
+        attrs['name'] = session['displayName']
+    else:
+        attrs['name'] = f"{session['givenName']} {session['sn']}"
+
     return {
         'payload': {
             'signer_attributes': attrs,

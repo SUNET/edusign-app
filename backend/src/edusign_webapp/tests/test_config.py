@@ -32,8 +32,6 @@
 #
 import json
 
-from edusign_webapp import run
-
 
 def test_config(client):
 
@@ -47,15 +45,6 @@ def test_config(client):
 
     data = json.loads(response.data)
 
-    attr_names = run.app.config['SIGNER_ATTRIBUTES'].values()
-
-    for attr in data['payload']['signer_attributes']:
-
-        assert attr['name'] in attr_names
-
-        if attr['name'] == 'givenName':
-            assert attr['value'] == 'Tëster'
-        elif attr['name'] == 'sn':
-            assert attr['value'] == 'Testing'
-        elif attr['name'] == 'mail':
-            assert attr['value'] == 'tester@example.org'
+    assert data['payload']['signer_attributes']['name'] == "Tëster Kid"
+    assert data['payload']['signer_attributes']['mail'] == "tester@example.org"
+    assert data['payload']['signer_attributes']['eppn'] == "dummy-eppn@example.org"

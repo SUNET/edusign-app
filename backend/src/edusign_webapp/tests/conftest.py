@@ -63,7 +63,7 @@ config_pro = {
 
 
 _environ_base = {
-    "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn',
+    "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn@example.org',
     "HTTP_GIVENNAME": b64encode('<Attribute>Tëster</Attribute>'.encode("utf-8")),
     "HTTP_DISPLAYNAME": b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8")),
     "HTTP_SN": b64encode(b'<Attribute>Testing</Attribute>'),
@@ -99,7 +99,7 @@ def client_non_whitelisted(request):
 
     with app.test_client() as client:
         environ = deepcopy(_environ_base)
-        environ['HTTP_MAIL'] = b64encode(b'<Attribute>tester@example.com</Attribute>')
+        environ['HTTP_EDUPERSONPRINCIPALNAME'] = b'tester@example.com'
         client.environ_base.update(environ)
 
         yield client
