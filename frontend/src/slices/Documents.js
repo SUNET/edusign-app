@@ -226,7 +226,7 @@ export const prepareDocument = createAsyncThunk(
       const updatedDoc = {
         ...doc,
         ...data.payload,
-        state: "loaded",
+        state: "selected",
       };
       return updatedDoc;
     }
