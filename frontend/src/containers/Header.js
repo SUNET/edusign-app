@@ -32,7 +32,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch, props) => {
   return {
     clearDb: function () {
-      clearDocStore(dispatch);
+      clearDocStore(dispatch, props.intl);
       dispatch(removeAllDocuments());
     },
     showConfirm: function (confirmId) {

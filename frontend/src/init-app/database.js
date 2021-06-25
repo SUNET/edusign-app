@@ -3,7 +3,7 @@
  * @desc Here we create the IndexedDB db that will persist the loaded documents between sessions
  */
 
-import { addNotification } from "slices/Notifications";
+import { addNotification, rmNotification } from "slices/Notifications";
 
 let db = null;
 
@@ -103,21 +103,22 @@ export const dbRemoveDocument = (document) => {
  * @desc Remove all documents from the IndexedDB db.
  *
  */
-export const clearDocStore = (dispatch) => {
+export const clearDocStore = (dispatch, intl) => {
   const docStore = getDocStore();
   if (docStore !== null) {
     const docRequest = docStore.clear();
+    docRequest.onsuccess = (e) => {dispatch(rmNotification())};
     docRequest.onerror = (event) => {
       dispatch(
         addNotification({
           level: "danger",
-          message: "XXX problem clearing db, please try again",
+          message: intl.formatMessage({defaultMessage: "problem clearing db, please try again", id: "problem-clearing-db"}),
         })
       );
     };
   } else {
     dispatch(
-      addNotification({ level: "danger", message: "XXX no persistent state" })
+      addNotification({ level: "danger", message: intl.formatMessage({defaultMessage: "no persistent state", id: "no-persistent-state"}) })
     );
   }
 };
