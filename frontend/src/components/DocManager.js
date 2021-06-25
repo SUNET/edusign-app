@@ -576,7 +576,7 @@ class DocManager extends React.Component {
             >
               <div id="button-sign-wrapper">
                 <Button
-                  variant="outline-success"
+                  variant="success"
                   id="button-sign"
                   size="lg"
                   disabled={!someSelected}
