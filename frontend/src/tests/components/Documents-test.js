@@ -21,6 +21,11 @@ describe("Document representations", function () {
   afterEach(() => {
     cleanup();
     fetchMock.restore();
+    window.indexedDB.databases().then((r) => {
+      for (var i = 0; i < r.length; i++) window.indexedDB.deleteDatabase(r[i].name);
+    }).then(() => {
+      console.log('All data cleared.');
+    });
   });
 
   it("It shows the document after createDocument action", async () => {
@@ -303,6 +308,25 @@ describe("Document representations", function () {
   });
 });
 
+const clearDocDB = async (rerender, wrapped) => {
+
+  const clearButton = await waitFor(() =>
+    screen.getAllByTestId("clear-in-header")
+  );
+  expect(clearButton.length).to.equal(1);
+
+  fireEvent.click(clearButton[0]);
+  await flushPromises(rerender, wrapped);
+
+  const confirmButton = await waitFor(() =>
+    screen.getAllByTestId("confirm-clear-session-confirm-button")
+  );
+  expect(confirmButton.length).to.equal(1);
+
+  fireEvent.click(confirmButton[0]);
+  await flushPromises(rerender, wrapped);
+};
+
 const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
@@ -310,21 +334,7 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     let filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
@@ -375,6 +385,7 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     );
     expect(selector.length).to.equal(1);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -392,21 +403,7 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument = asy
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     let warning = screen.queryByText(
       /Please do not supply a password protected document/
@@ -442,6 +439,7 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument = asy
     );
     expect(warning.length).to.equal(1);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -459,21 +457,7 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     let filename = screen.queryByText("test.pdf");
     expect(filename).to.equal(null);
@@ -514,6 +498,7 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
     buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(buttonRemove.length).to.equal(1);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -529,21 +514,7 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     let filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
@@ -584,6 +555,7 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     buttonRemove = await waitFor(() => screen.getAllByText(/Malformed PDF/i));
     expect(buttonRemove.length).to.equal(1);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -599,21 +571,7 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     let rmButton = screen.queryByTestId("rm-button-test.pdf");
     expect(rmButton).to.equal(null);
@@ -663,6 +621,7 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     rmButton = screen.queryByText("rm-button-test.pdf");
     expect(rmButton).to.equal(null);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -678,21 +637,7 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -767,6 +712,7 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     );
     expect(closeButton.length).to.equal(1);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -786,21 +732,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([sample2pPDFData], "test.pdf", {
       type: "application/pdf",
@@ -874,6 +806,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
     expect(pdf2).to.equal(null);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -889,21 +822,7 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -974,6 +893,7 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     );
     expect(nextButton).to.equal(null);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -989,21 +909,7 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -1067,6 +973,7 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     );
     expect(spinner.length).to.equal(1);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -1084,21 +991,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -1157,6 +1050,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     );
     expect(text.length).to.equal(1);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -1174,21 +1068,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -1250,6 +1130,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     );
     expect(spinner.length).to.equal(1);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -1267,21 +1148,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -1338,6 +1205,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     );
     expect(text.length).to.equal(1);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -1353,21 +1221,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -1454,6 +1308,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     );
     expect(buttonSigned.length).to.equal(1);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -1469,21 +1324,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    const clearButton = await waitFor(() =>
-      screen.getAllByTestId("clear-in-header")
-    );
-    expect(clearButton.length).to.equal(1);
-
-    fireEvent.click(clearButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("confirm-clear-session-confirm-button")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
-    await flushPromises(rerender, wrapped);
+    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -1568,6 +1409,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     );
     expect(errorMsg.length).to.equal(1);
   } catch (err) {
+    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
