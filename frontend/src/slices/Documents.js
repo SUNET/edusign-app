@@ -313,7 +313,7 @@ export const startSigningDocuments = createAsyncThunk(
           }),
         })
       );
-      thunkAPI.dispatch(documentsSlice.actions.signFailure());
+      thunkAPI.dispatch(documentsSlice.actions.signFailure(args.intl));
     }
   }
 );
@@ -369,7 +369,7 @@ export const restartSigningDocuments = createAsyncThunk(
           }),
         })
       );
-      thunkAPI.dispatch(documentsSlice.actions.signFailure());
+      thunkAPI.dispatch(documentsSlice.actions.signFailure(args.intl));
     }
   }
 );
@@ -418,7 +418,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
         }),
       })
     );
-    thunkAPI.dispatch(documentsSlice.actions.signFailure());
+    thunkAPI.dispatch(documentsSlice.actions.signFailure(intl));
   }
 };
 
@@ -686,7 +686,7 @@ export const signInvitedDoc = createAsyncThunk(
           }),
         })
       );
-      thunkAPI.dispatch(documentsSlice.actions.signFailure());
+      thunkAPI.dispatch(documentsSlice.actions.signFailure(args.intl));
     }
   }
 );
@@ -835,13 +835,14 @@ const documentsSlice = createSlice({
      * @desc Redux action to update documents in signing state
      * when the request to sign them has failed
      */
-    signFailure(state) {
+    signFailure(state, action) {
+      const intl = action.payload;
       state.documents = state.documents.map((doc) => {
         if (doc.state === "signing") {
           const document = {
             ...doc,
             state: "failed-signing",
-            message: "XXX Problem signing the document",
+            message: intl.formatMessage({defaultMessage: "Problem signing the document", id: "problem-signing"}),
           };
           dbSaveDocument(document);
           return document;

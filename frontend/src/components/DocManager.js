@@ -332,7 +332,7 @@ class DocManager extends React.Component {
             doc = {
               ...doc,
               state: "failed-loading",
-              message: "XXX Malformed PDF",
+              message: this.props.intl.formatMessage({defaultMessage: "Malformed PDF", id: "malformed-pdf"}),
             };
           }
           if (doc.state === "selected") someSelected = true;
