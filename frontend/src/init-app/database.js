@@ -2,7 +2,6 @@
  * @module init-app/database
  * @desc Here we create the IndexedDB db that will persist the loaded documents between sessions
  */
-
 import { addNotification, rmNotification } from "slices/Notifications";
 
 let db = null;
@@ -41,6 +40,41 @@ export async function getDb() {
   } else {
     return db;
   }
+}
+
+/**
+ * @public
+ * @function resetDb
+ * @desc Reset the IndexedDB - for testing.
+ *
+ */
+export async function resetDb() {
+
+  require("fake-indexeddb/auto");
+  const FDBFactory = require("fake-indexeddb/lib/FDBFactory");
+  return await new Promise((resolve) => {
+    const iDB = new FDBFactory();
+    const request = iDB.open("eduSignDB", 1);
+    request.onsuccess = () => {
+      db = request.result;
+      resolve(db);
+    };
+    request.onerror = (event) => {
+      resolve(null);
+    };
+    request.onupgradeneeded = (event) => {
+      db = request.result;
+      if (event.oldVersion < 1) {
+        db.createObjectStore("documents", {
+          keyPath: "id",
+          autoIncrement: true,
+        });
+      }
+      event.target.transaction.oncomplete = () => {
+        resolve(db);
+      };
+    };
+  });
 }
 
 /**

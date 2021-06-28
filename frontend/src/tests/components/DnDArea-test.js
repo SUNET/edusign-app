@@ -14,8 +14,12 @@ import {
 import Main from "components/Main";
 import DnDAreaContainer from "containers/DnDArea";
 import * as edusignLogo from "../../../images/eduSign_logo.svg";
+import { resetDb } from "init-app/database";
 
 describe("DnDArea Component", function () {
+  beforeEach( async () => {
+    await resetDb();
+  });
   afterEach(() => {
     cleanup();
     fetchMock.restore();

@@ -12,27 +12,12 @@ import {
 import Main from "components/Main";
 import { createDocument, loadDocuments } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
-
-const clearDocDB = async (rerender, wrapped) => {
-
-  const clearButton = await waitFor(() =>
-    screen.getAllByTestId("clear-in-header")
-  );
-  expect(clearButton.length).to.equal(1);
-
-  fireEvent.click(clearButton[0]);
-  await flushPromises(rerender, wrapped);
-
-  const confirmButton = await waitFor(() =>
-    screen.getAllByTestId("confirm-clear-session-confirm-button")
-  );
-  expect(confirmButton.length).to.equal(1);
-
-  fireEvent.click(confirmButton[0]);
-  await flushPromises(rerender, wrapped);
-};
+import { resetDb } from "init-app/database";
 
 describe("Multi sign invitations", function () {
+  beforeEach( async () => {
+    await resetDb();
+  });
   afterEach(() => {
     cleanup();
     fetchMock.restore();
@@ -40,8 +25,6 @@ describe("Multi sign invitations", function () {
 
   it("It shows the invites form after clicking the invite button", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-
-    await clearDocDB(rerender, wrapped);
 
     try {
       fetchMock.get("/sign/config", {
@@ -94,9 +77,8 @@ describe("Multi sign invitations", function () {
       const emailInput = await waitFor(() =>
         screen.getAllByTestId("invitees.0.email")
       );
-      expect(emailInput.length).to.equal(2);
+      expect(emailInput.length).to.equal(1);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }
@@ -121,8 +103,6 @@ describe("Multi sign invitations", function () {
         })
       );
       await flushPromises(rerender, wrapped);
-
-      await clearDocDB(rerender, wrapped);
 
       const fileObj = new File([samplePDFData], "test.pdf", {
         type: "application/pdf",
@@ -184,7 +164,6 @@ describe("Multi sign invitations", function () {
       );
       expect(nameInput2.length).to.equal(1);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }
@@ -222,8 +201,6 @@ describe("Multi sign invitations", function () {
         })
       );
       await flushPromises(rerender, wrapped);
-
-      await clearDocDB(rerender, wrapped);
 
       const fileObj = new File([samplePDFData], "testost.pdf", {
         type: "application/pdf",
@@ -304,7 +281,6 @@ describe("Multi sign invitations", function () {
       const inviteName = await waitFor(() => screen.getAllByText(/Dummy Doe/));
       expect(inviteName.length).to.equal(1);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }
@@ -344,8 +320,6 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      await clearDocDB(rerender, wrapped);
-
       const inviteTitle = await waitFor(() =>
         screen.getAllByText(/Requests for multiple signatures/)
       );
@@ -366,7 +340,6 @@ describe("Multi sign invitations", function () {
       );
       expect(signedWaiting.length).to.equal(0);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }
@@ -405,8 +378,6 @@ describe("Multi sign invitations", function () {
         })
       );
       await flushPromises(rerender, wrapped);
-
-      await clearDocDB(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
         screen.getAllByText(/Requests for multiple signatures/)
@@ -460,7 +431,6 @@ describe("Multi sign invitations", function () {
       );
       expect(message.length).to.equal(1);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }
@@ -499,8 +469,6 @@ describe("Multi sign invitations", function () {
         })
       );
       await flushPromises(rerender, wrapped);
-
-      await clearDocDB(rerender, wrapped);
 
       const inviteTitle = await waitFor(() =>
         screen.getAllByText(/Requests for multiple signatures/)
@@ -553,7 +521,6 @@ describe("Multi sign invitations", function () {
       // );
       // expect(resendLabel.length).to.equal(0);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }
@@ -597,8 +564,6 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      await clearDocDB(rerender, wrapped);
-
       const inviteTitle = await waitFor(() =>
         screen.getAllByText(/Requests for multiple signatures/)
       );
@@ -624,7 +589,6 @@ describe("Multi sign invitations", function () {
       );
       expect(invite2Name.length).to.equal(1);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }
@@ -669,8 +633,6 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      await clearDocDB(rerender, wrapped);
-
       const inviteTitle = await waitFor(() =>
         screen.getAllByText(/Requests for multiple signatures/)
       );
@@ -701,7 +663,6 @@ describe("Multi sign invitations", function () {
       );
       expect(signButton.length).to.equal(0);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }
@@ -745,8 +706,6 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      await clearDocDB(rerender, wrapped);
-
       const inviteTitle = await waitFor(() =>
         screen.getAllByText(/Requests for multiple signatures/)
       );
@@ -777,7 +736,6 @@ describe("Multi sign invitations", function () {
       );
       expect(signButton.length).to.equal(1);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }
@@ -826,8 +784,6 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      await clearDocDB(rerender, wrapped);
-
       const rmButton = await waitFor(() =>
         screen.getAllByTestId("rm-invitation-test1.pdf")
       );
@@ -854,7 +810,6 @@ describe("Multi sign invitations", function () {
       );
       expect(inviteTitle.length).to.equal(0);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }
@@ -903,8 +858,6 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      await clearDocDB(rerender, wrapped);
-
       const rmButton = await waitFor(() =>
         screen.getAllByTestId("rm-invitation-test1.pdf")
       );
@@ -931,7 +884,6 @@ describe("Multi sign invitations", function () {
       );
       expect(inviteTitle.length).to.equal(1);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }
@@ -970,8 +922,6 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      await clearDocDB(rerender, wrapped);
-
       const inviteTitle = await waitFor(() =>
         screen.queryAllByText(/Requests for multiple signatures/)
       );
@@ -992,7 +942,6 @@ describe("Multi sign invitations", function () {
       );
       expect(inviteName.length).to.equal(1);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }
@@ -1051,8 +1000,6 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      await clearDocDB(rerender, wrapped);
-
       const signButton = await waitFor(() =>
         screen.getAllByText(/Add Final Signature/)
       );
@@ -1066,7 +1013,6 @@ describe("Multi sign invitations", function () {
       );
       expect(inviteForm.length).to.equal(1);
     } catch (err) {
-      await clearDocDB(rerender, wrapped);
       unmount();
       throw err;
     }

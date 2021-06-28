@@ -16,16 +16,16 @@ import {
 import Main from "components/Main";
 import { createDocument, loadDocuments } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
+import { resetDb } from "init-app/database";
 
 describe("Document representations", function () {
+  beforeEach( async () => {
+    await resetDb();
+  });
+
   afterEach(() => {
     cleanup();
     fetchMock.restore();
-    window.indexedDB.databases().then((r) => {
-      for (var i = 0; i < r.length; i++) window.indexedDB.deleteDatabase(r[i].name);
-    }).then(() => {
-      console.log('All data cleared.');
-    });
   });
 
   it("It shows the document after createDocument action", async () => {
@@ -308,33 +308,12 @@ describe("Document representations", function () {
   });
 });
 
-const clearDocDB = async (rerender, wrapped) => {
-
-  const clearButton = await waitFor(() =>
-    screen.getAllByTestId("clear-in-header")
-  );
-  expect(clearButton.length).to.equal(1);
-
-  fireEvent.click(clearButton[0]);
-  await flushPromises(rerender, wrapped);
-
-  const confirmButton = await waitFor(() =>
-    screen.getAllByTestId("confirm-clear-session-confirm-button")
-  );
-  expect(confirmButton.length).to.equal(1);
-
-  fireEvent.click(confirmButton[0]);
-  await flushPromises(rerender, wrapped);
-};
-
 const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     let filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
@@ -385,7 +364,6 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     );
     expect(selector.length).to.equal(1);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -402,8 +380,6 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument = asy
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     let warning = screen.queryByText(
       /Please do not supply a password protected document/
@@ -439,7 +415,6 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument = asy
     );
     expect(warning.length).to.equal(1);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -456,8 +431,6 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     let filename = screen.queryByText("test.pdf");
     expect(filename).to.equal(null);
@@ -489,16 +462,12 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
     );
     await flushPromises(rerender, wrapped);
 
-    filename = await waitFor(() => screen.getAllByText("test.pdf"));
-    expect(filename.length).to.equal(1);
-
     buttonRetry = await waitFor(() => screen.getAllByTestId("button-retry-0"));
     expect(buttonRetry.length).to.equal(1);
 
     buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(buttonRemove.length).to.equal(1);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -513,8 +482,6 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     let filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
@@ -546,16 +513,12 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     );
     await flushPromises(rerender, wrapped);
 
-    filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
-    expect(filename.length).to.equal(1);
-
     buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(buttonRemove.length).to.equal(1);
 
     buttonRemove = await waitFor(() => screen.getAllByText(/Malformed PDF/i));
     expect(buttonRemove.length).to.equal(1);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -570,8 +533,6 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     let rmButton = screen.queryByTestId("rm-button-test.pdf");
     expect(rmButton).to.equal(null);
@@ -621,7 +582,6 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     rmButton = screen.queryByText("rm-button-test.pdf");
     expect(rmButton).to.equal(null);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -636,8 +596,6 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -712,7 +670,6 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     );
     expect(closeButton.length).to.equal(1);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -731,8 +688,6 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([sample2pPDFData], "test.pdf", {
       type: "application/pdf",
@@ -806,7 +761,6 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
     expect(pdf2).to.equal(null);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -821,8 +775,6 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -893,7 +845,6 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     );
     expect(nextButton).to.equal(null);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -908,8 +859,6 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -957,9 +906,6 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     );
     expect(selector.length).to.equal(1);
 
-    fireEvent.click(selector[0]);
-    await flushPromises(rerender, wrapped);
-
     const signButton = await waitFor(() =>
       screen.getAllByText("Sign Selected Documents")
     );
@@ -973,7 +919,6 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     );
     expect(spinner.length).to.equal(1);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -990,8 +935,6 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -1034,9 +977,6 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     );
     expect(selector.length).to.equal(1);
 
-    fireEvent.click(selector[0]);
-    await flushPromises(rerender, wrapped);
-
     const signButton = await waitFor(() =>
       screen.getAllByText("Sign Selected Documents")
     );
@@ -1050,7 +990,6 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     );
     expect(text.length).to.equal(1);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -1067,8 +1006,6 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -1114,9 +1051,6 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     );
     expect(selector.length).to.equal(1);
 
-    fireEvent.click(selector[0]);
-    await flushPromises(rerender, wrapped);
-
     const signButton = await waitFor(() =>
       screen.getAllByText("Sign Selected Documents")
     );
@@ -1130,7 +1064,6 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     );
     expect(spinner.length).to.equal(1);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -1147,8 +1080,6 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -1189,9 +1120,6 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     );
     expect(selector.length).to.equal(1);
 
-    fireEvent.click(selector[0]);
-    await flushPromises(rerender, wrapped);
-
     const signButton = await waitFor(() =>
       screen.getAllByText("Sign Selected Documents")
     );
@@ -1205,7 +1133,6 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     );
     expect(text.length).to.equal(1);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -1220,8 +1147,6 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -1279,9 +1204,6 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     );
     expect(selector.length).to.equal(1);
 
-    fireEvent.click(selector[0]);
-    await flushPromises(rerender, wrapped);
-
     const signButton = await waitFor(() =>
       screen.getAllByText("Sign Selected Documents")
     );
@@ -1308,7 +1230,6 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     );
     expect(buttonSigned.length).to.equal(1);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
@@ -1323,8 +1244,6 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     fetchMock.get("/sign/config", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
-
-    await clearDocDB(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -1370,9 +1289,6 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     );
     expect(selector.length).to.equal(1);
 
-    fireEvent.click(selector[0]);
-    await flushPromises(rerender, wrapped);
-
     const signButton = await waitFor(() =>
       screen.getAllByText("Sign Selected Documents")
     );
@@ -1409,7 +1325,6 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     );
     expect(errorMsg.length).to.equal(1);
   } catch (err) {
-    await clearDocDB(rerender, wrapped);
     unmount();
     throw err;
   }
