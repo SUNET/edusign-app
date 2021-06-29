@@ -144,45 +144,45 @@ describe("Document representations", function () {
     });
   });
 
-  // it("It changes pages of the preview with the next and prev buttons - sm", async () => {
-  //   await changesPagesOfThePreviewWithTheNextAndPrevButtons({
-  //     payload: {
-  //       size: "sm",
-    //       signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
-  //       owned_multisign: [],
-  //       pending_multisign: [],
-  //     },
-  //   });
-  // });
+  it("It changes pages of the preview with the next and prev buttons - sm", async () => {
+    await changesPagesOfThePreviewWithTheNextAndPrevButtons({
+      payload: {
+        size: "sm",
+        signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+        owned_multisign: [],
+        pending_multisign: [],
+      },
+    });
+  });
 
-  // it("It changes pages of the preview with the last and first buttons", async () => {
-  //   await changesPagesOfThePreviewWithTheNextAndPrevButtons(
-  //     {
-  //       payload: {
-    //         signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
-  //         owned_multisign: [],
-  //         pending_multisign: [],
-  //       },
-  //     },
-  //     "first",
-  //     "last"
-  //   );
-  // });
+  it("It changes pages of the preview with the last and first buttons", async () => {
+    await changesPagesOfThePreviewWithTheNextAndPrevButtons(
+      {
+        payload: {
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          owned_multisign: [],
+          pending_multisign: [],
+        },
+      },
+      "first",
+      "last"
+    );
+  });
 
-  // it("It changes pages of the preview with the last and first buttons - sm", async () => {
-  //   await changesPagesOfThePreviewWithTheNextAndPrevButtons(
-  //     {
-  //       payload: {
-  //         size: "sm",
-    //         signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
-  //         owned_multisign: [],
-  //         pending_multisign: [],
-  //       },
-  //     },
-  //     "first",
-  //     "last"
-  //   );
-  // });
+  it("It changes pages of the preview with the last and first buttons - sm", async () => {
+    await changesPagesOfThePreviewWithTheNextAndPrevButtons(
+      {
+        payload: {
+          size: "sm",
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          owned_multisign: [],
+          pending_multisign: [],
+        },
+      },
+      "first",
+      "last"
+    );
+  });
 
   it("It hides the preview after clicking on the close button", async () => {
     await hidesThePreviewAfterClickingOnTheCloseButton({
