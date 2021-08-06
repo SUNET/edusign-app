@@ -18,14 +18,12 @@
   border-radius: 2;
   align-items: baseline;
   &.alert-danger {
-    color: $error-red;
-    border-color: $error-red;
-    background-color: $white;
+    color: $white;
+    background-color: $error-red;
   }
   &.alert-success {
-    color: $dark-green;
-    border-color: $dark-green;
-    background-color: $white;
+    color: $white;
+    background-color: $dark-green;
   }
   & span {
     font-size: 1rem;

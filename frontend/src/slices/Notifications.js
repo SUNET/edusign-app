@@ -9,7 +9,24 @@
  * A notification is an object with 2 keys, `level`, which can be "danger" or "success",
  * and `message`, which can be any text.
  */
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+/**
+ * @public
+ * @function addNotification
+ * @desc Redux async thunk to show transient notification
+ * This notification will show in the notifications area of the header.
+ */
+export const addNotification = createAsyncThunk(
+  "main/addNotification",
+  async (arg, thunkAPI) => {
+    window.setTimeout(()=>{
+        thunkAPI.dispatch(notificationsSlice.actions.rmNotification())
+      },4000);
+    window.scrollTo({top: 0, left: 0, behavior: 'smooth'});
+    return arg;
+  }
+);
 
 const notificationsSlice = createSlice({
   name: "notifications",
@@ -17,15 +34,6 @@ const notificationsSlice = createSlice({
     message: null,
   },
   reducers: {
-    /**
-     * @public
-     * @function addNotification
-     * @desc Redux action to add a notification to the notifications state key.
-     * This notification will show in the notifications area of the header.
-     */
-    addNotification(state, action) {
-      state.message = action.payload;
-    },
     /**
      * @public
      * @function rmNotification
@@ -36,8 +44,13 @@ const notificationsSlice = createSlice({
       state.message = null;
     },
   },
+  extraReducers: {
+    [addNotification.fulfilled]: (state, action) => {
+        state.message = action.payload;
+    },
+  },
 });
 
-export const { addNotification, rmNotification } = notificationsSlice.actions;
+export const { rmNotification } = notificationsSlice.actions;
 
 export default notificationsSlice.reducer;
