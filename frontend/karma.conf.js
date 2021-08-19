@@ -51,6 +51,7 @@ webpackKarma.plugins.push(
   new webpack.DefinePlugin({
     AVAILABLE_LANGUAGES: require("./edusign.config.js").AVAILABLE_LANGUAGES,
     LOCALIZED_MESSAGES: require("./edusign.config.js").LOCALIZED_MESSAGES,
+    MULTISIGN_BUTTONS: require("./edusign.config.js").MULTISIGN_BUTTONS,
   }),
 );
 

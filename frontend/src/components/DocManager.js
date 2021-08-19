@@ -201,6 +201,7 @@ class DocManager extends React.Component {
     );
   }
   multiSignButton(index, doc) {
+    if (MULTISIGN_BUTTONS !== 'yes') {return ''}
     return (
       <>
         <div className="button-multisign-flex-item">

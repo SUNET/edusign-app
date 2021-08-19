@@ -13,4 +13,5 @@ langs.forEach((lang) => {
 module.exports = {
   AVAILABLE_LANGUAGES: JSON.stringify(langs),
   LOCALIZED_MESSAGES: JSON.stringify(messages),
+  MULTISIGN_BUTTONS: process.env.MULTISIGN_BUTTONS && JSON.stringify(process.env.MULTISIGN_BUTTONS) || JSON.stringify('yes'),
 }
