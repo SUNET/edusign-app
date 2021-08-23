@@ -1,11 +1,12 @@
 {
   "name": "edusign-front",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "",
   "browser": "src/entry-points/index.js",
   "scripts": {
     "start": "rm -rf node_modules/.cache && webpack --watch --progress",
     "build-pro": "rm -rf node_modules/.cache && webpack --config webpack.prod.config.js",
+    "build-dev": "rm -rf node_modules/.cache && webpack --config webpack.config.js",
     "test": "karma start karma.conf.js",
     "debug": "karma start --single-run=false --debug --browser Chrome",
     "serve": "webpack-dev-server --open",
