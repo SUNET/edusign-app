@@ -286,7 +286,7 @@ def sign_service_callback() -> Union[str, Response]:
         return redirect(url_for('edusign.get_index'))
 
     bundle_name = 'main-bundle'
-    if current_app.config['DEBUG']:
+    if current_app.config['ENVIRONMENT'] == 'development':
         bundle_name += '.dev'
 
     try:
