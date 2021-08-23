@@ -42,6 +42,7 @@ from werkzeug.wrappers import Response
 
 from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
+    BlobSchema,
     ConfigSchema,
     DocumentSchema,
     KeyedMultiSignSchema,
@@ -666,7 +667,7 @@ def final_multisign_signature(data: dict) -> dict:
 
 @edusign_views.route('/get-partially-signed', methods=['POST'])
 @UnMarshal(KeyedMultiSignSchema)
-@Marshal()
+@Marshal(BlobSchema)
 def get_partially_signed_doc(data: dict) -> dict:
     """
     View to get a document for preview that is only partially signed
@@ -681,3 +682,4 @@ def get_partially_signed_doc(data: dict) -> dict:
         current_app.logger.error(f'Problem getting multi sign document: {e}')
         return {'error': True, 'message': gettext('Problem getting the document being signed')}
 
+    return {'message': '', 'payload': {'blob': doc}}

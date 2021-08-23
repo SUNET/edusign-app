@@ -86,6 +86,14 @@ class DocumentSchema(_DocumentSchema):
     blob = fields.Raw(required=True, validate=[validate_nonempty])
 
 
+class BlobSchema(Schema):
+    """
+    Schema to marshal a document's contents sent to the frontend for preview.
+    """
+
+    blob = fields.Raw(required=True, validate=[validate_nonempty])
+
+
 class DocumentSchemaWithKey(_DocumentSchema):
     """
     Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
