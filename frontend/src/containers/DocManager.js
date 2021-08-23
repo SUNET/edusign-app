@@ -30,6 +30,7 @@ const mapStateToProps = (state) => {
     relayState: state.main.signingData.relay_state,
     signRequest: state.main.signingData.sign_request,
     size: state.main.size,
+    multisign_buttons: state.main.multisign_buttons,
   };
 };
 

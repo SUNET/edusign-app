@@ -4,6 +4,8 @@ EDUSIGN_API_PASSWORD=dummy
 EDUSIGN_API_BASE_URL=https://sig.idsec.se/signint/v1/
 EDUSIGN_API_PROFILE=edusign-test
 
+MULTISIGN_BUTTONS=yes
+
 SIGN_REQUESTER_ID=https://sig.idsec.se/shibboleth
 
 DEBUG_IDP=https://login.idp.eduid.se/idp.xml

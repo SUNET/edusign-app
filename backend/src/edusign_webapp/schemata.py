@@ -75,6 +75,7 @@ class ConfigSchema(Schema):
     signer_attributes = fields.Nested(SignerAttributes)
     pending_multisign = fields.List(fields.Nested(PendingDocument))
     owned_multisign = fields.List(fields.Nested(OwnedDocument))
+    multisign_buttons = fields.String(required=True)
 
 
 class DocumentSchema(_DocumentSchema):
