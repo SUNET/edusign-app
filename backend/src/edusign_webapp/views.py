@@ -662,3 +662,22 @@ def final_multisign_signature(data: dict) -> dict:
     message = gettext("Success creating sign request")
 
     return {'message': message, 'payload': sign_data}
+
+
+@edusign_views.route('/get-partially-signed', methods=['POST'])
+@UnMarshal(KeyedMultiSignSchema)
+@Marshal()
+def get_partially_signed_doc(data: dict) -> dict:
+    """
+    View to get a document for preview that is only partially signed
+
+    :param data: The key of the document to get
+    :return: A message about the result of the procedure
+    """
+    try:
+        doc = current_app.doc_store.get_document_content(uuid.UUID(data['key']), force=True)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem getting multi sign document: {e}')
+        return {'error': True, 'message': gettext('Problem getting the document being signed')}
+
