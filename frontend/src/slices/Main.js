@@ -10,7 +10,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createIntl } from "react-intl";
 
-import { getRequest, checkStatus, extractCsrfToken } from "slices/fetch-utils";
+import { getRequest, postRequest, checkStatus, extractCsrfToken, preparePayload } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 import { loadDocuments } from "slices/Documents";
 
@@ -44,7 +44,6 @@ export const fetchConfig = createAsyncThunk(
         return configData;
       }
     } catch (err) {
-      console.log("UUH", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -55,6 +54,45 @@ export const fetchConfig = createAsyncThunk(
         })
       );
       return thunkAPI.rejectWithValue(err.toString());
+    }
+  }
+);
+
+/**
+ * @public
+ * @function getPartiallySignedDoc
+ * @desc Redux async thunk to get from the backend a partially signed multisign doc
+ */
+export const getPartiallySignedDoc = createAsyncThunk(
+  "documents/getPartiallySignedDoc",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const oldDoc = state.main[args.stateKey].filter((doc) => {doc.key === args.key});
+    if (oldDoc.blob) {return args}
+    const body = preparePayload(state, {key: args.key});
+    try {
+      const response = await fetch("/sign/get-partially-signed", {
+        ...postRequest,
+        body: body,
+      });
+      let data = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, data);
+      if (data.error) {
+        throw new Error(data.message);
+      }
+      data.key = args.key;
+      data.stateKey = args.stateKey;
+      return data;
+    } catch (err) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: args.intl.formatMessage({
+            defaultMessage: "Problem fetching document from the backend ",
+            id: "problem-fetching-document",
+          }),
+        })
+      );
     }
   }
 );
@@ -123,6 +161,36 @@ const mainSlice = createSlice({
         return doc.key !== action.payload.key;
       });
     },
+    /**
+     * @public
+     * @function hideInvitedPreview
+     * @desc Redux action to hide the previewed document
+     */
+    hideInvitedPreview(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            show: false,
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function hideOwnedPreview
+     * @desc Redux action to hide the owned previewed document
+     */
+    hideOwnedPreview(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            show: false,
+          };
+        } else return doc;
+      });
+    },
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
@@ -137,6 +205,17 @@ const mainSlice = createSlice({
         signer_attributes: null,
       };
     },
+    [getPartiallySignedDoc.fulfilled]: (state, action) => {
+      state[action.payload.stateKey] = state[action.payload.stateKey].map((doc) => {
+        if (doc.key === action.payload.key) {
+          let newDoc = {...doc, show: true};
+          if (action.payload.payload) {
+            newDoc.blob = 'data:application/pdf;base64,' + action.payload.payload.blob;
+          }
+          return newDoc;
+        } else return doc;
+      });
+    },
   },
 });
 
@@ -147,6 +226,8 @@ export const {
   resizeWindow,
   addOwned,
   removeOwned,
+  hideInvitedPreview,
+  hideOwnedPreview,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;

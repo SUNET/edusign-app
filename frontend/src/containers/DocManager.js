@@ -12,6 +12,7 @@ import { connect } from "react-redux";
 
 import DocManager from "components/DocManager";
 import {
+  hidePreview,
   prepareDocument,
   showPreview,
   setState,
@@ -84,6 +85,11 @@ const mapDispatchToProps = (dispatch, props) => {
     showConfirm: function (confirmId) {
       return () => {
         dispatch(askConfirmation(confirmId));
+      };
+    },
+    handleClosePreview: function (name) {
+      return () => {
+        dispatch(hidePreview(name));
       };
     },
   };

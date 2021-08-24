@@ -8,7 +8,6 @@
 import { connect } from "react-redux";
 
 import DocPreview from "components/DocPreview";
-import { hidePreview } from "slices/Documents";
 
 const mapStateToProps = (state) => {
   return {
@@ -19,11 +18,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    handleClose: function (name) {
-      return () => {
-        dispatch(hidePreview(name));
-      };
-    },
   };
 };
 

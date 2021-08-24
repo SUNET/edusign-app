@@ -7,6 +7,8 @@ import Tooltip from "react-bootstrap/Tooltip";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 
 import ReInviteFormContainer from "containers/ReInviteForm";
+import DocPreviewContainer from "containers/DocPreview";
+import { docToFile } from "components/utils";
 
 import "styles/Owned.scss";
 
@@ -94,6 +96,29 @@ const resendButton = (props, doc, help) => {
   );
 };
 
+const previewButton = (props, doc, help) => {
+  return (
+    <>
+      <OverlayTrigger
+        trigger={["hover", "focus"]}
+        overlay={<Tooltip placement="auto">{help}</Tooltip>}
+      >
+        <div className="button-preview-container">
+          <div className="button-preview-owned">
+            <Button
+              variant="outline-success"
+              size="sm"
+              onClick={props.showPreview(doc.key)}
+            >
+              <FormattedMessage defaultMessage="Preview" key="preview-button" />
+            </Button>
+          </div>
+        </div>
+      </OverlayTrigger>
+    </>
+  );
+};
+
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
  *
@@ -116,6 +141,11 @@ class Owned extends Component {
           "Click here to re-send an invitation email to all pending users",
         id: "owned-resend-button-help",
       }),
+      "preview-button-help": this.props.intl.formatMessage({
+        defaultMessage:
+          "Click here to preview the document",
+        id: "owned-preview-button-help",
+      }),
     };
     return msgs[msg];
   }
@@ -130,6 +160,10 @@ class Owned extends Component {
           />
         </div>
         {this.props.owned.map((doc, index) => {
+          let docFile = null;
+          if (doc.show) {
+            docFile = docToFile(doc);
+          }
           return (
             <div className="owned-multisign" key={index}>
               <div className="owned-multisign-request">
@@ -184,6 +218,15 @@ class Owned extends Component {
                     doc,
                     this.getHelp("resend-button-help")
                   )}
+                {previewButton(this.props, doc, this.getHelp("preview-button-help"))}
+                {doc.show && (
+                  <DocPreviewContainer
+                    doc={doc}
+                    docFile={docFile}
+                    index={doc.key}
+                    handleClose={this.props.handleClosePreview}
+                  />
+                )}
               </div>
               <OverlayTrigger
                 trigger={["hover", "focus"]}

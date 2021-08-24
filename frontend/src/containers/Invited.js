@@ -6,6 +6,10 @@
 import { connect } from "react-redux";
 
 import Invited from "components/Invited";
+import {
+  getPartiallySignedDoc,
+  hideInvitedPreview,
+} from "slices/Main";
 
 const mapStateToProps = (state) => {
   return {
@@ -13,11 +17,21 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch, props) => {
   return {
     startMultiSigning: (docRef) => {
       return () => {
         window.document.location.href = "/sign/invitation/" + docRef;
+      };
+    },
+    showPreview: (docKey) => {
+      return () => {
+        dispatch(getPartiallySignedDoc({key: docKey, stateKey: 'pending_multisign', intl: props.intl}));
+      };
+    },
+    handleClosePreview: function (docKey) {
+      return () => {
+        dispatch(hideInvitedPreview(docKey));
       };
     },
   };

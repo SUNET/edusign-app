@@ -5,6 +5,9 @@ import Button from "react-bootstrap/Button";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 
+import { docToFile } from "components/utils";
+import DocPreviewContainer from "containers/DocPreview";
+
 import "styles/Invited.scss";
 
 const signButton = (props, doc, help) => {
@@ -30,6 +33,29 @@ const signButton = (props, doc, help) => {
   );
 };
 
+const previewButton = (props, doc, help) => {
+  return (
+    <>
+      <OverlayTrigger
+        trigger={["hover", "focus"]}
+        overlay={<Tooltip placement="auto">{help}</Tooltip>}
+      >
+        <div className="button-preview-container">
+          <div className="button-preview-invitation">
+            <Button
+              variant="outline-success"
+              size="sm"
+              onClick={props.showPreview(doc.key)}
+            >
+              <FormattedMessage defaultMessage="Preview" key="preview-button" />
+            </Button>
+          </div>
+        </div>
+      </OverlayTrigger>
+    </>
+  );
+};
+
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
  *
@@ -41,6 +67,10 @@ class Invited extends Component {
       "sign-button-help": this.props.intl.formatMessage({
         defaultMessage: "Click here to sign the document",
         id: "invited-sign-button-help",
+      }),
+      "preview-button-help": this.props.intl.formatMessage({
+        defaultMessage: "Click here to preview the document",
+        id: "invited-preview-button-help",
       }),
     };
     return msgs[msg];
@@ -57,6 +87,10 @@ class Invited extends Component {
         </div>
         <>
           {this.props.invited.map((doc, index) => {
+            let docFile = null;
+            if (doc.show) {
+              docFile = docToFile(doc);
+            }
             return (
               <div className="invited-multisign" key={index}>
                 <div className="invited-multisign-request" key={index}>
@@ -76,6 +110,19 @@ class Invited extends Component {
                     this.props,
                     doc,
                     this.getHelp("sign-button-help")
+                  )}
+                  {previewButton(
+                    this.props,
+                    doc,
+                    this.getHelp("preview-button-help")
+                  )}
+                  {doc.show && (
+                    <DocPreviewContainer
+                      doc={doc}
+                      docFile={docFile}
+                      index={doc.key}
+                      handleClose={this.props.handleClosePreview}
+                    />
                   )}
                 </div>
               </div>

@@ -9,6 +9,10 @@ import { removeInvites, signInvitedDoc } from "slices/Documents";
 import Owned from "components/Owned";
 import { askConfirmation } from "slices/ConfirmDialog";
 import { showResend } from "slices/Modals";
+import {
+  getPartiallySignedDoc,
+  hideOwnedPreview,
+} from "slices/Main";
 
 const mapStateToProps = (state) => {
   return {
@@ -16,7 +20,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch, props) => {
   return {
     handleRemove: function (doc, props) {
       return () => {
@@ -36,6 +40,16 @@ const mapDispatchToProps = (dispatch) => {
     showConfirm: function (confirmId) {
       return () => {
         dispatch(askConfirmation(confirmId));
+      };
+    },
+    showPreview: (docKey) => {
+      return () => {
+          dispatch(getPartiallySignedDoc({key: docKey, stateKey: 'owned_multisign', intl: props.intl}));
+      };
+    },
+    handleClosePreview: function (docKey) {
+      return () => {
+        dispatch(hideOwnedPreview(docKey));
       };
     },
   };
