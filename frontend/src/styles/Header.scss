@@ -25,7 +25,7 @@ section#edusign-banner-lg {
     #sunet-logo {
       width: 50px;
       height: 50px;
-      background-image: url(../../images/sunet_gray_logo.svg);
+      background-image: url(../../images/Sunet_logo_color.png);
       background-size: contain;
       background-repeat: no-repeat;
       margin: 0;
@@ -39,6 +39,9 @@ section#edusign-banner-lg {
     #clear-in-header {
       margin-left: 1rem;
       margin-right: 2rem;
+    }
+    #clear-in-header:hover {
+      color: $orange-highlight;
     }
   }
 }
@@ -68,7 +71,7 @@ section#edusign-banner-sm {
     #sunet-logo {
       width: 50px;
       height: 50px;
-      background-image: url(../../images/sunet_gray_logo.svg);
+      background-image: url(../../images/Sunet_logo_color.png);
       background-size: contain;
       background-repeat: no-repeat;
       margin: 0;
