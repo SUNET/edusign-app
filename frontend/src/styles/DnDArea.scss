@@ -1,5 +1,34 @@
 @import "./variables.scss";
 
+#dnd-arrow-up {
+  width: 35px;
+  height: 35px;
+  background-image: url(../../images/dragndrop.png);
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin: 0;
+  display: inline-block;
+}
+
+#dnd-area-head-1 {
+  margin-top: 1rem;
+  font-weight: 400;
+}
+
+#dnd-area-head-2 {
+  margin-top: 1rem;
+}
+
+#dnd-area-head-3 {
+  margin-top: 1rem;
+  font-weight: 400;
+  border: solid $darker-grey 2px;
+  border-radius: 3px;
+  width: 8rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
 #edusign-dnd-wrapper {
   flex: none;
   display: flex;
@@ -37,11 +66,9 @@
 
 #dnd-message-foot,
 #dnd-message-dropping {
-  font-size: 2rem;
   flex: none;
 }
 
 #dnd-message-head {
-  font-size: 1.5rem;
   flex: none;
 }
