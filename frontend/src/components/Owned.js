@@ -68,6 +68,32 @@ const signButton = (props, doc, help) => {
   );
 };
 
+const skipSignatureButton = (props, doc, help) => {
+  return (
+    <>
+      <OverlayTrigger
+        trigger={["hover", "focus"]}
+        overlay={<Tooltip placement="auto">{help}</Tooltip>}
+      >
+        <div className="button-skip-container">
+          <div className="button-skip-invitation">
+            <Button
+              variant="outline-success"
+              size="sm"
+              onClick={props.handleSkipSigning(doc, props)}
+            >
+              <FormattedMessage
+                defaultMessage="Skip Final Signature"
+                key="skip-sign-button"
+              />
+            </Button>
+          </div>
+        </div>
+      </OverlayTrigger>
+    </>
+  );
+};
+
 const resendButton = (props, doc, help) => {
   return (
     <>
@@ -135,6 +161,11 @@ class Owned extends Component {
         defaultMessage:
           "All requested users have alredy signed the document, click here to add your final signature",
         id: "owned-sign-button-help",
+      }),
+      "skip-button-help": this.props.intl.formatMessage({
+        defaultMessage:
+          "All requested users have alredy signed the document, click here to skip adding your final signature",
+        id: "owned-skip-button-help",
       }),
       "resend-button-help": this.props.intl.formatMessage({
         defaultMessage:
@@ -212,6 +243,8 @@ class Owned extends Component {
                 )}
                 {doc.pending.length === 0 &&
                   signButton(this.props, doc, this.getHelp("sign-button-help"))}
+                {doc.pending.length === 0 &&
+                  skipSignatureButton(this.props, doc, this.getHelp("skip-button-help"))}
                 {doc.pending.length > 0 &&
                   resendButton(
                     this.props,

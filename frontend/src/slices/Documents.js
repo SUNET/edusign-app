@@ -739,6 +739,7 @@ export const signInvitedDoc = createAsyncThunk(
       delete data.payload.documents;
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
+      // XXX dispatch removal of owned invitation box
       const form = document.getElementById("signing-form");
       if (form.requestSubmit) {
         form.requestSubmit();
@@ -756,6 +757,53 @@ export const signInvitedDoc = createAsyncThunk(
         })
       );
       thunkAPI.dispatch(documentsSlice.actions.signFailure(args.intl));
+    }
+  }
+);
+
+/**
+ * @public
+ * @function skipOwnedSignature
+ * @desc Redux async thunk to skip the final signature of a multi signed document
+ */
+export const skipOwnedSignature = createAsyncThunk(
+  "main/skipOwnedSignature",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    let data = null;
+    const docToSkip = {
+      key: args.doc.key,
+    };
+    const body = preparePayload(state, docToSkip);
+    try {
+      const response = await fetch("/sign/skip-final-signature", {
+        ...postRequest,
+        body: body,
+      });
+      data = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, data);
+      if (data.error) {
+        throw new Error(data.message);
+      }
+      const doc = {
+        ...data.payload.documents[0],
+        state: "signed",
+        show: false,
+      };
+      doc.blob = "data:application/pdf;base64," + doc.blob;
+      saveDocumentToDb(doc);
+      // XXX dispatch removal of owned invitation box
+      return doc;
+    } catch (err) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: args.intl.formatMessage({
+            defaultMessage: "Problem skipping final signature",
+            id: "problem-skipping-signature",
+          }),
+        })
+      );
     }
   }
 );
@@ -978,6 +1026,10 @@ const documentsSlice = createSlice({
       state.documents = state.documents.filter((doc) => {
         return doc.key !== action.payload;
       });
+    },
+
+    [sendInvites.fulfilled]: (state, action) => {
+      state.documents.push(action.payload);
     },
   },
 });

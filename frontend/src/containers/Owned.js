@@ -12,6 +12,7 @@ import { showResend } from "slices/Modals";
 import {
   getPartiallySignedDoc,
   hideOwnedPreview,
+  skipOwnedSignature,
 } from "slices/Main";
 
 const mapStateToProps = (state) => {
@@ -30,6 +31,11 @@ const mapDispatchToProps = (dispatch, props) => {
     handleSign: function (doc, props) {
       return async () => {
         await dispatch(signInvitedDoc({ doc: doc, intl: props.intl }));
+      };
+    },
+    handleSkipSigning: function (doc, props) {
+      return async () => {
+        await dispatch(skipOwnedSignature({ doc: doc, intl: props.intl }));
       };
     },
     handleResend: function (doc) {

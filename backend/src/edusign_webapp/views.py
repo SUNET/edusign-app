@@ -683,3 +683,10 @@ def get_partially_signed_doc(data: dict) -> dict:
         return {'error': True, 'message': gettext('Problem getting the document being signed')}
 
     return {'message': '', 'payload': {'blob': doc}}
+
+
+@edusign_views.route('/skip-final-signature', methods=['POST'])
+@UnMarshal(KeyedMultiSignSchema)
+@Marshal(SignedDocumentsSchema)
+def skip_final_signature(data: dict) -> dict:
+    pass
