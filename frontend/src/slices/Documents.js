@@ -90,7 +90,22 @@ export const loadDocuments = createAsyncThunk(
  * @function validateDoc
  * @desc Redux async action to validate PDF documents
  */
-async function validateDoc(doc, intl) {
+async function validateDoc(doc, intl, state) {
+
+  state.documents.documents.forEach((document) => {
+    if (document.name === doc.name) {
+      doc.state = 'dup';
+    }
+  });
+
+  state.main.owned_multisign.forEach((document) => {
+    if (document.name === doc.name) {
+      doc.state = 'dup';
+    }
+  });
+
+  if (doc.state === 'dup') { return doc }
+
   return await pdfjs
     .getDocument({ url: doc.blob, password: "" })
     .promise.then((validated) => {
@@ -162,8 +177,23 @@ export const createDocument = createAsyncThunk(
   "documents/createDocument",
   async (args, thunkAPI) => {
     console.log("creating", args);
-    const doc = await validateDoc(args.doc, args.intl);
+    const doc = await validateDoc(args.doc, args.intl, thunkAPI.getState());
     if (doc.state === "failed-loading") return doc;
+
+    if (doc.state === 'dup') {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: "",
+          message: args.intl.formatMessage({
+            defaultMessage:
+              "A document with that name has already been loaded",
+            id: "save-doc-problem-dup",
+          }),
+        })
+      );
+      return thunkAPI.rejectWithValue(doc);
+    }
 
     try {
       const newDoc = await saveDocumentToDb(doc);
@@ -883,7 +913,9 @@ const documentsSlice = createSlice({
       state.documents.push(action.payload);
     },
     [createDocument.rejected]: (state, action) => {
-      state.documents.push(action.payload);
+      if (action.payload.state !== 'dup') {
+        state.documents.push(action.payload);
+      }
     },
     [loadDocuments.fulfilled]: (state, action) => {
       state.documents = action.payload.documents;
