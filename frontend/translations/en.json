@@ -9,7 +9,7 @@
   "components.DocManager.button-multisign-tootip": "Invite other users to sign the document. After all invitees sign, you'll be asked to add a final signature.",
   "components.DocManager.button-remove-tootip": "Discard document",
   "components.DocManager.button-sign-tootip": "Select documents above and click here to send them for signing.",
-  "components.DocManager.multisign-button": "Multi sign",
+  "components.DocManager.multisign-button": "Invite signers",
   "components.DocManager.preview-button": "Preview",
   "components.DocManager.preview-button-tootip": "Display a preview of the unsigned document",
   "components.DocManager.remove-button": "Remove",
