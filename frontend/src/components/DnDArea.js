@@ -35,35 +35,35 @@ class DnDArea extends Component {
                 >
                   <input {...getInputProps()} />
                   <div id="dnd-arrow-up" />
-                  <div id="dnd-message-head">
-                    {this.props.size === "lg" ? (
-                      <>
-                        <div id="dnd-area-head-1">
-                          <FormattedMessage
-                            defaultMessage="Drag & drop here"
-                            key="dnd-area-head-1"
-                          />
-                        </div>
-                        <div id="dnd-area-head-2">
-                          <FormattedMessage
-                            defaultMessage="or"
-                            key="dnd-area-head-2"
-                          />
-                        </div>
-                        <div id="dnd-area-head-3">
-                          <FormattedMessage
-                            defaultMessage="click to browse"
-                            key="dnd-area-head-3"
-                          />
-                        </div>
-                      </>
-                    ) : (
-                      <FormattedMessage
-                        defaultMessage="Tap here to browse"
-                        key="dnd-area-head-sm"
-                      />
-                    )}
-                  </div>
+                  {this.props.size === "lg" ? (
+                    <div id="dnd-message-head-lg">
+                      <div id="dnd-area-head-1">
+                        <FormattedMessage
+                          defaultMessage="Drag & drop here"
+                          key="dnd-area-head-1"
+                        />
+                      </div>
+                      <div id="dnd-area-head-2">
+                        <FormattedMessage
+                          defaultMessage="or"
+                          key="dnd-area-head-2"
+                        />
+                      </div>
+                      <div id="dnd-area-head-3">
+                        <FormattedMessage
+                          defaultMessage="click to browse"
+                          key="dnd-area-head-3"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div id="dnd-area-head-1">
+                    <FormattedMessage
+                      defaultMessage="Tap here to browse"
+                      key="dnd-area-head-sm"
+                    />
+                    </div>
+                  )}
                 </div>
               </section>
             );
