@@ -302,7 +302,11 @@ export const startSigningDocuments = createAsyncThunk(
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
       const form = document.getElementById("signing-form");
-      form.requestSubmit();
+      if (form.requestSubmit) {
+        form.requestSubmit();
+      } else {
+        form.submit();
+      }
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
@@ -358,7 +362,11 @@ export const restartSigningDocuments = createAsyncThunk(
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
       const form = document.getElementById("signing-form");
-      form.requestSubmit();
+      if (form.requestSubmit) {
+        form.requestSubmit();
+      } else {
+        form.submit();
+      }
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
@@ -675,7 +683,11 @@ export const signInvitedDoc = createAsyncThunk(
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
       const form = document.getElementById("signing-form");
-      form.requestSubmit();
+      if (form.requestSubmit) {
+        form.requestSubmit();
+      } else {
+        form.submit();
+      }
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
