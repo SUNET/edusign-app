@@ -478,7 +478,6 @@ export const downloadSigned = createAsyncThunk(
         a.setAttribute("download", newName);
         document.body.appendChild(a);
         a.click();
-        a.click();
         document.body.removeChild(a);
       }
     });
