@@ -477,8 +477,10 @@ export const downloadSigned = createAsyncThunk(
           doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
         a.setAttribute("download", newName);
         document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        setTimeout(() => {
+          a.click();
+          document.body.removeChild(a);
+        }, 500);
       }
     });
   }
