@@ -147,9 +147,7 @@ def add_document(document: dict) -> dict:
     sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])
     key = str(uuid.uuid4())
 
-    message = gettext("Success preparing document %(doc)s", doc=document['name'])
-
-    return {'message': message, 'payload': {'key': key, 'ref': doc_ref, 'sign_requirement': sign_req}}
+    return {'payload': {'key': key, 'ref': doc_ref, 'sign_requirement': sign_req}}
 
 
 @edusign_views.route('/create-sign-request', methods=['POST'])
@@ -180,7 +178,7 @@ def create_sign_request(documents: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
-        return {'error': True, 'message': gettext('Communication error with the create endpoint of the eduSign API')}
+        return {'error': True, 'message': gettext('There was an error. Please try again, or contact the site administrator.')}
 
     try:
         sign_data = {
@@ -192,11 +190,10 @@ def create_sign_request(documents: dict) -> dict:
         }
     except KeyError:
         current_app.logger.error(f'Problem creating sign request, got response: {create_data}')
+        # XXX translate
         return {'error': True, 'message': create_data['message']}
 
-    message = gettext("Success creating sign request")
-
-    return {'message': message, 'payload': sign_data}
+    return {'payload': sign_data}
 
 
 @edusign_views.route('/recreate-sign-request', methods=['POST'])
@@ -254,7 +251,7 @@ def recreate_sign_request(documents: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
-        return {'error': True, 'message': gettext('Communication error with the create endpoint of the eduSign API')}
+        return {'error': True, 'message': gettext('There was an error. Please try again, or contact the site administrator.')}
 
     try:
         sign_data = {
@@ -266,11 +263,10 @@ def recreate_sign_request(documents: dict) -> dict:
         }
     except KeyError:
         current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
+        # XXX translate
         return {'error': True, 'message': create_data['message']}
 
-    message = gettext("Success creating sign request")
-
-    return {'message': message, 'payload': sign_data}
+    return {'payload': sign_data}
 
 
 @edusign_views.route('/callback', methods=['POST', 'GET'])
@@ -326,22 +322,19 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem processing sign request: {e}')
-        return {'error': True, 'message': gettext('Communication error with the process endpoint of the eduSign API')}
+        return {'error': True, 'message': gettext('There was an error. Please try again, or contact the site administrator.')}
 
     if 'errorCode' in process_data:
         current_app.logger.error(f"Problem processing sign request, error code received: {process_data}")
-        # XXX capture more error conditions, inform end user
-        return {'error': True, 'message': gettext('Communication error with the process endpoint of the eduSign API')}
+        # XXX translate
+        return {'error': True, 'message': process_data['message']}
 
     docs = []
     for doc in process_data['signedDocuments']:
         current_app.doc_store.remove_document(doc['id'])
         docs.append({'id': doc['id'], 'signed_content': doc['signedContent']})
 
-    message = gettext("Success processing document sign request")
-
     return {
-        'message': message,
         'payload': {'documents': docs},
     }
 

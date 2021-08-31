@@ -77,4 +77,4 @@ def prepare_document(document: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem preparing document: {e}')
-        return {'error': True, 'message': gettext('Communication error with the prepare endpoint of the eduSign API')}
+        return {'error': True, 'message': gettext('There was an error. Please try again, or contact the site administrator.')}

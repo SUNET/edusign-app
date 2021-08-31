@@ -52,23 +52,24 @@ def csrf_check_headers() -> None:
     """
     custom_header = request.headers.get('X-Requested-With', '')
     if custom_header != 'XMLHttpRequest':
-        raise ValidationError(gettext('CSRF missing custom X-Requested-With header'))
+        current_app.logger.error('CSRF missing custom X-Requested-With header')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
     origin = request.headers.get('Origin', None)
     if origin is None:
         origin = request.headers.get('Referer', None)
     if origin is None:
-        raise ValidationError(gettext('CSRF cannot check origin'))
+        current_app.logger.error('CSRF cannot check origin')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
     origin = origin.split()[0]
     origin = urlsplit(origin).hostname
     target = request.headers.get('X-Forwarded-Host', None)
     if target is None:
         current_app.logger.error('The X-Forwarded-Host header is missing!!')
-        raise ValidationError(gettext('CSRF cannot check target'))
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
     target = target.split(':')[0]
     if origin != target:
-        raise ValidationError(
-            gettext('CSRF cross origin request, origin: %(origin)s, target: %(target)s', origin=origin, target=target)
-        )
+        current_app.logger.error(f'CSRF cross origin request, origin: {origin}, target: {target}')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
 
 class ResponseSchema(Schema):
@@ -188,7 +189,8 @@ class RequestSchema(Schema):
         key = session['user_key'] + secret
 
         if not check_password_hash(token, key):
-            raise ValidationError(gettext('CSRF token failed to validate'))
+            current_app.logger.error('CSRF token failed to validate')
+            raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
     @post_load
     def post_processing(self, in_data: dict, **kwargs) -> dict:
