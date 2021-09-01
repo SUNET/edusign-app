@@ -474,20 +474,17 @@ export const downloadSigned = createAsyncThunk(
   "documents/downloadSigned",
   async (docname, thunkAPI) => {
     const state = thunkAPI.getState();
-    state.documents.documents.forEach((doc) => {
-      if (doc.name === docname) {
-        const a = document.createElement("a");
-        a.setAttribute("href", doc.signedContent);
-        const newName =
-          doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
-        a.setAttribute("download", newName);
-        document.body.appendChild(a);
-        setTimeout(() => {
-          a.click();
-          document.body.removeChild(a);
-        }, 500);
-      }
-    });
+    const doc = state.documents.documents.filter((doc) => {return doc.name === docname})[0];
+    const a = document.createElement("a");
+    a.setAttribute("href", doc.signedContent);
+    const newName =
+      doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
+    a.setAttribute("download", newName);
+    document.body.appendChild(a);
+    setTimeout(() => {
+      a.click();
+      document.body.removeChild(a);
+    }, 100);
   }
 );
 
