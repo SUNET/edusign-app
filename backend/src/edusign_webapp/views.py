@@ -40,7 +40,7 @@ from flask_babel import gettext
 from flask_mail import Message
 from werkzeug.wrappers import Response
 
-from edusign_webapp.marshal import Marshal, UnMarshal
+from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
     ConfigSchema,
     DocumentSchema,
@@ -121,7 +121,7 @@ def get_config() -> dict:
 
 
 @edusign_views.route('/add-doc', methods=['POST'])
-@UnMarshal(DocumentSchema)
+@UnMarshalNoCSRF(DocumentSchema)
 @Marshal(ReferenceSchema)
 def add_document(document: dict) -> dict:
     """

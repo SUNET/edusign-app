@@ -233,7 +233,7 @@ export const prepareDocument = createAsyncThunk(
       size: doc.size,
       type: doc.type,
     };
-    const body = preparePayload(thunkAPI.getState(), docToSend);
+    const body = JSON.stringify({payload: docToSend});
     let data = null;
     try {
       const response = await fetch("/sign/add-doc", {

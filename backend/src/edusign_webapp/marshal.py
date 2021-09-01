@@ -43,6 +43,8 @@ from marshmallow import Schema, ValidationError, fields, post_load, pre_dump, va
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.wrappers import Response as WerkzeugResponse
 
+from edusign_webapp.schemata import DocumentSchema
+
 
 def csrf_check_headers() -> None:
     """
@@ -202,30 +204,12 @@ class RequestSchema(Schema):
         return in_data
 
 
-class UnMarshal(object):
+class _UnMarshal(object):
     """
     Decorator class for Flask views,
     That will extract data from the requests, validate it,
     and provide it to the views in the form of dicts and lists.
     """
-
-    def __init__(self, schema: Type[Schema] = None):
-        """
-        Instantiate the class with a view specific schema,
-        that will parse and validate the request data that is specific to the decorated view,
-        in the payload.
-
-        :param schema: The schema detailing the expected structure and type of the received data.
-        """
-
-        if schema is None:
-            self.schema = RequestSchema
-        else:
-
-            class UnMarshallingSchema(RequestSchema):
-                payload = fields.Nested(schema)  # type: ignore
-
-            self.schema = UnMarshallingSchema
 
     def __call__(self, f: Callable) -> Callable:
         """
@@ -264,6 +248,54 @@ class UnMarshal(object):
                 return ResponseSchema().dump(data)
 
         return unmarshal_decorator
+
+
+class UnMarshal(_UnMarshal):
+    """
+    Decorator class for Flask views,
+    That will extract data from the requests, validate it,
+    and provide it to the views in the form of dicts and lists.
+    """
+
+    def __init__(self, schema: Type[Schema] = None):
+        """
+        Instantiate the class with a view specific schema,
+        that will parse and validate the request data that is specific to the decorated view,
+        in the payload.
+
+        :param schema: The schema detailing the expected structure and type of the received data.
+        """
+
+        if schema is None:
+            self.schema = RequestSchema
+        else:
+
+            class UnMarshallingSchema(RequestSchema):
+                payload = fields.Nested(schema)  # type: ignore
+
+            self.schema = UnMarshallingSchema
+
+
+class UnMarshalNoCSRF(_UnMarshal):
+    """
+    Decorator class for Flask views,
+    That will extract data from the requests, validate it,
+    and provide it to the views in the form of dicts and lists.
+    """
+
+    def __init__(self, schema: Type[Schema] = None):
+        """
+        Instantiate the class with a view specific schema,
+        that will parse and validate the request data that is specific to the decorated view,
+        in the payload.
+
+        :param schema: The schema detailing the expected structure and type of the received data.
+        """
+
+        class UnMarshallingSchema(Schema):
+            payload = fields.Nested(schema)  # type: ignore
+
+        self.schema = UnMarshallingSchema
 
 
 def _i18n_marshmallow_validation_errors(msgs: List[str]) -> List[str]:

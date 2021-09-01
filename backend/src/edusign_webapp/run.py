@@ -35,6 +35,7 @@ from typing import Callable, Optional
 
 from flask import Flask
 from flask_babel import Babel
+from flask_cors import CORS
 from flask_mail import Mail
 from werkzeug.wrappers import Response
 
@@ -79,6 +80,8 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
     :return: The Flask app.
     """
     app = EduSignApp(name)
+
+    CORS(app)
 
     app.config.from_object('edusign_webapp.config')
     if config is not None:
