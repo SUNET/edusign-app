@@ -206,12 +206,17 @@ export const createDocument = createAsyncThunk(
           message: "",
           message: args.intl.formatMessage({
             defaultMessage:
-              "Problem saving document(s) in session, will not persist",
-            id: "save-doc-problem-session",
+              "Problem saving document(s) in session",
+            id: "save-docs-problem-session",
           }),
         })
       );
-      doc.state = "loaded";
+      doc.state = "failed-loading";
+      doc.message = args.intl.formatMessage({
+        defaultMessage:
+          "Problem saving document in session",
+        id: "save-doc-problem-session",
+      })
       return thunkAPI.rejectWithValue(doc);
     }
   }
