@@ -10,6 +10,7 @@
  */
 import { connect } from "react-redux";
 import { updateIntl } from "react-intl-redux";
+import Cookies from "js-cookie";
 
 import Footer from "components/Footer";
 
@@ -23,6 +24,8 @@ const mapDispatchToProps = (dispatch) => {
   return {
     changeLanguage: function (e) {
       const lang = e.target.closest(".lang-selected").dataset.lang;
+      Cookies.remove('lang');
+      Cookies.set('lang', lang, { expires: 365 });
       const msgs = LOCALIZED_MESSAGES[lang];
       dispatch(
         updateIntl({

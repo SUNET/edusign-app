@@ -11,6 +11,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
+import Cookies from "js-cookie";
 import rootReducer from "init-app/store";
 import { fetchConfig, resizeWindow } from "slices/Main";
 
@@ -58,11 +59,14 @@ const appIsRendered = function () {
  * and render the provided component wrapped in a Redux Provider.
  */
 const init_app = function (target, component) {
-  let language = navigator.languages
-    ? navigator.languages[0]
-    : navigator.language || navigator.userLanguage;
+  let language = Cookies.get('lang');
+  if (!language) {
+    language = navigator.languages
+      ? navigator.languages[0]
+      : navigator.language || navigator.userLanguage;
 
-  language = language.split(/[-_]/)[0];
+    language = language.split(/[-_]/)[0];
+  }
 
   const supported = langs.map((lang) => lang[0]);
 
