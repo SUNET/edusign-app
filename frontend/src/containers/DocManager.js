@@ -19,6 +19,7 @@ import {
   startSigningDocuments,
   removeDocument,
   downloadSigned,
+  downloadAllSigned,
 } from "slices/Documents";
 import { showForm } from "slices/Modals";
 
@@ -59,6 +60,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     handleSubmitToSign: function () {
       dispatch(startSigningDocuments({ intl: this.props.intl }));
+    },
+    handleDownloadAll: function () {
+      dispatch(downloadAllSigned({ intl: this.props.intl }));
     },
     handleDlSigned: function (name) {
       return () => {

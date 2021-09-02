@@ -8,6 +8,8 @@
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import * as pdfjs from "pdfjs-dist";
+import { saveAs } from "file-saver";
+import JSZip from "jszip";
 
 import {
   postRequest,
@@ -19,6 +21,7 @@ import { addNotification } from "slices/Notifications";
 import { updateSigningForm, addOwned, removeOwned } from "slices/Main";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
+import { b64toBlob } from "components/utils";
 
 /**
  * @public
@@ -475,16 +478,36 @@ export const downloadSigned = createAsyncThunk(
   async (docname, thunkAPI) => {
     const state = thunkAPI.getState();
     const doc = state.documents.documents.filter((doc) => {return doc.name === docname})[0];
-    const a = document.createElement("a");
-    a.setAttribute("href", doc.signedContent);
+    const b64content = doc.signedContent.split(',')[1];
+    const blob = b64toBlob(b64content);
     const newName =
       doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
-    a.setAttribute("download", newName);
-    document.body.appendChild(a);
-    setTimeout(() => {
-      a.click();
-      document.body.removeChild(a);
-    }, 100);
+    saveAs(blob, newName);
+  }
+);
+
+/**
+ * @public
+ * @function downloadAllSigned
+ * @desc Redux async thunk to hand signed documents to the user.
+ */
+export const downloadAllSigned = createAsyncThunk(
+  "documents/downloadAllSigned",
+  async (docname, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const docs = state.documents.documents.filter((doc) => {return doc.state === 'signed'});
+    let zip = new JSZip();
+    let folder = zip.folder("signed");
+    docs.forEach((doc) => {
+      const b64content = doc.signedContent.split(',')[1];
+      const blob = b64toBlob(b64content);
+      const newName =
+        doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
+      folder.file(newName, blob);
+    });
+    zip.generateAsync({type:"blob"}).then(function(content) {
+      saveAs(content, "signed.zip");
+    });
   }
 );
 

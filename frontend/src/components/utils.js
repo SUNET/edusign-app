@@ -10,7 +10,7 @@
  *
  * Obtained from [this stackoverflow question]{https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript}
  */
-export const b64toBlob = (b64Data, contentType = "", sliceSize = 512) => {
+export const b64toBlob = (b64Data, contentType = "application/pdf", sliceSize = 512) => {
   const byteCharacters = atob(b64Data);
   const byteArrays = [];
 

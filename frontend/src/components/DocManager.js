@@ -323,12 +323,16 @@ class DocManager extends React.Component {
   render() {
     let someSelected = false;
     let showSignButton = false;
+    let showDlAllButton = false;
 
     return (
       <>
         {this.props.documents.map((doc, index) => {
           if (["loaded", "selected", "failed-signing"].includes(doc.state)) {
             showSignButton = true;
+          }
+          if (doc.state === 'signed') {
+            showDlAllButton = true;
           }
           const docFile = docToFile(doc);
           if (docFile === null) {
@@ -563,40 +567,74 @@ class DocManager extends React.Component {
           }
         })}
         <div id="adjust-vertical-space" />
-        {(showSignButton && (
-          <div className="button-sign-flex-item">
-            <OverlayTrigger
-              trigger={["hover", "focus"]}
-              rootClose={true}
-              overlay={(props) => (
-                <Tooltip id="tooltip-button-sign" {...props}>
-                  <FormattedMessage
-                    defaultMessage="Select documents above and click here to send them for signing."
-                    key="button-sign-tootip"
-                  />
-                </Tooltip>
-              )}
-            >
-              <div id="button-sign-wrapper">
-                <Button
-                  variant="success"
-                  id="button-sign"
-                  size="lg"
-                  disabled={!someSelected}
-                  style={someSelected ? {} : { pointerEvents: "none" }}
-                  onClick={this.props.handleSubmitToSign.bind(this)}
-                >
-                  <FormattedMessage
-                    defaultMessage="Sign Selected Documents"
-                    key="sign-selected-button"
-                  />
-                </Button>
-              </div>
-            </OverlayTrigger>
-          </div>
-        )) || (
-          <div className={"dummy-button-sign-flex-item-" + this.props.size} />
-        )}
+        <div id="global-buttons-wrapper">
+          {(showSignButton && (
+            <div className="button-sign-flex-item">
+              <OverlayTrigger
+                trigger={["hover", "focus"]}
+                rootClose={true}
+                overlay={(props) => (
+                  <Tooltip id="tooltip-button-sign" {...props}>
+                    <FormattedMessage
+                      defaultMessage="Select documents above and click here to send them for signing."
+                      key="button-sign-tootip"
+                    />
+                  </Tooltip>
+                )}
+              >
+                <div id="button-sign-wrapper">
+                  <Button
+                    variant="success"
+                    id="button-sign"
+                    size="lg"
+                    disabled={!someSelected}
+                    style={someSelected ? {} : { pointerEvents: "none" }}
+                    onClick={this.props.handleSubmitToSign.bind(this)}
+                  >
+                    <FormattedMessage
+                      defaultMessage="Sign Selected Documents"
+                      key="sign-selected-button"
+                    />
+                  </Button>
+                </div>
+              </OverlayTrigger>
+            </div>
+          )) || (
+            <div className={"dummy-button-sign-flex-item-" + this.props.size} />
+          )}
+          {(showDlAllButton && (
+            <div className="button-dlall-flex-item">
+              <OverlayTrigger
+                trigger={["hover", "focus"]}
+                rootClose={true}
+                overlay={(props) => (
+                  <Tooltip id="tooltip-button-dlall" {...props}>
+                    <FormattedMessage
+                      defaultMessage="Download all signed documents."
+                      key="button-dlall-tootip"
+                    />
+                  </Tooltip>
+                )}
+              >
+                <div id="button-dlall-wrapper">
+                  <Button
+                    variant="success"
+                    id="button-dlall"
+                    size="lg"
+                    onClick={this.props.handleDownloadAll.bind(this)}
+                  >
+                    <FormattedMessage
+                      defaultMessage="Download All Signed"
+                      key="dlall-selected-button"
+                    />
+                  </Button>
+                </div>
+              </OverlayTrigger>
+            </div>
+          )) || (
+            <div className={"dummy-button-dlall-flex-item-" + this.props.size} />
+          )}
+        </div>
         <div className="multisign-container">
           <div className="owned-multisign-container">
             <OwnedContainer />

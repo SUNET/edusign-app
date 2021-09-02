@@ -43,7 +43,8 @@
   .button-preview-flex-item,
   .button-remove-flex-item,
   .button-retry-flex-item,
-  .button-sign-flex-item {
+  .button-sign-flex-item,
+  .button-dlall-flex-item {
     flex: none;
     button {
       width: 5rem;
@@ -112,6 +113,7 @@
     .button-preview-flex-item,
     .button-remove-flex-item,
     .button-retry-flex-item,
+    .button-dlall-flex-item,
     .button-sign-flex-item {
       flex: none;
       button {
@@ -137,10 +139,12 @@
   }
 }
 
+.dummy-button-dlall-flex-item-lg,
 .dummy-button-sign-flex-item-lg {
   height: 5rem;
 }
 
+.dummy-button-dlall-flex-item-sm,
 .dummy-button-sign-flex-item-sm {
   height: 2rem;
 }
@@ -154,10 +158,18 @@
   height: 3rem;
 }
 
-#button-sign-wrapper {
-  flex: none;
-  margin-bottom: 2rem;
-  margin-top: 2rem;
+#global-buttons-wrapper {
+  display: flex;
+  align-items: middle;
+
+  #button-dlall-wrapper,
+  #button-sign-wrapper {
+    flex: none;
+    margin-bottom: 2rem;
+    margin-top: 2rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
 }
 
 div.failed-loading,
