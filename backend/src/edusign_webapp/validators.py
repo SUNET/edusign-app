@@ -34,6 +34,7 @@ import json
 from typing import Any
 from uuid import UUID
 
+from flask import current_app
 from flask_babel import gettext
 from marshmallow import ValidationError
 
@@ -45,10 +46,12 @@ def validate_nonempty(value: Any):
     :raises ValidationError: If the value is an empty string.
     """
     if not value:
-        raise ValidationError(gettext("Missing value for required field"))
+        current_app.logger.debug('Validate non empty: missing value')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
     if isinstance(value, str) and not value.strip():
-        raise ValidationError(gettext("Missing value for required field"))
+        current_app.logger.debug('Validate non empty: empty value')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
 
 def validate_doc_type(value):
@@ -58,7 +61,8 @@ def validate_doc_type(value):
     :raises ValidationError: if the value is not the string "application/pdf".
     """
     if value != 'application/pdf':
-        raise ValidationError(gettext("Invalid document type"))
+        current_app.logger.debug(f'Validate doc type: wrong type {value}')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
 
 def validate_uuid4(value):
@@ -70,10 +74,12 @@ def validate_uuid4(value):
     try:
         val = UUID(value)
     except ValueError:
-        raise ValidationError(gettext('Invalid UUID value'))
+        current_app.logger.debug(f'Validate uuid: invalid value {value}')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
     if str(val) != value:
-        raise ValidationError(gettext('Invalid UUID value'))
+        current_app.logger.debug(f'Validate uuid: invalid value {value}')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
 
 def validate_sign_requirement(value):
@@ -85,10 +91,13 @@ def validate_sign_requirement(value):
     try:
         val = json.loads(value)
     except json.decoder.JSONDecodeError:
-        raise ValidationError(gettext('Invalid sign requirement value'))
+        current_app.logger.debug(f'Validate sign request: invalid value {value}')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
     if 'fieldValues' not in val:
-        raise ValidationError(gettext('Invalid sign requirement value'))
+        current_app.logger.debug(f'Validate sign request: missing fieldValues {value}')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
     if 'signerName' not in val:
-        raise ValidationError(gettext('Invalid sign requirement value'))
+        current_app.logger.debug(f'Validate sign request: missing signerName {value}')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))

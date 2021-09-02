@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-05-11 12:48+0200\n"
-"PO-Revision-Date: 2021-05-11 12:48+0200\n"
+"POT-Creation-Date: 2021-08-26 09:08+0200\n"
+"PO-Revision-Date: 2021-08-26 09:08+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sv\n"
 "Language-Team: sv <LL@li.org>\n"
@@ -51,7 +51,7 @@ msgstr ""
 msgid "Not a valid integer"
 msgstr ""
 
-#: src/edusign_webapp/utils.py:84
+#: src/edusign_webapp/utils.py:80
 msgid "Communication error with the prepare endpoint of the eduSign API"
 msgstr ""
 
@@ -72,126 +72,130 @@ msgstr ""
 msgid "Invalid sign requirement value"
 msgstr ""
 
-#: src/edusign_webapp/views.py:103 src/edusign_webapp/views.py:128
-#: src/edusign_webapp/views.py:161 src/edusign_webapp/views.py:211
-#: src/edusign_webapp/views.py:354
+#: src/edusign_webapp/views.py:104 src/edusign_webapp/views.py:135
+#: src/edusign_webapp/views.py:168 src/edusign_webapp/views.py:218
+#: src/edusign_webapp/views.py:361
 msgid "Unauthorized"
 msgstr ""
 
-#: src/edusign_webapp/views.py:143
+#: src/edusign_webapp/views.py:150
 #, python-format
 msgid "Success preparing document %(doc)s"
 msgstr ""
 
-#: src/edusign_webapp/views.py:176 src/edusign_webapp/views.py:250
-#: src/edusign_webapp/views.py:519 src/edusign_webapp/views.py:645
+#: src/edusign_webapp/views.py:183 src/edusign_webapp/views.py:257
+#: src/edusign_webapp/views.py:529 src/edusign_webapp/views.py:655
 msgid "Communication error with the create endpoint of the eduSign API"
 msgstr ""
 
-#: src/edusign_webapp/views.py:190 src/edusign_webapp/views.py:264
-#: src/edusign_webapp/views.py:659
+#: src/edusign_webapp/views.py:197 src/edusign_webapp/views.py:271
+#: src/edusign_webapp/views.py:669
 msgid "Success creating sign request"
 msgstr ""
 
-#: src/edusign_webapp/views.py:322 src/edusign_webapp/views.py:327
-#: src/edusign_webapp/views.py:559
+#: src/edusign_webapp/views.py:329 src/edusign_webapp/views.py:334
+#: src/edusign_webapp/views.py:569
 msgid "Communication error with the process endpoint of the eduSign API"
 msgstr ""
 
-#: src/edusign_webapp/views.py:334 src/edusign_webapp/views.py:598
+#: src/edusign_webapp/views.py:341 src/edusign_webapp/views.py:608
 msgid "Success processing document sign request"
 msgstr ""
 
-#: src/edusign_webapp/views.py:358
+#: src/edusign_webapp/views.py:365
 #, python-format
 msgid "You cannot invite as %(owner)s"
 msgstr ""
 
-#: src/edusign_webapp/views.py:368
+#: src/edusign_webapp/views.py:375
 msgid "XXX Invite mail subject"
 msgstr ""
 
-#: src/edusign_webapp/views.py:385
+#: src/edusign_webapp/views.py:392
 msgid "Problem storing the document to be multi signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:387
+#: src/edusign_webapp/views.py:394
 msgid "Success creating multi signature request"
 msgstr ""
 
-#: src/edusign_webapp/views.py:408
+#: src/edusign_webapp/views.py:415
 msgid "Problem finding the users pending to multi sign"
 msgstr ""
 
-#: src/edusign_webapp/views.py:412 src/edusign_webapp/views.py:416
+#: src/edusign_webapp/views.py:419 src/edusign_webapp/views.py:423
 msgid "Could not find users to multi sign the document"
 msgstr ""
 
-#: src/edusign_webapp/views.py:421
+#: src/edusign_webapp/views.py:428
 msgid "XXX Reminder mail subject"
 msgstr ""
 
-#: src/edusign_webapp/views.py:434
+#: src/edusign_webapp/views.py:443
 msgid "Success reminding pending users"
 msgstr ""
 
-#: src/edusign_webapp/views.py:454
+#: src/edusign_webapp/views.py:463
 msgid "Problem removing the document to be multi signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:459
+#: src/edusign_webapp/views.py:467
+msgid "Document has not been removed"
+msgstr ""
+
+#: src/edusign_webapp/views.py:469
 msgid "Success removing multi signature request"
 msgstr ""
 
-#: src/edusign_webapp/views.py:470 src/edusign_webapp/views.py:477
-#: src/edusign_webapp/views.py:489 src/edusign_webapp/views.py:497
-#: src/edusign_webapp/views.py:518 src/edusign_webapp/views.py:539
-#: src/edusign_webapp/views.py:558 src/edusign_webapp/views.py:564
-#: src/edusign_webapp/views.py:576
+#: src/edusign_webapp/views.py:480 src/edusign_webapp/views.py:487
+#: src/edusign_webapp/views.py:499 src/edusign_webapp/views.py:507
+#: src/edusign_webapp/views.py:528 src/edusign_webapp/views.py:549
+#: src/edusign_webapp/views.py:568 src/edusign_webapp/views.py:574
+#: src/edusign_webapp/views.py:586
 msgid "Problem signing the document"
 msgstr ""
 
-#: src/edusign_webapp/views.py:471
+#: src/edusign_webapp/views.py:481
 msgid ""
 "Someone else is signing the document right now, please try again in a few"
 " minutes"
 msgstr ""
 
-#: src/edusign_webapp/views.py:478
+#: src/edusign_webapp/views.py:488
 msgid "There seems to be no invitation for you"
 msgstr ""
 
-#: src/edusign_webapp/views.py:490
+#: src/edusign_webapp/views.py:500
 msgid "The invited email does not coincide with yours"
 msgstr ""
 
-#: src/edusign_webapp/views.py:498
+#: src/edusign_webapp/views.py:508
 #, python-format
 msgid "Problem preparing document for multi sign by user %s: %s"
 msgstr ""
 
-#: src/edusign_webapp/views.py:540
+#: src/edusign_webapp/views.py:550
 msgid "Timeout signing the document, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:565
+#: src/edusign_webapp/views.py:575
 msgid "Data error with the process endpoint of the eduSign API"
 msgstr ""
 
-#: src/edusign_webapp/views.py:577
+#: src/edusign_webapp/views.py:587
 msgid "There is no owner data for this document"
 msgstr ""
 
-#: src/edusign_webapp/views.py:582
+#: src/edusign_webapp/views.py:592
 #, python-format
 msgid "User %(name)s has signed %(docname)s"
 msgstr ""
 
-#: src/edusign_webapp/views.py:597
+#: src/edusign_webapp/views.py:607
 msgid "Document signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:617
+#: src/edusign_webapp/views.py:627
 msgid "Multisigned document not found in the doc store"
 msgstr ""
 
