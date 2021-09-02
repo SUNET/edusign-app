@@ -33,7 +33,7 @@ import pprint
 from importlib import import_module
 from typing import Callable, Optional
 
-from flask import Flask
+from flask import Flask, request, current_app
 from flask_babel import Babel
 from flask_cors import CORS
 from flask_mail import Mail
@@ -108,6 +108,16 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
 
 app = edusign_init_app('edusign')
+
+
+@app.babel.localeselector
+def get_locale():
+    """
+    get locale, from cookie or from config
+    """
+    if 'lang' in request.cookies:
+        return request.cookies.get('lang')
+    return current_app.config['BABEL_DEFAULT_LOCALE']
 
 
 class LoggingMiddleware(object):
