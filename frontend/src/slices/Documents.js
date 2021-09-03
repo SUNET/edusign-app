@@ -1028,7 +1028,7 @@ const documentsSlice = createSlice({
       });
     },
 
-    [sendInvites.fulfilled]: (state, action) => {
+    [skipOwnedSignature.fulfilled]: (state, action) => {
       state.documents.push(action.payload);
     },
   },
