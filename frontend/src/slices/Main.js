@@ -163,6 +163,36 @@ const mainSlice = createSlice({
     },
     /**
      * @public
+     * @function setInvitedSigning
+     * @desc Redux action to mark and invitee doc as being signed
+     */
+    setInvitedSigning(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.invite_key === action.payload) {
+          return {
+            ...doc,
+            state: 'signing',
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function setOwnedSigning
+     * @desc Redux action to mark and invited doc as being signed
+     */
+    setOwnedSigning(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.key === action.payload) {
+          return {
+            ...doc,
+            state: 'signing',
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
      * @function hideInvitedPreview
      * @desc Redux action to hide the previewed document
      */
@@ -226,6 +256,8 @@ export const {
   resizeWindow,
   addOwned,
   removeOwned,
+  setInvitedSigning,
+  setOwnedSigning,
   hideInvitedPreview,
   hideOwnedPreview,
 } = mainSlice.actions;

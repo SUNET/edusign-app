@@ -7,6 +7,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 
 import { docToFile } from "components/utils";
 import DocPreviewContainer from "containers/DocPreview";
+import LittleSpinner from "components/LittleSpinner";
 
 import "styles/Invited.scss";
 
@@ -55,6 +56,15 @@ const previewButton = (props, doc, help) => {
     </>
   );
 };
+
+const namedSpinner = (index, name) => {
+  return (
+    <>
+      <LittleSpinner index={index} />
+      <div className="spinning-flex-item">{` ${name} ...`}</div>
+    </>
+  );
+}
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
@@ -106,23 +116,31 @@ class Invited extends Component {
                       {doc.owner.name} &lt;{doc.owner.email}&gt;
                     </div>
                   </div>
-                  {signButton(
-                    this.props,
-                    doc,
-                    this.getHelp("sign-button-help")
-                  )}
-                  {previewButton(
-                    this.props,
-                    doc,
-                    this.getHelp("preview-button-help")
-                  )}
-                  {doc.show && (
-                    <DocPreviewContainer
-                      doc={doc}
-                      docFile={docFile}
-                      index={doc.key}
-                      handleClose={this.props.handleClosePreview}
-                    />
+                  {(doc.state === 'signing') && (
+                    <>
+                      {namedSpinner(index, 'signing')}
+                    </>
+                  ) || (
+                    <>
+                      {signButton(
+                        this.props,
+                        doc,
+                        this.getHelp("sign-button-help")
+                      )}
+                      {previewButton(
+                        this.props,
+                        doc,
+                        this.getHelp("preview-button-help")
+                      )}
+                      {doc.show && (
+                        <DocPreviewContainer
+                          doc={doc}
+                          docFile={docFile}
+                          index={doc.key}
+                          handleClose={this.props.handleClosePreview}
+                        />
+                      )}
+                    </>
                   )}
                 </div>
               </div>

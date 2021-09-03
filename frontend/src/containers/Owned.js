@@ -12,6 +12,7 @@ import { showResend } from "slices/Modals";
 import {
   getPartiallySignedDoc,
   hideOwnedPreview,
+  setOwnedSigning,
 } from "slices/Main";
 import { skipOwnedSignature } from "slices/Documents";
 
@@ -30,6 +31,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleSign: function (doc, props) {
       return async () => {
+        dispatch(setOwnedSigning(doc.key));
         await dispatch(signInvitedDoc({ doc: doc, intl: props.intl }));
       };
     },

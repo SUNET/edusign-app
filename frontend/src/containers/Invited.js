@@ -9,6 +9,7 @@ import Invited from "components/Invited";
 import {
   getPartiallySignedDoc,
   hideInvitedPreview,
+  setInvitedSigning,
 } from "slices/Main";
 
 const mapStateToProps = (state) => {
@@ -21,6 +22,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     startMultiSigning: (docRef) => {
       return () => {
+        dispatch(setInvitedSigning(docRef));
         window.document.location.href = "/sign/invitation/" + docRef;
       };
     },

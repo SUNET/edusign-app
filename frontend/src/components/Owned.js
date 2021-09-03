@@ -9,6 +9,7 @@ import ConfirmDialogContainer from "containers/ConfirmDialog";
 import ReInviteFormContainer from "containers/ReInviteForm";
 import DocPreviewContainer from "containers/DocPreview";
 import { docToFile } from "components/utils";
+import LittleSpinner from "components/LittleSpinner";
 
 import "styles/Owned.scss";
 
@@ -67,6 +68,15 @@ const signButton = (props, doc, help) => {
     </>
   );
 };
+
+const namedSpinner = (index, name) => {
+  return (
+    <>
+      <LittleSpinner index={index} />
+      <div className="spinning-flex-item">{` ${name} ...`}</div>
+    </>
+  );
+}
 
 const skipSignatureButton = (props, doc, help) => {
   return (
@@ -241,24 +251,32 @@ class Owned extends Component {
                     </div>
                   </>
                 )}
-                {doc.pending.length === 0 &&
-                  signButton(this.props, doc, this.getHelp("sign-button-help"))}
-                {doc.pending.length === 0 &&
-                  skipSignatureButton(this.props, doc, this.getHelp("skip-button-help"))}
-                {doc.pending.length > 0 &&
-                  resendButton(
-                    this.props,
-                    doc,
-                    this.getHelp("resend-button-help")
-                  )}
-                {previewButton(this.props, doc, this.getHelp("preview-button-help"))}
-                {doc.show && (
-                  <DocPreviewContainer
-                    doc={doc}
-                    docFile={docFile}
-                    index={doc.key}
-                    handleClose={this.props.handleClosePreview}
-                  />
+                {(doc.state === 'signing') && (
+                  <>
+                    {namedSpinner(index, 'signing')}
+                  </>
+                ) || (
+                  <>
+                    {doc.pending.length === 0 &&
+                      signButton(this.props, doc, this.getHelp("sign-button-help"))}
+                    {doc.pending.length === 0 &&
+                      skipSignatureButton(this.props, doc, this.getHelp("skip-button-help"))}
+                    {doc.pending.length > 0 &&
+                      resendButton(
+                        this.props,
+                        doc,
+                        this.getHelp("resend-button-help")
+                      )}
+                    {previewButton(this.props, doc, this.getHelp("preview-button-help"))}
+                    {doc.show && (
+                      <DocPreviewContainer
+                        doc={doc}
+                        docFile={docFile}
+                        index={doc.key}
+                        handleClose={this.props.handleClosePreview}
+                      />
+                    )}
+                  </>
                 )}
               </div>
               <OverlayTrigger
