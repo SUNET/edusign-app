@@ -39,15 +39,15 @@ class DocManager extends React.Component {
   docSize(doc) {
     return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
   }
-  namedSpinner(doc, name) {
+  namedSpinner(index, name) {
     return (
       <>
-        <LittleSpinner index={doc.id} />
+        <LittleSpinner index={index} />
         <div className="spinning-flex-item">{` ${name} ...`}</div>
       </>
     );
   }
-  previewButton(doc) {
+  previewButton(index, doc) {
     return (
       <>
         <div className="button-preview-flex-item">
@@ -65,7 +65,7 @@ class DocManager extends React.Component {
           >
             <Button
               variant="outline-dark"
-              data-testid={"button-preview-" + doc.id}
+              data-testid={"button-preview-" + index}
               size="sm"
               onClick={this.props.handlePreview(doc.name)}
             >
@@ -76,7 +76,7 @@ class DocManager extends React.Component {
       </>
     );
   }
-  retryButton(doc) {
+  retryButton(index, doc) {
     return (
       <>
         <div className="button-retry-flex-item">
@@ -94,7 +94,7 @@ class DocManager extends React.Component {
           >
             <Button
               variant="outline-success"
-              data-testid={"button-retry-" + doc.id}
+              data-testid={"button-retry-" + index}
               size="sm"
               onClick={this.props.handleRetry(doc, this.props)}
             >
@@ -105,7 +105,7 @@ class DocManager extends React.Component {
       </>
     );
   }
-  selectDoc(doc) {
+  selectDoc(index, doc) {
     return (
       <>
         <div className="doc-selector-flex-item">
@@ -123,9 +123,9 @@ class DocManager extends React.Component {
           >
             <input
               type="checkbox"
-              id={"doc-selector-" + doc.id}
-              name={"doc-selector-" + doc.id}
-              data-testid={"doc-selector-" + doc.id}
+              id={"doc-selector-" + index}
+              name={"doc-selector-" + index}
+              data-testid={"doc-selector-" + index}
               onClick={this.props.handleDocSelection(doc.name)}
               checked={doc.state === "selected"}
             />
@@ -141,7 +141,7 @@ class DocManager extends React.Component {
       </>
     );
   }
-  removeButton(doc) {
+  removeButton(index, doc) {
     return (
       <>
         <div className="button-remove-flex-item">
@@ -160,7 +160,7 @@ class DocManager extends React.Component {
             <Button
               variant="outline-danger"
               size="sm"
-              data-testid={"rm-button-" + doc.id}
+              data-testid={"rm-button-" + index}
               onClick={this.props.handleRemove(doc.name)}
             >
               <FormattedMessage defaultMessage="Remove" key="remove-button" />
@@ -202,7 +202,7 @@ class DocManager extends React.Component {
       </>
     );
   }
-  multiSignButton(doc) {
+  multiSignButton(index, doc) {
     if (this.props.multisign_buttons !== 'yes') {return ''}
     return (
       <>
@@ -221,7 +221,7 @@ class DocManager extends React.Component {
           >
             <Button
               variant="outline-success"
-              data-testid={"button-multisign-" + doc.id}
+              data-testid={"button-multisign-" + index}
               size="sm"
               onClick={this.props.openInviteForm(doc)}
               data-docid={doc.id}
@@ -356,7 +356,7 @@ class DocManager extends React.Component {
                   <DocPreviewContainer
                     doc={doc}
                     docFile={docFile}
-                    index={doc.id}
+                    index={index}
                   />
                 )}
                 <OverlayTrigger
@@ -377,7 +377,7 @@ class DocManager extends React.Component {
                         {this.dummySelectDoc()}
                         {this.docSize(doc)}
                         {this.docName(doc)}
-                        {this.namedSpinner(doc, "loading")}
+                        {this.namedSpinner(index, "loading")}
                       </>
                     )}
                     {doc.state === "failed-loading" && (
@@ -385,7 +385,7 @@ class DocManager extends React.Component {
                         {this.dummySelectDoc()}
                         {this.docName(doc)}
                         {this.showMessage(doc)}
-                        {this.removeButton(doc)}
+                        {this.removeButton(index, doc)}
                       </>
                     )}
                     {doc.state === "failed-preparing" && (
@@ -394,18 +394,18 @@ class DocManager extends React.Component {
                         {this.docSize(doc)}
                         {this.docName(doc)}
                         {this.showMessage(doc)}
-                        {this.retryButton(doc)}
-                        {this.removeButton(doc)}
+                        {this.retryButton(index, doc)}
+                        {this.removeButton(index, doc)}
                       </>
                     )}
                     {(doc.state === "loaded" || doc.state === "selected") && (
                       <>
-                        {this.selectDoc(doc)}
+                        {this.selectDoc(index, doc)}
                         {this.docSize(doc)}
                         {this.docName(doc)}
-                        {this.previewButton(doc)}
-                        {this.removeButton(doc)}
-                        {this.multiSignButton(doc)}
+                        {this.previewButton(index, doc)}
+                        {this.removeButton(index, doc)}
+                        {this.multiSignButton(index, doc)}
                       </>
                     )}
                     {doc.state === "signing" && (
@@ -413,7 +413,7 @@ class DocManager extends React.Component {
                         {this.dummySelectDoc()}
                         {this.docSize(doc)}
                         {this.docName(doc)}
-                        {this.namedSpinner(doc, "signing")}
+                        {this.namedSpinner(index, "signing")}
                       </>
                     )}
                     {doc.state === "signed" && (
@@ -421,17 +421,17 @@ class DocManager extends React.Component {
                         {this.dummySelectDoc()}
                         {this.docSize(doc)}
                         {this.docName(doc)}
-                        {this.dlSignedButton(doc)}
+                        {this.dlSignedButton(index, doc)}
                       </>
                     )}
                     {doc.state === "failed-signing" && (
                       <>
-                        {this.selectDoc(doc)}
+                        {this.selectDoc(index, doc)}
                         {this.docSize(doc)}
                         {this.docName(doc)}
                         {this.showMessage(doc)}
-                        {this.previewButton(doc)}
-                        {this.removeButton(doc)}
+                        {this.previewButton(index, doc)}
+                        {this.removeButton(index, doc)}
                       </>
                     )}
                   </div>
@@ -450,13 +450,13 @@ class DocManager extends React.Component {
                   <DocPreviewContainer
                     doc={doc}
                     docFile={docFile}
-                    index={doc.id}
+                    index={index}
                   />
                 )}
                 <OverlayTrigger
                   trigger={["hover", "focus"]}
                   rootClose={true}
-                  key={doc.id}
+                  key={index}
                   overlay={
                     <Tooltip placement="auto">
                       {this.getHelp(doc.state)}
@@ -472,7 +472,7 @@ class DocManager extends React.Component {
                           {this.docName(doc)}
                         </div>
                         <div className="doc-container-second-row">
-                          {this.namedSpinner(doc, "loading")}
+                          {this.namedSpinner(index, "loading")}
                         </div>
                       </>
                     )}
@@ -486,7 +486,7 @@ class DocManager extends React.Component {
                           {this.showMessage(doc)}
                         </div>
                         <div className="doc-container-third-row">
-                          {this.removeButton(doc)}
+                          {this.removeButton(index, doc)}
                         </div>
                       </>
                     )}
@@ -501,22 +501,22 @@ class DocManager extends React.Component {
                           {this.showMessage(doc)}
                         </div>
                         <div className="doc-container-third-row">
-                          {this.retryButton(doc)}
-                          {this.removeButton(doc)}
+                          {this.retryButton(index, doc)}
+                          {this.removeButton(index, doc)}
                         </div>
                       </>
                     )}
                     {(doc.state === "loaded" || doc.state === "selected") && (
                       <>
                         <div className="doc-container-first-row">
-                          {this.selectDoc(doc)}
+                          {this.selectDoc(index, doc)}
                           {this.docSize(doc)}
                           {this.docName(doc)}
                         </div>
                         <div className="doc-container-second-row">
-                          {this.previewButton(doc)}
-                          {this.removeButton(doc)}
-                          {this.multiSignButton(doc)}
+                          {this.previewButton(index, doc)}
+                          {this.removeButton(index, doc)}
+                          {this.multiSignButton(index, doc)}
                         </div>
                       </>
                     )}
@@ -528,7 +528,7 @@ class DocManager extends React.Component {
                           {this.docName(doc)}
                         </div>
                         <div className="doc-container-second-row">
-                          {this.namedSpinner(doc, "signing")}
+                          {this.namedSpinner(index, "signing")}
                         </div>
                       </>
                     )}
@@ -540,14 +540,14 @@ class DocManager extends React.Component {
                           {this.docName(doc)}
                         </div>
                         <div className="doc-container-second-row">
-                          {this.dlSignedButton(doc)}
+                          {this.dlSignedButton(index, doc)}
                         </div>
                       </>
                     )}
                     {doc.state === "failed-signing" && (
                       <>
                         <div className="doc-container-first-row">
-                          {this.selectDoc(doc)}
+                          {this.selectDoc(index, doc)}
                           {this.docSize(doc)}
                           {this.docName(doc)}
                         </div>
@@ -555,8 +555,8 @@ class DocManager extends React.Component {
                           {this.showMessage(doc)}
                         </div>
                         <div className="doc-container-third-row">
-                          {this.previewButton(doc)}
-                          {this.removeButton(doc)}
+                          {this.previewButton(index, doc)}
+                          {this.removeButton(index, doc)}
                         </div>
                       </>
                     )}
