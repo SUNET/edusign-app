@@ -75,7 +75,6 @@ const mapDispatchToProps = (dispatch) => {
       };
     },
     handleRejected: function (intl) {
-      dispatch(setWaiting());
       return (rejecteds, e) => {
         rejecteds.forEach((rejected) => {
           const errorMsg = intl.formatMessage(
