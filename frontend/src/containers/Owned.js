@@ -12,8 +12,8 @@ import { showResend } from "slices/Modals";
 import {
   getPartiallySignedDoc,
   hideOwnedPreview,
-  skipOwnedSignature,
 } from "slices/Main";
+import { skipOwnedSignature } from "slices/Documents";
 
 const mapStateToProps = (state) => {
   return {
