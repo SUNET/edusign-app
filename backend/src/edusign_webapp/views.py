@@ -689,4 +689,14 @@ def get_partially_signed_doc(data: dict) -> dict:
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal(SignedDocumentsSchema)
 def skip_final_signature(data: dict) -> dict:
-    pass
+
+    doc = current_app.doc_store.get_signed_document(uuid.UUID(data['key']))
+    if not doc:
+        current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
+        return {'error': True, 'message': gettext('Multisigned document not found in the doc store')}
+
+    current_app.doc_store.remove_document(uuid.UUID(data['key']))
+
+    return {
+        'payload': {'documents': [{'id': doc['key'], 'signed_content': doc['blob']}]},
+    }

@@ -477,7 +477,7 @@ export const downloadSigned = createAsyncThunk(
   "documents/downloadSigned",
   async (docname, thunkAPI) => {
     const state = thunkAPI.getState();
-    const doc = state.documents.documents.filter((doc) => {return doc.name === docname})[0];
+    const doc = state.documents.documents.filter((d) => {return d.name === docname})[0];
     const b64content = doc.signedContent.split(',')[1];
     const blob = b64toBlob(b64content);
     const newName =
@@ -493,7 +493,7 @@ export const downloadSigned = createAsyncThunk(
  */
 export const downloadAllSigned = createAsyncThunk(
   "documents/downloadAllSigned",
-  async (docname, thunkAPI) => {
+  async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     const docs = state.documents.documents.filter((doc) => {return doc.state === 'signed'});
     let zip = new JSZip();
@@ -785,14 +785,17 @@ export const skipOwnedSignature = createAsyncThunk(
       if (data.error) {
         throw new Error(data.message);
       }
+      const key = data.payload.documents[0].id;
+      const owned = state.main.owned_multisign.filter((d) => {return d.key === key})[0];
       const doc = {
-        ...data.payload.documents[0],
+        ...owned,
+        signedContent: "data:application/pdf;base64," + data.payload.documents[0].signed_content,
+        blob: "data:application/pdf;base64," + data.payload.documents[0].signed_content,
         state: "signed",
         show: false,
       };
-      doc.blob = "data:application/pdf;base64," + doc.blob;
       saveDocumentToDb(doc);
-      // XXX dispatch removal of owned invitation box
+      thunkAPI.dispatch(removeOwned({key: key}));
       return doc;
     } catch (err) {
       thunkAPI.dispatch(
