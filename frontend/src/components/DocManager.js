@@ -469,6 +469,7 @@ class DocManager extends React.Component {
                     doc={doc}
                     docFile={docFile}
                     index={index}
+                    handleClose={this.props.handleClosePreview}
                   />
                 )}
                 <OverlayTrigger
