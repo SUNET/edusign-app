@@ -5,7 +5,6 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 
 import NotificationsContainer from "containers/Notifications";
-import ConfirmDialogContainer from "containers/ConfirmDialog";
 
 import "styles/Header.scss";
 
@@ -32,43 +31,6 @@ class Header extends Component {
                     />
                   </span>
                 </span>
-                <span id="sep-in-header">|</span>
-                <OverlayTrigger
-                  trigger={["hover", "focus"]}
-                  rootClose={true}
-                  overlay={(props) => (
-                    <Tooltip id="tooltip-clear-docs" {...props}>
-                      <FormattedMessage
-                        defaultMessage="Discard all documents"
-                        key="clear-docs-tootip"
-                      />
-                    </Tooltip>
-                  )}
-                >
-                  <span
-                    id="clear-in-header"
-                    data-testid="clear-in-header"
-                    onClick={this.props.showConfirm("confirm-clear-session")}
-                  >
-                    <FormattedMessage
-                      defaultMessage="Clear session"
-                      key="clear-session"
-                    />
-                  </span>
-                </OverlayTrigger>
-                <ConfirmDialogContainer
-                  confirmId="confirm-clear-session"
-                  title={this.props.intl.formatMessage({
-                    defaultMessage: "Confirm Clear Session",
-                    id: "header-confirm-clear-title",
-                  })}
-                  mainText={this.props.intl.formatMessage({
-                    defaultMessage:
-                      'Clicking "Confirm" will remove all documents from your session',
-                    id: "header-confirm-clear-text",
-                  })}
-                  confirm={this.props.clearDb}
-                />
               </>
             )) || (
             <span id="name-in-header">

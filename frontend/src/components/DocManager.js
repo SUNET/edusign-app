@@ -14,6 +14,7 @@ import InviteFormContainer from "containers/InviteForm";
 import OwnedContainer from "containers/Owned";
 import InvitedContainer from "containers/Invited";
 import { humanFileSize, docToFile } from "components/utils";
+import ConfirmDialogContainer from "containers/ConfirmDialog";
 
 import "styles/DocManager.scss";
 
@@ -324,10 +325,12 @@ class DocManager extends React.Component {
     let someSelected = false;
     let showSignButton = false;
     let showDlAllButton = false;
+    let showClearButton = false;
 
     return (
       <>
         {this.props.documents.map((doc, index) => {
+          showClearButton = true;
           if (["loaded", "selected", "failed-signing"].includes(doc.state)) {
             showSignButton = true;
           }
@@ -633,6 +636,51 @@ class DocManager extends React.Component {
             </div>
           )) || (
             <div className={"dummy-button-dlall-flex-item-" + this.props.size} />
+          )}
+          {(showClearButton && (
+            <div className="button-clear-flex-item">
+              <OverlayTrigger
+                trigger={["hover", "focus"]}
+                rootClose={true}
+                overlay={(props) => (
+                  <Tooltip id="tooltip-clear-docs" {...props}>
+                    <FormattedMessage
+                      defaultMessage="Discard all documents loaded above"
+                      key="clear-docs-tootip"
+                    />
+                  </Tooltip>
+                )}
+              >
+                <div id="button-clear-wrapper">
+                  <Button
+                    variant="success"
+                    id="clear-session-button"
+                    size="lg"
+                    onClick={this.props.showConfirm("confirm-clear-session")}
+                  >
+                    <FormattedMessage
+                      defaultMessage="Clear Session"
+                      key="clear-session-button"
+                    />
+                  </Button>
+                </div>
+              </OverlayTrigger>
+              <ConfirmDialogContainer
+                confirmId="confirm-clear-session"
+                title={this.props.intl.formatMessage({
+                  defaultMessage: "Confirm Clear Session",
+                  id: "header-confirm-clear-title",
+                })}
+                mainText={this.props.intl.formatMessage({
+                  defaultMessage:
+                    'Clicking "Confirm" will remove all documents from your session',
+                  id: "header-confirm-clear-text",
+                })}
+                confirm={this.props.clearDb}
+              />
+            </div>
+          )) || (
+            <div className={"dummy-button-clear-flex-item-" + this.props.size} />
           )}
         </div>
         <div className="multisign-container">

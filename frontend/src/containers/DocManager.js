@@ -18,10 +18,13 @@ import {
   toggleDocSelection,
   startSigningDocuments,
   removeDocument,
+  removeAllDocuments,
   downloadSigned,
   downloadAllSigned,
 } from "slices/Documents";
 import { showForm } from "slices/Modals";
+import { clearDocStore } from "init-app/database";
+import { askConfirmation } from "slices/ConfirmDialog";
 
 const mapStateToProps = (state) => {
   return {
@@ -35,7 +38,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToProps = (dispatch, props) => {
   return {
     handlePreview: function (name) {
       return () => {
@@ -72,6 +75,15 @@ const mapDispatchToProps = (dispatch) => {
     openInviteForm: function (doc) {
       return () => {
         dispatch(showForm(doc.id));
+      };
+    },
+    clearDb: function () {
+      clearDocStore(dispatch, props.intl);
+      dispatch(removeAllDocuments());
+    },
+    showConfirm: function (confirmId) {
+      return () => {
+        dispatch(askConfirmation(confirmId));
       };
     },
   };

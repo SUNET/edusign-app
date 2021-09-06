@@ -11,9 +11,6 @@
 import { connect } from "react-redux";
 
 import Header from "components/Header";
-import { clearDocStore } from "init-app/database";
-import { removeAllDocuments } from "slices/Documents";
-import { askConfirmation } from "slices/ConfirmDialog";
 
 const mapStateToProps = (state) => {
   if (state.main.signer_attributes === undefined) {
@@ -29,18 +26,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-const mapDispatchToProps = (dispatch, props) => {
-  return {
-    clearDb: function () {
-      clearDocStore(dispatch, props.intl);
-      dispatch(removeAllDocuments());
-    },
-    showConfirm: function (confirmId) {
-      return () => {
-        dispatch(askConfirmation(confirmId));
-      };
-    },
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Header);
+export default connect(mapStateToProps)(Header);
