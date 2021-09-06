@@ -28,17 +28,23 @@
       margin-right: 1rem;
     }
 
+    .pending-invited-flex-item,
+    .signed-invited-flex-item,
     .invited-flex-item {
       flex: none;
       display: flex;
       font-size: 0.8rem;
 
+      .pending-invited-flex-label,
+      .signed-invited-flex-label,
       .invited-flex-label {
         flex: none;
         margin-right: 1rem;
         color: $darker-dark-grey;
       }
 
+      .pending--flex-item,
+      .signed--flex-item,
       .owner-flex-item {
         flex: none;
         margin-right: 1rem;
