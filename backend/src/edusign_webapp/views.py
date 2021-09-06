@@ -537,12 +537,16 @@ def multi_sign_service_callback(doc_key) -> str:
 
     :return: The rendered template with information on the result of the process.
     """
+    context = {
+        'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}/sign",
+        'back_button_text': gettext("back to site"),
+    }
     key = uuid.UUID(doc_key)
     if not current_app.doc_store.check_document_locked(key, session['mail']):
         current_app.logger.error(f'Trying to add signature to unlocked document with key: {doc_key}')
-        title = gettext("Problem signing the document")
-        message = gettext('Timeout signing the document, please try again')
-        return render_template('error-generic.jinja2', title=title, message=message)
+        context['title'] = gettext("Problem signing the document")
+        context['message'] = gettext('Timeout signing the document, please try again')
+        return render_template('error-generic.jinja2', **context)
 
     try:
         sign_response = request.form['EidSignResponse']
@@ -559,15 +563,15 @@ def multi_sign_service_callback(doc_key) -> str:
 
     except Exception as e:
         current_app.logger.error(f'Problem processing sign request: {e}')
-        title = gettext("Problem signing the document")
-        message = gettext('Communication error with the process endpoint of the eduSign API')
-        return render_template('error-generic.jinja2', title=title, message=message)
+        context['title'] = gettext("Problem signing the document")
+        context['message'] = gettext('Communication error with the process endpoint of the eduSign API')
+        return render_template('error-generic.jinja2', **context)
 
     if 'dssError' in process_data:
         current_app.logger.error(f'Problem in the processing sign response: {process_data}')
-        title = gettext("Problem signing the document")
-        message = gettext('Data error with the process endpoint of the eduSign API')
-        return render_template('error-generic.jinja2', title=title, message=message)
+        context['title'] = gettext("Problem signing the document")
+        context['message'] = gettext('Data error with the process endpoint of the eduSign API')
+        return render_template('error-generic.jinja2', **context)
 
     doc = process_data['signedDocuments'][0]
 
@@ -577,9 +581,9 @@ def multi_sign_service_callback(doc_key) -> str:
     owner_data = current_app.doc_store.get_owner_data(key)
     if not owner_data:
         current_app.logger.error(f"Problem signing document {key} for {session['mail']} with no owner data")
-        title = gettext("Problem signing the document")
-        message = gettext('There is no owner data for this document')
-        return render_template('error-generic.jinja2', title=title, message=message)
+        context['title'] = gettext("Problem signing the document")
+        context['message'] = gettext('There is no owner data for this document')
+        return render_template('error-generic.jinja2', **context)
 
     recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
     msg = Message(
@@ -587,21 +591,21 @@ def multi_sign_service_callback(doc_key) -> str:
         % {'name': owner_data['name'], 'docname': owner_data['docname']},
         recipients=recipients,
     )
-    context = {
+    mail_context = {
         'document_name': owner_data['docname'],
         'invited_name': session['displayName'],
         'invited_email': session['mail'],
     }
-    msg.body = render_template('signed_by_email.txt.jinja2', **context)
+    msg.body = render_template('signed_by_email.txt.jinja2', **mail_context)
     current_app.logger.debug(f"Sending email to user {owner_data['email']}:\n{msg.body}")
-    msg.html = render_template('signed_by_email.html.jinja2', **context)
+    msg.html = render_template('signed_by_email.html.jinja2', **mail_context)
 
     current_app.mailer.send(msg)
 
-    title = gettext("Document signed")
-    message = gettext("Success processing document sign request")
+    context['title'] = gettext("Document signed"),
+    context['message'] = gettext("Success processing document sign request"),
 
-    return render_template('success-generic.jinja2', title=title, message=message)
+    return render_template('success-generic.jinja2', **context)
 
 
 @edusign_views.route('/final-sign-request', methods=['POST'])
