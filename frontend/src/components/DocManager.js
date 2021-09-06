@@ -653,7 +653,7 @@ class DocManager extends React.Component {
               >
                 <div id="button-clear-wrapper">
                   <Button
-                    variant="success"
+                    variant="danger"
                     id="clear-session-button"
                     size="lg"
                     onClick={this.props.showConfirm("confirm-clear-session")}
