@@ -266,6 +266,28 @@ class SqliteMD(ABCMetadata):
             document['owner'] = email_result
             document['key'] = uuid.UUID(document['key'])
             document['invite_key'] = uuid.UUID(invite['key'])
+            document['pending'] = []
+            document['signed'] = []
+
+            subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
+
+            if subinvites is not None and not isinstance(subinvites, dict):
+                for subinvite in subinvites:
+                    user_id = subinvite['user_id']
+                    subemail_result = self._db_query(USER_QUERY, (user_id,), one=True)
+                    if subemail_result is None or isinstance(subemail_result, list):
+                        self.logger.error(
+                            f"Db seems corrupted, a subinvite for {document_id}"
+                            f" references a non existing user with id {user_id}"
+                        )
+                        continue
+                    if subemail_result['email'] == email:
+                        continue
+                    if subinvite['signed'] == 0:
+                        document['pending'].append(subemail_result)
+                    else:
+                        document['signed'].append(subemail_result)
+
             pending.append(document)
 
         return pending

@@ -66,6 +66,8 @@ class ConfigSchema(Schema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
         invite_key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
         owner = fields.Nested(Invitee)
+        pending = fields.List(fields.Nested(Invitee))
+        signed = fields.List(fields.Nested(Invitee))
 
     class OwnedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])

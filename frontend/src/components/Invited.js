@@ -116,6 +116,43 @@ class Invited extends Component {
                       {doc.owner.name} &lt;{doc.owner.email}&gt;
                     </div>
                   </div>
+
+                  {(doc.pending.length > 0) && (
+                    <div className="pending-invited-flex-item">
+                      <div className="pending-invited-flex-label">
+                        <FormattedMessage
+                          defaultMessage="Pending signature by"
+                          key="pending-invited-by"
+                        />
+                      </div>
+                      {doc.pending.map((inv, index) => {
+                        return (
+                          <div className="pending-flex-item" key={index}>
+                            {inv.name} &lt;{inv.email}&gt;
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {(doc.signed.length > 0) && (
+                    <div className="signed-invited-flex-item">
+                      <div className="signed-invited-flex-label">
+                        <FormattedMessage
+                          defaultMessage="Already signed by"
+                          key="signed-invited-by"
+                        />
+                      </div>
+                      {doc.signed.map((inv, index) => {
+                        return (
+                          <div className="signed-flex-item" key={index}>
+                            {inv.name} &lt;{inv.email}&gt;
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   {(doc.state === 'signing') && (
                     <>
                       {namedSpinner(index, 'signing')}
