@@ -731,7 +731,7 @@ export const signInvitedDoc = createAsyncThunk(
       }
       const doc = {
         ...data.payload.documents[0],
-        state: "signing",
+        state: "pre-signing",
         show: false,
       };
       doc.blob = "data:application/pdf;base64," + doc.blob;
