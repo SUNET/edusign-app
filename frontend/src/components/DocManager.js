@@ -659,7 +659,7 @@ class DocManager extends React.Component {
                     onClick={this.props.showConfirm("confirm-clear-session")}
                   >
                     <FormattedMessage
-                      defaultMessage="Clear Session"
+                      defaultMessage="Clear List"
                       key="clear-session-button"
                     />
                   </Button>
