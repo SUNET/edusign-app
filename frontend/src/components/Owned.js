@@ -13,36 +13,6 @@ import LittleSpinner from "components/LittleSpinner";
 
 import "styles/Owned.scss";
 
-const removeButton = (props, doc) => {
-  return (
-    <>
-      <div className="button-remove-invitation">
-        <Button
-          variant="outline-danger"
-          size="sm"
-          onClick={props.showConfirm("confirm-remove-owned")}
-          data-testid={"rm-invitation-" + doc.name}
-        >
-          ×
-        </Button>
-        <ConfirmDialogContainer
-          confirmId="confirm-remove-owned"
-          title={props.intl.formatMessage({
-            defaultMessage: "Confirm Removal of invitation",
-            id: "header-confirm-remove-owned-title",
-          })}
-          mainText={props.intl.formatMessage({
-            defaultMessage:
-              'Clicking "Confirm" will remove all invitations to sign the document',
-            id: "header-confirm-remove-owned-text",
-          })}
-          confirm={props.handleRemove(doc, props)}
-        />
-      </div>
-    </>
-  );
-};
-
 const signButton = (props, doc, help) => {
   return (
     <>
@@ -155,6 +125,46 @@ const previewButton = (props, doc, help) => {
   );
 };
 
+
+const removeButton = (props, doc, help) => {
+  return (
+    <>
+      <OverlayTrigger
+        trigger={["hover", "focus"]}
+        overlay={
+          <Tooltip placement="auto">{help}</Tooltip>
+        }
+      >
+        <div className="owned-multisign-remove">
+          <div className="button-remove-invitation">
+            <Button
+              variant="outline-danger"
+              size="sm"
+              onClick={props.showConfirm("confirm-remove-owned")}
+              data-testid={"rm-invitation-" + doc.name}
+            >
+              <FormattedMessage defaultMessage="Remove" key="remove-button" />
+            </Button>
+            <ConfirmDialogContainer
+              confirmId="confirm-remove-owned"
+              title={props.intl.formatMessage({
+                defaultMessage: "Confirm Removal of invitation",
+                id: "header-confirm-remove-owned-title",
+              })}
+              mainText={props.intl.formatMessage({
+                defaultMessage:
+                  'Clicking "Confirm" will remove all invitations to sign the document',
+                id: "header-confirm-remove-owned-text",
+              })}
+              confirm={props.handleRemove(doc, props)}
+            />
+          </div>
+        </div>
+      </OverlayTrigger>
+    </>
+  );
+};
+
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
  *
@@ -194,12 +204,6 @@ class Owned extends Component {
     if (this.props.owned.length === 0) return "";
     return (
       <>
-        <div className="multisign-title">
-          <FormattedMessage
-            defaultMessage="Requests for multiple signatures:"
-            key="multisign-requests"
-          />
-        </div>
         {this.props.owned.map((doc, index) => {
           let docFile = null;
           if (doc.show) {
@@ -208,89 +212,90 @@ class Owned extends Component {
           return (
             <div className="owned-multisign" key={index}>
               <div className="owned-multisign-request">
-                <div className="name-flex-item">{doc.name}</div>
+                <div className="owned-name-and-buttons">
+                  <div className="name-flex-item">
+                    <span className="owned-doc-name-label">
+                      <FormattedMessage
+                        defaultMessage="You have invited signers to sign"
+                        key="owned-doc-name"
+                      />
+                    </span>
+                    <span className="owned-doc-name">{doc.name}</span>
+                  </div>
+                  <div className="owned-buttons">
+                    {(doc.state === 'signing') && (
+                      <>
+                        {namedSpinner(index, 'signing')}
+                      </>
+                    ) || (
+                      <>
+                        {previewButton(this.props, doc, this.getHelp("preview-button-help"))}
+                        {doc.pending.length === 0 &&
+                          signButton(this.props, doc, this.getHelp("sign-button-help"))}
+                        {doc.pending.length === 0 &&
+                          skipSignatureButton(this.props, doc, this.getHelp("skip-button-help"))}
+                        {doc.pending.length > 0 &&
+                          resendButton(
+                            this.props,
+                            doc,
+                            this.getHelp("resend-button-help")
+                          )}
+                        {removeButton(this.props, doc, this.getHelp("close-button-help"))}
+                        {doc.show && (
+                          <DocPreviewContainer
+                            doc={doc}
+                            docFile={docFile}
+                            index={doc.key}
+                            handleClose={this.props.handleClosePreview}
+                          />
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
                 {doc.pending.length > 0 && (
                   <>
-                    <div className="pending-invites-title">
+                    <div className="pending-invites">
                       <span className="pending-invites-label">
                         <FormattedMessage
                           defaultMessage="Waiting for signatures by:"
                           key="multisign-owned-waiting"
                         />
                       </span>
-                    </div>
-                    <div className="pending-invites">
-                      {doc.pending.map((invite, index) => {
-                        return (
-                          <span className="pending-invite-item" key={index}>
-                            {invite.name} &lt;{invite.email}&gt;
-                          </span>
-                        );
-                      })}
+                      <span className="pending-invites-items">
+                        {doc.pending.map((invite, index) => {
+                          return (
+                            <span className="pending-invite-item" key={index}>
+                              {invite.name} &lt;{invite.email}&gt;
+                            </span>
+                          );
+                        })}
+                      </span>
                     </div>
                   </>
                 )}
                 {doc.signed.length > 0 && (
                   <>
-                    <div className="signed-invites-title">
+                    <div className="signed-invites">
                       <span className="signed-invites-label">
                         <FormattedMessage
                           defaultMessage="Already signed by:"
                           key="multisign-owned-signed"
                         />
                       </span>
+                      <span className="signed-invites-items">
+                        {doc.signed.map((invite, index) => {
+                          return (
+                            <span className="signed-invite-item" key={index}>
+                              {invite.name} &lt;{invite.email}&gt;
+                            </span>
+                          );
+                        })}
+                      </span>
                     </div>
-                    <div className="signed-invites">
-                      {doc.signed.map((invite, index) => {
-                        return (
-                          <span className="signed-invite-item" key={index}>
-                            {invite.name} &lt;{invite.email}&gt;
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-                {(doc.state === 'signing') && (
-                  <>
-                    {namedSpinner(index, 'signing')}
-                  </>
-                ) || (
-                  <>
-                    {doc.pending.length === 0 &&
-                      signButton(this.props, doc, this.getHelp("sign-button-help"))}
-                    {doc.pending.length === 0 &&
-                      skipSignatureButton(this.props, doc, this.getHelp("skip-button-help"))}
-                    {doc.pending.length > 0 &&
-                      resendButton(
-                        this.props,
-                        doc,
-                        this.getHelp("resend-button-help")
-                      )}
-                    {previewButton(this.props, doc, this.getHelp("preview-button-help"))}
-                    {doc.show && (
-                      <DocPreviewContainer
-                        doc={doc}
-                        docFile={docFile}
-                        index={doc.key}
-                        handleClose={this.props.handleClosePreview}
-                      />
-                    )}
                   </>
                 )}
               </div>
-              <OverlayTrigger
-                trigger={["hover", "focus"]}
-                overlay={
-                  <Tooltip placement="auto">
-                    {this.getHelp("close-button-help")}
-                  </Tooltip>
-                }
-              >
-                <div className="owned-multisign-remove">
-                  {removeButton(this.props, doc)}
-                </div>
-              </OverlayTrigger>
             </div>
           );
         })}

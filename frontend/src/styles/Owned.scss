@@ -11,10 +11,6 @@
   border: $orange-opaque solid 2px;
   border-radius: 3px;
 
-  .owned-multisign-remove {
-    flex: none;
-  }
-
   .owned-multisign-request {
     padding: 0.3rem;
     flex: auto;
@@ -23,9 +19,33 @@
     align-items: flex-start;
     line-height: 1.5rem;
 
-    .name-flex-item {
-      flex: 5 0 auto;
-      margin-right: 1rem;
+    .owned-name-and-buttons {
+      flex: none;
+      display: flex;
+      width: 100%;
+
+      .name-flex-item {
+        flex: 0 1 auto;
+        margin-right: 1rem;
+      }
+      .owned-buttons {
+        display: flex;
+        align-items: flex-end;
+
+        .button-resend-container,
+        .button-skip-container,
+        .button-sign-container {
+          flex: none;
+
+          .button-preview-invitation,
+          .button-resend-invitation,
+          .button-remove-invitation,
+          .button-skip-invitation,
+          .button-sign-invitation {
+            margin-right: 1rem;;
+          }
+        }
+      }
     }
   }
 }
@@ -51,69 +71,34 @@
   }
 }
 
-.pending-invites-title {
-  flex: none;
-
-  .pending-invites-label {
-    color: $darker-dark-grey;
-    font-size: 0.8rem;
-  }
+.owned-doc-name-label,
+.signed-invites-label,
+.pending-invites-label {
+  margin-right: .5rem;
+  color: $darker-dark-grey;
+  font-size: 0.8rem;
 }
 
 .pending-invites {
   flex: none;
-  margin-left: 1rem;
-  margin-right: 1rem;
-  display: flex;
-  flex-wrap: wrap;
-
-  .pending-invite-item {
-    margin-left: 1rem;
-    flex: 0 0 auto;
-    font-size: 0.8rem;
-  }
 }
 
-.signed-invites-title {
-  flex: none;
+.pending-invites-items {
 
-  .signed-invites-label {
-    color: $darker-dark-grey;
+  .pending-invite-item {
+    margin-right: .5rem;
     font-size: 0.8rem;
   }
 }
 
 .signed-invites {
   flex: none;
-  margin-left: 1rem;
-  margin-right: 1rem;
-  display: flex;
-  flex-wrap: wrap;
+}
+
+.signed-invites-items {
 
   .signed-invite-item {
-    margin-left: 1rem;
-    flex: 0 0 auto;
+    margin-right: .5rem;
     font-size: 0.8rem;
-  }
-}
-
-.button-resend-container,
-.button-sign-container {
-  flex: none;
-  display: flex;
-  justify-content: center;
-  width: 100%;
-  margin-top: 1rem;
-
-  .button-resend-invitation,
-  .button-sign-invitation {
-    flex: none;
-  }
-}
-
-.button-remove-invitation {
-  button {
-    border: none;
-    font-size: 1.2rem;
   }
 }

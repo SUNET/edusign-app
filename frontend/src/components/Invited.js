@@ -89,12 +89,6 @@ class Invited extends Component {
     if (this.props.invited.length === 0) return "";
     return (
       <>
-        <div className="multisign-title">
-          <FormattedMessage
-            defaultMessage="Invitations to sign:"
-            key="invitations-to-sign"
-          />
-        </div>
         <>
           {this.props.invited.map((doc, index) => {
             let docFile = null;

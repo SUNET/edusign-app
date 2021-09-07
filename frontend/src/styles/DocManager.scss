@@ -203,21 +203,22 @@ div.selected {
   background-color: $light-blue;
 }
 
-.multisign-container {
+.multisign-container-lg {
+  min-width: 80%;
+}
+
+.multisign-container-sm {
+  min-width: 100%;
+}
+
+.multisign-container-lg,
+.multisign-container-sm {
   display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 2rem;
-  width: 100%;
+  flex-direction: column;
+  margin-top: 2rem;
 
-  .owned-multisign-container {
-    flex: 1 1 50%;
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-
+  .owned-multisign-container,
   .invited-multisign-container {
-    flex: 1 1 50%;
-    padding-left: 2rem;
-    padding-right: 2rem;
+    flex: 1 1 auto;
   }
 }

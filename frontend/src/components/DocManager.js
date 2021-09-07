@@ -699,7 +699,7 @@ class DocManager extends React.Component {
             <div className={"dummy-button-clear-flex-item-" + this.props.size} />
           )}
         </div>
-        <div className="multisign-container">
+        <div className={"multisign-container-" + this.props.size}>
           <div className="owned-multisign-container">
             <OwnedContainer />
           </div>

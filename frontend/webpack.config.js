@@ -77,7 +77,6 @@ module.exports = {
     }),
     new webpack.HotModuleReplacementPlugin(),
     // new BundleAnalyzerPlugin(),
-    new CompressionPlugin(),
     new webpack.LoaderOptionsPlugin({
       // test: /\.xxx$/, // may apply this only for some modules
       options: {
