@@ -29,12 +29,22 @@
   padding-bottom: 0.5rem;
 }
 
-#edusign-dnd-wrapper {
+#edusign-dnd-wrapper-lg {
   flex: none;
   display: flex;
   align-items: top;
   justify-content: center;
-  width: 100%;
+  min-width: 80%;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+#edusign-dnd-wrapper-sm {
+  flex: none;
+  display: flex;
+  align-items: top;
+  justify-content: center;
+  min-width: 100%;
   text-align: center;
   margin-bottom: 1rem;
 }

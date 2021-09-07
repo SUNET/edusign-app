@@ -26,7 +26,7 @@ class DnDArea extends Component {
         {({ getRootProps, getInputProps }) => {
           if (this.props.status === "waiting") {
             return (
-              <section id="edusign-dnd-wrapper">
+              <section id={"edusign-dnd-wrapper-" + this.props.size}>
                 <div
                   {...getRootProps({
                     id: "edusign-dnd-area",
@@ -69,7 +69,7 @@ class DnDArea extends Component {
             );
           } else if (this.props.status === "receiving") {
             return (
-              <section id="edusign-dnd-wrapper">
+              <section id={"edusign-dnd-wrapper-" + this.props.size}>
                 <div
                   {...getRootProps({
                     id: "edusign-dnd-area-receiving",
@@ -87,7 +87,7 @@ class DnDArea extends Component {
             );
           } else if (this.props.status === "loading") {
             return (
-              <section id="edusign-dnd-wrapper">
+              <section id={"edusign-dnd-wrapper-" + this.props.size}>
                 <div
                   {...getRootProps({
                     id: "edusign-dnd-area-receiving",
