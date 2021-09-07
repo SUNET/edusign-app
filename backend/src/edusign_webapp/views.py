@@ -468,19 +468,23 @@ def remove_multi_sign_request(data: dict) -> dict:
 @edusign_views.route('/invitation/<invite_key>', methods=['GET'])
 def create_invited_signature(invite_key: str) -> str:
     """"""
+    context = {
+        'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}/sign",
+        'back_button_text': gettext("Back to site"),
+    }
     try:
         data = current_app.doc_store.get_invitation(uuid.UUID(invite_key))
     except current_app.doc_store.DocumentLocked:
-        title = gettext("Problem signing the document")
-        message = gettext("Someone else is signing the document right now, please try again in a few minutes")
-        return render_template('error-generic.jinja2', title=title, message=message)
+        context['title'] = gettext("Problem signing the document")
+        context['message'] = gettext("Someone else is signing the document right now, please try again in a few minutes")
+        return render_template('error-generic.jinja2', **context)
 
     current_app.logger.info(f"Invitation data: {data}")
 
     if not data:
-        title = gettext("Problem signing the document")
-        message = gettext("There seems to be no invitation for you")
-        return render_template('error-generic.jinja2', title=title, message=message)
+        context['title'] = gettext("Problem signing the document")
+        context['message'] = gettext("There seems to be no invitation for you")
+        return render_template('error-generic.jinja2', **context)
 
     add_attributes_to_session(check_whitelisted=False)
 
@@ -490,17 +494,17 @@ def create_invited_signature(invite_key: str) -> str:
 
     if user['email'] != session['mail']:
         current_app.doc_store.unlock_document(key, user['email'])
-        title = gettext("Problem signing the document")
-        message = gettext("The invited email does not coincide with yours")
-        return render_template('error-generic.jinja2', title=title, message=message)
+        context['title'] = gettext("Problem signing the document")
+        context['message'] = gettext("The invited email does not coincide with yours")
+        return render_template('error-generic.jinja2', **context)
 
     doc_data = prepare_document(doc)
 
     if 'error' in doc_data and doc_data['error']:
         current_app.doc_store.unlock_document(key, user['email'])
-        title = gettext("Problem signing the document")
-        message = gettext("Problem preparing document for multi sign by user %s: %s") % (session['eppn'], doc['name'])
-        return render_template('error-generic.jinja2', title=title, message=message)
+        context['title'] = gettext("Problem signing the document")
+        context['message'] = gettext("Problem preparing document for multi sign by user %s: %s") % (session['eppn'], doc['name'])
+        return render_template('error-generic.jinja2', **context)
 
     current_app.logger.info(f"Prepared {doc['name']} for multisigning by user {session['eppn']}")
 
@@ -519,9 +523,9 @@ def create_invited_signature(invite_key: str) -> str:
     except Exception as e:
         current_app.doc_store.unlock_document(key, user['email'])
         current_app.logger.error(f'Problem creating sign request: {e}')
-        title = gettext("Problem signing the document")
-        message = gettext('Communication error with the create endpoint of the eduSign API')
-        return render_template('error-generic.jinja2', title=title, message=message)
+        context['title'] = gettext("Problem signing the document")
+        context['message'] = gettext('Communication error with the create endpoint of the eduSign API')
+        return render_template('error-generic.jinja2', **context)
 
     if 'site_visitor' in session and session['site_visitor']:
         return render_template('autoform.jinja2', **create_data)
@@ -539,7 +543,7 @@ def multi_sign_service_callback(doc_key) -> str:
     """
     context = {
         'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}/sign",
-        'back_button_text': gettext("back to site"),
+        'back_button_text': gettext("Back to site"),
     }
     key = uuid.UUID(doc_key)
     if not current_app.doc_store.check_document_locked(key, session['mail']):
@@ -602,8 +606,8 @@ def multi_sign_service_callback(doc_key) -> str:
 
     current_app.mailer.send(msg)
 
-    context['title'] = gettext("Document signed"),
-    context['message'] = gettext("Success processing document sign request"),
+    context['title'] = gettext("Document signed")
+    context['message'] = gettext("Success processing document sign request")
 
     return render_template('success-generic.jinja2', **context)
 
