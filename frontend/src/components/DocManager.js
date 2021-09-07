@@ -668,12 +668,12 @@ class DocManager extends React.Component {
               <ConfirmDialogContainer
                 confirmId="confirm-clear-session"
                 title={this.props.intl.formatMessage({
-                  defaultMessage: "Confirm Clear Session",
+                  defaultMessage: "Confirm Clear List",
                   id: "header-confirm-clear-title",
                 })}
                 mainText={this.props.intl.formatMessage({
                   defaultMessage:
-                    'Clicking "Confirm" will remove all documents from your session',
+                    'Clicking "Confirm" will remove all documents from your list',
                   id: "header-confirm-clear-text",
                 })}
                 confirm={this.props.clearDb}
