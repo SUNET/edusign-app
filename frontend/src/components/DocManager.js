@@ -171,7 +171,7 @@ class DocManager extends React.Component {
       </>
     );
   }
-  dlSignedButton(doc) {
+  dlSignedButton(index, doc) {
     return (
       <>
         <div className="button-signed-flex-item">
