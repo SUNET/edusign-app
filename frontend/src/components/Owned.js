@@ -110,9 +110,9 @@ const previewButton = (props, doc, help) => {
         overlay={<Tooltip placement="auto">{help}</Tooltip>}
       >
         <div className="button-preview-container">
-          <div className="button-preview-owned">
+          <div className="button-preview-invitation">
             <Button
-              variant="outline-success"
+              variant="outline-dark"
               size="sm"
               onClick={props.showPreview(doc.key)}
             >
@@ -135,7 +135,7 @@ const removeButton = (props, doc, help) => {
           <Tooltip placement="auto">{help}</Tooltip>
         }
       >
-        <div className="owned-multisign-remove">
+        <div className="button-remove-container">
           <div className="button-remove-invitation">
             <Button
               variant="outline-danger"
@@ -212,7 +212,7 @@ class Owned extends Component {
           return (
             <div className="owned-multisign" key={index}>
               <div className="owned-multisign-request">
-                <div className="owned-name-and-buttons">
+                <div className={"owned-name-and-buttons-" + this.props.size}>
                   <div className="name-flex-item">
                     <span className="owned-doc-name-label">
                       <FormattedMessage
@@ -230,6 +230,7 @@ class Owned extends Component {
                     ) || (
                       <>
                         {previewButton(this.props, doc, this.getHelp("preview-button-help"))}
+                        {removeButton(this.props, doc, this.getHelp("close-button-help"))}
                         {doc.pending.length === 0 &&
                           signButton(this.props, doc, this.getHelp("sign-button-help"))}
                         {doc.pending.length === 0 &&
@@ -240,7 +241,6 @@ class Owned extends Component {
                             doc,
                             this.getHelp("resend-button-help")
                           )}
-                        {removeButton(this.props, doc, this.getHelp("close-button-help"))}
                         {doc.show && (
                           <DocPreviewContainer
                             doc={doc}

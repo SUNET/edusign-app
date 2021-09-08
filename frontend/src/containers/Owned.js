@@ -19,6 +19,7 @@ import { skipOwnedSignature } from "slices/Documents";
 const mapStateToProps = (state) => {
   return {
     owned: state.main.owned_multisign,
+    size: state.main.size,
   };
 };
 
