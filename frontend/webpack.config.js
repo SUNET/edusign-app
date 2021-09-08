@@ -6,10 +6,12 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const CompressionPlugin = require('compression-webpack-plugin');
 
 module.exports = {
-  mode: "production",
+  mode: "development",
+  optimization: {
+    minimize: false
+  },
   devServer: {
     contentBase: path.join(__dirname, "public"),
-    compress: true,
     port: 9000
   },
   entry: {
@@ -21,7 +23,7 @@ module.exports = {
     publicPath: "https://sp.edusign.docker/js/",
     filename: "[name]-bundle.dev.js"
   },
-  devtool: "source-map",
+  devtool: "eval-source-map",
   resolve: {
     // allow us to import components in tests like:
     // import Example from 'components/Example';
@@ -68,6 +70,9 @@ module.exports = {
     new webpack.DefinePlugin({
       AVAILABLE_LANGUAGES: require("./edusign.config.js").AVAILABLE_LANGUAGES,
       LOCALIZED_MESSAGES: require("./edusign.config.js").LOCALIZED_MESSAGES,
+      'process.env': {
+          NODE_ENV: JSON.stringify('development')
+      }
     }),
     new webpack.HotModuleReplacementPlugin(),
     // new BundleAnalyzerPlugin(),
