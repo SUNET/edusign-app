@@ -24,7 +24,7 @@
   "components.DocManager.sign-selected-button": "Sign Selected Documents",
   "components.DocManager.signed-button": "Download (signed)",
   "components.DocPreview.button-close": "Close",
-  "components.Footer.copyright": "SUNET 2020",
+  "components.Footer.copyright": "SUNET 2020-2021",
   "components.Header.header-unauthz-for-site": "You don't seem to be authorized to use this site at this moment",
   "components.Header.signing-with": "Signed in as {name} ({eppn})",
   "components.InviteForm.add-invitation-tootip": "Invite one more person to sign this document",
