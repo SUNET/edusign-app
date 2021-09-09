@@ -6,7 +6,7 @@
   display: flex;
   flex-flow: row wrap;
   min-height: 3rem;
-  min-width: 80%;
+  width: 80%;
   align-items: center;
   justify-content: left;
   border: $orange-opaque solid 2px;
@@ -48,7 +48,7 @@
   .button-dlall-flex-item {
     flex: none;
     button {
-      width: 5rem;
+      padding: inherit .5rem;
       margin-left: 1rem;
     }
   }
@@ -56,7 +56,7 @@
   .button-signed-flex-item {
     flex: none;
     button {
-      width: 9rem;
+      padding: inherit .5rem;
       margin-left: 1rem;
     }
   }
@@ -64,6 +64,7 @@
   .button-multisign-flex-item {
     flex: none;
     button {
+      padding: inherit .5rem;
       margin-left: 1rem;
     }
   }
@@ -119,7 +120,7 @@
     .button-sign-flex-item {
       flex: none;
       button {
-        width: 5rem;
+        padding: inherit .5rem;
         margin-left: 1rem;
       }
     }
@@ -127,7 +128,7 @@
     .button-signed-flex-item {
       flex: none;
       button {
-        width: 9rem;
+        padding: inherit .5rem;
         margin-left: 1rem;
       }
     }
