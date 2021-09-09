@@ -140,13 +140,13 @@ const removeButton = (props, doc, help) => {
             <Button
               variant="outline-danger"
               size="sm"
-              onClick={props.showConfirm("confirm-remove-owned")}
+              onClick={props.showConfirm("confirm-remove-owned-" + doc.name)}
               data-testid={"rm-invitation-" + doc.name}
             >
               <FormattedMessage defaultMessage="Remove" key="remove-button" />
             </Button>
             <ConfirmDialogContainer
-              confirmId="confirm-remove-owned"
+              confirmId={"confirm-remove-owned-" + doc.name}
               title={props.intl.formatMessage({
                 defaultMessage: "Confirm Removal of invitation",
                 id: "header-confirm-remove-owned-title",
