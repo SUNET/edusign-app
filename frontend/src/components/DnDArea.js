@@ -39,7 +39,7 @@ class DnDArea extends Component {
                     <div id="dnd-message-head-lg">
                       <div id="dnd-area-head-1">
                         <FormattedMessage
-                          defaultMessage="Drag & drop here"
+                          defaultMessage="Drag & drop files here"
                           key="dnd-area-head-1"
                         />
                       </div>
@@ -51,7 +51,7 @@ class DnDArea extends Component {
                       </div>
                       <div id="dnd-area-head-3">
                         <FormattedMessage
-                          defaultMessage="click to browse"
+                          defaultMessage="click to select files"
                           key="dnd-area-head-3"
                         />
                       </div>
