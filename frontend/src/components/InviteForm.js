@@ -70,7 +70,7 @@ class InviteForm extends React.Component {
                 <Modal.Header closeButton>
                   <Modal.Title>
                     <FormattedMessage
-                      defaultMessage={`Invite people to sign {docName}`}
+                      defaultMessage={`Invite people to sign: {docName}`}
                       key="invite-people"
                       values={{ docName: this.props.docName }}
                     />
