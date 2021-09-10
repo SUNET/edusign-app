@@ -29,6 +29,17 @@
         flex: 1 2 auto;
         margin-right: 1rem;
       }
+
+      .spinner-flex-item {
+        flex: none;
+        width: 3rem;
+        margin-bottom: -2rem;
+      }
+      .spinning-flex-item {
+        flex: none;
+        width: 5rem;
+      }
+
       .invited-buttons {
         flex: 2 1 auto;
         display: flex;
@@ -52,6 +63,16 @@
       .name-flex-item {
         flex: 1 2 auto;
         margin-right: 1rem;
+      }
+
+      .spinner-flex-item {
+        flex: none;
+        width: 3rem;
+        margin-bottom: -2rem;
+      }
+      .spinning-flex-item {
+        flex: none;
+        width: 5rem;
       }
       .invited-buttons {
         flex: 2 1 auto;
