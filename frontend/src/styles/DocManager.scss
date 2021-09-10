@@ -35,38 +35,48 @@
     color: $darker-dark-grey;
   }
 
-  .spinner-flex-item,
-  .spinning-flex-item {
-    flex: none;
-    width: 5rem;
-  }
+  .doc-manager-buttons {
+    flex: 3 1 auto;
+    display: flex;
+    justify-content: flex-end;
 
-  .button-preview-flex-item,
-  .button-remove-flex-item,
-  .button-retry-flex-item,
-  .button-sign-flex-item,
-  .button-clear-flex-item,
-  .button-dlall-flex-item {
-    flex: none;
-    button {
-      padding: inherit .5rem;
-      margin-left: 1rem;
+    .spinner-flex-item {
+      flex: none;
+      width: 2rem;
+      margin-bottom: -2rem;
     }
-  }
-
-  .button-signed-flex-item {
-    flex: none;
-    button {
-      padding: inherit .5rem;
-      margin-left: 1rem;
+    .spinning-flex-item {
+      flex: none;
+      width: 5rem;
     }
-  }
 
-  .button-multisign-flex-item {
-    flex: none;
-    button {
-      padding: inherit .5rem;
-      margin-left: 1rem;
+    .button-preview-flex-item,
+    .button-remove-flex-item,
+    .button-retry-flex-item,
+    .button-sign-flex-item,
+    .button-clear-flex-item,
+    .button-dlall-flex-item {
+      flex: none;
+      button {
+        padding: inherit .5rem;
+        margin-left: 1rem;
+      }
+    }
+
+    .button-signed-flex-item {
+      flex: none;
+      button {
+        padding: inherit .5rem;
+        margin-left: 1rem;
+      }
+    }
+
+    .button-multisign-flex-item {
+      flex: none;
+      button {
+        padding: inherit .5rem;
+        margin-left: 1rem;
+      }
     }
   }
 }
@@ -107,7 +117,11 @@
       color: $darker-dark-grey;
     }
 
-    .spinner-flex-item,
+    .spinner-flex-item {
+      flex: none;
+      width: 2rem;
+      margin-bottom: -2rem;
+    }
     .spinning-flex-item {
       flex: none;
       width: 5rem;

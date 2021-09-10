@@ -380,7 +380,9 @@ class DocManager extends React.Component {
                         {this.dummySelectDoc()}
                         {this.docSize(doc)}
                         {this.docName(doc)}
-                        {this.namedSpinner(index, "loading")}
+                        <div className="doc-manager-buttons">
+                          {this.namedSpinner(index, "loading")}
+                        </div>
                       </>
                     )}
                     {doc.state === "failed-loading" && (
@@ -388,7 +390,9 @@ class DocManager extends React.Component {
                         {this.dummySelectDoc()}
                         {this.docName(doc)}
                         {this.showMessage(doc)}
-                        {this.removeButton(index, doc)}
+                        <div className="doc-manager-buttons">
+                          {this.removeButton(index, doc)}
+                        </div>
                       </>
                     )}
                     {doc.state === "failed-preparing" && (
@@ -397,8 +401,10 @@ class DocManager extends React.Component {
                         {this.docSize(doc)}
                         {this.docName(doc)}
                         {this.showMessage(doc)}
-                        {this.retryButton(index, doc)}
-                        {this.removeButton(index, doc)}
+                        <div className="doc-manager-buttons">
+                          {this.retryButton(index, doc)}
+                          {this.removeButton(index, doc)}
+                        </div>
                       </>
                     )}
                     {(doc.state === "loaded" || doc.state === "selected") && (
@@ -406,9 +412,11 @@ class DocManager extends React.Component {
                         {this.selectDoc(index, doc)}
                         {this.docSize(doc)}
                         {this.docName(doc)}
-                        {this.previewButton(index, doc)}
-                        {this.removeButton(index, doc)}
-                        {this.multiSignButton(index, doc)}
+                        <div className="doc-manager-buttons">
+                          {this.previewButton(index, doc)}
+                          {this.removeButton(index, doc)}
+                          {this.multiSignButton(index, doc)}
+                        </div>
                       </>
                     )}
                     {doc.state === "signing" && (
@@ -416,7 +424,9 @@ class DocManager extends React.Component {
                         {this.dummySelectDoc()}
                         {this.docSize(doc)}
                         {this.docName(doc)}
-                        {this.namedSpinner(index, "signing")}
+                        <div className="doc-manager-buttons">
+                          {this.namedSpinner(index, "signing")}
+                        </div>
                       </>
                     )}
                     {doc.state === "signed" && (
@@ -424,7 +434,9 @@ class DocManager extends React.Component {
                         {this.dummySelectDoc()}
                         {this.docSize(doc)}
                         {this.docName(doc)}
-                        {this.dlSignedButton(index, doc)}
+                        <div className="doc-manager-buttons">
+                          {this.dlSignedButton(index, doc)}
+                        </div>
                       </>
                     )}
                     {doc.state === "failed-signing" && (
@@ -433,8 +445,10 @@ class DocManager extends React.Component {
                         {this.docSize(doc)}
                         {this.docName(doc)}
                         {this.showMessage(doc)}
-                        {this.previewButton(index, doc)}
-                        {this.removeButton(index, doc)}
+                        <div className="doc-manager-buttons">
+                          {this.previewButton(index, doc)}
+                          {this.removeButton(index, doc)}
+                        </div>
                       </>
                     )}
                   </div>
