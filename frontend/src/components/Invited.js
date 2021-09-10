@@ -9,7 +9,7 @@ import { docToFile } from "components/utils";
 import DocPreviewContainer from "containers/DocPreview";
 import LittleSpinner from "components/LittleSpinner";
 
-import "styles/Invited.scss";
+import "styles/Invitation.scss";
 
 const signButton = (props, doc, help) => {
   return (
@@ -95,19 +95,19 @@ class Invited extends Component {
             docFile = docToFile(doc);
           }
           return (
-            <div className="invited-multisign" key={index}>
-              <div className="invited-multisign-request">
-                <div className={"invited-name-and-buttons-" + this.props.size}>
+            <div className="invitation-multisign" key={index}>
+              <div className="invitation-multisign-request">
+                <div className={"invitation-name-and-buttons-" + this.props.size}>
                   <div className="name-flex-item">
-                    <span className="invited-doc-name-label">
+                    <span className="invitation-doc-name-label">
                       <FormattedMessage
                         defaultMessage="You have been invited to sign"
                         key="invited-doc-name"
                       />
                     </span>
-                    <span className="invited-doc-name">{doc.name}</span>
+                    <span className="invitation-doc-name">{doc.name}</span>
                   </div>
-                  <div className="invited-buttons">
+                  <div className="invitation-buttons">
                     {(doc.state === 'signing') && (
                       <>
                         {namedSpinner(index, 'signing')}
@@ -139,7 +139,7 @@ class Invited extends Component {
                 <div className="invited-by">
                   <span className="invited-by-label">
                     <FormattedMessage
-                      defaultMessage="Invited by"
+                      defaultMessage="Invited by:"
                       key="invited-by"
                     />
                   </span>

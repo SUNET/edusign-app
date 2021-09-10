@@ -11,7 +11,7 @@ import DocPreviewContainer from "containers/DocPreview";
 import { docToFile } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
 
-import "styles/Owned.scss";
+import "styles/Invitation.scss";
 
 const signButton = (props, doc, help) => {
   return (
@@ -210,19 +210,19 @@ class Owned extends Component {
             docFile = docToFile(doc);
           }
           return (
-            <div className="owned-multisign" key={index}>
-              <div className="owned-multisign-request">
-                <div className={"owned-name-and-buttons-" + this.props.size}>
+            <div className="invitation-multisign" key={index}>
+              <div className="invitation-multisign-request">
+                <div className={"invitation-name-and-buttons-" + this.props.size}>
                   <div className="name-flex-item">
-                    <span className="owned-doc-name-label">
+                    <span className="invitation-doc-name-label">
                       <FormattedMessage
                         defaultMessage="You have invited signers to sign"
                         key="owned-doc-name"
                       />
                     </span>
-                    <span className="owned-doc-name">{doc.name}</span>
+                    <span className="invitation-doc-name">{doc.name}</span>
                   </div>
-                  <div className="owned-buttons">
+                  <div className="invitation-buttons">
                     {(doc.state === 'signing') && (
                       <>
                         {namedSpinner(index, 'signing')}
