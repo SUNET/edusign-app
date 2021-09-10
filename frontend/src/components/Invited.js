@@ -44,7 +44,7 @@ const previewButton = (props, doc, help) => {
         <div className="button-preview-container">
           <div className="button-preview-invitation">
             <Button
-              variant="outline-success"
+              variant="outline-dark"
               size="sm"
               onClick={props.showPreview(doc.key)}
             >
@@ -96,80 +96,98 @@ class Invited extends Component {
           }
           return (
             <div className="invited-multisign" key={index}>
-              <div className="invited-multisign-request" key={index}>
-                <div className="name-flex-item">{doc.name}</div>
-                <div className="invited-flex-item">
-                  <div className="invited-flex-label">
+              <div className="invited-multisign-request">
+                <div className={"invited-name-and-buttons-" + this.props.size}>
+                  <div className="name-flex-item">
+                    <span className="invited-doc-name-label">
+                      <FormattedMessage
+                        defaultMessage="You have been invited to sign"
+                        key="invited-doc-name"
+                      />
+                    </span>
+                    <span className="invited-doc-name">{doc.name}</span>
+                  </div>
+                  <div className="invited-buttons">
+                    {(doc.state === 'signing') && (
+                      <>
+                        {namedSpinner(index, 'signing')}
+                      </>
+                    ) || (
+                      <>
+                        {previewButton(
+                          this.props,
+                          doc,
+                          this.getHelp("preview-button-help")
+                        )}
+                        {signButton(
+                          this.props,
+                          doc,
+                          this.getHelp("sign-button-help")
+                        )}
+                        {doc.show && (
+                          <DocPreviewContainer
+                            doc={doc}
+                            docFile={docFile}
+                            index={doc.key}
+                            handleClose={this.props.handleClosePreview}
+                          />
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+                <div className="invited-by">
+                  <span className="invited-by-label">
                     <FormattedMessage
                       defaultMessage="Invited by"
                       key="invited-by"
                     />
-                  </div>
-                  <div className="owner-flex-item">
+                  </span>
+                  <span className="owner-item">
                     {doc.owner.name} &lt;{doc.owner.email}&gt;
-                  </div>
+                  </span>
                 </div>
 
-                {(doc.pending.length > 0) && (
-                  <div className="pending-invited-flex-item">
-                    <div className="pending-invited-flex-label">
-                      <FormattedMessage
-                        defaultMessage="Pending signature by"
-                        key="pending-invited-by"
-                      />
-                    </div>
-                    {doc.pending.map((inv, index) => {
-                      return (
-                        <div className="pending-flex-item" key={index}>
-                          {inv.name} &lt;{inv.email}&gt;
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {(doc.signed.length > 0) && (
-                  <div className="signed-invited-flex-item">
-                    <div className="signed-invited-flex-label">
-                      <FormattedMessage
-                        defaultMessage="Already signed by"
-                        key="signed-invited-by"
-                      />
-                    </div>
-                    {doc.signed.map((inv, index) => {
-                      return (
-                        <div className="signed-flex-item" key={index}>
-                          {inv.name} &lt;{inv.email}&gt;
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {(doc.state === 'signing') && (
+                {doc.pending.length > 0 && (
                   <>
-                    {namedSpinner(index, 'signing')}
+                    <div className="pending-invites">
+                      <span className="pending-invites-label">
+                        <FormattedMessage
+                          defaultMessage="Waiting for signatures by:"
+                          key="multisign-waiting"
+                        />
+                      </span>
+                      <span className="pending-invites-items">
+                        {doc.pending.map((invite, index) => {
+                          return (
+                            <span className="pending-invite-item" key={index}>
+                              {invite.name} &lt;{invite.email}&gt;
+                            </span>
+                          );
+                        })}
+                      </span>
+                    </div>
                   </>
-                ) || (
+                )}
+                {doc.signed.length > 0 && (
                   <>
-                    {signButton(
-                      this.props,
-                      doc,
-                      this.getHelp("sign-button-help")
-                    )}
-                    {previewButton(
-                      this.props,
-                      doc,
-                      this.getHelp("preview-button-help")
-                    )}
-                    {doc.show && (
-                      <DocPreviewContainer
-                        doc={doc}
-                        docFile={docFile}
-                        index={doc.key}
-                        handleClose={this.props.handleClosePreview}
-                      />
-                    )}
+                    <div className="signed-invites">
+                      <span className="signed-invites-label">
+                        <FormattedMessage
+                          defaultMessage="Already signed by:"
+                          key="multisign-signed"
+                        />
+                      </span>
+                      <span className="signed-invites-items">
+                        {doc.signed.map((invite, index) => {
+                          return (
+                            <span className="signed-invite-item" key={index}>
+                              {invite.name} &lt;{invite.email}&gt;
+                            </span>
+                          );
+                        })}
+                      </span>
+                    </div>
                   </>
                 )}
               </div>

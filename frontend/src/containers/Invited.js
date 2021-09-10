@@ -15,6 +15,7 @@ import {
 const mapStateToProps = (state) => {
   return {
     invited: state.main.pending_multisign,
+    size: state.main.size,
   };
 };
 
