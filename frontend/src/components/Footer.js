@@ -27,12 +27,6 @@ class Footer extends Component {
 
     return (
       <footer key="0" id="footer" data-testid="edusign-footer">
-        <p key="0" id="copyright">
-          <span data-testid="edusign-copyright">
-            &copy;&nbsp;
-            <FormattedMessage defaultMessage="SUNET 2020" key="copyright" />
-          </span>
-        </p>
         <nav key="1">
           <ul>
             <li key="1" id="language-selector">
