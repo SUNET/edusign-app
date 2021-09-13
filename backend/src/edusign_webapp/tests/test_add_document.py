@@ -73,26 +73,9 @@ def test_add_document(app, environ_base, monkeypatch):
 
     assert response1.status == '200 OK'
 
-    with app.test_request_context():
-        with client.session_transaction() as sess:
-
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
-
     doc_data = {
-        'csrf_token': csrf_token,
         'payload': {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'},
     }
-
-    from flask.sessions import SecureCookieSession
-
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
-
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
     response = client.post(
         '/sign/add-doc',
@@ -124,26 +107,9 @@ def test_add_document_error_preparing(client, monkeypatch):
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
-
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
-
     doc_data = {
-        'csrf_token': csrf_token,
         'payload': {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'},
     }
-
-    from flask.sessions import SecureCookieSession
-
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
-
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
     response = client.post(
         '/sign/add-doc',
@@ -159,41 +125,18 @@ def test_add_document_error_preparing(client, monkeypatch):
 
     resp_data = json.loads(response.data)
 
-    assert resp_data['message'] == 'Communication error with the prepare endpoint of the eduSign API'
+    assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
-def _add_document_missing_data(client, monkeypatch, data, csrf_token=None):
+def _add_document_missing_data(client, monkeypatch, data):
 
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
 
-    if csrf_token is None:
-        with run.app.test_request_context():
-            with client.session_transaction() as sess:
-
-                csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-                user_key = sess['user_key']
-    else:
-        user_key = 'dummy key'
-
     doc_data = {
-        'csrf_token': csrf_token,
         'payload': data,
     }
-
-    if csrf_token == 'rm':
-        del doc_data['csrf_token']
-
-    from flask.sessions import SecureCookieSession
-
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
-
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
     response = client.post(
         '/sign/add-doc',
@@ -223,7 +166,7 @@ def test_add_document_empty_doc_name(client, monkeypatch):
     resp_data = _add_document_missing_data(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == "name: Missing value for required field"
+    assert resp_data['message'] == 'name: There was an error. Please try again, or contact the site administrator'
 
 
 def test_add_document_missing_doc_size(client, monkeypatch):
@@ -255,7 +198,7 @@ def test_add_document_bad_doc_type(client, monkeypatch):
     resp_data = _add_document_missing_data(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == "type: Invalid document type"
+    assert resp_data['message'] == 'type: There was an error. Please try again, or contact the site administrator'
 
 
 def test_add_document_missing_doc(client, monkeypatch):
@@ -271,20 +214,4 @@ def test_add_document_empty_doc(client, monkeypatch):
     resp_data = _add_document_missing_data(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == "blob: Missing value for required field"
-
-
-def test_add_document_missing_csrf(client, monkeypatch):
-    data = {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}
-    resp_data = _add_document_missing_data(client, monkeypatch, data, csrf_token='rm')
-
-    assert resp_data['error']
-    assert resp_data['message'] == "csrf_token: Missing data for required field"
-
-
-def test_add_document_wrong_csrf(client, monkeypatch):
-    data = {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}
-    resp_data = _add_document_missing_data(client, monkeypatch, data, csrf_token='wrong csrf token')
-
-    assert resp_data['error']
-    assert resp_data['message'] == "csrf_token: CSRF token failed to validate"
+    assert resp_data['message'] == 'blob: There was an error. Please try again, or contact the site administrator'

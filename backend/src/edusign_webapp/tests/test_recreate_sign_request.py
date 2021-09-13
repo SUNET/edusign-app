@@ -215,14 +215,14 @@ def test_recreate_sign_request_post_raises_on_prepare(client, monkeypatch):
 
     resp_data = _recreate_sign_request_post_raises(client, monkeypatch, raise_on_prepare=True)
 
-    assert resp_data['message'] == 'Communication error with the prepare endpoint of the eduSign API'
+    assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
 def test_recreate_sign_request_post_raises_on_create(client, monkeypatch):
 
     resp_data = _recreate_sign_request_post_raises(client, monkeypatch, raise_on_prepare=False)
 
-    assert resp_data['message'] == 'Communication error with the create endpoint of the eduSign API'
+    assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
 def _recreate_sign_request(client, monkeypatch, payload_data, csrf_token=None):
@@ -396,7 +396,7 @@ def test_recreate_sign_request_wrong_csrf(client, monkeypatch, csrf_token='rm'):
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data, csrf_token='wrong token')
 
-    assert resp_data['message'] == 'csrf_token: CSRF token failed to validate'
+    assert resp_data['message'] == 'csrf_token: There was an error. Please try again, or contact the site administrator'
 
 
 def test_recreate_sign_request_no_key(client, monkeypatch):

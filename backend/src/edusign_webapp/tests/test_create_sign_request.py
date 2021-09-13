@@ -163,7 +163,7 @@ def test_create_sign_request_post_raises(client, monkeypatch):
 
     resp_data = json.loads(response.data)
 
-    assert resp_data['message'] == 'Communication error with the create endpoint of the eduSign API'
+    assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
 def _create_sign_request(client, monkeypatch, data_payload, csrf_token=None):
@@ -371,7 +371,7 @@ def test_create_sign_request_doc_wrong_csrf(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload, csrf_token='wrong csrf token')
 
     assert resp_data['error']
-    assert resp_data['message'] == "csrf_token: CSRF token failed to validate"
+    assert resp_data['message'] == 'csrf_token: There was an error. Please try again, or contact the site administrator'
 
 
 def test_create_sign_request_expired(client, monkeypatch):

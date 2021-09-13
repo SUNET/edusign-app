@@ -181,13 +181,13 @@ def test_get_signed_documents(client, monkeypatch):
 
 def test_get_signed_documents_process_error(client, monkeypatch):
 
-    process_data = {'errorCode': 'error.dss'}
+    process_data = {'errorCode': 'error.dss', 'message': 'dummy message'}
 
     response = _test_get_signed_documents(client, monkeypatch, process_data=process_data)
 
     assert response.status == '200 OK'
 
-    assert b'Communication error with the process endpoint' in response.data
+    assert b'dummy message' in response.data
 
 
 def test_get_signed_documents_post_raises(client, monkeypatch):
@@ -238,7 +238,7 @@ def test_get_signed_documents_post_raises(client, monkeypatch):
 
     resp_data = json.loads(response.data)
 
-    assert resp_data['message'] == 'Communication error with the process endpoint of the eduSign API'
+    assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
 def _get_signed_documents(client, monkeypatch, data_payload, csrf_token=None):
@@ -301,7 +301,7 @@ def test_get_signed_documents_empty_sign_response(client, monkeypatch):
     resp_data = _get_signed_documents(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'sign_response: Missing value for required field'
+    assert resp_data['message'] == 'sign_response: There was an error. Please try again, or contact the site administrator'
 
 
 def test_get_signed_documents_no_relay_state(client, monkeypatch):
@@ -317,7 +317,7 @@ def test_get_signed_documents_empty_relay_state(client, monkeypatch):
     resp_data = _get_signed_documents(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'relay_state: Missing value for required field'
+    assert resp_data['message'] == 'relay_state: There was an error. Please try again, or contact the site administrator'
 
 
 def test_get_signed_documents_no_csrf(client, monkeypatch):
@@ -333,4 +333,4 @@ def test_get_signed_documents_wrong_csrf(client, monkeypatch):
     resp_data = _get_signed_documents(client, monkeypatch, data, csrf_token='wrong csrf token')
 
     assert resp_data['error']
-    assert resp_data['message'] == 'csrf_token: CSRF token failed to validate'
+    assert resp_data['message'] == 'csrf_token: There was an error. Please try again, or contact the site administrator'
