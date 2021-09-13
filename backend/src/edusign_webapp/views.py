@@ -690,7 +690,11 @@ def get_partially_signed_doc(data: dict) -> dict:
         current_app.logger.error(f'Problem getting multi sign document: {e}')
         return {'error': True, 'message': gettext('Problem getting the document being signed')}
 
-    return {'message': '', 'payload': {'blob': doc}}
+    if not doc:
+        current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
+        return {'error': True, 'message': gettext('Document not found in the doc store')}
+
+    return {'message': 'Success', 'payload': {'blob': doc}}
 
 
 @edusign_views.route('/skip-final-signature', methods=['POST'])
@@ -698,13 +702,23 @@ def get_partially_signed_doc(data: dict) -> dict:
 @Marshal(SignedDocumentsSchema)
 def skip_final_signature(data: dict) -> dict:
 
-    doc = current_app.doc_store.get_signed_document(uuid.UUID(data['key']))
+    try:
+        doc = current_app.doc_store.get_signed_document(uuid.UUID(data['key']))
+
+    except Exception as e:
+        current_app.logger.error(f'Problem getting signed document: {e}')
+        return {'error': True, 'message': gettext('Problem getting the signed document')}
+
     if not doc:
         current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
-        return {'error': True, 'message': gettext('Multisigned document not found in the doc store')}
+        return {'error': True, 'message': gettext('Document not found in the doc store')}
 
-    current_app.doc_store.remove_document(uuid.UUID(data['key']))
+    try:
+        current_app.doc_store.remove_document(uuid.UUID(data['key']))
+
+    except Exception as e:
+        current_app.logger.warning(f'Problem removing doc skipping final signature: {e}')
 
     return {
-        'payload': {'documents': [{'id': doc['key'], 'signed_content': doc['blob']}]},
+        'message': 'Success', 'payload': {'documents': [{'id': doc['key'], 'signed_content': doc['blob']}]},
     }
