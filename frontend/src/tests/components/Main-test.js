@@ -118,9 +118,6 @@ describe("Main Component", function () {
       const footer = screen.getAllByTestId("edusign-footer");
       expect(footer.length).to.equal(1);
 
-      const copyright = screen.getAllByText("SUNET 2020", { exact: false });
-      expect(copyright.length).to.equal(1);
-
       const langSelectorSv = screen.getAllByText("Svenska");
       expect(langSelectorSv.length).to.equal(1);
 

@@ -20,6 +20,7 @@ const initialState = {
     signingData: {},
     owned_multisign: [],
     pending_multisign: [],
+    multisign_buttons: 'yes',
   },
   notifications: {
     message: null,

@@ -43,8 +43,6 @@ from marshmallow import Schema, ValidationError, fields, post_load, pre_dump, va
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.wrappers import Response as WerkzeugResponse
 
-from edusign_webapp.schemata import DocumentSchema
-
 
 def csrf_check_headers() -> None:
     """

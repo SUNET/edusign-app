@@ -1226,7 +1226,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     );
 
     const buttonSigned = await waitFor(() =>
-      screen.getAllByTestId("button-dlsigned-0")
+      screen.getAllByTestId("button-dlsigned-1")
     );
     expect(buttonSigned.length).to.equal(1);
   } catch (err) {

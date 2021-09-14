@@ -45,6 +45,10 @@ webpackKarma.module.rules = [
     enforce: "pre",
     loader: "url-loader?limit=10000&mimetype=image/svg+xml"
   },
+  {
+    test: /\.png$/,
+    loader: "url-loader?limit=100000"
+  },
 ];
 
 webpackKarma.plugins.push(

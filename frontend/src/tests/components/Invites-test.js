@@ -268,11 +268,6 @@ describe("Multi sign invitations", function () {
       );
       expect(nameInput.length).to.equal(0);
 
-      const inviteTitle = await waitFor(() =>
-        screen.getAllByText("Requests for multiple signatures:")
-      );
-      expect(inviteTitle.length).to.equal(1);
-
       const inviteWaiting = await waitFor(() =>
         screen.getAllByText("Waiting for signatures by:")
       );
@@ -319,11 +314,6 @@ describe("Multi sign invitations", function () {
         })
       );
       await flushPromises(rerender, wrapped);
-
-      const inviteTitle = await waitFor(() =>
-        screen.getAllByText(/Requests for multiple signatures/)
-      );
-      expect(inviteTitle.length).to.equal(1);
 
       const inviteWaiting = await waitFor(() =>
         screen.getAllByText(/Waiting for signatures by/)
@@ -378,11 +368,6 @@ describe("Multi sign invitations", function () {
         })
       );
       await flushPromises(rerender, wrapped);
-
-      const inviteTitle = await waitFor(() =>
-        screen.getAllByText(/Requests for multiple signatures/)
-      );
-      expect(inviteTitle.length).to.equal(1);
 
       const inviteWaiting = await waitFor(() =>
         screen.getAllByText(/Waiting for signatures by/)
@@ -469,11 +454,6 @@ describe("Multi sign invitations", function () {
         })
       );
       await flushPromises(rerender, wrapped);
-
-      const inviteTitle = await waitFor(() =>
-        screen.getAllByText(/Requests for multiple signatures/)
-      );
-      expect(inviteTitle.length).to.equal(1);
 
       const inviteWaiting = await waitFor(() =>
         screen.getAllByText(/Waiting for signatures by/)
@@ -564,11 +544,6 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      const inviteTitle = await waitFor(() =>
-        screen.getAllByText(/Requests for multiple signatures/)
-      );
-      expect(inviteTitle.length).to.equal(1);
-
       const inviteWaiting = await waitFor(() =>
         screen.getAllByText(/Waiting for signatures by/)
       );
@@ -632,11 +607,6 @@ describe("Multi sign invitations", function () {
         })
       );
       await flushPromises(rerender, wrapped);
-
-      const inviteTitle = await waitFor(() =>
-        screen.getAllByText(/Requests for multiple signatures/)
-      );
-      expect(inviteTitle.length).to.equal(1);
 
       const inviteWaiting = await waitFor(() =>
         screen.getAllByText(/Waiting for signatures by/)
@@ -705,11 +675,6 @@ describe("Multi sign invitations", function () {
         })
       );
       await flushPromises(rerender, wrapped);
-
-      const inviteTitle = await waitFor(() =>
-        screen.getAllByText(/Requests for multiple signatures/)
-      );
-      expect(inviteTitle.length).to.equal(1);
 
       const inviteWaiting = await waitFor(() =>
         screen.queryAllByText(/Waiting for signatures by/)
@@ -792,23 +757,13 @@ describe("Multi sign invitations", function () {
       fireEvent.click(rmButton[0]);
       await flushPromises(rerender, wrapped);
 
-      let inviteTitle = await waitFor(() =>
-        screen.queryAllByText(/Requests for multiple signatures/)
-      );
-      expect(inviteTitle.length).to.equal(1);
-
       const confirmButton2 = await waitFor(() =>
-        screen.getAllByTestId("confirm-remove-owned-confirm-button")
+        screen.getAllByTestId("confirm-remove-owned-test1.pdf-confirm-button")
       );
       expect(confirmButton2.length).to.equal(1);
 
       fireEvent.click(confirmButton2[0]);
       await flushPromises(rerender, wrapped);
-
-      inviteTitle = await waitFor(() =>
-        screen.queryAllByText(/Requests for multiple signatures/)
-      );
-      expect(inviteTitle.length).to.equal(0);
     } catch (err) {
       unmount();
       throw err;
@@ -866,23 +821,13 @@ describe("Multi sign invitations", function () {
       fireEvent.click(rmButton[0]);
       await flushPromises(rerender, wrapped);
 
-      let inviteTitle = await waitFor(() =>
-        screen.queryAllByText(/Requests for multiple signatures/)
-      );
-      expect(inviteTitle.length).to.equal(1);
-
       const confirmButton2 = await waitFor(() =>
-        screen.getAllByTestId("confirm-remove-owned-cancel-button")
+        screen.getAllByTestId("confirm-remove-owned-test1.pdf-cancel-button")
       );
       expect(confirmButton2.length).to.equal(1);
 
       fireEvent.click(confirmButton2[0]);
       await flushPromises(rerender, wrapped);
-
-      inviteTitle = await waitFor(() =>
-        screen.queryAllByText(/Requests for multiple signatures/)
-      );
-      expect(inviteTitle.length).to.equal(1);
     } catch (err) {
       unmount();
       throw err;
@@ -897,7 +842,7 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
-            signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
           owned_multisign: [],
           pending_multisign: [
             {
@@ -911,6 +856,7 @@ describe("Multi sign invitations", function () {
                 email: "inviter@example.org",
               },
               pending: [],
+              signed: [],
             },
           ],
         },
@@ -921,16 +867,6 @@ describe("Multi sign invitations", function () {
         })
       );
       await flushPromises(rerender, wrapped);
-
-      const inviteTitle = await waitFor(() =>
-        screen.queryAllByText(/Requests for multiple signatures/)
-      );
-      expect(inviteTitle.length).to.equal(0);
-
-      const invitedTitle = await waitFor(() =>
-        screen.getAllByText(/Invitations to sign/)
-      );
-      expect(invitedTitle.length).to.equal(1);
 
       const signedWaiting = await waitFor(() =>
         screen.getAllByText(/Invited by/)

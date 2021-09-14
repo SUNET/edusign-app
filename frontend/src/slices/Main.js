@@ -108,6 +108,7 @@ const mainSlice = createSlice({
     signingData: {},
     size: "lg",
     width: 0,
+    multisign_buttons: 'yes',
   },
   reducers: {
     /**

@@ -31,10 +31,20 @@ describe("DnDArea Component", function () {
     });
 
     try {
-      const dndArea = screen.getAllByText(
-        "Drag & drop here or click to browse"
+      const dndArea1 = screen.getAllByText(
+        "Drag & drop here"
       );
-      expect(dndArea.length).to.equal(1);
+      expect(dndArea1.length).to.equal(1);
+
+      const dndArea2 = screen.getAllByText(
+        "or"
+      );
+      expect(dndArea2.length).to.equal(1);
+
+      const dndArea3 = screen.getAllByText(
+        "click to browse"
+      );
+      expect(dndArea3.length).to.equal(1);
 
       const dndAreaDropping = screen.queryByText("Drop documents here");
       expect(dndAreaDropping).to.equal(null);
@@ -55,8 +65,12 @@ describe("DnDArea Component", function () {
       const dndAreaDropping = screen.getAllByText("Drop documents here");
       expect(dndAreaDropping.length).to.equal(1);
 
-      const dndArea = screen.queryByText("Drag & drop here or click to browse");
-      expect(dndArea).to.equal(null);
+      const dndArea1 = screen.queryByText("Drag & drop here");
+      expect(dndArea1).to.equal(null);
+      const dndArea2 = screen.queryByText("or");
+      expect(dndArea2).to.equal(null);
+      const dndArea3 = screen.queryByText("click to browse");
+      expect(dndArea3).to.equal(null);
     } catch (err) {
       unmount();
       throw err;
@@ -71,8 +85,12 @@ describe("DnDArea Component", function () {
     );
 
     try {
-      let dndArea = screen.getAllByText("Drag & drop here or click to browse");
-      expect(dndArea.length).to.equal(1);
+      let dndArea1 = screen.getAllByText("Drag & drop here");
+      expect(dndArea1.length).to.equal(1);
+      let dndArea2 = screen.getAllByText("or");
+      expect(dndArea2.length).to.equal(1);
+      let dndArea3 = screen.getAllByText("click to browse");
+      expect(dndArea3.length).to.equal(1);
 
       let dndAreaDropping = screen.queryByText("Drop documents here");
       expect(dndAreaDropping).to.equal(null);
@@ -92,10 +110,20 @@ describe("DnDArea Component", function () {
       );
       expect(dndAreaDropping.length).to.equal(1);
 
-      dndArea = await waitFor(() =>
-        screen.queryByText("Drag & drop here or click to browse")
+      dndArea1 = await waitFor(() =>
+        screen.queryByText("Drag & drop here")
       );
-      expect(dndArea).to.equal(null);
+      expect(dndArea1).to.equal(null);
+
+      dndArea2 = await waitFor(() =>
+        screen.queryByText("Drag & drop here")
+      );
+      expect(dndArea2).to.equal(null);
+
+      dndArea3 = await waitFor(() =>
+        screen.queryByText("Drag & drop here")
+      );
+      expect(dndArea3).to.equal(null);
     } catch (err) {
       unmount();
       throw err;
@@ -110,8 +138,12 @@ describe("DnDArea Component", function () {
     );
 
     try {
-      let dndArea = screen.getAllByText("Drag & drop here or click to browse");
-      expect(dndArea.length).to.equal(1);
+      let dndArea1 = screen.getAllByText("Drag & drop here");
+      expect(dndArea1.length).to.equal(1);
+      let dndArea2 = screen.getAllByText("or");
+      expect(dndArea2.length).to.equal(1);
+      let dndArea3 = screen.getAllByText("click to browse");
+      expect(dndArea3.length).to.equal(1);
 
       let dndAreaDropping = screen.queryByText("Drop documents here");
       expect(dndAreaDropping).to.equal(null);
@@ -131,16 +163,30 @@ describe("DnDArea Component", function () {
       );
       expect(dndAreaDropping.length).to.equal(1);
 
-      dndArea = await waitFor(() =>
-        screen.queryByText("Drag & drop here or click to browse")
+      dndArea1 = await waitFor(() =>
+        screen.queryByText("Drag & drop here")
       );
-      expect(dndArea).to.equal(null);
+      expect(dndArea1).to.equal(null);
+
+      dndArea2 = await waitFor(() =>
+        screen.queryByText("or")
+      );
+      expect(dndArea2).to.equal(null);
+
+      dndArea3 = await waitFor(() =>
+        screen.queryByText("click to browse")
+      );
+      expect(dndArea3).to.equal(null);
 
       dispatchEvtWithData(dnd, "dragleave", data);
       await flushPromises(rerender, wrapped);
 
-      dndArea = screen.getAllByText("Drag & drop here or click to browse");
-      expect(dndArea.length).to.equal(1);
+      dndArea1 = screen.getAllByText("Drag & drop here");
+      expect(dndArea1.length).to.equal(1);
+      dndArea2 = screen.getAllByText("or");
+      expect(dndArea2.length).to.equal(1);
+      dndArea3 = screen.getAllByText("click to browse");
+      expect(dndArea3.length).to.equal(1);
 
       dndAreaDropping = screen.queryByText("Drop documents here");
       expect(dndAreaDropping).to.equal(null);
