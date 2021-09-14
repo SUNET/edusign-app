@@ -189,7 +189,7 @@ class DocManager extends React.Component {
           >
             <Button
               variant="outline-success"
-              data-testid={"button-dlsigned-" + doc.id}
+              data-testid={"button-dlsigned-" + doc.name}
               size="sm"
               onClick={this.props.handleDlSigned(doc.name)}
             >
@@ -639,6 +639,7 @@ class DocManager extends React.Component {
                   <Button
                     variant="success"
                     id="button-dlall"
+                    data-testid="button-dlall"
                     size="lg"
                     onClick={this.props.handleDownloadAll.bind(this)}
                   >

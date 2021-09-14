@@ -2,6 +2,9 @@ import React from "react";
 import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { expect } from "chai";
 import fetchMock from "fetch-mock";
+import JSZip from "jszip";
+import * as FileSaver from "file-saver";
+import sinon from "sinon";
 
 import {
   setupReduxComponent,
@@ -19,13 +22,18 @@ import { fetchConfig } from "slices/Main";
 import { resetDb } from "init-app/database";
 
 describe("Document representations", function () {
+
+  const sandbox = sinon.createSandbox();
+
   beforeEach( async () => {
+    sandbox.spy(FileSaver, "saveAs");
     await resetDb();
   });
 
   afterEach(() => {
     cleanup();
     fetchMock.restore();
+    sandbox.restore();
   });
 
   it("It shows the document after createDocument action", async () => {
@@ -303,6 +311,23 @@ describe("Document representations", function () {
       payload: {
         size: "sm",
           signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+      },
+    });
+  });
+
+  it("It downloads zip after uploading 2 files", async () => {
+    await downloadsZIPAfterGettingTheSignedDocs({
+      payload: {
+        signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+      },
+    });
+  });
+
+  it("It downloads zip after uploading 2 files - sm", async () => {
+    await downloadsZIPAfterGettingTheSignedDocs({
+      payload: {
+        size: "sm",
+        signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
       },
     });
   });
@@ -1226,7 +1251,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     );
 
     const buttonSigned = await waitFor(() =>
-      screen.getAllByTestId("button-dlsigned-1")
+      screen.getAllByTestId("button-dlsigned-test.pdf")
     );
     expect(buttonSigned.length).to.equal(1);
   } catch (err) {
@@ -1324,6 +1349,124 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
       screen.getAllByText(/Problem signing the document/i)
     );
     expect(errorMsg.length).to.equal(1);
+  } catch (err) {
+    unmount();
+    throw err;
+  }
+
+  // if we don't unmount here, mounted components (DocPreview) leak to other tests
+  unmount();
+};
+
+const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
+
+  const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+  try {
+    fetchMock.get("/sign/config", payload);
+    store.dispatch(fetchConfig());
+    await flushPromises(rerender, wrapped);
+
+    const fileObj = new File([samplePDFData], "test.pdf", {
+      type: "application/pdf",
+    });
+    const file = {
+      name: fileObj.name,
+      size: fileObj.size,
+      type: fileObj.type,
+      blob: "data:application/pdf;base64," + b64SamplePDFData,
+    };
+    const file2 = {
+      name: 'test2.pdf',
+      ...file
+    };
+    fetchMock
+      .post("/sign/add-doc", {
+        message: "document added",
+        payload: {
+          key: "dummy key",
+          ref: "dummy ref",
+          sign_requirement: "dummy sign requirement",
+        },
+      })
+      .post("/sign/create-sign-request", {
+        payload: {
+          relay_state: "dummy relay state",
+          sign_request: "dummy sign request",
+          binding: "dummy binding",
+          destination_url: "https://dummy.destination.url",
+          documents: [
+            {
+              name: "test.pdf",
+              key: "dummy key",
+              ref: "dummy ref",
+              sign_requirement: "dummy sign requirement",
+            },
+          ],
+        },
+      })
+      .post("/sign/get-signed", {
+        message: "documents signed",
+        payload: {
+          documents: [
+            { id: "dummy key", signed_content: "dummy signed content" },
+          ],
+        },
+      });
+
+    store.dispatch(
+      createDocument({
+        doc: file,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
+    await flushPromises(rerender, wrapped);
+
+    store.dispatch(
+      createDocument({
+        doc: file2,
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
+    await flushPromises(rerender, wrapped);
+
+    const selector = await waitFor(() =>
+      screen.getAllByTestId("doc-selector-0")
+    );
+    expect(selector.length).to.equal(1);
+
+    const signButton = await waitFor(() =>
+      screen.getAllByText("Sign Selected Documents")
+    );
+    expect(signButton.length).to.equal(1);
+
+    fireEvent.click(signButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const signHolder = window.document.createElement("div");
+    signHolder.setAttribute("id", "sign-response-holder");
+    signHolder.setAttribute("data-signresponse", "dummy sign response");
+    signHolder.setAttribute("data-relaystate", "dummy relay state");
+    const body = window.document.getElementsByTagName("body")[0];
+    body.appendChild(signHolder);
+
+    store.dispatch(
+      loadDocuments({
+        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      })
+    );
+
+    const buttonDlAll = await waitFor(() =>
+      screen.getAllByTestId("button-dlall")
+    );
+    expect(buttonDlAll.length).to.equal(1);
+
+    fireEvent.click(buttonDlAll[0]);
+    await flushPromises(rerender, wrapped);
+
+
+    expect(FileSaver.saveAs.calledOnce).to.equal(true);
+    expect(FileSaver.saveAs.getCall(0).args[0].filename).to.equal('signed.zip');
+
   } catch (err) {
     unmount();
     throw err;

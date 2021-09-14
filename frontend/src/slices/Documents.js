@@ -8,7 +8,7 @@
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import * as pdfjs from "pdfjs-dist";
-import { saveAs } from "file-saver";
+import * as FileSaver from "file-saver";
 import JSZip from "jszip";
 
 import {
@@ -482,7 +482,7 @@ export const downloadSigned = createAsyncThunk(
     const blob = b64toBlob(b64content);
     const newName =
       doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
-    saveAs(blob, newName);
+    FileSaver.saveAs(blob, newName);
   }
 );
 
@@ -506,7 +506,7 @@ export const downloadAllSigned = createAsyncThunk(
       folder.file(newName, blob);
     });
     zip.generateAsync({type:"blob"}).then(function(content) {
-      saveAs(content, "signed.zip");
+      FileSaver.saveAs(content, "signed.zip");
     });
   }
 );

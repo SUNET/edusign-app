@@ -955,4 +955,270 @@ describe("Multi sign invitations", function () {
     // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
   });
+
+  it("It skips final signature of multisigned doc", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    try {
+      fetchMock
+        .get("/sign/config", {
+          payload: {
+            signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+            owned_multisign: [
+              {
+                name: "test1.pdf",
+                type: "application/pdf",
+                size: 1500,
+                key: "11111111-1111-1111-1111-111111111111",
+                signed: [
+                  {
+                    name: "Tester Invited1",
+                    email: "invited1@example.org",
+                  },
+                  {
+                    name: "Tester Invited2",
+                    email: "invited2@example.org",
+                  },
+                ],
+                pending: [],
+              },
+            ],
+            pending_multisign: [],
+          },
+        })
+        .post("/sign/skip-final-signature", {
+          "payload": {
+            "documents": [{
+              "id": "11111111-1111-1111-1111-111111111111",
+              "signed_content": "dummy signed content"
+            }]
+          }, "csrf_token": "2dHK9eEX$8be8af38c0ca02a0be346df372d43a65dbefdbed757a4d43a770e793aed4d02b",
+            "message": "Success",
+            "error": false
+        });
+      store.dispatch(
+        fetchConfig({
+          intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+        })
+      );
+      await flushPromises(rerender, wrapped);
+
+      const skipButton = await waitFor(() =>
+        screen.getAllByText(/Skip Final Signature/)
+      );
+      expect(skipButton.length).to.equal(1);
+
+      fireEvent.click(skipButton[0]);
+      await flushPromises(rerender, wrapped);
+
+      const dlButton = await waitFor(() =>
+        screen.getAllByTestId("button-dlsigned-test1.pdf")
+      );
+      expect(dlButton.length).to.equal(1);
+    } catch (err) {
+      unmount();
+      throw err;
+    }
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows other invitees pending to sign in invitation for us", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    try {
+      fetchMock.get("/sign/config", {
+        payload: {
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          owned_multisign: [],
+          pending_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              invite_key: "22222222-2222-2222-2222-222222222222",
+              owner: {
+                name: "Tester Inviter",
+                email: "inviter@example.org",
+              },
+              pending: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+              ],
+              signed: [],
+            },
+          ],
+        },
+      });
+      store.dispatch(
+        fetchConfig({
+          intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+        })
+      );
+      await flushPromises(rerender, wrapped);
+
+      const signedWaiting = await waitFor(() =>
+        screen.getAllByText(/Waiting for signatures by/)
+      );
+      expect(signedWaiting.length).to.equal(1);
+
+      const inviteName = await waitFor(() =>
+        screen.getAllByText(/Tester Invited1/)
+      );
+      expect(inviteName.length).to.equal(1);
+
+      const inviteEmail = await waitFor(() =>
+        screen.getAllByText(/invited1@example.org/)
+      );
+      expect(inviteEmail.length).to.equal(1);
+    } catch (err) {
+      unmount();
+      throw err;
+    }
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows other already signed invitees in invitation for us", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+
+    try {
+      fetchMock.get("/sign/config", {
+        payload: {
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          owned_multisign: [],
+          pending_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              invite_key: "22222222-2222-2222-2222-222222222222",
+              owner: {
+                name: "Tester Inviter",
+                email: "inviter@example.org",
+              },
+              signed: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+              ],
+              pending: [],
+            },
+          ],
+        },
+      });
+      store.dispatch(
+        fetchConfig({
+          intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+        })
+      );
+      await flushPromises(rerender, wrapped);
+
+      const signedWaiting = await waitFor(() =>
+        screen.getAllByText(/Already signed by/)
+      );
+      expect(signedWaiting.length).to.equal(1);
+
+      const inviteName = await waitFor(() =>
+        screen.getAllByText(/Tester Invited1/)
+      );
+      expect(inviteName.length).to.equal(1);
+
+      const inviteEmail = await waitFor(() =>
+        screen.getAllByText(/invited1@example.org/)
+      );
+      expect(inviteEmail.length).to.equal(1);
+    } catch (err) {
+      unmount();
+      throw err;
+    }
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows both pending and already signed invitees in invitation for us", async () => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+
+    try {
+      fetchMock.get("/sign/config", {
+        payload: {
+          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          owned_multisign: [],
+          pending_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              invite_key: "22222222-2222-2222-2222-222222222222",
+              owner: {
+                name: "Tester Inviter",
+                email: "inviter@example.org",
+              },
+              signed: [
+                {
+                  name: "Tester Signed",
+                  email: "invited1@example.org",
+                },
+              ],
+              pending: [
+                {
+                  name: "Tester Pending",
+                  email: "invited2@example.org",
+                },
+              ],
+            },
+          ],
+        },
+      });
+      store.dispatch(
+        fetchConfig({
+          intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+        })
+      );
+      await flushPromises(rerender, wrapped);
+
+      const signedWaiting = await waitFor(() =>
+        screen.getAllByText(/Already signed by/)
+      );
+      expect(signedWaiting.length).to.equal(1);
+
+      const inviteName = await waitFor(() =>
+        screen.getAllByText(/Tester Signed/)
+      );
+      expect(inviteName.length).to.equal(1);
+
+      const inviteEmail = await waitFor(() =>
+        screen.getAllByText(/invited1@example.org/)
+      );
+      expect(inviteEmail.length).to.equal(1);
+
+      const signedWaiting2 = await waitFor(() =>
+        screen.getAllByText(/Waiting for signatures by/)
+      );
+      expect(signedWaiting2.length).to.equal(1);
+
+      const inviteName2 = await waitFor(() =>
+        screen.getAllByText(/Tester Pending/)
+      );
+      expect(inviteName2.length).to.equal(1);
+
+      const inviteEmail2 = await waitFor(() =>
+        screen.getAllByText(/invited2@example.org/)
+      );
+      expect(inviteEmail2.length).to.equal(1);
+    } catch (err) {
+      unmount();
+      throw err;
+    }
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
 });
