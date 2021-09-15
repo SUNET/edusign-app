@@ -264,7 +264,7 @@ export const prepareDocument = createAsyncThunk(
       const updatedDoc = {
         ...doc,
         ...data.payload,
-        state: "selected",
+        state: "unconfirmed",
       };
       return updatedDoc;
     }
@@ -851,6 +851,56 @@ const documentsSlice = createSlice({
     },
     /**
      * @public
+     * @function showForcedPreview
+     * @desc Redux action to update a document in the documents state key,
+     * setting the show key to true (so that the UI will show the forced preview of the document).
+     */
+    showForcedPreview(state, action) {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            showForced: true,
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function hideForcedPreview
+     * @desc Redux action to update a document in the documents state key,
+     * setting the showForced key to false (so that the UI will hide the forced preview of the document).
+     */
+    hideForcedPreview(state, action) {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            showForced: false,
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function confirmForcedPreview
+     * @desc Redux action to update a document in the documents state key,
+     * setting the showForced key to false (so that the UI will hide the forced preview of the document,
+     * and the document will end in the 'selected' state).
+     */
+    confirmForcedPreview(state, action) {
+      state.documents = state.documents.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            showForced: false,
+            state: 'selected',
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
      * @function removeDocument
      * @desc Redux action to remove a document from the store
      */
@@ -1039,7 +1089,10 @@ const documentsSlice = createSlice({
 
 export const {
   showPreview,
+  showForcedPreview,
   hidePreview,
+  hideForcedPreview,
+  confirmForcedPreview,
   removeDocument,
   removeAllDocuments,
   setState,

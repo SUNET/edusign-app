@@ -10,6 +10,7 @@ import PopoverTitle from "react-bootstrap/PopoverTitle";
 import LittleSpinner from "components/LittleSpinner";
 
 import DocPreviewContainer from "containers/DocPreview";
+import ForcedPreviewContainer from "containers/ForcedPreview";
 import InviteFormContainer from "containers/InviteForm";
 import OwnedContainer from "containers/Owned";
 import InvitedContainer from "containers/Invited";
@@ -45,6 +46,35 @@ class DocManager extends React.Component {
       <>
         <LittleSpinner index={index} />
         <div className="spinning-flex-item">{` ${name} ...`}</div>
+      </>
+    );
+  }
+  forcedPreviewButton(index, doc) {
+    return (
+      <>
+        <div className="button-forced-preview-flex-item">
+          <OverlayTrigger
+            trigger={["hover", "focus"]}
+            rootClose={true}
+            overlay={(props) => (
+              <Tooltip id="tooltip-button-forced-preview" {...props}>
+                <FormattedMessage
+                  defaultMessage="You have to confirm that you have uploaded the correct document"
+                  key="forced-preview-button-tootip"
+                />
+              </Tooltip>
+            )}
+          >
+            <Button
+              variant="outline-dark"
+              data-testid={"button-forced-preview-" + index}
+              size="sm"
+              onClick={this.props.handleForcedPreview(doc.name)}
+            >
+              <FormattedMessage defaultMessage="Check document" key="forced-preview-button" />
+            </Button>
+          </OverlayTrigger>
+        </div>
       </>
     );
   }
@@ -273,6 +303,15 @@ class DocManager extends React.Component {
         defaultMessage: "This does not seem to be a valid document",
         id: "docmanager-help-failed-loading",
       }),
+      "unconfirmed-title": this.props.intl.formatMessage({
+        defaultMessage: "Unconfirmed document",
+        id: "docmanager-help-unconfirmed-title",
+      }),
+      unconfirmed: this.props.intl.formatMessage({
+        defaultMessage:
+          'Click on the button labelled "Check document" to review the document and confirm that you want to sign it',
+        id: "docmanager-help-unconfirmed",
+      }),
       "selected-title": this.props.intl.formatMessage({
         defaultMessage: "Document selected for signing",
         id: "docmanager-help-selected-title",
@@ -363,6 +402,15 @@ class DocManager extends React.Component {
                     handleClose={this.props.handleClosePreview}
                   />
                 )}
+                {(doc.state === "unconfirmed") && (
+                  <ForcedPreviewContainer
+                    doc={doc}
+                    docFile={docFile}
+                    index={index}
+                    handleClose={this.props.handleCloseForcedPreview}
+                    handleConfirm={this.props.handleConfirmForcedPreview}
+                  />
+                )}
                 <OverlayTrigger
                   trigger={["hover", "focus"]}
                   rootClose={true}
@@ -404,6 +452,17 @@ class DocManager extends React.Component {
                         {this.showMessage(doc)}
                         <div className="doc-manager-buttons">
                           {this.retryButton(index, doc)}
+                          {this.removeButton(index, doc)}
+                        </div>
+                      </>
+                    )}
+                    {(doc.state === "unconfirmed") && (
+                      <>
+                        {this.dummySelectDoc()}
+                        {this.docSize(doc)}
+                        {this.docName(doc)}
+                        <div className="doc-manager-buttons">
+                          {this.forcedPreviewButton(index, doc)}
                           {this.removeButton(index, doc)}
                         </div>
                       </>
@@ -472,6 +531,15 @@ class DocManager extends React.Component {
                     handleClose={this.props.handleClosePreview}
                   />
                 )}
+                {(doc.state === "unconfirmed") && (
+                  <ForcedPreviewContainer
+                    doc={doc}
+                    docFile={docFile}
+                    index={index}
+                    handleClose={this.props.handleCloseForcedPreview}
+                    handleConfirm={this.props.handleConfirmForcedPreview}
+                  />
+                )}
                 <OverlayTrigger
                   trigger={["hover", "focus"]}
                   rootClose={true}
@@ -521,6 +589,19 @@ class DocManager extends React.Component {
                         </div>
                         <div className="doc-container-third-row">
                           {this.retryButton(index, doc)}
+                          {this.removeButton(index, doc)}
+                        </div>
+                      </>
+                    )}
+                    {(doc.state === "unconfirmed") && (
+                      <>
+                        <div className="doc-container-first-row">
+                          {this.dummySelectDoc()}
+                          {this.docSize(doc)}
+                          {this.docName(doc)}
+                        </div>
+                        <div className="doc-container-second-row">
+                          {this.forcedPreviewButton(index, doc)}
                           {this.removeButton(index, doc)}
                         </div>
                       </>

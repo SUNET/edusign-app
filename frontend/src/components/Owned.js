@@ -245,7 +245,7 @@ class Owned extends Component {
                           <DocPreviewContainer
                             doc={doc}
                             docFile={docFile}
-                            index={doc.key}
+                            index={index}
                             handleClose={this.props.handleClosePreview}
                           />
                         )}
