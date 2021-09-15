@@ -1465,7 +1465,7 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
 
 
     expect(FileSaver.saveAs.calledOnce).to.equal(true);
-    expect(FileSaver.saveAs.getCall(0).args[0].filename).to.equal('signed.zip');
+    expect(FileSaver.saveAs.getCall(0).args[1]).to.equal('signed.zip');
 
   } catch (err) {
     unmount();
