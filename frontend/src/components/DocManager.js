@@ -157,7 +157,7 @@ class DocManager extends React.Component {
               id={"doc-selector-" + index}
               name={"doc-selector-" + index}
               data-testid={"doc-selector-" + index}
-              onClick={this.props.handleDocSelection(doc.name)}
+              onChange={this.props.handleDocSelection(doc.name)}
               checked={doc.state === "selected"}
             />
           </OverlayTrigger>
