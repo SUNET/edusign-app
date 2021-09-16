@@ -57,7 +57,26 @@ from edusign_webapp.schemata import (
 )
 from edusign_webapp.utils import add_attributes_to_session, prepare_document
 
+anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
+
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
+
+
+@anon_edusign_views.route('/', methods=['GET'])
+def get_home() -> str:
+
+    base_url = f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}"
+
+    context = {
+        'body': 'XXX temporary test content XXX',
+        'login_initiator': f'{base_url}/Shibboleth.sso/Login?target=/sign',
+    }
+
+    try:
+        return render_template('home.jinja2', **context)
+    except AttributeError as e:
+        current_app.logger.error(f'Template rendering failed: {e}')
+        abort(500)
 
 
 @edusign_views.route('/', methods=['GET'])

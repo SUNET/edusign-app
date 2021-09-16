@@ -57,8 +57,10 @@ class EduSignApp(Flask):
         if not self.testing:
             self.url_map.host_matching = False
 
+        from edusign_webapp.views import anon_edusign_views
         from edusign_webapp.views import edusign_views
 
+        self.register_blueprint(anon_edusign_views)
         self.register_blueprint(edusign_views)
 
     def is_whitelisted(self, address: str) -> bool:
