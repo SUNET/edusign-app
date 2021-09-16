@@ -124,7 +124,27 @@ function ForcedPreview(props) {
             trigger={["hover", "focus"]}
             rootClose={true}
             overlay={(props) => (
-              <Tooltip id="tooltip-select-doc" {...props}>
+              <Tooltip id="tooltip-dissaprove-doc" {...props}>
+                <FormattedMessage
+                  defaultMessage="Click here to reject/remove the document"
+                  key="dissaprove-doc-tootip"
+                />
+              </Tooltip>
+            )}
+          >
+            <Button
+              variant="outline-danger"
+              onClick={props.handleUnConfirm(props.doc.name)}
+              data-testid={"preview-button-dissaprove-" + props.index}
+            >
+              <FormattedMessage defaultMessage="Reject" key="button-dissaprove" />
+            </Button>
+          </OverlayTrigger>
+          <OverlayTrigger
+            trigger={["hover", "focus"]}
+            rootClose={true}
+            overlay={(props) => (
+              <Tooltip id="tooltip-confirm-doc" {...props}>
                 <FormattedMessage
                   defaultMessage="Once you have scrolled to the end of the document you will be able to approve the document for signing"
                   key="confirm-doc-tootip"
@@ -136,7 +156,7 @@ function ForcedPreview(props) {
               disabled={!readyToConfirm}
               variant="outline-secondary"
               onClick={props.handleConfirm(props.doc.name)}
-              data-testid={"preview-button-close-" + props.index}
+              data-testid={"preview-button-confirm-" + props.index}
             >
               <FormattedMessage defaultMessage="Approve" key="button-confirm" />
             </Button>
@@ -153,6 +173,7 @@ ForcedPreview.propTypes = {
    */
   handleClose: PropTypes.func,
   handleConfirm: PropTypes.func,
+  handleUnConfirm: PropTypes.func,
   doc: PropTypes.object,
   docFile: PropTypes.object,
   index: PropTypes.number,

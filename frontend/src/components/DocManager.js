@@ -417,6 +417,7 @@ class DocManager extends React.Component {
                     index={index}
                     handleClose={this.props.handleCloseForcedPreview}
                     handleConfirm={this.props.handleConfirmForcedPreview}
+                    handleUnConfirm={this.props.handleUnConfirmForcedPreview}
                   />
                 )}
                 <OverlayTrigger
@@ -546,6 +547,7 @@ class DocManager extends React.Component {
                     index={index}
                     handleClose={this.props.handleCloseForcedPreview}
                     handleConfirm={this.props.handleConfirmForcedPreview}
+                    handleUnConfirm={this.props.handleUnConfirmForcedPreview}
                   />
                 )}
                 <OverlayTrigger

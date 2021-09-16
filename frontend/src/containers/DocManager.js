@@ -105,6 +105,12 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(confirmForcedPreview(name));
       };
     },
+    handleUnConfirmForcedPreview: function (name) {
+      return () => {
+        dispatch(hidePreview(name));
+        dispatch(removeDocument(name));
+      };
+    },
     handleClosePreview: function (name) {
       return () => {
         dispatch(hidePreview(name));
