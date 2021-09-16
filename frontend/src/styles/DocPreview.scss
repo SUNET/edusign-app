@@ -10,3 +10,12 @@
 .modal-body {
   align-self: center;
 }
+
+#mock-disabled-confirm-button {
+  cursor: default;
+  font-size: 1rem;
+  line-height: 1.5;
+  border: solid 1px;
+  border-radius: .25rem;
+  padding: .375rem .75rem;
+}
