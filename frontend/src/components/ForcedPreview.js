@@ -159,19 +159,17 @@ function ForcedPreview(props) {
               </Tooltip>
             )}
           >
-            {readyToConfirm && (
+            <span class="d-inline-block">
               <Button
-                variant="outline-secondary"
+                disabled={!readyToConfirm}
                 onClick={props.handleConfirm(props.doc.name)}
+                style={!readyToConfirm && { pointerEvents: 'none' } || {}}
+                variant="outline-secondary"
                 data-testid={"preview-button-confirm-" + props.index}
               >
                 <FormattedMessage defaultMessage="Approve" key="button-confirm" />
               </Button>
-            ) || (
-              <div id="mock-disabled-confirm-button">
-                <FormattedMessage defaultMessage="Approve" key="button-confirm" />
-              </div>
-            )}
+            </span>
           </OverlayTrigger>
         </Modal.Footer>
       </Modal>
