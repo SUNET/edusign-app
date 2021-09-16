@@ -126,7 +126,7 @@ function ForcedPreview(props) {
             overlay={(props) => (
               <Tooltip id="tooltip-select-doc" {...props}>
                 <FormattedMessage
-                  defaultMessage="Once you have visited the last page of the document, you will be able to click here to confirm that this is the document you want to sign"
+                  defaultMessage="Once you have scrolled to the end of the document you will be able to approve the document for signing"
                   key="confirm-doc-tootip"
                 />
               </Tooltip>
@@ -138,7 +138,7 @@ function ForcedPreview(props) {
               onClick={props.handleConfirm(props.doc.name)}
               data-testid={"preview-button-close-" + props.index}
             >
-              <FormattedMessage defaultMessage="Confirm" key="button-confirm" />
+              <FormattedMessage defaultMessage="Approve" key="button-confirm" />
             </Button>
           </OverlayTrigger>
         </Modal.Footer>

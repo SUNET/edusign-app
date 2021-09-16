@@ -59,7 +59,7 @@ class DocManager extends React.Component {
             overlay={(props) => (
               <Tooltip id="tooltip-button-forced-preview" {...props}>
                 <FormattedMessage
-                  defaultMessage="You have to confirm that you have uploaded the correct document"
+                  defaultMessage="You need to approve all documents for signature"
                   key="forced-preview-button-tootip"
                 />
               </Tooltip>
@@ -72,7 +72,7 @@ class DocManager extends React.Component {
               onClick={this.props.handleForcedPreview(doc.name)}
             >
               <FormattedMessage
-                defaultMessage="Check document"
+                defaultMessage="Approve document for signature"
                 key="forced-preview-button"
               />
             </Button>
