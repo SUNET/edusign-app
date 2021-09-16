@@ -94,20 +94,21 @@ export const loadDocuments = createAsyncThunk(
  * @desc Redux async action to validate PDF documents
  */
 async function validateDoc(doc, intl, state) {
-
   state.documents.documents.forEach((document) => {
     if (document.name === doc.name) {
-      doc.state = 'dup';
+      doc.state = "dup";
     }
   });
 
   state.main.owned_multisign.forEach((document) => {
     if (document.name === doc.name) {
-      doc.state = 'dup';
+      doc.state = "dup";
     }
   });
 
-  if (doc.state === 'dup') { return doc }
+  if (doc.state === "dup") {
+    return doc;
+  }
 
   return await pdfjs
     .getDocument({ url: doc.blob, password: "" })
@@ -183,14 +184,13 @@ export const createDocument = createAsyncThunk(
     const doc = await validateDoc(args.doc, args.intl, thunkAPI.getState());
     if (doc.state === "failed-loading") return doc;
 
-    if (doc.state === 'dup') {
+    if (doc.state === "dup") {
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
           message: "",
           message: args.intl.formatMessage({
-            defaultMessage:
-              "A document with that name has already been loaded",
+            defaultMessage: "A document with that name has already been loaded",
             id: "save-doc-problem-dup",
           }),
         })
@@ -208,18 +208,16 @@ export const createDocument = createAsyncThunk(
           level: "danger",
           message: "",
           message: args.intl.formatMessage({
-            defaultMessage:
-              "Problem saving document(s) in session",
+            defaultMessage: "Problem saving document(s) in session",
             id: "save-docs-problem-session",
           }),
         })
       );
       doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
-        defaultMessage:
-          "Problem saving document in session",
+        defaultMessage: "Problem saving document in session",
         id: "save-doc-problem-session",
-      })
+      });
       return thunkAPI.rejectWithValue(doc);
     }
   }
@@ -241,7 +239,7 @@ export const prepareDocument = createAsyncThunk(
       size: doc.size,
       type: doc.type,
     };
-    const body = JSON.stringify({payload: docToSend});
+    const body = JSON.stringify({ payload: docToSend });
     let data = null;
     try {
       const response = await fetch("/sign/add-doc", {
@@ -452,7 +450,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       thunkAPI.dispatch(
         documentsSlice.actions.updateDocumentWithSignedContent(doc)
       );
-      thunkAPI.dispatch(removeInvites({doc: doc, intl: intl}));
+      thunkAPI.dispatch(removeInvites({ doc: doc, intl: intl }));
     });
   } catch (err) {
     thunkAPI.dispatch(
@@ -477,11 +475,12 @@ export const downloadSigned = createAsyncThunk(
   "documents/downloadSigned",
   async (docname, thunkAPI) => {
     const state = thunkAPI.getState();
-    const doc = state.documents.documents.filter((d) => {return d.name === docname})[0];
-    const b64content = doc.signedContent.split(',')[1];
+    const doc = state.documents.documents.filter((d) => {
+      return d.name === docname;
+    })[0];
+    const b64content = doc.signedContent.split(",")[1];
     const blob = b64toBlob(b64content);
-    const newName =
-      doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
+    const newName = doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
     FileSaver.saveAs(blob, newName);
   }
 );
@@ -495,17 +494,19 @@ export const downloadAllSigned = createAsyncThunk(
   "documents/downloadAllSigned",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const docs = state.documents.documents.filter((doc) => {return doc.state === 'signed'});
+    const docs = state.documents.documents.filter((doc) => {
+      return doc.state === "signed";
+    });
     let zip = new JSZip();
     let folder = zip.folder("signed");
     docs.forEach((doc) => {
-      const b64content = doc.signedContent.split(',')[1];
+      const b64content = doc.signedContent.split(",")[1];
       const blob = b64toBlob(b64content);
       const newName =
         doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
       folder.file(newName, blob);
     });
-    zip.generateAsync({type:"blob"}).then(function(content) {
+    zip.generateAsync({ type: "blob" }).then(function (content) {
       FileSaver.saveAs(content, "signed.zip");
     });
   }
@@ -786,16 +787,22 @@ export const skipOwnedSignature = createAsyncThunk(
         throw new Error(data.message);
       }
       const key = data.payload.documents[0].id;
-      const owned = state.main.owned_multisign.filter((d) => {return d.key === key})[0];
+      const owned = state.main.owned_multisign.filter((d) => {
+        return d.key === key;
+      })[0];
       const doc = {
         ...owned,
-        signedContent: "data:application/pdf;base64," + data.payload.documents[0].signed_content,
-        blob: "data:application/pdf;base64," + data.payload.documents[0].signed_content,
+        signedContent:
+          "data:application/pdf;base64," +
+          data.payload.documents[0].signed_content,
+        blob:
+          "data:application/pdf;base64," +
+          data.payload.documents[0].signed_content,
         state: "signed",
         show: false,
       };
       saveDocumentToDb(doc);
-      thunkAPI.dispatch(removeOwned({key: key}));
+      thunkAPI.dispatch(removeOwned({ key: key }));
       return doc;
     } catch (err) {
       thunkAPI.dispatch(
@@ -894,7 +901,7 @@ const documentsSlice = createSlice({
           return {
             ...doc,
             showForced: false,
-            state: 'selected',
+            state: "selected",
           };
         } else return doc;
       });
@@ -1012,7 +1019,10 @@ const documentsSlice = createSlice({
           const document = {
             ...doc,
             state: "failed-signing",
-            message: intl.formatMessage({defaultMessage: "Problem signing the document", id: "problem-signing"}),
+            message: intl.formatMessage({
+              defaultMessage: "Problem signing the document",
+              id: "problem-signing",
+            }),
           };
           dbSaveDocument(document);
           return document;
@@ -1041,7 +1051,7 @@ const documentsSlice = createSlice({
       state.documents.push(action.payload);
     },
     [createDocument.rejected]: (state, action) => {
-      if (action.payload.state !== 'dup') {
+      if (action.payload.state !== "dup") {
         state.documents.push(action.payload);
       }
     },

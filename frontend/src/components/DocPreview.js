@@ -59,14 +59,9 @@ function DocPreview(props) {
               throw new Error("Never password");
             }}
           >
-            {(props.width < 550) && (
-              <Page
-                pageNumber={pageNumber}
-                width={props.width - 20}
-              />
-            ) || (
-              <Page pageNumber={pageNumber} />
-            )}
+            {(props.width < 550 && (
+              <Page pageNumber={pageNumber} width={props.width - 20} />
+            )) || <Page pageNumber={pageNumber} />}
           </Document>
         </Modal.Body>
 

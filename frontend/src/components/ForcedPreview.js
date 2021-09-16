@@ -27,7 +27,7 @@ function ForcedPreview(props) {
     setPageNumber((prevPageNumber) => {
       const newPage = prevPageNumber + offset;
       if (newPage === numPages) setReady(true);
-      return newPage
+      return newPage;
     });
   }
 
@@ -68,14 +68,9 @@ function ForcedPreview(props) {
               throw new Error("Never password");
             }}
           >
-            {(props.width < 550) && (
-              <Page
-                pageNumber={pageNumber}
-                width={props.width - 20}
-              />
-            ) || (
-              <Page pageNumber={pageNumber} />
-            )}
+            {(props.width < 550 && (
+              <Page pageNumber={pageNumber} width={props.width - 20} />
+            )) || <Page pageNumber={pageNumber} />}
           </Document>
         </Modal.Body>
 

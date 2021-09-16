@@ -58,10 +58,10 @@ class DnDArea extends Component {
                     </div>
                   ) : (
                     <div id="dnd-area-head-1">
-                    <FormattedMessage
-                      defaultMessage="Tap here to browse"
-                      key="dnd-area-head-sm"
-                    />
+                      <FormattedMessage
+                        defaultMessage="Tap here to browse"
+                        key="dnd-area-head-sm"
+                      />
                     </div>
                   )}
                 </div>

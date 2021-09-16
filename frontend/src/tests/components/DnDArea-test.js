@@ -17,7 +17,7 @@ import * as edusignLogo from "../../../images/eduSign_logo.svg";
 import { resetDb } from "init-app/database";
 
 describe("DnDArea Component", function () {
-  beforeEach( async () => {
+  beforeEach(async () => {
     await resetDb();
   });
   afterEach(() => {
@@ -31,19 +31,13 @@ describe("DnDArea Component", function () {
     });
 
     try {
-      const dndArea1 = screen.getAllByText(
-        "Drag & drop here"
-      );
+      const dndArea1 = screen.getAllByText("Drag & drop here");
       expect(dndArea1.length).to.equal(1);
 
-      const dndArea2 = screen.getAllByText(
-        "or"
-      );
+      const dndArea2 = screen.getAllByText("or");
       expect(dndArea2.length).to.equal(1);
 
-      const dndArea3 = screen.getAllByText(
-        "click to browse"
-      );
+      const dndArea3 = screen.getAllByText("click to browse");
       expect(dndArea3.length).to.equal(1);
 
       const dndAreaDropping = screen.queryByText("Drop documents here");
@@ -110,19 +104,13 @@ describe("DnDArea Component", function () {
       );
       expect(dndAreaDropping.length).to.equal(1);
 
-      dndArea1 = await waitFor(() =>
-        screen.queryByText("Drag & drop here")
-      );
+      dndArea1 = await waitFor(() => screen.queryByText("Drag & drop here"));
       expect(dndArea1).to.equal(null);
 
-      dndArea2 = await waitFor(() =>
-        screen.queryByText("Drag & drop here")
-      );
+      dndArea2 = await waitFor(() => screen.queryByText("Drag & drop here"));
       expect(dndArea2).to.equal(null);
 
-      dndArea3 = await waitFor(() =>
-        screen.queryByText("Drag & drop here")
-      );
+      dndArea3 = await waitFor(() => screen.queryByText("Drag & drop here"));
       expect(dndArea3).to.equal(null);
     } catch (err) {
       unmount();
@@ -163,19 +151,13 @@ describe("DnDArea Component", function () {
       );
       expect(dndAreaDropping.length).to.equal(1);
 
-      dndArea1 = await waitFor(() =>
-        screen.queryByText("Drag & drop here")
-      );
+      dndArea1 = await waitFor(() => screen.queryByText("Drag & drop here"));
       expect(dndArea1).to.equal(null);
 
-      dndArea2 = await waitFor(() =>
-        screen.queryByText("or")
-      );
+      dndArea2 = await waitFor(() => screen.queryByText("or"));
       expect(dndArea2).to.equal(null);
 
-      dndArea3 = await waitFor(() =>
-        screen.queryByText("click to browse")
-      );
+      dndArea3 = await waitFor(() => screen.queryByText("click to browse"));
       expect(dndArea3).to.equal(null);
 
       dispatchEvtWithData(dnd, "dragleave", data);

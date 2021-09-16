@@ -49,7 +49,6 @@ export async function getDb() {
  *
  */
 export async function resetDb() {
-
   require("fake-indexeddb/auto");
   const FDBFactory = require("fake-indexeddb/lib/FDBFactory");
   return await new Promise((resolve) => {
@@ -141,18 +140,29 @@ export const clearDocStore = (dispatch, intl) => {
   const docStore = getDocStore();
   if (docStore !== null) {
     const docRequest = docStore.clear();
-    docRequest.onsuccess = (e) => {dispatch(rmNotification())};
+    docRequest.onsuccess = (e) => {
+      dispatch(rmNotification());
+    };
     docRequest.onerror = (event) => {
       dispatch(
         addNotification({
           level: "danger",
-          message: intl.formatMessage({defaultMessage: "problem clearing db, please try again", id: "problem-clearing-db"}),
+          message: intl.formatMessage({
+            defaultMessage: "problem clearing db, please try again",
+            id: "problem-clearing-db",
+          }),
         })
       );
     };
   } else {
     dispatch(
-      addNotification({ level: "danger", message: intl.formatMessage({defaultMessage: "no persistent state", id: "no-persistent-state"}) })
+      addNotification({
+        level: "danger",
+        message: intl.formatMessage({
+          defaultMessage: "no persistent state",
+          id: "no-persistent-state",
+        }),
+      })
     );
   }
 };

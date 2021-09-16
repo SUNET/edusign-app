@@ -24,8 +24,8 @@ const mapDispatchToProps = (dispatch) => {
   return {
     changeLanguage: function (e) {
       const lang = e.target.closest(".lang-selected").dataset.lang;
-      Cookies.remove('lang');
-      Cookies.set('lang', lang, { expires: 365 });
+      Cookies.remove("lang");
+      Cookies.set("lang", lang, { expires: 365 });
       const msgs = LOCALIZED_MESSAGES[lang];
       dispatch(
         updateIntl({

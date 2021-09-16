@@ -15,7 +15,7 @@ import { fetchConfig } from "slices/Main";
 import { resetDb } from "init-app/database";
 
 describe("Multi sign invitations", function () {
-  beforeEach( async () => {
+  beforeEach(async () => {
     await resetDb();
   });
   afterEach(() => {
@@ -29,7 +29,11 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
-            signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+          },
           owned_multisign: [],
           pending_multisign: [],
         },
@@ -92,7 +96,11 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
-            signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+          },
           owned_multisign: [],
           pending_multisign: [],
         },
@@ -178,7 +186,11 @@ describe("Multi sign invitations", function () {
       fetchMock
         .get("/sign/config", {
           payload: {
-              signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+            signer_attributes: {
+              name: "Tester Testig",
+              eppn: "tester@example.org",
+              mail: "tester@example.org",
+            },
             owned_multisign: [],
             pending_multisign: [],
           },
@@ -289,7 +301,11 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
-            signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+          },
           owned_multisign: [
             {
               name: "test1.pdf",
@@ -343,7 +359,11 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
-            signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+          },
           owned_multisign: [
             {
               name: "test1.pdf",
@@ -429,7 +449,11 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
-            signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+          },
           owned_multisign: [
             {
               name: "test1.pdf",
@@ -514,7 +538,11 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
-            signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+          },
           owned_multisign: [
             {
               name: "test1.pdf",
@@ -577,7 +605,11 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
-            signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+          },
           owned_multisign: [
             {
               name: "test1.pdf",
@@ -646,7 +678,11 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
-            signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+          },
           owned_multisign: [
             {
               name: "test1.pdf",
@@ -715,7 +751,11 @@ describe("Multi sign invitations", function () {
       fetchMock
         .get("/sign/config", {
           payload: {
-              signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+            signer_attributes: {
+              name: "Tester Testig",
+              eppn: "tester@example.org",
+              mail: "tester@example.org",
+            },
             owned_multisign: [
               {
                 name: "test1.pdf",
@@ -779,7 +819,11 @@ describe("Multi sign invitations", function () {
       fetchMock
         .get("/sign/config", {
           payload: {
-              signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+            signer_attributes: {
+              name: "Tester Testig",
+              eppn: "tester@example.org",
+              mail: "tester@example.org",
+            },
             owned_multisign: [
               {
                 name: "test1.pdf",
@@ -842,7 +886,11 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
-          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+          },
           owned_multisign: [],
           pending_multisign: [
             {
@@ -892,7 +940,11 @@ describe("Multi sign invitations", function () {
       fetchMock
         .get("/sign/config", {
           payload: {
-              signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+            signer_attributes: {
+              name: "Tester Testig",
+              eppn: "tester@example.org",
+              mail: "tester@example.org",
+            },
             owned_multisign: [
               {
                 name: "test1.pdf",
@@ -963,7 +1015,11 @@ describe("Multi sign invitations", function () {
       fetchMock
         .get("/sign/config", {
           payload: {
-            signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+            signer_attributes: {
+              name: "Tester Testig",
+              eppn: "tester@example.org",
+              mail: "tester@example.org",
+            },
             owned_multisign: [
               {
                 name: "test1.pdf",
@@ -987,14 +1043,18 @@ describe("Multi sign invitations", function () {
           },
         })
         .post("/sign/skip-final-signature", {
-          "payload": {
-            "documents": [{
-              "id": "11111111-1111-1111-1111-111111111111",
-              "signed_content": "dummy signed content"
-            }]
-          }, "csrf_token": "2dHK9eEX$8be8af38c0ca02a0be346df372d43a65dbefdbed757a4d43a770e793aed4d02b",
-            "message": "Success",
-            "error": false
+          payload: {
+            documents: [
+              {
+                id: "11111111-1111-1111-1111-111111111111",
+                signed_content: "dummy signed content",
+              },
+            ],
+          },
+          csrf_token:
+            "2dHK9eEX$8be8af38c0ca02a0be346df372d43a65dbefdbed757a4d43a770e793aed4d02b",
+          message: "Success",
+          error: false,
         });
       store.dispatch(
         fetchConfig({
@@ -1029,7 +1089,11 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
-          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+          },
           owned_multisign: [],
           pending_multisign: [
             {
@@ -1085,11 +1149,14 @@ describe("Multi sign invitations", function () {
   it("It shows other already signed invitees in invitation for us", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
-
     try {
       fetchMock.get("/sign/config", {
         payload: {
-          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+          },
           owned_multisign: [],
           pending_multisign: [
             {
@@ -1145,11 +1212,14 @@ describe("Multi sign invitations", function () {
   it("It shows both pending and already signed invitees in invitation for us", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
-
     try {
       fetchMock.get("/sign/config", {
         payload: {
-          signer_attributes: {name: "Tester Testig", eppn: "tester@example.org", mail: "tester@example.org"}, 
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+          },
           owned_multisign: [],
           pending_multisign: [
             {

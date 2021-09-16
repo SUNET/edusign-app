@@ -10,7 +10,13 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createIntl } from "react-intl";
 
-import { getRequest, postRequest, checkStatus, extractCsrfToken, preparePayload } from "slices/fetch-utils";
+import {
+  getRequest,
+  postRequest,
+  checkStatus,
+  extractCsrfToken,
+  preparePayload,
+} from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 import { loadDocuments } from "slices/Documents";
 
@@ -67,9 +73,13 @@ export const getPartiallySignedDoc = createAsyncThunk(
   "documents/getPartiallySignedDoc",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const oldDoc = state.main[args.stateKey].filter((doc) => {doc.key === args.key});
-    if (oldDoc.blob) {return args}
-    const body = preparePayload(state, {key: args.key});
+    const oldDoc = state.main[args.stateKey].filter((doc) => {
+      doc.key === args.key;
+    });
+    if (oldDoc.blob) {
+      return args;
+    }
+    const body = preparePayload(state, { key: args.key });
     try {
       const response = await fetch("/sign/get-partially-signed", {
         ...postRequest,
@@ -108,7 +118,7 @@ const mainSlice = createSlice({
     signingData: {},
     size: "lg",
     width: 0,
-    multisign_buttons: 'yes',
+    multisign_buttons: "yes",
   },
   reducers: {
     /**
@@ -172,7 +182,7 @@ const mainSlice = createSlice({
         if (doc.invite_key === action.payload) {
           return {
             ...doc,
-            state: 'signing',
+            state: "signing",
           };
         } else return doc;
       });
@@ -187,7 +197,7 @@ const mainSlice = createSlice({
         if (doc.key === action.payload) {
           return {
             ...doc,
-            state: 'signing',
+            state: "signing",
           };
         } else return doc;
       });
@@ -237,15 +247,18 @@ const mainSlice = createSlice({
       };
     },
     [getPartiallySignedDoc.fulfilled]: (state, action) => {
-      state[action.payload.stateKey] = state[action.payload.stateKey].map((doc) => {
-        if (doc.key === action.payload.key) {
-          let newDoc = {...doc, show: true};
-          if (action.payload.payload) {
-            newDoc.blob = 'data:application/pdf;base64,' + action.payload.payload.blob;
-          }
-          return newDoc;
-        } else return doc;
-      });
+      state[action.payload.stateKey] = state[action.payload.stateKey].map(
+        (doc) => {
+          if (doc.key === action.payload.key) {
+            let newDoc = { ...doc, show: true };
+            if (action.payload.payload) {
+              newDoc.blob =
+                "data:application/pdf;base64," + action.payload.payload.blob;
+            }
+            return newDoc;
+          } else return doc;
+        }
+      );
     },
   },
 });

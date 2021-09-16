@@ -1,7 +1,7 @@
 @import "./variables.scss";
 
 .invitation-multisign {
-  padding-top: .5rem;
+  padding-top: 0.5rem;
   padding-left: 1rem;
   display: flex;
   flex: none;
@@ -44,7 +44,7 @@
         display: flex;
         justify-content: flex-end;
         flex-wrap: wrap;
-        margin: .5rem 0;
+        margin: 0.5rem 0;
 
         .button-preview-container,
         .button-remove-container,
@@ -90,7 +90,7 @@
         .button-skip-container,
         .button-sign-container {
           flex: none;
-          margin-top: .5rem;
+          margin-top: 0.5rem;
         }
       }
     }
@@ -109,15 +109,15 @@
 .button-resend-invitation,
 .button-skip-invitation,
 .button-sign-invitation {
-  margin-right: 0.5rem;;
-  margin-left: 0.5rem;;
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
 }
 
 .invitation-doc-name-label,
 .invited-by-label,
 .signed-invites-label,
 .pending-invites-label {
-  margin-right: .5rem;
+  margin-right: 0.5rem;
   color: $darker-dark-grey;
   font-size: 0.8rem;
 }
@@ -126,9 +126,8 @@
   flex: none;
 }
 
-
 .owner-item {
-  margin-left: .5rem;
+  margin-left: 0.5rem;
   font-size: 0.8rem;
   display: inline-block;
 }
@@ -138,9 +137,8 @@
 }
 
 .pending-invites-items {
-
   .pending-invite-item {
-    margin-left: .5rem;
+    margin-left: 0.5rem;
     font-size: 0.8rem;
     display: inline-block;
   }
@@ -151,9 +149,8 @@
 }
 
 .signed-invites-items {
-
   .signed-invite-item {
-    margin-left: .5rem;
+    margin-left: 0.5rem;
     font-size: 0.8rem;
     display: inline-block;
   }

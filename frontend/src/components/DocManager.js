@@ -71,7 +71,10 @@ class DocManager extends React.Component {
               size="sm"
               onClick={this.props.handleForcedPreview(doc.name)}
             >
-              <FormattedMessage defaultMessage="Check document" key="forced-preview-button" />
+              <FormattedMessage
+                defaultMessage="Check document"
+                key="forced-preview-button"
+              />
             </Button>
           </OverlayTrigger>
         </div>
@@ -234,7 +237,9 @@ class DocManager extends React.Component {
     );
   }
   multiSignButton(index, doc) {
-    if (this.props.multisign_buttons !== 'yes') {return ''}
+    if (this.props.multisign_buttons !== "yes") {
+      return "";
+    }
     return (
       <>
         <div className="button-multisign-flex-item">
@@ -373,7 +378,7 @@ class DocManager extends React.Component {
           if (["loaded", "selected", "failed-signing"].includes(doc.state)) {
             showSignButton = true;
           }
-          if (doc.state === 'signed') {
+          if (doc.state === "signed") {
             showDlAllButton = true;
           }
           const docFile = docToFile(doc);
@@ -381,7 +386,10 @@ class DocManager extends React.Component {
             doc = {
               ...doc,
               state: "failed-loading",
-              message: this.props.intl.formatMessage({defaultMessage: "Malformed PDF", id: "malformed-pdf"}),
+              message: this.props.intl.formatMessage({
+                defaultMessage: "Malformed PDF",
+                id: "malformed-pdf",
+              }),
             };
           }
           if (doc.state === "selected") someSelected = true;
@@ -402,7 +410,7 @@ class DocManager extends React.Component {
                     handleClose={this.props.handleClosePreview}
                   />
                 )}
-                {(doc.state === "unconfirmed") && (
+                {doc.state === "unconfirmed" && (
                   <ForcedPreviewContainer
                     doc={doc}
                     docFile={docFile}
@@ -456,7 +464,7 @@ class DocManager extends React.Component {
                         </div>
                       </>
                     )}
-                    {(doc.state === "unconfirmed") && (
+                    {doc.state === "unconfirmed" && (
                       <>
                         {this.dummySelectDoc()}
                         {this.docSize(doc)}
@@ -531,7 +539,7 @@ class DocManager extends React.Component {
                     handleClose={this.props.handleClosePreview}
                   />
                 )}
-                {(doc.state === "unconfirmed") && (
+                {doc.state === "unconfirmed" && (
                   <ForcedPreviewContainer
                     doc={doc}
                     docFile={docFile}
@@ -593,7 +601,7 @@ class DocManager extends React.Component {
                         </div>
                       </>
                     )}
-                    {(doc.state === "unconfirmed") && (
+                    {doc.state === "unconfirmed" && (
                       <>
                         <div className="doc-container-first-row">
                           {this.dummySelectDoc()}
@@ -733,7 +741,9 @@ class DocManager extends React.Component {
               </OverlayTrigger>
             </div>
           )) || (
-            <div className={"dummy-button-dlall-flex-item-" + this.props.size} />
+            <div
+              className={"dummy-button-dlall-flex-item-" + this.props.size}
+            />
           )}
           {(showClearButton && (
             <div className="button-clear-flex-item">
@@ -778,7 +788,9 @@ class DocManager extends React.Component {
               />
             </div>
           )) || (
-            <div className={"dummy-button-clear-flex-item-" + this.props.size} />
+            <div
+              className={"dummy-button-clear-flex-item-" + this.props.size}
+            />
           )}
         </div>
         <div className={"multisign-container-" + this.props.size}>

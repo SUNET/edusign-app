@@ -29,7 +29,13 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     showPreview: (docKey) => {
       return () => {
-        dispatch(getPartiallySignedDoc({key: docKey, stateKey: 'pending_multisign', intl: props.intl}));
+        dispatch(
+          getPartiallySignedDoc({
+            key: docKey,
+            stateKey: "pending_multisign",
+            intl: props.intl,
+          })
+        );
       };
     },
     handleClosePreview: function (docKey) {

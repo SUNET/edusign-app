@@ -59,7 +59,7 @@ const appIsRendered = function () {
  * and render the provided component wrapped in a Redux Provider.
  */
 const init_app = function (target, component) {
-  let language = Cookies.get('lang');
+  let language = Cookies.get("lang");
   if (!language) {
     language = navigator.languages
       ? navigator.languages[0]

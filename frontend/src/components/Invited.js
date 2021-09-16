@@ -64,7 +64,7 @@ const namedSpinner = (index, name) => {
       <div className="spinning-flex-item">{` ${name} ...`}</div>
     </>
   );
-}
+};
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
@@ -97,7 +97,9 @@ class Invited extends Component {
           return (
             <div className="invitation-multisign" key={index}>
               <div className="invitation-multisign-request">
-                <div className={"invitation-name-and-buttons-" + this.props.size}>
+                <div
+                  className={"invitation-name-and-buttons-" + this.props.size}
+                >
                   <div className="name-flex-item">
                     <span className="invitation-doc-name-label">
                       <FormattedMessage
@@ -108,11 +110,9 @@ class Invited extends Component {
                     <span className="invitation-doc-name">{doc.name}</span>
                   </div>
                   <div className="invitation-buttons">
-                    {(doc.state === 'signing') && (
-                      <>
-                        {namedSpinner(index, 'signing')}
-                      </>
-                    ) || (
+                    {(doc.state === "signing" && (
+                      <>{namedSpinner(index, "signing")}</>
+                    )) || (
                       <>
                         {previewButton(
                           this.props,

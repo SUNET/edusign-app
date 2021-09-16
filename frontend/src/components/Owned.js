@@ -46,7 +46,7 @@ const namedSpinner = (index, name) => {
       <div className="spinning-flex-item">{` ${name} ...`}</div>
     </>
   );
-}
+};
 
 const skipSignatureButton = (props, doc, help) => {
   return (
@@ -125,15 +125,12 @@ const previewButton = (props, doc, help) => {
   );
 };
 
-
 const removeButton = (props, doc, help) => {
   return (
     <>
       <OverlayTrigger
         trigger={["hover", "focus"]}
-        overlay={
-          <Tooltip placement="auto">{help}</Tooltip>
-        }
+        overlay={<Tooltip placement="auto">{help}</Tooltip>}
       >
         <div className="button-remove-container">
           <div className="button-remove-invitation">
@@ -193,8 +190,7 @@ class Owned extends Component {
         id: "owned-resend-button-help",
       }),
       "preview-button-help": this.props.intl.formatMessage({
-        defaultMessage:
-          "Click here to preview the document",
+        defaultMessage: "Click here to preview the document",
         id: "owned-preview-button-help",
       }),
     };
@@ -212,7 +208,9 @@ class Owned extends Component {
           return (
             <div className="invitation-multisign" key={index}>
               <div className="invitation-multisign-request">
-                <div className={"invitation-name-and-buttons-" + this.props.size}>
+                <div
+                  className={"invitation-name-and-buttons-" + this.props.size}
+                >
                   <div className="name-flex-item">
                     <span className="invitation-doc-name-label">
                       <FormattedMessage
@@ -223,18 +221,32 @@ class Owned extends Component {
                     <span className="invitation-doc-name">{doc.name}</span>
                   </div>
                   <div className="invitation-buttons">
-                    {(doc.state === 'signing') && (
+                    {(doc.state === "signing" && (
+                      <>{namedSpinner(index, "signing")}</>
+                    )) || (
                       <>
-                        {namedSpinner(index, 'signing')}
-                      </>
-                    ) || (
-                      <>
-                        {previewButton(this.props, doc, this.getHelp("preview-button-help"))}
-                        {removeButton(this.props, doc, this.getHelp("close-button-help"))}
+                        {previewButton(
+                          this.props,
+                          doc,
+                          this.getHelp("preview-button-help")
+                        )}
+                        {removeButton(
+                          this.props,
+                          doc,
+                          this.getHelp("close-button-help")
+                        )}
                         {doc.pending.length === 0 &&
-                          signButton(this.props, doc, this.getHelp("sign-button-help"))}
+                          signButton(
+                            this.props,
+                            doc,
+                            this.getHelp("sign-button-help")
+                          )}
                         {doc.pending.length === 0 &&
-                          skipSignatureButton(this.props, doc, this.getHelp("skip-button-help"))}
+                          skipSignatureButton(
+                            this.props,
+                            doc,
+                            this.getHelp("skip-button-help")
+                          )}
                         {doc.pending.length > 0 &&
                           resendButton(
                             this.props,

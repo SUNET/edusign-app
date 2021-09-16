@@ -20,7 +20,7 @@
 
   .name-flex-item {
     flex: 5 1 auto;
-    margin: .5rem 0;
+    margin: 0.5rem 0;
   }
 
   .message-flex-item {
@@ -59,7 +59,7 @@
     .button-dlall-flex-item {
       flex: none;
       button {
-        padding: inherit .5rem;
+        padding: inherit 0.5rem;
         margin-left: 1rem;
       }
     }
@@ -67,7 +67,7 @@
     .button-signed-flex-item {
       flex: none;
       button {
-        padding: inherit .5rem;
+        padding: inherit 0.5rem;
         margin-left: 1rem;
       }
     }
@@ -75,7 +75,7 @@
     .button-multisign-flex-item {
       flex: none;
       button {
-        padding: inherit .5rem;
+        padding: inherit 0.5rem;
         margin-left: 1rem;
       }
     }
@@ -137,7 +137,7 @@
     .button-sign-flex-item {
       flex: none;
       button {
-        padding: inherit .5rem;
+        padding: inherit 0.5rem;
         margin-left: 1rem;
       }
     }
@@ -145,7 +145,7 @@
     .button-signed-flex-item {
       flex: none;
       button {
-        padding: inherit .5rem;
+        padding: inherit 0.5rem;
         margin-left: 1rem;
       }
     }
