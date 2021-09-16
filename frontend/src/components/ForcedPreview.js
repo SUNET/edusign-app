@@ -4,6 +4,8 @@ import { FormattedMessage } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
 import "styles/DocPreview.scss";
 
@@ -123,14 +125,27 @@ function ForcedPreview(props) {
               &#x23E9;
             </Button>
           </div>
-          <Button
-            disabled={!readyToConfirm}
-            variant="outline-secondary"
-            onClick={props.handleConfirm(props.doc.name)}
-            data-testid={"preview-button-close-" + props.index}
+          <OverlayTrigger
+            trigger={["hover", "focus"]}
+            rootClose={true}
+            overlay={(props) => (
+              <Tooltip id="tooltip-select-doc" {...props}>
+                <FormattedMessage
+                  defaultMessage="Once you have visited the last page of the document, you will be able to click here to confirm that this is the document you want to sign"
+                  key="confirm-doc-tootip"
+                />
+              </Tooltip>
+            )}
           >
-            <FormattedMessage defaultMessage="Confirm" key="button-confirm" />
-          </Button>
+            <Button
+              disabled={!readyToConfirm}
+              variant="outline-secondary"
+              onClick={props.handleConfirm(props.doc.name)}
+              data-testid={"preview-button-close-" + props.index}
+            >
+              <FormattedMessage defaultMessage="Confirm" key="button-confirm" />
+            </Button>
+          </OverlayTrigger>
         </Modal.Footer>
       </Modal>
     </>
