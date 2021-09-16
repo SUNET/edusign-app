@@ -309,12 +309,12 @@ class DocManager extends React.Component {
         id: "docmanager-help-failed-loading",
       }),
       "unconfirmed-title": this.props.intl.formatMessage({
-        defaultMessage: "Unconfirmed document",
+        defaultMessage: "This document has not yet been approved",
         id: "docmanager-help-unconfirmed-title",
       }),
       unconfirmed: this.props.intl.formatMessage({
         defaultMessage:
-          'Click on the button labelled "Check document" to review the document and confirm that you want to sign it',
+          'Click on the button labeled "Approve document for signature" to review the document and confirm that you approve it for signature',
         id: "docmanager-help-unconfirmed",
       }),
       "selected-title": this.props.intl.formatMessage({

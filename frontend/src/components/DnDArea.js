@@ -39,7 +39,7 @@ class DnDArea extends Component {
                     <div id="dnd-message-head-lg">
                       <div id="dnd-area-head-1">
                         <FormattedMessage
-                          defaultMessage="Drag & drop files here"
+                          defaultMessage="Drag and drop files to be signed here"
                           key="dnd-area-head-1"
                         />
                       </div>
@@ -51,7 +51,7 @@ class DnDArea extends Component {
                       </div>
                       <div id="dnd-area-head-3">
                         <FormattedMessage
-                          defaultMessage="click to select files"
+                          defaultMessage="click here to choose files to be signed"
                           key="dnd-area-head-3"
                         />
                       </div>
@@ -59,7 +59,7 @@ class DnDArea extends Component {
                   ) : (
                     <div id="dnd-area-head-1">
                       <FormattedMessage
-                        defaultMessage="Tap here to browse"
+                        defaultMessage="Tap here to choose files to be signed"
                         key="dnd-area-head-sm"
                       />
                     </div>
