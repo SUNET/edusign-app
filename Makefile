@@ -155,6 +155,12 @@ back-extract-msgs:
 	./venv/bin/pybabel init -i messages.pot -d translations -l en ; \
 	./venv/bin/pybabel init -i messages.pot -d translations -l sv
 
+## Compile translatable messages
+.PHONY: back-compile-msgs
+back-compile-msgs:
+	@cd $(BACK_DIR); \
+	./venv/bin/pybabel compile -d translations
+
 ## Reformat Python sources
 .PHONY: back-reformat
 back-reformat:
