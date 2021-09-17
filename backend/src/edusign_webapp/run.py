@@ -119,7 +119,7 @@ def get_locale():
     """
     if 'lang' in request.cookies:
         return request.cookies.get('lang')
-    return current_app.config['BABEL_DEFAULT_LOCALE']
+    return request.accept_languages.best_match(app.config.get('SUPPORTED_LANGUAGES'))
 
 
 class LoggingMiddleware(object):

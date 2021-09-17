@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-09-09 13:48+0200\n"
-"PO-Revision-Date: 2021-09-09 13:48+0200\n"
+"POT-Creation-Date: 2021-09-17 09:58+0200\n"
+"PO-Revision-Date: 2021-09-17 09:58+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
 "Language-Team: en <LL@li.org>\n"
@@ -18,146 +18,278 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.9.0\n"
 
-#: src/edusign_webapp/marshal.py:58 src/edusign_webapp/marshal.py:64
-#: src/edusign_webapp/marshal.py:70 src/edusign_webapp/marshal.py:74
-#: src/edusign_webapp/marshal.py:195 src/edusign_webapp/utils.py:80
+#: src/edusign_webapp/marshal.py:56 src/edusign_webapp/marshal.py:62
+#: src/edusign_webapp/marshal.py:68 src/edusign_webapp/marshal.py:72
+#: src/edusign_webapp/marshal.py:193 src/edusign_webapp/utils.py:80
 #: src/edusign_webapp/validators.py:50 src/edusign_webapp/validators.py:54
 #: src/edusign_webapp/validators.py:65 src/edusign_webapp/validators.py:78
 #: src/edusign_webapp/validators.py:82 src/edusign_webapp/validators.py:95
 #: src/edusign_webapp/validators.py:99 src/edusign_webapp/validators.py:103
-#: src/edusign_webapp/views.py:181 src/edusign_webapp/views.py:254
-#: src/edusign_webapp/views.py:325
+#: src/edusign_webapp/views.py:201 src/edusign_webapp/views.py:274
+#: src/edusign_webapp/views.py:345
 msgid "There was an error. Please try again, or contact the site administrator."
-msgstr "Det uppstod ett fel. Försök igen, eller kontakta webbplatsens administratör."
+msgstr ""
 
-#: src/edusign_webapp/marshal.py:239
+#: src/edusign_webapp/marshal.py:237
 msgid "Document data seems corrupted"
 msgstr ""
 
-#: src/edusign_webapp/marshal.py:315
+#: src/edusign_webapp/marshal.py:313
 msgid "Missing data for required field"
 msgstr ""
 
-#: src/edusign_webapp/marshal.py:317
+#: src/edusign_webapp/marshal.py:315
 msgid "Not a valid integer"
 msgstr ""
 
-#: src/edusign_webapp/views.py:104 src/edusign_webapp/views.py:135
-#: src/edusign_webapp/views.py:166 src/edusign_webapp/views.py:215
-#: src/edusign_webapp/views.py:354
+#: src/edusign_webapp/views.py:124 src/edusign_webapp/views.py:155
+#: src/edusign_webapp/views.py:186 src/edusign_webapp/views.py:235
+#: src/edusign_webapp/views.py:374
 msgid "Unauthorized"
-msgstr "Ej behörig"
+msgstr ""
 
-#: src/edusign_webapp/views.py:358
+#: src/edusign_webapp/views.py:378
 #, python-format
 msgid "You cannot invite as %(owner)s"
 msgstr ""
 
-#: src/edusign_webapp/views.py:368
+#: src/edusign_webapp/views.py:388
 msgid "XXX Invite mail subject"
 msgstr ""
 
-#: src/edusign_webapp/views.py:385
+#: src/edusign_webapp/views.py:405
 msgid "Problem storing the document to be multi signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:387
+#: src/edusign_webapp/views.py:407
 msgid "Success creating multi signature request"
 msgstr ""
 
-#: src/edusign_webapp/views.py:408
+#: src/edusign_webapp/views.py:428
 msgid "Problem finding the users pending to multi sign"
 msgstr ""
 
-#: src/edusign_webapp/views.py:412 src/edusign_webapp/views.py:416
+#: src/edusign_webapp/views.py:432 src/edusign_webapp/views.py:436
 msgid "Could not find users to multi sign the document"
 msgstr ""
 
-#: src/edusign_webapp/views.py:421
+#: src/edusign_webapp/views.py:441
 msgid "XXX Reminder mail subject"
 msgstr ""
 
-#: src/edusign_webapp/views.py:436
+#: src/edusign_webapp/views.py:456
 msgid "Success reminding pending users"
 msgstr ""
 
-#: src/edusign_webapp/views.py:456
+#: src/edusign_webapp/views.py:476
 msgid "Problem removing the document to be multi signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:460
+#: src/edusign_webapp/views.py:480
 msgid "Document has not been removed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:462
+#: src/edusign_webapp/views.py:482
 msgid "Success removing multi signature request"
 msgstr ""
 
-#: src/edusign_webapp/views.py:473 src/edusign_webapp/views.py:480
-#: src/edusign_webapp/views.py:492 src/edusign_webapp/views.py:500
-#: src/edusign_webapp/views.py:521 src/edusign_webapp/views.py:542
-#: src/edusign_webapp/views.py:561 src/edusign_webapp/views.py:567
-#: src/edusign_webapp/views.py:579
+#: src/edusign_webapp/views.py:492 src/edusign_webapp/views.py:565
+msgid "Back to site"
+msgstr ""
+
+#: src/edusign_webapp/views.py:497 src/edusign_webapp/views.py:504
+#: src/edusign_webapp/views.py:516 src/edusign_webapp/views.py:524
+#: src/edusign_webapp/views.py:545 src/edusign_webapp/views.py:570
+#: src/edusign_webapp/views.py:589 src/edusign_webapp/views.py:595
+#: src/edusign_webapp/views.py:607
 msgid "Problem signing the document"
 msgstr ""
 
-#: src/edusign_webapp/views.py:474
+#: src/edusign_webapp/views.py:498
 msgid ""
 "Someone else is signing the document right now, please try again in a few"
 " minutes"
 msgstr ""
 
-#: src/edusign_webapp/views.py:481
+#: src/edusign_webapp/views.py:505
 msgid "There seems to be no invitation for you"
 msgstr ""
 
-#: src/edusign_webapp/views.py:493
+#: src/edusign_webapp/views.py:517
 msgid "The invited email does not coincide with yours"
 msgstr ""
 
-#: src/edusign_webapp/views.py:501
+#: src/edusign_webapp/views.py:525
 #, python-format
 msgid "Problem preparing document for multi sign by user %s: %s"
 msgstr ""
 
-#: src/edusign_webapp/views.py:522 src/edusign_webapp/views.py:648
+#: src/edusign_webapp/views.py:546 src/edusign_webapp/views.py:676
 msgid "Communication error with the create endpoint of the eduSign API"
 msgstr ""
 
-#: src/edusign_webapp/views.py:543
+#: src/edusign_webapp/views.py:571
 msgid "Timeout signing the document, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:562
+#: src/edusign_webapp/views.py:590
 msgid "Communication error with the process endpoint of the eduSign API"
 msgstr ""
 
-#: src/edusign_webapp/views.py:568
+#: src/edusign_webapp/views.py:596
 msgid "Data error with the process endpoint of the eduSign API"
 msgstr ""
 
-#: src/edusign_webapp/views.py:580
+#: src/edusign_webapp/views.py:608
 msgid "There is no owner data for this document"
 msgstr ""
 
-#: src/edusign_webapp/views.py:585
+#: src/edusign_webapp/views.py:613
 #, python-format
 msgid "User %(name)s has signed %(docname)s"
 msgstr ""
 
-#: src/edusign_webapp/views.py:600
+#: src/edusign_webapp/views.py:628
 msgid "Document signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:601
+#: src/edusign_webapp/views.py:629
 msgid "Success processing document sign request"
 msgstr ""
 
-#: src/edusign_webapp/views.py:620
+#: src/edusign_webapp/views.py:648
 msgid "Multisigned document not found in the doc store"
 msgstr ""
 
-#: src/edusign_webapp/views.py:662
+#: src/edusign_webapp/views.py:690
 msgid "Success creating sign request"
+msgstr ""
+
+#: src/edusign_webapp/views.py:710
+msgid "Problem getting the document being signed"
+msgstr ""
+
+#: src/edusign_webapp/views.py:714 src/edusign_webapp/views.py:733
+msgid "Document not found in the doc store"
+msgstr ""
+
+#: src/edusign_webapp/views.py:729
+msgid "Problem getting the signed document"
+msgstr ""
+
+#: src/edusign_webapp/templates/home.jinja2:75
+msgid "eduSign - Secure digital signature"
+msgstr ""
+
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:5
+#, python-format
+msgid ""
+"\n"
+"\n"
+"<p>You have been invited by %(inviter_name_and_email)s\n"
+"to digitally sign a document named %(document_name)s.</p>\n"
+"\n"
+"<p><a href=\"%(invited_link)s\">You can follow this link to do "
+"so.</a></p>\n"
+"\n"
+msgstr ""
+
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:16
+#: src/edusign_webapp/templates/reminder_email.html.jinja2:16
+#, python-format
+msgid ""
+"\n"
+"\n"
+"<p>Message from %(inviter_name)s:</p>\n"
+"\n"
+msgstr ""
+
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:1
+#, python-format
+msgid ""
+"\n"
+"\n"
+"You have been invited by %(inviter_name_and_email)s\n"
+"to digitally sign a document named %(document_name)s.\n"
+"\n"
+"You can follow this link to do so:\n"
+"\n"
+msgstr ""
+
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:14
+#: src/edusign_webapp/templates/reminder_email.txt.jinja2:14
+#, python-format
+msgid ""
+"\n"
+"\n"
+"Message from %(inviter_name)s:\n"
+"\n"
+msgstr ""
+
+#: src/edusign_webapp/templates/reject.jinja2:5
+msgid "You are not allowed to create sign requests at eduSign"
+msgstr ""
+
+#: src/edusign_webapp/templates/reject.jinja2:8
+#, python-format
+msgid ""
+"Your email address \"%(mail)s\" does not belong to a whitelisted "
+"organization"
+msgstr ""
+
+#: src/edusign_webapp/templates/reminder_email.html.jinja2:5
+#, python-format
+msgid ""
+"\n"
+"\n"
+"<p>This is to remind you that you have been invited by "
+"%(inviter_name_and_email)s\n"
+"to digitally sign a document named %(document_name)s.</p>\n"
+"\n"
+"<p><a href=\"%(invited_link)s\">You can follow this link to do "
+"so.</a></p>\n"
+"\n"
+msgstr ""
+
+#: src/edusign_webapp/templates/reminder_email.txt.jinja2:1
+#, python-format
+msgid ""
+"\n"
+"\n"
+"This is to remind you that you have been invited by "
+"%(inviter_name_and_email)s\n"
+"to digitally sign a document named %(document_name)s.\n"
+"\n"
+"You can follow this link to do so:\n"
+"\n"
+msgstr ""
+
+#: src/edusign_webapp/templates/signed_by_email.html.jinja2:5
+#, python-format
+msgid ""
+"\n"
+"\n"
+"<p>A document named %(document_name)s has been signed by %(invited_name)s"
+" <%(invited_email)s>.</p>\n"
+"\n"
+msgstr ""
+
+#: src/edusign_webapp/templates/signed_by_email.txt.jinja2:1
+#, python-format
+msgid ""
+"\n"
+"\n"
+"A document named %(document_name)s has been signed by %(invited_name)s "
+"<%(invited_email)s>.\n"
+"\n"
+msgstr ""
+
+#: src/edusign_webapp/templates/vanity-form.jinja2:5
+#: src/edusign_webapp/templates/vanity-form.jinja2:14
+msgid "Finish Signing"
+msgstr ""
+
+#: src/edusign_webapp/templates/vanity-form.jinja2:8
+msgid "Press the button below to finish the signing process"
 msgstr ""
 
