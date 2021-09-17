@@ -28,6 +28,8 @@ webpackProd.plugins = [
     },
     AVAILABLE_LANGUAGES: require("./edusign.config.js").AVAILABLE_LANGUAGES,
     LOCALIZED_MESSAGES: require("./edusign.config.js").LOCALIZED_MESSAGES,
+    DELAY_SHOW_HELP: require("./edusign.config.js").DELAY_SHOW_HELP,
+    DELAY_HIDE_HELP: require("./edusign.config.js").DELAY_HIDE_HELP,
   }),
   new webpack.optimize.AggressiveMergingPlugin(), //Merge chunks
   new webpack.optimize.OccurrenceOrderPlugin(true),
