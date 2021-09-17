@@ -17,6 +17,7 @@ const signButton = (props, doc, help) => {
   return (
     <>
       <OverlayTrigger
+        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
         trigger={["hover", "focus"]}
         overlay={<Tooltip placement="auto">{help}</Tooltip>}
       >
@@ -52,6 +53,7 @@ const skipSignatureButton = (props, doc, help) => {
   return (
     <>
       <OverlayTrigger
+        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
         trigger={["hover", "focus"]}
         overlay={<Tooltip placement="auto">{help}</Tooltip>}
       >
@@ -78,6 +80,7 @@ const resendButton = (props, doc, help) => {
   return (
     <>
       <OverlayTrigger
+        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
         trigger={["hover", "focus"]}
         overlay={<Tooltip placement="auto">{help}</Tooltip>}
       >
@@ -106,6 +109,7 @@ const previewButton = (props, doc, help) => {
   return (
     <>
       <OverlayTrigger
+        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
         trigger={["hover", "focus"]}
         overlay={<Tooltip placement="auto">{help}</Tooltip>}
       >
@@ -129,6 +133,7 @@ const removeButton = (props, doc, help) => {
   return (
     <>
       <OverlayTrigger
+        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
         trigger={["hover", "focus"]}
         overlay={<Tooltip placement="auto">{help}</Tooltip>}
       >

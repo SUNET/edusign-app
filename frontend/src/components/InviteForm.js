@@ -104,6 +104,10 @@ class InviteForm extends React.Component {
                             <div className="invitation-fields">
                               <div className="invitee-form-dismiss">
                                 <OverlayTrigger
+                                  delay={{
+                                    show: DELAY_SHOW_HELP,
+                                    hide: DELAY_HIDE_HELP,
+                                  }}
                                   trigger={["hover", "focus"]}
                                   rootClose={true}
                                   overlay={(props) => (
@@ -184,6 +188,10 @@ class InviteForm extends React.Component {
                             </div>
                           ))}
                         <OverlayTrigger
+                          delay={{
+                            show: DELAY_SHOW_HELP,
+                            hide: DELAY_HIDE_HELP,
+                          }}
                           trigger={["hover", "focus"]}
                           rootClose={true}
                           overlay={(props) => (
@@ -216,6 +224,7 @@ class InviteForm extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                   <OverlayTrigger
+                    delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                     trigger={["hover", "focus"]}
                     rootClose={true}
                     overlay={(props) => (
@@ -238,6 +247,7 @@ class InviteForm extends React.Component {
                     </Button>
                   </OverlayTrigger>
                   <OverlayTrigger
+                    delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                     trigger={["hover", "focus"]}
                     rootClose={true}
                     overlay={(props) => (

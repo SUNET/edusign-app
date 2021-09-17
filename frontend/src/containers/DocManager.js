@@ -104,7 +104,7 @@ const mapDispatchToProps = (dispatch, props) => {
     handleConfirmForcedPreview: function (name) {
       return () => {
         dispatch(confirmForcedPreview(name));
-        dispatch(saveDocument({docName: name}));
+        dispatch(saveDocument({ docName: name }));
       };
     },
     handleUnConfirmForcedPreview: function (name) {

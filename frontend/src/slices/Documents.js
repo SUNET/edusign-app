@@ -149,9 +149,11 @@ export const saveDocument = createAsyncThunk(
   "documents/saveDocument",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const doc = state.documents.documents.filter((d) => {return d.name === args.docName})[0];
+    const doc = state.documents.documents.filter((d) => {
+      return d.name === args.docName;
+    })[0];
     dbSaveDocument(doc);
-    return doc
+    return doc;
   }
 );
 

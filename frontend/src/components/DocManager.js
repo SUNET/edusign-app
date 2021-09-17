@@ -54,6 +54,8 @@ class DocManager extends React.Component {
       <>
         <div className="button-forced-preview-flex-item">
           <OverlayTrigger
+            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
             trigger={["hover", "focus"]}
             rootClose={true}
             overlay={(props) => (
@@ -86,6 +88,7 @@ class DocManager extends React.Component {
       <>
         <div className="button-preview-flex-item">
           <OverlayTrigger
+            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
             trigger={["hover", "focus"]}
             rootClose={true}
             overlay={(props) => (
@@ -115,6 +118,7 @@ class DocManager extends React.Component {
       <>
         <div className="button-retry-flex-item">
           <OverlayTrigger
+            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
             trigger={["hover", "focus"]}
             rootClose={true}
             overlay={(props) => (
@@ -144,6 +148,7 @@ class DocManager extends React.Component {
       <>
         <div className="doc-selector-flex-item">
           <OverlayTrigger
+            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
             trigger={["hover", "focus"]}
             rootClose={true}
             overlay={(props) => (
@@ -180,6 +185,7 @@ class DocManager extends React.Component {
       <>
         <div className="button-remove-flex-item">
           <OverlayTrigger
+            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
             trigger={["hover", "focus"]}
             rootClose={true}
             overlay={(props) => (
@@ -209,6 +215,7 @@ class DocManager extends React.Component {
       <>
         <div className="button-signed-flex-item">
           <OverlayTrigger
+            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
             trigger={["hover", "focus"]}
             rootClose={true}
             overlay={(props) => (
@@ -244,6 +251,7 @@ class DocManager extends React.Component {
       <>
         <div className="button-multisign-flex-item">
           <OverlayTrigger
+            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
             trigger={["hover", "focus"]}
             rootClose={true}
             overlay={(props) => (
@@ -421,6 +429,7 @@ class DocManager extends React.Component {
                   />
                 )}
                 <OverlayTrigger
+                  delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                   trigger={["hover", "focus"]}
                   rootClose={true}
                   overlay={
@@ -551,6 +560,7 @@ class DocManager extends React.Component {
                   />
                 )}
                 <OverlayTrigger
+                  delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                   trigger={["hover", "focus"]}
                   rootClose={true}
                   key={index}
@@ -681,6 +691,7 @@ class DocManager extends React.Component {
           {(showSignButton && (
             <div className="button-sign-flex-item">
               <OverlayTrigger
+                delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                 trigger={["hover", "focus"]}
                 rootClose={true}
                 overlay={(props) => (
@@ -715,6 +726,7 @@ class DocManager extends React.Component {
           {(showDlAllButton && (
             <div className="button-dlall-flex-item">
               <OverlayTrigger
+                delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                 trigger={["hover", "focus"]}
                 rootClose={true}
                 overlay={(props) => (
@@ -750,6 +762,7 @@ class DocManager extends React.Component {
           {(showClearButton && (
             <div className="button-clear-flex-item">
               <OverlayTrigger
+                delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                 trigger={["hover", "focus"]}
                 rootClose={true}
                 overlay={(props) => (

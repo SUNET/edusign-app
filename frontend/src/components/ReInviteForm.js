@@ -71,6 +71,7 @@ class ReInviteForm extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                   <OverlayTrigger
+                    delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                     trigger={["hover", "focus"]}
                     rootClose={true}
                     overlay={(props) => (
@@ -96,6 +97,7 @@ class ReInviteForm extends React.Component {
                     </Button>
                   </OverlayTrigger>
                   <OverlayTrigger
+                    delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                     trigger={["hover", "focus"]}
                     rootClose={true}
                     overlay={(props) => (

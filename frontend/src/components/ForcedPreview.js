@@ -121,6 +121,7 @@ function ForcedPreview(props) {
             </Button>
           </div>
           <OverlayTrigger
+            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
             trigger={["hover", "focus"]}
             rootClose={true}
             overlay={(props) => (
@@ -137,20 +138,24 @@ function ForcedPreview(props) {
               onClick={props.handleUnConfirm(props.doc.name)}
               data-testid={"preview-button-dissaprove-" + props.index}
             >
-              <FormattedMessage defaultMessage="Reject" key="button-dissaprove" />
+              <FormattedMessage
+                defaultMessage="Reject"
+                key="button-dissaprove"
+              />
             </Button>
           </OverlayTrigger>
           <OverlayTrigger
+            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
             trigger={["hover", "focus"]}
             rootClose={true}
             overlay={(props) => (
               <Tooltip id="tooltip-confirm-doc" {...props}>
-                {readyToConfirm && (
+                {(readyToConfirm && (
                   <FormattedMessage
                     defaultMessage="Click here to approve the document for signing"
                     key="confirm-doc-tootip"
                   />
-                ) || (
+                )) || (
                   <FormattedMessage
                     defaultMessage="Once you have scrolled to the end of the document you will be able to approve the document for signing"
                     key="disabled-confirm-doc-tootip"
@@ -163,11 +168,14 @@ function ForcedPreview(props) {
               <Button
                 disabled={!readyToConfirm}
                 onClick={props.handleConfirm(props.doc.name)}
-                style={!readyToConfirm && { pointerEvents: 'none' } || {}}
+                style={(!readyToConfirm && { pointerEvents: "none" }) || {}}
                 variant="outline-secondary"
                 data-testid={"preview-button-confirm-" + props.index}
               >
-                <FormattedMessage defaultMessage="Approve" key="button-confirm" />
+                <FormattedMessage
+                  defaultMessage="Approve"
+                  key="button-confirm"
+                />
               </Button>
             </span>
           </OverlayTrigger>
