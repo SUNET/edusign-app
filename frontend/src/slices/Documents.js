@@ -91,7 +91,7 @@ export const loadDocuments = createAsyncThunk(
 /**
  * @public
  * @function validateDoc
- * @desc Redux async action to validate PDF documents
+ * @desc async function to validate PDF documents
  */
 async function validateDoc(doc, intl, state) {
   state.documents.documents.forEach((document) => {
@@ -142,8 +142,23 @@ async function validateDoc(doc, intl, state) {
 
 /**
  * @public
+ * @function saveDocument
+ * @desc Redux async thunk to save an existing document to IndexedDB
+ */
+export const saveDocument = createAsyncThunk(
+  "documents/saveDocument",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const doc = state.documents.documents.filter((d) => {return d.name === args.docName})[0];
+    dbSaveDocument(doc);
+    return doc
+  }
+);
+
+/**
+ * @public
  * @function saveDocumentToDb
- * @desc Redux async thunk to add a new document to IndexedDB
+ * @desc async function to add a new document to IndexedDB
  */
 const saveDocumentToDb = async (document) => {
   const db = await getDb();
@@ -736,7 +751,7 @@ export const signInvitedDoc = createAsyncThunk(
         show: false,
       };
       doc.blob = "data:application/pdf;base64," + doc.blob;
-      saveDocumentToDb(doc);
+      await saveDocumentToDb(doc);
       delete data.payload.documents;
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
@@ -801,9 +816,9 @@ export const skipOwnedSignature = createAsyncThunk(
         state: "signed",
         show: false,
       };
-      saveDocumentToDb(doc);
+      const newDoc = await saveDocumentToDb(doc);
       thunkAPI.dispatch(removeOwned({ key: key }));
-      return doc;
+      return newDoc;
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({

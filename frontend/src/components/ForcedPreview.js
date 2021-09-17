@@ -159,7 +159,7 @@ function ForcedPreview(props) {
               </Tooltip>
             )}
           >
-            <span class="d-inline-block">
+            <span className="d-inline-block">
               <Button
                 disabled={!readyToConfirm}
                 onClick={props.handleConfirm(props.doc.name)}

@@ -25,6 +25,7 @@ import {
   removeAllDocuments,
   downloadSigned,
   downloadAllSigned,
+  saveDocument,
 } from "slices/Documents";
 import { showForm } from "slices/Modals";
 import { clearDocStore } from "init-app/database";
@@ -103,6 +104,7 @@ const mapDispatchToProps = (dispatch, props) => {
     handleConfirmForcedPreview: function (name) {
       return () => {
         dispatch(confirmForcedPreview(name));
+        dispatch(saveDocument({docName: name}));
       };
     },
     handleUnConfirmForcedPreview: function (name) {
