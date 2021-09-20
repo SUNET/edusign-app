@@ -72,9 +72,9 @@ header {
         </div>
       </header>
       <section id="body">
-        <h1>{% trans %}eduSign - Secure digital signature{% endtrans %}</h1>
+          <h1>{{ gettext("eduSign - Secure digital signature") }}</h1>
         <div id="login"></div>
-        {{ body }}
+        {{ body | markdown }}
       </section>
       <footer id="footer">
       </footer>

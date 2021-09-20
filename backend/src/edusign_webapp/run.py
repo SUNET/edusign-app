@@ -38,6 +38,7 @@ from flask_babel import Babel
 from flask_cors import CORS
 from flask_mail import Mail
 from werkzeug.wrappers import Response
+from flask_misaka import Misaka
 
 from edusign_webapp.api_client import APIClient
 from edusign_webapp.doc_store import DocStore
@@ -56,12 +57,6 @@ class EduSignApp(Flask):
 
         if not self.testing:
             self.url_map.host_matching = False
-
-        from edusign_webapp.views import anon_edusign_views
-        from edusign_webapp.views import edusign_views
-
-        self.register_blueprint(anon_edusign_views)
-        self.register_blueprint(edusign_views)
 
     def is_whitelisted(self, address: str) -> bool:
         """
@@ -84,6 +79,7 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
     app = EduSignApp(name)
 
     CORS(app)
+    Misaka(app)
 
     app.config.from_object('edusign_webapp.config')
     if config is not None:
@@ -96,6 +92,12 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
     app.doc_store = DocStore(app)
 
     app.mailer = Mail(app)
+
+    from edusign_webapp.views import anon_edusign_views
+    from edusign_webapp.views import edusign_views
+
+    app.register_blueprint(anon_edusign_views)
+    app.register_blueprint(edusign_views)
 
     to_tear_down = app.config['TO_TEAR_DOWN_WITH_APP_CONTEXT']
     for func_path in to_tear_down:

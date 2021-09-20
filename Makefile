@@ -147,19 +147,26 @@ back-init:
 		./venv/bin/pip install -r test_requirements.txt; \
 		./venv/bin/python setup.py develop
 
+## Extract initial translatable messages from the backend sources
+.PHONY: back-init-msgs
+back-init-msgs:
+	@cd $(BACK_DIR); \
+    ./venv/bin/pybabel extract -F src/edusign_webapp/babel.cfg -o src/edusign_webapp/messages.pot ./src/ ; \
+	./venv/bin/pybabel init -i src/edusign_webapp/messages.pot -d src/edusign_webapp/translations -l en ; \
+	./venv/bin/pybabel init -i src/edusign_webapp/messages.pot -d src/edusign_webapp/translations -l sv
+
 ## Extract translatable messages from the backend sources
 .PHONY: back-extract-msgs
 back-extract-msgs:
 	@cd $(BACK_DIR); \
-    ./venv/bin/pybabel extract -F babel.cfg -o messages.pot ./src/ ; \
-	./venv/bin/pybabel init -i messages.pot -d translations -l en ; \
-	./venv/bin/pybabel init -i messages.pot -d translations -l sv
+    ./venv/bin/pybabel extract -F src/edusign_webapp/babel.cfg -o src/edusign_webapp/messages.pot ./src/ ; \
+	./venv/bin/pybabel update -i src/edusign_webapp/messages.pot -d src/edusign_webapp/translations
 
 ## Compile translatable messages
 .PHONY: back-compile-msgs
 back-compile-msgs:
 	@cd $(BACK_DIR); \
-	./venv/bin/pybabel compile -d translations
+	./venv/bin/pybabel compile -f -d src/edusign_webapp/translations
 
 ## Reformat Python sources
 .PHONY: back-reformat

@@ -1,5 +1,5 @@
 setuptools>=50.3.2
-Flask>=1.1,<1.2
+Flask>=2.0.1
 marshmallow>=3.9.1
 Flask-Babel==2.0.0
 requests>=2.25.0
@@ -8,3 +8,4 @@ boto3==1.17.34
 flask-redis==0.4.0
 fakeredis==1.5.0
 flask-cors==3.0.10
+flask-misaka==1.0.0

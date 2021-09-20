@@ -32,11 +32,12 @@
 #
 import asyncio
 import json
+import os
 import uuid
 from typing import Union
 
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
-from flask_babel import gettext
+from flask_babel import gettext, get_locale
 from flask_mail import Message
 from werkzeug.wrappers import Response
 
@@ -65,10 +66,20 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 @anon_edusign_views.route('/', methods=['GET'])
 def get_home() -> str:
 
+    md_name = "home-{get_locale()}.md"
+    md_etc = os.path.join('/etc/edusign/', md_name)
+    if os.path.exists(md_etc):
+        md_file = md_etc
+    else:
+        md_file = os.path.join(current_app.config['HERE'], 'md', md_name)
+
+    with open(md_file) as f:
+        body = f.read()
+
     base_url = f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}"
 
     context = {
-        'body': 'XXX temporary test content XXX',
+        'body': body,
         'login_initiator': f'{base_url}/Shibboleth.sso/Login?target=/sign',
     }
 

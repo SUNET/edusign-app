@@ -34,6 +34,8 @@
 import datetime
 import os
 
+HERE = os.path.dirname(__file__)
+
 DEBUG = os.environ.get('DEBUG', default=False)
 if isinstance(DEBUG, str):
     if DEBUG in ('t', 'true', 'True'):
@@ -57,9 +59,9 @@ PREFERRED_URL_SCHEME = 'https'
 HASH_METHOD = 'sha256'
 SALT_LENGTH = 8
 
-BABEL_DEFAULT_LOCALE = 'en'
+BABEL_DEFAULT_LOCALE = 'sv'
 BABEL_DEFAULT_TIMEZONE = 'UTC'
-BABEL_TRANSLATION_DIRECTORIES = 'translations'
+BABEL_TRANSLATION_DIRECTORIES = os.path.join(HERE, 'translations')
 BABEL_DOMAIN = 'messages'
 SUPPORTED_LANGUAGES = {'en': 'English', 'sv': 'Svenska'}
 
