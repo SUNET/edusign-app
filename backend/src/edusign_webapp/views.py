@@ -66,7 +66,7 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 @anon_edusign_views.route('/', methods=['GET'])
 def get_home() -> str:
 
-    md_name = "home-{get_locale()}.md"
+    md_name = f"home-{get_locale()}.md"
     md_etc = os.path.join('/etc/edusign/', md_name)
     if os.path.exists(md_etc):
         md_file = md_etc
