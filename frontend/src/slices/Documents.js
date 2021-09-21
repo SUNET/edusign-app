@@ -7,7 +7,7 @@
  * in whatever stage of the signing procedure they may be.
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import * as pdfjs from "pdfjs-dist";
+import { pdfjs } from "react-pdf/dist/esm/entry.webpack";
 import * as FileSaver from "file-saver";
 import JSZip from "jszip";
 

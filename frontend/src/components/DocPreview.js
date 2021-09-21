@@ -3,9 +3,10 @@ import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import { Document, Page } from "react-pdf";
+import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
 
 import "styles/DocPreview.scss";
+import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 
 /**
  * @desc To show a modal dialog with a paginated view of a PDF, using PDF.js.
@@ -58,10 +59,15 @@ function DocPreview(props) {
             onPassword={(c) => {
               throw new Error("Never password");
             }}
+            options={{
+              cMapUrl: '/js/cmaps/',
+              cMapPacked: true,
+              enableXfa: true,
+            }}
           >
             {(props.width < 550 && (
-              <Page pageNumber={pageNumber} width={props.width - 20} />
-            )) || <Page pageNumber={pageNumber} />}
+              <Page pageNumber={pageNumber} width={props.width - 20} renderInteractiveForms={true} renderAnnotationLayer={true} />
+            )) || <Page pageNumber={pageNumber} renderInteractiveForms={true} renderAnnotationLayer={true} />}
           </Document>
         </Modal.Body>
 

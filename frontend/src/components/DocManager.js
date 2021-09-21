@@ -14,7 +14,7 @@ import ForcedPreviewContainer from "containers/ForcedPreview";
 import InviteFormContainer from "containers/InviteForm";
 import OwnedContainer from "containers/Owned";
 import InvitedContainer from "containers/Invited";
-import { humanFileSize, docToFile } from "components/utils";
+import { humanFileSize, preparePDF } from "components/utils";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 
 import "styles/DocManager.scss";
@@ -389,7 +389,7 @@ class DocManager extends React.Component {
           if (doc.state === "signed") {
             showDlAllButton = true;
           }
-          const docFile = docToFile(doc);
+          const docFile = preparePDF(doc);
           if (docFile === null) {
             doc = {
               ...doc,

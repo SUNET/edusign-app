@@ -34,6 +34,39 @@ export const b64toBlob = (
   return blob;
 };
 
+/**
+ * @public
+ * @function preparePDF
+ * @desc Prepare PDF data for react-pdf's Document
+ *
+ */
+export const preparePDF = (
+  doc,
+) => {
+  return docToFile(doc);
+};
+export const preparePDF1 = (
+  doc,
+) => {
+  return {url: doc.blob};
+};
+export const preparePDF2 = (
+  doc,
+) => {
+  const byteCharacters = atob(doc.blob.split(",")[1]);
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+
+  return {data: new Uint8Array(byteNumbers)};
+};
+export const preparePDF3 = (
+  doc,
+) => {
+  return {data: atob(doc.blob.split(",")[1])};
+};
+
 //
 /**
  * @public

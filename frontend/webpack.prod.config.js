@@ -4,6 +4,7 @@ const webpackConfig = require("./webpack.config");
 const CompressionPlugin = require("compression-webpack-plugin");
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const TerserPlugin = require('terser-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 var webpackProd = {
   entry: webpackConfig.entry,
@@ -36,7 +37,18 @@ webpackProd.plugins = [
   new CompressionPlugin({
     minRatio: 0.8,
   }),
-  // new BundleAnalyzerPlugin()
+  // new BundleAnalyzerPlugin(),
+  new CopyWebpackPlugin({
+    patterns: [
+      {
+        from: 'node_modules/pdfjs-dist/cmaps/',
+        to: 'cmaps/'
+      },
+      {
+        from: 'node_modules/pdfjs-dist/build/',
+      },
+    ]
+  }),
 ];
 
 webpackProd.mode = 'production';

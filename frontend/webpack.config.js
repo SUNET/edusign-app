@@ -3,7 +3,7 @@ const path = require("path");
 const precss = require("precss");
 const webpack = require("webpack");
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const CompressionPlugin = require('compression-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   mode: "development",
@@ -86,6 +86,17 @@ module.exports = {
           return [autoprefixer, precss];
         }
       }
-    })
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'node_modules/pdfjs-dist/cmaps/',
+          to: 'cmaps/'
+        },
+        {
+          from: 'node_modules/pdfjs-dist/build/',
+        },
+      ]
+    }),
   ]
 };
