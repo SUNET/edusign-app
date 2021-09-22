@@ -33,12 +33,12 @@ import pprint
 from importlib import import_module
 from typing import Callable, Optional
 
-from flask import Flask, request, current_app
+from flask import Flask, current_app, request
 from flask_babel import Babel
 from flask_cors import CORS
 from flask_mail import Mail
-from werkzeug.wrappers import Response
 from flask_misaka import Misaka
+from werkzeug.wrappers import Response
 
 from edusign_webapp.api_client import APIClient
 from edusign_webapp.doc_store import DocStore
@@ -93,8 +93,7 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
     app.mailer = Mail(app)
 
-    from edusign_webapp.views import anon_edusign_views
-    from edusign_webapp.views import edusign_views
+    from edusign_webapp.views import anon_edusign_views, edusign_views
 
     app.register_blueprint(anon_edusign_views)
     app.register_blueprint(edusign_views)

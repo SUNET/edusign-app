@@ -77,4 +77,7 @@ def prepare_document(document: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem preparing document: {e}')
-        return {'error': True, 'message': gettext('There was an error. Please try again, or contact the site administrator.')}
+        return {
+            'error': True,
+            'message': gettext('There was an error. Please try again, or contact the site administrator.'),
+        }

@@ -37,7 +37,7 @@ import uuid
 from typing import Union
 
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
-from flask_babel import gettext, get_locale
+from flask_babel import get_locale, gettext
 from flask_mail import Message
 from werkzeug.wrappers import Response
 
@@ -209,7 +209,10 @@ def create_sign_request(documents: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
-        return {'error': True, 'message': gettext('There was an error. Please try again, or contact the site administrator.')}
+        return {
+            'error': True,
+            'message': gettext('There was an error. Please try again, or contact the site administrator.'),
+        }
 
     try:
         sign_data = {
@@ -282,7 +285,10 @@ def recreate_sign_request(documents: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
-        return {'error': True, 'message': gettext('There was an error. Please try again, or contact the site administrator.')}
+        return {
+            'error': True,
+            'message': gettext('There was an error. Please try again, or contact the site administrator.'),
+        }
 
     try:
         sign_data = {
@@ -353,7 +359,10 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem processing sign request: {e}')
-        return {'error': True, 'message': gettext('There was an error. Please try again, or contact the site administrator.')}
+        return {
+            'error': True,
+            'message': gettext('There was an error. Please try again, or contact the site administrator.'),
+        }
 
     if 'errorCode' in process_data:
         current_app.logger.error(f"Problem processing sign request, error code received: {process_data}")
@@ -506,7 +515,9 @@ def create_invited_signature(invite_key: str) -> str:
         data = current_app.doc_store.get_invitation(uuid.UUID(invite_key))
     except current_app.doc_store.DocumentLocked:
         context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext("Someone else is signing the document right now, please try again in a few minutes")
+        context['message'] = gettext(
+            "Someone else is signing the document right now, please try again in a few minutes"
+        )
         return render_template('error-generic.jinja2', **context)
 
     current_app.logger.info(f"Invitation data: {data}")
@@ -533,7 +544,10 @@ def create_invited_signature(invite_key: str) -> str:
     if 'error' in doc_data and doc_data['error']:
         current_app.doc_store.unlock_document(key, user['email'])
         context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext("Problem preparing document for multi sign by user %s: %s") % (session['eppn'], doc['name'])
+        context['message'] = gettext("Problem preparing document for multi sign by user %s: %s") % (
+            session['eppn'],
+            doc['name'],
+        )
         return render_template('error-generic.jinja2', **context)
 
     current_app.logger.info(f"Prepared {doc['name']} for multisigning by user {session['eppn']}")
@@ -750,5 +764,6 @@ def skip_final_signature(data: dict) -> dict:
         current_app.logger.warning(f'Problem removing doc skipping final signature: {e}')
 
     return {
-        'message': 'Success', 'payload': {'documents': [{'id': doc['key'], 'signed_content': doc['blob']}]},
+        'message': 'Success',
+        'payload': {'documents': [{'id': doc['key'], 'signed_content': doc['blob']}]},
     }

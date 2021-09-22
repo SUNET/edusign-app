@@ -8,7 +8,7 @@ import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 
 import "styles/DocPreview.scss";
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
+import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 
 /**
  * @desc To show a modal dialog with a paginated view of a PDF, using PDF.js.
@@ -69,14 +69,25 @@ function ForcedPreview(props) {
               throw new Error("Never password");
             }}
             options={{
-              cMapUrl: '/js/cmaps/',
+              cMapUrl: "/js/cmaps/",
               cMapPacked: true,
               enableXfa: true,
             }}
           >
             {(props.width < 550 && (
-              <Page pageNumber={pageNumber} width={props.width - 20} renderInteractiveForms={true} renderAnnotationLayer={true} />
-            )) || <Page pageNumber={pageNumber} renderInteractiveForms={true} renderAnnotationLayer={true} />}
+              <Page
+                pageNumber={pageNumber}
+                width={props.width - 20}
+                renderInteractiveForms={true}
+                renderAnnotationLayer={true}
+              />
+            )) || (
+              <Page
+                pageNumber={pageNumber}
+                renderInteractiveForms={true}
+                renderAnnotationLayer={true}
+              />
+            )}
           </Document>
         </Modal.Body>
 
