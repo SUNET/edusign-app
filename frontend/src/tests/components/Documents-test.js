@@ -470,7 +470,7 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     let filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
 
-    let buttonPreview = screen.queryByTestId("button-preview-0");
+    let buttonPreview = screen.queryByTestId("button-forced-preview-0");
     expect(buttonPreview).to.equal(null);
 
     let buttonRemove = screen.queryByTestId("rm-button-test.pdf");
@@ -492,7 +492,7 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -504,17 +504,12 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     expect(filename.length).to.equal(1);
 
     buttonPreview = await waitFor(() =>
-      screen.getAllByTestId("button-preview-0")
+      screen.getAllByTestId("button-forced-preview-0")
     );
     expect(buttonPreview.length).to.equal(1);
 
     buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
     expect(buttonRemove.length).to.equal(1);
-
-    const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-0")
-    );
-    expect(selector.length).to.equal(1);
   } catch (err) {
     unmount();
     throw err;
@@ -554,7 +549,7 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument = asy
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -606,7 +601,7 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
       message: "dummy error in add-doc",
       error: true,
     });
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -657,7 +652,7 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -705,7 +700,7 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -771,14 +766,14 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
       })
     );
     await flushPromises(rerender, wrapped);
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file2,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -788,6 +783,27 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
 
     let pdf = await waitFor(() => screen.queryByText(/Sample PDF for testing/));
     expect(pdf).to.equal(null);
+
+    const forcedButton = await waitFor(() =>
+      screen.getAllByTestId("button-forced-preview-0")
+    );
+    expect(forcedButton.length).to.equal(1);
+
+    fireEvent.click(forcedButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const lastFButton = await waitFor(() =>
+      screen.getAllByTestId("preview-button-last-0")
+    );
+    expect(lastFButton.length).to.equal(1);
+
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("preview-button-confirm-0")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
+    await flushPromises(rerender, wrapped);
 
     const previewButton = await waitFor(() =>
       screen.getAllByTestId("button-preview-0")
@@ -857,7 +873,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -950,14 +966,14 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
         sign_requirement: "dummy sign requirement",
       },
     });
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
       })
     );
     await flushPromises(rerender, wrapped);
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file2,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1045,7 +1061,7 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
         }
       );
 
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1116,7 +1132,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
         }
       );
 
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1190,7 +1206,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
         },
       });
 
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1259,7 +1275,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
         error: true,
       });
 
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1343,7 +1359,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
         },
       });
 
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1371,7 +1387,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     const body = window.document.getElementsByTagName("body")[0];
     body.appendChild(signHolder);
 
-    store.dispatch(
+    await store.dispatch(
       loadDocuments({
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
       })
@@ -1428,7 +1444,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
         error: true,
       });
 
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1456,7 +1472,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     const body = window.document.getElementsByTagName("body")[0];
     body.appendChild(signHolder);
 
-    store.dispatch(
+    await store.dispatch(
       loadDocuments({
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
       })
@@ -1539,7 +1555,7 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
         },
       });
 
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1547,7 +1563,7 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
     );
     await flushPromises(rerender, wrapped);
 
-    store.dispatch(
+    await store.dispatch(
       createDocument({
         doc: file2,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1575,7 +1591,7 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
     const body = window.document.getElementsByTagName("body")[0];
     body.appendChild(signHolder);
 
-    store.dispatch(
+    await store.dispatch(
       loadDocuments({
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
       })

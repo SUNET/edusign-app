@@ -10,7 +10,7 @@ import {
   samplePDFData,
 } from "tests/test-utils";
 import Main from "components/Main";
-import { createDocument, loadDocuments } from "slices/Documents";
+import { createDocument } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
 import { resetDb } from "init-app/database";
 
@@ -62,7 +62,7 @@ describe("Multi sign invitations", function () {
           sign_requirement: "dummy sign requirement",
         },
       });
-      store.dispatch(
+      await store.dispatch(
         createDocument({
           doc: file,
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -128,7 +128,7 @@ describe("Multi sign invitations", function () {
           sign_requirement: "dummy sign requirement",
         },
       });
-      store.dispatch(
+      await store.dispatch(
         createDocument({
           doc: file,
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -223,7 +223,7 @@ describe("Multi sign invitations", function () {
         type: fileObj.type,
         blob: "data:application/pdf;base64," + b64SamplePDFData,
       };
-      store.dispatch(
+      await store.dispatch(
         createDocument({
           doc: file,
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },

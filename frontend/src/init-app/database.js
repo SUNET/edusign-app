@@ -151,19 +151,24 @@ const getDocStore = () => {
  * @desc Save or remove some document from the db.
  *
  */
-const documentDo = (action, document) => {
-  const docStore = getDocStore();
-  if (docStore !== null) {
-    let docRequest = null;
-    if (action === "saving") {
-      docRequest = docStore.put(document);
-    } else if (action === "removing") {
-      docRequest = docStore.delete(document.id);
-    }
-    docRequest.onerror = (event) => {};
-  } else {
+const documentDo = async (action, doc) => {
+  if (db !== null) {
+    const transaction = db.transaction(["documents"], "readwrite");
+    const docStore = transaction.objectStore("documents");
+
+    await new Promise((resolve, reject) => {
+      let docRequest = null;
+      if (action === "saving") {
+        docRequest = docStore.put(doc);
+      } else if (action === "removing") {
+        docRequest = docStore.delete(doc.id);
+      }
+      transaction.oncomplete = () => {resolve()}
+      docRequest.onerror = () => {reject(docRequest.error);}
+    });
   }
-};
+}
+
 
 /**
  * @public
@@ -171,8 +176,8 @@ const documentDo = (action, document) => {
  * @desc Save document to the IndexedDB db.
  *
  */
-export const dbSaveDocument = (document) => {
-  documentDo("saving", document);
+export const dbSaveDocument = async (doc) => {
+  await documentDo("saving", doc);
 };
 
 /**
@@ -181,8 +186,8 @@ export const dbSaveDocument = (document) => {
  * @desc Remove document from the IndexedDB db.
  *
  */
-export const dbRemoveDocument = (document) => {
-  documentDo("removing", document);
+export const dbRemoveDocument = async (doc) => {
+  await documentDo("removing", doc);
 };
 
 /**

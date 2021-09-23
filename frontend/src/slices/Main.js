@@ -46,7 +46,7 @@ export const fetchConfig = createAsyncThunk(
         );
         return thunkAPI.rejectWithValue(configData.message);
       } else {
-        thunkAPI.dispatch(loadDocuments({ intl: intl, eppn: configData.payload.signer_attributes.eppn }));
+        await thunkAPI.dispatch(loadDocuments({ intl: intl, eppn: configData.payload.signer_attributes.eppn }));
         return configData;
       }
     } catch (err) {
