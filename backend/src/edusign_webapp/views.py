@@ -100,6 +100,10 @@ def get_index() -> str:
 
     :return: the rendered `index.jinja2` template as a string
     """
+    context = {
+        'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}",
+        'back_button_text': gettext("Back"),
+    }
     try:
         add_attributes_to_session()
     except KeyError:
@@ -108,7 +112,9 @@ def get_index() -> str:
         )
         abort(500)
     except ValueError:
-        abort(400)
+        context['title'] = gettext("Permission Denied")
+        context['message'] = gettext('The organization/identity provider you are affiliated with does not have permission to use this service. Please contact your IT-department to obtain the necessary permissions.')
+        return render_template('error-generic.jinja2', **context)
 
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
 
