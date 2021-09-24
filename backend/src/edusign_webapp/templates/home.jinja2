@@ -11,6 +11,7 @@ body {
   height: 100%;
   font-family: Helvetica, sans-serif;
   color: #455;
+  line-height: 1.5rem;
 }
 #container {
   display: flex;
@@ -48,9 +49,14 @@ header {
   width: 40px;
   height: auto;
 }
-#title {
-  font-size: 2.5rem;
+#main-title {
+  text-align: center;
+  font-size: 2.0rem;
   margin-bottom: 30px;
+  line-height: 2.5rem;
+}
+#login {
+  text-align: center;
 }
 @media screen and (min-width: 901px) {
   #root {
@@ -108,7 +114,7 @@ header {
           </div>
         </header>
         <section id="body">
-            <h1>{{ gettext("eduSign - Secure digital signature") }}</h1>
+          <h1 id="main-title">{{ gettext("eduSign - Secure digital signature") }}</h1>
           <div id="login"></div>
           <div id="md-content">
             {{ body | markdown }}
