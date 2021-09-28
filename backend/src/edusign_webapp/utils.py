@@ -51,6 +51,11 @@ def add_attributes_to_session(check_whitelisted=True):
         pre_session: Dict[str, Any] = {}
 
         attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SESSION_ATTRIBUTES'].values()]
+        more_attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
+        for attr in more_attrs:
+            if attr not in attrs:
+                attrs.append(attr)
+
         for attr_in_session, attr_in_header in attrs:
             current_app.logger.debug(
                 f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
