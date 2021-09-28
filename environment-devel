@@ -17,6 +17,7 @@ DEBUG=true
 ENVIRONMENT=development
 
 SERVER_NAME=sp.edusign.docker
+SESSION_COOKIE_NAME=session_test
 
 SHIB_SP_ENTITY_ID=https://sp.edusign.docker/shibboleth
 SHIB_IDP_ENTITY_ID=https://idptestbed/idp/shibboleth
