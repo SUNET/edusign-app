@@ -65,7 +65,7 @@ export const loadDocuments = createAsyncThunk(
         } else {
           documents = documents.map((doc) => {
             if (doc.state === "signing") {
-              return {
+              const failedDoc = {
                 ...doc,
                 state: "failed-signing",
                 message: args.intl.formatMessage({
@@ -73,6 +73,8 @@ export const loadDocuments = createAsyncThunk(
                   id: "load-doc-problem-signing",
                 }),
               };
+              dbSaveDocument(failedDoc);
+              return failedDoc;
             } else return doc;
           });
         }
