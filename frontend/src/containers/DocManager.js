@@ -55,7 +55,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(showPreview(name));
       };
     },
-    handleRemove: async function (name) {
+    handleRemove: function (name) {
       return async () => {
         await dispatch(removeDocument({docName: name}));
       };
