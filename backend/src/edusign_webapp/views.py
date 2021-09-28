@@ -106,11 +106,13 @@ def get_index() -> str:
     }
     try:
         add_attributes_to_session()
-    except KeyError:
+    except KeyError as e:
         current_app.logger.error(
-            'There is some misconfiguration and Shibboleth SP does not seem to be securing the edusign app.'
+            f'There is some misconfiguration and the IdP does not seem to provide the correct attributes: {e}.'
         )
-        abort(500)
+        context['title'] = gettext("Missing information")
+        context['message'] = gettext('Your organization did not provide the correct information during login. Please contact your IT-support for assistance.')
+        return render_template('error-generic.jinja2', **context)
     except ValueError:
         context['title'] = gettext("Permission Denied")
         context['message'] = gettext('The organization/identity provider you are affiliated with does not have permission to use this service. Please contact your IT-department to obtain the necessary permissions.')
