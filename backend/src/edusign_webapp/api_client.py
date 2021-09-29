@@ -116,7 +116,7 @@ class APIClient(object):
         if self.config['ENVIRONMENT'] == 'development':
             idp = self.config['DEBUG_IDP']
 
-        if session['organizationName'] is not None:
+        if session.get('organizationName', None) is not None:
             idp = session['organizationName']
 
         attrs = [{'name': attr} for attr in self.config['SIGNER_ATTRIBUTES'].keys()]
