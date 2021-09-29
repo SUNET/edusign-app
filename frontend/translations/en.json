@@ -16,7 +16,7 @@
   "components.DocManager.dlall-selected-button": "Download All Signed",
   "components.DocManager.forced-preview-button": "Approve document for signature",
   "components.DocManager.forced-preview-button-tootip": "You need to approve all documents for signature",
-  "components.DocManager.multisign-button": "Invite signers",
+  "components.DocManager.multisign-button": "Ask for signature",
   "components.DocManager.preview-button": "Preview",
   "components.DocManager.preview-button-tootip": "Display a preview of the unsigned document",
   "components.DocManager.remove-button": "Remove",

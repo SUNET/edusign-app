@@ -16,7 +16,7 @@
   "components.DocManager.dlall-selected-button": "Ladda Ner Alla Signerade",
   "components.DocManager.forced-preview-button": "Godkänn signering av dokument",
   "components.DocManager.forced-preview-button-tootip": "Alla dokument måste godkännas för signering",
-  "components.DocManager.multisign-button": "",
+  "components.DocManager.multisign-button": "Be om underskrift",
   "components.DocManager.preview-button": "Förhandsvisa",
   "components.DocManager.preview-button-tootip": "Visa en förhandsvisning av det osignerade dokumentet",
   "components.DocManager.remove-button": "Ta bort",

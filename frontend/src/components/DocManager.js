@@ -271,7 +271,7 @@ class DocManager extends React.Component {
               data-docid={doc.id}
             >
               <FormattedMessage
-                defaultMessage="Invite signers"
+                defaultMessage="Ask for signature"
                 key="multisign-button"
               />
             </Button>
