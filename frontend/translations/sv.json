@@ -32,6 +32,7 @@
   "components.ForcedPreview.disabled-confirm-doc-tootip": "Scrolla till slutet av dokumentet så kan du godkänna dokumentet för signering",
   "components.ForcedPreview.dissaprove-doc-tootip": "Klicka här för att ta bort ett dokument",
   "components.Header.header-unauthz-for-site": "Du verkar inte ha behörighet att använda denna webbplats för tillfället",
+  "components.Header.logout-button": "Logga ut",
   "components.Header.signing-with": "Inloggad som  {name} ({eppn})",
   "components.InviteForm.add-invitation-tootip": "",
   "components.InviteForm.add-invite": "",

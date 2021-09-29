@@ -26,4 +26,12 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps)(Header);
+const mapDispatchToProps = (dispatch, props) => {
+  return {
+    handleLogout: function () {
+      document.location = 'logout';
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header);

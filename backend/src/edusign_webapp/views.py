@@ -90,6 +90,12 @@ def get_home() -> str:
         abort(500)
 
 
+@edusign_views.route('/logout', methods=['GET'])
+def logout() -> Response:
+    session.clear()
+    return redirect(url_for('edusign_anon.get_home'))
+
+
 @edusign_views.route('/', methods=['GET'])
 def get_index() -> str:
     """

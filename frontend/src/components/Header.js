@@ -17,8 +17,7 @@ class Header extends Component {
     if (!this.props.loading) {
       name = (
         <div id="name-and-clear-in-header">
-          {(this.props.signer_attributes !== undefined &&
-            this.props.signer_attributes !== undefined && (
+          {(this.props.signer_attributes !== undefined && (
               <>
                 <span id="name-in-header">
                   <span id="signing-with-span">
@@ -27,6 +26,14 @@ class Header extends Component {
                       key="signing-with"
                       values={{ ...this.props.signer_attributes }}
                     />
+                  </span>
+                  <span id="logout-button-container">
+                    <a id="logout-link" onClick={this.props.handleLogout}>
+                      <FormattedMessage
+                        defaultMessage="Logout"
+                        key="logout-button"
+                      />
+                    </a>
                   </span>
                 </span>
               </>
