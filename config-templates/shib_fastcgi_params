@@ -84,3 +84,6 @@ fastcgi_param Email $shib_email;
 
 shib_request_set $shib_organizationname $upstream_http_variable_organizationname;
 fastcgi_param OrganizationName $shib_organizationname;
+
+shib_request_set $shib_o $upstream_http_variable_o;
+fastcgi_param O $shib_o;
