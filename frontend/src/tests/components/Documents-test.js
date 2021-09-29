@@ -798,6 +798,9 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     );
     expect(lastFButton.length).to.equal(1);
 
+    fireEvent.click(lastFButton[0]);
+    await flushPromises(rerender, wrapped);
+
     const confirmButton = await waitFor(() =>
       screen.getAllByTestId("preview-button-confirm-0")
     );
@@ -887,6 +890,30 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
 
     let pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
     expect(pdf2).to.equal(null);
+
+    const forcedButton = await waitFor(() =>
+      screen.getAllByTestId("button-forced-preview-0")
+    );
+    expect(forcedButton.length).to.equal(1);
+
+    fireEvent.click(forcedButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const lastFButton = await waitFor(() =>
+      screen.getAllByTestId("preview-button-last-0")
+    );
+    expect(lastFButton.length).to.equal(1);
+
+    fireEvent.click(lastFButton[0]);
+    await flushPromises(rerender, wrapped);
+
+    const confirmButton = await waitFor(() =>
+      screen.getAllByTestId("preview-button-confirm-0")
+    );
+    expect(confirmButton.length).to.equal(1);
+
+    fireEvent.click(confirmButton[0]);
+    await flushPromises(rerender, wrapped);
 
     const previewButton = await waitFor(() =>
       screen.getAllByTestId("button-preview-0")
