@@ -68,7 +68,7 @@ def add_attributes_to_session(check_whitelisted=True):
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
         session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
 
-        org = request.headers.get('Organizationname', None)
+        org = request.headers.get('O', request.headers.get('Organizationname', None))
         if org is not None:
             session['organizationName'] = ET.fromstring(b64decode(org)).text
         else:

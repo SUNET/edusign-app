@@ -90,6 +90,13 @@
         <AttributeDecoder xsi:type="XMLAttributeDecoder"/>
     </Attribute>
 
+    <Attribute name="urn:oid:2.5.4.10" id="o">
+        <AttributeDecoder xsi:type="XMLAttributeDecoder"/>
+    </Attribute>
+    <Attribute name="urn:mace:dir:attribute-def:o" id="o">
+        <AttributeDecoder xsi:type="XMLAttributeDecoder"/>
+    </Attribute>
+
     <!--Examples of common attributes, uncomment to use these.
     <Attribute name="urn:oid:2.5.4.20" id="telephoneNumber"/>
     <Attribute name="urn:mace:dir:attribute-def:telephoneNumber" id="telephoneNumber"/>
