@@ -65,3 +65,33 @@ cn: Enrique Perez
 mail: eperez@emergya.com
 userPassword: password
 eduPersonPrincipalName: pugoj-hutat
+
+dn: uid=alba,ou=People,dc=idptestbed
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: eduPerson
+givenName: Alba
+displayName: Alba Perez
+uid: alba
+sn: Perez
+cn: Alba Perez
+mail: eperez+332@emergya.com
+userPassword: password
+eduPersonPrincipalName: kujih-bakik
+
+dn: uid=marian,ou=People,dc=idptestbed
+objectClass: organizationalPerson
+objectClass: person
+objectClass: top
+objectClass: inetOrgPerson
+objectClass: eduPerson
+givenName: Marian
+displayName: Marian Perez
+uid: marian
+sn: Perez
+cn: Marian Perez
+mail: eperez+33@emergya.com
+userPassword: password
+eduPersonPrincipalName: viduj-vamir
