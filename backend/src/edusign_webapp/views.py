@@ -434,7 +434,7 @@ def create_multi_sign_request(data: dict) -> dict:
             current_app.mailer.send(msg)
 
     except Exception as e:
-        current_app.doc_store.remove_document(uuid.UUID(data['key']), force=True)
+        current_app.doc_store.remove_document(uuid.UUID(data['document']['key']), force=True)
         current_app.logger.error(f'Problem sending mails: {e}')
         return {'error': True, 'message': gettext('Problem storing the document to be multi signed')}
 
