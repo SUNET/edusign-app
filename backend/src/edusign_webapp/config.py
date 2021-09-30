@@ -143,7 +143,7 @@ MAIL_USE_TLS = get_boolean(RAW_MAIL_USE_TLS)
 RAW_MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', default=False)
 MAIL_USE_SSL = get_boolean(RAW_MAIL_USE_SSL)
 
-RAW_MAIL_SUPPRESS_SEND = os.environ.get('MAIL_SUPPRESS_SEND', default='app.testing')
+RAW_MAIL_SUPPRESS_SEND = os.environ.get('MAIL_SUPPRESS_SEND', default=False)
 MAIL_SUPPRESS_SEND = get_boolean(RAW_MAIL_SUPPRESS_SEND)
 
 RAW_MAIL_ASCII_ATTACHMENTS = os.environ.get('MAIL_ASCII_ATTACHMENTS', default=False)
