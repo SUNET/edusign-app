@@ -78,11 +78,18 @@ section#edusign-banner-sm {
   #name-and-clear-in-header {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 2rem;
 
     #name-in-header {
       display: flex;
       flex-wrap: wrap;
       line-height: 1.5rem;
+      justify-content: space-between;
+      width: 100%;
+
+      #signing-with-span {
+        align-self: center;
+      }
     }
 
     #sep-in-header {
@@ -97,16 +104,4 @@ section#edusign-banner-sm {
 
 #signing-with-span {
   color: $darker-dark-grey;
-}
-
-#logout-link {
-  text-decoration: none;
-  padding: .4rem;
-  cursor: pointer;
-}
-#logout-link:hover {
-  color: #fff;
-  background-color: #343a40;
-  padding: .4rem;
-  border-radius: 4px;
 }
