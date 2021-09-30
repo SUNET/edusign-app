@@ -469,7 +469,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       thunkAPI.dispatch(
         documentsSlice.actions.updateDocumentWithSignedContent(doc)
       );
-      thunkAPI.dispatch(removeInvites({ doc: doc, intl: intl }));
+        thunkAPI.dispatch(removeOwned({key: doc.id}));
     });
   } catch (err) {
     thunkAPI.dispatch(
