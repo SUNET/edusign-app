@@ -20,6 +20,7 @@ cn: Stud Ent
 mail: student1@idptestbed.edu
 userPassword: password
 eduPersonPrincipalName: student1
+o: eduID
 
 dn: uid=staff1,ou=People,dc=idptestbed
 objectClass: organizationalPerson
@@ -35,6 +36,7 @@ cn: St aff
 mail: staff1@idptestbed.edu
 userPassword: password
 eduPersonPrincipalName: staff1
+o: eduID
 
 dn: uid=eperez2,ou=People,dc=idptestbed
 objectClass: organizationalPerson
@@ -50,6 +52,7 @@ cn:: RW5yaXF1ZSBQw6lyZXo=
 mail: eperez@emergya.com
 userPassword: password
 eduPersonPrincipalName: pugoj-hutat
+o: eduID
 
 dn: uid=eperez3,ou=People,dc=idptestbed
 objectClass: organizationalPerson
@@ -65,6 +68,7 @@ cn: Enrique Perez
 mail: eperez@emergya.com
 userPassword: password
 eduPersonPrincipalName: pugoj-hutat
+o: eduID
 
 dn: uid=alba,ou=People,dc=idptestbed
 objectClass: organizationalPerson
@@ -80,6 +84,7 @@ cn: Alba Perez
 mail: eperez+332@emergya.com
 userPassword: password
 eduPersonPrincipalName: kujih-bakik
+o: eduID
 
 dn: uid=marian,ou=People,dc=idptestbed
 objectClass: organizationalPerson
@@ -95,3 +100,4 @@ cn: Marian Perez
 mail: eperez+33@emergya.com
 userPassword: password
 eduPersonPrincipalName: viduj-vamir
+o: eduID
