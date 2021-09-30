@@ -36,12 +36,19 @@ import os
 
 HERE = os.path.dirname(__file__)
 
+
+def get_boolean(raw):
+    if isinstance(raw, str):
+        if raw in ('t', 'true', 'T', 'True', 'Yes', 'yes'):
+            return True
+        else:
+            return False
+    return raw
+
+
 DEBUG = os.environ.get('DEBUG', default=False)
-if isinstance(DEBUG, str):
-    if DEBUG in ('t', 'true', 'True'):
-        DEBUG = True
-    else:
-        DEBUG = False
+
+DEBUG = get_boolean(DEBUG)
 
 ENVIRONMENT = os.environ.get('ENVIRONMENT', default='production')
 
@@ -121,16 +128,23 @@ TO_TEAR_DOWN_WITH_APP_CONTEXT = os.environ.get(
     'TO_TEAR_DOWN_WITH_APP_CONTEXT', default='edusign_webapp.document.metadata.sqlite.close_connection'
 ).split(',')
 
+MAIL_DEBUG = DEBUG
 
 MAIL_SERVER = os.environ.get('MAIL_SERVER', default='localhost')
 MAIL_PORT = os.environ.get('MAIL_PORT', default=25)
 MAIL_USERNAME = os.environ.get('MAIL_USERNAME', default='')
 MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', default='')
 MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', default='no-reply@localhost')
-
-MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', default=False)
-MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', default=False)
-MAIL_DEBUG = DEBUG
 MAIL_MAX_EMAILS = os.environ.get('MAIL_MAX_EMAILS', default=None)
-MAIL_SUPPRESS_SEND = os.environ.get('MAIL_SUPPRESS_SEND', default='app.testing')
-MAIL_ASCII_ATTACHMENTS = os.environ.get('MAIL_ASCII_ATTACHMENTS', default=False)
+
+RAW_MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', default=False)
+MAIL_USE_TLS = get_boolean(RAW_MAIL_USE_TLS)
+
+RAW_MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL', default=False)
+MAIL_USE_SSL = get_boolean(RAW_MAIL_USE_SSL)
+
+RAW_MAIL_SUPPRESS_SEND = os.environ.get('MAIL_SUPPRESS_SEND', default='app.testing')
+MAIL_SUPPRESS_SEND = get_boolean(RAW_MAIL_SUPPRESS_SEND)
+
+RAW_MAIL_ASCII_ATTACHMENTS = os.environ.get('MAIL_ASCII_ATTACHMENTS', default=False)
+MAIL_ASCII_ATTACHMENTS = get_boolean(RAW_MAIL_ASCII_ATTACHMENTS)

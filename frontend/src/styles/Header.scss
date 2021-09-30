@@ -36,12 +36,8 @@ section#edusign-banner-lg {
       margin-right: 1rem;
     }
 
-    #clear-in-header {
-      margin-left: 1rem;
-      margin-right: 2rem;
-    }
-    #clear-in-header:hover {
-      color: $orange-highlight;
+    #logout-button-container {
+      padding: 1rem;
     }
   }
 }
@@ -86,14 +82,15 @@ section#edusign-banner-sm {
     #name-in-header {
       display: flex;
       flex-wrap: wrap;
+      line-height: 1.5rem;
     }
 
     #sep-in-header {
       display: none;
     }
 
-    #clear-in-header {
-      margin-left: 1rem;
+    #logout-button-container {
+      padding-left: 1rem;
     }
   }
 }
@@ -102,6 +99,14 @@ section#edusign-banner-sm {
   color: $darker-dark-grey;
 }
 
-#clear-in-header {
+#logout-link {
+  text-decoration: none;
+  padding: .4rem;
   cursor: pointer;
+}
+#logout-link:hover {
+  color: #fff;
+  background-color: #343a40;
+  padding: .4rem;
+  border-radius: 4px;
 }

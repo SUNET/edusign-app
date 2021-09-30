@@ -90,6 +90,12 @@ def get_home() -> str:
         abort(500)
 
 
+@edusign_views.route('/logout', methods=['GET'])
+def logout() -> Response:
+    session.clear()
+    return redirect(url_for('edusign_anon.get_home'))
+
+
 @edusign_views.route('/', methods=['GET'])
 def get_index() -> str:
     """
@@ -410,6 +416,11 @@ def create_multi_sign_request(data: dict) -> dict:
         owner = {'name': session['displayName'], 'email': data['owner']}
         invites = current_app.doc_store.add_document(data['document'], owner, data['invites'])
 
+    except Exception as e:
+        current_app.logger.error(f'Problem processing multi sign request: {e}')
+        return {'error': True, 'message': gettext('Problem storing the document to be multi signed')}
+
+    try:
         for invite in invites:
             current_app.logger.debug(f"Adding invitation {invite} for {data['document']['name']}")
             recipients = [f"{invite['name']} <{invite['email']}>"]
@@ -429,7 +440,8 @@ def create_multi_sign_request(data: dict) -> dict:
             current_app.mailer.send(msg)
 
     except Exception as e:
-        current_app.logger.error(f'Problem processing multi sign request: {e}')
+        current_app.doc_store.remove_document(uuid.UUID(data['document']['key']), force=True)
+        current_app.logger.error(f'Problem sending mails: {e}')
         return {'error': True, 'message': gettext('Problem storing the document to be multi signed')}
 
     message = gettext("Success creating multi signature request")
