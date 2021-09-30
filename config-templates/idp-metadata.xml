@@ -11,15 +11,11 @@
 
         <Extensions>
             <shibmd:Scope regexp="false">edusign.docker</shibmd:Scope>
-<!--
-    Fill in the details for your IdP here 
 
             <mdui:UIInfo>
-                <mdui:DisplayName xml:lang="en">A Name for the IdP at idptestbed</mdui:DisplayName>
-                <mdui:Description xml:lang="en">Enter a description of your IdP at idptestbed</mdui:Description>
-                <mdui:Logo height="80" width="80">https://idptestbed/Path/To/Logo.png</mdui:Logo>
+                <mdui:DisplayName xml:lang="en">Test IdP en</mdui:DisplayName>
+                <mdui:DisplayName xml:lang="sv">Test IdP sv</mdui:DisplayName>
             </mdui:UIInfo>
--->
         </Extensions>
 
         <KeyDescriptor use="signing">
