@@ -51,7 +51,7 @@
 <!--
  The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. 
 -->
-    <ApplicationDefaults entityID="${SHIB_SP_ENTITY_ID}" REMOTE_USER="eppn persistent-id targeted-id">
+    <ApplicationDefaults metadataAttributePrefix="MD_" entityID="${SHIB_SP_ENTITY_ID}" REMOTE_USER="eppn persistent-id targeted-id">
 <!--
 
         Controls session lifetimes, address checks, cookie handling, and the protocol handlers.
@@ -115,6 +115,7 @@
         
 <!-- Map to extract attributes from SAML assertions. -->
 <AttributeExtractor type="XML" validate="true" path="attribute-map.xml"/>
+<AttributeExtractor type="Metadata" DisplayName="organizationName"/>
 <!--
  Use a SAML query if no attributes are supplied during SSO. 
 -->

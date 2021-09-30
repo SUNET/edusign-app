@@ -442,7 +442,7 @@ def create_multi_sign_request(data: dict) -> dict:
     except Exception as e:
         current_app.doc_store.remove_document(uuid.UUID(data['document']['key']), force=True)
         current_app.logger.error(f'Problem sending mails: {e}')
-        return {'error': True, 'message': gettext('Problem storing the document to be multi signed')}
+        return {'error': True, 'message': gettext('Problem sending invitation emails')}
 
     message = gettext("Success creating multi signature request")
 
@@ -531,9 +531,12 @@ def create_invited_signature(invite_key: str) -> str:
         'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}/sign",
         'back_button_text': gettext("Back to site"),
     }
+    add_attributes_to_session(check_whitelisted=False)
+
     try:
         data = current_app.doc_store.get_invitation(uuid.UUID(invite_key))
     except current_app.doc_store.DocumentLocked:
+        current_app.logger.error(f"Document locked while getting invitation for user {session['eppn']}")
         context['title'] = gettext("Problem signing the document")
         context['message'] = gettext(
             "Someone else is signing the document right now, please try again in a few minutes"
@@ -543,17 +546,17 @@ def create_invited_signature(invite_key: str) -> str:
     current_app.logger.info(f"Invitation data: {data}")
 
     if not data:
+        current_app.logger.debug(f"No invitation for user {session['eppn']}")
         context['title'] = gettext("Problem signing the document")
         context['message'] = gettext("There seems to be no invitation for you")
         return render_template('error-generic.jinja2', **context)
-
-    add_attributes_to_session(check_whitelisted=False)
 
     doc = data['document']
     user = data['user']
     key = doc['key']
 
     if user['email'] != session['mail']:
+        current_app.logger.error(f"Trying to sign invitation with wrong email {session['email']} (invited:  {user['email']})")
         current_app.doc_store.unlock_document(key, user['email'])
         context['title'] = gettext("Problem signing the document")
         context['message'] = gettext("The invited email does not coincide with yours")
@@ -562,6 +565,7 @@ def create_invited_signature(invite_key: str) -> str:
     doc_data = prepare_document(doc)
 
     if 'error' in doc_data and doc_data['error']:
+        current_app.logger.error(f"Problem preparing document for invited signature: {doc_data}")
         current_app.doc_store.unlock_document(key, user['email'])
         context['title'] = gettext("Problem signing the document")
         context['message'] = gettext("Problem preparing document for multi sign by user %s: %s") % (
@@ -585,8 +589,8 @@ def create_invited_signature(invite_key: str) -> str:
         create_data, documents_with_id = current_app.api_client.create_sign_request([new_doc], single_sign=False)
 
     except Exception as e:
+        current_app.logger.error(f"Problem creating sign request for invited signature: {e}")
         current_app.doc_store.unlock_document(key, user['email'])
-        current_app.logger.error(f'Problem creating sign request: {e}')
         context['title'] = gettext("Problem signing the document")
         context['message'] = gettext('Communication error with the create endpoint of the eduSign API')
         return render_template('error-generic.jinja2', **context)

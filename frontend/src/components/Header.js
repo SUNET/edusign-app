@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
+import Button from "react-bootstrap/Button";
 
 import NotificationsContainer from "containers/Notifications";
 
@@ -28,12 +29,16 @@ class Header extends Component {
                     />
                   </span>
                   <span id="logout-button-container">
-                    <a id="logout-link" onClick={this.props.handleLogout}>
+                    <Button
+                      variant="outline-dark"
+                      onClick={this.props.handleLogout}
+                      data-testid="button-logout"
+                    >
                       <FormattedMessage
                         defaultMessage="Logout"
                         key="logout-button"
                       />
-                    </a>
+                    </Button>
                   </span>
                 </span>
               </>
