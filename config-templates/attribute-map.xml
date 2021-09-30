@@ -83,17 +83,10 @@
         <AttributeDecoder xsi:type="XMLAttributeDecoder"/>
     </Attribute>
 
-    <Attribute name="urn:oid:2.5.4.10" id="organizationName">
+    <Attribute name="urn:oid:2.5.4.10" id="o" aliases="organizationName">
         <AttributeDecoder xsi:type="XMLAttributeDecoder"/>
     </Attribute>
-    <Attribute name="urn:mace:dir:attribute-def:organizationName" id="organizationName">
-        <AttributeDecoder xsi:type="XMLAttributeDecoder"/>
-    </Attribute>
-
-    <Attribute name="urn:oid:2.5.4.10" id="o">
-        <AttributeDecoder xsi:type="XMLAttributeDecoder"/>
-    </Attribute>
-    <Attribute name="urn:mace:dir:attribute-def:o" id="o">
+    <Attribute name="urn:mace:dir:attribute-def:o" id="o" aliases="organizationName">
         <AttributeDecoder xsi:type="XMLAttributeDecoder"/>
     </Attribute>
 
