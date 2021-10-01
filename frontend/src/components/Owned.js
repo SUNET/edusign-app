@@ -29,7 +29,7 @@ const signButton = (props, doc, help) => {
               onClick={props.handleSign(doc, props)}
             >
               <FormattedMessage
-                defaultMessage="Add Final Signature"
+                defaultMessage="Sign Document"
                 key="final-sign-button"
               />
             </Button>
@@ -65,7 +65,7 @@ const skipSignatureButton = (props, doc, help) => {
               onClick={props.handleSkipSigning(doc, props)}
             >
               <FormattedMessage
-                defaultMessage="Skip Final Signature"
+                defaultMessage="Skip Signature"
                 key="skip-sign-button"
               />
             </Button>
