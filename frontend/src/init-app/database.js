@@ -3,41 +3,96 @@
  * @desc Here we create the IndexedDB db that will persist the loaded documents between sessions
  */
 import { addNotification, rmNotification } from "slices/Notifications";
+import { hashCode } from "components/utils";
 
 let db = null;
+
+async function _getDb(name) {
+  const promisedDb = await new Promise((resolve) => {
+    const request = indexedDB.open(name, 1);
+    request.onsuccess = () => {
+      const db = request.result;
+      resolve(db);
+    };
+    request.onerror = (event) => {
+      resolve(null);
+    };
+    request.onupgradeneeded = (event) => {
+      const db = request.result;
+      if (event.oldVersion < 1) {
+        db.createObjectStore("documents", {
+          keyPath: "id",
+          autoIncrement: true,
+        });
+      }
+      event.target.transaction.oncomplete = () => {
+        resolve(db);
+      };
+    };
+  });
+  return promisedDb;
+}
+async function getNewDb(name) {
+  const newname = "eduSignDB-" + hashCode(name);
+  console.log("newname ", newname);
+  return await _getDb(newname);
+}
+async function getOldDb() {
+  return await _getDb("eduSignDB");
+}
 
 /**
  * @public
  * @function getDb
  * @desc Get or create the IndexedDB db to hold documents loaded to the app.
  *
+ * XXX NOTE most of this code should be removed afrter a transition period,
+ * once noone has an old named db.
+ *
  */
-export async function getDb() {
+export async function getDb(name) {
+  console.log("opening db");
   if (db === null) {
-    const promisedDb = await new Promise((resolve) => {
-      const request = indexedDB.open("eduSignDB", 1);
-      request.onsuccess = () => {
-        db = request.result;
-        resolve(db);
-      };
-      request.onerror = (event) => {
-        resolve(null);
-      };
-      request.onupgradeneeded = (event) => {
-        db = request.result;
-        if (event.oldVersion < 1) {
-          db.createObjectStore("documents", {
-            keyPath: "id",
-            autoIncrement: true,
-          });
+    console.log("db is null");
+    const olddb = await getOldDb();
+    db = await getNewDb(name);
+
+    const oldTransaction = olddb.transaction(["documents"], "readwrite");
+    oldTransaction.onerror = (event) => {};
+    const oldStore = oldTransaction.objectStore("documents");
+
+    console.log("opened old store");
+
+    await new Promise((resolve) => {
+      oldStore.openCursor().onsuccess = (event) => {
+        const cursor = event.target.result;
+        if (cursor) {
+          const document = cursor.value;
+
+          const newTransaction = db.transaction(["documents"], "readwrite");
+          newTransaction.onerror = (event) => {};
+          const newStore = newTransaction.objectStore("documents");
+
+          const docRequest = newStore.add(document);
+          docRequest.onerror = (event) => {console.log("error recovering document, ", event)};
+
+          console.log("transferring document ", document.name);
+
+          cursor.continue();
         }
-        event.target.transaction.oncomplete = () => {
-          resolve(db);
-        };
+        if (cursor === null) {
+          console.log("clearing the old db");
+          const docRequest = oldStore.clear();
+          docRequest.onsuccess = (e) => {
+            console.log("cleared the old db");
+            resolve();
+          };
+        }
       };
     });
-    return promisedDb;
+    return db;
   } else {
+    console.log("db is not null");
     return db;
   }
 }

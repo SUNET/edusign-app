@@ -31,7 +31,8 @@ import { b64toBlob } from "components/utils";
 export const loadDocuments = createAsyncThunk(
   "documents/loadDocuments",
   async (args, thunkAPI) => {
-    const db = await getDb();
+    console.log("going to open db, name ", args.eppn);
+    const db = await getDb(args.eppn);
 
     if (db !== null) {
       let signing = false;
@@ -164,8 +165,8 @@ export const saveDocument = createAsyncThunk(
  * @function saveDocumentToDb
  * @desc async function to add a new document to IndexedDB
  */
-const saveDocumentToDb = async (document) => {
-  const db = await getDb();
+const saveDocumentToDb = async (document, name) => {
+  const db = await getDb(name);
   if (db !== null) {
     const newDoc = await new Promise((resolve, reject) => {
       const transaction = db.transaction(["documents"], "readwrite");
@@ -200,7 +201,8 @@ export const createDocument = createAsyncThunk(
   "documents/createDocument",
   async (args, thunkAPI) => {
     console.log("creating", args);
-    const doc = await validateDoc(args.doc, args.intl, thunkAPI.getState());
+    const state = thunkAPI.getState();
+    const doc = await validateDoc(args.doc, args.intl, state);
     if (doc.state === "failed-loading") return doc;
 
     if (doc.state === "dup") {
@@ -218,7 +220,7 @@ export const createDocument = createAsyncThunk(
     }
 
     try {
-      const newDoc = await saveDocumentToDb(doc);
+      const newDoc = await saveDocumentToDb(doc, state.main.signer_attributes.eppn);
       thunkAPI.dispatch(prepareDocument({ doc: newDoc, intl: args.intl }));
       return newDoc;
     } catch (err) {
@@ -755,7 +757,7 @@ export const signInvitedDoc = createAsyncThunk(
         show: false,
       };
       doc.blob = "data:application/pdf;base64," + doc.blob;
-      await saveDocumentToDb(doc);
+      await saveDocumentToDb(doc, state.main.signer_attributes.eppn);
       delete data.payload.documents;
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
@@ -820,7 +822,7 @@ export const skipOwnedSignature = createAsyncThunk(
         state: "signed",
         show: false,
       };
-      const newDoc = await saveDocumentToDb(doc);
+      const newDoc = await saveDocumentToDb(doc, state.main.signer_attributes.eppn);
       thunkAPI.dispatch(removeOwned({ key: key }));
       return newDoc;
     } catch (err) {
