@@ -68,7 +68,10 @@ def add_attributes_to_session(check_whitelisted=True):
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
         session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
 
-        session['organizationName'] = request.headers.get('Md-Organizationname', None)
+        session['organizationName'] = None
+        orgName = request.headers.get('Md-Organizationname', None)
+        if orgName is not None:
+            session['organizationName'] = orgName.encode('latin1').decode('utf8')
 
         current_app.logger.debug(f'Headers sent by Shibboleth SP {request.headers}')
 
