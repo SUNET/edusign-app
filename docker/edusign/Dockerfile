@@ -32,7 +32,7 @@ RUN echo "Pin: release o=nginx" >> /etc/apt/preferences.d/nginx
 RUN echo "Pin-Priority: 600" >> /etc/apt/preferences.d/nginx
 
 RUN apt-get update -y && \
-        apt-get install -y nginx && \
+        apt-get install -y nginx=1.18.0-2~buster && \
         apt-get clean -y && \
         rm -rf /var/lib/apt/lists/*
 
@@ -43,12 +43,12 @@ RUN tar -xzf tip.tar.gz
 RUN mv pkg-* tip
 
 RUN ./tip/build_module.sh -v 1.18.0 https://github.com/nginx-shib/nginx-http-shibboleth.git
-RUN mv build-module-artifacts/nginx-module-shibboleth_1.18.0-1~buster_amd64.deb .
+RUN mv build-module-artifacts/nginx-module-shibboleth_1.18.0+1.0-1~buster_amd64.deb .
 RUN rm -rf build-module-artifacts
 RUN ./tip/build_module.sh -v 1.18.0 https://github.com/openresty/headers-more-nginx-module.git
-RUN mv build-module-artifacts/nginx-module-headersmore_1.18.0-1~buster_amd64.deb .
+RUN mv build-module-artifacts/nginx-module-headersmore_1.18.0+1.0-1~buster_amd64.deb .
 RUN rm -rf build-module-artifacts
-RUN dpkg -i nginx-module-shibboleth_1.18.0-1~buster_amd64.deb nginx-module-headersmore_1.18.0-1~buster_amd64.deb
+RUN dpkg -i nginx-module-shibboleth_1.18.0+1.0-1~buster_amd64.deb nginx-module-headersmore_1.18.0+1.0-1~buster_amd64.deb
 
 RUN mkdir -p /var/run/shibboleth
 
