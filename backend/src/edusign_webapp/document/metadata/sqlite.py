@@ -509,7 +509,7 @@ class SqliteMD(ABCMetadata):
         if (
             locked is None
             or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']
-            or lock_info['locked_by'] == locked_by
+            or lock_info['locked_by'] == user_result['user_id']
         ):
             self.logger.debug(f"Adding lock for {locked_by} in document with id {doc_id}: {lock_info}")
             self._db_execute(DOCUMENT_ADD_LOCK, (now, user_result['user_id'], doc_id))
