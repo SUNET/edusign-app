@@ -65,8 +65,10 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 
 @anon_edusign_views.route('/', methods=['GET'])
 def get_home() -> str:
-
-    md_name = f"home-{get_locale()}.md"
+    """
+    """
+    current_lang = str(get_locale())
+    md_name = f"home-{current_lang}.md"
     md_etc = os.path.join('/etc/edusign/', md_name)
     if os.path.exists(md_etc):
         md_file = md_etc
@@ -78,9 +80,16 @@ def get_home() -> str:
 
     base_url = f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}"
 
+    for lang in current_app.config['SUPPORTED_LANGUAGES']:
+        if lang != current_lang:
+            other_lang = lang
+            break
+
     context = {
         'body': body,
         'login_initiator': f'{base_url}/Shibboleth.sso/Login?target=/sign',
+        'other_lang': other_lang,
+        'other_lang_name': current_app.config['SUPPORTED_LANGUAGES'][other_lang],
     }
 
     try:
@@ -92,6 +101,8 @@ def get_home() -> str:
 
 @edusign_views.route('/logout', methods=['GET'])
 def logout() -> Response:
+    """
+    """
     session.clear()
     return redirect(url_for('edusign_anon.get_home'))
 
