@@ -42,13 +42,16 @@ RUN curl -OL http://hg.nginx.org/pkg-oss/archive/tip.tar.gz
 RUN tar -xzf tip.tar.gz
 RUN mv pkg-* tip
 
-RUN ./tip/build_module.sh -v 1.18.0 https://github.com/nginx-shib/nginx-http-shibboleth.git
-RUN mv build-module-artifacts/nginx-module-shibboleth_1.18.0-1~buster_amd64.deb .
+RUN mkdir build
+RUN ./tip/build_module.sh -v "$(echo $(nginx -v 2>&1) | grep -o '[0-9.]*$')" https://github.com/nginx-shib/nginx-http-shibboleth.git
+#RUN mv build-module-artifacts/nginx-module-shibboleth_1.18.0-1~buster_amd64.deb build/
+RUN mv build-module-artifacts/*.deb build/
 RUN rm -rf build-module-artifacts
-RUN ./tip/build_module.sh -v 1.18.0 https://github.com/openresty/headers-more-nginx-module.git
-RUN mv build-module-artifacts/nginx-module-headersmore_1.18.0-1~buster_amd64.deb .
+RUN ./tip/build_module.sh -v "$(echo $(nginx -v 2>&1) | grep -o '[0-9.]*$')" https://github.com/openresty/headers-more-nginx-module.git
+#RUN mv build-module-artifacts/nginx-module-headersmore_1.18.0-1~buster_amd64.deb build/
+RUN mv build-module-artifacts/*.deb build/
 RUN rm -rf build-module-artifacts
-RUN dpkg -i nginx-module-shibboleth_1.18.0-1~buster_amd64.deb nginx-module-headersmore_1.18.0-1~buster_amd64.deb
+RUN dpkg -i build/*.deb
 
 RUN mkdir -p /var/run/shibboleth
 
