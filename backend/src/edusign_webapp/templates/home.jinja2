@@ -120,10 +120,21 @@ header {
             {{ body | markdown }}
           </div>
         </section>
+        <footer>
+          <div id="lang-selector">
+            <a onClick="selectLang('{{ other_lang }}')">
+              {{ other_lang_name }}
+            </a>
+          </div>
+        </footer>
       </div>
     </div>
     <script>
         window.onload = function() { thiss.DiscoveryComponent({ loginInitiatorURL: '{{ login_initiator }}' }).render('#login'); };
+    </script>
+    <script>
+      function selectLang(lang) {
+            }
     </script>
   </body>
 </html>
