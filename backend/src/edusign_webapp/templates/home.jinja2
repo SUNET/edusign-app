@@ -58,6 +58,19 @@ header {
 #login {
   text-align: center;
 }
+footer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+#lang-selector {
+  padding: 1rem 2rem;
+  cursor: pointer;
+}
+#lang-selector:hover {
+  text-decoration: underline;
+}
+
 @media screen and (min-width: 901px) {
   #root {
     margin-top: 80px;
@@ -120,10 +133,27 @@ header {
             {{ body | markdown }}
           </div>
         </section>
+        <footer>
+          <div id="lang-selector">
+            {{ other_lang_name }}
+          </div>
+        </footer>
       </div>
     </div>
     <script>
-        window.onload = function() { thiss.DiscoveryComponent({ loginInitiatorURL: '{{ login_initiator }}' }).render('#login'); };
+        window.onload = function() {
+          thiss.DiscoveryComponent({ loginInitiatorURL: '{{ login_initiator }}' }).render('#login');
+
+          document.querySelector('#lang-selector').addEventListener('click', (e) => {
+            e.preventDefault();
+            var days = 365;
+            var date = new Date();
+            date.setTime(date.getTime() + (days*24*60*60*1000));
+            var cookie = "lang={{ other_lang }}; expires=" + date.toUTCString();
+            window.document.cookie = cookie;
+            window.location.reload(true);
+          });
+        };
     </script>
   </body>
 </html>

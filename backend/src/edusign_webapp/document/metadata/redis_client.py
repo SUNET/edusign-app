@@ -629,18 +629,13 @@ class RedisMD(ABCMetadata):
         now = datetime.now()
 
         locked = None if lock_info['locked'] is None else lock_info['locked']
-        user_result = self.client.query_user(user_id)
-        if not user_result:
-            self.logger.error(f"The user record with email {locked_by} seems corrupted")
-            self.client.abort()
-            return False
 
         now_ts = now.timestamp()
 
         if (
             locked is None
             or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']
-            or user_result['email'] == locked_by
+            or lock_info['locked_by'] == user_id
         ):
             self.logger.debug(f"Adding lock for {locked_by} in document with id {doc_id}: {lock_info}")
             self.client.add_document_lock(doc_id, now_ts, user_id)
