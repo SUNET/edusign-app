@@ -37,24 +37,47 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        loaders: ["babel-loader"],
+        loader: "babel-loader",
         exclude: /node_modules/
       },
       {
         test: /\.scss$/,
-        loaders: ["style-loader", "css-loader", "postcss-loader", "sass-loader"]
+        use: [
+          {loader: "style-loader"},
+          {loader: "css-loader"},
+          {loader: "postcss-loader"},
+          {loader: "sass-loader"},
+        ],
       },
       {
         test: /\.css$/,
-        loader: "style-loader!css-loader"
+        use: [
+          {loader: "style-loader"},
+          {loader: "css-loader"},
+        ],
       },
       {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        loader: "url-loader?limit=10000&mimetype=image/svg+xml"
+        use: [
+          {
+            loader: "url-loader",
+            options: {
+              limit: 10000,
+              mimetype: "image/svg+xml",
+            },
+          },
+        ],
       },
       {
         test: /\.png$/,
-        loader: "url-loader?limit=100000"
+        use: [
+          {
+            loader: "url-loader",
+            options: {
+              limit: 100000
+            },
+          },
+        ],
       },
       {
         test: /\.jpg$/,
