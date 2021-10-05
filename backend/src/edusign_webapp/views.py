@@ -567,7 +567,7 @@ def create_invited_signature(invite_key: str) -> str:
     key = doc['key']
 
     if user['email'] != session['mail']:
-        current_app.logger.error(f"Trying to sign invitation with wrong email {session['email']} (invited:  {user['email']})")
+        current_app.logger.error(f"Trying to sign invitation with wrong email {session['mail']} (invited:  {user['email']})")
         current_app.doc_store.unlock_document(key, user['email'])
         context['title'] = gettext("Problem signing the document")
         context['message'] = gettext("The invited email does not coincide with yours")
