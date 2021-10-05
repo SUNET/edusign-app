@@ -51,16 +51,10 @@ class Invitee(Schema):
     name = fields.String(required=True, validate=[validate_nonempty])
 
 
-class ConfigSchema(Schema):
+class InvitationsSchema(Schema):
     """
-    Schema to marshall configuration sent to the frontend,
-    basically consisting on the signer attributes.
+    Schema to marshall invitations configuration sent to the frontend.
     """
-
-    class SignerAttributes(Schema):
-        eppn = fields.String(required=True, validate=[validate_nonempty])
-        name = fields.String(required=True, validate=[validate_nonempty])
-        mail = fields.String(required=True, validate=[validate_nonempty])
 
     class PendingDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
@@ -74,9 +68,22 @@ class ConfigSchema(Schema):
         pending = fields.List(fields.Nested(Invitee))
         signed = fields.List(fields.Nested(Invitee))
 
-    signer_attributes = fields.Nested(SignerAttributes)
     pending_multisign = fields.List(fields.Nested(PendingDocument))
     owned_multisign = fields.List(fields.Nested(OwnedDocument))
+    poll = fields.Boolean(default=False)
+
+
+class ConfigSchema(InvitationsSchema):
+    """
+    Schema to marshall configuration sent to the frontend.
+    """
+
+    class SignerAttributes(Schema):
+        eppn = fields.String(required=True, validate=[validate_nonempty])
+        name = fields.String(required=True, validate=[validate_nonempty])
+        mail = fields.String(required=True, validate=[validate_nonempty])
+
+    signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)
 
 

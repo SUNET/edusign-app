@@ -66,6 +66,29 @@ export const fetchConfig = createAsyncThunk(
 
 /**
  * @public
+ * @function poll
+ * @desc Redux async thunk to poll configuration data from the backend.
+ */
+export const poll = createAsyncThunk(
+  "main/fetchConfig",
+  async (args, thunkAPI) => {
+    try {
+      const response = await fetch("/sign/poll", getRequest);
+      const configData = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, configData);
+      if (configData.error) {
+        return thunkAPI.rejectWithValue(configData.message);
+      } else {
+        return configData;
+      }
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.toString());
+    }
+  }
+);
+
+/**
+ * @public
  * @function getPartiallySignedDoc
  * @desc Redux async thunk to get from the backend a partially signed multisign doc
  */
@@ -122,6 +145,7 @@ const mainSlice = createSlice({
     size: "lg",
     width: 0,
     multisign_buttons: "yes",
+    poll: false,
   },
   reducers: {
     /**
@@ -235,6 +259,14 @@ const mainSlice = createSlice({
         } else return doc;
       });
     },
+    /**
+     * @public
+     * @function setPolling
+     * @desc Redux action to set the polling state
+     */
+    setPolling(state, action) {
+      state.poll = action.payload;
+    },
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
@@ -247,6 +279,12 @@ const mainSlice = createSlice({
       return {
         ...state,
         signer_attributes: null,
+      };
+    },
+    [poll.fulfilled]: (state, action) => {
+      return {
+        ...state,
+        ...action.payload.payload,
       };
     },
     [getPartiallySignedDoc.fulfilled]: (state, action) => {
@@ -277,6 +315,7 @@ export const {
   setOwnedSigning,
   hideInvitedPreview,
   hideOwnedPreview,
+  setPolling,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;

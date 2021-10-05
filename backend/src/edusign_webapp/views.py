@@ -45,6 +45,7 @@ from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
     BlobSchema,
     ConfigSchema,
+    InvitationsSchema,
     DocumentSchema,
     KeyedMultiSignSchema,
     MultiSignSchema,
@@ -56,7 +57,7 @@ from edusign_webapp.schemata import (
     ToRestartSigningSchema,
     ToSignSchema,
 )
-from edusign_webapp.utils import add_attributes_to_session, prepare_document
+from edusign_webapp.utils import add_attributes_to_session, prepare_document, get_invitations
 
 anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
 
@@ -152,7 +153,7 @@ def get_index() -> str:
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """
-    VIew to serve the configuration for the front app - in principle just the attributes used for signing.
+    VIew to serve the configuration for the front app.
 
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
@@ -166,13 +167,27 @@ def get_config() -> dict:
     else:
         attrs['name'] = f"{session['givenName']} {session['sn']}"
 
+    payload = get_invitations()
+    payload['signer_attributes'] = attrs
+    payload['multisign_buttons'] = current_app.config['MULTISIGN_BUTTONS']
+
     return {
-        'payload': {
-            'signer_attributes': attrs,
-            'owned_multisign': current_app.doc_store.get_owned_documents(session['mail']),
-            'pending_multisign': current_app.doc_store.get_pending_documents(session['mail']),
-            'multisign_buttons': current_app.config['MULTISIGN_BUTTONS'],
-        }
+        'payload': payload,
+    }
+
+
+@edusign_views.route('/poll', methods=['GET'])
+@Marshal(InvitationsSchema)
+def poll() -> dict:
+    """
+    VIew to serve the invitations configuration for the front app.
+
+    :return: A dict with the configuration parameters.
+    """
+    payload = get_invitations()
+
+    return {
+        'payload': payload,
     }
 
 
