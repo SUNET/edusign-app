@@ -397,7 +397,11 @@ export const startSigningDocuments = createAsyncThunk(
           }),
         })
       );
-      thunkAPI.dispatch(documentsSlice.actions.signFailure(args.intl));
+      const message = args.intl.formatMessage({
+        defaultMessage: "Problem signing the document",
+        id: "problem-signing",
+      });
+      thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
       await data.payload.documents.forEach(async (doc) => {
         await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
       });
@@ -461,7 +465,11 @@ export const restartSigningDocuments = createAsyncThunk(
           }),
         })
       );
-      thunkAPI.dispatch(documentsSlice.actions.signFailure(args.intl));
+      const message = args.intl.formatMessage({
+        defaultMessage: "Problem signing the document",
+        id: "problem-signing",
+      });
+      thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
       await data.payload.documents.forEach(async (doc) => {
         await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
       });
@@ -515,10 +523,16 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
         }),
       })
     );
-    thunkAPI.dispatch(documentsSlice.actions.signFailure(intl));
-    await data.payload.documents.forEach(async (doc) => {
-      await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+    const message = intl.formatMessage({
+      defaultMessage: "Problem signing the document",
+      id: "problem-signing",
     });
+    thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
+    if (data.payload && data.payload.documents) {
+      await data.payload.documents.forEach(async (doc) => {
+        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+      });
+    }
   }
 };
 
@@ -811,7 +825,11 @@ export const signInvitedDoc = createAsyncThunk(
           }),
         })
       );
-      thunkAPI.dispatch(documentsSlice.actions.signFailure(args.intl));
+      const message = args.intl.formatMessage({
+        defaultMessage: "Problem signing the document",
+        id: "problem-signing",
+      });
+      thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
       await thunkAPI.dispatch(saveDocument({ docName: args.doc.name }));
     }
   }
@@ -1065,18 +1083,14 @@ const documentsSlice = createSlice({
      * when the request to sign them has failed
      */
     signFailure(state, action) {
-      const intl = action.payload;
+      const message = action.payload;
       state.documents = state.documents.map((doc) => {
         if (doc.state === "signing") {
-          const document = {
+          return {
             ...doc,
             state: "failed-signing",
-            message: intl.formatMessage({
-              defaultMessage: "Problem signing the document",
-              id: "problem-signing",
-            }),
+            message: message,
           };
-          return document;
         } else return doc;
       });
     },

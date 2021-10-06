@@ -17,7 +17,7 @@ import {
   sample2pPDFData,
 } from "tests/test-utils";
 import Main from "components/Main";
-import { createDocument, loadDocuments } from "slices/Documents";
+import { createDocument, loadDocuments, setState } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
 import { resetDb } from "init-app/database";
 
@@ -785,28 +785,7 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     let pdf = await waitFor(() => screen.queryByText(/Sample PDF for testing/));
     expect(pdf).to.equal(null);
 
-    const forcedButton = await waitFor(() =>
-      screen.getAllByTestId("button-forced-preview-0")
-    );
-    expect(forcedButton.length).to.equal(1);
-
-    fireEvent.click(forcedButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const lastFButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-last-0")
-    );
-    expect(lastFButton.length).to.equal(1);
-
-    fireEvent.click(lastFButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-confirm-0")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
+    store.dispatch(setState({name: 'test.pdf', state: 'loaded'}));
     await flushPromises(rerender, wrapped);
 
     const previewButton = await waitFor(() =>
@@ -891,28 +870,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     let pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
     expect(pdf2).to.equal(null);
 
-    const forcedButton = await waitFor(() =>
-      screen.getAllByTestId("button-forced-preview-0")
-    );
-    expect(forcedButton.length).to.equal(1);
-
-    fireEvent.click(forcedButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const lastFButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-last-0")
-    );
-    expect(lastFButton.length).to.equal(1);
-
-    fireEvent.click(lastFButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const confirmButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-confirm-0")
-    );
-    expect(confirmButton.length).to.equal(1);
-
-    fireEvent.click(confirmButton[0]);
+    store.dispatch(setState({name: 'test.pdf', state: 'loaded'}));
     await flushPromises(rerender, wrapped);
 
     const previewButton = await waitFor(() =>
@@ -1012,6 +970,9 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     let pdf = await waitFor(() => screen.queryByText(/Sample PDF for testing/));
     expect(pdf).to.equal(null);
 
+    store.dispatch(setState({name: 'test.pdf', state: 'loaded'}));
+    await flushPromises(rerender, wrapped);
+
     const previewButton = await waitFor(() =>
       screen.getAllByTestId("button-preview-0")
     );
@@ -1097,6 +1058,9 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     );
     await flushPromises(rerender, wrapped);
 
+    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
+    await flushPromises(rerender, wrapped);
+
     const selector = await waitFor(() =>
       screen.getAllByTestId("doc-selector-0")
     );
@@ -1166,6 +1130,9 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
       })
     );
+    await flushPromises(rerender, wrapped);
+
+    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
@@ -1242,6 +1209,9 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     );
     await flushPromises(rerender, wrapped);
 
+    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
+    await flushPromises(rerender, wrapped);
+
     const selector = await waitFor(() =>
       screen.getAllByTestId("doc-selector-0")
     );
@@ -1309,6 +1279,9 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
       })
     );
+    await flushPromises(rerender, wrapped);
+
+    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
@@ -1395,6 +1368,9 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     );
     await flushPromises(rerender, wrapped);
 
+    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
+    await flushPromises(rerender, wrapped);
+
     const selector = await waitFor(() =>
       screen.getAllByTestId("doc-selector-0")
     );
@@ -1478,6 +1454,9 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
       })
     );
+    await flushPromises(rerender, wrapped);
+
+    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
@@ -1597,6 +1576,9 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
       })
     );
+    await flushPromises(rerender, wrapped);
+
+    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
