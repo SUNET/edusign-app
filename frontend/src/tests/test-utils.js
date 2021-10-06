@@ -23,6 +23,7 @@ const initialState = {
     multisign_buttons: "yes",
     signer_attributes: {
       eppn: "dummy@example.org",
+      name: "Dummy name",
     },
   },
   notifications: {
