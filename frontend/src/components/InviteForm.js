@@ -101,7 +101,7 @@ class InviteForm extends React.Component {
                       <div>
                         {fprops.values.invitees.length > 0 &&
                           fprops.values.invitees.map((invitee, index) => (
-                            <div className="invitation-fields">
+                            <div className="invitation-fields" key={index}>
                               <div className="invitee-form-dismiss">
                                 <OverlayTrigger
                                   delay={{
