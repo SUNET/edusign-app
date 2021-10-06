@@ -112,7 +112,10 @@ const mainSlice = createSlice({
   initialState: {
     loading: false,
     csrf_token: null,
-    signer_attributes: undefined,
+    signer_attributes: {
+      eppn: '',
+      name: '',
+    },
     owned_multisign: [],
     pending_multisign: [],
     signingData: {},

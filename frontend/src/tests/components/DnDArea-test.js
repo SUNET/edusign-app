@@ -10,8 +10,10 @@ import {
   dispatchEvtWithData,
   flushPromises,
   samplePDFData,
+  b64SamplePDFData,
 } from "tests/test-utils";
 import Main from "components/Main";
+import { preparePDF } from "components/utils";
 import DnDAreaContainer from "containers/DnDArea";
 import * as edusignLogo from "../../../images/eduSign_logo.svg";
 import { resetDb } from "init-app/database";
@@ -138,9 +140,13 @@ describe("DnDArea Component", function () {
 
       const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
 
-      const file = new File([samplePDFData], "test.pdf", {
-        type: "application/pdf",
-      });
+      const doc = {
+        name: 'test.pdf',
+        type: 'application/pdf',
+        blob: 'data:application/pdf;base64,' + b64SamplePDFData,
+      };
+
+      const file = preparePDF(doc);
       const data = mockFileData([file]);
 
       dispatchEvtWithData(dnd, "dragenter", data);
