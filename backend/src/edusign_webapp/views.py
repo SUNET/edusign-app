@@ -36,6 +36,7 @@ import os
 import uuid
 from typing import Union
 
+import pkg_resources
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
 from flask_babel import get_locale, gettext
 from flask_mail import Message
@@ -85,11 +86,14 @@ def get_home() -> str:
             other_lang = lang
             break
 
+    version = pkg_resources.require('edusign-webapp')[0].version
+
     context = {
         'body': body,
         'login_initiator': f'{base_url}/Shibboleth.sso/Login?target=/sign',
         'other_lang': other_lang,
         'other_lang_name': current_app.config['SUPPORTED_LANGUAGES'][other_lang],
+        'version': version,
     }
 
     try:
