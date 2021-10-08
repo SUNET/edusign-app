@@ -299,7 +299,21 @@ def recreate_sign_request(documents: dict) -> dict:
 
     current_app.logger.info(f"Re-preparing documents for user {session['eppn']}")
     loop = asyncio.new_event_loop()
-    tasks = [loop.create_task(prepare(doc)) for doc in documents['documents']]
+    tasks = [loop.create_task(prepare(doc)) for doc in documents['documents']['local']]
+
+    for doc in documents['documents']['owned']:
+        doc['blob'] = current_app.doc_store.get_document_content(doc['key'])
+        tasks.append(loop.create_task(prepare(doc)))
+
+    for doc in documents['documents']['invited']:
+        try:
+            stored = current_app.doc_store.get_invitation(doc['invite_key'])
+        except current_app.doc_store.DocumentLocked:
+            pass  # XXX need to inform the front that this has not been signed
+
+        doc['blob'] = stored['document']['blob']
+        tasks.append(loop.create_task(prepare(doc)))
+
     loop.run_until_complete(asyncio.wait(tasks))
     loop.close()
 
@@ -415,8 +429,17 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     docs = []
     for doc in process_data['signedDocuments']:
-        current_app.doc_store.remove_document(doc['id'])
-        docs.append({'id': doc['id'], 'signed_content': doc['signedContent']})
+        key = doc['id']
+        owner = current_app.doc_store.get_owner_data(key)
+
+        if 'email' in owner and owner['email'] != session['mail']:
+            # XXX check lock, and if not, do not update, inform the front
+            current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
+            current_app.doc_store.unlock_document(key, session['mail'])
+            # XXX send mail to owner
+        else:
+            current_app.doc_store.remove_document(key)
+            docs.append({'id': key, 'signed_content': doc['signedContent']})
 
     return {
         'payload': {'documents': docs},

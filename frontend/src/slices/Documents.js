@@ -18,7 +18,7 @@ import {
   preparePayload,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { updateSigningForm, addOwned, removeOwned, setPolling } from "slices/Main";
+import { updateSigningForm, addOwned, removeOwned, setPolling, startSigningInvited, startSigningOwned } from "slices/Main";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
 import { b64toBlob } from "components/utils";
@@ -121,7 +121,6 @@ async function validateDoc(doc, intl, state) {
       return doc;
     })
     .catch((err) => {
-      console.log("OOOOOOOOOOOOOOOOOO", err);
       if (err.message === "No password given") {
         doc.message = intl.formatMessage({
           defaultMessage: "Please do not supply a password protected document",
@@ -325,6 +324,53 @@ export const prepareDocument = createAsyncThunk(
 
 /**
  * @public
+ * @function startSigning
+ * @desc Redux async thunk to tell the backend to create a sign request
+ *       with loaded, invited and inviting documents
+ */
+export const startSigning = createAsyncThunk(
+  "documents/startSigning",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    await state.documents.documents.forEach(async (doc) => {
+      if (doc.state === "selected") {
+        thunkAPI.dispatch(
+          documentsSlice.actions.startSigningDocument(doc.name)
+        );
+        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+      }
+    });
+    const invited = false;
+    state.main.owned_multisign.forEach((doc) => {
+      if (doc.state === 'selected') {
+        invited = true;
+        thunkAPI.dispatch(
+          startSigningOwned(doc.name)
+        );
+      }
+    });
+    state.main.pending_multisign.forEach((doc) => {
+      if (doc.state === 'selected') {
+        invited = true;
+        thunkAPI.dispatch(
+          startSigningInvited(doc.name)
+        );
+      }
+    });
+    if (invited) {
+      thunkAPI.dispatch(
+        restartSigningDocuments(args)
+      );
+    } else {
+      thunkAPI.dispatch(
+        startSigningDocuments(args)
+      );
+    }
+  }
+);
+
+/**
+ * @public
  * @function startSigningDocuments
  * @desc Redux async thunk to tell the backend to create a sign request
  */
@@ -335,7 +381,7 @@ export const startSigningDocuments = createAsyncThunk(
     const docsToSign = [];
     let data = null;
     await state.documents.documents.forEach(async (doc) => {
-      if (doc.state === "selected") {
+      if (doc.state === "signing") {
         docsToSign.push({
           name: doc.name,
           type: doc.type,
@@ -343,10 +389,6 @@ export const startSigningDocuments = createAsyncThunk(
           key: doc.key,
           sign_requirement: doc.sign_requirement,
         });
-        thunkAPI.dispatch(
-          documentsSlice.actions.startSigningDocument(doc.name)
-        );
-        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
       }
     });
     const body = preparePayload(state, { documents: docsToSign });
@@ -418,14 +460,39 @@ export const restartSigningDocuments = createAsyncThunk(
   "documents/restartSigningDocuments",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const docsToSign = [];
+    const docsToSign = {
+      local: [],
+      invited: [],
+      owned: [],
+    };
     let data = null;
     state.documents.documents.forEach((doc) => {
       if (doc.state === "signing") {
-        docsToSign.push({
+        docsToSign.local.push({
           name: doc.name,
           key: doc.key,
           blob: doc.blob,
+          type: doc.type,
+          size: doc.size,
+        });
+      }
+    });
+    state.main.pending_multisign.forEach((doc) => {
+      if (doc.state === "signing") {
+        docsToSign.invited.push({
+          name: doc.name,
+          key: doc.key,
+          invite_key: doc.invite_key,
+          type: doc.type,
+          size: doc.size,
+        });
+      }
+    });
+    state.main.owned_multisign.forEach((doc) => {
+      if (doc.state === "signing") {
+        docsToSign.owned.push({
+          name: doc.name,
+          key: doc.key,
           type: doc.type,
           size: doc.size,
         });

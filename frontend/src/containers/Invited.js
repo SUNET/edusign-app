@@ -10,6 +10,7 @@ import {
   getPartiallySignedDoc,
   hideInvitedPreview,
   setInvitedSigning,
+  selectInvitedDoc,
 } from "slices/Main";
 
 const mapStateToProps = (state) => {
@@ -21,6 +22,11 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
+    handleDocSelection: function (docName) {
+      return () => {
+        dispatch(selectInvitedDoc(docName));
+      };
+    },
     startMultiSigning: (docRef) => {
       return () => {
         dispatch(setInvitedSigning(docRef));

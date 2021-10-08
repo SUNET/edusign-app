@@ -13,6 +13,7 @@ import {
   getPartiallySignedDoc,
   hideOwnedPreview,
   setOwnedSigning,
+  selectOwnedDoc,
 } from "slices/Main";
 import { skipOwnedSignature } from "slices/Documents";
 
@@ -25,6 +26,11 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
+    handleDocSelection: function (docName) {
+      return () => {
+        dispatch(selectOwnedDoc(docName));
+      };
+    },
     handleRemove: function (doc, props) {
       return async () => {
         await dispatch(removeInvites({ doc: doc, intl: props.intl }));

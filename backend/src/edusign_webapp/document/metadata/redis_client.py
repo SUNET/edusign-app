@@ -367,6 +367,7 @@ class RedisMD(ABCMetadata):
                  + size: Size of the doc
                  + type: Content type of the doc
                  + owner: Email and name of the user requesting the signature
+                 + state: the state of the invitation
         """
         invites = self.client.query_invites_from_email(email)
         if invites is None or isinstance(invites, dict):
@@ -393,6 +394,7 @@ class RedisMD(ABCMetadata):
             document['invite_key'] = invite['key']
             document['pending'] = []
             document['signed'] = []
+            document['state'] = "unconfirmed"
 
             subinvites = self.client.query_invites_from_doc(doc_id)
 
@@ -456,6 +458,7 @@ class RedisMD(ABCMetadata):
                  + size: Size of the doc
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
                  + signed: List of emails of the users invited to sign the document who have already done so.
+                 + state: the state of the invitation
         """
         documents = self.client.query_documents_from_owner(email)
         if documents is None or isinstance(documents, dict):
@@ -465,10 +468,12 @@ class RedisMD(ABCMetadata):
             document['key'] = document['key']
             document['pending'] = []
             document['signed'] = []
+            state = 'loaded'
             document_id = document['doc_id']
             invites = self.client.query_invites_from_doc(document_id)
             del document['doc_id']
             if invites is None or isinstance(invites, dict):
+                document['state'] = state
                 continue
             for invite in invites:
                 user_id = invite['user_id']
@@ -480,9 +485,12 @@ class RedisMD(ABCMetadata):
                     )
                     continue
                 if invite['signed'] == 0:
+                    state = 'incomplete'
                     document['pending'].append(email_result)
                 else:
                     document['signed'].append(email_result)
+
+            document['state'] = state
 
         return documents
 

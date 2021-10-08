@@ -62,11 +62,13 @@ class InvitationsSchema(Schema):
         owner = fields.Nested(Invitee)
         pending = fields.List(fields.Nested(Invitee))
         signed = fields.List(fields.Nested(Invitee))
+        state = fields.String(required=True, validate=[validate_nonempty])
 
     class OwnedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
         pending = fields.List(fields.Nested(Invitee))
         signed = fields.List(fields.Nested(Invitee))
+        state = fields.String(required=True, validate=[validate_nonempty])
 
     pending_multisign = fields.List(fields.Nested(PendingDocument))
     owned_multisign = fields.List(fields.Nested(OwnedDocument))
@@ -112,6 +114,23 @@ class DocumentSchemaWithKey(_DocumentSchema):
     blob = fields.Raw(required=True, validate=[validate_nonempty])
 
 
+class DocumentSchemaWithKeyNoBlob(_DocumentSchema):
+    """
+    Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
+    """
+
+    key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+
+
+class DocumentSchemaWithKeyInvite(_DocumentSchema):
+    """
+    Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
+    """
+
+    key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+    invite_key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+
+
 class ReferenceSchema(Schema):
     """
     Schema to marshal data returned from the `prepare` API endpoint
@@ -142,7 +161,12 @@ class ToRestartSigningSchema(Schema):
     having been evicted from the API's cache.
     """
 
-    documents = fields.List(fields.Nested(DocumentSchemaWithKey))
+    class AllDocuments(Schema):
+        local = fields.List(fields.Nested(DocumentSchemaWithKey))
+        invited = fields.List(fields.Nested(DocumentSchemaWithKeyInvite))
+        owned = fields.List(fields.Nested(DocumentSchemaWithKeyNoBlob))
+
+    documents = fields.Nested(AllDocuments)
 
 
 class SignRequestSchema(Schema):

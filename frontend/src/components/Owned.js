@@ -8,37 +8,55 @@ import ConfirmDialogContainer from "containers/ConfirmDialog";
 
 import ReInviteFormContainer from "containers/ReInviteForm";
 import DocPreviewContainer from "containers/DocPreview";
-import { docToFile } from "components/utils";
+import { docToFile, humanFileSize } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
 
 import "styles/Invitation.scss";
 
-const signButton = (props, doc, help) => {
+const selectDoc = (index, doc, props) => {
   return (
     <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-sign-container">
-          <div className="button-sign-invitation">
-            <Button
-              variant="outline-success"
-              size="sm"
-              onClick={props.handleSign(doc, props)}
-            >
+      <div className="owned-doc-selector-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          rootClose={true}
+          overlay={(props) => (
+            <Tooltip id="tooltip-select-owned-doc" {...props}>
               <FormattedMessage
-                defaultMessage="Sign Document"
-                key="final-sign-button"
+                defaultMessage="Select the document for signing"
+                key="select-doc-tootip"
               />
-            </Button>
-          </div>
-        </div>
-      </OverlayTrigger>
+            </Tooltip>
+          )}
+        >
+          <input
+            type="checkbox"
+            id={"owned-doc-selector-" + index}
+            name={"owned-doc-selector-" + index}
+            data-testid={"owned-doc-selector-" + index}
+            onChange={props.handleDocSelection(doc.name)}
+            checked={doc.state === "selected"}
+          />
+        </OverlayTrigger>
+      </div>
     </>
   );
-};
+}
+const dummySelectDoc = () => {
+  return (
+    <>
+      <div className="doc-selector-flex-item" />
+    </>
+  );
+}
+
+const docName = (doc) => {
+  return <div className="name-flex-item">{doc.name}</div>;
+}
+const docSize = (doc) => {
+  return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
+}
 
 const namedSpinner = (index, name) => {
   return (
@@ -179,11 +197,6 @@ class Owned extends Component {
         defaultMessage: "Cancel Request",
         id: "owned-close-button-help",
       }),
-      "sign-button-help": this.props.intl.formatMessage({
-        defaultMessage:
-          "All requested users have alredy signed the document, click here to add your final signature",
-        id: "owned-sign-button-help",
-      }),
       "skip-button-help": this.props.intl.formatMessage({
         defaultMessage:
           "All requested users have alredy signed the document, click here to skip adding your final signature",
@@ -216,59 +229,72 @@ class Owned extends Component {
                 <div
                   className={"invitation-name-and-buttons-" + this.props.size}
                 >
-                  <div className="name-flex-item">
-                    <span className="invitation-doc-name-label">
-                      <FormattedMessage
-                        defaultMessage="You have invited signers to sign"
-                        key="owned-doc-name"
-                      />
-                    </span>
-                    <span className="invitation-doc-name">{doc.name}</span>
-                  </div>
-                  <div className="invitation-buttons">
-                    {(doc.state === "signing" && (
-                      <>{namedSpinner(index, "signing")}</>
-                    )) || (
-                      <>
-                        {previewButton(
-                          this.props,
-                          doc,
-                          this.getHelp("preview-button-help")
-                        )}
-                        {removeButton(
-                          this.props,
-                          doc,
-                          this.getHelp("close-button-help")
-                        )}
-                        {doc.pending.length === 0 &&
-                          signButton(
-                            this.props,
-                            doc,
-                            this.getHelp("sign-button-help")
-                          )}
-                        {doc.pending.length === 0 &&
-                          skipSignatureButton(
-                            this.props,
-                            doc,
-                            this.getHelp("skip-button-help")
-                          )}
-                        {doc.pending.length > 0 &&
-                          resendButton(
-                            this.props,
-                            doc,
-                            this.getHelp("resend-button-help")
-                          )}
-                        {doc.show && (
-                          <DocPreviewContainer
-                            doc={doc}
-                            docFile={docFile}
-                            index={index}
-                            handleClose={this.props.handleClosePreview}
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
+                  {(doc.state === 'incomplete') && (
+                    <>
+                      {dummySelectDoc()}
+                      {docSize(doc)}
+                      {docName(doc)}
+                      {previewButton(
+                        this.props,
+                        doc,
+                        this.getHelp("preview-button-help")
+                      )}
+                      {removeButton(
+                        this.props,
+                        doc,
+                        this.getHelp("close-button-help")
+                      )}
+                      {resendButton(
+                        this.props,
+                        doc,
+                        this.getHelp("resend-button-help")
+                      )}
+                    </>
+                  )}
+                  {(["loaded", "selected", "failed-signing"].includes(doc.state)) && (
+                    <>
+                      {selectDoc(index, doc, this.props)}
+                      {docSize(doc)}
+                      {docName(doc)}
+                      {previewButton(
+                        this.props,
+                        doc,
+                        this.getHelp("preview-button-help")
+                      )}
+                      {removeButton(
+                        this.props,
+                        doc,
+                        this.getHelp("close-button-help")
+                      )}
+                      {resendButton(
+                        this.props,
+                        doc,
+                        this.getHelp("resend-button-help")
+                      )}
+                      {skipSignatureButton(
+                        this.props,
+                        doc,
+                        this.getHelp("skip-button-help")
+                      )}
+                    </>
+                  )}
+                  {(doc.state === 'signing') && (
+                    <>
+                      {dummySelectDoc()}
+                      {docSize(doc)}
+                      {docName(doc)}
+                      {namedSpinner(index, "signing")}
+                    </>
+                  )}
+                  {doc.show && (
+                    <DocPreviewContainer
+                      doc={doc}
+                      docFile={docFile}
+                      index={index}
+                      handleClose={this.props.handleClosePreview}
+                    />
+                  )}
+
                 </div>
                 {doc.pending.length > 0 && (
                   <>

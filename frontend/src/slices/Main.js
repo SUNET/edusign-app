@@ -6,6 +6,22 @@
  * The main key of the Redux state holds the following subkeys:
  *
  * - loading: to indicate whether the app is loading or has finished loading.
+ *
+ * Owned invitation states:
+ * + incomplete: there are pending inveted signatures
+ * + loaded: all invited have signed
+ * + selected: invitation selected for signature
+ * + signing: invitation is being signed
+ * + signed: invitation has been signed
+ * + failed-signing: invitation has had problems while being signed
+ *
+ * Invited invitation states:
+ * + unconfirmed: the user has not previewed the document
+ * + loaded: document has been previewed
+ * + selected: invitation selected for signature
+ * + signing: invitation is being signed
+ * + failed-signing: invitation has had problems while being signed
+ *
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createIntl } from "react-intl";
@@ -201,6 +217,36 @@ const mainSlice = createSlice({
     },
     /**
      * @public
+     * @function selectOwnedDoc
+     * @desc Redux action to select an owned invitation
+     */
+    selectOwnedDoc(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            state: "selected",
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function selectInvitedDoc
+     * @desc Redux action to select an invited invitation
+     */
+    selectInvitedDoc(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            state: "selected",
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
      * @function setInvitedSigning
      * @desc Redux action to mark and invitee doc as being signed
      */
@@ -267,6 +313,72 @@ const mainSlice = createSlice({
     setPolling(state, action) {
       state.poll = action.payload;
     },
+    /**
+     * @function startSigningInvited
+     * @desc Redux action to update a document in the store
+     * setting the state key to "signing"
+     */
+    startSigningInvited(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          const document = {
+            ...doc,
+            state: "signing",
+          };
+          return document;
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function startSigningOwned
+     * @desc Redux action to update a document in the store
+     * setting the state key to "signing"
+     */
+    startSigningOwned(state, action) {
+      state.pending_multisign = state.owned_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          const document = {
+            ...doc,
+            state: "signing",
+          };
+          return document;
+        } else return doc;
+      });
+    },
+    /**
+     * @function setInvitedState
+     * @desc Redux action to update a document in the store
+     * setting the state key to whatever
+     */
+    setInvitedState(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload.name) {
+          const document = {
+            ...doc,
+            state: action.payload.state,
+          };
+          return document;
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function setOwnedState
+     * @desc Redux action to update a document in the store
+     * setting the state key to whatever
+     */
+    setOwnedState(state, action) {
+      state.pending_multisign = state.owned_multisign.map((doc) => {
+        if (doc.name === action.payload.name) {
+          const document = {
+            ...doc,
+            state: action.payload.state,
+          };
+          return document;
+        } else return doc;
+      });
+    },
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
@@ -316,6 +428,12 @@ export const {
   hideInvitedPreview,
   hideOwnedPreview,
   setPolling,
+  startSigningInvited,
+  startSigningOwned,
+  setInvitedState,
+  setOwnedState,
+  selectInvitedDoc,
+  selectOwnedDoc,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;

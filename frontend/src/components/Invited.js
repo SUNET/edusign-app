@@ -5,32 +5,62 @@ import Button from "react-bootstrap/Button";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
 
-import { docToFile } from "components/utils";
+import { docToFile, humanFileSize } from "components/utils";
 import DocPreviewContainer from "containers/DocPreview";
 import LittleSpinner from "components/LittleSpinner";
 
 import "styles/Invitation.scss";
 
-const signButton = (props, doc, help) => {
+const selectDoc = (index, doc, props) => {
   return (
     <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-sign-container">
-          <div className="button-sign-invitation">
-            <Button
-              variant="outline-success"
-              size="sm"
-              onClick={props.startMultiSigning(doc.invite_key)}
-            >
-              <FormattedMessage defaultMessage="Sign" key="sign-button" />
-            </Button>
-          </div>
-        </div>
-      </OverlayTrigger>
+      <div className="invited-doc-selector-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          rootClose={true}
+          overlay={(props) => (
+            <Tooltip id="tooltip-select-invited-doc" {...props}>
+              <FormattedMessage
+                defaultMessage="Select the document for signing"
+                key="select-doc-tootip"
+              />
+            </Tooltip>
+          )}
+        >
+          <input
+            type="checkbox"
+            id={"invited-doc-selector-" + index}
+            name={"invited-doc-selector-" + index}
+            data-testid={"invited-doc-selector-" + index}
+            onChange={props.handleDocSelection(doc.name)}
+            checked={doc.state === "selected"}
+          />
+        </OverlayTrigger>
+      </div>
+    </>
+  );
+}
+const dummySelectDoc = () => {
+  return (
+    <>
+      <div className="doc-selector-flex-item" />
+    </>
+  );
+}
+
+const docName = (doc) => {
+  return <div className="name-flex-item">{doc.name}</div>;
+}
+const docSize = (doc) => {
+  return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
+}
+
+const namedSpinner = (index, name) => {
+  return (
+    <>
+      <LittleSpinner index={index} />
+      <div className="spinning-flex-item">{` ${name} ...`}</div>
     </>
   );
 };
@@ -55,15 +85,6 @@ const previewButton = (props, doc, help) => {
           </div>
         </div>
       </OverlayTrigger>
-    </>
-  );
-};
-
-const namedSpinner = (index, name) => {
-  return (
-    <>
-      <LittleSpinner index={index} />
-      <div className="spinning-flex-item">{` ${name} ...`}</div>
     </>
   );
 };
@@ -102,41 +123,47 @@ class Invited extends Component {
                 <div
                   className={"invitation-name-and-buttons-" + this.props.size}
                 >
-                  <div className="name-flex-item">
-                    <span className="invitation-doc-name-label">
-                      <FormattedMessage
-                        defaultMessage="You have been invited to sign"
-                        key="invited-doc-name"
-                      />
-                    </span>
-                    <span className="invitation-doc-name">{doc.name}</span>
-                  </div>
-                  <div className="invitation-buttons">
-                    {(doc.state === "signing" && (
-                      <>{namedSpinner(index, "signing")}</>
-                    )) || (
-                      <>
-                        {previewButton(
-                          this.props,
-                          doc,
-                          this.getHelp("preview-button-help")
-                        )}
-                        {signButton(
-                          this.props,
-                          doc,
-                          this.getHelp("sign-button-help")
-                        )}
-                        {doc.show && (
-                          <DocPreviewContainer
-                            doc={doc}
-                            docFile={docFile}
-                            index={index}
-                            handleClose={this.props.handleClosePreview}
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
+                  {(doc.state === 'unconfirmed') && (
+                    <>
+                      {dummySelectDoc()}
+                      {docSize(doc)}
+                      {docName(doc)}
+                      {previewButton(
+                        this.props,
+                        doc,
+                        this.getHelp("preview-button-help")
+                      )}
+                    </>
+                  )}
+                  {(["loaded", "selected", "failed-signing"].includes(doc.state)) && (
+                    <>
+                      {selectDoc(index, doc, this.props)}
+                      {docSize(doc)}
+                      {docName(doc)}
+                      {previewButton(
+                        this.props,
+                        doc,
+                        this.getHelp("preview-button-help")
+                      )}
+                    </>
+                  )}
+                  {(doc.state === 'signing') && (
+                    <>
+                      {dummySelectDoc()}
+                      {docSize(doc)}
+                      {docName(doc)}
+                      {namedSpinner(index, "signing")}
+                    </>
+                  )}
+                  {doc.show && (
+                    <DocPreviewContainer
+                      doc={doc}
+                      docFile={docFile}
+                      index={index}
+                      handleClose={this.props.handleClosePreview}
+                    />
+                  )}
+
                 </div>
                 <div className="invited-by">
                   <span className="invited-by-label">

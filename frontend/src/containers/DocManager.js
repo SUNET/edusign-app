@@ -20,7 +20,7 @@ import {
   showForcedPreview,
   setState,
   toggleDocSelection,
-  startSigningDocuments,
+  startSigning,
   removeDocument,
   removeAllDocuments,
   downloadSigned,
@@ -74,7 +74,7 @@ const mapDispatchToProps = (dispatch, props) => {
       };
     },
     handleSubmitToSign: async function () {
-      await dispatch(startSigningDocuments({ intl: this.props.intl }));
+      await dispatch(startSigning({ intl: this.props.intl }));
     },
     handleDownloadAll: async function () {
       await dispatch(downloadAllSigned({ intl: this.props.intl }));
