@@ -93,3 +93,20 @@ def prepare_document(document: dict) -> dict:
             'error': True,
             'message': gettext('There was an error. Please try again, or contact the site administrator.'),
         }
+
+
+def get_invitations():
+    owned = current_app.doc_store.get_owned_documents(session['mail'])
+    invited = current_app.doc_store.get_pending_documents(session['mail'])
+    poll = False
+    for docs in (owned, invited):
+        for doc in docs:
+            if len(doc['pending']) > 0:
+                poll = True
+                break
+
+    return {
+        'owned_multisign': owned,
+        'pending_multisign': invited,
+        'poll': poll,
+    }

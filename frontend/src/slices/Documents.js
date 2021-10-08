@@ -18,7 +18,7 @@ import {
   preparePayload,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { updateSigningForm, addOwned, removeOwned } from "slices/Main";
+import { updateSigningForm, addOwned, removeOwned, setPolling } from "slices/Main";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
 import { b64toBlob } from "components/utils";
@@ -648,6 +648,7 @@ export const sendInvites = createAsyncThunk(
     };
     thunkAPI.dispatch(addOwned(owned));
     await thunkAPI.dispatch(removeDocument({docName: document.name}));
+    thunkAPI.dispatch(setPolling(true));
     return document.key;
   }
 );
