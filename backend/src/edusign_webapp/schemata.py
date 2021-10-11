@@ -188,6 +188,16 @@ class SignRequestSchema(Schema):
     documents = fields.List(fields.Nested(DocumentWithIdSchema))
 
 
+class ReSignRequestSchema(SignRequestSchema):
+
+    class FailedDocument(Schema):
+        key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+        state = fields.String(required=True, validate=[validate_nonempty])
+        message = fields.String(required=True, validate=[validate_nonempty])
+
+    failed = fields.List(fields.Nested(FailedDocument))
+
+
 class SigningSchema(Schema):
     """
     Schema to unmarshal a request to get the contents of already signed documents.

@@ -18,10 +18,10 @@ import {
   preparePayload,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { updateSigningForm, addOwned, removeOwned, setPolling, startSigningInvited, startSigningOwned } from "slices/Main";
+import { updateSigningForm, addOwned, removeOwned, setPolling, startSigningInvited, startSigningOwned, setOwnedState, setInvitedState } from "slices/Main";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
-import { b64toBlob } from "components/utils";
+import { b64toBlob, hashCode } from "components/utils";
 
 /**
  * @public
@@ -31,7 +31,6 @@ import { b64toBlob } from "components/utils";
 export const loadDocuments = createAsyncThunk(
   "documents/loadDocuments",
   async (args, thunkAPI) => {
-    console.log("going to open db, name ", args.eppn);
     const db = await getDb(args.eppn);
 
     if (db !== null) {
@@ -88,6 +87,36 @@ export const loadDocuments = createAsyncThunk(
         documents: [],
       };
     }
+  }
+);
+
+/**
+ * @public
+ * @function checkStoredDocuments
+ * @desc Redux async thunk to load documents saved in IndexedDB.
+ */
+export const checkStoredDocuments = createAsyncThunk(
+  "documents/checkStoredDocuments",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const storedName = 'signing-' + hashCode(state.main.signer_attributes.name);
+    const storedStr = localStorage.getItem(storedName);
+    if (storedStr !== null) {
+      const storedDocs = JSON.parse(storedStr);
+      storedDocs.forEach((doc) => {
+        state.main.owned_multisign.forEach((oldDOc) => {
+          if (oldDoc.key === doc.key) {
+            thunkAPI.dispatch(setOwnedState(doc));
+          }
+        });
+        state.main.invited_multisign.forEach((oldDOc) => {
+          if (oldDoc.key === doc.key) {
+            thunkAPI.dispatch(setInvitedState(doc));
+          }
+        });
+      });
+    }
+    localStorage.removeItem(storedName);
   }
 );
 
@@ -340,7 +369,7 @@ export const startSigning = createAsyncThunk(
         await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
       }
     });
-    const invited = false;
+    let invited = false;
     state.main.owned_multisign.forEach((doc) => {
       if (doc.state === 'selected') {
         invited = true;
@@ -509,10 +538,35 @@ export const restartSigningDocuments = createAsyncThunk(
       if (data.error) {
         throw new Error(data.message);
       }
+      data.payload.failed.forEach((failed) => {
+          docsToSign.owned = docsToSign.owned.map((doc) => {
+            if (doc.key === failed.key) {
+              return {
+                ...doc,
+                ...failed,
+              };
+            }
+            return doc;
+          });
+          docsToSign.invited = docsToSign.invited.map((doc) => {
+            if (doc.key === failed.key) {
+              return {
+                ...doc,
+                ...failed,
+              };
+            }
+            return doc;
+          });
+      });
+      const storageName = 'signing-' + hashCode(state.main.signer_attributes.name);
+      const storageContent = JSON.stringify({owned: docsToSign.owned, invited: docsToSign.invited});
+      localStorage.setItem(storageName, storageContent);
+
       data.payload.documents.forEach(async (doc) => {
         thunkAPI.dispatch(documentsSlice.actions.updateDocumentWithId(doc));
         await thunkAPI.dispatch(saveDocument({docName: doc.name}));
       });
+      delete data.payload.failed;
       delete data.payload.documents;
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
@@ -580,6 +634,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       await thunkAPI.dispatch(saveDocument({ docName: docName }));
       thunkAPI.dispatch(removeOwned({key: doc.id}));
     });
+    await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
     thunkAPI.dispatch(
       addNotification({

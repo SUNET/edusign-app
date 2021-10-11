@@ -34,7 +34,7 @@ import asyncio
 import json
 import os
 import uuid
-from typing import Union
+from typing import Union, List, Dict, Any
 
 import pkg_resources
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
@@ -55,6 +55,7 @@ from edusign_webapp.schemata import (
     SignedDocumentsSchema,
     SigningSchema,
     SignRequestSchema,
+    ReSignRequestSchema,
     ToRestartSigningSchema,
     ToSignSchema,
 )
@@ -276,7 +277,7 @@ def create_sign_request(documents: dict) -> dict:
 
 @edusign_views.route('/recreate-sign-request', methods=['POST'])
 @UnMarshal(ToRestartSigningSchema)
-@Marshal(SignRequestSchema)
+@Marshal(ReSignRequestSchema)
 def recreate_sign_request(documents: dict) -> dict:
     """
     View to both send some documents to the API to be prepared to  be signed,
@@ -305,25 +306,44 @@ def recreate_sign_request(documents: dict) -> dict:
         doc['blob'] = current_app.doc_store.get_document_content(doc['key'])
         tasks.append(loop.create_task(prepare(doc)))
 
+    failed: List[Dict[str, Any]] = []
+
+    invited_docs = []
     for doc in documents['documents']['invited']:
+        current_app.logger.debug(f"Re-preparing invited document {doc['name']}")
         try:
             stored = current_app.doc_store.get_invitation(doc['invite_key'])
         except current_app.doc_store.DocumentLocked:
-            pass  # XXX need to inform the front that this has not been signed
+            current_app.logger.debug(f"Invited document {doc['name']} is locked")
+            failedDoc = {
+                'key': doc['key'],
+                'state': 'failed-signing',
+                'message': gettext("Document is being signed by another user, please try again in a few minutes.")
+            }
+            failed.append(failedDoc)
+            continue
 
         doc['blob'] = stored['document']['blob']
         tasks.append(loop.create_task(prepare(doc)))
+        invited_docs.append(doc)
 
     loop.run_until_complete(asyncio.wait(tasks))
     loop.close()
 
     docs_data = [task.result() for task in tasks]
     new_docs = []
-    for doc_data, doc in zip(docs_data, documents['documents']):
+    all_docs = documents['documents']['local'] + documents['documents']['owned'] + invited_docs
+    for doc_data, doc in zip(docs_data, all_docs):
 
         if 'error' in doc_data and doc_data['error']:
             current_app.logger.error(f"Problem re-preparing document for user {session['eppn']}: {doc['name']}")
-            return doc_data
+            failedDoc = {
+                'key': doc['key'],
+                'state': 'failed-signing',
+                'message': doc_data.get('message', gettext("Problem preparing document for signing. Please try again, or contact the site administrator."))
+            }
+            failed.append(failedDoc)
+            continue
 
         current_app.logger.info(f"Re-prepared {doc['name']} for user {session['eppn']}")
 
@@ -355,6 +375,7 @@ def recreate_sign_request(documents: dict) -> dict:
             'binding': create_data['binding'],
             'destination_url': create_data['destinationUrl'],
             'documents': documents_with_id,
+            'failed': failed,
         }
     except KeyError:
         current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
