@@ -15,7 +15,7 @@ import {
   setOwnedSigning,
   selectOwnedDoc,
 } from "slices/Main";
-import { skipOwnedSignature } from "slices/Documents";
+import { skipOwnedSignature, downloadSignedOwned } from "slices/Documents";
 
 const mapStateToProps = (state) => {
   return {
@@ -71,6 +71,11 @@ const mapDispatchToProps = (dispatch, props) => {
     handleClosePreview: function (docKey) {
       return () => {
         dispatch(hideOwnedPreview(docKey));
+      };
+    },
+    downloadSigned: function (docName) {
+      return () => {
+        dispatch(downloadSignedOwned(docName));
       };
     },
   };

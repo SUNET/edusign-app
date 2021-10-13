@@ -185,6 +185,30 @@ const removeButton = (props, doc, help) => {
   );
 };
 
+const downloadButton = (props, doc, help) => {
+  return (
+    <>
+      <OverlayTrigger
+        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+        trigger={["hover", "focus"]}
+        overlay={<Tooltip placement="auto">{help}</Tooltip>}
+      >
+        <div className="button-download-container">
+          <div className="button-download-invitation">
+            <Button
+              variant="outline-success"
+              size="sm"
+              onClick={props.downloadSigned(doc.name)}
+            >
+              <FormattedMessage defaultMessage="Download (signed)" key="dlsigned-button" />
+            </Button>
+          </div>
+        </div>
+      </OverlayTrigger>
+    </>
+  );
+};
+
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
  *
@@ -210,6 +234,10 @@ class Owned extends Component {
       "preview-button-help": this.props.intl.formatMessage({
         defaultMessage: "Click here to preview the document",
         id: "owned-preview-button-help",
+      }),
+      "download-button-help": this.props.intl.formatMessage({
+        defaultMessage: "Click here to download the signed document",
+        id: "owned-download-button-help",
       }),
     };
     return msgs[msg];
@@ -286,6 +314,18 @@ class Owned extends Component {
                       {docSize(doc)}
                       {docName(doc)}
                       {namedSpinner(index, "signing")}
+                    </>
+                  )}
+                  {doc.state === "signed" && (
+                    <>
+                      {dummySelectDoc()}
+                      {docSize(doc)}
+                      {docName(doc)}
+                      {downloadButton(
+                        this.props,
+                        doc,
+                        this.getHelp("download-button-help")
+                      )}
                     </>
                   )}
                   {doc.show && (

@@ -29,6 +29,7 @@ import {
   startSigningOwned,
   setOwnedState,
   setInvitedState,
+  setOwned,
 } from "slices/Main";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
@@ -53,17 +54,23 @@ export const loadDocuments = createAsyncThunk(
         };
         const docStore = transaction.objectStore("documents");
         const docs = [];
+        const owned = [];
         docStore.openCursor().onsuccess = (event) => {
           const cursor = event.target.result;
           if (cursor) {
-            const document = cursor.value;
-            docs.push(document);
-            if (document.state === "signing") {
+            const doc = cursor.value;
+            if (doc.hasOwnProperty("pending")) {
+              owned.push(doc);
+            } else {
+              docs.push(doc);
+            }
+            if (doc.state === "signing") {
               signing = true;
             }
             cursor.continue();
           }
           if (cursor === null) {
+            thunkAPI.dispatch(setOwned(owned));
             resolve(docs);
           }
         };
@@ -660,9 +667,8 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       await state.main.owned_multisign.forEach(async (oldDoc) => {
         if (doc.id === oldDoc.key) {
           const newDoc = {
-            ...doc,
             ...oldDoc,
-            blob: doc.signedContent,
+            signedContent: "data:application/pdf;base64," + doc.signed_content,
             state: "signed",
             show: false,
           };
@@ -717,6 +723,25 @@ export const downloadSigned = createAsyncThunk(
 
 /**
  * @public
+ * @function downloadSignedOwned
+ * @desc Redux async thunk to hand multisign signed documents to the user.
+ */
+export const downloadSignedOwned = createAsyncThunk(
+  "documents/downloadSignedOwned",
+  async (docname, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const doc = state.main.owned_multisign.filter((d) => {
+      return d.name === docname;
+    })[0];
+    const b64content = doc.signedContent.split(",")[1];
+    const blob = b64toBlob(b64content);
+    const newName = doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
+    FileSaver.saveAs(blob, newName);
+  }
+);
+
+/**
+ * @public
  * @function downloadAllSigned
  * @desc Redux async thunk to hand signed documents to the user.
  */
@@ -724,9 +749,12 @@ export const downloadAllSigned = createAsyncThunk(
   "documents/downloadAllSigned",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const docs = state.documents.documents.filter((doc) => {
+    let docs = state.documents.documents.filter((doc) => {
       return doc.state === "signed";
     });
+    docs.concat(state.main.owned_multisign.filter((doc) => {
+      return doc.state === "signed";
+    }));
     let zip = new JSZip();
     let folder = zip.folder("signed");
     docs.forEach((doc) => {
@@ -805,6 +833,7 @@ export const sendInvites = createAsyncThunk(
       type: document.type,
       pending: invitees,
       signed: [],
+      state: "incomplete",
     };
     thunkAPI.dispatch(addOwned(owned));
     await thunkAPI.dispatch(removeDocument({ docName: document.name }));
