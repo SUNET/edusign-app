@@ -62,7 +62,12 @@ export const fetchConfig = createAsyncThunk(
         );
         return thunkAPI.rejectWithValue(configData.message);
       } else {
-        thunkAPI.dispatch(loadDocuments({ intl: intl, eppn: configData.payload.signer_attributes.eppn }));
+        thunkAPI.dispatch(
+          loadDocuments({
+            intl: intl,
+            eppn: configData.payload.signer_attributes.eppn,
+          })
+        );
         return configData;
       }
     } catch (err) {
@@ -85,51 +90,48 @@ export const fetchConfig = createAsyncThunk(
  * @function poll
  * @desc Redux async thunk to poll configuration data from the backend.
  */
-export const poll = createAsyncThunk(
-  "main/poll",
-  async (args, thunkAPI) => {
-    try {
-      const response = await fetch("/sign/poll", getRequest);
-      const configData = await checkStatus(response);
-      extractCsrfToken(thunkAPI.dispatch, configData);
-      if (configData.error) {
-        return thunkAPI.rejectWithValue(configData.message);
-      } else {
-        const state = thunkAPI.getState()
-        const allOwned = state.main.owned_multisign.map((owned) => {
-          if (owned.pending.length > 0) {
-            const ownedCopy = {...owned};
-            configData.payload.owned_multisign.forEach((newOwned) => {
-              if (ownedCopy.name === newOwned.name) {
-                ownedCopy.pending = newOwned.pending;
-                ownedCopy.signed = newOwned.signed;
-              }
-            });
-            return ownedCopy;
-          }
-          return owned;
-        });
-        configData.payload.owned_multisign = allOwned;
-
-        const allInvited = state.main.pending_multisign.map((invited) => {
-          const invitedCopy = {...invited};
-          configData.payload.pending_multisign.forEach((newInvited) => {
-            if (invitedCopy.name === newInvited.name) {
-              invitedCopy.pending = newInvited.pending;
-              invitedCopy.signed = newInvited.signed;
+export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
+  try {
+    const response = await fetch("/sign/poll", getRequest);
+    const configData = await checkStatus(response);
+    extractCsrfToken(thunkAPI.dispatch, configData);
+    if (configData.error) {
+      return thunkAPI.rejectWithValue(configData.message);
+    } else {
+      const state = thunkAPI.getState();
+      const allOwned = state.main.owned_multisign.map((owned) => {
+        if (owned.pending.length > 0) {
+          const ownedCopy = { ...owned };
+          configData.payload.owned_multisign.forEach((newOwned) => {
+            if (ownedCopy.name === newOwned.name) {
+              ownedCopy.pending = newOwned.pending;
+              ownedCopy.signed = newOwned.signed;
             }
           });
-          return invitedCopy;
-        });
-        configData.payload.pending_multisign = allInvited;
+          return ownedCopy;
+        }
+        return owned;
+      });
+      configData.payload.owned_multisign = allOwned;
 
-        return configData;
-      }
-    } catch (err) {
-      return thunkAPI.rejectWithValue(err.toString());
+      const allInvited = state.main.pending_multisign.map((invited) => {
+        const invitedCopy = { ...invited };
+        configData.payload.pending_multisign.forEach((newInvited) => {
+          if (invitedCopy.name === newInvited.name) {
+            invitedCopy.pending = newInvited.pending;
+            invitedCopy.signed = newInvited.signed;
+          }
+        });
+        return invitedCopy;
+      });
+      configData.payload.pending_multisign = allInvited;
+
+      return configData;
     }
+  } catch (err) {
+    return thunkAPI.rejectWithValue(err.toString());
   }
-);
+});
 
 /**
  * @public
@@ -180,8 +182,8 @@ const mainSlice = createSlice({
     loading: false,
     csrf_token: null,
     signer_attributes: {
-      eppn: '',
-      name: '',
+      eppn: "",
+      name: "",
     },
     owned_multisign: [],
     pending_multisign: [],

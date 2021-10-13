@@ -57,7 +57,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleRemove: function (name) {
       return async () => {
-        await dispatch(removeDocument({docName: name}));
+        await dispatch(removeDocument({ docName: name }));
       };
     },
     handleRetry: function (doc, props) {
@@ -112,7 +112,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleUnConfirmForcedPreview: function (name) {
       return async () => {
-        await dispatch(removeDocument({docName: name}));
+        await dispatch(removeDocument({ docName: name }));
         dispatch(hideForcedPreview(name));
       };
     },

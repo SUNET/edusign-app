@@ -74,7 +74,9 @@ export async function getDb(name) {
           const newStore = newTransaction.objectStore("documents");
 
           const docRequest = newStore.add(document);
-          docRequest.onerror = (event) => {console.log("error recovering document, ", event)};
+          docRequest.onerror = (event) => {
+            console.log("error recovering document, ", event);
+          };
 
           console.log("transferring document ", document.name);
 
@@ -163,12 +165,15 @@ const documentDo = async (action, doc) => {
       } else if (action === "removing") {
         docRequest = docStore.delete(doc.id);
       }
-      transaction.oncomplete = () => {resolve()}
-      docRequest.onerror = () => {reject(docRequest.error);}
+      transaction.oncomplete = () => {
+        resolve();
+      };
+      docRequest.onerror = () => {
+        reject(docRequest.error);
+      };
     });
   }
-}
-
+};
 
 /**
  * @public

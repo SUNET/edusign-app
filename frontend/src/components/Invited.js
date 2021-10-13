@@ -40,21 +40,21 @@ const selectDoc = (index, doc, props) => {
       </div>
     </>
   );
-}
+};
 const dummySelectDoc = () => {
   return (
     <>
       <div className="doc-selector-flex-item" />
     </>
   );
-}
+};
 
 const docName = (doc) => {
   return <div className="name-flex-item">{doc.name}</div>;
-}
+};
 const docSize = (doc) => {
   return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
-}
+};
 
 const namedSpinner = (index, name) => {
   return (
@@ -123,7 +123,7 @@ class Invited extends Component {
                 <div
                   className={"invitation-name-and-buttons-" + this.props.size}
                 >
-                  {(doc.state === 'unconfirmed') && (
+                  {doc.state === "unconfirmed" && (
                     <>
                       {dummySelectDoc()}
                       {docSize(doc)}
@@ -135,7 +135,9 @@ class Invited extends Component {
                       )}
                     </>
                   )}
-                  {(["loaded", "selected", "failed-signing"].includes(doc.state)) && (
+                  {["loaded", "selected", "failed-signing"].includes(
+                    doc.state
+                  ) && (
                     <>
                       {selectDoc(index, doc, this.props)}
                       {docSize(doc)}
@@ -147,7 +149,7 @@ class Invited extends Component {
                       )}
                     </>
                   )}
-                  {(doc.state === 'signing') && (
+                  {doc.state === "signing" && (
                     <>
                       {dummySelectDoc()}
                       {docSize(doc)}
@@ -163,7 +165,6 @@ class Invited extends Component {
                       handleClose={this.props.handleClosePreview}
                     />
                   )}
-
                 </div>
                 <div className="invited-by">
                   <span className="invited-by-label">

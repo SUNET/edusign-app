@@ -19,30 +19,30 @@ class Header extends Component {
       name = (
         <div id="name-and-clear-in-header">
           {(this.props.signer_attributes !== undefined && (
-              <>
-                <span id="name-in-header">
-                  <span id="signing-with-span">
-                    <FormattedMessage
-                      defaultMessage="Signed in as {name} ({eppn})"
-                      key="signing-with"
-                      values={{ ...this.props.signer_attributes }}
-                    />
-                  </span>
-                  <span id="logout-button-container">
-                    <Button
-                      variant="outline-dark"
-                      onClick={this.props.handleLogout}
-                      data-testid="button-logout"
-                    >
-                      <FormattedMessage
-                        defaultMessage="Logout"
-                        key="logout-button"
-                      />
-                    </Button>
-                  </span>
+            <>
+              <span id="name-in-header">
+                <span id="signing-with-span">
+                  <FormattedMessage
+                    defaultMessage="Signed in as {name} ({eppn})"
+                    key="signing-with"
+                    values={{ ...this.props.signer_attributes }}
+                  />
                 </span>
-              </>
-            )) || (
+                <span id="logout-button-container">
+                  <Button
+                    variant="outline-dark"
+                    onClick={this.props.handleLogout}
+                    data-testid="button-logout"
+                  >
+                    <FormattedMessage
+                      defaultMessage="Logout"
+                      key="logout-button"
+                    />
+                  </Button>
+                </span>
+              </span>
+            </>
+          )) || (
             <span id="name-in-header">
               <span id="signing-with-span">
                 <FormattedMessage

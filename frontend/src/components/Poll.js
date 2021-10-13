@@ -1,8 +1,6 @@
-import { useEffect } from 'react';
-
+import { useEffect } from "react";
 
 export default function Poll(props) {
-
   useEffect(() => {
     if (props.poll) {
       props.stopPolling();

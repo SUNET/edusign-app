@@ -18,7 +18,18 @@ import {
   preparePayload,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { updateSigningForm, addOwned, removeOwned, updateOwned, removeInvited, setPolling, startSigningInvited, startSigningOwned, setOwnedState, setInvitedState } from "slices/Main";
+import {
+  updateSigningForm,
+  addOwned,
+  removeOwned,
+  updateOwned,
+  removeInvited,
+  setPolling,
+  startSigningInvited,
+  startSigningOwned,
+  setOwnedState,
+  setInvitedState,
+} from "slices/Main";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
 import { b64toBlob, hashCode } from "components/utils";
@@ -79,7 +90,7 @@ export const loadDocuments = createAsyncThunk(
         }
       }
       thunkAPI.dispatch(documentsSlice.actions.setDocuments(documents));
-      if (signing && (dataElem !== null)) {
+      if (signing && dataElem !== null) {
         await fetchSignedDocuments(thunkAPI, dataElem, args.intl);
       }
     } else {
@@ -99,7 +110,7 @@ export const checkStoredDocuments = createAsyncThunk(
   "documents/checkStoredDocuments",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const storedName = 'signing-' + hashCode(state.main.signer_attributes.name);
+    const storedName = "signing-" + hashCode(state.main.signer_attributes.name);
     const storedStr = localStorage.getItem(storedName);
     if (storedStr !== null) {
       const storedDocs = JSON.parse(storedStr);
@@ -264,11 +275,14 @@ export const createDocument = createAsyncThunk(
     }
 
     try {
-      thunkAPI.dispatch(
-        documentsSlice.actions.addDocument(doc)
+      thunkAPI.dispatch(documentsSlice.actions.addDocument(doc));
+      const newDoc = await addDocumentToDb(
+        doc,
+        state.main.signer_attributes.eppn
       );
-      const newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn);
-      await thunkAPI.dispatch(prepareDocument({ doc: newDoc, intl: args.intl }));
+      await thunkAPI.dispatch(
+        prepareDocument({ doc: newDoc, intl: args.intl })
+      );
       await thunkAPI.dispatch(saveDocument({ docName: newDoc.name }));
     } catch (err) {
       thunkAPI.dispatch(
@@ -369,29 +383,21 @@ export const startSigning = createAsyncThunk(
     });
     let invited = false;
     state.main.owned_multisign.forEach((doc) => {
-      if (doc.state === 'selected') {
+      if (doc.state === "selected") {
         invited = true;
-        thunkAPI.dispatch(
-          startSigningOwned(doc.name)
-        );
+        thunkAPI.dispatch(startSigningOwned(doc.name));
       }
     });
     state.main.pending_multisign.forEach((doc) => {
-      if (doc.state === 'selected') {
+      if (doc.state === "selected") {
         invited = true;
-        thunkAPI.dispatch(
-          startSigningInvited(doc.name)
-        );
+        thunkAPI.dispatch(startSigningInvited(doc.name));
       }
     });
     if (invited) {
-      thunkAPI.dispatch(
-        restartSigningDocuments(args)
-      );
+      thunkAPI.dispatch(restartSigningDocuments(args));
     } else {
-      thunkAPI.dispatch(
-        startSigningDocuments(args)
-      );
+      thunkAPI.dispatch(startSigningDocuments(args));
     }
   }
 );
@@ -445,7 +451,7 @@ export const startSigningDocuments = createAsyncThunk(
       }
       data.payload.documents.forEach(async (doc) => {
         thunkAPI.dispatch(documentsSlice.actions.updateDocumentWithId(doc));
-        await thunkAPI.dispatch(saveDocument({docName: doc.name}));
+        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
       });
       delete data.payload.documents;
 
@@ -537,27 +543,31 @@ export const restartSigningDocuments = createAsyncThunk(
         throw new Error(data.message);
       }
       data.payload.failed.forEach((failed) => {
-          docsToSign.owned = docsToSign.owned.map((doc) => {
-            if (doc.key === failed.key) {
-              return {
-                ...doc,
-                ...failed,
-              };
-            }
-            return doc;
-          });
-          docsToSign.invited = docsToSign.invited.map((doc) => {
-            if (doc.key === failed.key) {
-              return {
-                ...doc,
-                ...failed,
-              };
-            }
-            return doc;
-          });
+        docsToSign.owned = docsToSign.owned.map((doc) => {
+          if (doc.key === failed.key) {
+            return {
+              ...doc,
+              ...failed,
+            };
+          }
+          return doc;
+        });
+        docsToSign.invited = docsToSign.invited.map((doc) => {
+          if (doc.key === failed.key) {
+            return {
+              ...doc,
+              ...failed,
+            };
+          }
+          return doc;
+        });
       });
-      const storageName = 'signing-' + hashCode(state.main.signer_attributes.name);
-      const storageContent = JSON.stringify({owned: docsToSign.owned, invited: docsToSign.invited});
+      const storageName =
+        "signing-" + hashCode(state.main.signer_attributes.name);
+      const storageContent = JSON.stringify({
+        owned: docsToSign.owned,
+        invited: docsToSign.invited,
+      });
       localStorage.setItem(storageName, storageContent);
 
       await data.payload.documents.forEach(async (doc) => {
@@ -566,7 +576,7 @@ export const restartSigningDocuments = createAsyncThunk(
           if (oldDoc.key === doc.key) {
             found = true;
             thunkAPI.dispatch(documentsSlice.actions.updateDocumentWithId(doc));
-            await thunkAPI.dispatch(saveDocument({docName: doc.name}));
+            await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
           }
         });
         if (!found) {
@@ -639,7 +649,11 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           thunkAPI.dispatch(
             documentsSlice.actions.updateDocumentWithSignedContent(doc)
           );
-          const docName = thunkAPI.getState().documents.documents.filter((d) => {return d.signing_id === doc.id || d.key === doc.id})[0].name;
+          const docName = thunkAPI
+            .getState()
+            .documents.documents.filter((d) => {
+              return d.signing_id === doc.id || d.key === doc.id;
+            })[0].name;
           await thunkAPI.dispatch(saveDocument({ docName: docName }));
         }
       });
@@ -656,7 +670,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
         }
       });
-      thunkAPI.dispatch(removeInvited({key: doc.id}));
+      thunkAPI.dispatch(removeInvited({ key: doc.id }));
     });
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
@@ -793,7 +807,7 @@ export const sendInvites = createAsyncThunk(
       signed: [],
     };
     thunkAPI.dispatch(addOwned(owned));
-    await thunkAPI.dispatch(removeDocument({docName: document.name}));
+    await thunkAPI.dispatch(removeDocument({ docName: document.name }));
     thunkAPI.dispatch(setPolling(true));
     return document.key;
   }
@@ -1021,7 +1035,10 @@ export const skipOwnedSignature = createAsyncThunk(
         state: "signed",
         show: false,
       };
-      const newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn);
+      const newDoc = await addDocumentToDb(
+        doc,
+        state.main.signer_attributes.eppn
+      );
       thunkAPI.dispatch(removeOwned({ key: key }));
       return newDoc;
     } catch (err) {
@@ -1285,7 +1302,7 @@ const documentsSlice = createSlice({
           };
         } else return doc;
       });
-      if (!added) state.documents.push({...action.payload});
+      if (!added) state.documents.push({ ...action.payload });
     },
 
     [prepareDocument.rejected]: (state, action) => {
@@ -1298,7 +1315,7 @@ const documentsSlice = createSlice({
           };
         } else return doc;
       });
-      if (!added) state.documents.push({...action.payload});
+      if (!added) state.documents.push({ ...action.payload });
     },
 
     [sendInvites.fulfilled]: (state, action) => {

@@ -244,7 +244,11 @@ class DocManager extends React.Component {
     );
   }
   multiSignButton(index, doc) {
-    if (!["Yes", "yes", "True", "true", "T", "t"].includes(this.props.multisign_buttons)) {
+    if (
+      !["Yes", "yes", "True", "true", "T", "t"].includes(
+        this.props.multisign_buttons
+      )
+    ) {
       return "";
     }
     return (

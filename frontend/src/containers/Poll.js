@@ -7,7 +7,6 @@ import { connect } from "react-redux";
 import Poll from "components/Poll";
 import { poll, setPolling } from "slices/Main";
 
-
 const mapStateToProps = (state) => {
   return {
     poll: state.main.poll,

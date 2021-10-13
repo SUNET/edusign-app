@@ -70,7 +70,7 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      store.dispatch(setState({name: 'test.pdf', state: 'loaded'}));
+      store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
       await flushPromises(rerender, wrapped);
 
       const button = await waitFor(() =>
@@ -139,7 +139,7 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      store.dispatch(setState({name: 'test.pdf', state: 'loaded'}));
+      store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
       await flushPromises(rerender, wrapped);
 
       const button = await waitFor(() =>
@@ -237,7 +237,7 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      store.dispatch(setState({name: 'testost.pdf', state: 'loaded'}));
+      store.dispatch(setState({ name: "testost.pdf", state: "loaded" }));
       await flushPromises(rerender, wrapped);
 
       const filename = await waitFor(() => screen.getAllByText("testost.pdf"));

@@ -519,56 +519,57 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
   unmount();
 };
 
-const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument = async (
-  payload
-) => {
-  const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-  try {
-    fetchMock.get("/sign/config", payload);
-    store.dispatch(fetchConfig());
-    await flushPromises(rerender, wrapped);
+const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
+  async (payload) => {
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+    try {
+      fetchMock.get("/sign/config", payload);
+      store.dispatch(fetchConfig());
+      await flushPromises(rerender, wrapped);
 
-    let warning = screen.queryByText(
-      /Please do not supply a password protected document/
-    );
-    expect(warning).to.equal(null);
+      let warning = screen.queryByText(
+        /Please do not supply a password protected document/
+      );
+      expect(warning).to.equal(null);
 
-    const fileObj = new File([samplePasswordPDFData], "test.pdf", {
-      type: "application/pdf",
-    });
-    const file = {
-      name: fileObj.name,
-      size: fileObj.size,
-      type: fileObj.type,
-      blob: "data:application/pdf;base64," + b64SamplePasswordPDFData,
-    };
-    fetchMock.post("/sign/add-doc", {
-      message: "document added",
-      payload: {
-        ref: "dummy ref",
-        sign_requirement: "dummy sign requirement",
-      },
-    });
-    await store.dispatch(
-      createDocument({
-        doc: file,
-        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
-    );
-    await flushPromises(rerender, wrapped);
+      const fileObj = new File([samplePasswordPDFData], "test.pdf", {
+        type: "application/pdf",
+      });
+      const file = {
+        name: fileObj.name,
+        size: fileObj.size,
+        type: fileObj.type,
+        blob: "data:application/pdf;base64," + b64SamplePasswordPDFData,
+      };
+      fetchMock.post("/sign/add-doc", {
+        message: "document added",
+        payload: {
+          ref: "dummy ref",
+          sign_requirement: "dummy sign requirement",
+        },
+      });
+      await store.dispatch(
+        createDocument({
+          doc: file,
+          intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+        })
+      );
+      await flushPromises(rerender, wrapped);
 
-    warning = await waitFor(() =>
-      screen.getAllByText(/Please do not supply a password protected document/i)
-    );
-    expect(warning.length).to.equal(1);
-  } catch (err) {
+      warning = await waitFor(() =>
+        screen.getAllByText(
+          /Please do not supply a password protected document/i
+        )
+      );
+      expect(warning.length).to.equal(1);
+    } catch (err) {
+      unmount();
+      throw err;
+    }
+
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
     unmount();
-    throw err;
-  }
-
-  // if we don't unmount here, mounted components (DocPreview) leak to other tests
-  unmount();
-};
+  };
 
 const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
   payload
@@ -717,14 +718,18 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     // XXX very weirdly, these lines below hang the tests
     // const filename = await waitFor(() => screen.queryByText("test.pdf"));
     // expect(filename).to.equal(null);
-    // 
+    //
     // const filesize = await waitFor(() => screen.queryByText("1.5 KiB"));
     // expect(filesize).to.equal(null);
 
-    const previewButton = await waitFor(() => screen.queryByTestId("button-preview-0"));
+    const previewButton = await waitFor(() =>
+      screen.queryByTestId("button-preview-0")
+    );
     expect(previewButton).to.equal(null);
 
-    const downloadButton = await waitFor(() => screen.queryByTestId("button-dlsigned-0"));
+    const downloadButton = await waitFor(() =>
+      screen.queryByTestId("button-dlsigned-0")
+    );
     expect(downloadButton).to.equal(null);
 
     rmButton = await waitFor(() => screen.queryByText("rm-button-test.pdf"));
@@ -785,7 +790,7 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     let pdf = await waitFor(() => screen.queryByText(/Sample PDF for testing/));
     expect(pdf).to.equal(null);
 
-    store.dispatch(setState({name: 'test.pdf', state: 'loaded'}));
+    store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
     await flushPromises(rerender, wrapped);
 
     const previewButton = await waitFor(() =>
@@ -870,7 +875,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     let pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
     expect(pdf2).to.equal(null);
 
-    store.dispatch(setState({name: 'test.pdf', state: 'loaded'}));
+    store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
     await flushPromises(rerender, wrapped);
 
     const previewButton = await waitFor(() =>
@@ -970,7 +975,7 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     let pdf = await waitFor(() => screen.queryByText(/Sample PDF for testing/));
     expect(pdf).to.equal(null);
 
-    store.dispatch(setState({name: 'test.pdf', state: 'loaded'}));
+    store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
     await flushPromises(rerender, wrapped);
 
     const previewButton = await waitFor(() =>
@@ -1058,7 +1063,7 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     );
     await flushPromises(rerender, wrapped);
 
-    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
+    store.dispatch(setState({ name: "test.pdf", state: "selected" }));
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
@@ -1132,7 +1137,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     );
     await flushPromises(rerender, wrapped);
 
-    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
+    store.dispatch(setState({ name: "test.pdf", state: "selected" }));
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
@@ -1209,7 +1214,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     );
     await flushPromises(rerender, wrapped);
 
-    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
+    store.dispatch(setState({ name: "test.pdf", state: "selected" }));
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
@@ -1281,7 +1286,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     );
     await flushPromises(rerender, wrapped);
 
-    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
+    store.dispatch(setState({ name: "test.pdf", state: "selected" }));
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
@@ -1368,7 +1373,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     );
     await flushPromises(rerender, wrapped);
 
-    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
+    store.dispatch(setState({ name: "test.pdf", state: "selected" }));
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
@@ -1456,7 +1461,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     );
     await flushPromises(rerender, wrapped);
 
-    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
+    store.dispatch(setState({ name: "test.pdf", state: "selected" }));
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
@@ -1578,7 +1583,7 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
     );
     await flushPromises(rerender, wrapped);
 
-    store.dispatch(setState({name: 'test.pdf', state: 'selected'}));
+    store.dispatch(setState({ name: "test.pdf", state: "selected" }));
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>

@@ -189,7 +189,6 @@ class SignRequestSchema(Schema):
 
 
 class ReSignRequestSchema(SignRequestSchema):
-
     class FailedDocument(Schema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
         state = fields.String(required=True, validate=[validate_nonempty])

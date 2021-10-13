@@ -33,13 +33,17 @@ describe("DnDArea Component", function () {
     });
 
     try {
-      const dndArea1 = screen.getAllByText("Drag and drop files to be signed here");
+      const dndArea1 = screen.getAllByText(
+        "Drag and drop files to be signed here"
+      );
       expect(dndArea1.length).to.equal(1);
 
       const dndArea2 = screen.getAllByText("or");
       expect(dndArea2.length).to.equal(1);
 
-      const dndArea3 = screen.getAllByText("click here to choose files to be signed");
+      const dndArea3 = screen.getAllByText(
+        "click here to choose files to be signed"
+      );
       expect(dndArea3.length).to.equal(1);
 
       const dndAreaDropping = screen.queryByText("Drop documents here");
@@ -61,11 +65,15 @@ describe("DnDArea Component", function () {
       const dndAreaDropping = screen.getAllByText("Drop documents here");
       expect(dndAreaDropping.length).to.equal(1);
 
-      const dndArea1 = screen.queryByText("Drag and drop files to be signed here");
+      const dndArea1 = screen.queryByText(
+        "Drag and drop files to be signed here"
+      );
       expect(dndArea1).to.equal(null);
       const dndArea2 = screen.queryByText("or");
       expect(dndArea2).to.equal(null);
-      const dndArea3 = screen.queryByText("click here to choose files to be signed");
+      const dndArea3 = screen.queryByText(
+        "click here to choose files to be signed"
+      );
       expect(dndArea3).to.equal(null);
     } catch (err) {
       unmount();
@@ -81,11 +89,15 @@ describe("DnDArea Component", function () {
     );
 
     try {
-      let dndArea1 = screen.getAllByText("Drag and drop files to be signed here");
+      let dndArea1 = screen.getAllByText(
+        "Drag and drop files to be signed here"
+      );
       expect(dndArea1.length).to.equal(1);
       let dndArea2 = screen.getAllByText("or");
       expect(dndArea2.length).to.equal(1);
-      let dndArea3 = screen.getAllByText("click here to choose files to be signed");
+      let dndArea3 = screen.getAllByText(
+        "click here to choose files to be signed"
+      );
       expect(dndArea3.length).to.equal(1);
 
       let dndAreaDropping = screen.queryByText("Drop documents here");
@@ -106,13 +118,19 @@ describe("DnDArea Component", function () {
       );
       expect(dndAreaDropping.length).to.equal(1);
 
-      dndArea1 = await waitFor(() => screen.queryByText("Drag and drop files to be signed here"));
+      dndArea1 = await waitFor(() =>
+        screen.queryByText("Drag and drop files to be signed here")
+      );
       expect(dndArea1).to.equal(null);
 
-      dndArea2 = await waitFor(() => screen.queryByText("Drag and drop files to be signed here"));
+      dndArea2 = await waitFor(() =>
+        screen.queryByText("Drag and drop files to be signed here")
+      );
       expect(dndArea2).to.equal(null);
 
-      dndArea3 = await waitFor(() => screen.queryByText("Drag and drop files to be signed here"));
+      dndArea3 = await waitFor(() =>
+        screen.queryByText("Drag and drop files to be signed here")
+      );
       expect(dndArea3).to.equal(null);
     } catch (err) {
       unmount();
@@ -128,11 +146,15 @@ describe("DnDArea Component", function () {
     );
 
     try {
-      let dndArea1 = screen.getAllByText("Drag and drop files to be signed here");
+      let dndArea1 = screen.getAllByText(
+        "Drag and drop files to be signed here"
+      );
       expect(dndArea1.length).to.equal(1);
       let dndArea2 = screen.getAllByText("or");
       expect(dndArea2.length).to.equal(1);
-      let dndArea3 = screen.getAllByText("click here to choose files to be signed");
+      let dndArea3 = screen.getAllByText(
+        "click here to choose files to be signed"
+      );
       expect(dndArea3.length).to.equal(1);
 
       let dndAreaDropping = screen.queryByText("Drop documents here");
@@ -141,9 +163,9 @@ describe("DnDArea Component", function () {
       const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
 
       const doc = {
-        name: 'test.pdf',
-        type: 'application/pdf',
-        blob: 'data:application/pdf;base64,' + b64SamplePDFData,
+        name: "test.pdf",
+        type: "application/pdf",
+        blob: "data:application/pdf;base64," + b64SamplePDFData,
       };
 
       const file = preparePDF(doc);
@@ -157,13 +179,17 @@ describe("DnDArea Component", function () {
       );
       expect(dndAreaDropping.length).to.equal(1);
 
-      dndArea1 = await waitFor(() => screen.queryByText("Drag and drop files to be signed here"));
+      dndArea1 = await waitFor(() =>
+        screen.queryByText("Drag and drop files to be signed here")
+      );
       expect(dndArea1).to.equal(null);
 
       dndArea2 = await waitFor(() => screen.queryByText("or"));
       expect(dndArea2).to.equal(null);
 
-      dndArea3 = await waitFor(() => screen.queryByText("click here to choose files to be signed"));
+      dndArea3 = await waitFor(() =>
+        screen.queryByText("click here to choose files to be signed")
+      );
       expect(dndArea3).to.equal(null);
 
       dispatchEvtWithData(dnd, "dragleave", data);
@@ -226,7 +252,9 @@ describe("DnDArea Component", function () {
       filesize = await waitFor(() => screen.getAllByText("1.5 KiB"));
       expect(filesize.length).to.equal(1);
 
-      previewButton = await waitFor(() => screen.getAllByText("Approve document for signature"));
+      previewButton = await waitFor(() =>
+        screen.getAllByText("Approve document for signature")
+      );
       expect(previewButton.length).to.equal(1);
 
       rmButton = await waitFor(() => screen.getAllByText("Remove"));

@@ -34,7 +34,7 @@ import asyncio
 import json
 import os
 import uuid
-from typing import Union, List, Dict, Any
+from typing import Any, Dict, List, Union
 
 import pkg_resources
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
@@ -46,20 +46,20 @@ from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
     BlobSchema,
     ConfigSchema,
-    InvitationsSchema,
     DocumentSchema,
+    InvitationsSchema,
     KeyedMultiSignSchema,
     MultiSignSchema,
     ReferenceSchema,
     ResendMultiSignSchema,
+    ReSignRequestSchema,
     SignedDocumentsSchema,
     SigningSchema,
     SignRequestSchema,
-    ReSignRequestSchema,
     ToRestartSigningSchema,
     ToSignSchema,
 )
-from edusign_webapp.utils import add_attributes_to_session, prepare_document, get_invitations
+from edusign_webapp.utils import add_attributes_to_session, get_invitations, prepare_document
 
 anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
 
@@ -68,8 +68,7 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 
 @anon_edusign_views.route('/', methods=['GET'])
 def get_home() -> str:
-    """
-    """
+    """"""
     current_lang = str(get_locale())
     md_name = f"home-{current_lang}.md"
     md_etc = os.path.join('/etc/edusign/', md_name)
@@ -107,8 +106,7 @@ def get_home() -> str:
 
 @edusign_views.route('/logout', methods=['GET'])
 def logout() -> Response:
-    """
-    """
+    """"""
     session.clear()
     return redirect(url_for('edusign_anon.get_home'))
 
@@ -134,11 +132,15 @@ def get_index() -> str:
             f'There is some misconfiguration and the IdP does not seem to provide the correct attributes: {e}.'
         )
         context['title'] = gettext("Missing information")
-        context['message'] = gettext('Your organization did not provide the correct information during login. Please contact your IT-support for assistance.')
+        context['message'] = gettext(
+            'Your organization did not provide the correct information during login. Please contact your IT-support for assistance.'
+        )
         return render_template('error-generic.jinja2', **context)
     except ValueError:
         context['title'] = gettext("Permission Denied")
-        context['message'] = gettext('The organization/identity provider you are affiliated with does not have permission to use this service. Please contact your IT-department to obtain the necessary permissions.')
+        context['message'] = gettext(
+            'The organization/identity provider you are affiliated with does not have permission to use this service. Please contact your IT-department to obtain the necessary permissions.'
+        )
         return render_template('error-generic.jinja2', **context)
 
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
@@ -318,7 +320,7 @@ def recreate_sign_request(documents: dict) -> dict:
             failedDoc = {
                 'key': doc['key'],
                 'state': 'failed-signing',
-                'message': gettext("Document is being signed by another user, please try again in a few minutes.")
+                'message': gettext("Document is being signed by another user, please try again in a few minutes."),
             }
             failed.append(failedDoc)
             continue
@@ -340,7 +342,12 @@ def recreate_sign_request(documents: dict) -> dict:
             failedDoc = {
                 'key': doc['key'],
                 'state': 'failed-signing',
-                'message': doc_data.get('message', gettext("Problem preparing document for signing. Please try again, or contact the site administrator."))
+                'message': doc_data.get(
+                    'message',
+                    gettext(
+                        "Problem preparing document for signing. Please try again, or contact the site administrator."
+                    ),
+                ),
             }
             failed.append(failedDoc)
             continue
@@ -647,7 +654,9 @@ def create_invited_signature(invite_key: str) -> str:
     key = doc['key']
 
     if user['email'] != session['mail']:
-        current_app.logger.error(f"Trying to sign invitation with wrong email {session['mail']} (invited:  {user['email']})")
+        current_app.logger.error(
+            f"Trying to sign invitation with wrong email {session['mail']} (invited:  {user['email']})"
+        )
         current_app.doc_store.unlock_document(key, user['email'])
         context['title'] = gettext("Problem signing the document")
         context['message'] = gettext("The invited email does not coincide with yours")

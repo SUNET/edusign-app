@@ -42,21 +42,21 @@ const selectDoc = (index, doc, props) => {
       </div>
     </>
   );
-}
+};
 const dummySelectDoc = () => {
   return (
     <>
       <div className="doc-selector-flex-item" />
     </>
   );
-}
+};
 
 const docName = (doc) => {
   return <div className="name-flex-item">{doc.name}</div>;
-}
+};
 const docSize = (doc) => {
   return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
-}
+};
 
 const namedSpinner = (index, name) => {
   return (
@@ -229,7 +229,7 @@ class Owned extends Component {
                 <div
                   className={"invitation-name-and-buttons-" + this.props.size}
                 >
-                  {(doc.state === 'incomplete') && (
+                  {doc.state === "incomplete" && (
                     <>
                       {dummySelectDoc()}
                       {docSize(doc)}
@@ -251,7 +251,9 @@ class Owned extends Component {
                       )}
                     </>
                   )}
-                  {(["loaded", "selected", "failed-signing"].includes(doc.state)) && (
+                  {["loaded", "selected", "failed-signing"].includes(
+                    doc.state
+                  ) && (
                     <>
                       {selectDoc(index, doc, this.props)}
                       {docSize(doc)}
@@ -278,7 +280,7 @@ class Owned extends Component {
                       )}
                     </>
                   )}
-                  {(doc.state === 'signing') && (
+                  {doc.state === "signing" && (
                     <>
                       {dummySelectDoc()}
                       {docSize(doc)}
@@ -294,7 +296,6 @@ class Owned extends Component {
                       handleClose={this.props.handleClosePreview}
                     />
                   )}
-
                 </div>
                 {doc.pending.length > 0 && (
                   <>
