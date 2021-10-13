@@ -454,13 +454,30 @@ def get_signed_documents(sign_data: dict) -> dict:
         owner = current_app.doc_store.get_owner_data(key)
 
         if 'email' in owner and owner['email'] != session['mail']:
-            # XXX check lock, and if not, do not update, inform the front
             current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
             current_app.doc_store.unlock_document(key, session['mail'])
-            # XXX send mail to owner
-        else:
+
+            recipients = [f"{owner['name']} <{owner['email']}>"]
+            msg = Message(
+                gettext("User %(name)s has signed %(docname)s")
+                % {'name': session['displayName'], 'docname': owner['docname']},
+                recipients=recipients,
+            )
+            mail_context = {
+                'document_name': owner['docname'],
+                'invited_name': session['displayName'],
+                'invited_email': session['mail'],
+            }
+            msg.body = render_template('signed_by_email.txt.jinja2', **mail_context)
+            current_app.logger.debug(f"Sending email to user {owner['email']}:\n{msg.body}")
+            msg.html = render_template('signed_by_email.html.jinja2', **mail_context)
+
+            current_app.mailer.send(msg)
+
+        elif owner:
             current_app.doc_store.remove_document(key)
-            docs.append({'id': key, 'signed_content': doc['signedContent']})
+
+        docs.append({'id': key, 'signed_content': doc['signedContent']})
 
     return {
         'payload': {'documents': docs},

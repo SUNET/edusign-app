@@ -62,7 +62,7 @@ export const fetchConfig = createAsyncThunk(
         );
         return thunkAPI.rejectWithValue(configData.message);
       } else {
-        await thunkAPI.dispatch(loadDocuments({ intl: intl, eppn: configData.payload.signer_attributes.eppn }));
+        thunkAPI.dispatch(loadDocuments({ intl: intl, eppn: configData.payload.signer_attributes.eppn }));
         return configData;
       }
     } catch (err) {
@@ -236,10 +236,35 @@ const mainSlice = createSlice({
     /**
      * @public
      * @function removeOwned
-     * @desc Redux action to add an owned multisign request
+     * @desc Redux action to remove an owned multisign request
      */
     removeOwned(state, action) {
       state.owned_multisign = state.owned_multisign.filter((doc) => {
+        return doc.key !== action.payload.key;
+      });
+    },
+    /**
+     * @public
+     * @function updateOwned
+     * @desc Redux action to update an owned multisign request
+     */
+    updateOwned(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.key === action.payload.key) {
+          return {
+            ...doc,
+            ...action.payload,
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function removeInvited
+     * @desc Redux action to remove an invited multisign request
+     */
+    removeInvited(state, action) {
+      state.pending_multisign = state.pending_multisign.filter((doc) => {
         return doc.key !== action.payload.key;
       });
     },
@@ -451,6 +476,8 @@ export const {
   resizeWindow,
   addOwned,
   removeOwned,
+  updateOwned,
+  removeInvited,
   setInvitedSigning,
   setOwnedSigning,
   hideInvitedPreview,
