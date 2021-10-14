@@ -14,6 +14,8 @@ import {
   showForcedInvitedPreview,
   hideForcedInvitedPreview,
   confirmForcedInvitedPreview,
+  disablePolling,
+  enablePolling,
 } from "slices/Main";
 
 const mapStateToProps = (state) => {
@@ -38,6 +40,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     showPreview: (docKey) => {
       return () => {
+        dispatch(disablePolling());
         dispatch(
           getPartiallySignedDoc({
             key: docKey,
@@ -49,11 +52,13 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleClosePreview: function (docKey) {
       return () => {
+        dispatch(enablePolling());
         dispatch(hideInvitedPreview(docKey));
       };
     },
     handleForcedPreview: function (docKey) {
       return () => {
+        dispatch(disablePolling());
         dispatch(
           getPartiallySignedDoc({
             key: docKey,
@@ -66,17 +71,20 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleCloseForcedPreview: function (name) {
       return () => {
+        dispatch(enablePolling());
         dispatch(hideForcedInvitedPreview(name));
       };
     },
     handleConfirmForcedPreview: function (name) {
-      return async () => {
+      return () => {
+        dispatch(enablePolling());
         dispatch(confirmForcedInvitedPreview(name));
         dispatch(hideForcedInvitedPreview(name));
       };
     },
     handleUnConfirmForcedPreview: function (name) {
-      return async () => {
+      return () => {
+        dispatch(enablePolling());
         dispatch(hideForcedInvitedPreview(name));
       };
     },

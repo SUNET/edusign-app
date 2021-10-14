@@ -14,6 +14,8 @@ import {
   hideOwnedPreview,
   setOwnedSigning,
   selectOwnedDoc,
+  disablePolling,
+  enablePolling,
 } from "slices/Main";
 import { skipOwnedSignature, downloadSignedOwned } from "slices/Documents";
 
@@ -59,6 +61,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     showPreview: (docKey) => {
       return () => {
+        dispatch(disablePolling());
         dispatch(
           getPartiallySignedDoc({
             key: docKey,
@@ -70,6 +73,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleClosePreview: function (docKey) {
       return () => {
+        dispatch(enablePolling());
         dispatch(hideOwnedPreview(docKey));
       };
     },

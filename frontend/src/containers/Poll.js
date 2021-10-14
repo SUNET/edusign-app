@@ -10,6 +10,7 @@ import { poll, setPolling } from "slices/Main";
 const mapStateToProps = (state) => {
   return {
     poll: state.main.poll,
+    disabled: state.main.disablePoll,
   };
 };
 

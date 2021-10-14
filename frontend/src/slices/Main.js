@@ -91,6 +91,10 @@ export const fetchConfig = createAsyncThunk(
  * @desc Redux async thunk to poll configuration data from the backend.
  */
 export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
+  const state = thunkAPI.getState();
+  if (state.main.disablePoll) {
+    return thunkAPI.rejectWithValue("Polling disabled");
+  }
   try {
     const response = await fetch("/sign/poll", getRequest);
     const configData = await checkStatus(response);
@@ -98,7 +102,6 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
     if (configData.error) {
       return thunkAPI.rejectWithValue(configData.message);
     } else {
-      const state = thunkAPI.getState();
       const allOwned = state.main.owned_multisign.map((owned) => {
         if (owned.pending.length > 0) {
           const ownedCopy = { ...owned };
@@ -147,6 +150,11 @@ export const getPartiallySignedDoc = createAsyncThunk(
     });
     if (oldDocs.length == 1 && oldDocs[0].blob) {
       args.payload = oldDocs[0];
+      if (args.hasOwnProperty('showForced')) {
+        args.payload.showForced = true;
+      } else {
+        args.payload.show = true;
+      }
       return args;
     }
     const body = preparePayload(state, { key: args.key });
@@ -198,6 +206,7 @@ const mainSlice = createSlice({
     width: 0,
     multisign_buttons: "yes",
     poll: false,
+    disablePoll: false,
   },
   reducers: {
     /**
@@ -309,9 +318,10 @@ const mainSlice = createSlice({
     selectInvitedDoc(state, action) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.name === action.payload) {
+          const state = doc.state === 'selected' ? 'loaded' : 'selected';
           return {
             ...doc,
-            state: "selected",
+            state: state,
           };
         } else return doc;
       });
@@ -383,6 +393,23 @@ const mainSlice = createSlice({
      */
     setPolling(state, action) {
       state.poll = action.payload;
+    },
+    /**
+     * @public
+     * @function enablePolling
+     * @desc Redux action to enable polling
+     */
+    enablePolling(state, action) {
+      state.disablePoll = false;
+      state.poll = true;
+    },
+    /**
+     * @public
+     * @function disablePolling
+     * @desc Redux action to disable polling
+     */
+    disablePolling(state, action) {
+      state.disablePoll = true;
     },
     /**
      * @function startSigningInvited
@@ -521,14 +548,15 @@ const mainSlice = createSlice({
       };
     },
     [getPartiallySignedDoc.fulfilled]: (state, action) => {
+      console.log(action);
       state[action.payload.stateKey] = state[action.payload.stateKey].map(
         (doc) => {
           if (doc.key === action.payload.key) {
             let newDoc = { ...doc };
             if (action.payload.payload) {
               newDoc = {
-                ...action.payload.payload,
                 ...doc,
+                ...action.payload.payload,
               };
               newDoc.blob =
                 "data:application/pdf;base64," + action.payload.payload.blob;
@@ -556,6 +584,8 @@ export const {
   hideInvitedPreview,
   hideOwnedPreview,
   setPolling,
+  enablePolling,
+  disablePolling,
   startSigningInvited,
   startSigningOwned,
   setInvitedState,

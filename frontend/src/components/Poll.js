@@ -2,11 +2,13 @@ import { useEffect } from "react";
 
 export default function Poll(props) {
   useEffect(() => {
-    if (props.poll) {
-      props.stopPolling();
-      setTimeout(() => {
-        props.pollInvitations();
-      }, 2000);
+    if (!props.disabled) {
+      if (props.poll) {
+        props.stopPolling();
+        setTimeout(() => {
+          props.pollInvitations();
+        }, 10000);
+      }
     }
   });
 
