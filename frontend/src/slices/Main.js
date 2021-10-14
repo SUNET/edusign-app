@@ -142,10 +142,11 @@ export const getPartiallySignedDoc = createAsyncThunk(
   "documents/getPartiallySignedDoc",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const oldDoc = state.main[args.stateKey].filter((doc) => {
+    const oldDocs = state.main[args.stateKey].filter((doc) => {
       doc.key === args.key;
     });
-    if (oldDoc.blob) {
+    if (oldDocs.length == 1 && oldDocs[0].blob) {
+      args.payload = oldDocs[0];
       return args;
     }
     const body = preparePayload(state, { key: args.key });
@@ -161,6 +162,11 @@ export const getPartiallySignedDoc = createAsyncThunk(
       }
       data.key = args.key;
       data.stateKey = args.stateKey;
+      if (args.hasOwnProperty('showForced')) {
+        data.payload.showForced = true;
+      } else {
+        data.payload.show = true;
+      }
       return data;
     } catch (err) {
       thunkAPI.dispatch(
@@ -518,8 +524,12 @@ const mainSlice = createSlice({
       state[action.payload.stateKey] = state[action.payload.stateKey].map(
         (doc) => {
           if (doc.key === action.payload.key) {
-            let newDoc = { ...doc, show: true };
+            let newDoc = { ...doc };
             if (action.payload.payload) {
+              newDoc = {
+                ...action.payload.payload,
+                ...doc,
+              };
               newDoc.blob =
                 "data:application/pdf;base64," + action.payload.payload.blob;
             }

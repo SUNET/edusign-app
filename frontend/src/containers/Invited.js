@@ -52,9 +52,16 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(hideInvitedPreview(docKey));
       };
     },
-    handleForcedPreview: function (name) {
+    handleForcedPreview: function (docKey) {
       return () => {
-        dispatch(showForcedInvitedPreview(name));
+        dispatch(
+          getPartiallySignedDoc({
+            key: docKey,
+            stateKey: "pending_multisign",
+            intl: props.intl,
+            showForced: true,
+          })
+        );
       };
     },
     handleCloseForcedPreview: function (name) {

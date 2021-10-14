@@ -103,7 +103,7 @@ const forcedPreviewButton = (props, doc, help) => {
             <Button
               variant="outline-dark"
               size="sm"
-              onClick={props.handleForcedPreview(doc.name)}
+              onClick={props.handleForcedPreview(doc.key)}
             >
               <FormattedMessage
                 defaultMessage="Approve document for signature"
@@ -146,7 +146,7 @@ class Invited extends Component {
       <>
         {this.props.invited.map((doc, index) => {
           let docFile = null;
-          if (doc.show) {
+          if (doc.show || doc.showForced) {
             docFile = docToFile(doc);
           }
           return (
