@@ -8,6 +8,7 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { docToFile, humanFileSize } from "components/utils";
 import DocPreviewContainer from "containers/DocPreview";
 import LittleSpinner from "components/LittleSpinner";
+import ForcedPreviewContainer from "containers/ForcedPreview";
 
 import "styles/Invitation.scss";
 
@@ -88,6 +89,33 @@ const previewButton = (props, doc, help) => {
     </>
   );
 };
+const forcedPreviewButton = (props, doc, help) => {
+  return (
+    <>
+      <OverlayTrigger
+        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+        trigger={["hover", "focus"]}
+        rootClose={true}
+        overlay={<Tooltip placement="auto">{help}</Tooltip>}
+      >
+        <div className="button-forced-preview-container">
+          <div className="button-forced-preview-invitation">
+            <Button
+              variant="outline-dark"
+              size="sm"
+              onClick={props.handleForcedPreview(doc.name)}
+            >
+              <FormattedMessage
+                defaultMessage="Approve document for signature"
+                key="forced-preview-button"
+              />
+            </Button>
+          </div>
+        </div>
+      </OverlayTrigger>
+    </>
+  );
+}
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
@@ -104,6 +132,10 @@ class Invited extends Component {
       "preview-button-help": this.props.intl.formatMessage({
         defaultMessage: "Click here to preview the document",
         id: "invited-preview-button-help",
+      }),
+      "forced-preview-button-help": this.props.intl.formatMessage({
+        defaultMessage: "You need to approve all documents for signature",
+        id: "forced-preview-button-tooltip",
       }),
     };
     return msgs[msg];
@@ -128,10 +160,10 @@ class Invited extends Component {
                       {dummySelectDoc()}
                       {docSize(doc)}
                       {docName(doc)}
-                      {previewButton(
+                      {forcedPreviewButton(
                         this.props,
                         doc,
-                        this.getHelp("preview-button-help")
+                        this.getHelp("forced-preview-button-help")
                       )}
                     </>
                   )}
@@ -163,6 +195,16 @@ class Invited extends Component {
                       docFile={docFile}
                       index={index}
                       handleClose={this.props.handleClosePreview}
+                    />
+                  )}
+                  {doc.state === "unconfirmed" && (
+                    <ForcedPreviewContainer
+                      doc={doc}
+                      docFile={docFile}
+                      index={index}
+                      handleClose={this.props.handleCloseForcedPreview}
+                      handleConfirm={this.props.handleConfirmForcedPreview}
+                      handleUnConfirm={this.props.handleUnConfirmForcedPreview}
                     />
                   )}
                 </div>

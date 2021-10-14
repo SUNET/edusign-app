@@ -11,6 +11,9 @@ import {
   hideInvitedPreview,
   setInvitedSigning,
   selectInvitedDoc,
+  showForcedInvitedPreview,
+  hideForcedInvitedPreview,
+  confirmForcedInvitedPreview,
 } from "slices/Main";
 
 const mapStateToProps = (state) => {
@@ -47,6 +50,27 @@ const mapDispatchToProps = (dispatch, props) => {
     handleClosePreview: function (docKey) {
       return () => {
         dispatch(hideInvitedPreview(docKey));
+      };
+    },
+    handleForcedPreview: function (name) {
+      return () => {
+        dispatch(showForcedInvitedPreview(name));
+      };
+    },
+    handleCloseForcedPreview: function (name) {
+      return () => {
+        dispatch(hideForcedInvitedPreview(name));
+      };
+    },
+    handleConfirmForcedPreview: function (name) {
+      return async () => {
+        dispatch(confirmForcedInvitedPreview(name));
+        dispatch(hideForcedInvitedPreview(name));
+      };
+    },
+    handleUnConfirmForcedPreview: function (name) {
+      return async () => {
+        dispatch(hideForcedInvitedPreview(name));
       };
     },
   };

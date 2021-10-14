@@ -444,6 +444,56 @@ const mainSlice = createSlice({
         } else return doc;
       });
     },
+    /**
+     * @public
+     * @function showForcedInvitedPreview
+     * @desc Redux action to update an invited document in the documents state key,
+     * setting the show key to true (so that the UI will show the forced preview of the document).
+     */
+    showForcedInvitedPreview(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            showForced: true,
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function hideForcedInvitedPreview
+     * @desc Redux action to update an invited document in the documents state key,
+     * setting the showForced key to false (so that the UI will hide the forced preview of the document).
+     */
+    hideForcedInvitedPreview(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            showForced: false,
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function confirmForcedInvitedPreview
+     * @desc Redux action to update an invited document in the documents state key,
+     * setting the showForced key to false (so that the UI will hide the forced preview of the document,
+     * and the document will end in the 'selected' state).
+     */
+    confirmForcedInvitedPreview(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            showForced: false,
+            state: "selected",
+          };
+        } else return doc;
+      });
+    },
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
@@ -502,6 +552,9 @@ export const {
   setOwnedState,
   selectInvitedDoc,
   selectOwnedDoc,
+  showForcedInvitedPreview,
+  hideForcedInvitedPreview,
+  confirmForcedInvitedPreview,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;
