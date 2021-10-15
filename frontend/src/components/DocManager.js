@@ -55,7 +55,6 @@ class DocManager extends React.Component {
         <div className="button-forced-preview-flex-item">
           <OverlayTrigger
             delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
             trigger={["hover", "focus"]}
             rootClose={true}
             overlay={(props) => (
@@ -379,6 +378,13 @@ class DocManager extends React.Component {
 
   render() {
     let someSelected = false;
+    [this.props.pending, this.props.owned].forEach((docs) => {
+      docs.forEach((doc) => {
+        if (doc.state === 'selected') {
+          someSelected = true;
+        }
+      });
+    });
     let showSignButton = false;
     let showDlAllButton = false;
     let showClearButton = false;

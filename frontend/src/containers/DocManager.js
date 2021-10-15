@@ -12,12 +12,12 @@ import { connect } from "react-redux";
 
 import DocManager from "components/DocManager";
 import {
-  hidePreview,
+  showForcedPreview,
   hideForcedPreview,
   confirmForcedPreview,
   prepareDocument,
   showPreview,
-  showForcedPreview,
+  hidePreview,
   setState,
   toggleDocSelection,
   startSigning,
@@ -40,16 +40,13 @@ const mapStateToProps = (state) => {
     signRequest: state.main.signingData.sign_request,
     size: state.main.size,
     multisign_buttons: state.main.multisign_buttons,
+    pending: state.main.pending_multisign,
+    owned: state.main.owned_multisign,
   };
 };
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleForcedPreview: function (name) {
-      return () => {
-        dispatch(showForcedPreview(name));
-      };
-    },
     handlePreview: function (name) {
       return () => {
         dispatch(showPreview(name));
@@ -96,6 +93,11 @@ const mapDispatchToProps = (dispatch, props) => {
     showConfirm: function (confirmId) {
       return () => {
         dispatch(askConfirmation(confirmId));
+      };
+    },
+    handleForcedPreview: function (name) {
+      return () => {
+        dispatch(showForcedPreview(name));
       };
     },
     handleCloseForcedPreview: function (name) {

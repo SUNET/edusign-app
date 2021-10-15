@@ -30,6 +30,9 @@ import {
   setOwnedState,
   setInvitedState,
   setOwned,
+  updateInvitations,
+  invitationsSignFailure,
+  updateInvitationsFailed,
 } from "slices/Main";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
@@ -44,6 +47,7 @@ export const loadDocuments = createAsyncThunk(
   "documents/loadDocuments",
   async (args, thunkAPI) => {
     const db = await getDb(args.eppn);
+    const state = thunkAPI.getState();
 
     if (db !== null) {
       let signing = false;
@@ -77,6 +81,19 @@ export const loadDocuments = createAsyncThunk(
       });
       let documents = await promisedDocuments;
       let dataElem = null;
+      const storageName =
+        "signing-" + hashCode(state.main.signer_attributes.eppn);
+      const stored = JSON.parse(localStorage.getItem(storageName));
+      if (stored !== null) {
+        [stored.invited, stored.owned].forEach((docs) => {
+          docs.forEach((doc) => {
+            if (doc.state === 'signing') {
+              signing = true;
+            }
+          });
+        });
+        thunkAPI.dispatch(updateInvitations(stored));
+      }
       if (signing) {
         dataElem = document.getElementById("sign-response-holder");
         if (dataElem === null) {
@@ -94,6 +111,7 @@ export const loadDocuments = createAsyncThunk(
               return failedDoc;
             } else return doc;
           });
+          thunkAPI.dispatch(updateInvitationsFailed());
         }
       }
       thunkAPI.dispatch(documentsSlice.actions.setDocuments(documents));
@@ -549,28 +567,37 @@ export const restartSigningDocuments = createAsyncThunk(
       if (data.error) {
         throw new Error(data.message);
       }
-      data.payload.failed.forEach((failed) => {
-        docsToSign.owned = docsToSign.owned.map((doc) => {
+      // failed carries objects with keys: key, state (failed-signing), message
+      docsToSign.owned = docsToSign.owned.map((doc) => {
+        let isFailed = false;
+        data.payload.failed.forEach((failed) => {
           if (doc.key === failed.key) {
-            return {
+            isFailed = true;
+            doc = {
               ...doc,
               ...failed,
             };
           }
-          return doc;
         });
-        docsToSign.invited = docsToSign.invited.map((doc) => {
+        if (!isFailed) doc.state = 'signing';
+        return doc;
+      });
+      docsToSign.invited = docsToSign.invited.map((doc) => {
+        let isFailed = false;
+        data.payload.failed.forEach((failed) => {
           if (doc.key === failed.key) {
-            return {
+            isFailed = true;
+            doc = {
               ...doc,
               ...failed,
             };
           }
-          return doc;
         });
+        if (!isFailed) doc.state = 'signing';
+        return doc;
       });
       const storageName =
-        "signing-" + hashCode(state.main.signer_attributes.name);
+        "signing-" + hashCode(state.main.signer_attributes.eppn);
       const storageContent = JSON.stringify({
         owned: docsToSign.owned,
         invited: docsToSign.invited,
@@ -614,9 +641,12 @@ export const restartSigningDocuments = createAsyncThunk(
         id: "problem-signing",
       });
       thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
-      await data.payload.documents.forEach(async (doc) => {
-        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
-      });
+      thunkAPI.dispatch(invitationsSignFailure(message));
+      if (data.hasOwnProperty('payload') && data.payload.hasOwnProperty('documents')) {
+        await data.payload.documents.forEach(async (doc) => {
+          await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+        });
+      }
     }
   }
 );
@@ -1319,7 +1349,9 @@ const documentsSlice = createSlice({
       }
     },
     [loadDocuments.rejected]: (state, action) => {
-      state.documents = action.payload.documents;
+      if (action.hasOwnProperty('payload') && action.payload !== undefined) {
+        state.documents = action.payload.documents;
+      }
     },
     [prepareDocument.fulfilled]: (state, action) => {
       let added = false;

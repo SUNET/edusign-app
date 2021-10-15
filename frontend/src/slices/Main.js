@@ -111,6 +111,7 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
               ownedCopy.signed = newOwned.signed;
             }
           });
+          if (ownedCopy.pending.length === 0) ownedCopy.state = 'loaded';
           return ownedCopy;
         }
         return owned;
@@ -527,6 +528,80 @@ const mainSlice = createSlice({
         } else return doc;
       });
     },
+    /**
+     * @public
+     * @function updateInvitations
+     * @desc Redux action to update owned and invited documents,
+     * after having signed some at the IdP,
+     * with data kept in localStorage while we were away at the IdP.
+     */
+    updateInvitations(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        action.payload.owned.forEach((storedDoc) => {
+          if (doc.key === storedDoc.key) {
+            doc = {
+              ...doc,
+              ...storedDoc,
+            };
+          }
+        });
+        return doc;
+      });
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        action.payload.invited.forEach((storedDoc) => {
+          if (doc.key === storedDoc.key) {
+            doc = {
+              ...doc,
+              ...storedDoc,
+            };
+          }
+        });
+        return doc;
+      });
+    },
+    /**
+     * @public
+     * @function updateInvitationsFailed
+     * @desc Redux action to update owned and invited documents,
+     * after having interrumped signature at the IdP,
+     * with failed-signing state
+     */
+    updateInvitationsFailed(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.state === 'signing') {
+          doc.state = 'failed-signing';
+        }
+        return doc;
+      });
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.state === 'signing') {
+          doc.state = 'failed-signing';
+        }
+        return doc;
+      });
+    },
+    /**
+     * @public
+     * @function invitationsSignFailure
+     * @desc Redux action to update owned and invited documents,
+     * after encountering a general problem while trying to create a sign request
+     */
+    invitationsSignFailure(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.state === 'signing') {
+          doc.state = 'failed-signing';
+          doc.message = action.payload;
+        }
+        return doc;
+      });
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.state === 'signing') {
+          doc.state = 'failed-signing';
+          doc.message = action.payload;
+        }
+        return doc;
+      });
+    },
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
@@ -595,6 +670,9 @@ export const {
   showForcedInvitedPreview,
   hideForcedInvitedPreview,
   confirmForcedInvitedPreview,
+  updateInvitations,    
+  invitationsSignFailure,
+  updateInvitationsFailed,    
 } = mainSlice.actions;
 
 export default mainSlice.reducer;

@@ -296,11 +296,6 @@ class Owned extends Component {
                         doc,
                         this.getHelp("close-button-help")
                       )}
-                      {resendButton(
-                        this.props,
-                        doc,
-                        this.getHelp("resend-button-help")
-                      )}
                       {skipSignatureButton(
                         this.props,
                         doc,
