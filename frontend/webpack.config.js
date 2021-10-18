@@ -58,34 +58,19 @@ module.exports = {
       },
       {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        use: [
-          {
-            loader: "url-loader",
-            options: {
-              limit: 10000,
-              mimetype: "image/svg+xml",
-            },
-          },
-        ],
+        type: "asset/resource"
       },
       {
         test: /\.png$/,
-        use: [
-          {
-            loader: "url-loader",
-            options: {
-              limit: 100000
-            },
-          },
-        ],
+        type: "asset/resource"
       },
       {
         test: /\.jpg$/,
-        loader: "file-loader"
+        type: "asset/resource"
       },
       {
         test: /\.gif$/,
-        loader: "file-loader"
+        type: "asset/resource"
       },
     ]
   },

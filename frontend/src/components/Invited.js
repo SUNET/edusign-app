@@ -15,7 +15,7 @@ import "styles/Invitation.scss";
 const selectDoc = (index, doc, props) => {
   return (
     <>
-      <div className="invited-doc-selector-flex-item">
+      <div className="doc-selector-flex-item">
         <OverlayTrigger
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
@@ -150,7 +150,7 @@ class Invited extends Component {
             docFile = docToFile(doc);
           }
           return (
-            <div className="invitation-multisign" key={index}>
+            <div className={"invitation-multisign " + doc.state} key={index}>
               <div className="invitation-multisign-request">
                 <div
                   className={"invitation-name-and-buttons-" + this.props.size}

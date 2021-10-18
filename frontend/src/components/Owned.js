@@ -16,7 +16,7 @@ import "styles/Invitation.scss";
 const selectDoc = (index, doc, props) => {
   return (
     <>
-      <div className="owned-doc-selector-flex-item">
+      <div className="doc-selector-flex-item">
         <OverlayTrigger
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
@@ -259,23 +259,54 @@ class Owned extends Component {
                 >
                   {doc.state === "incomplete" && (
                     <>
-                      {dummySelectDoc()}
-                      {docSize(doc)}
-                      {docName(doc)}
-                      {previewButton(
-                        this.props,
-                        doc,
-                        this.getHelp("preview-button-help")
-                      )}
-                      {removeButton(
-                        this.props,
-                        doc,
-                        this.getHelp("close-button-help")
-                      )}
-                      {resendButton(
-                        this.props,
-                        doc,
-                        this.getHelp("resend-button-help")
+                      {this.props.size === 'lg' && (
+                        <>
+                          {dummySelectDoc()}
+                          {docSize(doc)}
+                          {docName(doc)}
+                          <div className="owned-container-buttons-lg">
+                            {previewButton(
+                              this.props,
+                              doc,
+                              this.getHelp("preview-button-help")
+                            )}
+                            {removeButton(
+                              this.props,
+                              doc,
+                              this.getHelp("close-button-help")
+                            )}
+                            {resendButton(
+                              this.props,
+                              doc,
+                              this.getHelp("resend-button-help")
+                            )}
+                          </div>
+                        </>
+                      ) || (
+                        <div className="owned-name-and-buttons">
+                          <div className="owned-container-name">
+                            {dummySelectDoc()}
+                            {docSize(doc)}
+                            {docName(doc)}
+                          </div>
+                          <div className="owned-container-buttons-sm">
+                            {previewButton(
+                              this.props,
+                              doc,
+                              this.getHelp("preview-button-help")
+                            )}
+                            {removeButton(
+                              this.props,
+                              doc,
+                              this.getHelp("close-button-help")
+                            )}
+                            {resendButton(
+                              this.props,
+                              doc,
+                              this.getHelp("resend-button-help")
+                            )}
+                          </div>
+                        </div>
                       )}
                     </>
                   )}
@@ -283,23 +314,54 @@ class Owned extends Component {
                     doc.state
                   ) && (
                     <>
-                      {selectDoc(index, doc, this.props)}
-                      {docSize(doc)}
-                      {docName(doc)}
-                      {previewButton(
-                        this.props,
-                        doc,
-                        this.getHelp("preview-button-help")
-                      )}
-                      {removeButton(
-                        this.props,
-                        doc,
-                        this.getHelp("close-button-help")
-                      )}
-                      {skipSignatureButton(
-                        this.props,
-                        doc,
-                        this.getHelp("skip-button-help")
+                      {this.props.size === 'lg' && (
+                        <>
+                          {selectDoc(index, doc, this.props)}
+                          {docSize(doc)}
+                          {docName(doc)}
+                          <div className="owned-container-buttons-lg">
+                            {previewButton(
+                              this.props,
+                              doc,
+                              this.getHelp("preview-button-help")
+                            )}
+                            {removeButton(
+                              this.props,
+                              doc,
+                              this.getHelp("close-button-help")
+                            )}
+                            {skipSignatureButton(
+                              this.props,
+                              doc,
+                              this.getHelp("skip-button-help")
+                            )}
+                          </div>
+                        </>
+                      ) || (
+                        <div className="owned-name-and-buttons">
+                          <div className="owned-container-name">
+                            {selectDoc(index, doc, this.props)}
+                            {docSize(doc)}
+                            {docName(doc)}
+                          </div>
+                          <div className="owned-container-buttons-sm">
+                            {previewButton(
+                              this.props,
+                              doc,
+                              this.getHelp("preview-button-help")
+                            )}
+                            {removeButton(
+                              this.props,
+                              doc,
+                              this.getHelp("close-button-help")
+                            )}
+                            {skipSignatureButton(
+                              this.props,
+                              doc,
+                              this.getHelp("skip-button-help")
+                            )}
+                          </div>
+                        </div>
                       )}
                     </>
                   )}
