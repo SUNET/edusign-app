@@ -255,7 +255,7 @@ class Owned extends Component {
             docFile = docToFile(doc);
           }
           return (
-            <div className="invitation-multisign" key={index}>
+            <div className={"invitation-multisign " + doc.state} key={index}>
               <div className="invitation-multisign-request">
                 <div
                   className={"invitation-name-and-buttons-" + this.props.size}

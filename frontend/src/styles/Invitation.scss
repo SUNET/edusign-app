@@ -116,7 +116,7 @@
       .button-forced-preview-container,
       .button-remove-container,
       .button-resend-container,
-      .button-skip-container {
+      .button-skip-container{
         flex: none;
       }
       .owned-name-and-buttons {
@@ -130,7 +130,6 @@
           display: flex;
           justify-content: flex-start;
           flex-wrap: wrap;
-          margin-bottom: 0.5rem;
         }
         .owned-container-buttons-sm {
           flex: none;
@@ -165,8 +164,8 @@
 .pending-invites,
 .signed-invites {
   flex: none;
-  margin-top: 0.2rem;
-  margin-bottom: 0.2rem;
+  margin-top: .2rem;
+  margin-bottom: .2rem;
 }
 
 .owner-item {
