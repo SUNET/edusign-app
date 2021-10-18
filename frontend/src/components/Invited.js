@@ -115,7 +115,7 @@ const forcedPreviewButton = (props, doc, help) => {
       </OverlayTrigger>
     </>
   );
-}
+};
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.

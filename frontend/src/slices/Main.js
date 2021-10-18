@@ -111,7 +111,7 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
               ownedCopy.signed = newOwned.signed;
             }
           });
-          if (ownedCopy.pending.length === 0) ownedCopy.state = 'loaded';
+          if (ownedCopy.pending.length === 0) ownedCopy.state = "loaded";
           return ownedCopy;
         }
         return owned;
@@ -151,7 +151,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
     });
     if (oldDocs.length == 1 && oldDocs[0].blob) {
       args.payload = oldDocs[0];
-      if (args.hasOwnProperty('showForced')) {
+      if (args.hasOwnProperty("showForced")) {
         args.payload.showForced = true;
       } else {
         args.payload.show = true;
@@ -171,7 +171,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
       }
       data.key = args.key;
       data.stateKey = args.stateKey;
-      if (args.hasOwnProperty('showForced')) {
+      if (args.hasOwnProperty("showForced")) {
         data.payload.showForced = true;
       } else {
         data.payload.show = true;
@@ -319,7 +319,7 @@ const mainSlice = createSlice({
     selectInvitedDoc(state, action) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.name === action.payload) {
-          const state = doc.state === 'selected' ? 'loaded' : 'selected';
+          const state = doc.state === "selected" ? "loaded" : "selected";
           return {
             ...doc,
             state: state,
@@ -568,14 +568,14 @@ const mainSlice = createSlice({
      */
     updateInvitationsFailed(state, action) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
-        if (doc.state === 'signing') {
-          doc.state = 'failed-signing';
+        if (doc.state === "signing") {
+          doc.state = "failed-signing";
         }
         return doc;
       });
       state.pending_multisign = state.pending_multisign.map((doc) => {
-        if (doc.state === 'signing') {
-          doc.state = 'failed-signing';
+        if (doc.state === "signing") {
+          doc.state = "failed-signing";
         }
         return doc;
       });
@@ -588,15 +588,15 @@ const mainSlice = createSlice({
      */
     invitationsSignFailure(state, action) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
-        if (doc.state === 'signing') {
-          doc.state = 'failed-signing';
+        if (doc.state === "signing") {
+          doc.state = "failed-signing";
           doc.message = action.payload;
         }
         return doc;
       });
       state.pending_multisign = state.pending_multisign.map((doc) => {
-        if (doc.state === 'signing') {
-          doc.state = 'failed-signing';
+        if (doc.state === "signing") {
+          doc.state = "failed-signing";
           doc.message = action.payload;
         }
         return doc;
@@ -670,9 +670,9 @@ export const {
   showForcedInvitedPreview,
   hideForcedInvitedPreview,
   confirmForcedInvitedPreview,
-  updateInvitations,    
+  updateInvitations,
   invitationsSignFailure,
-  updateInvitationsFailed,    
+  updateInvitationsFailed,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;

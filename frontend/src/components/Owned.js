@@ -200,7 +200,10 @@ const downloadButton = (props, doc, help) => {
               size="sm"
               onClick={props.downloadSigned(doc.name)}
             >
-              <FormattedMessage defaultMessage="Download (signed)" key="dlsigned-button" />
+              <FormattedMessage
+                defaultMessage="Download (signed)"
+                key="dlsigned-button"
+              />
             </Button>
           </div>
         </div>
@@ -259,7 +262,7 @@ class Owned extends Component {
                 >
                   {doc.state === "incomplete" && (
                     <>
-                      {this.props.size === 'lg' && (
+                      {(this.props.size === "lg" && (
                         <>
                           {dummySelectDoc()}
                           {docSize(doc)}
@@ -282,7 +285,7 @@ class Owned extends Component {
                             )}
                           </div>
                         </>
-                      ) || (
+                      )) || (
                         <div className="owned-name-and-buttons">
                           <div className="owned-container-name">
                             {dummySelectDoc()}
@@ -314,7 +317,7 @@ class Owned extends Component {
                     doc.state
                   ) && (
                     <>
-                      {this.props.size === 'lg' && (
+                      {(this.props.size === "lg" && (
                         <>
                           {selectDoc(index, doc, this.props)}
                           {docSize(doc)}
@@ -337,7 +340,7 @@ class Owned extends Component {
                             )}
                           </div>
                         </>
-                      ) || (
+                      )) || (
                         <div className="owned-name-and-buttons">
                           <div className="owned-container-name">
                             {selectDoc(index, doc, this.props)}

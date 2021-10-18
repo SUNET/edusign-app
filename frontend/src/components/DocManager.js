@@ -381,7 +381,7 @@ class DocManager extends React.Component {
     let showSignButton = false;
     [this.props.pending, this.props.owned].forEach((docs) => {
       docs.forEach((doc) => {
-        if (doc.state === 'selected') {
+        if (doc.state === "selected") {
           someSelected = true;
           showSignButton = true;
         }
@@ -392,7 +392,7 @@ class DocManager extends React.Component {
 
     return (
       <>
-        {(this.props.documents.length > 0) && (
+        {this.props.documents.length > 0 && (
           <fieldset className="local-monosign-container">
             <legend>
               <FormattedMessage
@@ -402,7 +402,9 @@ class DocManager extends React.Component {
             </legend>
             {this.props.documents.map((doc, index) => {
               showClearButton = true;
-              if (["loaded", "selected", "failed-signing"].includes(doc.state)) {
+              if (
+                ["loaded", "selected", "failed-signing"].includes(doc.state)
+              ) {
                 showSignButton = true;
               }
               if (doc.state === "signed") {
@@ -444,7 +446,9 @@ class DocManager extends React.Component {
                         index={index}
                         handleClose={this.props.handleCloseForcedPreview}
                         handleConfirm={this.props.handleConfirmForcedPreview}
-                        handleUnConfirm={this.props.handleUnConfirmForcedPreview}
+                        handleUnConfirm={
+                          this.props.handleUnConfirmForcedPreview
+                        }
                       />
                     )}
                     <OverlayTrigger
@@ -456,7 +460,9 @@ class DocManager extends React.Component {
                           <PopoverTitle>
                             {this.getHelp(doc.state + "-title")}
                           </PopoverTitle>
-                          <PopoverContent>{this.getHelp(doc.state)}</PopoverContent>
+                          <PopoverContent>
+                            {this.getHelp(doc.state)}
+                          </PopoverContent>
                         </Popover>
                       }
                     >
@@ -504,7 +510,8 @@ class DocManager extends React.Component {
                             </div>
                           </>
                         )}
-                        {(doc.state === "loaded" || doc.state === "selected") && (
+                        {(doc.state === "loaded" ||
+                          doc.state === "selected") && (
                           <>
                             {this.selectDoc(index, doc)}
                             {this.docSize(doc)}
@@ -575,7 +582,9 @@ class DocManager extends React.Component {
                         index={index}
                         handleClose={this.props.handleCloseForcedPreview}
                         handleConfirm={this.props.handleConfirmForcedPreview}
-                        handleUnConfirm={this.props.handleUnConfirmForcedPreview}
+                        handleUnConfirm={
+                          this.props.handleUnConfirmForcedPreview
+                        }
                       />
                     )}
                     <OverlayTrigger
@@ -645,7 +654,8 @@ class DocManager extends React.Component {
                             </div>
                           </>
                         )}
-                        {(doc.state === "loaded" || doc.state === "selected") && (
+                        {(doc.state === "loaded" ||
+                          doc.state === "selected") && (
                           <>
                             <div className="doc-container-first-row">
                               {this.selectDoc(index, doc)}
@@ -708,7 +718,7 @@ class DocManager extends React.Component {
           </fieldset>
         )}
         <div className={"multisign-container-" + this.props.size}>
-          {(this.props.owned.length > 0) && (
+          {this.props.owned.length > 0 && (
             <fieldset className="owned-multisign-container">
               <legend>
                 <FormattedMessage
@@ -719,7 +729,7 @@ class DocManager extends React.Component {
               <OwnedContainer />
             </fieldset>
           )}
-          {(this.props.pending.length > 0) && (
+          {this.props.pending.length > 0 && (
             <fieldset className="invited-multisign-container">
               <legend>
                 <FormattedMessage

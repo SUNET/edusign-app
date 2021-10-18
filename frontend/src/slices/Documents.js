@@ -87,7 +87,7 @@ export const loadDocuments = createAsyncThunk(
       if (stored !== null) {
         [stored.invited, stored.owned].forEach((docs) => {
           docs.forEach((doc) => {
-            if (doc.state === 'signing') {
+            if (doc.state === "signing") {
               signing = true;
             }
           });
@@ -579,7 +579,7 @@ export const restartSigningDocuments = createAsyncThunk(
             };
           }
         });
-        if (!isFailed) doc.state = 'signing';
+        if (!isFailed) doc.state = "signing";
         return doc;
       });
       docsToSign.invited = docsToSign.invited.map((doc) => {
@@ -593,7 +593,7 @@ export const restartSigningDocuments = createAsyncThunk(
             };
           }
         });
-        if (!isFailed) doc.state = 'signing';
+        if (!isFailed) doc.state = "signing";
         return doc;
       });
       const storageName =
@@ -642,7 +642,10 @@ export const restartSigningDocuments = createAsyncThunk(
       });
       thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
       thunkAPI.dispatch(invitationsSignFailure(message));
-      if (data.hasOwnProperty('payload') && data.payload.hasOwnProperty('documents')) {
+      if (
+        data.hasOwnProperty("payload") &&
+        data.payload.hasOwnProperty("documents")
+      ) {
         await data.payload.documents.forEach(async (doc) => {
           await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
         });
@@ -782,9 +785,11 @@ export const downloadAllSigned = createAsyncThunk(
     let docs = state.documents.documents.filter((doc) => {
       return doc.state === "signed";
     });
-    docs.concat(state.main.owned_multisign.filter((doc) => {
-      return doc.state === "signed";
-    }));
+    docs.concat(
+      state.main.owned_multisign.filter((doc) => {
+        return doc.state === "signed";
+      })
+    );
     let zip = new JSZip();
     let folder = zip.folder("signed");
     docs.forEach((doc) => {
@@ -1349,7 +1354,7 @@ const documentsSlice = createSlice({
       }
     },
     [loadDocuments.rejected]: (state, action) => {
-      if (action.hasOwnProperty('payload') && action.payload !== undefined) {
+      if (action.hasOwnProperty("payload") && action.payload !== undefined) {
         state.documents = action.payload.documents;
       }
     },
