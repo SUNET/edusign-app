@@ -537,14 +537,16 @@ const mainSlice = createSlice({
      */
     updateInvitations(state, action) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
-        action.payload.owned.forEach((storedDoc) => {
-          if (doc.key === storedDoc.key) {
-            doc = {
-              ...doc,
-              ...storedDoc,
-            };
-          }
-        });
+        if (doc.state !== 'signed') {
+          action.payload.owned.forEach((storedDoc) => {
+            if (doc.key === storedDoc.key) {
+              doc = {
+                ...doc,
+                ...storedDoc,
+              };
+            }
+          });
+        }
         return doc;
       });
       state.pending_multisign = state.pending_multisign.map((doc) => {

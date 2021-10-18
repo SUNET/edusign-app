@@ -59,8 +59,8 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleRetry: function (doc, props) {
       return async () => {
-        await dispatch(prepareDocument({ doc: doc, intl: props.intl }));
         dispatch(setState({ name: doc.name, state: "loading" }));
+        await dispatch(prepareDocument({ doc: doc, intl: props.intl }));
         await dispatch(saveDocument({ docName: doc.name }));
       };
     },

@@ -140,14 +140,14 @@ export const checkStoredDocuments = createAsyncThunk(
     if (storedStr !== null) {
       const storedDocs = JSON.parse(storedStr);
       storedDocs.owned.forEach((doc) => {
-        state.main.owned_multisign.forEach((oldDOc) => {
+        if (doc.state === 'failed-signing') {
           thunkAPI.dispatch(setOwnedState(doc));
-        });
+        }
       });
       storedDocs.invited.forEach((doc) => {
-        state.main.pending_multisign.forEach((oldDOc) => {
+        if (doc.state === 'failed-signing') {
           thunkAPI.dispatch(setInvitedState(doc));
-        });
+        }
       });
     }
     localStorage.removeItem(storedName);
