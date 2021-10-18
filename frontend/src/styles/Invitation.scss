@@ -59,6 +59,7 @@
       .button-remove-container,
       .button-resend-container,
       .button-skip-container,
+      .button-download-container,
       .button-forced-preview-container {
         flex: none;
         button {
@@ -116,6 +117,7 @@
       .button-forced-preview-container,
       .button-remove-container,
       .button-resend-container,
+      .button-download-container,
       .button-skip-container{
         flex: none;
       }
@@ -146,6 +148,7 @@
 .button-forced-preview-invitation,
 .button-remove-invitation,
 .button-resend-invitation,
+.button-download-invitation,
 .button-skip-invitation {
   margin-right: 0.5rem;
   margin-left: 0.5rem;
