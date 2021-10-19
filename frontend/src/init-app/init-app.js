@@ -13,7 +13,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import Cookies from "js-cookie";
 import rootReducer from "init-app/store";
-import { fetchConfig, resizeWindow } from "slices/Main";
+import { fetchConfig, resizeWindow, setUnauthn } from "slices/Main";
 
 /*
  * internationalization.
@@ -88,6 +88,10 @@ const init_app = function (target, component) {
   window.onresize = () => {
     store.dispatch(resizeWindow());
   };
+
+  if (document.getElementById("unauthn-marker") !== null) {
+    store.dispatch(setUnauthn());
+  }
 
   const wrappedComponent = <Provider store={store}>{component}</Provider>;
 

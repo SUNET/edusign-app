@@ -125,6 +125,7 @@ def get_index() -> str:
         'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}",
         'back_button_text': gettext("Back"),
     }
+    unauthn = False
     try:
         add_attributes_to_session()
     except KeyError as e:
@@ -137,12 +138,19 @@ def get_index() -> str:
         )
         return render_template('error-generic.jinja2', **context)
     except ValueError:
-        context['title'] = gettext("Permission Denied")
-        context['message'] = gettext(
-            'The organization/identity provider you are affiliated with does not have permission to use this service. Please contact your IT-department to obtain the necessary permissions.'
-        )
-        return render_template('error-generic.jinja2', **context)
+        invites = get_invitations()
+        if len(invites['pending_multisign']) > 0:
+            current_app.logger.debug(f"Authorizing non-whitelisted invited user, has invitations: {invites}")
+            unauthn = True
+        else:
+            current_app.logger.debug(f"Not authorizing non-whitelisted invited user, has no invitations: {invites}")
+            context['title'] = gettext("Permission Denied")
+            context['message'] = gettext(
+                'The organization/identity provider you are affiliated with does not have permission to use this service. Please contact your IT-department to obtain the necessary permissions.'
+            )
+            return render_template('error-generic.jinja2', **context)
 
+    session['invited-unauthn'] = unauthn
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
 
     bundle_name = 'main-bundle'
@@ -150,7 +158,7 @@ def get_index() -> str:
         bundle_name += '.dev'
 
     try:
-        return render_template('index.jinja2', bundle_name=bundle_name)
+        return render_template('index.jinja2', bundle_name=bundle_name, unauthn=unauthn)
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
         abort(500)
@@ -165,9 +173,9 @@ def get_config() -> dict:
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
     if 'eppn' not in session or not current_app.is_whitelisted(session['eppn']):
-        return {'error': True, 'message': gettext('Unauthorized')}
+        if not session['invited-unauthn']:
+            return {'error': True, 'message': gettext('Unauthorized')}
 
-    session['site_visitor'] = True
     attrs = {'eppn': session['eppn'], "mail": session["mail"]}
     if 'displayName' in session:
         attrs['name'] = session['displayName']
@@ -293,7 +301,8 @@ def recreate_sign_request(documents: dict) -> dict:
              or information about some error obtained in the process.
     """
     if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
-        return {'error': True, 'message': gettext('Unauthorized')}
+        if not session['invited-unauthn']:
+            return {'error': True, 'message': gettext('Unauthorized')}
 
     current_app.logger.debug(f'Data gotten in recreate view: {documents}')
 
@@ -321,6 +330,28 @@ def recreate_sign_request(documents: dict) -> dict:
                 'key': doc['key'],
                 'state': 'failed-signing',
                 'message': gettext("Document is being signed by another user, please try again in a few minutes."),
+            }
+            failed.append(failedDoc)
+            continue
+
+        if not stored:
+            current_app.logger.debug(f"No invitation for user {session['eppn']} to sign {doc['name']}")
+            failedDoc = {
+                'key': doc['key'],
+                'state': 'failed-signing',
+                'message': gettext("There doesn't seem to be an invitation for you to sign %(docname)s.") % {'docname': doc.name},
+            }
+            failed.append(failedDoc)
+            continue
+
+        if stored['user']['email'] != session['mail']:
+            current_app.logger.error(
+                f"Trying to sign invitation with wrong email {session['mail']} (invited:  {stored['user']['email']})"
+            )
+            failedDoc = {
+                'key': doc['key'],
+                'state': 'failed-signing',
+                'message': gettext("The email %(email)s invited to sign %(docname)s does not coincide with yours.") % {'email': stored['user']['email'], 'docname': doc.name},
             }
             failed.append(failedDoc)
             continue
@@ -422,6 +453,7 @@ def sign_service_callback() -> Union[str, Response]:
             sign_response=sign_response,
             relay_state=relay_state,
             bundle_name=bundle_name,
+            unauthn=session.get("invited-unauthn", False)
         )
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
@@ -523,7 +555,7 @@ def create_multi_sign_request(data: dict) -> dict:
             current_app.logger.debug(f"Adding invitation {invite} for {data['document']['name']}")
             recipients = [f"{invite['name']} <{invite['email']}>"]
             msg = Message(gettext("XXX Invite mail subject"), recipients=recipients)
-            invited_link = url_for('edusign.create_invited_signature', invite_key=invite['key'], _external=True)
+            invited_link = url_for('edusign.get_index', _external=True)
             context = {
                 'document_name': data['document']['name'],
                 'inviter_name_and_email': f"{owner['name']} <{owner['email']}>",
@@ -577,7 +609,7 @@ def send_multisign_reminder(data: dict) -> dict:
         current_app.logger.debug(f"Sending reminder to {invite} for {docname}")
         recipients = [f"{invite['name']} <{invite['email']}>"]
         msg = Message(gettext("XXX Reminder mail subject"), recipients=recipients)
-        invited_link = url_for('edusign.create_invited_signature', invite_key=invite['key'], _external=True)
+        invited_link = url_for('edusign.get_index', _external=True)
         context = {
             'document_name': docname,
             'inviter_name_and_email': f"{session['displayName']} <{session['mail']}>",
@@ -620,85 +652,6 @@ def remove_multi_sign_request(data: dict) -> dict:
     message = gettext("Success removing multi signature request")
 
     return {'message': message}
-
-
-@edusign_views.route('/invitation/<invite_key>', methods=['GET'])
-def create_invited_signature(invite_key: str) -> str:
-    """"""
-    context = {
-        'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}/sign",
-        'back_button_text': gettext("Back to site"),
-    }
-    add_attributes_to_session(check_whitelisted=False)
-
-    try:
-        data = current_app.doc_store.get_invitation(uuid.UUID(invite_key))
-    except current_app.doc_store.DocumentLocked:
-        current_app.logger.error(f"Document locked while getting invitation for user {session['eppn']}")
-        context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext(
-            "Someone else is signing the document right now, please try again in a few minutes"
-        )
-        return render_template('error-generic.jinja2', **context)
-
-    current_app.logger.info(f"Invitation data: {data}")
-
-    if not data:
-        current_app.logger.debug(f"No invitation for user {session['eppn']}")
-        context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext("There seems to be no invitation for you")
-        return render_template('error-generic.jinja2', **context)
-
-    doc = data['document']
-    user = data['user']
-    key = doc['key']
-
-    if user['email'] != session['mail']:
-        current_app.logger.error(
-            f"Trying to sign invitation with wrong email {session['mail']} (invited:  {user['email']})"
-        )
-        current_app.doc_store.unlock_document(key, user['email'])
-        context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext("The invited email does not coincide with yours")
-        return render_template('error-generic.jinja2', **context)
-
-    doc_data = prepare_document(doc)
-
-    if 'error' in doc_data and doc_data['error']:
-        current_app.logger.error(f"Problem preparing document for invited signature: {doc_data}")
-        current_app.doc_store.unlock_document(key, user['email'])
-        context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext("Problem preparing document for multi sign by user %s: %s") % (
-            session['eppn'],
-            doc['name'],
-        )
-        return render_template('error-generic.jinja2', **context)
-
-    current_app.logger.info(f"Prepared {doc['name']} for multisigning by user {session['eppn']}")
-
-    new_doc = {
-        'key': doc['key'],
-        'name': doc['name'],
-        'type': doc['type'],
-        'ref': doc_data['updatedPdfDocumentReference'],
-        'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
-    }
-
-    try:
-        current_app.logger.info(f"Creating (multi) signature request for user {session['eppn']}")
-        create_data, documents_with_id = current_app.api_client.create_sign_request([new_doc], single_sign=False)
-
-    except Exception as e:
-        current_app.logger.error(f"Problem creating sign request for invited signature: {e}")
-        current_app.doc_store.unlock_document(key, user['email'])
-        context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext('Communication error with the create endpoint of the eduSign API')
-        return render_template('error-generic.jinja2', **context)
-
-    if 'site_visitor' in session and session['site_visitor']:
-        return render_template('autoform.jinja2', **create_data)
-
-    return render_template('vanity-form.jinja2', **create_data)
 
 
 @edusign_views.route('/multisign-callback/<doc_key>', methods=['POST'])

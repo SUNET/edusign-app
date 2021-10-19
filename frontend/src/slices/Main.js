@@ -194,6 +194,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
 const mainSlice = createSlice({
   name: "main",
   initialState: {
+    unauthn: false,
     loading: false,
     csrf_token: null,
     signer_attributes: {
@@ -217,6 +218,14 @@ const mainSlice = createSlice({
      */
     appLoaded(state) {
       state.loading = false;
+    },
+    /**
+     * @public
+     * @function setUnauthn
+     * @desc Redux action to mark the state as unauthn
+     */
+    setUnauthn(state) {
+      state.unauthn = true;
     },
     /**
      * @public
@@ -648,6 +657,7 @@ const mainSlice = createSlice({
 
 export const {
   appLoaded,
+  setUnauthn,
   setCsrfToken,
   updateSigningForm,
   resizeWindow,

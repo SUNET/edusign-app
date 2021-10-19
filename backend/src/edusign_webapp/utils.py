@@ -31,7 +31,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 from base64 import b64decode
-from typing import Any, Dict
 from xml.etree import cElementTree as ET
 
 from flask import current_app, request, session
@@ -43,13 +42,6 @@ def add_attributes_to_session(check_whitelisted=True):
         eppn = request.headers.get('Edupersonprincipalname')
         current_app.logger.info(f'User {eppn} started a session')
 
-        if check_whitelisted:
-            if not current_app.is_whitelisted(eppn):
-                current_app.logger.info(f"Rejecting user with {eppn} address")
-                raise ValueError('Unauthorized user')
-
-        pre_session: Dict[str, Any] = {}
-
         attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SESSION_ATTRIBUTES'].values()]
         more_attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
         for attr in more_attrs:
@@ -60,9 +52,8 @@ def add_attributes_to_session(check_whitelisted=True):
             current_app.logger.debug(
                 f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
             )
-            pre_session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
+            session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
 
-        session.update(pre_session)
         session['eppn'] = eppn
         session['idp'] = request.headers.get('Shib-Identity-Provider')
         session['authn_method'] = request.headers.get('Shib-Authentication-Method')
@@ -74,6 +65,11 @@ def add_attributes_to_session(check_whitelisted=True):
             session['organizationName'] = orgName.encode('latin1').decode('utf8')
 
         current_app.logger.debug(f'Headers sent by Shibboleth SP {request.headers}')
+
+        if check_whitelisted:
+            if not current_app.is_whitelisted(eppn):
+                current_app.logger.info(f"Rejecting user with {eppn} address")
+                raise ValueError('Unauthorized user')
 
 
 def prepare_document(document: dict) -> dict:

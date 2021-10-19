@@ -29,7 +29,9 @@ class Main extends Component {
         <section id={panelId}>
           <HeaderContainer />
           <div id="main-content">
-            <DnDAreaContainer />
+            {(!this.props.unauthn) && (
+              <DnDAreaContainer />
+            )}
             <DocManagerContainer />
           </div>
           <FooterContainer />

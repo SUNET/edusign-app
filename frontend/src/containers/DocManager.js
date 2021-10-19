@@ -42,6 +42,7 @@ const mapStateToProps = (state) => {
     multisign_buttons: state.main.multisign_buttons,
     pending: state.main.pending_multisign,
     owned: state.main.owned_multisign,
+    unauthn: state.main.unauthn,
   };
 };
 
