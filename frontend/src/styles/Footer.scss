@@ -43,14 +43,75 @@ footer p {
   padding-bottom: 0;
 }
 #help-control {
-  font-size: .8rem;
+  z-index: 9999;
 
-  label {
+  .help-control-container {
+    display: block;
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: .9rem;
     color: $darker-grey;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
   }
 
-  input {
-    background-color: $light-gray;
-    color: $darker-grey;
+  /* Hide the browser's default checkbox */
+  .help-control-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+
+  /* Create a custom checkbox */
+  .help-control-checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: .9rem;
+    width: .9rem;
+    border: solid 2px #888;
+    border-radius: 1px;
+    background-color: #ddd;
+  }
+
+  /* On mouse-over, add a grey background color */
+  .help-control-container:hover input ~ .help-control-checkmark {
+    background-color: #999;
+  }
+
+  /* When the checkbox is checked, add a blue background */
+  .help-control-container input:checked ~ .help-control-checkmark {
+    background-color: #ddd;
+  }
+
+  /* Create the checkmark/indicator (hidden when not checked) */
+  .help-control-checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+
+  /* Show the checkmark when checked */
+  .help-control-container input:checked ~ .help-control-checkmark:after {
+    display: block;
+  }
+
+  /* Style the checkmark/indicator */
+  .help-control-container .help-control-checkmark:after {
+    left: 2px;
+    top: 0;
+    width: 5px;
+    height: 8px;
+    border: solid #447;
+    border-width: 0 2px 2px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
   }
 }
