@@ -7,6 +7,7 @@ import SplashContainer from "containers/Splash";
 import FooterContainer from "containers/Footer";
 import DnDAreaContainer from "containers/DnDArea";
 import DocManagerContainer from "containers/DocManager";
+import PollContainer from "containers/Poll";
 
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "styles/reset.scss";
@@ -28,11 +29,14 @@ class Main extends Component {
         <section id={panelId}>
           <HeaderContainer />
           <div id="main-content">
-            <DnDAreaContainer />
+            {(!this.props.unauthn) && (
+              <DnDAreaContainer />
+            )}
             <DocManagerContainer />
           </div>
           <FooterContainer />
         </section>
+        <PollContainer />
       </>
     );
   }

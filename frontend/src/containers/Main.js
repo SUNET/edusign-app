@@ -10,6 +10,7 @@ import Main from "components/Main";
 
 const mapStateToProps = (state) => {
   return {
+    unauthn: state.main.unauthn,
     size: state.main.size,
     loaded: state.main.signer_attributes !== undefined,
   };

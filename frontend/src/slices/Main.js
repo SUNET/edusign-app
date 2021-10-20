@@ -6,6 +6,22 @@
  * The main key of the Redux state holds the following subkeys:
  *
  * - loading: to indicate whether the app is loading or has finished loading.
+ *
+ * Owned invitation states:
+ * + incomplete: there are pending inveted signatures
+ * + loaded: all invited have signed
+ * + selected: invitation selected for signature
+ * + signing: invitation is being signed
+ * + signed: invitation has been signed
+ * + failed-signing: invitation has had problems while being signed
+ *
+ * Invited invitation states:
+ * + unconfirmed: the user has not previewed the document
+ * + loaded: document has been previewed
+ * + selected: invitation selected for signature
+ * + signing: invitation is being signed
+ * + failed-signing: invitation has had problems while being signed
+ *
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createIntl } from "react-intl";
@@ -46,7 +62,12 @@ export const fetchConfig = createAsyncThunk(
         );
         return thunkAPI.rejectWithValue(configData.message);
       } else {
-        thunkAPI.dispatch(loadDocuments({ intl: intl, eppn: configData.payload.signer_attributes.eppn }));
+        thunkAPI.dispatch(
+          loadDocuments({
+            intl: intl,
+            eppn: configData.payload.signer_attributes.eppn,
+          })
+        );
         return configData;
       }
     } catch (err) {
@@ -66,6 +87,58 @@ export const fetchConfig = createAsyncThunk(
 
 /**
  * @public
+ * @function poll
+ * @desc Redux async thunk to poll configuration data from the backend.
+ */
+export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
+  const state = thunkAPI.getState();
+  if (state.main.disablePoll) {
+    return thunkAPI.rejectWithValue("Polling disabled");
+  }
+  try {
+    const response = await fetch("/sign/poll", getRequest);
+    const configData = await checkStatus(response);
+    extractCsrfToken(thunkAPI.dispatch, configData);
+    if (configData.error) {
+      return thunkAPI.rejectWithValue(configData.message);
+    } else {
+      const allOwned = state.main.owned_multisign.map((owned) => {
+        if (owned.pending.length > 0) {
+          const ownedCopy = { ...owned };
+          configData.payload.owned_multisign.forEach((newOwned) => {
+            if (ownedCopy.name === newOwned.name) {
+              ownedCopy.pending = newOwned.pending;
+              ownedCopy.signed = newOwned.signed;
+            }
+          });
+          if (ownedCopy.pending.length === 0) ownedCopy.state = "loaded";
+          return ownedCopy;
+        }
+        return owned;
+      });
+      configData.payload.owned_multisign = allOwned;
+
+      const allInvited = state.main.pending_multisign.map((invited) => {
+        const invitedCopy = { ...invited };
+        configData.payload.pending_multisign.forEach((newInvited) => {
+          if (invitedCopy.name === newInvited.name) {
+            invitedCopy.pending = newInvited.pending;
+            invitedCopy.signed = newInvited.signed;
+          }
+        });
+        return invitedCopy;
+      });
+      configData.payload.pending_multisign = allInvited;
+
+      return configData;
+    }
+  } catch (err) {
+    return thunkAPI.rejectWithValue(err.toString());
+  }
+});
+
+/**
+ * @public
  * @function getPartiallySignedDoc
  * @desc Redux async thunk to get from the backend a partially signed multisign doc
  */
@@ -73,10 +146,16 @@ export const getPartiallySignedDoc = createAsyncThunk(
   "documents/getPartiallySignedDoc",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const oldDoc = state.main[args.stateKey].filter((doc) => {
+    const oldDocs = state.main[args.stateKey].filter((doc) => {
       doc.key === args.key;
     });
-    if (oldDoc.blob) {
+    if (oldDocs.length == 1 && oldDocs[0].blob) {
+      args.payload = oldDocs[0];
+      if (args.hasOwnProperty("showForced")) {
+        args.payload.showForced = true;
+      } else {
+        args.payload.show = true;
+      }
       return args;
     }
     const body = preparePayload(state, { key: args.key });
@@ -92,6 +171,11 @@ export const getPartiallySignedDoc = createAsyncThunk(
       }
       data.key = args.key;
       data.stateKey = args.stateKey;
+      if (args.hasOwnProperty("showForced")) {
+        data.payload.showForced = true;
+      } else {
+        data.payload.show = true;
+      }
       return data;
     } catch (err) {
       thunkAPI.dispatch(
@@ -110,15 +194,22 @@ export const getPartiallySignedDoc = createAsyncThunk(
 const mainSlice = createSlice({
   name: "main",
   initialState: {
+    unauthn: false,
     loading: false,
     csrf_token: null,
-    signer_attributes: undefined,
+    signer_attributes: {
+      eppn: "",
+      name: "",
+    },
     owned_multisign: [],
     pending_multisign: [],
     signingData: {},
     size: "lg",
     width: 0,
     multisign_buttons: "yes",
+    poll: false,
+    disablePoll: false,
+    showHelp: true,
   },
   reducers: {
     /**
@@ -165,11 +256,77 @@ const mainSlice = createSlice({
     /**
      * @public
      * @function removeOwned
-     * @desc Redux action to add an owned multisign request
+     * @desc Redux action to remove an owned multisign request
      */
     removeOwned(state, action) {
       state.owned_multisign = state.owned_multisign.filter((doc) => {
         return doc.key !== action.payload.key;
+      });
+    },
+    /**
+     * @public
+     * @function updateOwned
+     * @desc Redux action to update an owned multisign request
+     */
+    updateOwned(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.key === action.payload.key) {
+          return {
+            ...doc,
+            ...action.payload,
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function setOwned
+     * @desc Redux action to add owned documents
+     */
+    setOwned(state, action) {
+      action.payload.forEach((doc) => {
+        state.owned_multisign.push(doc);
+      });
+    },
+    /**
+     * @public
+     * @function removeInvited
+     * @desc Redux action to remove an invited multisign request
+     */
+    removeInvited(state, action) {
+      state.pending_multisign = state.pending_multisign.filter((doc) => {
+        return doc.key !== action.payload.key;
+      });
+    },
+    /**
+     * @public
+     * @function selectOwnedDoc
+     * @desc Redux action to select an owned invitation
+     */
+    selectOwnedDoc(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            state: "selected",
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function selectInvitedDoc
+     * @desc Redux action to select an invited invitation
+     */
+    selectInvitedDoc(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          const state = doc.state === "selected" ? "loaded" : "selected";
+          return {
+            ...doc,
+            state: state,
+          };
+        } else return doc;
       });
     },
     /**
@@ -232,6 +389,231 @@ const mainSlice = createSlice({
         } else return doc;
       });
     },
+    /**
+     * @public
+     * @function setPolling
+     * @desc Redux action to set the polling state
+     */
+    setPolling(state, action) {
+      state.poll = action.payload;
+    },
+    /**
+     * @public
+     * @function enablePolling
+     * @desc Redux action to enable polling
+     */
+    enablePolling(state, action) {
+      state.disablePoll = false;
+      state.poll = true;
+    },
+    /**
+     * @public
+     * @function disablePolling
+     * @desc Redux action to disable polling
+     */
+    disablePolling(state, action) {
+      state.disablePoll = true;
+    },
+    /**
+     * @function startSigningInvited
+     * @desc Redux action to update a document in the store
+     * setting the state key to "signing"
+     */
+    startSigningInvited(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          const document = {
+            ...doc,
+            state: "signing",
+          };
+          return document;
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function startSigningOwned
+     * @desc Redux action to update a document in the store
+     * setting the state key to "signing"
+     */
+    startSigningOwned(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          const document = {
+            ...doc,
+            state: "signing",
+          };
+          return document;
+        } else return doc;
+      });
+    },
+    /**
+     * @function setInvitedState
+     * @desc Redux action to update a document in the store
+     * setting the state key to whatever
+     */
+    setInvitedState(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload.name) {
+          const document = {
+            ...doc,
+            ...action.payload,
+          };
+          return document;
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function setOwnedState
+     * @desc Redux action to update a document in the store
+     * setting the state key to whatever
+     */
+    setOwnedState(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.name === action.payload.name) {
+          const document = {
+            ...doc,
+            ...action.payload,
+          };
+          return document;
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function showForcedInvitedPreview
+     * @desc Redux action to update an invited document in the documents state key,
+     * setting the show key to true (so that the UI will show the forced preview of the document).
+     */
+    showForcedInvitedPreview(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            showForced: true,
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function hideForcedInvitedPreview
+     * @desc Redux action to update an invited document in the documents state key,
+     * setting the showForced key to false (so that the UI will hide the forced preview of the document).
+     */
+    hideForcedInvitedPreview(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            showForced: false,
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function confirmForcedInvitedPreview
+     * @desc Redux action to update an invited document in the documents state key,
+     * setting the showForced key to false (so that the UI will hide the forced preview of the document,
+     * and the document will end in the 'selected' state).
+     */
+    confirmForcedInvitedPreview(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.name === action.payload) {
+          return {
+            ...doc,
+            showForced: false,
+            state: "selected",
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function updateInvitations
+     * @desc Redux action to update owned and invited documents,
+     * after having signed some at the IdP,
+     * with data kept in localStorage while we were away at the IdP.
+     */
+    updateInvitations(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.state !== 'signed') {
+          action.payload.owned.forEach((storedDoc) => {
+            if (doc.key === storedDoc.key) {
+              doc = {
+                ...doc,
+                ...storedDoc,
+              };
+            }
+          });
+        }
+        return doc;
+      });
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        action.payload.invited.forEach((storedDoc) => {
+          if (doc.key === storedDoc.key) {
+            doc = {
+              ...doc,
+              ...storedDoc,
+            };
+          }
+        });
+        return doc;
+      });
+    },
+    /**
+     * @public
+     * @function updateInvitationsFailed
+     * @desc Redux action to update owned and invited documents,
+     * after having interrumped signature at the IdP,
+     * with failed-signing state
+     */
+    updateInvitationsFailed(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.state === "signing") {
+          doc.state = "failed-signing";
+        }
+        return doc;
+      });
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.state === "signing") {
+          doc.state = "failed-signing";
+        }
+        return doc;
+      });
+    },
+    /**
+     * @public
+     * @function invitationsSignFailure
+     * @desc Redux action to update owned and invited documents,
+     * after encountering a general problem while trying to create a sign request
+     */
+    invitationsSignFailure(state, action) {
+      state.owned_multisign = state.owned_multisign.map((doc) => {
+        if (doc.state === "signing") {
+          doc.state = "failed-signing";
+          doc.message = action.payload;
+        }
+        return doc;
+      });
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.state === "signing") {
+          doc.state = "failed-signing";
+          doc.message = action.payload;
+        }
+        return doc;
+      });
+    },
+    /**
+     * @public
+     * @function enableContextualHelp
+     * @desc Redux action to enable / disable contextual help
+     */
+    enableContextualHelp(state, action) {
+      state.showHelp = action.payload;
+    },
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
@@ -246,12 +628,23 @@ const mainSlice = createSlice({
         signer_attributes: null,
       };
     },
+    [poll.fulfilled]: (state, action) => {
+      return {
+        ...state,
+        ...action.payload.payload,
+      };
+    },
     [getPartiallySignedDoc.fulfilled]: (state, action) => {
+      console.log(action);
       state[action.payload.stateKey] = state[action.payload.stateKey].map(
         (doc) => {
           if (doc.key === action.payload.key) {
-            let newDoc = { ...doc, show: true };
+            let newDoc = { ...doc };
             if (action.payload.payload) {
+              newDoc = {
+                ...doc,
+                ...action.payload.payload,
+              };
               newDoc.blob =
                 "data:application/pdf;base64," + action.payload.payload.blob;
             }
@@ -270,10 +663,29 @@ export const {
   resizeWindow,
   addOwned,
   removeOwned,
+  updateOwned,
+  setOwned,
+  removeInvited,
   setInvitedSigning,
   setOwnedSigning,
   hideInvitedPreview,
   hideOwnedPreview,
+  setPolling,
+  enablePolling,
+  disablePolling,
+  startSigningInvited,
+  startSigningOwned,
+  setInvitedState,
+  setOwnedState,
+  selectInvitedDoc,
+  selectOwnedDoc,
+  showForcedInvitedPreview,
+  hideForcedInvitedPreview,
+  confirmForcedInvitedPreview,
+  updateInvitations,
+  invitationsSignFailure,
+  updateInvitationsFailed,
+  enableContextualHelp,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;

@@ -7,8 +7,7 @@
   flex: none;
   min-height: 3rem;
   width: 100%;
-  margin-top: 1rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.3rem;
   border: $orange-opaque solid 2px;
   border-radius: 3px;
 
@@ -25,9 +24,25 @@
       flex-wrap: wrap;
       width: 100%;
 
+      .doc-selector-flex-item {
+        flex: none;
+        width: 2rem;
+      }
+
       .name-flex-item {
-        flex: 1 2 auto;
+        flex: 5 1 auto;
+      }
+
+      .message-flex-item {
+        flex: none;
+        margin-left: 1rem;
+        color: $error-red;
+      }
+
+      .size-flex-item {
+        flex: none;
         margin-right: 1rem;
+        color: $darker-dark-grey;
       }
 
       .spinner-flex-item {
@@ -39,20 +54,22 @@
         flex: none;
         width: 5rem;
       }
-      .invitation-buttons {
-        flex: 2 1 auto;
+
+      .button-preview-container,
+      .button-remove-container,
+      .button-resend-container,
+      .button-skip-container,
+      .button-download-container,
+      .button-forced-preview-container {
+        flex: none;
+      }
+
+      .owned-container-buttons-lg {
+        flex: 3 1 auto;
         display: flex;
+        flex-direction: row;
         justify-content: flex-end;
         flex-wrap: wrap;
-        margin: 0.5rem 0;
-
-        .button-preview-container,
-        .button-remove-container,
-        .button-resend-container,
-        .button-skip-container,
-        .button-sign-container {
-          flex: none;
-        }
       }
     }
 
@@ -62,6 +79,21 @@
       flex-wrap: wrap;
       width: 100%;
 
+      .doc-selector-flex-item {
+        flex: none;
+        width: 2rem;
+      }
+
+      .message-flex-item {
+        color: $error-red;
+      }
+
+      .size-flex-item {
+        flex: none;
+        margin-right: 1rem;
+        color: $darker-dark-grey;
+      }
+
       .name-flex-item {
         flex: 1 2 auto;
         margin-right: 1rem;
@@ -76,21 +108,32 @@
         flex: none;
         width: 5rem;
       }
-      .invitation-buttons {
-        flex: 2 1 auto;
-        display: flex;
-        justify-content: center;
-        flex-wrap: wrap;
-        margin-left: -1rem;
-        margin-bottom: 0.5rem;
 
-        .button-preview-container,
-        .button-remove-container,
-        .button-resend-container,
-        .button-skip-container,
-        .button-sign-container {
+      .button-preview-container,
+      .button-forced-preview-container,
+      .button-remove-container,
+      .button-resend-container,
+      .button-download-container,
+      .button-skip-container{
+        flex: none;
+      }
+      .owned-name-and-buttons {
+        width: fit-content;
+        flex: none;
+        display: flex;
+        flex-direction: column;
+
+        .owned-container-name {
           flex: none;
-          margin-top: 0.5rem;
+          display: flex;
+          justify-content: flex-start;
+          flex-wrap: wrap;
+        }
+        .owned-container-buttons-sm {
+          flex: none;
+          display: flex;
+          flex-wrap: wrap;
+          line-height: 2.5rem;
         }
       }
     }
@@ -98,17 +141,11 @@
 }
 
 .button-preview-invitation,
-.button-remove-invitation {
-  button {
-    width: 5rem;
-  }
-}
-
-.button-preview-invitation,
+.button-forced-preview-invitation,
 .button-remove-invitation,
 .button-resend-invitation,
-.button-skip-invitation,
-.button-sign-invitation {
+.button-download-invitation,
+.button-skip-invitation {
   margin-right: 0.5rem;
   margin-left: 0.5rem;
 }
@@ -122,18 +159,18 @@
   font-size: 0.8rem;
 }
 
-.invited-by {
+.invited-by,
+.pending-invites,
+.signed-invites {
   flex: none;
+  margin-top: .2rem;
+  margin-bottom: .2rem;
 }
 
 .owner-item {
   margin-left: 0.5rem;
   font-size: 0.8rem;
   display: inline-block;
-}
-
-.pending-invites {
-  flex: none;
 }
 
 .pending-invites-items {
@@ -144,14 +181,23 @@
   }
 }
 
-.signed-invites {
-  flex: none;
-}
-
 .signed-invites-items {
   .signed-invite-item {
     margin-left: 0.5rem;
     font-size: 0.8rem;
     display: inline-block;
+  }
+}
+
+div.failed-signing {
+  background-color: $light-orange;
+}
+
+div.selected {
+  background-color: $light-blue;
+}
+.multisign-container-sm {
+  .invitation-multisign {
+    background-color: $lightest-gray;
   }
 }

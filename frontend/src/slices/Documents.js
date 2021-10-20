@@ -18,10 +18,25 @@ import {
   preparePayload,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { updateSigningForm, addOwned, removeOwned } from "slices/Main";
+import {
+  updateSigningForm,
+  addOwned,
+  removeOwned,
+  updateOwned,
+  removeInvited,
+  setPolling,
+  startSigningInvited,
+  startSigningOwned,
+  setOwnedState,
+  setInvitedState,
+  setOwned,
+  updateInvitations,
+  invitationsSignFailure,
+  updateInvitationsFailed,
+} from "slices/Main";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
-import { b64toBlob } from "components/utils";
+import { b64toBlob, hashCode } from "components/utils";
 
 /**
  * @public
@@ -31,8 +46,8 @@ import { b64toBlob } from "components/utils";
 export const loadDocuments = createAsyncThunk(
   "documents/loadDocuments",
   async (args, thunkAPI) => {
-    console.log("going to open db, name ", args.eppn);
     const db = await getDb(args.eppn);
+    const state = thunkAPI.getState();
 
     if (db !== null) {
       let signing = false;
@@ -43,27 +58,45 @@ export const loadDocuments = createAsyncThunk(
         };
         const docStore = transaction.objectStore("documents");
         const docs = [];
+        const owned = [];
         docStore.openCursor().onsuccess = (event) => {
           const cursor = event.target.result;
           if (cursor) {
-            const document = cursor.value;
-            docs.push(document);
-            if (document.state === "signing") {
+            const doc = cursor.value;
+            if (doc.hasOwnProperty("pending")) {
+              owned.push(doc);
+            } else {
+              docs.push(doc);
+            }
+            if (doc.state === "signing") {
               signing = true;
             }
             cursor.continue();
           }
           if (cursor === null) {
+            thunkAPI.dispatch(setOwned(owned));
             resolve(docs);
           }
         };
       });
       let documents = await promisedDocuments;
+      let dataElem = null;
+      const storageName =
+        "signing-" + hashCode(state.main.signer_attributes.eppn);
+      const stored = JSON.parse(localStorage.getItem(storageName));
+      if (stored !== null) {
+        [stored.invited, stored.owned].forEach((docs) => {
+          docs.forEach((doc) => {
+            if (doc.state === "signing") {
+              signing = true;
+            }
+          });
+        });
+        thunkAPI.dispatch(updateInvitations(stored));
+      }
       if (signing) {
-        const dataElem = document.getElementById("sign-response-holder");
-        if (dataElem !== null) {
-          fetchSignedDocuments(thunkAPI, dataElem, args.intl);
-        } else {
+        dataElem = document.getElementById("sign-response-holder");
+        if (dataElem === null) {
           documents = documents.map((doc) => {
             if (doc.state === "signing") {
               const failedDoc = {
@@ -78,16 +111,46 @@ export const loadDocuments = createAsyncThunk(
               return failedDoc;
             } else return doc;
           });
+          thunkAPI.dispatch(updateInvitationsFailed());
         }
       }
-      return {
-        documents: documents,
-      };
+      thunkAPI.dispatch(documentsSlice.actions.setDocuments(documents));
+      if (signing && dataElem !== null) {
+        await fetchSignedDocuments(thunkAPI, dataElem, args.intl);
+      }
     } else {
       return {
         documents: [],
       };
     }
+  }
+);
+
+/**
+ * @public
+ * @function checkStoredDocuments
+ * @desc Redux async thunk to load documents saved in IndexedDB.
+ */
+export const checkStoredDocuments = createAsyncThunk(
+  "documents/checkStoredDocuments",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const storedName = "signing-" + hashCode(state.main.signer_attributes.name);
+    const storedStr = localStorage.getItem(storedName);
+    if (storedStr !== null) {
+      const storedDocs = JSON.parse(storedStr);
+      storedDocs.owned.forEach((doc) => {
+        if (doc.state === 'failed-signing') {
+          thunkAPI.dispatch(setOwnedState(doc));
+        }
+      });
+      storedDocs.invited.forEach((doc) => {
+        if (doc.state === 'failed-signing') {
+          thunkAPI.dispatch(setInvitedState(doc));
+        }
+      });
+    }
+    localStorage.removeItem(storedName);
   }
 );
 
@@ -121,7 +184,6 @@ async function validateDoc(doc, intl, state) {
       return doc;
     })
     .catch((err) => {
-      console.log("err", err);
       if (err.message === "No password given") {
         doc.message = intl.formatMessage({
           defaultMessage: "Please do not supply a password protected document",
@@ -155,17 +217,34 @@ export const saveDocument = createAsyncThunk(
     const doc = state.documents.documents.filter((d) => {
       return d.name === args.docName;
     })[0];
-    dbSaveDocument(doc);
+    await dbSaveDocument(doc);
     return doc;
   }
 );
 
 /**
  * @public
- * @function saveDocumentToDb
+ * @function removeDocument
+ * @desc Redux async thunk to remove an existing document from IndexedDB
+ */
+export const removeDocument = createAsyncThunk(
+  "documents/removeDocument",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const doc = state.documents.documents.filter((d) => {
+      return d.name === args.docName;
+    })[0];
+    await dbRemoveDocument(doc);
+    thunkAPI.dispatch(documentsSlice.actions.rmDocument(doc.name));
+  }
+);
+
+/**
+ * @public
+ * @function addDocumentToDb
  * @desc async function to add a new document to IndexedDB
  */
-const saveDocumentToDb = async (document, name) => {
+const addDocumentToDb = async (document, name) => {
   const db = await getDb(name);
   if (db !== null) {
     const newDoc = await new Promise((resolve, reject) => {
@@ -200,10 +279,11 @@ const saveDocumentToDb = async (document, name) => {
 export const createDocument = createAsyncThunk(
   "documents/createDocument",
   async (args, thunkAPI) => {
-    console.log("creating", args);
     const state = thunkAPI.getState();
     const doc = await validateDoc(args.doc, args.intl, state);
-    if (doc.state === "failed-loading") return doc;
+    if (doc.state === "failed-loading") {
+      return thunkAPI.rejectWithValue(doc);
+    }
 
     if (doc.state === "dup") {
       thunkAPI.dispatch(
@@ -220,9 +300,15 @@ export const createDocument = createAsyncThunk(
     }
 
     try {
-      const newDoc = await saveDocumentToDb(doc, state.main.signer_attributes.eppn);
-      thunkAPI.dispatch(prepareDocument({ doc: newDoc, intl: args.intl }));
-      return newDoc;
+      thunkAPI.dispatch(documentsSlice.actions.addDocument(doc));
+      const newDoc = await addDocumentToDb(
+        doc,
+        state.main.signer_attributes.eppn
+      );
+      await thunkAPI.dispatch(
+        prepareDocument({ doc: newDoc, intl: args.intl })
+      );
+      await thunkAPI.dispatch(saveDocument({ docName: newDoc.name }));
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
@@ -304,6 +390,45 @@ export const prepareDocument = createAsyncThunk(
 
 /**
  * @public
+ * @function startSigning
+ * @desc Redux async thunk to tell the backend to create a sign request
+ *       with loaded, invited and inviting documents
+ */
+export const startSigning = createAsyncThunk(
+  "documents/startSigning",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    await state.documents.documents.forEach(async (doc) => {
+      if (doc.state === "selected") {
+        thunkAPI.dispatch(
+          documentsSlice.actions.startSigningDocument(doc.name)
+        );
+        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+      }
+    });
+    let invited = false;
+    state.main.owned_multisign.forEach((doc) => {
+      if (doc.state === "selected") {
+        invited = true;
+        thunkAPI.dispatch(startSigningOwned(doc.name));
+      }
+    });
+    state.main.pending_multisign.forEach((doc) => {
+      if (doc.state === "selected") {
+        invited = true;
+        thunkAPI.dispatch(startSigningInvited(doc.name));
+      }
+    });
+    if (invited) {
+      thunkAPI.dispatch(restartSigningDocuments(args));
+    } else {
+      thunkAPI.dispatch(startSigningDocuments(args));
+    }
+  }
+);
+
+/**
+ * @public
  * @function startSigningDocuments
  * @desc Redux async thunk to tell the backend to create a sign request
  */
@@ -313,8 +438,8 @@ export const startSigningDocuments = createAsyncThunk(
     const state = thunkAPI.getState();
     const docsToSign = [];
     let data = null;
-    state.documents.documents.forEach((doc) => {
-      if (doc.state === "selected") {
+    await state.documents.documents.forEach(async (doc) => {
+      if (doc.state === "signing") {
         docsToSign.push({
           name: doc.name,
           type: doc.type,
@@ -322,9 +447,6 @@ export const startSigningDocuments = createAsyncThunk(
           key: doc.key,
           sign_requirement: doc.sign_requirement,
         });
-        thunkAPI.dispatch(
-          documentsSlice.actions.startSigningDocument(doc.name)
-        );
       }
     });
     const body = preparePayload(state, { documents: docsToSign });
@@ -346,14 +468,15 @@ export const startSigningDocuments = createAsyncThunk(
               }),
             })
           );
-          thunkAPI.dispatch(restartSigningDocuments({ intl: args.intl }));
+          await thunkAPI.dispatch(restartSigningDocuments({ intl: args.intl }));
           return;
         }
 
         throw new Error(data.message);
       }
-      data.payload.documents.forEach((doc) => {
+      data.payload.documents.forEach(async (doc) => {
         thunkAPI.dispatch(documentsSlice.actions.updateDocumentWithId(doc));
+        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
       });
       delete data.payload.documents;
 
@@ -374,7 +497,14 @@ export const startSigningDocuments = createAsyncThunk(
           }),
         })
       );
-      thunkAPI.dispatch(documentsSlice.actions.signFailure(args.intl));
+      const message = args.intl.formatMessage({
+        defaultMessage: "Problem signing the document",
+        id: "problem-signing",
+      });
+      thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
+      await data.payload.documents.forEach(async (doc) => {
+        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+      });
     }
   }
 );
@@ -388,14 +518,39 @@ export const restartSigningDocuments = createAsyncThunk(
   "documents/restartSigningDocuments",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const docsToSign = [];
+    const docsToSign = {
+      local: [],
+      invited: [],
+      owned: [],
+    };
     let data = null;
     state.documents.documents.forEach((doc) => {
       if (doc.state === "signing") {
-        docsToSign.push({
+        docsToSign.local.push({
           name: doc.name,
           key: doc.key,
           blob: doc.blob,
+          type: doc.type,
+          size: doc.size,
+        });
+      }
+    });
+    state.main.pending_multisign.forEach((doc) => {
+      if (doc.state === "signing") {
+        docsToSign.invited.push({
+          name: doc.name,
+          key: doc.key,
+          invite_key: doc.invite_key,
+          type: doc.type,
+          size: doc.size,
+        });
+      }
+    });
+    state.main.owned_multisign.forEach((doc) => {
+      if (doc.state === "signing") {
+        docsToSign.owned.push({
+          name: doc.name,
+          key: doc.key,
           type: doc.type,
           size: doc.size,
         });
@@ -412,9 +567,56 @@ export const restartSigningDocuments = createAsyncThunk(
       if (data.error) {
         throw new Error(data.message);
       }
-      data.payload.documents.forEach((doc) => {
-        thunkAPI.dispatch(documentsSlice.actions.updateDocumentWithId(doc));
+      // failed carries objects with keys: key, state (failed-signing), message
+      docsToSign.owned = docsToSign.owned.map((doc) => {
+        let isFailed = false;
+        data.payload.failed.forEach((failed) => {
+          if (doc.key === failed.key) {
+            isFailed = true;
+            doc = {
+              ...doc,
+              ...failed,
+            };
+          }
+        });
+        if (!isFailed) doc.state = "signing";
+        return doc;
       });
+      docsToSign.invited = docsToSign.invited.map((doc) => {
+        let isFailed = false;
+        data.payload.failed.forEach((failed) => {
+          if (doc.key === failed.key) {
+            isFailed = true;
+            doc = {
+              ...doc,
+              ...failed,
+            };
+          }
+        });
+        if (!isFailed) doc.state = "signing";
+        return doc;
+      });
+      const storageName =
+        "signing-" + hashCode(state.main.signer_attributes.eppn);
+      const storageContent = JSON.stringify({
+        owned: docsToSign.owned,
+        invited: docsToSign.invited,
+      });
+      localStorage.setItem(storageName, storageContent);
+
+      await data.payload.documents.forEach(async (doc) => {
+        let found = false;
+        await state.documents.documents.forEach(async (oldDoc) => {
+          if (oldDoc.key === doc.key) {
+            found = true;
+            thunkAPI.dispatch(documentsSlice.actions.updateDocumentWithId(doc));
+            await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+          }
+        });
+        if (!found) {
+        }
+      });
+      delete data.payload.failed;
       delete data.payload.documents;
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
@@ -434,7 +636,20 @@ export const restartSigningDocuments = createAsyncThunk(
           }),
         })
       );
-      thunkAPI.dispatch(documentsSlice.actions.signFailure(args.intl));
+      const message = args.intl.formatMessage({
+        defaultMessage: "Problem signing the document",
+        id: "problem-signing",
+      });
+      thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
+      thunkAPI.dispatch(invitationsSignFailure(message));
+      if (
+        data.hasOwnProperty("payload") &&
+        data.payload.hasOwnProperty("documents")
+      ) {
+        await data.payload.documents.forEach(async (doc) => {
+          await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+        });
+      }
     }
   }
 );
@@ -445,6 +660,7 @@ export const restartSigningDocuments = createAsyncThunk(
  * @desc async funtion to get signed documents from the backend.
  */
 const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
+  const state = thunkAPI.getState();
   const payload = {
     sign_response: dataElem.dataset.signresponse,
     relay_state: dataElem.dataset.relaystate,
@@ -467,12 +683,35 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
         addNotification({ level: level, message: data.message })
       );
     }
-    data.payload.documents.forEach((doc) => {
-      thunkAPI.dispatch(
-        documentsSlice.actions.updateDocumentWithSignedContent(doc)
-      );
-        thunkAPI.dispatch(removeOwned({key: doc.id}));
+    await data.payload.documents.forEach(async (doc) => {
+      await state.documents.documents.forEach(async (oldDoc) => {
+        if (doc.id === oldDoc.key) {
+          thunkAPI.dispatch(
+            documentsSlice.actions.updateDocumentWithSignedContent(doc)
+          );
+          const docName = thunkAPI
+            .getState()
+            .documents.documents.filter((d) => {
+              return d.signing_id === doc.id || d.key === doc.id;
+            })[0].name;
+          await thunkAPI.dispatch(saveDocument({ docName: docName }));
+        }
+      });
+      await state.main.owned_multisign.forEach(async (oldDoc) => {
+        if (doc.id === oldDoc.key) {
+          const newDoc = {
+            ...oldDoc,
+            signedContent: "data:application/pdf;base64," + doc.signed_content,
+            state: "signed",
+            show: false,
+          };
+          thunkAPI.dispatch(updateOwned(newDoc));
+          await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
+        }
+      });
+      thunkAPI.dispatch(removeInvited({ key: doc.id }));
     });
+    await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
     thunkAPI.dispatch(
       addNotification({
@@ -483,7 +722,16 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
         }),
       })
     );
-    thunkAPI.dispatch(documentsSlice.actions.signFailure(intl));
+    const message = intl.formatMessage({
+      defaultMessage: "Problem signing the document",
+      id: "problem-signing",
+    });
+    thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
+    if (data.payload && data.payload.documents) {
+      await data.payload.documents.forEach(async (doc) => {
+        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+      });
+    }
   }
 };
 
@@ -508,6 +756,25 @@ export const downloadSigned = createAsyncThunk(
 
 /**
  * @public
+ * @function downloadSignedOwned
+ * @desc Redux async thunk to hand multisign signed documents to the user.
+ */
+export const downloadSignedOwned = createAsyncThunk(
+  "documents/downloadSignedOwned",
+  async (docname, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const doc = state.main.owned_multisign.filter((d) => {
+      return d.name === docname;
+    })[0];
+    const b64content = doc.signedContent.split(",")[1];
+    const blob = b64toBlob(b64content);
+    const newName = doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
+    FileSaver.saveAs(blob, newName);
+  }
+);
+
+/**
+ * @public
  * @function downloadAllSigned
  * @desc Redux async thunk to hand signed documents to the user.
  */
@@ -515,9 +782,14 @@ export const downloadAllSigned = createAsyncThunk(
   "documents/downloadAllSigned",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const docs = state.documents.documents.filter((doc) => {
+    let docs = state.documents.documents.filter((doc) => {
       return doc.state === "signed";
     });
+    docs.concat(
+      state.main.owned_multisign.filter((doc) => {
+        return doc.state === "signed";
+      })
+    );
     let zip = new JSZip();
     let folder = zip.folder("signed");
     docs.forEach((doc) => {
@@ -579,7 +851,7 @@ export const sendInvites = createAsyncThunk(
         id: "problem-sending-multisign",
       });
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
-      return;
+      return thunkAPI.rejectWithValue(null);
     }
     if (data.error) {
       const message = args.intl.formatMessage({
@@ -587,7 +859,7 @@ export const sendInvites = createAsyncThunk(
         id: "problem-creating-multisign",
       });
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
-      return;
+      return thunkAPI.rejectWithValue(null);
     }
     const owned = {
       key: document.key,
@@ -596,8 +868,11 @@ export const sendInvites = createAsyncThunk(
       type: document.type,
       pending: invitees,
       signed: [],
+      state: "incomplete",
     };
     thunkAPI.dispatch(addOwned(owned));
+    await thunkAPI.dispatch(removeDocument({ docName: document.name }));
+    thunkAPI.dispatch(setPolling(true));
     return document.key;
   }
 );
@@ -699,9 +974,7 @@ export const resendInvitations = createAsyncThunk(
       });
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
-      console.log("PREDATA", data);
     } catch (err) {
-      console.log("ERR", err);
       const message = args.intl.formatMessage({
         defaultMessage: "Problem sending invitations to sign, please try again",
         id: "problem-sending-invitations",
@@ -710,7 +983,6 @@ export const resendInvitations = createAsyncThunk(
       return;
     }
     if (data.error) {
-      console.log("DATA", data);
       const message = args.intl.formatMessage({
         defaultMessage: "Problem sending invitations to sign, please try again",
         id: "problem-sending-invitations",
@@ -757,7 +1029,7 @@ export const signInvitedDoc = createAsyncThunk(
         show: false,
       };
       doc.blob = "data:application/pdf;base64," + doc.blob;
-      await saveDocumentToDb(doc, state.main.signer_attributes.eppn);
+      await addDocumentToDb(doc, state.main.signer_attributes.eppn);
       delete data.payload.documents;
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
@@ -778,7 +1050,12 @@ export const signInvitedDoc = createAsyncThunk(
           }),
         })
       );
-      thunkAPI.dispatch(documentsSlice.actions.signFailure(args.intl));
+      const message = args.intl.formatMessage({
+        defaultMessage: "Problem signing the document",
+        id: "problem-signing",
+      });
+      thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
+      await thunkAPI.dispatch(saveDocument({ docName: args.doc.name }));
     }
   }
 );
@@ -822,7 +1099,10 @@ export const skipOwnedSignature = createAsyncThunk(
         state: "signed",
         show: false,
       };
-      const newDoc = await saveDocumentToDb(doc, state.main.signer_attributes.eppn);
+      const newDoc = await addDocumentToDb(
+        doc,
+        state.main.signer_attributes.eppn
+      );
       thunkAPI.dispatch(removeOwned({ key: key }));
       return newDoc;
     } catch (err) {
@@ -845,6 +1125,14 @@ const documentsSlice = createSlice({
     documents: [],
   },
   reducers: {
+    /**
+     * @public
+     * @function setDocuments
+     * @desc Redux action to set the list of documents in the store
+     */
+    setDocuments(state, action) {
+      state.documents = action.payload;
+    },
     /**
      * @public
      * @function showPreview
@@ -929,17 +1217,10 @@ const documentsSlice = createSlice({
     },
     /**
      * @public
-     * @function removeDocument
+     * @function rmDocument
      * @desc Redux action to remove a document from the store
      */
-    removeDocument(state, action) {
-      state.documents.forEach((doc) => {
-        if (doc.name === action.payload) {
-          if (doc.id !== undefined) {
-            dbRemoveDocument(doc);
-          }
-        }
-      });
+    rmDocument(state, action) {
       state.documents = state.documents.filter((doc) => {
         return doc.name !== action.payload;
       });
@@ -965,7 +1246,6 @@ const documentsSlice = createSlice({
             ...doc,
             state: state,
           };
-          dbSaveDocument(document);
           return document;
         } else return doc;
       });
@@ -983,7 +1263,6 @@ const documentsSlice = createSlice({
             ...doc,
             state: "signing",
           };
-          dbSaveDocument(document);
           return document;
         } else return doc;
       });
@@ -1000,7 +1279,6 @@ const documentsSlice = createSlice({
             ...doc,
             signing_id: action.payload.key,
           };
-          dbSaveDocument(document);
           return document;
         } else return doc;
       });
@@ -1022,7 +1300,6 @@ const documentsSlice = createSlice({
               "data:application/pdf;base64," + action.payload.signed_content,
             state: "signed",
           };
-          dbSaveDocument(document);
           return document;
         } else return doc;
       });
@@ -1034,19 +1311,14 @@ const documentsSlice = createSlice({
      * when the request to sign them has failed
      */
     signFailure(state, action) {
-      const intl = action.payload;
+      const message = action.payload;
       state.documents = state.documents.map((doc) => {
         if (doc.state === "signing") {
-          const document = {
+          return {
             ...doc,
             state: "failed-signing",
-            message: intl.formatMessage({
-              defaultMessage: "Problem signing the document",
-              id: "problem-signing",
-            }),
+            message: message,
           };
-          dbSaveDocument(document);
-          return document;
         } else return doc;
       });
     },
@@ -1066,47 +1338,53 @@ const documentsSlice = createSlice({
         } else return doc;
       });
     },
-  },
-  extraReducers: {
-    [createDocument.fulfilled]: (state, action) => {
+    /**
+     * @public
+     * @function addDocument
+     * @desc Redux action to add new document to the redux store
+     */
+    addDocument(state, action) {
       state.documents.push(action.payload);
     },
+  },
+  extraReducers: {
     [createDocument.rejected]: (state, action) => {
       if (action.payload.state !== "dup") {
         state.documents.push(action.payload);
       }
     },
-    [loadDocuments.fulfilled]: (state, action) => {
-      state.documents = action.payload.documents;
+    [loadDocuments.rejected]: (state, action) => {
+      if (action.hasOwnProperty("payload") && action.payload !== undefined) {
+        state.documents = action.payload.documents;
+      }
     },
     [prepareDocument.fulfilled]: (state, action) => {
-      dbSaveDocument(action.payload);
+      let added = false;
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
+          added = true;
           return {
             ...action.payload,
           };
         } else return doc;
       });
+      if (!added) state.documents.push({ ...action.payload });
     },
 
     [prepareDocument.rejected]: (state, action) => {
-      dbSaveDocument(action.payload);
+      let added = false;
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
+          added = true;
           return {
             ...action.payload,
           };
         } else return doc;
       });
+      if (!added) state.documents.push({ ...action.payload });
     },
 
     [sendInvites.fulfilled]: (state, action) => {
-      state.documents.forEach((doc) => {
-        if (doc.key === action.payload) {
-          dbRemoveDocument(doc);
-        }
-      });
       state.documents = state.documents.filter((doc) => {
         return doc.key !== action.payload;
       });
@@ -1124,7 +1402,6 @@ export const {
   hidePreview,
   hideForcedPreview,
   confirmForcedPreview,
-  removeDocument,
   removeAllDocuments,
   setState,
   toggleDocSelection,

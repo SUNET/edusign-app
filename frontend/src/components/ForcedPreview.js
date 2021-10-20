@@ -4,7 +4,7 @@ import { FormattedMessage } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import OverlayTrigger from "containers/Overlay";
 import Tooltip from "react-bootstrap/Tooltip";
 
 import "styles/DocPreview.scss";

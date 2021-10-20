@@ -13,8 +13,11 @@ import {
   getPartiallySignedDoc,
   hideOwnedPreview,
   setOwnedSigning,
+  selectOwnedDoc,
+  disablePolling,
+  enablePolling,
 } from "slices/Main";
-import { skipOwnedSignature } from "slices/Documents";
+import { skipOwnedSignature, downloadSignedOwned } from "slices/Documents";
 
 const mapStateToProps = (state) => {
   return {
@@ -25,9 +28,14 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleRemove: function (doc, props) {
+    handleDocSelection: function (docName) {
       return () => {
-        dispatch(removeInvites({ doc: doc, intl: props.intl }));
+        dispatch(selectOwnedDoc(docName));
+      };
+    },
+    handleRemove: function (doc, props) {
+      return async () => {
+        await dispatch(removeInvites({ doc: doc, intl: props.intl }));
       };
     },
     handleSign: function (doc, props) {
@@ -53,6 +61,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     showPreview: (docKey) => {
       return () => {
+        dispatch(disablePolling());
         dispatch(
           getPartiallySignedDoc({
             key: docKey,
@@ -64,7 +73,13 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleClosePreview: function (docKey) {
       return () => {
+        dispatch(enablePolling());
         dispatch(hideOwnedPreview(docKey));
+      };
+    },
+    downloadSigned: function (docName) {
+      return () => {
+        dispatch(downloadSignedOwned(docName));
       };
     },
   };

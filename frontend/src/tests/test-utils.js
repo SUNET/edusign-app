@@ -21,6 +21,10 @@ const initialState = {
     owned_multisign: [],
     pending_multisign: [],
     multisign_buttons: "yes",
+    signer_attributes: {
+      eppn: "dummy@example.org",
+      name: "Dummy name",
+    },
   },
   notifications: {
     message: null,
@@ -103,7 +107,7 @@ export function mockFileData(files) {
  * @desc rerender component in tests after dispatching a Redux action or firing an event.
  */
 export async function flushPromises(rerender, ui) {
-  await act(async () => await waitFor(() => rerender(ui)));
+  await act(() => waitFor(() => rerender(ui)));
 }
 
 /**

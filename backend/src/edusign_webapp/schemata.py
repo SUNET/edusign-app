@@ -51,16 +51,10 @@ class Invitee(Schema):
     name = fields.String(required=True, validate=[validate_nonempty])
 
 
-class ConfigSchema(Schema):
+class InvitationsSchema(Schema):
     """
-    Schema to marshall configuration sent to the frontend,
-    basically consisting on the signer attributes.
+    Schema to marshall invitations configuration sent to the frontend.
     """
-
-    class SignerAttributes(Schema):
-        eppn = fields.String(required=True, validate=[validate_nonempty])
-        name = fields.String(required=True, validate=[validate_nonempty])
-        mail = fields.String(required=True, validate=[validate_nonempty])
 
     class PendingDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
@@ -68,16 +62,32 @@ class ConfigSchema(Schema):
         owner = fields.Nested(Invitee)
         pending = fields.List(fields.Nested(Invitee))
         signed = fields.List(fields.Nested(Invitee))
+        state = fields.String(required=True, validate=[validate_nonempty])
 
     class OwnedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
         pending = fields.List(fields.Nested(Invitee))
         signed = fields.List(fields.Nested(Invitee))
+        state = fields.String(required=True, validate=[validate_nonempty])
 
-    signer_attributes = fields.Nested(SignerAttributes)
     pending_multisign = fields.List(fields.Nested(PendingDocument))
     owned_multisign = fields.List(fields.Nested(OwnedDocument))
+    poll = fields.Boolean(default=False)
+
+
+class ConfigSchema(InvitationsSchema):
+    """
+    Schema to marshall configuration sent to the frontend.
+    """
+
+    class SignerAttributes(Schema):
+        eppn = fields.String(required=True, validate=[validate_nonempty])
+        name = fields.String(required=True, validate=[validate_nonempty])
+        mail = fields.String(required=True, validate=[validate_nonempty])
+
+    signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)
+    unauthn = fields.Boolean(default=True)
 
 
 class DocumentSchema(_DocumentSchema):
@@ -103,6 +113,23 @@ class DocumentSchemaWithKey(_DocumentSchema):
 
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     blob = fields.Raw(required=True, validate=[validate_nonempty])
+
+
+class DocumentSchemaWithKeyNoBlob(_DocumentSchema):
+    """
+    Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
+    """
+
+    key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+
+
+class DocumentSchemaWithKeyInvite(_DocumentSchema):
+    """
+    Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
+    """
+
+    key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+    invite_key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
 
 
 class ReferenceSchema(Schema):
@@ -135,7 +162,12 @@ class ToRestartSigningSchema(Schema):
     having been evicted from the API's cache.
     """
 
-    documents = fields.List(fields.Nested(DocumentSchemaWithKey))
+    class AllDocuments(Schema):
+        local = fields.List(fields.Nested(DocumentSchemaWithKey))
+        invited = fields.List(fields.Nested(DocumentSchemaWithKeyInvite))
+        owned = fields.List(fields.Nested(DocumentSchemaWithKeyNoBlob))
+
+    documents = fields.Nested(AllDocuments)
 
 
 class SignRequestSchema(Schema):
@@ -155,6 +187,15 @@ class SignRequestSchema(Schema):
         blob = fields.Raw(required=False)
 
     documents = fields.List(fields.Nested(DocumentWithIdSchema))
+
+
+class ReSignRequestSchema(SignRequestSchema):
+    class FailedDocument(Schema):
+        key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+        state = fields.String(required=True, validate=[validate_nonempty])
+        message = fields.String(required=True, validate=[validate_nonempty])
+
+    failed = fields.List(fields.Nested(FailedDocument))
 
 
 class SigningSchema(Schema):

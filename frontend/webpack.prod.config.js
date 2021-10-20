@@ -33,7 +33,6 @@ webpackProd.plugins = [
     DELAY_HIDE_HELP: require("./edusign.config.js").DELAY_HIDE_HELP,
   }),
   new webpack.optimize.AggressiveMergingPlugin(), //Merge chunks
-  new webpack.optimize.OccurrenceOrderPlugin(true),
   new CompressionPlugin({
     minRatio: 0.8,
   }),

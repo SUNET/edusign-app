@@ -241,6 +241,7 @@ class SqliteMD(ABCMetadata):
                  + size: Size of the doc
                  + type: Content type of the doc
                  + owner: Email and name of the user requesting the signature
+                 + state: the state of the invitation
         """
         invites = self._db_query(INVITE_QUERY_FROM_EMAIL, (email,))
         if invites is None or isinstance(invites, dict):
@@ -268,6 +269,7 @@ class SqliteMD(ABCMetadata):
             document['invite_key'] = uuid.UUID(invite['key'])
             document['pending'] = []
             document['signed'] = []
+            document['state'] = "unconfirmed"
 
             subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
 
@@ -337,6 +339,7 @@ class SqliteMD(ABCMetadata):
                  + size: Size of the doc
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
                  + signed: List of emails of the users invited to sign the document who have already done so.
+                 + state: the state of the invitation
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (email,))
         if documents is None or isinstance(documents, dict):
@@ -346,10 +349,12 @@ class SqliteMD(ABCMetadata):
             document['key'] = uuid.UUID(document['key'])
             document['pending'] = []
             document['signed'] = []
+            state = 'loaded'
             document_id = document['doc_id']
             invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
             del document['doc_id']
             if invites is None or isinstance(invites, dict):
+                document['state'] = state
                 continue
             for invite in invites:
                 user_id = invite['user_id']
@@ -361,9 +366,12 @@ class SqliteMD(ABCMetadata):
                     )
                     continue
                 if invite['signed'] == 0:
+                    state = 'incomplete'
                     document['pending'].append(email_result)
                 else:
                     document['signed'].append(email_result)
+
+            document['state'] = state
 
         return documents
 

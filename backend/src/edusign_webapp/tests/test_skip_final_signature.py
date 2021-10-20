@@ -67,6 +67,7 @@ def _test_skip_final_signature(app, environ_base, monkeypatch, sample_doc_1):
         'payload': {
             'document': sample_doc_1,
             'owner': 'tester@example.org',
+            'text': 'Dummy invitation text',
             'invites': [
                 {'name': 'invite0', 'email': 'invite0@example.org'},
                 {'name': 'invite1', 'email': 'invite1@example.org'},

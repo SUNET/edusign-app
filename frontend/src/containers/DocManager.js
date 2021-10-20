@@ -12,15 +12,15 @@ import { connect } from "react-redux";
 
 import DocManager from "components/DocManager";
 import {
-  hidePreview,
+  showForcedPreview,
   hideForcedPreview,
   confirmForcedPreview,
   prepareDocument,
   showPreview,
-  showForcedPreview,
+  hidePreview,
   setState,
   toggleDocSelection,
-  startSigningDocuments,
+  startSigning,
   removeDocument,
   removeAllDocuments,
   downloadSigned,
@@ -40,46 +40,47 @@ const mapStateToProps = (state) => {
     signRequest: state.main.signingData.sign_request,
     size: state.main.size,
     multisign_buttons: state.main.multisign_buttons,
+    pending: state.main.pending_multisign,
+    owned: state.main.owned_multisign,
+    unauthn: state.main.unauthn,
+    invitedUnauthn: (state.main.pending_multisign.length > 0),
   };
 };
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleForcedPreview: function (name) {
-      return () => {
-        dispatch(showForcedPreview(name));
-      };
-    },
     handlePreview: function (name) {
       return () => {
         dispatch(showPreview(name));
       };
     },
     handleRemove: function (name) {
-      return () => {
-        dispatch(removeDocument(name));
+      return async () => {
+        await dispatch(removeDocument({ docName: name }));
       };
     },
     handleRetry: function (doc, props) {
-      return () => {
-        dispatch(prepareDocument({ doc: doc, intl: props.intl }));
+      return async () => {
         dispatch(setState({ name: doc.name, state: "loading" }));
+        await dispatch(prepareDocument({ doc: doc, intl: props.intl }));
+        await dispatch(saveDocument({ docName: doc.name }));
       };
     },
     handleDocSelection: function (name) {
-      return (e) => {
+      return async (e) => {
         dispatch(toggleDocSelection({ name: name, select: e.target.checked }));
+        await dispatch(saveDocument({ docName: name }));
       };
     },
-    handleSubmitToSign: function () {
-      dispatch(startSigningDocuments({ intl: this.props.intl }));
+    handleSubmitToSign: async function () {
+      await dispatch(startSigning({ intl: this.props.intl }));
     },
-    handleDownloadAll: function () {
-      dispatch(downloadAllSigned({ intl: this.props.intl }));
+    handleDownloadAll: async function () {
+      await dispatch(downloadAllSigned({ intl: this.props.intl }));
     },
     handleDlSigned: function (name) {
-      return () => {
-        dispatch(downloadSigned(name));
+      return async () => {
+        await dispatch(downloadSigned(name));
       };
     },
     openInviteForm: function (doc) {
@@ -96,21 +97,27 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(askConfirmation(confirmId));
       };
     },
+    handleForcedPreview: function (name) {
+      return () => {
+        dispatch(showForcedPreview(name));
+      };
+    },
     handleCloseForcedPreview: function (name) {
       return () => {
         dispatch(hideForcedPreview(name));
       };
     },
     handleConfirmForcedPreview: function (name) {
-      return () => {
+      return async () => {
         dispatch(confirmForcedPreview(name));
-        dispatch(saveDocument({ docName: name }));
+        await dispatch(saveDocument({ docName: name }));
+        dispatch(hideForcedPreview(name));
       };
     },
     handleUnConfirmForcedPreview: function (name) {
-      return () => {
-        dispatch(hidePreview(name));
-        dispatch(removeDocument(name));
+      return async () => {
+        await dispatch(removeDocument({ docName: name }));
+        dispatch(hideForcedPreview(name));
       };
     },
     handleClosePreview: function (name) {

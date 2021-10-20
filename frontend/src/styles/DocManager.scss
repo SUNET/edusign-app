@@ -6,7 +6,6 @@
   display: flex;
   flex-flow: row wrap;
   min-height: 3rem;
-  width: 80%;
   align-items: center;
   justify-content: left;
   border: $orange-opaque solid 2px;
@@ -56,22 +55,8 @@
     .button-retry-flex-item,
     .button-sign-flex-item,
     .button-clear-flex-item,
-    .button-dlall-flex-item {
-      flex: none;
-      button {
-        padding: inherit 0.5rem;
-        margin-left: 1rem;
-      }
-    }
-
-    .button-signed-flex-item {
-      flex: none;
-      button {
-        padding: inherit 0.5rem;
-        margin-left: 1rem;
-      }
-    }
-
+    .button-dlall-flex-item,
+    .button-signed-flex-item,
     .button-multisign-flex-item {
       flex: none;
       button {
@@ -95,6 +80,10 @@
   border-radius: 3px;
   margin-bottom: 0.3rem;
 
+  .doc-container-second-row {
+    line-height: 2.5rem;
+  }
+
   .doc-container-first-row,
   .doc-container-second-row,
   .doc-container-third-row {
@@ -102,6 +91,7 @@
     flex: none;
     display: flex;
     justify-content: flex-start;
+    flex-wrap: wrap;
 
     .doc-selector-flex-item {
       flex: none;
@@ -134,25 +124,12 @@
     .button-retry-flex-item,
     .button-dlall-flex-item,
     .button-clear-flex-item,
-    .button-sign-flex-item {
-      flex: none;
-      button {
-        padding: inherit 0.5rem;
-        margin-left: 1rem;
-      }
-    }
-
-    .button-signed-flex-item {
-      flex: none;
-      button {
-        padding: inherit 0.5rem;
-        margin-left: 1rem;
-      }
-    }
-
+    .button-sign-flex-item,
+    .button-signed-flex-item,
     .button-multisign-flex-item {
       flex: none;
       button {
+        padding: inherit 0.5rem;
         margin-left: 1rem;
       }
     }
@@ -182,16 +159,14 @@
 
 #global-buttons-wrapper {
   display: flex;
-  align-items: middle;
+  align-items: center;
   flex-wrap: wrap;
 
   #button-dlall-wrapper,
   #button-clear-wrapper,
   #button-sign-wrapper {
     flex: none;
-    margin-top: 2rem;
-    margin-left: 1rem;
-    margin-right: 1rem;
+    margin: 1rem;
   }
 }
 
@@ -205,19 +180,12 @@ div.selected {
   background-color: $light-blue;
 }
 
-.multisign-container-lg {
-  width: 80%;
-}
-
-.multisign-container-sm {
-  width: 100%;
-}
-
 .multisign-container-lg,
 .multisign-container-sm {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  margin-top: 2rem;
+  align-items: center;
 
   .owned-multisign-container,
   .invited-multisign-container {
@@ -226,4 +194,30 @@ div.selected {
     flex-direction: column;
     align-items: center;
   }
+}
+
+fieldset.local-monosign-container,
+fieldset.owned-multisign-container,
+fieldset.invited-multisign-container {
+  border: $darker-grey solid 1px;
+  border-radius: 3px;
+  width: 80%;
+  padding-top: 0.6rem;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
+  padding-bottom: 0.4rem;
+  margin-bottom: 1.5rem;
+
+  legend {
+    width: auto;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: $darker-dark-grey;
+  }
+}
+
+div.invited-unauthn-title {
+  font-size: 2rem;
+  margin-top: 3rem;
+  margin-bottom: 4rem;
 }

@@ -10,7 +10,7 @@ import {
   samplePDFData,
 } from "tests/test-utils";
 import Main from "components/Main";
-import { createDocument, loadDocuments } from "slices/Documents";
+import { createDocument, setState } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
 import { resetDb } from "init-app/database";
 
@@ -62,12 +62,15 @@ describe("Multi sign invitations", function () {
           sign_requirement: "dummy sign requirement",
         },
       });
-      store.dispatch(
+      await store.dispatch(
         createDocument({
           doc: file,
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
         })
       );
+      await flushPromises(rerender, wrapped);
+
+      store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
       await flushPromises(rerender, wrapped);
 
       const button = await waitFor(() =>
@@ -128,12 +131,15 @@ describe("Multi sign invitations", function () {
           sign_requirement: "dummy sign requirement",
         },
       });
-      store.dispatch(
+      await store.dispatch(
         createDocument({
           doc: file,
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
         })
       );
+      await flushPromises(rerender, wrapped);
+
+      store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
       await flushPromises(rerender, wrapped);
 
       const button = await waitFor(() =>
@@ -223,12 +229,15 @@ describe("Multi sign invitations", function () {
         type: fileObj.type,
         blob: "data:application/pdf;base64," + b64SamplePDFData,
       };
-      store.dispatch(
+      await store.dispatch(
         createDocument({
           doc: file,
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
         })
       );
+      await flushPromises(rerender, wrapped);
+
+      store.dispatch(setState({ name: "testost.pdf", state: "loaded" }));
       await flushPromises(rerender, wrapped);
 
       const filename = await waitFor(() => screen.getAllByText("testost.pdf"));
@@ -267,18 +276,6 @@ describe("Multi sign invitations", function () {
 
       fireEvent.click(buttonSend[0]);
       await flushPromises(rerender, wrapped);
-
-      rerender();
-
-      emailInput = await waitFor(() =>
-        screen.queryAllByTestId("invitees.0.email")
-      );
-      expect(emailInput.length).to.equal(0);
-
-      nameInput = await waitFor(() =>
-        screen.queryAllByTestId("invitees.0.name")
-      );
-      expect(nameInput.length).to.equal(0);
 
       const inviteWaiting = await waitFor(() =>
         screen.getAllByText("Waiting for signatures by:")
@@ -661,7 +658,7 @@ describe("Multi sign invitations", function () {
       expect(invite2Name.length).to.equal(1);
 
       const signButton = await waitFor(() =>
-        screen.queryAllByText(/Add Final Signature/)
+        screen.queryAllByText(/Sign Document/)
       );
       expect(signButton.length).to.equal(0);
     } catch (err) {
@@ -733,7 +730,7 @@ describe("Multi sign invitations", function () {
       expect(invite2Name.length).to.equal(1);
 
       const signButton = await waitFor(() =>
-        screen.getAllByText(/Add Final Signature/)
+        screen.getAllByText(/Sign Document/)
       );
       expect(signButton.length).to.equal(1);
     } catch (err) {
@@ -989,7 +986,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const signButton = await waitFor(() =>
-        screen.getAllByText(/Add Final Signature/)
+        screen.getAllByText(/Sign Document/)
       );
       expect(signButton.length).to.equal(1);
 
@@ -997,7 +994,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const inviteForm = await waitFor(() =>
-        screen.queryAllByTestId("signing-form")
+        screen.getAllByTestId("signing-form")
       );
       expect(inviteForm.length).to.equal(1);
     } catch (err) {
@@ -1064,7 +1061,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const skipButton = await waitFor(() =>
-        screen.getAllByText(/Skip Final Signature/)
+        screen.getAllByText(/Skip Signature/)
       );
       expect(skipButton.length).to.equal(1);
 

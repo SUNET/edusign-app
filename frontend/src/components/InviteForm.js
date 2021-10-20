@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import OverlayTrigger from "containers/Overlay";
 import Tooltip from "react-bootstrap/Tooltip";
 
 import "styles/InviteForm.scss";
@@ -101,7 +101,7 @@ class InviteForm extends React.Component {
                       <div>
                         {fprops.values.invitees.length > 0 &&
                           fprops.values.invitees.map((invitee, index) => (
-                            <div className="invitation-fields">
+                            <div className="invitation-fields" key={index}>
                               <div className="invitee-form-dismiss">
                                 <OverlayTrigger
                                   delay={{

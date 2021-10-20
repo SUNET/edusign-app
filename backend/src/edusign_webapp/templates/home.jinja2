@@ -61,11 +61,16 @@ header {
 footer {
   width: 100%;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
 }
 #lang-selector {
   padding: 1rem 2rem;
   cursor: pointer;
+}
+#app-version {
+  padding: 1rem 2rem;
+  font-size: .7rem;
+  color: #999;
 }
 #lang-selector:hover {
   text-decoration: underline;
@@ -134,6 +139,9 @@ footer {
           </div>
         </section>
         <footer>
+          <div id="app-version">
+            {{ version }}
+          </div>
           <div id="lang-selector">
             {{ other_lang_name }}
           </div>

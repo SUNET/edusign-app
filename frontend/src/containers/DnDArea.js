@@ -31,10 +31,10 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(setWaiting());
     },
     handleFileDrop: function (intl) {
-      return (fileObjs) => {
+      return async (fileObjs) => {
         dispatch(setLoading());
         const maxIndex = fileObjs.length - 1;
-        fileObjs.forEach((fileObj, index) => {
+        await fileObjs.forEach(async (fileObj, index) => {
           const file = {
             name: fileObj.name,
             size: fileObj.size,
@@ -42,17 +42,17 @@ const mapDispatchToProps = (dispatch) => {
             blob: null,
           };
           const reader = new FileReader();
-          reader.onload = () => {
+          reader.onload = async () => {
             const updatedFile = {
               ...file,
               blob: reader.result,
             };
-            dispatch(createDocument({ doc: updatedFile, intl: intl }));
+            await dispatch(createDocument({ doc: updatedFile, intl: intl }));
             if (index === maxIndex) {
               dispatch(setWaiting());
             }
           };
-          reader.onerror = (e) => {
+          reader.onerror = async (e) => {
             const errorMsg = intl.formatMessage(
               {
                 defaultMessage: "Error loading {name}",
@@ -66,7 +66,7 @@ const mapDispatchToProps = (dispatch) => {
               defaultMessage: "Document could not be loaded",
               id: "dnd-doc-not-loaded",
             });
-            dispatch(createDocument({ doc: file, intl: intl }));
+            await dispatch(createDocument({ doc: file, intl: intl }));
             dispatch(setWaiting());
           };
           reader.readAsDataURL(fileObj);

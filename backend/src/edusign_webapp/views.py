@@ -34,8 +34,9 @@ import asyncio
 import json
 import os
 import uuid
-from typing import Union
+from typing import Any, Dict, List, Union
 
+import pkg_resources
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
 from flask_babel import get_locale, gettext
 from flask_mail import Message
@@ -46,17 +47,19 @@ from edusign_webapp.schemata import (
     BlobSchema,
     ConfigSchema,
     DocumentSchema,
+    InvitationsSchema,
     KeyedMultiSignSchema,
     MultiSignSchema,
     ReferenceSchema,
     ResendMultiSignSchema,
+    ReSignRequestSchema,
     SignedDocumentsSchema,
     SigningSchema,
     SignRequestSchema,
     ToRestartSigningSchema,
     ToSignSchema,
 )
-from edusign_webapp.utils import add_attributes_to_session, prepare_document
+from edusign_webapp.utils import add_attributes_to_session, get_invitations, prepare_document
 
 anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
 
@@ -65,8 +68,7 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 
 @anon_edusign_views.route('/', methods=['GET'])
 def get_home() -> str:
-    """
-    """
+    """"""
     current_lang = str(get_locale())
     md_name = f"home-{current_lang}.md"
     md_etc = os.path.join('/etc/edusign/', md_name)
@@ -85,11 +87,14 @@ def get_home() -> str:
             other_lang = lang
             break
 
+    version = pkg_resources.require('edusign-webapp')[0].version
+
     context = {
         'body': body,
         'login_initiator': f'{base_url}/Shibboleth.sso/Login?target=/sign',
         'other_lang': other_lang,
         'other_lang_name': current_app.config['SUPPORTED_LANGUAGES'][other_lang],
+        'version': version,
     }
 
     try:
@@ -101,8 +106,7 @@ def get_home() -> str:
 
 @edusign_views.route('/logout', methods=['GET'])
 def logout() -> Response:
-    """
-    """
+    """"""
     session.clear()
     return redirect(url_for('edusign_anon.get_home'))
 
@@ -121,6 +125,7 @@ def get_index() -> str:
         'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}",
         'back_button_text': gettext("Back"),
     }
+    unauthn = False
     try:
         add_attributes_to_session()
     except KeyError as e:
@@ -128,13 +133,29 @@ def get_index() -> str:
             f'There is some misconfiguration and the IdP does not seem to provide the correct attributes: {e}.'
         )
         context['title'] = gettext("Missing information")
-        context['message'] = gettext('Your organization did not provide the correct information during login. Please contact your IT-support for assistance.')
+        context['message'] = gettext(
+            'Your organization did not provide the correct information during login. Please contact your IT-support for assistance.'
+        )
         return render_template('error-generic.jinja2', **context)
     except ValueError:
-        context['title'] = gettext("Permission Denied")
-        context['message'] = gettext('The organization/identity provider you are affiliated with does not have permission to use this service. Please contact your IT-department to obtain the necessary permissions.')
-        return render_template('error-generic.jinja2', **context)
+        invites = get_invitations()
+        if len(invites['pending_multisign']) > 0:
+            current_app.logger.debug(f"Authorizing non-whitelisted invited user, has invitations: {invites}")
+            unauthn = True
+        else:
+            current_app.logger.debug(f"Not authorizing non-whitelisted invited user, has no invitations: {invites}")
+            context['title'] = gettext("Permission Denied")
+            context['message'] = gettext(
+                'The organization/identity provider you are affiliated with does not have permission to use this service. Please contact your IT-department to obtain the necessary permissions.'
+            )
+            return render_template('error-generic.jinja2', **context)
 
+    if 'invited-unauthn' in session:
+        invites = get_invitations()
+        if len(invites['pending_multisign']) > 0:
+            unauthn = True
+
+    session['invited-unauthn'] = unauthn
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
 
     bundle_name = 'main-bundle'
@@ -152,27 +173,43 @@ def get_index() -> str:
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """
-    VIew to serve the configuration for the front app - in principle just the attributes used for signing.
+    VIew to serve the configuration for the front app.
 
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
-    if 'eppn' not in session or not current_app.is_whitelisted(session['eppn']):
-        return {'error': True, 'message': gettext('Unauthorized')}
+    payload = get_invitations()
 
-    session['site_visitor'] = True
+    if 'eppn' in session and current_app.is_whitelisted(session['eppn']):
+        payload['unauthn'] = False
+    else:
+        payload['unauthn'] = True
+
     attrs = {'eppn': session['eppn'], "mail": session["mail"]}
     if 'displayName' in session:
         attrs['name'] = session['displayName']
     else:
         attrs['name'] = f"{session['givenName']} {session['sn']}"
 
+    payload['signer_attributes'] = attrs
+    payload['multisign_buttons'] = current_app.config['MULTISIGN_BUTTONS']
+
     return {
-        'payload': {
-            'signer_attributes': attrs,
-            'owned_multisign': current_app.doc_store.get_owned_documents(session['mail']),
-            'pending_multisign': current_app.doc_store.get_pending_documents(session['mail']),
-            'multisign_buttons': current_app.config['MULTISIGN_BUTTONS'],
-        }
+        'payload': payload,
+    }
+
+
+@edusign_views.route('/poll', methods=['GET'])
+@Marshal(InvitationsSchema)
+def poll() -> dict:
+    """
+    VIew to serve the invitations configuration for the front app.
+
+    :return: A dict with the configuration parameters.
+    """
+    payload = get_invitations()
+
+    return {
+        'payload': payload,
     }
 
 
@@ -257,7 +294,7 @@ def create_sign_request(documents: dict) -> dict:
 
 @edusign_views.route('/recreate-sign-request', methods=['POST'])
 @UnMarshal(ToRestartSigningSchema)
-@Marshal(SignRequestSchema)
+@Marshal(ReSignRequestSchema)
 def recreate_sign_request(documents: dict) -> dict:
     """
     View to both send some documents to the API to be prepared to  be signed,
@@ -271,7 +308,8 @@ def recreate_sign_request(documents: dict) -> dict:
              or information about some error obtained in the process.
     """
     if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
-        return {'error': True, 'message': gettext('Unauthorized')}
+        if not session['invited-unauthn']:
+            return {'error': True, 'message': gettext('Unauthorized')}
 
     current_app.logger.debug(f'Data gotten in recreate view: {documents}')
 
@@ -280,17 +318,77 @@ def recreate_sign_request(documents: dict) -> dict:
 
     current_app.logger.info(f"Re-preparing documents for user {session['eppn']}")
     loop = asyncio.new_event_loop()
-    tasks = [loop.create_task(prepare(doc)) for doc in documents['documents']]
+    tasks = [loop.create_task(prepare(doc)) for doc in documents['documents']['local']]
+
+    for doc in documents['documents']['owned']:
+        doc['blob'] = current_app.doc_store.get_document_content(doc['key'])
+        tasks.append(loop.create_task(prepare(doc)))
+
+    failed: List[Dict[str, Any]] = []
+
+    invited_docs = []
+    for doc in documents['documents']['invited']:
+        current_app.logger.debug(f"Re-preparing invited document {doc['name']}")
+        try:
+            stored = current_app.doc_store.get_invitation(doc['invite_key'])
+        except current_app.doc_store.DocumentLocked:
+            current_app.logger.debug(f"Invited document {doc['name']} is locked")
+            failedDoc = {
+                'key': doc['key'],
+                'state': 'failed-signing',
+                'message': gettext("Document is being signed by another user, please try again in a few minutes."),
+            }
+            failed.append(failedDoc)
+            continue
+
+        if not stored:
+            current_app.logger.debug(f"No invitation for user {session['eppn']} to sign {doc['name']}")
+            failedDoc = {
+                'key': doc['key'],
+                'state': 'failed-signing',
+                'message': gettext("There doesn't seem to be an invitation for you to sign %(docname)s.") % {'docname': doc.name},
+            }
+            failed.append(failedDoc)
+            continue
+
+        if stored['user']['email'] != session['mail']:
+            current_app.logger.error(
+                f"Trying to sign invitation with wrong email {session['mail']} (invited:  {stored['user']['email']})"
+            )
+            failedDoc = {
+                'key': doc['key'],
+                'state': 'failed-signing',
+                'message': gettext("The email %(email)s invited to sign %(docname)s does not coincide with yours.") % {'email': stored['user']['email'], 'docname': doc.name},
+            }
+            failed.append(failedDoc)
+            continue
+
+        doc['blob'] = stored['document']['blob']
+        tasks.append(loop.create_task(prepare(doc)))
+        invited_docs.append(doc)
+
     loop.run_until_complete(asyncio.wait(tasks))
     loop.close()
 
     docs_data = [task.result() for task in tasks]
     new_docs = []
-    for doc_data, doc in zip(docs_data, documents['documents']):
+    all_docs = documents['documents']['local'] + documents['documents']['owned'] + invited_docs
+    for doc_data, doc in zip(docs_data, all_docs):
 
         if 'error' in doc_data and doc_data['error']:
             current_app.logger.error(f"Problem re-preparing document for user {session['eppn']}: {doc['name']}")
-            return doc_data
+            failedDoc = {
+                'key': doc['key'],
+                'state': 'failed-signing',
+                'message': doc_data.get(
+                    'message',
+                    gettext(
+                        "Problem preparing document for signing. Please try again, or contact the site administrator."
+                    ),
+                ),
+            }
+            failed.append(failedDoc)
+            continue
 
         current_app.logger.info(f"Re-prepared {doc['name']} for user {session['eppn']}")
 
@@ -322,6 +420,7 @@ def recreate_sign_request(documents: dict) -> dict:
             'binding': create_data['binding'],
             'destination_url': create_data['destinationUrl'],
             'documents': documents_with_id,
+            'failed': failed,
         }
     except KeyError:
         current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
@@ -396,8 +495,34 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     docs = []
     for doc in process_data['signedDocuments']:
-        current_app.doc_store.remove_document(doc['id'])
-        docs.append({'id': doc['id'], 'signed_content': doc['signedContent']})
+        key = doc['id']
+        owner = current_app.doc_store.get_owner_data(key)
+
+        if 'email' in owner and owner['email'] != session['mail']:
+            current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
+            current_app.doc_store.unlock_document(key, session['mail'])
+
+            recipients = [f"{owner['name']} <{owner['email']}>"]
+            msg = Message(
+                gettext("User %(name)s has signed %(docname)s")
+                % {'name': session['displayName'], 'docname': owner['docname']},
+                recipients=recipients,
+            )
+            mail_context = {
+                'document_name': owner['docname'],
+                'invited_name': session['displayName'],
+                'invited_email': session['mail'],
+            }
+            msg.body = render_template('signed_by_email.txt.jinja2', **mail_context)
+            current_app.logger.debug(f"Sending email to user {owner['email']}:\n{msg.body}")
+            msg.html = render_template('signed_by_email.html.jinja2', **mail_context)
+
+            current_app.mailer.send(msg)
+
+        elif owner:
+            current_app.doc_store.remove_document(key)
+
+        docs.append({'id': key, 'signed_content': doc['signedContent']})
 
     return {
         'payload': {'documents': docs},
@@ -436,7 +561,7 @@ def create_multi_sign_request(data: dict) -> dict:
             current_app.logger.debug(f"Adding invitation {invite} for {data['document']['name']}")
             recipients = [f"{invite['name']} <{invite['email']}>"]
             msg = Message(gettext("XXX Invite mail subject"), recipients=recipients)
-            invited_link = url_for('edusign.create_invited_signature', invite_key=invite['key'], _external=True)
+            invited_link = url_for('edusign.get_index', _external=True)
             context = {
                 'document_name': data['document']['name'],
                 'inviter_name_and_email': f"{owner['name']} <{owner['email']}>",
@@ -490,7 +615,7 @@ def send_multisign_reminder(data: dict) -> dict:
         current_app.logger.debug(f"Sending reminder to {invite} for {docname}")
         recipients = [f"{invite['name']} <{invite['email']}>"]
         msg = Message(gettext("XXX Reminder mail subject"), recipients=recipients)
-        invited_link = url_for('edusign.create_invited_signature', invite_key=invite['key'], _external=True)
+        invited_link = url_for('edusign.get_index', _external=True)
         context = {
             'document_name': docname,
             'inviter_name_and_email': f"{session['displayName']} <{session['mail']}>",
@@ -533,83 +658,6 @@ def remove_multi_sign_request(data: dict) -> dict:
     message = gettext("Success removing multi signature request")
 
     return {'message': message}
-
-
-@edusign_views.route('/invitation/<invite_key>', methods=['GET'])
-def create_invited_signature(invite_key: str) -> str:
-    """"""
-    context = {
-        'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}/sign",
-        'back_button_text': gettext("Back to site"),
-    }
-    add_attributes_to_session(check_whitelisted=False)
-
-    try:
-        data = current_app.doc_store.get_invitation(uuid.UUID(invite_key))
-    except current_app.doc_store.DocumentLocked:
-        current_app.logger.error(f"Document locked while getting invitation for user {session['eppn']}")
-        context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext(
-            "Someone else is signing the document right now, please try again in a few minutes"
-        )
-        return render_template('error-generic.jinja2', **context)
-
-    current_app.logger.info(f"Invitation data: {data}")
-
-    if not data:
-        current_app.logger.debug(f"No invitation for user {session['eppn']}")
-        context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext("There seems to be no invitation for you")
-        return render_template('error-generic.jinja2', **context)
-
-    doc = data['document']
-    user = data['user']
-    key = doc['key']
-
-    if user['email'] != session['mail']:
-        current_app.logger.error(f"Trying to sign invitation with wrong email {session['email']} (invited:  {user['email']})")
-        current_app.doc_store.unlock_document(key, user['email'])
-        context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext("The invited email does not coincide with yours")
-        return render_template('error-generic.jinja2', **context)
-
-    doc_data = prepare_document(doc)
-
-    if 'error' in doc_data and doc_data['error']:
-        current_app.logger.error(f"Problem preparing document for invited signature: {doc_data}")
-        current_app.doc_store.unlock_document(key, user['email'])
-        context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext("Problem preparing document for multi sign by user %s: %s") % (
-            session['eppn'],
-            doc['name'],
-        )
-        return render_template('error-generic.jinja2', **context)
-
-    current_app.logger.info(f"Prepared {doc['name']} for multisigning by user {session['eppn']}")
-
-    new_doc = {
-        'key': doc['key'],
-        'name': doc['name'],
-        'type': doc['type'],
-        'ref': doc_data['updatedPdfDocumentReference'],
-        'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
-    }
-
-    try:
-        current_app.logger.info(f"Creating (multi) signature request for user {session['eppn']}")
-        create_data, documents_with_id = current_app.api_client.create_sign_request([new_doc], single_sign=False)
-
-    except Exception as e:
-        current_app.logger.error(f"Problem creating sign request for invited signature: {e}")
-        current_app.doc_store.unlock_document(key, user['email'])
-        context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext('Communication error with the create endpoint of the eduSign API')
-        return render_template('error-generic.jinja2', **context)
-
-    if 'site_visitor' in session and session['site_visitor']:
-        return render_template('autoform.jinja2', **create_data)
-
-    return render_template('vanity-form.jinja2', **create_data)
 
 
 @edusign_views.route('/multisign-callback/<doc_key>', methods=['POST'])

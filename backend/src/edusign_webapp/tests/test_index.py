@@ -76,6 +76,6 @@ def test_index_non_whitelisted(client_non_whitelisted):
 
     response = client_non_whitelisted.get('/sign/')
 
-    assert '400' in response.status
+    assert '200' in response.status
 
     assert 'eppn' not in session

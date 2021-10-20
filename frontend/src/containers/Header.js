@@ -29,7 +29,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleLogout: function () {
-      document.location = 'logout';
+      document.location = "logout";
     },
   };
 };

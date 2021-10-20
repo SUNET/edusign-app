@@ -74,7 +74,9 @@ export async function getDb(name) {
           const newStore = newTransaction.objectStore("documents");
 
           const docRequest = newStore.add(document);
-          docRequest.onerror = (event) => {console.log("error recovering document, ", event)};
+          docRequest.onerror = (event) => {
+            console.log("error recovering document, ", event);
+          };
 
           console.log("transferring document ", document.name);
 
@@ -151,17 +153,25 @@ const getDocStore = () => {
  * @desc Save or remove some document from the db.
  *
  */
-const documentDo = (action, document) => {
-  const docStore = getDocStore();
-  if (docStore !== null) {
-    let docRequest = null;
-    if (action === "saving") {
-      docRequest = docStore.put(document);
-    } else if (action === "removing") {
-      docRequest = docStore.delete(document.id);
-    }
-    docRequest.onerror = (event) => {};
-  } else {
+const documentDo = async (action, doc) => {
+  if (db !== null) {
+    const transaction = db.transaction(["documents"], "readwrite");
+    const docStore = transaction.objectStore("documents");
+
+    await new Promise((resolve, reject) => {
+      let docRequest = null;
+      if (action === "saving") {
+        docRequest = docStore.put(doc);
+      } else if (action === "removing") {
+        docRequest = docStore.delete(doc.id);
+      }
+      transaction.oncomplete = () => {
+        resolve();
+      };
+      docRequest.onerror = () => {
+        reject(docRequest.error);
+      };
+    });
   }
 };
 
@@ -171,8 +181,8 @@ const documentDo = (action, document) => {
  * @desc Save document to the IndexedDB db.
  *
  */
-export const dbSaveDocument = (document) => {
-  documentDo("saving", document);
+export const dbSaveDocument = async (doc) => {
+  await documentDo("saving", doc);
 };
 
 /**
@@ -181,8 +191,8 @@ export const dbSaveDocument = (document) => {
  * @desc Remove document from the IndexedDB db.
  *
  */
-export const dbRemoveDocument = (document) => {
-  documentDo("removing", document);
+export const dbRemoveDocument = async (doc) => {
+  await documentDo("removing", doc);
 };
 
 /**

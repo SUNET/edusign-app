@@ -52,6 +52,8 @@ config_dev = {
     'TESTING': True,
     'ENVIRONMENT': 'development',
     'SCOPE_WHITELIST': 'example.org',
+    'MAIL_SUPPRESS_SEND': True,
+    'BABEL_DEFAULT_LOCALE': 'en',
 }
 
 
@@ -59,10 +61,13 @@ config_pro = {
     'TESTING': True,
     'ENVIRONMENT': 'production',
     'SCOPE_WHITELIST': 'example.org',
+    'MAIL_SUPPRESS_SEND': True,
+    'BABEL_DEFAULT_LOCALE': 'en',
 }
 
 
 _environ_base = {
+    "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
     "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn@example.org',
     "HTTP_GIVENNAME": b64encode('<Attribute>Tëster</Attribute>'.encode("utf-8")),
     "HTTP_DISPLAYNAME": b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8")),
@@ -81,7 +86,7 @@ def environ_base():
 
 @pytest.fixture(params=[config_dev, config_pro])
 def client(request):
-    app = run.edusign_init_app('testing')
+    app = run.edusign_init_app('testing', request.param)
     app.config.update(request.param)
     app.api_client.api_base_url = 'https://dummy.edusign.api'
 
