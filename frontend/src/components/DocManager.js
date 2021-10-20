@@ -392,6 +392,16 @@ class DocManager extends React.Component {
 
     return (
       <>
+        {this.props.unauthn && (
+          <>
+            <div className="invited-unauthn-title">
+              <FormattedMessage
+                defaultMessage="You have been invited to sign the following document(s)"
+                key="invited-unauthn-title"
+              />
+            </div>
+          </>
+        )}
         {(!this.props.unauthn) && (
           <>
             {this.props.documents.length > 0 && (

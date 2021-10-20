@@ -150,7 +150,10 @@ def get_index() -> str:
             )
             return render_template('error-generic.jinja2', **context)
 
-    session['invited-unauthn'] = unauthn
+    if 'invited-unauthn' in session:
+        unauthn = session['invited-unauthn']
+    else:
+        session['invited-unauthn'] = unauthn
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
 
     bundle_name = 'main-bundle'
