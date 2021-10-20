@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import OverlayTrigger from "containers/Overlay";
 import Tooltip from "react-bootstrap/Tooltip";
 import Popover from "react-bootstrap/Popover";
 import PopoverContent from "react-bootstrap/PopoverContent";

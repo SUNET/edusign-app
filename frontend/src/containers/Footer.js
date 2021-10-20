@@ -13,10 +13,12 @@ import { updateIntl } from "react-intl-redux";
 import Cookies from "js-cookie";
 
 import Footer from "components/Footer";
+import { enableContextualHelp } from "slices/Main";
 
 const mapStateToProps = (state) => {
   return {
     language: state.intl.locale,
+    showHelp: state.main.showHelp,
   };
 };
 
@@ -25,7 +27,7 @@ const mapDispatchToProps = (dispatch) => {
     changeLanguage: function (e) {
       const lang = e.target.closest(".lang-selected").dataset.lang;
       Cookies.remove("lang");
-      Cookies.set("lang", lang, { expires: 365 });
+      Cookies.set("lang", lang, { expires: 365, ameSite: 'Strict', secure: true });
       const msgs = LOCALIZED_MESSAGES[lang];
       dispatch(
         updateIntl({
@@ -33,6 +35,12 @@ const mapDispatchToProps = (dispatch) => {
           messages: msgs,
         })
       );
+    },
+    handleHelpControl: function (e) {
+      const showHelp = e.target.checked;
+      Cookies.remove("showHelp");
+      Cookies.set("showHelp", showHelp, { expires: 365, SameSite: 'Strict', secure: true });
+      dispatch(enableContextualHelp(showHelp));
     },
   };
 };

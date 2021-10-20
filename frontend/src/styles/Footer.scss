@@ -2,7 +2,7 @@
 
 #footer {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: baseline;
   padding: 16px;
   border-top: 6px solid $orange-highlight;
@@ -41,4 +41,16 @@ footer nav .lang-selected {
 
 footer p {
   padding-bottom: 0;
+}
+#help-control {
+  font-size: .8rem;
+
+  label {
+    color: $darker-grey;
+  }
+
+  input {
+    background-color: $light-gray;
+    color: $darker-grey;
+  }
 }

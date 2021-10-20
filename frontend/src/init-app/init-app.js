@@ -13,7 +13,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import Cookies from "js-cookie";
 import rootReducer from "init-app/store";
-import { fetchConfig, resizeWindow } from "slices/Main";
+import { fetchConfig, resizeWindow, enableContextualHelp } from "slices/Main";
 
 /*
  * internationalization.
@@ -88,6 +88,11 @@ const init_app = function (target, component) {
   window.onresize = () => {
     store.dispatch(resizeWindow());
   };
+
+  let showHelp = Cookies.get("showHelp");
+  if (showHelp === undefined || showHelp === 'true') showHelp = true;
+  if (showHelp === 'false') showHelp = false;
+  store.dispatch(enableContextualHelp(showHelp));
 
   const wrappedComponent = <Provider store={store}>{component}</Provider>;
 

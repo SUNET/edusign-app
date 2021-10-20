@@ -209,6 +209,7 @@ const mainSlice = createSlice({
     multisign_buttons: "yes",
     poll: false,
     disablePoll: false,
+    showHelp: true,
   },
   reducers: {
     /**
@@ -605,6 +606,14 @@ const mainSlice = createSlice({
         return doc;
       });
     },
+    /**
+     * @public
+     * @function enableContextualHelp
+     * @desc Redux action to enable / disable contextual help
+     */
+    enableContextualHelp(state, action) {
+      state.showHelp = action.payload;
+    },
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
@@ -676,6 +685,7 @@ export const {
   updateInvitations,
   invitationsSignFailure,
   updateInvitationsFailed,
+  enableContextualHelp,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;

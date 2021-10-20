@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
+import Form from "react-bootstrap/Form";
 
 import "styles/Footer.scss";
 
@@ -27,6 +28,17 @@ class Footer extends Component {
 
     return (
       <footer key="0" id="footer" data-testid="edusign-footer">
+        <div key="0" id="help-control">
+          <span data-testid="help-control">
+            <Form.Check
+              inline
+              type="checkbox"
+              checked={this.props.showHelp}
+              label={(<FormattedMessage defaultMessage="Show contextual help" key="show-help" />)}
+              onChange={this.props.handleHelpControl}
+            />
+          </span>
+        </div>
         <nav key="1">
           <ul>
             <li key="1" id="language-selector">
@@ -45,6 +57,7 @@ Footer.propTypes = {
    */
   language: PropTypes.string,
   changeLanguage: PropTypes.func,
+  showHelp: PropTypes.bool,
 };
 
 export default Footer;
