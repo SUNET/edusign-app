@@ -392,12 +392,28 @@ class DocManager extends React.Component {
 
     return (
       <>
-        {this.props.unauthn && (
+        {(this.props.unauthn && this.props.invitedUnauthn) && (
           <>
             <div className="invited-unauthn-title">
               <FormattedMessage
                 defaultMessage="You have been invited to sign the following document(s)"
                 key="invited-unauthn-title"
+              />
+            </div>
+          </>
+        )}
+        {(this.props.unauthn && !this.props.invitedUnauthn) && (
+          <>
+            <div className="invited-unauthn-title">
+              <FormattedMessage
+                defaultMessage="Unauthorized"
+                key="unauthn-title"
+              />
+            </div>
+            <div className="invited-unauthn-text">
+              <FormattedMessage
+                defaultMessage="The organization/identity provider you are affiliated with does not have permission to use this service. Please contact your IT-department to obtain the necessary permissions."
+                key="unauthn-text"
               />
             </div>
           </>

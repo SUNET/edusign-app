@@ -151,9 +151,11 @@ def get_index() -> str:
             return render_template('error-generic.jinja2', **context)
 
     if 'invited-unauthn' in session:
-        unauthn = session['invited-unauthn']
-    else:
-        session['invited-unauthn'] = unauthn
+        invites = get_invitations()
+        if len(invites['pending_multisign']) > 0:
+            unauthn = True
+
+    session['invited-unauthn'] = unauthn
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
 
     bundle_name = 'main-bundle'
@@ -161,7 +163,7 @@ def get_index() -> str:
         bundle_name += '.dev'
 
     try:
-        return render_template('index.jinja2', bundle_name=bundle_name, unauthn=unauthn)
+        return render_template('index.jinja2', bundle_name=bundle_name)
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
         abort(500)
@@ -175,9 +177,12 @@ def get_config() -> dict:
 
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
-    if 'eppn' not in session or not current_app.is_whitelisted(session['eppn']):
-        if not session['invited-unauthn']:
-            return {'error': True, 'message': gettext('Unauthorized')}
+    payload = get_invitations()
+
+    if 'eppn' in session and current_app.is_whitelisted(session['eppn']):
+        payload['unauthn'] = False
+    else:
+        payload['unauthn'] = True
 
     attrs = {'eppn': session['eppn'], "mail": session["mail"]}
     if 'displayName' in session:
@@ -185,7 +190,6 @@ def get_config() -> dict:
     else:
         attrs['name'] = f"{session['givenName']} {session['sn']}"
 
-    payload = get_invitations()
     payload['signer_attributes'] = attrs
     payload['multisign_buttons'] = current_app.config['MULTISIGN_BUTTONS']
 
@@ -456,7 +460,6 @@ def sign_service_callback() -> Union[str, Response]:
             sign_response=sign_response,
             relay_state=relay_state,
             bundle_name=bundle_name,
-            unauthn=session.get("invited-unauthn", False)
         )
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')

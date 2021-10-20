@@ -221,14 +221,6 @@ const mainSlice = createSlice({
     },
     /**
      * @public
-     * @function setUnauthn
-     * @desc Redux action to mark the state as unauthn
-     */
-    setUnauthn(state) {
-      state.unauthn = true;
-    },
-    /**
-     * @public
      * @function setCsrfToken
      * @desc Redux action to keep the csrf token in the state
      */
@@ -657,7 +649,6 @@ const mainSlice = createSlice({
 
 export const {
   appLoaded,
-  setUnauthn,
   setCsrfToken,
   updateSigningForm,
   resizeWindow,

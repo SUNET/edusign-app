@@ -87,6 +87,7 @@ class ConfigSchema(InvitationsSchema):
 
     signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)
+    unauthn = fields.Boolean(default=True)
 
 
 class DocumentSchema(_DocumentSchema):
