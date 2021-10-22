@@ -1103,8 +1103,7 @@ export const skipOwnedSignature = createAsyncThunk(
         doc,
         state.main.signer_attributes.eppn
       );
-      thunkAPI.dispatch(removeOwned({ key: key }));
-      return newDoc;
+      thunkAPI.dispatch(updateOwned(newDoc));
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
@@ -1388,10 +1387,6 @@ const documentsSlice = createSlice({
       state.documents = state.documents.filter((doc) => {
         return doc.key !== action.payload;
       });
-    },
-
-    [skipOwnedSignature.fulfilled]: (state, action) => {
-      state.documents.push(action.payload);
     },
   },
 });
