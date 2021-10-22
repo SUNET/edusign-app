@@ -306,9 +306,10 @@ const mainSlice = createSlice({
     selectOwnedDoc(state, action) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
         if (doc.name === action.payload) {
+          const state = doc.state === "selected" ? "loaded" : "selected";
           return {
             ...doc,
-            state: "selected",
+            state: state,
           };
         } else return doc;
       });
