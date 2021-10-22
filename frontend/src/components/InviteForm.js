@@ -213,7 +213,7 @@ class InviteForm extends React.Component {
                             }
                           >
                             <FormattedMessage
-                              defaultMessage="Add Invitation"
+                              defaultMessage="Invite more people"
                               key="add-invite"
                             />
                           </Button>

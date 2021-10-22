@@ -42,7 +42,7 @@
   "components.Header.logout-button": "Logout",
   "components.Header.signing-with": "Signed in as {name} ({eppn})",
   "components.InviteForm.add-invitation-tootip": "Invite one more person to sign this document",
-  "components.InviteForm.add-invite": "Add Invitation",
+  "components.InviteForm.add-invite": "Invite more people",
   "components.InviteForm.cancel-invitation-tootip": "Dismiss invitation form",
   "components.InviteForm.cancel-invite": "Cancel",
   "components.InviteForm.email-input-field": "Email",
