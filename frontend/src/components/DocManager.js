@@ -754,7 +754,7 @@ class DocManager extends React.Component {
                 <fieldset className="owned-multisign-container">
                   <legend>
                     <FormattedMessage
-                      defaultMessage="Shared by you"
+                      defaultMessage="Documents you have invited others to sign"
                       key="owned-multisign-legend"
                     />
                   </legend>
@@ -767,7 +767,7 @@ class DocManager extends React.Component {
             <fieldset className="invited-multisign-container">
               <legend>
                 <FormattedMessage
-                  defaultMessage="Invitations"
+                  defaultMessage="Documents you are invited to sign"
                   key="invited-multisign-legend"
                 />
               </legend>
