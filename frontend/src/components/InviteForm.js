@@ -50,9 +50,9 @@ class InviteForm extends React.Component {
         <Formik
           initialValues={initialValues(this.props.docId)}
           enableReinitialize={true}
-          onSubmit={function (values) {
+          onSubmit={async function (values) {
+            await this.props.handleSubmit(values, this.props);
             this.props.handleClose();
-            this.props.handleSubmit(values, this.props);
           }.bind(this)}
         >
           {(fprops) => (

@@ -22,9 +22,9 @@ class ReInviteForm extends React.Component {
         <Formik
           initialValues={initialValues(this.props.doc.key)}
           enableReinitialize={true}
-          onSubmit={(values) => {
+          onSubmit={async (values) => {
+            await this.props.handleSubmit(values, this.props);
             this.props.handleClose();
-            this.props.handleSubmit(values, this.props);
           }}
         >
           {(fprops) => (
