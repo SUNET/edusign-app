@@ -6,8 +6,6 @@ import Popover from "react-bootstrap/Popover";
 import PopoverContent from "react-bootstrap/PopoverContent";
 import PopoverTitle from "react-bootstrap/PopoverTitle";
 
-import DocPreviewContainer from "containers/DocPreview";
-import { docToFile } from "components/utils";
 import * as widgets from "components/widgets";
 
 /**
@@ -76,10 +74,6 @@ class DocumentOwned extends Component {
   }
   render() {
     const doc = this.props.doc;
-    let docFile = null;
-    if (doc.show) {
-      docFile = docToFile(doc);
-    }
     return (
       <>
         <OverlayTrigger
@@ -233,14 +227,6 @@ class DocumentOwned extends Component {
                       doc
                     )}
                   </>
-                )}
-                {doc.show && (
-                  <DocPreviewContainer
-                    doc={doc}
-                    docFile={docFile}
-                    key={doc.name}
-                    handleClose={this.props.handleClosePreview}
-                  />
                 )}
               </div>
               {doc.pending.length > 0 && (

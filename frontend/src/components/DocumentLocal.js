@@ -7,9 +7,6 @@ import Popover from "react-bootstrap/Popover";
 import PopoverContent from "react-bootstrap/PopoverContent";
 import PopoverTitle from "react-bootstrap/PopoverTitle";
 
-import DocPreviewContainer from "containers/DocPreview";
-import ForcedPreviewContainer from "containers/ForcedPreview";
-import InviteFormContainer from "containers/InviteForm";
 import * as widgets from "components/widgets";
 
 import "styles/DocManager.scss";
@@ -121,30 +118,6 @@ class DocumentLocal extends React.Component {
     if (this.props.size === "lg") {
       return (
         <>
-          {["loaded", "selected"].includes(doc.state) && (
-            <InviteFormContainer docId={doc.id} docName={doc.name} />
-          )}
-          {["loaded", "selected", "failed-signing"].includes(
-            doc.state
-          ) && (
-            <DocPreviewContainer
-              doc={doc}
-              docFile={this.props.docFile}
-              handleClose={this.props.handleClosePreview}
-            />
-          )}
-          {doc.state === "unconfirmed" && (
-            <ForcedPreviewContainer
-              doc={doc}
-              docFile={this.props.docFile}
-              index={doc.name}
-              handleClose={this.props.handleCloseForcedPreview}
-              handleConfirm={this.props.handleConfirmForcedPreview}
-              handleUnConfirm={
-                this.props.handleUnConfirmForcedPreview
-              }
-            />
-          )}
           <OverlayTrigger
             delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
             trigger={["hover", "focus"]}
@@ -256,30 +229,6 @@ class DocumentLocal extends React.Component {
     } else if (this.props.size === "sm") {
       return (
         <>
-          {["loaded", "selected"].includes(doc.state) && (
-            <InviteFormContainer docId={doc.id} docName={doc.name} />
-          )}
-          {["loaded", "selected", "failed-signing"].includes(
-            doc.state
-          ) && (
-            <DocPreviewContainer
-              doc={doc}
-              docFile={this.props.docFile}
-              handleClose={this.props.handleClosePreview}
-            />
-          )}
-          {doc.state === "unconfirmed" && (
-            <ForcedPreviewContainer
-              doc={doc}
-              docFile={this.props.docFile}
-              index={doc.name}
-              handleClose={this.props.handleCloseForcedPreview}
-              handleConfirm={this.props.handleConfirmForcedPreview}
-              handleUnConfirm={
-                this.props.handleUnConfirmForcedPreview
-              }
-            />
-          )}
           <OverlayTrigger
             delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
             trigger={["hover", "focus"]}

@@ -90,145 +90,147 @@ class Invited extends Component {
             docFile = docToFile(doc);
           }
           return (
-            <OverlayTrigger
-              key={index}
-              delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-              trigger={["hover", "focus"]}
-              rootClose={true}
-              overlay={
-                <Popover placement="auto">
-                  <PopoverTitle>
-                    {this.getHelp(doc.state + "-title")}
-                  </PopoverTitle>
-                  <PopoverContent>
-                    {this.getHelp(doc.state)}
-                  </PopoverContent>
-                </Popover>
-              }
-            >
-              <div className={"invitation-multisign " + doc.state}>
-                <div className="invitation-multisign-request">
-                  <div
-                    className={"invitation-name-and-buttons-" + this.props.size}
-                  >
-                    {doc.state === "unconfirmed" && (
-                      <>
-                        {widgets.dummySelectDoc()}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                        {widgets.forcedPreviewButton(
-                          this.props,
-                          doc
-                        )}
-                      </>
-                    )}
-                    {["loaded", "selected", "failed-signing"].includes(
-                      doc.state
-                    ) && (
-                      <>
-                        {widgets.selectDoc(this.props, doc)}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                        {widgets.previewButton(
-                          this.props,
-                          doc
-                        )}
-                      </>
-                    )}
-                    {doc.state === "signing" && (
-                      <>
-                        {widgets.dummySelectDoc()}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                        {widgets.namedSpinner(doc.name, "signing")}
-                      </>
-                    )}
-                    {doc.state === "signed" && (
-                      <>
-                        {widgets.dummySelectDoc()}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                        {widgets.previewButton(
-                          this.props,
-                          doc
-                        )}
-                      </>
-                    )}
-                    {doc.show && (
-                      <DocPreviewContainer
-                        doc={doc}
-                        docFile={docFile}
-                        handleClose={this.props.handleClosePreview}
-                      />
-                    )}
-                    {doc.state === "unconfirmed" && (
-                      <ForcedPreviewContainer
-                        doc={doc}
-                        docFile={docFile}
-                        index={doc.name}
-                        handleClose={this.props.handleCloseForcedPreview}
-                        handleConfirm={this.props.handleConfirmForcedPreview}
-                        handleUnConfirm={this.props.handleUnConfirmForcedPreview}
-                      />
-                    )}
-                  </div>
-                  <div className="invited-by">
-                    <span className="invited-by-label">
-                      <FormattedMessage
-                        defaultMessage="Invited by:"
-                        key="invited-by"
-                      />
-                    </span>
-                    <span className="owner-item">
-                      {doc.owner.name} &lt;{doc.owner.email}&gt;
-                    </span>
-                  </div>
+            <>
+              <OverlayTrigger
+                key={index}
+                delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+                trigger={["hover", "focus"]}
+                rootClose={true}
+                overlay={
+                  <Popover placement="auto">
+                    <PopoverTitle>
+                      {this.getHelp(doc.state + "-title")}
+                    </PopoverTitle>
+                    <PopoverContent>
+                      {this.getHelp(doc.state)}
+                    </PopoverContent>
+                  </Popover>
+                }
+              >
+                <div className={"invitation-multisign " + doc.state}>
+                  <div className="invitation-multisign-request">
+                    <div
+                      className={"invitation-name-and-buttons-" + this.props.size}
+                    >
+                      {doc.state === "unconfirmed" && (
+                        <>
+                          {widgets.dummySelectDoc()}
+                          {widgets.docSize(doc)}
+                          {widgets.docName(doc)}
+                          {widgets.forcedPreviewButton(
+                            this.props,
+                            doc
+                          )}
+                        </>
+                      )}
+                      {["loaded", "selected", "failed-signing"].includes(
+                        doc.state
+                      ) && (
+                        <>
+                          {widgets.selectDoc(this.props, doc)}
+                          {widgets.docSize(doc)}
+                          {widgets.docName(doc)}
+                          {widgets.previewButton(
+                            this.props,
+                            doc
+                          )}
+                        </>
+                      )}
+                      {doc.state === "signing" && (
+                        <>
+                          {widgets.dummySelectDoc()}
+                          {widgets.docSize(doc)}
+                          {widgets.docName(doc)}
+                          {widgets.namedSpinner(doc.name, "signing")}
+                        </>
+                      )}
+                      {doc.state === "signed" && (
+                        <>
+                          {widgets.dummySelectDoc()}
+                          {widgets.docSize(doc)}
+                          {widgets.docName(doc)}
+                          {widgets.previewButton(
+                            this.props,
+                            doc
+                          )}
+                        </>
+                      )}
+                    </div>
+                    <div className="invited-by">
+                      <span className="invited-by-label">
+                        <FormattedMessage
+                          defaultMessage="Invited by:"
+                          key="invited-by"
+                        />
+                      </span>
+                      <span className="owner-item">
+                        {doc.owner.name} &lt;{doc.owner.email}&gt;
+                      </span>
+                    </div>
 
-                  {doc.pending.length > 0 && (
-                    <>
-                      <div className="pending-invites">
-                        <span className="pending-invites-label">
-                          <FormattedMessage
-                            defaultMessage="Waiting for signatures by:"
-                            key="multisign-waiting"
-                          />
-                        </span>
-                        <span className="pending-invites-items">
-                          {doc.pending.map((invite, index) => {
-                            return (
-                              <span className="pending-invite-item" key={index}>
-                                {invite.name} &lt;{invite.email}&gt;
-                              </span>
-                            );
-                          })}
-                        </span>
-                      </div>
-                    </>
-                  )}
-                  {doc.signed.length > 0 && (
-                    <>
-                      <div className="signed-invites">
-                        <span className="signed-invites-label">
-                          <FormattedMessage
-                            defaultMessage="Already signed by:"
-                            key="multisign-signed"
-                          />
-                        </span>
-                        <span className="signed-invites-items">
-                          {doc.signed.map((invite, index) => {
-                            return (
-                              <span className="signed-invite-item" key={index}>
-                                {invite.name} &lt;{invite.email}&gt;
-                              </span>
-                            );
-                          })}
-                        </span>
-                      </div>
-                    </>
-                  )}
+                    {doc.pending.length > 0 && (
+                      <>
+                        <div className="pending-invites">
+                          <span className="pending-invites-label">
+                            <FormattedMessage
+                              defaultMessage="Waiting for signatures by:"
+                              key="multisign-waiting"
+                            />
+                          </span>
+                          <span className="pending-invites-items">
+                            {doc.pending.map((invite, index) => {
+                              return (
+                                <span className="pending-invite-item" key={index}>
+                                  {invite.name} &lt;{invite.email}&gt;
+                                </span>
+                              );
+                            })}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    {doc.signed.length > 0 && (
+                      <>
+                        <div className="signed-invites">
+                          <span className="signed-invites-label">
+                            <FormattedMessage
+                              defaultMessage="Already signed by:"
+                              key="multisign-signed"
+                            />
+                          </span>
+                          <span className="signed-invites-items">
+                            {doc.signed.map((invite, index) => {
+                              return (
+                                <span className="signed-invite-item" key={index}>
+                                  {invite.name} &lt;{invite.email}&gt;
+                                </span>
+                              );
+                            })}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </OverlayTrigger>
+              </OverlayTrigger>
+              {doc.show && (
+                <DocPreviewContainer
+                  doc={doc}
+                  docFile={docFile}
+                  handleClose={this.props.handleClosePreview}
+                />
+              )}
+              {doc.state === "unconfirmed" && (
+                <ForcedPreviewContainer
+                  doc={doc}
+                  docFile={docFile}
+                  index={doc.name}
+                  handleClose={this.props.handleCloseForcedPreview}
+                  handleConfirm={this.props.handleConfirmForcedPreview}
+                  handleUnConfirm={this.props.handleUnConfirmForcedPreview}
+                />
+              )}
+            </>
           );
         })}
       </>

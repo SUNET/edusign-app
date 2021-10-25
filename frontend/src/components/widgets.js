@@ -5,7 +5,6 @@ import OverlayTrigger from "containers/Overlay";
 import Tooltip from "react-bootstrap/Tooltip";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 
-import ReInviteFormContainer from "containers/ReInviteForm";
 import { humanFileSize } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
 
@@ -123,7 +122,6 @@ export const resendButton = (props, doc) => {
           </Button>
         </OverlayTrigger>
       </div>
-      <ReInviteFormContainer doc={doc} />
     </>
   );
 };

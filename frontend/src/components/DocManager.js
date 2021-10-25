@@ -5,6 +5,9 @@ import Button from "react-bootstrap/Button";
 import OverlayTrigger from "containers/Overlay";
 import Tooltip from "react-bootstrap/Tooltip";
 
+import ForcedPreviewContainer from "containers/ForcedPreview";
+import DocPreviewContainer from "containers/DocPreview";
+import InviteFormContainer from "containers/InviteForm";
 import OwnedContainer from "containers/Owned";
 import InvitedContainer from "containers/Invited";
 import { preparePDF } from "components/utils";
@@ -106,11 +109,41 @@ class DocManager extends React.Component {
                   }
                   if (doc.state === "selected") someSelected = true;
 
+                  let docRepr = null;
                   if (doc.hasOwnProperty('pending')) {
-                    return (<DocumentOwned key={index} doc={doc} {...this.props} />);
+                    docRepr = (<DocumentOwned key={index} doc={doc} {...this.props} />);
                   } else {
-                    return (<DocumentLocal key={index} doc={doc} docFile={docFile} {...this.props} />);
+                    docRepr = (<DocumentLocal key={index} doc={doc} {...this.props} />);
                   }
+                  return (
+                    <React.Fragment key={index}>
+                      {docRepr}
+                      {doc.state === "unconfirmed" && (
+                        <ForcedPreviewContainer
+                          doc={doc}
+                          docFile={docFile}
+                          index={doc.name}
+                          handleClose={this.props.handleCloseForcedPreview}
+                          handleConfirm={this.props.handleConfirmForcedPreview}
+                          handleUnConfirm={
+                            this.props.handleUnConfirmForcedPreview
+                          }
+                        />
+                      )}
+                      {["loaded", "selected", "failed-signing"].includes(
+                        doc.state
+                      ) && (
+                        <DocPreviewContainer
+                          doc={doc}
+                          docFile={docFile}
+                          handleClose={this.props.handleClosePreview}
+                        />
+                      )}
+                      {["loaded", "selected"].includes(doc.state) && (
+                        <InviteFormContainer docId={doc.id} docName={doc.name} />
+                      )}
+                    </React.Fragment>
+                  );
                 })}
               </fieldset>
             )}
