@@ -4,6 +4,7 @@ import { injectIntl } from "react-intl";
 
 import DocPreviewContainer from "containers/DocPreview";
 import ReInviteFormContainer from "containers/ReInviteForm";
+import ConfirmDialogContainer from "containers/ConfirmDialog";
 import DocumentOwned from "components/DocumentOwned";
 import { docToFile } from "components/utils";
 
@@ -38,6 +39,19 @@ class Owned extends Component {
               {(doc.state === 'incomplete') && (
                 <ReInviteFormContainer doc={doc} />
               )}
+              <ConfirmDialogContainer
+                confirmId={"confirm-remove-owned-" + doc.name}
+                title={this.props.intl.formatMessage({
+                  defaultMessage: "Confirm Removal of invitation",
+                  id: "header-confirm-remove-owned-title",
+                })}
+                mainText={this.props.intl.formatMessage({
+                  defaultMessage:
+                    'Clicking "Confirm" will remove all invitations to sign the document',
+                  id: "header-confirm-remove-owned-text",
+                })}
+                confirm={this.props.handleRemove(doc, this.props)}
+              />
             </React.Fragment>
           );
         })}

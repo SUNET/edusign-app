@@ -3,7 +3,6 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
 import OverlayTrigger from "containers/Overlay";
 import Tooltip from "react-bootstrap/Tooltip";
-import ConfirmDialogContainer from "containers/ConfirmDialog";
 
 import { humanFileSize } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
@@ -214,19 +213,6 @@ export const removeConfirmButton = (props, doc, help) => {
             >
               <FormattedMessage defaultMessage="Remove" key="remove-button" />
             </Button>
-            <ConfirmDialogContainer
-              confirmId={"confirm-remove-owned-" + doc.name}
-              title={props.intl.formatMessage({
-                defaultMessage: "Confirm Removal of invitation",
-                id: "header-confirm-remove-owned-title",
-              })}
-              mainText={props.intl.formatMessage({
-                defaultMessage:
-                  'Clicking "Confirm" will remove all invitations to sign the document',
-                id: "header-confirm-remove-owned-text",
-              })}
-              confirm={props.handleRemove(doc, props)}
-            />
           </>
         </OverlayTrigger>
       </div>
