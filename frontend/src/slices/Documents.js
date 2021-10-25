@@ -1079,6 +1079,7 @@ export const skipOwnedSignature = createAsyncThunk(
       const owned = state.main.owned_multisign.filter((d) => {
         return d.key === key;
       })[0];
+
       const doc = {
         ...owned,
         signedContent:
@@ -1090,11 +1091,12 @@ export const skipOwnedSignature = createAsyncThunk(
         state: "signed",
         show: false,
       };
+      thunkAPI.dispatch(removeOwned({key: doc.key}));
       const newDoc = await addDocumentToDb(
         doc,
         state.main.signer_attributes.eppn
       );
-      thunkAPI.dispatch(updateOwned(newDoc));
+      thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({

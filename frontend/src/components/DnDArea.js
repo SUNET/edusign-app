@@ -95,7 +95,7 @@ class DnDArea extends Component {
                 >
                   <input {...getInputProps()} />
                   <span id="dnd-message-dropping">
-                    <LittleSpinner index={0} />
+                    <LittleSpinner index="0" />
                   </span>
                 </div>
               </section>
