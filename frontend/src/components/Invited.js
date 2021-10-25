@@ -140,14 +140,13 @@ class Invited extends Component {
                         {widgets.dummySelectDoc()}
                         {widgets.docSize(doc)}
                         {widgets.docName(doc)}
-                        {widgets.namedSpinner(index, "signing")}
+                        {widgets.namedSpinner(doc.name, "signing")}
                       </>
                     )}
                     {doc.show && (
                       <DocPreviewContainer
                         doc={doc}
                         docFile={docFile}
-                        index={index}
                         handleClose={this.props.handleClosePreview}
                       />
                     )}
@@ -155,7 +154,7 @@ class Invited extends Component {
                       <ForcedPreviewContainer
                         doc={doc}
                         docFile={docFile}
-                        index={index}
+                        index={doc.name}
                         handleClose={this.props.handleCloseForcedPreview}
                         handleConfirm={this.props.handleConfirmForcedPreview}
                         handleUnConfirm={this.props.handleUnConfirmForcedPreview}

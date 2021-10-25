@@ -89,7 +89,7 @@ function DocPreview(props) {
               size="sm"
               disabled={Number(pageNumber) <= 1}
               onClick={firstPage}
-              data-testid={"preview-button-first-" + props.index}
+              data-testid={"preview-button-first-" + props.doc.name}
             >
               &#x23EA;
             </Button>
@@ -98,7 +98,7 @@ function DocPreview(props) {
               size="sm"
               disabled={Number(pageNumber) <= 1}
               onClick={previousPage}
-              data-testid={"preview-button-prev-" + props.index}
+              data-testid={"preview-button-prev-" + props.doc.name}
             >
               &#x25C4;
             </Button>
@@ -114,7 +114,7 @@ function DocPreview(props) {
               size="sm"
               disabled={Number(pageNumber) >= Number(numPages)}
               onClick={nextPage}
-              data-testid={"preview-button-next-" + props.index}
+              data-testid={"preview-button-next-" + props.doc.name}
             >
               &#x25BA;
             </Button>
@@ -123,7 +123,7 @@ function DocPreview(props) {
               size="sm"
               disabled={Number(pageNumber) >= Number(numPages)}
               onClick={lastPage}
-              data-testid={"preview-button-last-" + props.index}
+              data-testid={"preview-button-last-" + props.doc.name}
             >
               &#x23E9;
             </Button>
@@ -131,7 +131,7 @@ function DocPreview(props) {
           <Button
             variant="outline-secondary"
             onClick={props.handleClose(props.doc.name)}
-            data-testid={"preview-button-close-" + props.index}
+            data-testid={"preview-button-close-" + props.doc.name}
           >
             <FormattedMessage defaultMessage="Close" key="button-close" />
           </Button>
@@ -148,7 +148,6 @@ DocPreview.propTypes = {
   handleClose: PropTypes.func,
   doc: PropTypes.object,
   docFile: PropTypes.object,
-  index: PropTypes.number,
 };
 
 export default DocPreview;

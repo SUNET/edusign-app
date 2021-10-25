@@ -280,16 +280,6 @@ const mainSlice = createSlice({
     },
     /**
      * @public
-     * @function setOwned
-     * @desc Redux action to add owned documents
-     */
-    setOwned(state, action) {
-      action.payload.forEach((doc) => {
-        state.owned_multisign.push(doc);
-      });
-    },
-    /**
-     * @public
      * @function removeInvited
      * @desc Redux action to remove an invited multisign request
      */
@@ -665,7 +655,6 @@ export const {
   addOwned,
   removeOwned,
   updateOwned,
-  setOwned,
   removeInvited,
   setInvitedSigning,
   setOwnedSigning,

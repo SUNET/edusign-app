@@ -29,7 +29,6 @@ import {
   startSigningOwned,
   setOwnedState,
   setInvitedState,
-  setOwned,
   updateInvitations,
   invitationsSignFailure,
   updateInvitationsFailed,
@@ -58,23 +57,17 @@ export const loadDocuments = createAsyncThunk(
         };
         const docStore = transaction.objectStore("documents");
         const docs = [];
-        const owned = [];
         docStore.openCursor().onsuccess = (event) => {
           const cursor = event.target.result;
           if (cursor) {
             const doc = cursor.value;
-            if (doc.hasOwnProperty("pending")) {
-              owned.push(doc);
-            } else {
-              docs.push(doc);
-            }
             if (doc.state === "signing") {
               signing = true;
             }
+            docs.push(doc);
             cursor.continue();
           }
           if (cursor === null) {
-            thunkAPI.dispatch(setOwned(owned));
             resolve(docs);
           }
         };
@@ -689,12 +682,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           thunkAPI.dispatch(
             documentsSlice.actions.updateDocumentWithSignedContent(doc)
           );
-          const docName = thunkAPI
-            .getState()
-            .documents.documents.filter((d) => {
-              return d.signing_id === doc.id || d.key === doc.id;
-            })[0].name;
-          await thunkAPI.dispatch(saveDocument({ docName: docName }));
+          await thunkAPI.dispatch(saveDocument({ docName: oldDoc.name }));
         }
       });
       await state.main.owned_multisign.forEach(async (oldDoc) => {
@@ -702,10 +690,13 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           const newDoc = {
             ...oldDoc,
             signedContent: "data:application/pdf;base64," + doc.signed_content,
+            blob: "data:application/pdf;base64," + doc.signed_content,
             state: "signed",
             show: false,
+            showForced: false,
           };
-          thunkAPI.dispatch(updateOwned(newDoc));
+          thunkAPI.dispatch(removeOwned({key: doc.id}));
+          thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
           await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
         }
       });

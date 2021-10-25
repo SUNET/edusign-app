@@ -49,7 +49,7 @@ LittleSpinner.propTypes = {
   /**
    * The index of the document holding this spinner
    */
-  index: PropTypes.number,
+  index: PropTypes.string,
 };
 
 export default LittleSpinner;

@@ -207,27 +207,29 @@ export const removeConfirmButton = (props, doc, help) => {
             </Tooltip>
           )}
         >
-          <Button
-            variant="outline-danger"
-            size="sm"
-            onClick={props.showConfirm("confirm-remove-owned-" + doc.name)}
-            data-testid={"rm-invitation-" + doc.name}
-          >
-            <FormattedMessage defaultMessage="Remove" key="remove-button" />
-          </Button>
-          <ConfirmDialogContainer
-            confirmId={"confirm-remove-owned-" + doc.name}
-            title={props.intl.formatMessage({
-              defaultMessage: "Confirm Removal of invitation",
-              id: "header-confirm-remove-owned-title",
-            })}
-            mainText={props.intl.formatMessage({
-              defaultMessage:
-                'Clicking "Confirm" will remove all invitations to sign the document',
-              id: "header-confirm-remove-owned-text",
-            })}
-            confirm={props.handleRemove(doc, props)}
-          />
+          <>
+            <Button
+              variant="outline-danger"
+              size="sm"
+              onClick={props.showConfirm("confirm-remove-owned-" + doc.name)}
+              data-testid={"rm-invitation-" + doc.name}
+            >
+              <FormattedMessage defaultMessage="Remove" key="remove-button" />
+            </Button>
+            <ConfirmDialogContainer
+              confirmId={"confirm-remove-owned-" + doc.name}
+              title={props.intl.formatMessage({
+                defaultMessage: "Confirm Removal of invitation",
+                id: "header-confirm-remove-owned-title",
+              })}
+              mainText={props.intl.formatMessage({
+                defaultMessage:
+                  'Clicking "Confirm" will remove all invitations to sign the document',
+                id: "header-confirm-remove-owned-text",
+              })}
+              confirm={props.handleRemove(doc, props)}
+            />
+          </>
         </OverlayTrigger>
       </div>
     </>

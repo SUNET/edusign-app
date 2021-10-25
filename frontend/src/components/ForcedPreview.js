@@ -211,7 +211,7 @@ ForcedPreview.propTypes = {
   handleUnConfirm: PropTypes.func,
   doc: PropTypes.object,
   docFile: PropTypes.object,
-  index: PropTypes.number,
+  index: PropTypes.string,
 };
 
 export default ForcedPreview;
