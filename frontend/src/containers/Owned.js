@@ -59,7 +59,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(askConfirmation(confirmId));
       };
     },
-    showPreview: (docKey) => {
+    handlePreview: (docKey) => {
       return () => {
         dispatch(disablePolling());
         dispatch(
@@ -77,7 +77,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(hideOwnedPreview(docKey));
       };
     },
-    downloadSigned: function (docName) {
+    handleDlSigned: function (docName) {
       return () => {
         dispatch(downloadSignedOwned(docName));
       };

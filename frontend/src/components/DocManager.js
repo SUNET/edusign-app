@@ -16,6 +16,7 @@ import OwnedContainer from "containers/Owned";
 import InvitedContainer from "containers/Invited";
 import { humanFileSize, preparePDF } from "components/utils";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
+import * as widgets from "components/widgets";
 
 import "styles/DocManager.scss";
 
@@ -35,263 +36,7 @@ import "styles/DocManager.scss";
  * @component
  */
 class DocManager extends React.Component {
-  docName(doc) {
-    return <div className="name-flex-item">{doc.name}</div>;
-  }
-  docSize(doc) {
-    return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
-  }
-  namedSpinner(index, name) {
-    return (
-      <>
-        <LittleSpinner index={index} />
-        <div className="spinning-flex-item">{` ${name} ...`}</div>
-      </>
-    );
-  }
-  forcedPreviewButton(index, doc) {
-    return (
-      <>
-        <div className="button-forced-preview-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-button-forced-preview" {...props}>
-                <FormattedMessage
-                  defaultMessage="You need to approve all documents for signature"
-                  key="forced-preview-button-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <Button
-              variant="outline-dark"
-              data-testid={"button-forced-preview-" + index}
-              size="sm"
-              onClick={this.props.handleForcedPreview(doc.name)}
-            >
-              <FormattedMessage
-                defaultMessage="Approve document for signature"
-                key="forced-preview-button"
-              />
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  previewButton(index, doc) {
-    return (
-      <>
-        <div className="button-preview-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-button-preview" {...props}>
-                <FormattedMessage
-                  defaultMessage="Display a preview of the unsigned document"
-                  key="preview-button-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <Button
-              variant="outline-dark"
-              data-testid={"button-preview-" + index}
-              size="sm"
-              onClick={this.props.handlePreview(doc.name)}
-            >
-              <FormattedMessage defaultMessage="Preview" key="preview-button" />
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  retryButton(index, doc) {
-    return (
-      <>
-        <div className="button-retry-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-button-retry" {...props}>
-                <FormattedMessage
-                  defaultMessage="Try again to prepare the document for signing"
-                  key="retry-button-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <Button
-              variant="outline-success"
-              data-testid={"button-retry-" + index}
-              size="sm"
-              onClick={this.props.handleRetry(doc, this.props)}
-            >
-              <FormattedMessage defaultMessage="Retry" key="retry-button" />
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  selectDoc(index, doc) {
-    return (
-      <>
-        <div className="doc-selector-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-select-doc" {...props}>
-                <FormattedMessage
-                  defaultMessage="Select the document for signing"
-                  key="select-doc-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <input
-              type="checkbox"
-              id={"doc-selector-" + index}
-              name={"doc-selector-" + index}
-              data-testid={"doc-selector-" + index}
-              onChange={this.props.handleDocSelection(doc.name)}
-              checked={doc.state === "selected"}
-            />
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  dummySelectDoc() {
-    return (
-      <>
-        <div className="doc-selector-flex-item" />
-      </>
-    );
-  }
-  removeButton(index, doc) {
-    return (
-      <>
-        <div className="button-remove-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-button-remove" {...props}>
-                <FormattedMessage
-                  defaultMessage="Discard document"
-                  key="button-remove-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <Button
-              variant="outline-danger"
-              size="sm"
-              data-testid={"rm-button-" + index}
-              onClick={this.props.handleRemove(doc.name)}
-            >
-              <FormattedMessage defaultMessage="Remove" key="remove-button" />
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  dlSignedButton(index, doc) {
-    return (
-      <>
-        <div className="button-signed-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-button-download" {...props}>
-                <FormattedMessage
-                  defaultMessage="Download signed document. Be sure to save the original rather than a copy."
-                  key="button-download-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <Button
-              variant="outline-success"
-              data-testid={"button-dlsigned-" + doc.name}
-              size="sm"
-              onClick={this.props.handleDlSigned(doc.name)}
-            >
-              <FormattedMessage
-                defaultMessage="Download (signed)"
-                key="signed-button"
-              />
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  multiSignButton(index, doc) {
-    if (
-      !["Yes", "yes", "True", "true", "T", "t"].includes(
-        this.props.multisign_buttons
-      )
-    ) {
-      return "";
-    }
-    return (
-      <>
-        <div className="button-multisign-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-button-multisign" {...props}>
-                <FormattedMessage
-                  defaultMessage="Invite other users to sign the document. After all invitees sign, you'll be asked to add a final signature."
-                  key="button-multisign-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <Button
-              variant="outline-success"
-              data-testid={"button-multisign-" + index}
-              size="sm"
-              onClick={this.props.openInviteForm(doc)}
-              data-docid={doc.id}
-            >
-              <FormattedMessage
-                defaultMessage="Ask for signature"
-                key="multisign-button"
-              />
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  showMessage(doc) {
-    return (
-      <>
-        <div className="message-flex-item">
-          <span alt={doc.message}>{doc.message}</span>
-        </div>
-      </>
-    );
-  }
+
   getHelp(msg) {
     const msgs = {
       "loading-title": this.props.intl.formatMessage({
@@ -497,89 +242,89 @@ class DocManager extends React.Component {
                           <div className={"doc-flex-container " + doc.state}>
                             {doc.state === "loading" && (
                               <>
-                                {this.dummySelectDoc()}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
+                                {widgets.dummySelectDoc()}
+                                {widgets.docSize(doc)}
+                                {widgets.docName(doc)}
                                 <div className="doc-manager-buttons">
-                                  {this.namedSpinner(index, "loading")}
+                                  {widgets.namedSpinner(index, "loading")}
                                 </div>
                               </>
                             )}
                             {doc.state === "failed-loading" && (
                               <>
-                                {this.dummySelectDoc()}
-                                {this.docName(doc)}
-                                {this.showMessage(doc)}
+                                {widgets.dummySelectDoc()}
+                                {widgets.docName(doc)}
+                                {widgets.showMessage(doc)}
                                 <div className="doc-manager-buttons">
-                                  {this.removeButton(index, doc)}
+                                  {widgets.removeButton(this.props, doc)}
                                 </div>
                               </>
                             )}
                             {doc.state === "failed-preparing" && (
                               <>
-                                {this.dummySelectDoc()}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
-                                {this.showMessage(doc)}
+                                {widgets.dummySelectDoc()}
+                                {widgets.docSize(doc)}
+                                {widgets.docName(doc)}
+                                {widgets.showMessage(doc)}
                                 <div className="doc-manager-buttons">
-                                  {this.retryButton(index, doc)}
-                                  {this.removeButton(index, doc)}
+                                  {widgets.retryButton(this.props, doc)}
+                                  {widgets.removeButton(this.props, doc)}
                                 </div>
                               </>
                             )}
                             {doc.state === "unconfirmed" && (
                               <>
-                                {this.dummySelectDoc()}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
+                                {widgets.dummySelectDoc()}
+                                {widgets.docSize(doc)}
+                                {widgets.docName(doc)}
                                 <div className="doc-manager-buttons">
-                                  {this.forcedPreviewButton(index, doc)}
-                                  {this.removeButton(index, doc)}
+                                  {widgets.forcedPreviewButton(this.props, doc)}
+                                  {widgets.removeButton(this.props, doc)}
                                 </div>
                               </>
                             )}
                             {(doc.state === "loaded" ||
                               doc.state === "selected") && (
                               <>
-                                {this.selectDoc(index, doc)}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
+                                {widgets.selectDoc(this.props, doc)}
+                                {widgets.docSize(doc)}
+                                {widgets.docName(doc)}
                                 <div className="doc-manager-buttons">
-                                  {this.previewButton(index, doc)}
-                                  {this.removeButton(index, doc)}
-                                  {this.multiSignButton(index, doc)}
+                                  {widgets.previewButton(this.props, doc)}
+                                  {widgets.removeButton(this.props, doc)}
+                                  {widgets.multiSignButton(this.props, doc)}
                                 </div>
                               </>
                             )}
                             {doc.state === "signing" && (
                               <>
-                                {this.dummySelectDoc()}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
+                                {widgets.dummySelectDoc()}
+                                {widgets.docSize(doc)}
+                                {widgets.docName(doc)}
                                 <div className="doc-manager-buttons">
-                                  {this.namedSpinner(index, "signing")}
+                                  {widgets.namedSpinner(index, "signing")}
                                 </div>
                               </>
                             )}
                             {doc.state === "signed" && (
                               <>
-                                {this.dummySelectDoc()}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
+                                {widgets.dummySelectDoc()}
+                                {widgets.docSize(doc)}
+                                {widgets.docName(doc)}
                                 <div className="doc-manager-buttons">
-                                  {this.dlSignedButton(index, doc)}
+                                  {widgets.downloadSignedButton(this.props, doc)}
                                 </div>
                               </>
                             )}
                             {doc.state === "failed-signing" && (
                               <>
-                                {this.selectDoc(index, doc)}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
-                                {this.showMessage(doc)}
+                                {widgets.selectDoc(this.props, doc)}
+                                {widgets.docSize(doc)}
+                                {widgets.docName(doc)}
+                                {widgets.showMessage(doc)}
                                 <div className="doc-manager-buttons">
-                                  {this.previewButton(index, doc)}
-                                  {this.removeButton(index, doc)}
+                                  {widgets.previewButton(this.props, doc)}
+                                  {widgets.removeButton(this.props, doc)}
                                 </div>
                               </>
                             )}
@@ -630,55 +375,55 @@ class DocManager extends React.Component {
                             {doc.state === "loading" && (
                               <>
                                 <div className="doc-container-first-row">
-                                  {this.dummySelectDoc()}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
+                                  {widgets.dummySelectDoc()}
+                                  {widgets.docSize(doc)}
+                                  {widgets.docName(doc)}
                                 </div>
                                 <div className="doc-container-second-row">
-                                  {this.namedSpinner(index, "loading")}
+                                  {widgets.namedSpinner(index, "loading")}
                                 </div>
                               </>
                             )}
                             {doc.state === "failed-loading" && (
                               <>
                                 <div className="doc-container-first-row">
-                                  {this.dummySelectDoc()}
-                                  {this.docName(doc)}
+                                  {widgets.dummySelectDoc()}
+                                  {widgets.docName(doc)}
                                 </div>
                                 <div className="doc-container-second-row">
-                                  {this.showMessage(doc)}
+                                  {widgets.showMessage(doc)}
                                 </div>
                                 <div className="doc-container-third-row">
-                                  {this.removeButton(index, doc)}
+                                  {widgets.removeButton(this.props, doc)}
                                 </div>
                               </>
                             )}
                             {doc.state === "failed-preparing" && (
                               <>
                                 <div className="doc-container-first-row">
-                                  {this.dummySelectDoc()}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
+                                  {widgets.dummySelectDoc()}
+                                  {widgets.docSize(doc)}
+                                  {widgets.docName(doc)}
                                 </div>
                                 <div className="doc-container-second-row">
-                                  {this.showMessage(doc)}
+                                  {widgets.showMessage(doc)}
                                 </div>
                                 <div className="doc-container-third-row">
-                                  {this.retryButton(index, doc)}
-                                  {this.removeButton(index, doc)}
+                                  {widgets.retryButton(this.props, doc)}
+                                  {widgets.removeButton(this.props, doc)}
                                 </div>
                               </>
                             )}
                             {doc.state === "unconfirmed" && (
                               <>
                                 <div className="doc-container-first-row">
-                                  {this.dummySelectDoc()}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
+                                  {widgets.dummySelectDoc()}
+                                  {widgets.docSize(doc)}
+                                  {widgets.docName(doc)}
                                 </div>
                                 <div className="doc-container-second-row">
-                                  {this.forcedPreviewButton(index, doc)}
-                                  {this.removeButton(index, doc)}
+                                  {widgets.forcedPreviewButton(this.props, doc)}
+                                  {widgets.removeButton(this.props, doc)}
                                 </div>
                               </>
                             )}
@@ -686,54 +431,54 @@ class DocManager extends React.Component {
                               doc.state === "selected") && (
                               <>
                                 <div className="doc-container-first-row">
-                                  {this.selectDoc(index, doc)}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
+                                  {widgets.selectDoc(this.props, doc)}
+                                  {widgets.docSize(doc)}
+                                  {widgets.docName(doc)}
                                 </div>
                                 <div className="doc-container-second-row">
-                                  {this.previewButton(index, doc)}
-                                  {this.removeButton(index, doc)}
-                                  {this.multiSignButton(index, doc)}
+                                  {widgets.previewButton(this.props, doc)}
+                                  {widgets.removeButton(this.props, doc)}
+                                  {widgets.multiSignButton(this.props, doc)}
                                 </div>
                               </>
                             )}
                             {doc.state === "signing" && (
                               <>
                                 <div className="doc-container-first-row">
-                                  {this.dummySelectDoc()}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
+                                  {widgets.dummySelectDoc()}
+                                  {widgets.docSize(doc)}
+                                  {widgets.docName(doc)}
                                 </div>
                                 <div className="doc-container-second-row">
-                                  {this.namedSpinner(index, "signing")}
+                                  {widgets.namedSpinner(index, "signing")}
                                 </div>
                               </>
                             )}
                             {doc.state === "signed" && (
                               <>
                                 <div className="doc-container-first-row">
-                                  {this.dummySelectDoc()}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
+                                  {widgets.dummySelectDoc()}
+                                  {widgets.docSize(doc)}
+                                  {widgets.docName(doc)}
                                 </div>
                                 <div className="doc-container-second-row">
-                                  {this.dlSignedButton(index, doc)}
+                                  {widgets.downloadSignedButton(this.props, doc)}
                                 </div>
                               </>
                             )}
                             {doc.state === "failed-signing" && (
                               <>
                                 <div className="doc-container-first-row">
-                                  {this.selectDoc(index, doc)}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
+                                  {widgets.selectDoc(this.props, doc)}
+                                  {widgets.docSize(doc)}
+                                  {widgets.docName(doc)}
                                 </div>
                                 <div className="doc-container-second-row">
-                                  {this.showMessage(doc)}
+                                  {widgets.showMessage(doc)}
                                 </div>
                                 <div className="doc-container-third-row">
-                                  {this.previewButton(index, doc)}
-                                  {this.removeButton(index, doc)}
+                                  {widgets.previewButton(this.props, doc)}
+                                  {widgets.removeButton(this.props, doc)}
                                 </div>
                               </>
                             )}
@@ -783,8 +528,8 @@ class DocManager extends React.Component {
                 delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                 trigger={["hover", "focus"]}
                 rootClose={true}
-                overlay={(props) => (
-                  <Tooltip id="tooltip-button-sign" {...props}>
+                overlay={(
+                  <Tooltip placement="auto">
                     <FormattedMessage
                       defaultMessage="Select documents above and click here to send them for signing."
                       key="button-sign-tootip"
@@ -818,8 +563,8 @@ class DocManager extends React.Component {
                 delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                 trigger={["hover", "focus"]}
                 rootClose={true}
-                overlay={(props) => (
-                  <Tooltip id="tooltip-button-dlall" {...props}>
+                overlay={(
+                  <Tooltip placement="auto">
                     <FormattedMessage
                       defaultMessage="Download all signed documents."
                       key="button-dlall-tootip"
@@ -854,8 +599,8 @@ class DocManager extends React.Component {
                 delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                 trigger={["hover", "focus"]}
                 rootClose={true}
-                overlay={(props) => (
-                  <Tooltip id="tooltip-clear-docs" {...props}>
+                overlay={(
+                  <Tooltip placement="auto">
                     <FormattedMessage
                       defaultMessage="Discard all documents loaded above"
                       key="clear-docs-tootip"

@@ -13,207 +13,9 @@ import ReInviteFormContainer from "containers/ReInviteForm";
 import DocPreviewContainer from "containers/DocPreview";
 import { docToFile, humanFileSize } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
+import * as widgets from "components/widgets";
 
 import "styles/Invitation.scss";
-
-const selectDoc = (index, doc, props) => {
-  return (
-    <>
-      <div className="doc-selector-flex-item">
-        <OverlayTrigger
-          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-          trigger={["hover", "focus"]}
-          rootClose={true}
-          overlay={(props) => (
-            <Tooltip id="tooltip-select-owned-doc" {...props}>
-              <FormattedMessage
-                defaultMessage="Select the document for signing"
-                key="select-doc-tootip"
-              />
-            </Tooltip>
-          )}
-        >
-          <input
-            type="checkbox"
-            id={"owned-doc-selector-" + index}
-            name={"owned-doc-selector-" + index}
-            data-testid={"owned-doc-selector-" + index}
-            onChange={props.handleDocSelection(doc.name)}
-            checked={doc.state === "selected"}
-          />
-        </OverlayTrigger>
-      </div>
-    </>
-  );
-};
-const dummySelectDoc = () => {
-  return (
-    <>
-      <div className="doc-selector-flex-item" />
-    </>
-  );
-};
-
-const docName = (doc) => {
-  return <div className="name-flex-item">{doc.name}</div>;
-};
-const docSize = (doc) => {
-  return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
-};
-
-const namedSpinner = (index, name) => {
-  return (
-    <>
-      <LittleSpinner index={index} />
-      <div className="spinning-flex-item">{` ${name} ...`}</div>
-    </>
-  );
-};
-
-const skipSignatureButton = (props, doc, help) => {
-  return (
-    <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-skip-container">
-          <div className="button-skip-invitation">
-            <Button
-              variant="outline-success"
-              size="sm"
-              onClick={props.handleSkipSigning(doc, props)}
-            >
-              <FormattedMessage
-                defaultMessage="Skip Signature"
-                key="skip-sign-button"
-              />
-            </Button>
-          </div>
-        </div>
-      </OverlayTrigger>
-    </>
-  );
-};
-
-const resendButton = (props, doc, help) => {
-  return (
-    <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-resend-container">
-          <div className="button-resend-invitation">
-            <Button
-              variant="outline-success"
-              size="sm"
-              data-testid={"button-open-resend-" + doc.name}
-              onClick={props.handleResend(doc)}
-            >
-              <FormattedMessage
-                defaultMessage="Resend invitations"
-                key="resend-invitations-button"
-              />
-            </Button>
-          </div>
-        </div>
-      </OverlayTrigger>
-      <ReInviteFormContainer doc={doc} />
-    </>
-  );
-};
-
-const previewButton = (props, doc, help) => {
-  return (
-    <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-preview-container">
-          <div className="button-preview-invitation">
-            <Button
-              variant="outline-dark"
-              size="sm"
-              onClick={props.showPreview(doc.key)}
-            >
-              <FormattedMessage defaultMessage="Preview" key="preview-button" />
-            </Button>
-          </div>
-        </div>
-      </OverlayTrigger>
-    </>
-  );
-};
-
-const removeButton = (props, doc, help) => {
-  return (
-    <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-remove-container">
-          <div className="button-remove-invitation">
-            <Button
-              variant="outline-danger"
-              size="sm"
-              onClick={props.showConfirm("confirm-remove-owned-" + doc.name)}
-              data-testid={"rm-invitation-" + doc.name}
-            >
-              <FormattedMessage defaultMessage="Remove" key="remove-button" />
-            </Button>
-            <ConfirmDialogContainer
-              confirmId={"confirm-remove-owned-" + doc.name}
-              title={props.intl.formatMessage({
-                defaultMessage: "Confirm Removal of invitation",
-                id: "header-confirm-remove-owned-title",
-              })}
-              mainText={props.intl.formatMessage({
-                defaultMessage:
-                  'Clicking "Confirm" will remove all invitations to sign the document',
-                id: "header-confirm-remove-owned-text",
-              })}
-              confirm={props.handleRemove(doc, props)}
-            />
-          </div>
-        </div>
-      </OverlayTrigger>
-    </>
-  );
-};
-
-const downloadButton = (props, doc, help) => {
-  return (
-    <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-download-container">
-          <div className="button-download-invitation">
-            <Button
-              variant="outline-success"
-              size="sm"
-              onClick={props.downloadSigned(doc.name)}
-            >
-              <FormattedMessage
-                defaultMessage="Download (signed)"
-                key="dlsigned-button"
-              />
-            </Button>
-          </div>
-        </div>
-      </OverlayTrigger>
-    </>
-  );
-};
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
@@ -223,28 +25,6 @@ const downloadButton = (props, doc, help) => {
 class Owned extends Component {
   getHelp(msg) {
     const msgs = {
-      "close-button-help": this.props.intl.formatMessage({
-        defaultMessage: "Cancel Request",
-        id: "owned-close-button-help",
-      }),
-      "skip-button-help": this.props.intl.formatMessage({
-        defaultMessage:
-          "All requested users have alredy signed the document, click here to skip adding your final signature",
-        id: "owned-skip-button-help",
-      }),
-      "resend-button-help": this.props.intl.formatMessage({
-        defaultMessage:
-          "Click here to re-send an invitation email to all pending users",
-        id: "owned-resend-button-help",
-      }),
-      "preview-button-help": this.props.intl.formatMessage({
-        defaultMessage: "Click here to preview the document",
-        id: "owned-preview-button-help",
-      }),
-      "download-button-help": this.props.intl.formatMessage({
-        defaultMessage: "Click here to download the signed document",
-        id: "owned-download-button-help",
-      }),
       "loaded-title": this.props.intl.formatMessage({
         defaultMessage: "Document loaded",
         id: "docmanager-help-loaded-title",
@@ -336,49 +116,43 @@ class Owned extends Component {
                       <>
                         {(this.props.size === "lg" && (
                           <>
-                            {dummySelectDoc()}
-                            {docSize(doc)}
-                            {docName(doc)}
+                            {widgets.dummySelectDoc()}
+                            {widgets.docSize(doc)}
+                            {widgets.docName(doc)}
                             <div className="owned-container-buttons-lg">
-                              {previewButton(
+                              {widgets.previewButton(
                                 this.props,
-                                doc,
-                                this.getHelp("preview-button-help")
+                                doc
                               )}
-                              {removeButton(
+                              {widgets.removeConfirmButton(
                                 this.props,
-                                doc,
-                                this.getHelp("close-button-help")
+                                doc
                               )}
-                              {resendButton(
+                              {widgets.resendButton(
                                 this.props,
-                                doc,
-                                this.getHelp("resend-button-help")
+                                doc
                               )}
                             </div>
                           </>
                         )) || (
                           <div className="owned-name-and-buttons">
                             <div className="owned-container-name">
-                              {dummySelectDoc()}
-                              {docSize(doc)}
-                              {docName(doc)}
+                              {widgets.dummySelectDoc()}
+                              {widgets.docSize(doc)}
+                              {widgets.docName(doc)}
                             </div>
                             <div className="owned-container-buttons-sm">
-                              {previewButton(
+                              {widgets.previewButton(
                                 this.props,
-                                doc,
-                                this.getHelp("preview-button-help")
+                                doc
                               )}
-                              {removeButton(
+                              {widgets.removeConfirmButton(
                                 this.props,
-                                doc,
-                                this.getHelp("close-button-help")
+                                doc
                               )}
-                              {resendButton(
+                              {widgets.resendButton(
                                 this.props,
-                                doc,
-                                this.getHelp("resend-button-help")
+                                doc
                               )}
                             </div>
                           </div>
@@ -391,49 +165,43 @@ class Owned extends Component {
                       <>
                         {(this.props.size === "lg" && (
                           <>
-                            {selectDoc(index, doc, this.props)}
-                            {docSize(doc)}
-                            {docName(doc)}
+                            {widgets.selectDoc(this.props, doc)}
+                            {widgets.docSize(doc)}
+                            {widgets.docName(doc)}
                             <div className="owned-container-buttons-lg">
-                              {previewButton(
+                              {widgets.previewButton(
                                 this.props,
-                                doc,
-                                this.getHelp("preview-button-help")
+                                doc
                               )}
-                              {removeButton(
+                              {widgets.removeConfirmButton(
                                 this.props,
-                                doc,
-                                this.getHelp("close-button-help")
+                                doc
                               )}
-                              {skipSignatureButton(
+                              {widgets.skipSignatureButton(
                                 this.props,
-                                doc,
-                                this.getHelp("skip-button-help")
+                                doc
                               )}
                             </div>
                           </>
                         )) || (
                           <div className="owned-name-and-buttons">
                             <div className="owned-container-name">
-                              {selectDoc(index, doc, this.props)}
-                              {docSize(doc)}
-                              {docName(doc)}
+                              {widgets.selectDoc(this.props, doc)}
+                              {widgets.docSize(doc)}
+                              {widgets.docName(doc)}
                             </div>
                             <div className="owned-container-buttons-sm">
-                              {previewButton(
+                              {widgets.previewButton(
                                 this.props,
-                                doc,
-                                this.getHelp("preview-button-help")
+                                doc
                               )}
-                              {removeButton(
+                              {widgets.removeConfirmButton(
                                 this.props,
-                                doc,
-                                this.getHelp("close-button-help")
+                                doc
                               )}
-                              {skipSignatureButton(
+                              {widgets.skipSignatureButton(
                                 this.props,
-                                doc,
-                                this.getHelp("skip-button-help")
+                                doc
                               )}
                             </div>
                           </div>
@@ -442,21 +210,20 @@ class Owned extends Component {
                     )}
                     {doc.state === "signing" && (
                       <>
-                        {dummySelectDoc()}
-                        {docSize(doc)}
-                        {docName(doc)}
-                        {namedSpinner(index, "signing")}
+                        {widgets.dummySelectDoc()}
+                        {widgets.docSize(doc)}
+                        {widgets.docName(doc)}
+                        {widgets.namedSpinner(index, "signing")}
                       </>
                     )}
                     {doc.state === "signed" && (
                       <>
-                        {dummySelectDoc()}
-                        {docSize(doc)}
-                        {docName(doc)}
-                        {downloadButton(
+                        {widgets.dummySelectDoc()}
+                        {widgets.docSize(doc)}
+                        {widgets.docName(doc)}
+                        {widgets.downloadSignedButton(
                           this.props,
-                          doc,
-                          this.getHelp("download-button-help")
+                          doc
                         )}
                       </>
                     )}

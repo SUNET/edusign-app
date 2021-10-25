@@ -1140,7 +1140,7 @@ const documentsSlice = createSlice({
      */
     showPreview(state, action) {
       state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload) {
+        if (doc.key === action.payload) {
           return {
             ...doc,
             show: true,
@@ -1172,7 +1172,7 @@ const documentsSlice = createSlice({
      */
     showForcedPreview(state, action) {
       state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload) {
+        if (doc.key === action.payload) {
           return {
             ...doc,
             showForced: true,

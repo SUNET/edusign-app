@@ -12,113 +12,9 @@ import { docToFile, humanFileSize } from "components/utils";
 import DocPreviewContainer from "containers/DocPreview";
 import LittleSpinner from "components/LittleSpinner";
 import ForcedPreviewContainer from "containers/ForcedPreview";
+import * as widgets from "components/widgets";
 
 import "styles/Invitation.scss";
-
-const selectDoc = (index, doc, props) => {
-  return (
-    <>
-      <div className="doc-selector-flex-item">
-        <OverlayTrigger
-          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-          trigger={["hover", "focus"]}
-          rootClose={true}
-          overlay={(props) => (
-            <Tooltip id="tooltip-select-invited-doc" {...props}>
-              <FormattedMessage
-                defaultMessage="Select the document for signing"
-                key="select-doc-tootip"
-              />
-            </Tooltip>
-          )}
-        >
-          <input
-            type="checkbox"
-            id={"invited-doc-selector-" + index}
-            name={"invited-doc-selector-" + index}
-            data-testid={"invited-doc-selector-" + index}
-            onChange={props.handleDocSelection(doc.name)}
-            checked={doc.state === "selected"}
-          />
-        </OverlayTrigger>
-      </div>
-    </>
-  );
-};
-const dummySelectDoc = () => {
-  return (
-    <>
-      <div className="doc-selector-flex-item" />
-    </>
-  );
-};
-
-const docName = (doc) => {
-  return <div className="name-flex-item">{doc.name}</div>;
-};
-const docSize = (doc) => {
-  return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
-};
-
-const namedSpinner = (index, name) => {
-  return (
-    <>
-      <LittleSpinner index={index} />
-      <div className="spinning-flex-item">{` ${name} ...`}</div>
-    </>
-  );
-};
-
-const previewButton = (props, doc, help) => {
-  return (
-    <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-preview-container">
-          <div className="button-preview-invitation">
-            <Button
-              variant="outline-dark"
-              size="sm"
-              onClick={props.showPreview(doc.key)}
-            >
-              <FormattedMessage defaultMessage="Preview" key="preview-button" />
-            </Button>
-          </div>
-        </div>
-      </OverlayTrigger>
-    </>
-  );
-};
-const forcedPreviewButton = (props, doc, help) => {
-  return (
-    <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        rootClose={true}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-forced-preview-container">
-          <div className="button-forced-preview-invitation">
-            <Button
-              variant="outline-dark"
-              size="sm"
-              onClick={props.handleForcedPreview(doc.key)}
-            >
-              <FormattedMessage
-                defaultMessage="Approve document for signature"
-                key="forced-preview-button"
-              />
-            </Button>
-          </div>
-        </div>
-      </OverlayTrigger>
-    </>
-  );
-};
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
@@ -128,18 +24,6 @@ const forcedPreviewButton = (props, doc, help) => {
 class Invited extends Component {
   getHelp(msg) {
     const msgs = {
-      "sign-button-help": this.props.intl.formatMessage({
-        defaultMessage: "Click here to sign the document",
-        id: "invited-sign-button-help",
-      }),
-      "preview-button-help": this.props.intl.formatMessage({
-        defaultMessage: "Click here to preview the document",
-        id: "invited-preview-button-help",
-      }),
-      "forced-preview-button-help": this.props.intl.formatMessage({
-        defaultMessage: "You need to approve all documents for signature",
-        id: "forced-preview-button-tooltip",
-      }),
       "loaded-title": this.props.intl.formatMessage({
         defaultMessage: "Document loaded",
         id: "docmanager-help-loaded-title",
@@ -229,13 +113,12 @@ class Invited extends Component {
                   >
                     {doc.state === "unconfirmed" && (
                       <>
-                        {dummySelectDoc()}
-                        {docSize(doc)}
-                        {docName(doc)}
-                        {forcedPreviewButton(
+                        {widgets.dummySelectDoc()}
+                        {widgets.docSize(doc)}
+                        {widgets.docName(doc)}
+                        {widgets.forcedPreviewButton(
                           this.props,
-                          doc,
-                          this.getHelp("forced-preview-button-help")
+                          doc
                         )}
                       </>
                     )}
@@ -243,22 +126,21 @@ class Invited extends Component {
                       doc.state
                     ) && (
                       <>
-                        {selectDoc(index, doc, this.props)}
-                        {docSize(doc)}
-                        {docName(doc)}
-                        {previewButton(
+                        {widgets.selectDoc(this.props, doc)}
+                        {widgets.docSize(doc)}
+                        {widgets.docName(doc)}
+                        {widgets.previewButton(
                           this.props,
-                          doc,
-                          this.getHelp("preview-button-help")
+                          doc
                         )}
                       </>
                     )}
                     {doc.state === "signing" && (
                       <>
-                        {dummySelectDoc()}
-                        {docSize(doc)}
-                        {docName(doc)}
-                        {namedSpinner(index, "signing")}
+                        {widgets.dummySelectDoc()}
+                        {widgets.docSize(doc)}
+                        {widgets.docName(doc)}
+                        {widgets.namedSpinner(index, "signing")}
                       </>
                     )}
                     {doc.show && (

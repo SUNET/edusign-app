@@ -49,9 +49,9 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handlePreview: function (name) {
+    handlePreview: function (key) {
       return () => {
-        dispatch(showPreview(name));
+        dispatch(showPreview(key));
       };
     },
     handleRemove: function (name) {
@@ -97,9 +97,9 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(askConfirmation(confirmId));
       };
     },
-    handleForcedPreview: function (name) {
+    handleForcedPreview: function (key) {
       return () => {
-        dispatch(showForcedPreview(name));
+        dispatch(showForcedPreview(key));
       };
     },
     handleCloseForcedPreview: function (name) {

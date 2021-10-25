@@ -10,44 +10,6 @@ import { humanFileSize } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
 
 
-export const selectDoc = (index, doc, props) => {
-  return (
-    <>
-      <div className="doc-selector-flex-item">
-        <OverlayTrigger
-          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-          trigger={["hover", "focus"]}
-          rootClose={true}
-          overlay={(props) => (
-            <Tooltip id="tooltip-select-owned-doc" {...props}>
-              <FormattedMessage
-                defaultMessage="Select the document for signing"
-                key="select-doc-tootip"
-              />
-            </Tooltip>
-          )}
-        >
-          <input
-            type="checkbox"
-            id={"owned-doc-selector-" + index}
-            name={"owned-doc-selector-" + index}
-            data-testid={"owned-doc-selector-" + index}
-            onChange={props.handleDocSelection(doc.name)}
-            checked={doc.state === "selected"}
-          />
-        </OverlayTrigger>
-      </div>
-    </>
-  );
-};
-export const dummySelectDoc = () => {
-  return (
-    <>
-      <div className="doc-selector-flex-item" />
-    </>
-  );
-};
-
 export const docName = (doc) => {
   return <div className="name-flex-item">{doc.name}</div>;
 };
@@ -64,147 +26,352 @@ export const namedSpinner = (index, name) => {
   );
 };
 
-export const skipSignatureButton = (props, doc, help) => {
+export const selectDoc = (props, doc) => {
   return (
     <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-skip-container">
-          <div className="button-skip-invitation">
-            <Button
-              variant="outline-success"
-              size="sm"
-              onClick={props.handleSkipSigning(doc, props)}
-            >
+      <div className="doc-selector-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          rootClose={true}
+          overlay={(
+            <Tooltip placement="auto">
               <FormattedMessage
-                defaultMessage="Skip Signature"
-                key="skip-sign-button"
+                defaultMessage="Select the document for signing"
+                key="select-doc-tootip"
               />
-            </Button>
-          </div>
-        </div>
-      </OverlayTrigger>
+            </Tooltip>
+          )}
+        >
+          <input
+            type="checkbox"
+            data-testid={"doc-selector-" + doc.name}
+            onChange={props.handleDocSelection(doc.name)}
+            checked={doc.state === "selected"}
+          />
+        </OverlayTrigger>
+      </div>
+    </>
+  );
+};
+export const dummySelectDoc = () => {
+  return (
+    <>
+      <div className="doc-selector-flex-item" />
     </>
   );
 };
 
-export const resendButton = (props, doc, help) => {
+export const skipSignatureButton = (props, doc) => {
   return (
     <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-resend-container">
-          <div className="button-resend-invitation">
-            <Button
-              variant="outline-success"
-              size="sm"
-              data-testid={"button-open-resend-" + doc.name}
-              onClick={props.handleResend(doc)}
-            >
+      <div className="button-skip-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          overlay={(
+            <Tooltip placement="auto">
               <FormattedMessage
-                defaultMessage="Resend invitations"
-                key="resend-invitations-button"
+                defaultMessage="All requested users have alredy signed the document, click here to skip adding your final signature"
+                key="owned-skip-button-help"
               />
-            </Button>
-          </div>
-        </div>
-      </OverlayTrigger>
+            </Tooltip>
+          )}
+        >
+          <Button
+            variant="outline-success"
+            size="sm"
+            onClick={props.handleSkipSigning(doc, props)}
+          >
+            <FormattedMessage
+              defaultMessage="Skip Signature"
+              key="skip-sign-button"
+            />
+          </Button>
+        </OverlayTrigger>
+      </div>
+    </>
+  );
+};
+
+export const resendButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-resend-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          overlay={(
+            <Tooltip placement="auto">
+              <FormattedMessage
+                defaultMessage="Click here to re-send an invitation email to all pending users"
+                key="owned-resend-button-help"
+              />
+            </Tooltip>
+          )}
+        >
+          <Button
+            variant="outline-success"
+            size="sm"
+            data-testid={"button-open-resend-" + doc.name}
+            onClick={props.handleResend(doc)}
+          >
+            <FormattedMessage
+              defaultMessage="Resend invitations"
+              key="resend-invitations-button"
+            />
+          </Button>
+        </OverlayTrigger>
+      </div>
       <ReInviteFormContainer doc={doc} />
     </>
   );
 };
 
-export const previewButton = (props, doc, help) => {
+export const previewButton = (props, doc) => {
   return (
     <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-preview-container">
-          <div className="button-preview-invitation">
-            <Button
-              variant="outline-dark"
-              size="sm"
-              onClick={props.showPreview(doc.key)}
-            >
-              <FormattedMessage defaultMessage="Preview" key="preview-button" />
-            </Button>
-          </div>
-        </div>
-      </OverlayTrigger>
-    </>
-  );
-};
-
-export const removeButton = (props, doc, help) => {
-  return (
-    <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-remove-container">
-          <div className="button-remove-invitation">
-            <Button
-              variant="outline-danger"
-              size="sm"
-              onClick={props.showConfirm("confirm-remove-owned-" + doc.name)}
-              data-testid={"rm-invitation-" + doc.name}
-            >
-              <FormattedMessage defaultMessage="Remove" key="remove-button" />
-            </Button>
-            <ConfirmDialogContainer
-              confirmId={"confirm-remove-owned-" + doc.name}
-              title={props.intl.formatMessage({
-                defaultMessage: "Confirm Removal of invitation",
-                id: "header-confirm-remove-owned-title",
-              })}
-              mainText={props.intl.formatMessage({
-                defaultMessage:
-                  'Clicking "Confirm" will remove all invitations to sign the document',
-                id: "header-confirm-remove-owned-text",
-              })}
-              confirm={props.handleRemove(doc, props)}
-            />
-          </div>
-        </div>
-      </OverlayTrigger>
-    </>
-  );
-};
-
-export const downloadButton = (props, doc, help) => {
-  return (
-    <>
-      <OverlayTrigger
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-        trigger={["hover", "focus"]}
-        overlay={<Tooltip placement="auto">{help}</Tooltip>}
-      >
-        <div className="button-download-container">
-          <div className="button-download-invitation">
-            <Button
-              variant="outline-success"
-              size="sm"
-              onClick={props.downloadSigned(doc.name)}
-            >
+      <div className="button-preview-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          rootClose={true}
+          overlay={(
+            <Tooltip placement="auto">
               <FormattedMessage
-                defaultMessage="Download (signed)"
-                key="dlsigned-button"
+                defaultMessage="Display a preview of the unsigned document"
+                key="preview-button-tootip"
               />
-            </Button>
-          </div>
-        </div>
-      </OverlayTrigger>
+            </Tooltip>
+          )}
+        >
+          <Button
+            variant="outline-dark"
+            size="sm"
+            onClick={props.handlePreview(doc.key)}
+          >
+            <FormattedMessage defaultMessage="Preview" key="preview-button" />
+          </Button>
+        </OverlayTrigger>
+      </div>
     </>
   );
 };
+export const forcedPreviewButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-forced-preview-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          rootClose={true}
+          overlay={(
+            <Tooltip placement="auto">
+              <FormattedMessage
+                defaultMessage="You need to approve all documents for signature"
+                key="forced-preview-button-tootip"
+              />
+            </Tooltip>
+          )}
+        >
+          <Button
+            variant="outline-dark"
+            data-testid={"button-forced-preview-" + doc.name}
+            size="sm"
+            onClick={props.handleForcedPreview(doc.key)}
+          >
+            <FormattedMessage
+              defaultMessage="Approve document for signature"
+              key="forced-preview-button"
+            />
+          </Button>
+        </OverlayTrigger>
+      </div>
+    </>
+  );
+}
+
+export const removeConfirmButton = (props, doc, help) => {
+  return (
+    <>
+      <div className="button-remove-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          overlay={(
+            <Tooltip placement="auto">
+              <FormattedMessage
+                defaultMessage="Cancel Request"
+                key="owned-close-button-help"
+              />
+            </Tooltip>
+          )}
+        >
+          <Button
+            variant="outline-danger"
+            size="sm"
+            onClick={props.showConfirm("confirm-remove-owned-" + doc.name)}
+            data-testid={"rm-invitation-" + doc.name}
+          >
+            <FormattedMessage defaultMessage="Remove" key="remove-button" />
+          </Button>
+          <ConfirmDialogContainer
+            confirmId={"confirm-remove-owned-" + doc.name}
+            title={props.intl.formatMessage({
+              defaultMessage: "Confirm Removal of invitation",
+              id: "header-confirm-remove-owned-title",
+            })}
+            mainText={props.intl.formatMessage({
+              defaultMessage:
+                'Clicking "Confirm" will remove all invitations to sign the document',
+              id: "header-confirm-remove-owned-text",
+            })}
+            confirm={props.handleRemove(doc, props)}
+          />
+        </OverlayTrigger>
+      </div>
+    </>
+  );
+};
+export const removeButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-remove-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          rootClose={true}
+          overlay={(
+            <Tooltip placement="auto">
+              <FormattedMessage
+                defaultMessage="Discard document"
+                key="button-remove-tootip"
+              />
+            </Tooltip>
+          )}
+        >
+          <Button
+            variant="outline-danger"
+            size="sm"
+            data-testid={"rm-button-" + doc.name}
+            onClick={props.handleRemove(doc.name)}
+          >
+            <FormattedMessage defaultMessage="Remove" key="remove-button" />
+          </Button>
+        </OverlayTrigger>
+      </div>
+    </>
+  );
+}
+
+export const downloadSignedButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-download-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          overlay={(
+            <Tooltip placement="auto">
+              <FormattedMessage
+                defaultMessage="Download signed document. Be sure to save the original rather than a copy."
+                key="button-download-tootip"
+              />
+            </Tooltip>
+          )}
+        >
+          <Button
+            variant="outline-success"
+            size="sm"
+            onClick={props.handleDlSigned(doc.name)}
+          >
+            <FormattedMessage
+              defaultMessage="Download (signed)"
+              key="dlsigned-button"
+            />
+          </Button>
+        </OverlayTrigger>
+      </div>
+    </>
+  );
+};
+export const retryButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-retry-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          rootClose={true}
+          overlay={(
+            <Tooltip placement="auto">
+              <FormattedMessage
+                defaultMessage="Try again to prepare the document for signing"
+                key="retry-button-tootip"
+              />
+            </Tooltip>
+          )}
+        >
+          <Button
+            variant="outline-success"
+            data-testid={"button-retry-" + doc.name}
+            size="sm"
+            onClick={props.handleRetry(doc, props)}
+          >
+            <FormattedMessage defaultMessage="Retry" key="retry-button" />
+          </Button>
+        </OverlayTrigger>
+      </div>
+    </>
+  );
+}
+export const multiSignButton = (props, doc) => {
+  if (
+    !["Yes", "yes", "True", "true", "T", "t"].includes(
+      props.multisign_buttons
+    )
+  ) {
+    return "";
+  }
+  return (
+    <>
+      <div className="button-multisign-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          rootClose={true}
+          overlay={(
+            <Tooltip placement="auto">
+              <FormattedMessage
+                defaultMessage="Invite other users to sign the document. After all invitees sign, you'll be asked to add a final signature."
+                key="button-multisign-tootip"
+              />
+            </Tooltip>
+          )}
+        >
+          <Button
+            variant="outline-success"
+            data-testid={"button-multisign-" + doc.name}
+            size="sm"
+            onClick={props.openInviteForm(doc)}
+            data-docid={doc.id}
+          >
+            <FormattedMessage
+              defaultMessage="Ask for signature"
+              key="multisign-button"
+            />
+          </Button>
+        </OverlayTrigger>
+      </div>
+    </>
+  );
+}
+export const showMessage = (doc) => {
+  return (
+    <>
+      <div className="message-flex-item">
+        <span alt={doc.message}>{doc.message}</span>
+      </div>
+    </>
+  );
+}
