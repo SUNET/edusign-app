@@ -74,8 +74,8 @@ class ReInviteForm extends React.Component {
                     delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                     trigger={["hover", "focus"]}
                     rootClose={true}
-                    overlay={(props) => (
-                      <Tooltip id="tooltip-cancel-invitation" {...props}>
+                    overlay={(
+                      <Tooltip className="tooltip-in-modal">
                         <FormattedMessage
                           defaultMessage="Dismiss invitation form"
                           key="cancel-invitation-tootip"
@@ -101,7 +101,7 @@ class ReInviteForm extends React.Component {
                     trigger={["hover", "focus"]}
                     rootClose={true}
                     overlay={(props) => (
-                      <Tooltip id="tooltip-send-invitation" {...props}>
+                      <Tooltip className="tooltip-in-modal">
                         <FormattedMessage
                           defaultMessage="Resend invitations to sign to invitees pending to sign"
                           key="resend-invitation-tootip"
