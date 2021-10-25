@@ -17,7 +17,7 @@ import {
   disablePolling,
   enablePolling,
 } from "slices/Main";
-import { skipOwnedSignature, downloadSignedOwned } from "slices/Documents";
+import { skipOwnedSignature } from "slices/Documents";
 
 const mapStateToProps = (state) => {
   return {
@@ -75,11 +75,6 @@ const mapDispatchToProps = (dispatch, props) => {
       return () => {
         dispatch(enablePolling());
         dispatch(hideOwnedPreview(docKey));
-      };
-    },
-    handleDlSigned: function (docName) {
-      return () => {
-        dispatch(downloadSignedOwned(docName));
       };
     },
   };

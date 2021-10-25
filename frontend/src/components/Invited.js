@@ -74,8 +74,8 @@ class Invited extends Component {
       }),
       signed: this.props.intl.formatMessage({
         defaultMessage:
-          'Document succesfully signed, click on the button labelled "Download (signed)" to download it',
-        id: "docmanager-help-signed",
+          'You have succesfully signed the document. Once it is signed by all invited parties, you will receive a copy of it by email.',
+        id: "docmanager-help-signed-invited",
       }),
     };
     return msgs[msg];
@@ -141,6 +141,17 @@ class Invited extends Component {
                         {widgets.docSize(doc)}
                         {widgets.docName(doc)}
                         {widgets.namedSpinner(doc.name, "signing")}
+                      </>
+                    )}
+                    {doc.state === "signed" && (
+                      <>
+                        {widgets.dummySelectDoc()}
+                        {widgets.docSize(doc)}
+                        {widgets.docName(doc)}
+                        {widgets.previewButton(
+                          this.props,
+                          doc
+                        )}
                       </>
                     )}
                     {doc.show && (

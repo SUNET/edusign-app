@@ -23,7 +23,7 @@ import {
   addOwned,
   removeOwned,
   updateOwned,
-  removeInvited,
+  finishInvited,
   setPolling,
   startSigningInvited,
   startSigningOwned,
@@ -700,7 +700,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
         }
       });
-      thunkAPI.dispatch(removeInvited({ key: doc.id }));
+      thunkAPI.dispatch(finishInvited({ key: doc.id }));
     });
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
@@ -736,25 +736,6 @@ export const downloadSigned = createAsyncThunk(
   async (docname, thunkAPI) => {
     const state = thunkAPI.getState();
     const doc = state.documents.documents.filter((d) => {
-      return d.name === docname;
-    })[0];
-    const b64content = doc.signedContent.split(",")[1];
-    const blob = b64toBlob(b64content);
-    const newName = doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
-    FileSaver.saveAs(blob, newName);
-  }
-);
-
-/**
- * @public
- * @function downloadSignedOwned
- * @desc Redux async thunk to hand multisign signed documents to the user.
- */
-export const downloadSignedOwned = createAsyncThunk(
-  "documents/downloadSignedOwned",
-  async (docname, thunkAPI) => {
-    const state = thunkAPI.getState();
-    const doc = state.main.owned_multisign.filter((d) => {
       return d.name === docname;
     })[0];
     const b64content = doc.signedContent.split(",")[1];

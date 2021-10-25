@@ -280,12 +280,18 @@ const mainSlice = createSlice({
     },
     /**
      * @public
-     * @function removeInvited
-     * @desc Redux action to remove an invited multisign request
+     * @function finishInvited
+     * @desc Redux action to finish an invited multisign request
      */
-    removeInvited(state, action) {
-      state.pending_multisign = state.pending_multisign.filter((doc) => {
-        return doc.key !== action.payload.key;
+    finishInvited(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.key === action.payload.key) {
+          return {
+            ...doc,
+            state: 'signed'
+          };
+        }
+        return doc;
       });
     },
     /**
@@ -655,7 +661,7 @@ export const {
   addOwned,
   removeOwned,
   updateOwned,
-  removeInvited,
+  finishInvited,
   setInvitedSigning,
   setOwnedSigning,
   hideInvitedPreview,
