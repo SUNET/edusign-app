@@ -77,6 +77,15 @@ class Invited extends Component {
           'You have succesfully signed the document. Once it is signed by all invited parties, you will receive a copy of it by email.',
         id: "docmanager-help-signed-invited",
       }),
+      "declined-title": this.props.intl.formatMessage({
+        defaultMessage: "Signature declined",
+        id: "docmanager-help-declined-title",
+      }),
+      signed: this.props.intl.formatMessage({
+        defaultMessage:
+          'You have declined to sign this document. It will dissapear from here if you reload the app.',
+        id: "docmanager-help-declined-invited",
+      }),
     };
     return msgs[msg];
   }

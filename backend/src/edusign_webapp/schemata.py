@@ -62,6 +62,7 @@ class InvitationsSchema(Schema):
         owner = fields.Nested(Invitee)
         pending = fields.List(fields.Nested(Invitee))
         signed = fields.List(fields.Nested(Invitee))
+        declined = fields.List(fields.Nested(Invitee))
         state = fields.String(required=True, validate=[validate_nonempty])
 
     class OwnedDocument(_DocumentSchema):
