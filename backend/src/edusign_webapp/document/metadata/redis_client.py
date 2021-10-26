@@ -465,6 +465,32 @@ class RedisMD(ABCMetadata):
         self.client.update_document(str(key), datetime.now().timestamp())
         self.client.commit()
 
+    def decline(self, key: uuid.UUID, email: str):
+        """
+        Update the metadata of a document which an invited user has declined to sign.
+
+        :param key: The key identifying the document in the `storage`.
+        :param email: email address of the user that has just signed the document.
+        """
+        self.client.pipeline()
+        user_id = self.client.query_user_id(email)
+        if user_id is None:
+            self.logger.error(f"Trying to decline a document by non-existing {email}")
+            self.client.abort()
+            return
+
+        document_id = self.client.query_document_id(str(key))
+        if document_id is None:
+            self.logger.error(f"Trying to decline a non-existing document by {email}")
+            self.client.abort()
+            return
+
+        self.logger.info(f"Declining invite for {email} to sign {key}")
+        self.client.decline_invite(user_id, document_id)
+
+        self.client.update_document(str(key), datetime.now().timestamp())
+        self.client.commit()
+
     def get_owned(self, email: str) -> List[Dict[str, Any]]:
         """
         Get information about the documents that have been added by some user to be signed by other users.

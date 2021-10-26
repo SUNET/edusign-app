@@ -23,6 +23,8 @@ const mapStateToProps = (state) => {
   return {
     owned: state.main.owned_multisign,
     size: state.main.size,
+    name: state.main.signer_attributes.name,
+    mail: state.main.signer_attributes.mail,
   };
 };
 

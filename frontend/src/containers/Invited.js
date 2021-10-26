@@ -16,6 +16,7 @@ import {
   confirmForcedInvitedPreview,
   disablePolling,
   enablePolling,
+  declineSigning,
 } from "slices/Main";
 
 const mapStateToProps = (state) => {
@@ -82,10 +83,22 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(hideForcedInvitedPreview(name));
       };
     },
-    handleUnConfirmForcedPreview: function (name) {
+    handleUnConfirmForcedPreview: function (args) {
       return () => {
+        dispatch(declineSigning({
+          key: args.doc.key,
+          intl: args.intl,
+        }));
         dispatch(enablePolling());
-        dispatch(hideForcedInvitedPreview(name));
+        dispatch(hideForcedInvitedPreview(args.doc.name));
+      };
+    },
+    handleDeclineSigning: function (args) {
+      return () => {
+        dispatch(declineSigning({
+          key: args.doc.key,
+          intl: args.intl,
+        }));
       };
     },
   };

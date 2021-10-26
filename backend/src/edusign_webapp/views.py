@@ -829,8 +829,9 @@ def get_partially_signed_doc(data: dict) -> dict:
 @Marshal(SignedDocumentsSchema)
 def skip_final_signature(data: dict) -> dict:
 
+    key = uuid.UUID(data['key'])
     try:
-        doc = current_app.doc_store.get_signed_document(uuid.UUID(data['key']))
+        doc = current_app.doc_store.get_signed_document(key)
 
     except Exception as e:
         current_app.logger.error(f'Problem getting signed document: {e}')
@@ -841,7 +842,7 @@ def skip_final_signature(data: dict) -> dict:
         return {'error': True, 'message': gettext('Document not found in the doc store')}
 
     try:
-        current_app.doc_store.remove_document(uuid.UUID(data['key']))
+        current_app.doc_store.remove_document(key)
 
     except Exception as e:
         current_app.logger.warning(f'Problem removing doc skipping final signature: {e}')
@@ -850,3 +851,22 @@ def skip_final_signature(data: dict) -> dict:
         'message': 'Success',
         'payload': {'documents': [{'id': doc['key'], 'signed_content': doc['blob']}]},
     }
+
+
+@edusign_views.route('/decline-invitation', methods=['POST'])
+@UnMarshal(KeyedMultiSignSchema)
+@Marshal()
+def decline_invitation(data):
+
+    key = uuid.UUID(data['key'])
+    email = session['mail']
+
+    try:
+        current_app.doc_store.decline_document(key, email)
+    except Exception as e:
+        current_app.logger.error(f'Problem declining signature of document: {e}')
+        return {'error': True, 'message': gettext('Problem declining signature')}
+
+    message = gettext("Success declining signature")
+
+    return {'message': message}

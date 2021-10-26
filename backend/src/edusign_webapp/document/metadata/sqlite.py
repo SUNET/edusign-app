@@ -332,6 +332,38 @@ class SqliteMD(ABCMetadata):
         )
         self._db_commit()
 
+    def decline(self, key: uuid.UUID, email: str):
+        """
+        Update the metadata of a document which an invited user has declined to sign.
+
+        :param key: The key identifying the document in the `storage`.
+        :param email: email address of the user that has just signed the document.
+        """
+        user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+        if user_result is None or isinstance(user_result, list):
+            self.logger.error(f"Trying to decline a document by non-existing {email}")
+            return
+
+        user_id = user_result['user_id']
+
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.error(f"Trying to decline a non-existing document by {email}")
+            return
+
+        document_id = document_result['doc_id']
+
+        self.logger.info(f"Declining invite for {email} to sign {key}")
+        self._db_execute(INVITE_DECLINE, (user_id, document_id))
+        self._db_execute(
+            DOCUMENT_UPDATE,
+            (
+                datetime.now().isoformat(),
+                str(key),
+            ),
+        )
+        self._db_commit()
+
     def get_owned(self, email: str) -> List[Dict[str, Any]]:
         """
         Get information about the documents that have been added by some user to be signed by other users.

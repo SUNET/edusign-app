@@ -161,6 +161,7 @@ class DocumentOwned extends Component {
                         {widgets.selectDoc(this.props, doc)}
                         {widgets.docSize(doc)}
                         {widgets.docName(doc)}
+                        {widgets.showMessage(doc)}
                         <div className="owned-container-buttons-lg">
                           <>
                             {widgets.previewButton(
@@ -186,6 +187,7 @@ class DocumentOwned extends Component {
                               {widgets.selectDoc(this.props, doc)}
                               {widgets.docSize(doc)}
                               {widgets.docName(doc)}
+                              {widgets.showMessage(doc)}
                             </>
                           </div>
                           <div className="owned-container-buttons-sm">
@@ -250,12 +252,12 @@ class DocumentOwned extends Component {
                   </div>
                 </>
               )}
-              {doc.signed.length > 0 && (
+              {(doc.signed.length > 0 || doc.state === 'signed') && (
                 <>
                   <div className="signed-invites">
                     <span className="signed-invites-label">
                       <FormattedMessage
-                        defaultMessage="Already signed by:"
+                        defaultMessage="Signed by:"
                         key="multisign-owned-signed"
                       />
                     </span>
@@ -263,6 +265,32 @@ class DocumentOwned extends Component {
                       {doc.signed.map((invite, index) => {
                         return (
                           <span className="signed-invite-item" key={index}>
+                            {invite.name} &lt;{invite.email}&gt;
+                          </span>
+                        );
+                      })}
+                      {(doc.state === 'signed') && (
+                        <span className="signed-invite-item" key={-1}>
+                          {this.props.name} &lt;{this.props.mail}&gt;
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                </>
+              )}
+              {(doc.declined !== undefined && doc.declined.length > 0) && (
+                <>
+                  <div className="declined-invites">
+                    <span className="declined-invites-label">
+                      <FormattedMessage
+                        defaultMessage="Declined to sign by:"
+                        key="multisign-owned-declined"
+                      />
+                    </span>
+                    <span className="declined-invites-items">
+                      {doc.declined.map((invite, index) => {
+                        return (
+                          <span className="declined-invite-item" key={index}>
                             {invite.name} &lt;{invite.email}&gt;
                           </span>
                         );

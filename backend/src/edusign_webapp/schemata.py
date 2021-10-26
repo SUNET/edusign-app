@@ -68,6 +68,7 @@ class InvitationsSchema(Schema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
         pending = fields.List(fields.Nested(Invitee))
         signed = fields.List(fields.Nested(Invitee))
+        declined = fields.List(fields.Nested(Invitee))
         state = fields.String(required=True, validate=[validate_nonempty])
 
     pending_multisign = fields.List(fields.Nested(PendingDocument))

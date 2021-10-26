@@ -29,6 +29,11 @@
         width: 2rem;
       }
 
+      .button-dummy-flex-item {
+        flex: none;
+        width: 8rem;
+      }
+
       .name-flex-item {
         flex: 5 1 auto;
       }
@@ -60,6 +65,8 @@
       .button-resend-flex-item,
       .button-skip-flex-item,
       .button-download-flex-item,
+      .button-decline-flex-item,
+      .button-dummy-flex-item,
       .button-forced-preview-flex-item {
         flex: none;
       }
@@ -82,6 +89,11 @@
       .doc-selector-flex-item {
         flex: none;
         width: 2rem;
+      }
+
+      .button-dummy-flex-item {
+        flex: none;
+        width: 8rem;
       }
 
       .message-flex-item {
@@ -114,6 +126,8 @@
       .button-remove-flex-item,
       .button-resend-flex-item,
       .button-download-flex-item,
+      .button-decline-flex-item,
+      .button-dummy-flex-item,
       .button-skip-flex-item{
         flex: none;
       }
@@ -145,6 +159,7 @@
 .button-remove-flex-item,
 .button-resend-flex-item,
 .button-download-flex-item,
+.button-decline-flex-item,
 .button-skip-flex-item {
   margin-right: 0.5rem;
   margin-left: 0.5rem;
@@ -153,6 +168,7 @@
 .invitation-doc-name-label,
 .invited-by-label,
 .signed-invites-label,
+.declined-invites-label,
 .pending-invites-label {
   margin-right: 0.5rem;
   color: $darker-dark-grey;
@@ -161,6 +177,7 @@
 
 .invited-by,
 .pending-invites,
+.declined-invites,
 .signed-invites {
   flex: none;
   margin-top: .2rem;
@@ -183,6 +200,14 @@
 
 .signed-invites-items {
   .signed-invite-item {
+    margin-left: 0.5rem;
+    font-size: 0.8rem;
+    display: inline-block;
+  }
+}
+
+.declined-invites-items {
+  .declined-invite-item {
     margin-left: 0.5rem;
     font-size: 0.8rem;
     display: inline-block;

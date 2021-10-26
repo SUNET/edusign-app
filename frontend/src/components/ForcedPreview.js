@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
@@ -152,7 +152,7 @@ function ForcedPreview(props) {
           >
             <Button
               variant="outline-danger"
-              onClick={props.handleUnConfirm(props.doc.name)}
+              onClick={props.handleUnConfirm({doc: props.doc, intl: props.intl})}
               data-testid={"preview-button-dissaprove-" + props.index}
             >
               <FormattedMessage
@@ -214,4 +214,4 @@ ForcedPreview.propTypes = {
   index: PropTypes.string,
 };
 
-export default ForcedPreview;
+export default injectIntl(ForcedPreview);
