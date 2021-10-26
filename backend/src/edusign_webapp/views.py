@@ -520,6 +520,25 @@ def get_signed_documents(sign_data: dict) -> dict:
             current_app.mailer.send(msg)
 
         elif owner:
+            recipients = [f"{invited['name']} <{invited['email']}>" for invited in current_app.doc_store.get_pending_invites(key) if invited['signed']]
+            msg = Message(
+                gettext("Document %(docname)s has been signed by all invited")
+                % {'docname': owner['docname']},
+                recipients=recipients,
+            )
+            mail_context = {
+                'document_name': owner['docname'],
+                'invited_name': session['displayName'],
+                'invited_email': session['mail'],
+            }
+            msg.body = render_template('signed_all_email.txt.jinja2', **mail_context)
+            current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
+            msg.html = render_template('signed_all_email.html.jinja2', **mail_context)
+
+            # XXX attach PDF
+
+            current_app.mailer.send(msg)
+
             current_app.doc_store.remove_document(key)
 
         docs.append({'id': key, 'signed_content': doc['signedContent']})
