@@ -55,12 +55,12 @@
         width: 5rem;
       }
 
-      .button-preview-container,
-      .button-remove-container,
-      .button-resend-container,
-      .button-skip-container,
-      .button-download-container,
-      .button-forced-preview-container {
+      .button-preview-flex-item,
+      .button-remove-flex-item,
+      .button-resend-flex-item,
+      .button-skip-flex-item,
+      .button-download-flex-item,
+      .button-forced-preview-flex-item {
         flex: none;
       }
 
@@ -109,12 +109,12 @@
         width: 5rem;
       }
 
-      .button-preview-container,
-      .button-forced-preview-container,
-      .button-remove-container,
-      .button-resend-container,
-      .button-download-container,
-      .button-skip-container{
+      .button-preview-flex-item,
+      .button-forced-preview-flex-item,
+      .button-remove-flex-item,
+      .button-resend-flex-item,
+      .button-download-flex-item,
+      .button-skip-flex-item{
         flex: none;
       }
       .owned-name-and-buttons {
@@ -140,12 +140,12 @@
   }
 }
 
-.button-preview-invitation,
-.button-forced-preview-invitation,
-.button-remove-invitation,
-.button-resend-invitation,
-.button-download-invitation,
-.button-skip-invitation {
+.button-preview-flex-item,
+.button-forced-preview-flex-item,
+.button-remove-flex-item,
+.button-resend-flex-item,
+.button-download-flex-item,
+.button-skip-flex-item {
   margin-right: 0.5rem;
   margin-left: 0.5rem;
 }

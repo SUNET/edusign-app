@@ -22,9 +22,9 @@ class ReInviteForm extends React.Component {
         <Formik
           initialValues={initialValues(this.props.doc.key)}
           enableReinitialize={true}
-          onSubmit={(values) => {
+          onSubmit={async (values) => {
+            await this.props.handleSubmit(values, this.props);
             this.props.handleClose();
-            this.props.handleSubmit(values, this.props);
           }}
         >
           {(fprops) => (
@@ -74,8 +74,9 @@ class ReInviteForm extends React.Component {
                     delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                     trigger={["hover", "focus"]}
                     rootClose={true}
-                    overlay={(props) => (
-                      <Tooltip id="tooltip-cancel-invitation" {...props}>
+                    className="tooltip-in-modal"
+                    overlay={(
+                      <Tooltip className="tooltip-in-modal">
                         <FormattedMessage
                           defaultMessage="Dismiss invitation form"
                           key="cancel-invitation-tootip"
@@ -100,8 +101,8 @@ class ReInviteForm extends React.Component {
                     delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                     trigger={["hover", "focus"]}
                     rootClose={true}
-                    overlay={(props) => (
-                      <Tooltip id="tooltip-send-invitation" {...props}>
+                    overlay={(
+                      <Tooltip className="tooltip-in-modal">
                         <FormattedMessage
                           defaultMessage="Resend invitations to sign to invitees pending to sign"
                           key="resend-invitation-tootip"

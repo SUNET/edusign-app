@@ -38,7 +38,7 @@ const mapDispatchToProps = (dispatch, props) => {
         window.document.location.href = "/sign/invitation/" + docRef;
       };
     },
-    showPreview: (docKey) => {
+    handlePreview: (docKey) => {
       return () => {
         dispatch(disablePolling());
         dispatch(

@@ -280,22 +280,18 @@ const mainSlice = createSlice({
     },
     /**
      * @public
-     * @function setOwned
-     * @desc Redux action to add owned documents
+     * @function finishInvited
+     * @desc Redux action to finish an invited multisign request
      */
-    setOwned(state, action) {
-      action.payload.forEach((doc) => {
-        state.owned_multisign.push(doc);
-      });
-    },
-    /**
-     * @public
-     * @function removeInvited
-     * @desc Redux action to remove an invited multisign request
-     */
-    removeInvited(state, action) {
-      state.pending_multisign = state.pending_multisign.filter((doc) => {
-        return doc.key !== action.payload.key;
+    finishInvited(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.key === action.payload.key) {
+          return {
+            ...doc,
+            state: 'signed'
+          };
+        }
+        return doc;
       });
     },
     /**
@@ -306,9 +302,10 @@ const mainSlice = createSlice({
     selectOwnedDoc(state, action) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
         if (doc.name === action.payload) {
+          const state = doc.state === "selected" ? "loaded" : "selected";
           return {
             ...doc,
-            state: "selected",
+            state: state,
           };
         } else return doc;
       });
@@ -664,8 +661,7 @@ export const {
   addOwned,
   removeOwned,
   updateOwned,
-  setOwned,
-  removeInvited,
+  finishInvited,
   setInvitedSigning,
   setOwnedSigning,
   hideInvitedPreview,

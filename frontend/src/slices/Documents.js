@@ -23,13 +23,12 @@ import {
   addOwned,
   removeOwned,
   updateOwned,
-  removeInvited,
+  finishInvited,
   setPolling,
   startSigningInvited,
   startSigningOwned,
   setOwnedState,
   setInvitedState,
-  setOwned,
   updateInvitations,
   invitationsSignFailure,
   updateInvitationsFailed,
@@ -58,23 +57,17 @@ export const loadDocuments = createAsyncThunk(
         };
         const docStore = transaction.objectStore("documents");
         const docs = [];
-        const owned = [];
         docStore.openCursor().onsuccess = (event) => {
           const cursor = event.target.result;
           if (cursor) {
             const doc = cursor.value;
-            if (doc.hasOwnProperty("pending")) {
-              owned.push(doc);
-            } else {
-              docs.push(doc);
-            }
             if (doc.state === "signing") {
               signing = true;
             }
+            docs.push(doc);
             cursor.continue();
           }
           if (cursor === null) {
-            thunkAPI.dispatch(setOwned(owned));
             resolve(docs);
           }
         };
@@ -689,12 +682,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           thunkAPI.dispatch(
             documentsSlice.actions.updateDocumentWithSignedContent(doc)
           );
-          const docName = thunkAPI
-            .getState()
-            .documents.documents.filter((d) => {
-              return d.signing_id === doc.id || d.key === doc.id;
-            })[0].name;
-          await thunkAPI.dispatch(saveDocument({ docName: docName }));
+          await thunkAPI.dispatch(saveDocument({ docName: oldDoc.name }));
         }
       });
       await state.main.owned_multisign.forEach(async (oldDoc) => {
@@ -702,14 +690,17 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           const newDoc = {
             ...oldDoc,
             signedContent: "data:application/pdf;base64," + doc.signed_content,
+            blob: "data:application/pdf;base64," + doc.signed_content,
             state: "signed",
             show: false,
+            showForced: false,
           };
-          thunkAPI.dispatch(updateOwned(newDoc));
+          thunkAPI.dispatch(removeOwned({key: doc.id}));
+          thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
           await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
         }
       });
-      thunkAPI.dispatch(removeInvited({ key: doc.id }));
+      thunkAPI.dispatch(finishInvited({ key: doc.id }));
     });
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
@@ -745,25 +736,6 @@ export const downloadSigned = createAsyncThunk(
   async (docname, thunkAPI) => {
     const state = thunkAPI.getState();
     const doc = state.documents.documents.filter((d) => {
-      return d.name === docname;
-    })[0];
-    const b64content = doc.signedContent.split(",")[1];
-    const blob = b64toBlob(b64content);
-    const newName = doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
-    FileSaver.saveAs(blob, newName);
-  }
-);
-
-/**
- * @public
- * @function downloadSignedOwned
- * @desc Redux async thunk to hand multisign signed documents to the user.
- */
-export const downloadSignedOwned = createAsyncThunk(
-  "documents/downloadSignedOwned",
-  async (docname, thunkAPI) => {
-    const state = thunkAPI.getState();
-    const doc = state.main.owned_multisign.filter((d) => {
       return d.name === docname;
     })[0];
     const b64content = doc.signedContent.split(",")[1];
@@ -1088,6 +1060,7 @@ export const skipOwnedSignature = createAsyncThunk(
       const owned = state.main.owned_multisign.filter((d) => {
         return d.key === key;
       })[0];
+
       const doc = {
         ...owned,
         signedContent:
@@ -1099,12 +1072,12 @@ export const skipOwnedSignature = createAsyncThunk(
         state: "signed",
         show: false,
       };
+      thunkAPI.dispatch(removeOwned({key: doc.key}));
       const newDoc = await addDocumentToDb(
         doc,
         state.main.signer_attributes.eppn
       );
-      thunkAPI.dispatch(removeOwned({ key: key }));
-      return newDoc;
+      thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
@@ -1141,7 +1114,7 @@ const documentsSlice = createSlice({
      */
     showPreview(state, action) {
       state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload) {
+        if (doc.key === action.payload) {
           return {
             ...doc,
             show: true,
@@ -1173,7 +1146,7 @@ const documentsSlice = createSlice({
      */
     showForcedPreview(state, action) {
       state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload) {
+        if (doc.key === action.payload) {
           return {
             ...doc,
             showForced: true,
@@ -1388,10 +1361,6 @@ const documentsSlice = createSlice({
       state.documents = state.documents.filter((doc) => {
         return doc.key !== action.payload;
       });
-    },
-
-    [skipOwnedSignature.fulfilled]: (state, action) => {
-      state.documents.push(action.payload);
     },
   },
 });

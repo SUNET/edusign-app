@@ -4,18 +4,16 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
 import OverlayTrigger from "containers/Overlay";
 import Tooltip from "react-bootstrap/Tooltip";
-import Popover from "react-bootstrap/Popover";
-import PopoverContent from "react-bootstrap/PopoverContent";
-import PopoverTitle from "react-bootstrap/PopoverTitle";
-import LittleSpinner from "components/LittleSpinner";
 
-import DocPreviewContainer from "containers/DocPreview";
 import ForcedPreviewContainer from "containers/ForcedPreview";
+import DocPreviewContainer from "containers/DocPreview";
 import InviteFormContainer from "containers/InviteForm";
 import OwnedContainer from "containers/Owned";
 import InvitedContainer from "containers/Invited";
-import { humanFileSize, preparePDF } from "components/utils";
+import { preparePDF } from "components/utils";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
+import DocumentLocal from "components/DocumentLocal";
+import DocumentOwned from "components/DocumentOwned";
 
 import "styles/DocManager.scss";
 
@@ -35,346 +33,6 @@ import "styles/DocManager.scss";
  * @component
  */
 class DocManager extends React.Component {
-  docName(doc) {
-    return <div className="name-flex-item">{doc.name}</div>;
-  }
-  docSize(doc) {
-    return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
-  }
-  namedSpinner(index, name) {
-    return (
-      <>
-        <LittleSpinner index={index} />
-        <div className="spinning-flex-item">{` ${name} ...`}</div>
-      </>
-    );
-  }
-  forcedPreviewButton(index, doc) {
-    return (
-      <>
-        <div className="button-forced-preview-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-button-forced-preview" {...props}>
-                <FormattedMessage
-                  defaultMessage="You need to approve all documents for signature"
-                  key="forced-preview-button-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <Button
-              variant="outline-dark"
-              data-testid={"button-forced-preview-" + index}
-              size="sm"
-              onClick={this.props.handleForcedPreview(doc.name)}
-            >
-              <FormattedMessage
-                defaultMessage="Approve document for signature"
-                key="forced-preview-button"
-              />
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  previewButton(index, doc) {
-    return (
-      <>
-        <div className="button-preview-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-button-preview" {...props}>
-                <FormattedMessage
-                  defaultMessage="Display a preview of the unsigned document"
-                  key="preview-button-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <Button
-              variant="outline-dark"
-              data-testid={"button-preview-" + index}
-              size="sm"
-              onClick={this.props.handlePreview(doc.name)}
-            >
-              <FormattedMessage defaultMessage="Preview" key="preview-button" />
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  retryButton(index, doc) {
-    return (
-      <>
-        <div className="button-retry-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-button-retry" {...props}>
-                <FormattedMessage
-                  defaultMessage="Try again to prepare the document for signing"
-                  key="retry-button-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <Button
-              variant="outline-success"
-              data-testid={"button-retry-" + index}
-              size="sm"
-              onClick={this.props.handleRetry(doc, this.props)}
-            >
-              <FormattedMessage defaultMessage="Retry" key="retry-button" />
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  selectDoc(index, doc) {
-    return (
-      <>
-        <div className="doc-selector-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-select-doc" {...props}>
-                <FormattedMessage
-                  defaultMessage="Select the document for signing"
-                  key="select-doc-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <input
-              type="checkbox"
-              id={"doc-selector-" + index}
-              name={"doc-selector-" + index}
-              data-testid={"doc-selector-" + index}
-              onChange={this.props.handleDocSelection(doc.name)}
-              checked={doc.state === "selected"}
-            />
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  dummySelectDoc() {
-    return (
-      <>
-        <div className="doc-selector-flex-item" />
-      </>
-    );
-  }
-  removeButton(index, doc) {
-    return (
-      <>
-        <div className="button-remove-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-button-remove" {...props}>
-                <FormattedMessage
-                  defaultMessage="Discard document"
-                  key="button-remove-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <Button
-              variant="outline-danger"
-              size="sm"
-              data-testid={"rm-button-" + index}
-              onClick={this.props.handleRemove(doc.name)}
-            >
-              <FormattedMessage defaultMessage="Remove" key="remove-button" />
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  dlSignedButton(index, doc) {
-    return (
-      <>
-        <div className="button-signed-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-button-download" {...props}>
-                <FormattedMessage
-                  defaultMessage="Download signed document. Be sure to save the original rather than a copy."
-                  key="button-download-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <Button
-              variant="outline-success"
-              data-testid={"button-dlsigned-" + doc.name}
-              size="sm"
-              onClick={this.props.handleDlSigned(doc.name)}
-            >
-              <FormattedMessage
-                defaultMessage="Download (signed)"
-                key="signed-button"
-              />
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  multiSignButton(index, doc) {
-    if (
-      !["Yes", "yes", "True", "true", "T", "t"].includes(
-        this.props.multisign_buttons
-      )
-    ) {
-      return "";
-    }
-    return (
-      <>
-        <div className="button-multisign-flex-item">
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-button-multisign" {...props}>
-                <FormattedMessage
-                  defaultMessage="Invite other users to sign the document. After all invitees sign, you'll be asked to add a final signature."
-                  key="button-multisign-tootip"
-                />
-              </Tooltip>
-            )}
-          >
-            <Button
-              variant="outline-success"
-              data-testid={"button-multisign-" + index}
-              size="sm"
-              onClick={this.props.openInviteForm(doc)}
-              data-docid={doc.id}
-            >
-              <FormattedMessage
-                defaultMessage="Ask for signature"
-                key="multisign-button"
-              />
-            </Button>
-          </OverlayTrigger>
-        </div>
-      </>
-    );
-  }
-  showMessage(doc) {
-    return (
-      <>
-        <div className="message-flex-item">
-          <span alt={doc.message}>{doc.message}</span>
-        </div>
-      </>
-    );
-  }
-  getHelp(msg) {
-    const msgs = {
-      "loading-title": this.props.intl.formatMessage({
-        defaultMessage: "Loading document",
-        id: "docmanager-help-loading-title",
-      }),
-      loading: this.props.intl.formatMessage({
-        defaultMessage: "Please wait while the document loads",
-        id: "docmanager-help-loading",
-      }),
-      "loaded-title": this.props.intl.formatMessage({
-        defaultMessage: "Document loaded",
-        id: "docmanager-help-loaded-title",
-      }),
-      loaded: this.props.intl.formatMessage({
-        defaultMessage:
-          'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign Selected Documents"',
-        id: "docmanager-help-loaded",
-      }),
-      "failed-loading-title": this.props.intl.formatMessage({
-        defaultMessage: "Failed loading document",
-        id: "docmanager-help-failed-loading-title",
-      }),
-      "failed-loading": this.props.intl.formatMessage({
-        defaultMessage: "This does not seem to be a valid document",
-        id: "docmanager-help-failed-loading",
-      }),
-      "unconfirmed-title": this.props.intl.formatMessage({
-        defaultMessage: "This document has not yet been approved",
-        id: "docmanager-help-unconfirmed-title",
-      }),
-      unconfirmed: this.props.intl.formatMessage({
-        defaultMessage:
-          'Click on the button labeled "Approve document for signature" to review the document and confirm that you approve it for signature',
-        id: "docmanager-help-unconfirmed",
-      }),
-      "selected-title": this.props.intl.formatMessage({
-        defaultMessage: "Document selected for signing",
-        id: "docmanager-help-selected-title",
-      }),
-      selected: this.props.intl.formatMessage({
-        defaultMessage:
-          'Click on the button below labelled "Sign Selected Documents" to sign this document',
-        id: "docmanager-help-selected",
-      }),
-      "failed-preparing-title": this.props.intl.formatMessage({
-        defaultMessage: "Failed preparing document",
-        id: "docmanager-help-failed-preparing-title",
-      }),
-      "failed-preparing": this.props.intl.formatMessage({
-        defaultMessage:
-          'There was a problem preparing the document for signing, clik on the button labelled "retry" to try again',
-        id: "docmanager-help-failed-preparing",
-      }),
-      "signing-title": this.props.intl.formatMessage({
-        defaultMessage: "Signing document",
-        id: "docmanager-help-signing-title",
-      }),
-      signing: this.props.intl.formatMessage({
-        defaultMessage: "Please wait while the document is signed",
-        id: "docmanager-help-signing",
-      }),
-      "failed-signing-title": this.props.intl.formatMessage({
-        defaultMessage: "Failed signing document",
-        id: "docmanager-help-failed-signing-title",
-      }),
-      "failed-signing": this.props.intl.formatMessage({
-        defaultMessage:
-          'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign Selected Documents"',
-        id: "docmanager-help-failed-signing",
-      }),
-      "signed-title": this.props.intl.formatMessage({
-        defaultMessage: "Document signed",
-        id: "docmanager-help-signed-title",
-      }),
-      signed: this.props.intl.formatMessage({
-        defaultMessage:
-          'Document succesfully signed, click on the button labelled "Download (signed)" to download it',
-        id: "docmanager-help-signed",
-      }),
-    };
-    return msgs[msg];
-  }
 
   render() {
     let someSelected = false;
@@ -451,297 +109,41 @@ class DocManager extends React.Component {
                   }
                   if (doc.state === "selected") someSelected = true;
 
-                  if (this.props.size === "lg") {
-                    return (
-                      <React.Fragment key={index}>
-                        {["loaded", "selected"].includes(doc.state) && (
-                          <InviteFormContainer docId={doc.id} docName={doc.name} />
-                        )}
-                        {["loaded", "selected", "failed-signing"].includes(
-                          doc.state
-                        ) && (
-                          <DocPreviewContainer
-                            doc={doc}
-                            docFile={docFile}
-                            index={index}
-                            handleClose={this.props.handleClosePreview}
-                          />
-                        )}
-                        {doc.state === "unconfirmed" && (
-                          <ForcedPreviewContainer
-                            doc={doc}
-                            docFile={docFile}
-                            index={index}
-                            handleClose={this.props.handleCloseForcedPreview}
-                            handleConfirm={this.props.handleConfirmForcedPreview}
-                            handleUnConfirm={
-                              this.props.handleUnConfirmForcedPreview
-                            }
-                          />
-                        )}
-                        <OverlayTrigger
-                          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-                          trigger={["hover", "focus"]}
-                          rootClose={true}
-                          overlay={
-                            <Popover placement="auto">
-                              <PopoverTitle>
-                                {this.getHelp(doc.state + "-title")}
-                              </PopoverTitle>
-                              <PopoverContent>
-                                {this.getHelp(doc.state)}
-                              </PopoverContent>
-                            </Popover>
-                          }
-                        >
-                          <div className={"doc-flex-container " + doc.state}>
-                            {doc.state === "loading" && (
-                              <>
-                                {this.dummySelectDoc()}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
-                                <div className="doc-manager-buttons">
-                                  {this.namedSpinner(index, "loading")}
-                                </div>
-                              </>
-                            )}
-                            {doc.state === "failed-loading" && (
-                              <>
-                                {this.dummySelectDoc()}
-                                {this.docName(doc)}
-                                {this.showMessage(doc)}
-                                <div className="doc-manager-buttons">
-                                  {this.removeButton(index, doc)}
-                                </div>
-                              </>
-                            )}
-                            {doc.state === "failed-preparing" && (
-                              <>
-                                {this.dummySelectDoc()}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
-                                {this.showMessage(doc)}
-                                <div className="doc-manager-buttons">
-                                  {this.retryButton(index, doc)}
-                                  {this.removeButton(index, doc)}
-                                </div>
-                              </>
-                            )}
-                            {doc.state === "unconfirmed" && (
-                              <>
-                                {this.dummySelectDoc()}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
-                                <div className="doc-manager-buttons">
-                                  {this.forcedPreviewButton(index, doc)}
-                                  {this.removeButton(index, doc)}
-                                </div>
-                              </>
-                            )}
-                            {(doc.state === "loaded" ||
-                              doc.state === "selected") && (
-                              <>
-                                {this.selectDoc(index, doc)}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
-                                <div className="doc-manager-buttons">
-                                  {this.previewButton(index, doc)}
-                                  {this.removeButton(index, doc)}
-                                  {this.multiSignButton(index, doc)}
-                                </div>
-                              </>
-                            )}
-                            {doc.state === "signing" && (
-                              <>
-                                {this.dummySelectDoc()}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
-                                <div className="doc-manager-buttons">
-                                  {this.namedSpinner(index, "signing")}
-                                </div>
-                              </>
-                            )}
-                            {doc.state === "signed" && (
-                              <>
-                                {this.dummySelectDoc()}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
-                                <div className="doc-manager-buttons">
-                                  {this.dlSignedButton(index, doc)}
-                                </div>
-                              </>
-                            )}
-                            {doc.state === "failed-signing" && (
-                              <>
-                                {this.selectDoc(index, doc)}
-                                {this.docSize(doc)}
-                                {this.docName(doc)}
-                                {this.showMessage(doc)}
-                                <div className="doc-manager-buttons">
-                                  {this.previewButton(index, doc)}
-                                  {this.removeButton(index, doc)}
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </OverlayTrigger>
-                      </React.Fragment>
-                    );
-                  } else if (this.props.size === "sm") {
-                    return (
-                      <React.Fragment key={index}>
-                        {["loaded", "selected"].includes(doc.state) && (
-                          <InviteFormContainer docId={doc.id} docName={doc.name} />
-                        )}
-                        {["loaded", "selected", "failed-signing"].includes(
-                          doc.state
-                        ) && (
-                          <DocPreviewContainer
-                            doc={doc}
-                            docFile={docFile}
-                            index={index}
-                            handleClose={this.props.handleClosePreview}
-                          />
-                        )}
-                        {doc.state === "unconfirmed" && (
-                          <ForcedPreviewContainer
-                            doc={doc}
-                            docFile={docFile}
-                            index={index}
-                            handleClose={this.props.handleCloseForcedPreview}
-                            handleConfirm={this.props.handleConfirmForcedPreview}
-                            handleUnConfirm={
-                              this.props.handleUnConfirmForcedPreview
-                            }
-                          />
-                        )}
-                        <OverlayTrigger
-                          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-                          trigger={["hover", "focus"]}
-                          rootClose={true}
-                          key={index}
-                          overlay={
-                            <Tooltip placement="auto">
-                              {this.getHelp(doc.state)}
-                            </Tooltip>
-                          }
-                        >
-                          <div className={"doc-flex-container-sm " + doc.state}>
-                            {doc.state === "loading" && (
-                              <>
-                                <div className="doc-container-first-row">
-                                  {this.dummySelectDoc()}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
-                                </div>
-                                <div className="doc-container-second-row">
-                                  {this.namedSpinner(index, "loading")}
-                                </div>
-                              </>
-                            )}
-                            {doc.state === "failed-loading" && (
-                              <>
-                                <div className="doc-container-first-row">
-                                  {this.dummySelectDoc()}
-                                  {this.docName(doc)}
-                                </div>
-                                <div className="doc-container-second-row">
-                                  {this.showMessage(doc)}
-                                </div>
-                                <div className="doc-container-third-row">
-                                  {this.removeButton(index, doc)}
-                                </div>
-                              </>
-                            )}
-                            {doc.state === "failed-preparing" && (
-                              <>
-                                <div className="doc-container-first-row">
-                                  {this.dummySelectDoc()}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
-                                </div>
-                                <div className="doc-container-second-row">
-                                  {this.showMessage(doc)}
-                                </div>
-                                <div className="doc-container-third-row">
-                                  {this.retryButton(index, doc)}
-                                  {this.removeButton(index, doc)}
-                                </div>
-                              </>
-                            )}
-                            {doc.state === "unconfirmed" && (
-                              <>
-                                <div className="doc-container-first-row">
-                                  {this.dummySelectDoc()}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
-                                </div>
-                                <div className="doc-container-second-row">
-                                  {this.forcedPreviewButton(index, doc)}
-                                  {this.removeButton(index, doc)}
-                                </div>
-                              </>
-                            )}
-                            {(doc.state === "loaded" ||
-                              doc.state === "selected") && (
-                              <>
-                                <div className="doc-container-first-row">
-                                  {this.selectDoc(index, doc)}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
-                                </div>
-                                <div className="doc-container-second-row">
-                                  {this.previewButton(index, doc)}
-                                  {this.removeButton(index, doc)}
-                                  {this.multiSignButton(index, doc)}
-                                </div>
-                              </>
-                            )}
-                            {doc.state === "signing" && (
-                              <>
-                                <div className="doc-container-first-row">
-                                  {this.dummySelectDoc()}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
-                                </div>
-                                <div className="doc-container-second-row">
-                                  {this.namedSpinner(index, "signing")}
-                                </div>
-                              </>
-                            )}
-                            {doc.state === "signed" && (
-                              <>
-                                <div className="doc-container-first-row">
-                                  {this.dummySelectDoc()}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
-                                </div>
-                                <div className="doc-container-second-row">
-                                  {this.dlSignedButton(index, doc)}
-                                </div>
-                              </>
-                            )}
-                            {doc.state === "failed-signing" && (
-                              <>
-                                <div className="doc-container-first-row">
-                                  {this.selectDoc(index, doc)}
-                                  {this.docSize(doc)}
-                                  {this.docName(doc)}
-                                </div>
-                                <div className="doc-container-second-row">
-                                  {this.showMessage(doc)}
-                                </div>
-                                <div className="doc-container-third-row">
-                                  {this.previewButton(index, doc)}
-                                  {this.removeButton(index, doc)}
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </OverlayTrigger>
-                      </React.Fragment>
-                    );
+                  let docRepr = null;
+                  if (doc.hasOwnProperty('pending')) {
+                    docRepr = (<DocumentOwned key={index} doc={doc} {...this.props} />);
+                  } else {
+                    docRepr = (<DocumentLocal key={index} doc={doc} {...this.props} />);
                   }
+                  return (
+                    <React.Fragment key={index}>
+                      {docRepr}
+                      {doc.state === "unconfirmed" && (
+                        <ForcedPreviewContainer
+                          doc={doc}
+                          docFile={docFile}
+                          index={doc.name}
+                          handleClose={this.props.handleCloseForcedPreview}
+                          handleConfirm={this.props.handleConfirmForcedPreview}
+                          handleUnConfirm={
+                            this.props.handleUnConfirmForcedPreview
+                          }
+                        />
+                      )}
+                      {["loaded", "selected", "failed-signing"].includes(
+                        doc.state
+                      ) && (
+                        <DocPreviewContainer
+                          doc={doc}
+                          docFile={docFile}
+                          handleClose={this.props.handleClosePreview}
+                        />
+                      )}
+                      {["loaded", "selected"].includes(doc.state) && (
+                        <InviteFormContainer docId={doc.id} docName={doc.name} />
+                      )}
+                    </React.Fragment>
+                  );
                 })}
               </fieldset>
             )}
@@ -754,7 +156,7 @@ class DocManager extends React.Component {
                 <fieldset className="owned-multisign-container">
                   <legend>
                     <FormattedMessage
-                      defaultMessage="Shared by you"
+                      defaultMessage="Documents you have invited others to sign"
                       key="owned-multisign-legend"
                     />
                   </legend>
@@ -767,7 +169,7 @@ class DocManager extends React.Component {
             <fieldset className="invited-multisign-container">
               <legend>
                 <FormattedMessage
-                  defaultMessage="Invitations"
+                  defaultMessage="Documents you are invited to sign"
                   key="invited-multisign-legend"
                 />
               </legend>
@@ -783,8 +185,8 @@ class DocManager extends React.Component {
                 delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                 trigger={["hover", "focus"]}
                 rootClose={true}
-                overlay={(props) => (
-                  <Tooltip id="tooltip-button-sign" {...props}>
+                overlay={(
+                  <Tooltip placement="auto">
                     <FormattedMessage
                       defaultMessage="Select documents above and click here to send them for signing."
                       key="button-sign-tootip"
@@ -818,8 +220,8 @@ class DocManager extends React.Component {
                 delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                 trigger={["hover", "focus"]}
                 rootClose={true}
-                overlay={(props) => (
-                  <Tooltip id="tooltip-button-dlall" {...props}>
+                overlay={(
+                  <Tooltip placement="auto">
                     <FormattedMessage
                       defaultMessage="Download all signed documents."
                       key="button-dlall-tootip"
@@ -854,8 +256,8 @@ class DocManager extends React.Component {
                 delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                 trigger={["hover", "focus"]}
                 rootClose={true}
-                overlay={(props) => (
-                  <Tooltip id="tooltip-clear-docs" {...props}>
+                overlay={(
+                  <Tooltip placement="auto">
                     <FormattedMessage
                       defaultMessage="Discard all documents loaded above"
                       key="clear-docs-tootip"

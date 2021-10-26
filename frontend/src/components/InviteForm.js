@@ -50,9 +50,9 @@ class InviteForm extends React.Component {
         <Formik
           initialValues={initialValues(this.props.docId)}
           enableReinitialize={true}
-          onSubmit={function (values) {
+          onSubmit={async function (values) {
+            await this.props.handleSubmit(values, this.props);
             this.props.handleClose();
-            this.props.handleSubmit(values, this.props);
           }.bind(this)}
         >
           {(fprops) => (
@@ -213,7 +213,7 @@ class InviteForm extends React.Component {
                             }
                           >
                             <FormattedMessage
-                              defaultMessage="Add Invitation"
+                              defaultMessage="Invite more people"
                               key="add-invite"
                             />
                           </Button>
