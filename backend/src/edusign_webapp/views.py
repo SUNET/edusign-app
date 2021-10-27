@@ -35,7 +35,7 @@ import json
 import os
 import uuid
 from typing import Any, Dict, List, Union
-from base64 import b64decode
+from email.mime.base import MIMEBase
 
 import pkg_resources
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
@@ -539,8 +539,11 @@ def get_signed_documents(sign_data: dict) -> dict:
             # attach PDF
             doc_name = current_app.doc_store.get_document_name(key)
             signed_doc_name = ''.join(doc_name.split('.')[:-1] + ['-signed']) + '.pdf'
-            doc_content = b64decode(doc['signedContent']).decode('utf8')
-            msg.attach(signed_doc_name, 'application/pdf', doc_content)
+            attachment = MIMEBase('application', 'pdf')
+            attachment.set_payload(doc['signedContent'])
+            attachment.add_header('Content-Transfer-Encoding', 'base64')
+            attachment['Content-Disposition'] = 'attachment; filename="%s"' % signed_doc_name
+            msg.attach(attachment)
 
             current_app.mailer.send(msg)
 
