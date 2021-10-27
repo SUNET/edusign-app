@@ -183,6 +183,7 @@ class RedisStorageBackend:
             user_id=user_id,
             owner_id=owner_id,
             signed=0,
+            declined=0,
         )
         self.transaction.hset(f"invite:{invite_id}", mapping=mapping)
         self.transaction.set(f"invite:key:{key}", invite_id)
@@ -204,6 +205,9 @@ class RedisStorageBackend:
             self.transaction.srem(f"invites:signed:owner:{owner_id}", invite_id)
             self.transaction.delete(f"invites:signed:document:{doc_id}")
             self.transaction.srem(f"invites:signed:invited:{user_id}", invite_id)
+            self.transaction.srem(f"invites:declined:owner:{owner_id}", invite_id)
+            self.transaction.delete(f"invites:declined:document:{doc_id}")
+            self.transaction.srem(f"invites:declined:invited:{user_id}", invite_id)
 
     def query_invites_from_email(self, email):
         b_user_id = self.redis.get(f'user:email:{email}')
@@ -222,7 +226,8 @@ class RedisStorageBackend:
         return invites
 
     def query_invites_from_doc(self, doc_id):
-        invite_ids = self.redis.sunion(f'invites:unsigned:document:{doc_id}', f'invites:signed:document:{doc_id}')
+        """"""
+        invite_ids = self.redis.sunion(f'invites:unsigned:document:{doc_id}', f'invites:signed:document:{doc_id}', f'invites:declined:document:{doc_id}')
         invites = []
         for invite_id in invite_ids:
             b_invite = self.redis.hgetall(f"invite:{int(invite_id)}")
@@ -231,11 +236,13 @@ class RedisStorageBackend:
                     'user_id': int(b_invite[b'user_id']),
                     'key': b_invite[b'key'].decode('utf8'),
                     'signed': int(b_invite[b'signed']),
+                    'declined': int(b_invite[b'declined']),
                 }
             )
         return invites
 
     def query_unsigned_invites_from_doc(self, doc_id):
+        """"""
         invite_ids = self.redis.smembers(f'invites:unsigned:document:{doc_id}')
         invites = []
         for invite_id in invite_ids:
@@ -244,7 +251,6 @@ class RedisStorageBackend:
                 {
                     'user_id': int(b_invite[b'user_id']),
                     'key': b_invite[b'key'].decode('utf8'),
-                    'signed': 0,
                 }
             )
         return invites
@@ -255,13 +261,13 @@ class RedisStorageBackend:
             return int(invite_id)
 
     def query_invite_from_key(self, key):
+        """"""
         invite_id = self.query_invite_id(key)
         if invite_id is not None:
             b_invite = self.redis.hgetall(f"invite:{invite_id}")
             invite = dict(
                 user_id=int(b_invite[b'user_id']),
                 doc_id=int(b_invite[b'doc_id']),
-                signed=int(b_invite[b'signed']),
             )
             return invite
 
@@ -274,6 +280,16 @@ class RedisStorageBackend:
         self.transaction.smove(f"invites:unsigned:owner:{owner_id}", f"invites:signed:owner:{owner_id}", invite_id)
         self.transaction.smove(f"invites:unsigned:invited:{user_id}", f"invites:signed:invited:{user_id}", invite_id)
         self.transaction.smove(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}", invite_id)
+
+    def decline_invite(self, user_id, doc_id):
+        invite_ids = self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:invited:{user_id}")
+        assert len(invite_ids) == 1
+        invite_id = int(list(invite_ids)[0])
+        self.transaction.hset(f"invite:{invite_id}", mapping={'declined': 1})
+        owner_id = int(self.redis.hget(f"invite:{invite_id}", 'owner_id'))
+        self.transaction.smove(f"invites:unsigned:owner:{owner_id}", f"invites:declined:owner:{owner_id}", invite_id)
+        self.transaction.smove(f"invites:unsigned:invited:{user_id}", f"invites:declined:invited:{user_id}", invite_id)
+        self.transaction.smove(f"invites:unsigned:document:{doc_id}", f"invites:declined:document:{doc_id}", invite_id)
 
 
 class RedisMD(ABCMetadata):
@@ -394,6 +410,7 @@ class RedisMD(ABCMetadata):
             document['invite_key'] = invite['key']
             document['pending'] = []
             document['signed'] = []
+            document['declined'] = []
             document['state'] = "unconfirmed"
 
             subinvites = self.client.query_invites_from_doc(doc_id)
@@ -410,10 +427,12 @@ class RedisMD(ABCMetadata):
                         continue
                     if subemail_result['email'] == email:
                         continue
-                    if subinvite['signed'] == 0:
-                        document['pending'].append(subemail_result)
-                    else:
+                    if subinvite['signed'] == 1:
                         document['signed'].append(subemail_result)
+                    elif subinvite['declined'] == 1:
+                        document['declined'].append(subemail_result)
+                    else:
+                        document['pending'].append(subemail_result)
 
             pending.append(document)
 
@@ -446,6 +465,32 @@ class RedisMD(ABCMetadata):
         self.client.update_document(str(key), datetime.now().timestamp())
         self.client.commit()
 
+    def decline(self, key: uuid.UUID, email: str):
+        """
+        Update the metadata of a document which an invited user has declined to sign.
+
+        :param key: The key identifying the document in the `storage`.
+        :param email: email address of the user that has just signed the document.
+        """
+        self.client.pipeline()
+        user_id = self.client.query_user_id(email)
+        if user_id is None:
+            self.logger.error(f"Trying to decline a document by non-existing {email}")
+            self.client.abort()
+            return
+
+        document_id = self.client.query_document_id(str(key))
+        if document_id is None:
+            self.logger.error(f"Trying to decline a non-existing document by {email}")
+            self.client.abort()
+            return
+
+        self.logger.info(f"Declining invite for {email} to sign {key}")
+        self.client.decline_invite(user_id, document_id)
+
+        self.client.update_document(str(key), datetime.now().timestamp())
+        self.client.commit()
+
     def get_owned(self, email: str) -> List[Dict[str, Any]]:
         """
         Get information about the documents that have been added by some user to be signed by other users.
@@ -468,6 +513,7 @@ class RedisMD(ABCMetadata):
             document['key'] = document['key']
             document['pending'] = []
             document['signed'] = []
+            document['declined'] = []
             state = 'loaded'
             document_id = document['doc_id']
             invites = self.client.query_invites_from_doc(document_id)
@@ -484,11 +530,13 @@ class RedisMD(ABCMetadata):
                         f" references a non existing user with id {user_id}"
                     )
                     continue
-                if invite['signed'] == 0:
+                if invite['signed'] == 1:
+                    document['signed'].append(email_result)
+                elif invite['declined'] == 1:
+                    document['declined'].append(email_result)
+                else:
                     state = 'incomplete'
                     document['pending'].append(email_result)
-                else:
-                    document['signed'].append(email_result)
 
             document['state'] = state
 
@@ -528,6 +576,7 @@ class RedisMD(ABCMetadata):
                 continue
 
             email_result['signed'] = bool(invite['signed'])
+            email_result['declined'] = bool(invite['signed'])
             email_result['key'] = invite['key']
             invitees.append(email_result)
 

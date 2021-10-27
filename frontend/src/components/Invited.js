@@ -77,6 +77,15 @@ class Invited extends Component {
           'You have succesfully signed the document. Once it is signed by all invited parties, you will receive a copy of it by email.',
         id: "docmanager-help-signed-invited",
       }),
+      "declined-title": this.props.intl.formatMessage({
+        defaultMessage: "Signature declined",
+        id: "docmanager-help-declined-title",
+      }),
+      declined: this.props.intl.formatMessage({
+        defaultMessage:
+          'You have declined to sign this document. It will dissapear from here if you reload the app.',
+        id: "docmanager-help-declined-invited",
+      }),
     };
     return msgs[msg];
   }
@@ -90,7 +99,7 @@ class Invited extends Component {
             docFile = docToFile(doc);
           }
           return (
-            <>
+            <React.Fragment key={index}>
               <OverlayTrigger
                 key={index}
                 delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
@@ -121,6 +130,10 @@ class Invited extends Component {
                             this.props,
                             doc
                           )}
+                          {widgets.declineSignatureButton(
+                            this.props,
+                            doc
+                          )}
                         </>
                       )}
                       {["loaded", "selected", "failed-signing"].includes(
@@ -130,7 +143,12 @@ class Invited extends Component {
                           {widgets.selectDoc(this.props, doc)}
                           {widgets.docSize(doc)}
                           {widgets.docName(doc)}
+                          {widgets.showMessage(doc)}
                           {widgets.previewButton(
+                            this.props,
+                            doc
+                          )}
+                          {widgets.declineSignatureButton(
                             this.props,
                             doc
                           )}
@@ -153,6 +171,15 @@ class Invited extends Component {
                             this.props,
                             doc
                           )}
+                        </>
+                      )}
+                      {doc.state === "declined" && (
+                        <>
+                          {widgets.dummySelectDoc()}
+                          {widgets.docSize(doc)}
+                          {widgets.docName(doc)}
+                          {widgets.showMessage(doc)}
+                          {widgets.dummyButton()}
                         </>
                       )}
                     </div>
@@ -194,7 +221,7 @@ class Invited extends Component {
                         <div className="signed-invites">
                           <span className="signed-invites-label">
                             <FormattedMessage
-                              defaultMessage="Already signed by:"
+                              defaultMessage="Signed by:"
                               key="multisign-signed"
                             />
                           </span>
@@ -202,6 +229,27 @@ class Invited extends Component {
                             {doc.signed.map((invite, index) => {
                               return (
                                 <span className="signed-invite-item" key={index}>
+                                  {invite.name} &lt;{invite.email}&gt;
+                                </span>
+                              );
+                            })}
+                          </span>
+                        </div>
+                      </>
+                    )}
+                    {(doc.declined !== undefined && doc.declined.length > 0) && (
+                      <>
+                        <div className="declined-invites">
+                          <span className="declined-invites-label">
+                            <FormattedMessage
+                              defaultMessage="Declined to sign by:"
+                              key="multisign-owned-declined"
+                            />
+                          </span>
+                          <span className="declined-invites-items">
+                            {doc.declined.map((invite, index) => {
+                              return (
+                                <span className="declined-invite-item" key={index}>
                                   {invite.name} &lt;{invite.email}&gt;
                                 </span>
                               );
@@ -230,7 +278,7 @@ class Invited extends Component {
                   handleUnConfirm={this.props.handleUnConfirmForcedPreview}
                 />
               )}
-            </>
+            </React.Fragment>
           );
         })}
       </>

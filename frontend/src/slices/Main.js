@@ -109,6 +109,7 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
             if (ownedCopy.name === newOwned.name) {
               ownedCopy.pending = newOwned.pending;
               ownedCopy.signed = newOwned.signed;
+              ownedCopy.declined = newOwned.declined;
             }
           });
           if (ownedCopy.pending.length === 0) ownedCopy.state = "loaded";
@@ -124,6 +125,7 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
           if (invitedCopy.name === newInvited.name) {
             invitedCopy.pending = newInvited.pending;
             invitedCopy.signed = newInvited.signed;
+            invitedCopy.declined = newInvited.declined;
           }
         });
         return invitedCopy;
@@ -184,6 +186,46 @@ export const getPartiallySignedDoc = createAsyncThunk(
           message: args.intl.formatMessage({
             defaultMessage: "Problem fetching document from the backend ",
             id: "problem-fetching-document",
+          }),
+        })
+      );
+    }
+  }
+);
+
+/**
+ * @public
+ * @function declineSigning
+ * @desc Redux async thunk to decline signing an invited document.
+ */
+export const declineSigning = createAsyncThunk(
+  "documents/declineSigning",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const body = preparePayload(state, { key: args.key });
+    try {
+      const response = await fetch("/sign/decline-invitation", {
+        ...postRequest,
+        body: body,
+      });
+      let data = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, data);
+      if (data.error) {
+        throw new Error(data.message);
+      }
+      return {
+        key: args.key,
+        message: args.intl.formatMessage({
+          defaultMessage: "You have declined to sign this document.",
+          id: "declining-document-signature",
+        })};
+    } catch (err) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: args.intl.formatMessage({
+            defaultMessage: "Problem declining signature",
+            id: "problem-declining-document",
           }),
         })
       );
@@ -288,7 +330,8 @@ const mainSlice = createSlice({
         if (doc.key === action.payload.key) {
           return {
             ...doc,
-            state: 'signed'
+            state: 'signed',
+            message: '',
           };
         }
         return doc;
@@ -306,6 +349,7 @@ const mainSlice = createSlice({
           return {
             ...doc,
             state: state,
+            message: '',
           };
         } else return doc;
       });
@@ -318,10 +362,11 @@ const mainSlice = createSlice({
     selectInvitedDoc(state, action) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.name === action.payload) {
-          const state = doc.state === "selected" ? "loaded" : "selected";
+          const st = doc.state === "selected" ? "loaded" : "selected";
           return {
             ...doc,
-            state: state,
+            state: st,
+            message: '',
           };
         } else return doc;
       });
@@ -337,6 +382,7 @@ const mainSlice = createSlice({
           return {
             ...doc,
             state: "signing",
+            message: '',
           };
         } else return doc;
       });
@@ -352,6 +398,7 @@ const mainSlice = createSlice({
           return {
             ...doc,
             state: "signing",
+            message: '',
           };
         } else return doc;
       });
@@ -422,6 +469,7 @@ const mainSlice = createSlice({
           const document = {
             ...doc,
             state: "signing",
+            message: '',
           };
           return document;
         } else return doc;
@@ -439,6 +487,7 @@ const mainSlice = createSlice({
           const document = {
             ...doc,
             state: "signing",
+            message: '',
           };
           return document;
         } else return doc;
@@ -523,6 +572,7 @@ const mainSlice = createSlice({
             ...doc,
             showForced: false,
             state: "selected",
+            message: '',
           };
         } else return doc;
       });
@@ -542,6 +592,7 @@ const mainSlice = createSlice({
               doc = {
                 ...doc,
                 ...storedDoc,
+                message: '',
               };
             }
           });
@@ -554,6 +605,7 @@ const mainSlice = createSlice({
             doc = {
               ...doc,
               ...storedDoc,
+              message: '',
             };
           }
         });
@@ -571,12 +623,14 @@ const mainSlice = createSlice({
       state.owned_multisign = state.owned_multisign.map((doc) => {
         if (doc.state === "signing") {
           doc.state = "failed-signing";
+          doc.message = action.payload.message;
         }
         return doc;
       });
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.state === "signing") {
           doc.state = "failed-signing";
+          doc.message = action.payload.message;
         }
         return doc;
       });
@@ -632,7 +686,6 @@ const mainSlice = createSlice({
       };
     },
     [getPartiallySignedDoc.fulfilled]: (state, action) => {
-      console.log(action);
       state[action.payload.stateKey] = state[action.payload.stateKey].map(
         (doc) => {
           if (doc.key === action.payload.key) {
@@ -646,6 +699,19 @@ const mainSlice = createSlice({
                 "data:application/pdf;base64," + action.payload.payload.blob;
             }
             return newDoc;
+          } else return doc;
+        }
+      );
+    },
+    [declineSigning.fulfilled]: (state, action) => {
+      state.pending_multisign = state.pending_multisign.map(
+        (doc) => {
+          if (doc.key === action.payload.key) {
+            return {
+              ...doc,
+              state: 'declined',
+              message: action.payload.message,
+            };
           } else return doc;
         }
       );

@@ -16,6 +16,7 @@ import DocumentLocal from "components/DocumentLocal";
 import DocumentOwned from "components/DocumentOwned";
 
 import "styles/DocManager.scss";
+import "styles/Invitation.scss";
 
 /**
  * @desc This component provides a representation of the documents in the session.

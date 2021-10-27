@@ -68,6 +68,7 @@ CREATE TABLE [Invites]
        [user_id] INTEGER NOT NULL,
        [doc_id] INTEGER NOT NULL,
        [signed] INTEGER DEFAULT 0,
+       [declined] INTEGER DEFAULT 0,
             FOREIGN KEY ([user_id]) REFERENCES [Users] ([user_id])
               ON DELETE NO ACTION ON UPDATE NO ACTION,
             FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
@@ -95,11 +96,12 @@ DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locked_by = NULL WHERE d
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locked_by = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_id) VALUES (?, ?, ?)"
-INVITE_QUERY_FROM_EMAIL = "SELECT Invites.doc_id, Invites.key FROM Invites, Users WHERE Users.email = ? AND Invites.user_id = Users.user_id AND Invites.signed = 0;"
-INVITE_QUERY_FROM_DOC = "SELECT user_id, signed, key FROM Invites WHERE doc_id = ?;"
-INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT user_id FROM Invites WHERE doc_id = ? AND signed = 0;"
-INVITE_QUERY_FROM_KEY = "SELECT user_id, doc_id, signed FROM Invites WHERE key = ?;"
+INVITE_QUERY_FROM_EMAIL = "SELECT Invites.doc_id, Invites.key FROM Invites, Users WHERE Users.email = ? AND Invites.user_id = Users.user_id AND Invites.signed = 0 AND Invites.declined = 0;"
+INVITE_QUERY_FROM_DOC = "SELECT user_id, signed, declined, key FROM Invites WHERE doc_id = ?;"
+INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT user_id FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0;"
+INVITE_QUERY_FROM_KEY = "SELECT user_id, doc_id FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_id = ? and doc_id = ?;"
+INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_id = ? and doc_id = ?;"
 INVITE_DELETE = "DELETE FROM Invites WHERE user_id = ? and doc_id = ?;"
 INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
 
@@ -269,6 +271,7 @@ class SqliteMD(ABCMetadata):
             document['invite_key'] = uuid.UUID(invite['key'])
             document['pending'] = []
             document['signed'] = []
+            document['declined'] = []
             document['state'] = "unconfirmed"
 
             subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
@@ -285,10 +288,12 @@ class SqliteMD(ABCMetadata):
                         continue
                     if subemail_result['email'] == email:
                         continue
-                    if subinvite['signed'] == 0:
-                        document['pending'].append(subemail_result)
-                    else:
+                    if subinvite['declined'] == 1:
+                        document['declined'].append(subemail_result)
+                    elif subinvite['signed'] == 1:
                         document['signed'].append(subemail_result)
+                    else:
+                        document['pending'].append(subemail_result)
 
             pending.append(document)
 
@@ -327,6 +332,38 @@ class SqliteMD(ABCMetadata):
         )
         self._db_commit()
 
+    def decline(self, key: uuid.UUID, email: str):
+        """
+        Update the metadata of a document which an invited user has declined to sign.
+
+        :param key: The key identifying the document in the `storage`.
+        :param email: email address of the user that has just signed the document.
+        """
+        user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+        if user_result is None or isinstance(user_result, list):
+            self.logger.error(f"Trying to decline a document by non-existing {email}")
+            return
+
+        user_id = user_result['user_id']
+
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.error(f"Trying to decline a non-existing document by {email}")
+            return
+
+        document_id = document_result['doc_id']
+
+        self.logger.info(f"Declining invite for {email} to sign {key}")
+        self._db_execute(INVITE_DECLINE, (user_id, document_id))
+        self._db_execute(
+            DOCUMENT_UPDATE,
+            (
+                datetime.now().isoformat(),
+                str(key),
+            ),
+        )
+        self._db_commit()
+
     def get_owned(self, email: str) -> List[Dict[str, Any]]:
         """
         Get information about the documents that have been added by some user to be signed by other users.
@@ -349,6 +386,7 @@ class SqliteMD(ABCMetadata):
             document['key'] = uuid.UUID(document['key'])
             document['pending'] = []
             document['signed'] = []
+            document['declined'] = []
             state = 'loaded'
             document_id = document['doc_id']
             invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
@@ -365,11 +403,13 @@ class SqliteMD(ABCMetadata):
                         f" references a non existing user with id {user_id}"
                     )
                     continue
-                if invite['signed'] == 0:
+                if invite['declined'] == 1:
+                    document['declined'].append(email_result)
+                elif invite['signed'] == 1:
+                    document['signed'].append(email_result)
+                else:
                     state = 'incomplete'
                     document['pending'].append(email_result)
-                else:
-                    document['signed'].append(email_result)
 
             document['state'] = state
 
@@ -409,6 +449,7 @@ class SqliteMD(ABCMetadata):
                 continue
 
             email_result['signed'] = bool(invite['signed'])
+            email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
             invitees.append(email_result)
 

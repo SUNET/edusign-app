@@ -44,6 +44,8 @@ const mapStateToProps = (state) => {
     owned: state.main.owned_multisign,
     unauthn: state.main.unauthn,
     invitedUnauthn: (state.main.pending_multisign.length > 0),
+    name: state.main.signer_attributes.name,
+    mail: state.main.signer_attributes.mail,
   };
 };
 
@@ -114,10 +116,10 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(hideForcedPreview(name));
       };
     },
-    handleUnConfirmForcedPreview: function (name) {
+    handleUnConfirmForcedPreview: function (args) {
       return async () => {
-        await dispatch(removeDocument({ docName: name }));
-        dispatch(hideForcedPreview(name));
+        await dispatch(removeDocument({ docName: args.doc.name }));
+        dispatch(hideForcedPreview(args.doc.name));
       };
     },
     handleClosePreview: function (name) {

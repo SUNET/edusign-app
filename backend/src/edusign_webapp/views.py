@@ -35,6 +35,7 @@ import json
 import os
 import uuid
 from typing import Any, Dict, List, Union
+from base64 import b64decode
 
 import pkg_resources
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
@@ -520,6 +521,29 @@ def get_signed_documents(sign_data: dict) -> dict:
             current_app.mailer.send(msg)
 
         elif owner:
+            recipients = [f"{invited['name']} <{invited['email']}>" for invited in current_app.doc_store.get_pending_invites(key) if invited['signed']]
+            msg = Message(
+                gettext("Document %(docname)s has been signed by all invited")
+                % {'docname': owner['docname']},
+                recipients=recipients,
+            )
+            mail_context = {
+                'document_name': owner['docname'],
+                'invited_name': session['displayName'],
+                'invited_email': session['mail'],
+            }
+            msg.body = render_template('signed_all_email.txt.jinja2', **mail_context)
+            current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
+            msg.html = render_template('signed_all_email.html.jinja2', **mail_context)
+
+            # attach PDF
+            doc_name = current_app.doc_store.get_document_name(key)
+            signed_doc_name = ''.join(doc_name.split('.')[:-1] + ['-signed']) + '.pdf'
+            doc_content = b64decode(doc['signedContent']).decode('utf8')
+            msg.attach(signed_doc_name, 'application/pdf', doc_content)
+
+            current_app.mailer.send(msg)
+
             current_app.doc_store.remove_document(key)
 
         docs.append({'id': key, 'signed_content': doc['signedContent']})
@@ -829,8 +853,9 @@ def get_partially_signed_doc(data: dict) -> dict:
 @Marshal(SignedDocumentsSchema)
 def skip_final_signature(data: dict) -> dict:
 
+    key = uuid.UUID(data['key'])
     try:
-        doc = current_app.doc_store.get_signed_document(uuid.UUID(data['key']))
+        doc = current_app.doc_store.get_signed_document(key)
 
     except Exception as e:
         current_app.logger.error(f'Problem getting signed document: {e}')
@@ -841,7 +866,7 @@ def skip_final_signature(data: dict) -> dict:
         return {'error': True, 'message': gettext('Document not found in the doc store')}
 
     try:
-        current_app.doc_store.remove_document(uuid.UUID(data['key']))
+        current_app.doc_store.remove_document(key)
 
     except Exception as e:
         current_app.logger.warning(f'Problem removing doc skipping final signature: {e}')
@@ -850,3 +875,22 @@ def skip_final_signature(data: dict) -> dict:
         'message': 'Success',
         'payload': {'documents': [{'id': doc['key'], 'signed_content': doc['blob']}]},
     }
+
+
+@edusign_views.route('/decline-invitation', methods=['POST'])
+@UnMarshal(KeyedMultiSignSchema)
+@Marshal()
+def decline_invitation(data):
+
+    key = uuid.UUID(data['key'])
+    email = session['mail']
+
+    try:
+        current_app.doc_store.decline_document(key, email)
+    except Exception as e:
+        current_app.logger.error(f'Problem declining signature of document: {e}')
+        return {'error': True, 'message': gettext('Problem declining signature')}
+
+    message = gettext("Success declining signature")
+
+    return {'message': message}

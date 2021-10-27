@@ -104,7 +104,12 @@ export const loadDocuments = createAsyncThunk(
               return failedDoc;
             } else return doc;
           });
-          thunkAPI.dispatch(updateInvitationsFailed());
+          thunkAPI.dispatch(updateInvitationsFailed(
+            {message: args.intl.formatMessage({
+              defaultMessage: "The signing process was interrupted, please try again.",
+              id: "load-doc-interrupted-signing",
+            })}
+          ));
         }
       }
       thunkAPI.dispatch(documentsSlice.actions.setDocuments(documents));

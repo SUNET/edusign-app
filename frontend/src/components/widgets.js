@@ -361,3 +361,42 @@ export const showMessage = (doc) => {
     </>
   );
 }
+
+export const declineSignatureButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-decline-flex-item">
+        <OverlayTrigger
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          overlay={(
+            <Tooltip placement="auto">
+              <FormattedMessage
+                defaultMessage="Click here to decline your invitation to sign this document."
+                key="invited-decline-button-help"
+              />
+            </Tooltip>
+          )}
+        >
+          <Button
+            variant="outline-danger"
+            size="sm"
+            onClick={props.handleDeclineSigning({doc: doc, intl: props.intl})}
+          >
+            <FormattedMessage
+              defaultMessage="Decline Signature"
+              key="decline-sign-button"
+            />
+          </Button>
+        </OverlayTrigger>
+      </div>
+    </>
+  );
+};
+export const dummyButton = (doc) => {
+  return (
+    <>
+      <div className="button-dummy-flex-item"></div>
+    </>
+  );
+}

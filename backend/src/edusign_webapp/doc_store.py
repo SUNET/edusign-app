@@ -148,6 +148,15 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def decline(self, key: uuid.UUID, email: str):
+        """
+        Update the metadata of a document which an invited user has declined to sign.
+
+        :param key: The key identifying the document in the `storage`.
+        :param email: email address of the user that has just signed the document.
+        """
+
+    @abc.abstractmethod
     def get_owned(self, email: str) -> List[Dict[str, Any]]:
         """
         Get information about the documents that have been added by some user to be signed by other users.
@@ -342,6 +351,15 @@ class DocStore(object):
         """
         self.storage.update(key, content)
         self.metadata.update(key, email)
+
+    def decline_document(self, key: uuid.UUID, email: str):
+        """
+        Update a document that a user has declined to sign.
+
+        :param key: The key identifying the document in the `storage`.
+        :param email: email address of the user that has just signed the document.
+        """
+        self.metadata.decline(key, email)
 
     def get_owned_documents(self, email: str) -> List[Dict[str, Any]]:
         """
