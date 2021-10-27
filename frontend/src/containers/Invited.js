@@ -17,12 +17,15 @@ import {
   disablePolling,
   enablePolling,
   declineSigning,
+  downloadInvitedSigned,
 } from "slices/Main";
 
 const mapStateToProps = (state) => {
   return {
     invited: state.main.pending_multisign,
     size: state.main.size,
+    name: state.main.signer_attributes.name,
+    mail: state.main.signer_attributes.mail,
   };
 };
 
@@ -99,6 +102,11 @@ const mapDispatchToProps = (dispatch, props) => {
           key: args.doc.key,
           intl: args.intl,
         }));
+      };
+    },
+    handleDlSigned: function (name) {
+      return async () => {
+        await dispatch(downloadInvitedSigned(name));
       };
     },
   };

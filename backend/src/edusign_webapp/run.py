@@ -65,6 +65,8 @@ class EduSignApp(Flask):
         :param address: the email address
         :return: whether it is whitelisted
         """
+        if address in self.config['USER_BLACKLIST']:
+            return False
         return address.split('@')[1] in self.config['SCOPE_WHITELIST']
 
 

@@ -3,7 +3,8 @@ import PropTypes from "prop-types";
 import BOverlayTrigger from "react-bootstrap/OverlayTrigger";
 
 /**
- * @desc Splash screen showing a large spinner, shown when the app is loading.
+ * @desc Override the overlay trigger from react-bootstrap
+  * to be able to disable all overlays at once
  * @component
  */
 class OverlayTrigger extends Component {

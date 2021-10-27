@@ -26,7 +26,8 @@ WEBAPP_HOSTNAME=www.edusign.docker
 
 SECRET_KEY=supersecret
 
-SCOPE_WHITELIST=sunet.se,emergya.com
+SCOPE_WHITELIST=sunet.se,eduid.se
+USER_BLACKLIST=blacklisted@eduid.se
 
 STORAGE_CLASS_PATH=edusign_webapp.document.storage.local.LocalStorage
 LOCAL_STORAGE_BASE_DIR=/tmp

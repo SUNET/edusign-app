@@ -296,29 +296,65 @@ export const createDocument = createAsyncThunk(
       );
       return thunkAPI.rejectWithValue(doc);
     }
-
+    let newDoc = null;
     try {
       thunkAPI.dispatch(documentsSlice.actions.addDocument(doc));
-      const newDoc = await addDocumentToDb(
+      newDoc = await addDocumentToDb(
         doc,
         state.main.signer_attributes.eppn
       );
+    } catch (err) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: args.intl.formatMessage({
+            defaultMessage: "Problem adding documents to in-browser database",
+            id: "save-docs-problem-db",
+          }),
+        })
+      );
+      doc.state = "failed-loading";
+      doc.message = args.intl.formatMessage({
+        defaultMessage: "Problem adding document to in-browser database",
+        id: "save-doc-problem-db",
+      });
+      return thunkAPI.rejectWithValue(doc);
+    }
+    try {
       await thunkAPI.dispatch(
         prepareDocument({ doc: newDoc, intl: args.intl })
       );
+    } catch (err) {
+      console.log('ERROR', err);
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: args.intl.formatMessage({
+            defaultMessage: "Problem preparing document for signing. Please try again or contact the site administration.",
+            id: "save-docs-problem-preparing",
+          }),
+        })
+      );
+      doc.state = "failed-preparing";
+      doc.message = args.intl.formatMessage({
+        defaultMessage: "Problem preparing document for signing",
+        id: "save-doc-problem-preparing",
+      });
+      return thunkAPI.rejectWithValue(doc);
+    }
+    try {
       await thunkAPI.dispatch(saveDocument({ docName: newDoc.name }));
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message: "",
           message: args.intl.formatMessage({
-            defaultMessage: "Problem saving document(s) in session",
+            defaultMessage: "Problem saving document(s) in session. Please try again or contact the site administration.",
             id: "save-docs-problem-session",
           }),
         })
       );
-      doc.state = "failed-loading";
+      doc.state = "failed-preparing";
       doc.message = args.intl.formatMessage({
         defaultMessage: "Problem saving document in session",
         id: "save-doc-problem-session",
@@ -705,7 +741,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
         }
       });
-      thunkAPI.dispatch(finishInvited({ key: doc.id }));
+      thunkAPI.dispatch(finishInvited(doc));
     });
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
@@ -723,7 +759,8 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       id: "problem-signing",
     });
     thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
-    if (data.payload && data.payload.documents) {
+    thunkAPI.dispatch(invitationsSignFailure(message));
+    if (data && data.payload && data.payload.documents) {
       await data.payload.documents.forEach(async (doc) => {
         await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
       });
@@ -1032,6 +1069,7 @@ export const signInvitedDoc = createAsyncThunk(
         id: "problem-signing",
       });
       thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
+      thunkAPI.dispatch(invitationsSignFailure(message));
       await thunkAPI.dispatch(saveDocument({ docName: args.doc.name }));
     }
   }
