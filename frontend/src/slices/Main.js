@@ -25,6 +25,7 @@
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { createIntl } from "react-intl";
+import * as FileSaver from "file-saver";
 
 import {
   getRequest,
@@ -35,6 +36,7 @@ import {
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 import { loadDocuments } from "slices/Documents";
+import { b64toBlob } from "components/utils";
 
 /**
  * @public
@@ -233,6 +235,25 @@ export const declineSigning = createAsyncThunk(
   }
 );
 
+/**
+ * @public
+ * @function downloadInvitedSigned
+ * @desc Redux async thunk to hand signed documents to the user.
+ */
+export const downloadInvitedSigned = createAsyncThunk(
+  "documents/downloadInvitedSigned",
+  async (docname, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const doc = state.main.pending_multisign.filter((d) => {
+      return d.name === docname;
+    })[0];
+    const b64content = doc.signedContent.split(",")[1];
+    const blob = b64toBlob(b64content);
+    const newName = doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
+    FileSaver.saveAs(blob, newName);
+  }
+);
+
 const mainSlice = createSlice({
   name: "main",
   initialState: {
@@ -327,11 +348,12 @@ const mainSlice = createSlice({
      */
     finishInvited(state, action) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
-        if (doc.key === action.payload.key) {
+        if (doc.key === action.payload.id) {
           return {
             ...doc,
             state: 'signed',
             message: '',
+            signedContent: "data:application/pdf;base64," + action.payload.signed_content,
           };
         }
         return doc;

@@ -74,7 +74,7 @@ class Invited extends Component {
       }),
       signed: this.props.intl.formatMessage({
         defaultMessage:
-          'You have succesfully signed the document. Once it is signed by all invited parties, you will receive a copy of it by email.',
+          'You have succesfully signed the document. Once it is signed by all invited parties, you will receive a copy of it by email. Note that if you reload the app, you will not be able to access the document until you receive it via email.',
         id: "docmanager-help-signed-invited",
       }),
       "declined-title": this.props.intl.formatMessage({
@@ -167,7 +167,7 @@ class Invited extends Component {
                           {widgets.dummySelectDoc()}
                           {widgets.docSize(doc)}
                           {widgets.docName(doc)}
-                          {widgets.previewButton(
+                          {widgets.downloadSignedButton(
                             this.props,
                             doc
                           )}

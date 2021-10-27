@@ -17,6 +17,7 @@ import {
   disablePolling,
   enablePolling,
   declineSigning,
+  downloadInvitedSigned,
 } from "slices/Main";
 
 const mapStateToProps = (state) => {
@@ -99,6 +100,11 @@ const mapDispatchToProps = (dispatch, props) => {
           key: args.doc.key,
           intl: args.intl,
         }));
+      };
+    },
+    handleDlSigned: function (name) {
+      return async () => {
+        await dispatch(downloadInvitedSigned(name));
       };
     },
   };

@@ -705,7 +705,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
         }
       });
-      thunkAPI.dispatch(finishInvited({ key: doc.id }));
+      thunkAPI.dispatch(finishInvited(doc));
     });
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
