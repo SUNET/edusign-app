@@ -535,7 +535,9 @@ def get_signed_documents(sign_data: dict) -> dict:
             current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
             msg.html = render_template('signed_all_email.html.jinja2', **mail_context)
 
-            # XXX attach PDF
+            # attach PDF
+            doc_name = current_app.doc_store.get_document_name(key)
+            msg.attach(doc_name, 'application/pdf', doc['signedContent'])
 
             current_app.mailer.send(msg)
 
