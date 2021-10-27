@@ -105,6 +105,10 @@ RAW_SCOPE_WHITELIST = os.environ.get('SCOPE_WHITELIST', default='eduid.se, sunet
 
 SCOPE_WHITELIST = [scope.strip() for scope in RAW_SCOPE_WHITELIST.split(',')]
 
+RAW_USER_BLACKLIST = os.environ.get('USER_BLACKLIST', default='blacklisted@eduid.se')
+
+USER_BLACKLIST = [scope.strip() for scope in RAW_USER_BLACKLIST.split(',')]
+
 STORAGE_CLASS_PATH = os.environ.get('STORAGE_CLASS_PATH', default='edusign_webapp.document.storage.local.LocalStorage')
 LOCAL_STORAGE_BASE_DIR = os.environ.get('LOCAL_STORAGE_BASE_DIR', default='/tmp')
 
