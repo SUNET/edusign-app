@@ -537,7 +537,8 @@ def get_signed_documents(sign_data: dict) -> dict:
 
             # attach PDF
             doc_name = current_app.doc_store.get_document_name(key)
-            msg.attach(doc_name, 'application/pdf', doc['signedContent'])
+            signed_doc_name = ''.join(doc_name.split('.')[:-1] + ['-signed']) + '.pdf'
+            msg.attach(signed_doc_name, 'application/pdf', doc['signedContent'])
 
             current_app.mailer.send(msg)
 
