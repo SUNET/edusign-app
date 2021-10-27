@@ -311,7 +311,6 @@ export const createDocument = createAsyncThunk(
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message: "",
           message: args.intl.formatMessage({
             defaultMessage: "Problem saving document(s) in session",
             id: "save-docs-problem-session",
