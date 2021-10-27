@@ -81,7 +81,7 @@ class Invited extends Component {
         defaultMessage: "Signature declined",
         id: "docmanager-help-declined-title",
       }),
-      signed: this.props.intl.formatMessage({
+      declined: this.props.intl.formatMessage({
         defaultMessage:
           'You have declined to sign this document. It will dissapear from here if you reload the app.',
         id: "docmanager-help-declined-invited",
