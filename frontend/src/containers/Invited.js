@@ -24,6 +24,8 @@ const mapStateToProps = (state) => {
   return {
     invited: state.main.pending_multisign,
     size: state.main.size,
+    name: state.main.signer_attributes.name,
+    mail: state.main.signer_attributes.mail,
   };
 };
 
