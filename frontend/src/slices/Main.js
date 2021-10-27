@@ -642,19 +642,14 @@ const mainSlice = createSlice({
      * after encountering a general problem while trying to create a sign request
      */
     invitationsSignFailure(state, action) {
-      state.owned_multisign = state.owned_multisign.map((doc) => {
-        if (doc.state === "signing") {
-          doc.state = "failed-signing";
-          doc.message = action.payload;
-        }
-        return doc;
-      });
-      state.pending_multisign = state.pending_multisign.map((doc) => {
-        if (doc.state === "signing") {
-          doc.state = "failed-signing";
-          doc.message = action.payload;
-        }
-        return doc;
+      ['pending_multisign', 'owned_multisign'].forEach((key) => {
+        state[key] = state[key].map((doc) => {
+          if (doc.state === "signing") {
+            doc.state = "failed-signing";
+            doc.message = action.payload;
+          }
+          return doc;
+        });
       });
     },
     /**

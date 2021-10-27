@@ -723,7 +723,8 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       id: "problem-signing",
     });
     thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
-    if (data.payload && data.payload.documents) {
+    thunkAPI.dispatch(invitationsSignFailure(message));
+    if (data && data.payload && data.payload.documents) {
       await data.payload.documents.forEach(async (doc) => {
         await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
       });
@@ -1032,6 +1033,7 @@ export const signInvitedDoc = createAsyncThunk(
         id: "problem-signing",
       });
       thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
+      thunkAPI.dispatch(invitationsSignFailure(message));
       await thunkAPI.dispatch(saveDocument({ docName: args.doc.name }));
     }
   }

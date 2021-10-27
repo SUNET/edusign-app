@@ -140,7 +140,6 @@ class Marshal(object):
         def marshal_decorator(*args, **kwargs):
 
             resp_data = f(*args, **kwargs)
-            current_app.logger.debug(f"Data gotten from view {str(f)}: {resp_data}")
 
             if isinstance(resp_data, WerkzeugResponse):
                 # No need to Marshal again, someone else already did that
