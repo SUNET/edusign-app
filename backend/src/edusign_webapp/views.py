@@ -35,6 +35,7 @@ import json
 import os
 import uuid
 from typing import Any, Dict, List, Union
+from base64 import b64decode
 
 import pkg_resources
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
@@ -538,7 +539,8 @@ def get_signed_documents(sign_data: dict) -> dict:
             # attach PDF
             doc_name = current_app.doc_store.get_document_name(key)
             signed_doc_name = ''.join(doc_name.split('.')[:-1] + ['-signed']) + '.pdf'
-            msg.attach(signed_doc_name, 'application/pdf', doc['signedContent'])
+            doc_content = b64decode(doc['signedContent']).decode('utf8')
+            msg.attach(signed_doc_name, 'application/pdf', doc_content)
 
             current_app.mailer.send(msg)
 
