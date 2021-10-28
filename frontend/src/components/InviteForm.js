@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
+import Button from "containers/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
@@ -45,23 +45,22 @@ const initialValues = (docId) => ({
 
 class InviteForm extends React.Component {
   render() {
+    const formId = "invite-form-" + this.props.docName;
     return (
       <>
         <Formik
           initialValues={initialValues(this.props.docId)}
           enableReinitialize={true}
-          onSubmit={async function (values) {
-            await this.props.handleSubmit(values, this.props);
-            this.props.handleClose();
-          }.bind(this)}
+          onSubmit={this.props.handleSubmit.bind(this)}
         >
           {(fprops) => (
             <Modal
               show={this.props.show}
               onHide={this.props.handleClose}
               size={this.props.size}
+              keyboard={false}
             >
-              <Form data-testid={"invite-form-" + this.props.docName}>
+              <Form id={formId} data-testid={formId}>
                 <Field
                   type="hidden"
                   name="documentId"
@@ -261,7 +260,9 @@ class InviteForm extends React.Component {
                   >
                     <Button
                       variant="outline-success"
-                      type="submit"
+                      onClick={this.props.trySubmit(formId)}
+                      id={"button-send-invites-" + this.props.docName}
+                      disabling={true}
                       data-testid={"button-send-invites-" + this.props.docName}
                     >
                       <FormattedMessage

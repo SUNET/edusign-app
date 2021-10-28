@@ -7,6 +7,7 @@ import documents from "slices/Documents";
 import dnd from "slices/DnDArea";
 import confirm from "slices/ConfirmDialog";
 import modals from "slices/Modals";
+import button from "slices/Button";
 
 /**
  * @public
@@ -20,5 +21,6 @@ export default combineReducers({
   dnd,
   confirm,
   modals,
+  button,
   intl: intlReducer,
 });
