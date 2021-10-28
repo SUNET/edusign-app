@@ -10,17 +10,21 @@ import Tooltip from "react-bootstrap/Tooltip";
 
 import "styles/InviteForm.scss";
 
-const validateEmail = (value) => {
-  let error;
+const validateEmail = (mail) => {
+  return (value) => {
+    let error;
 
-  if (!value) {
-    error = <FormattedMessage defaultMessage="Required" key="required-field" />;
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
-    error = (
-      <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
-    );
-  }
-  return error;
+    if (!value) {
+      error = <FormattedMessage defaultMessage="Required" key="required-field" />;
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
+      error = (
+        <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
+      );
+    } else if (value === mail) {
+      error = <FormattedMessage defaultMessage="Do not invite yourself" key="do-no-invite-yourself" />;
+    }
+    return error;
+  };
 };
 
 const validateName = (value) => {
@@ -50,8 +54,9 @@ class InviteForm extends React.Component {
       <>
         <Formik
           initialValues={initialValues(this.props.docId)}
-          enableReinitialize={true}
           onSubmit={this.props.handleSubmit.bind(this)}
+          validateOnBlur={true}
+          validateOnChange={true}
         >
           {(fprops) => (
             <Modal
@@ -101,35 +106,37 @@ class InviteForm extends React.Component {
                         {fprops.values.invitees.length > 0 &&
                           fprops.values.invitees.map((invitee, index) => (
                             <div className="invitation-fields" key={index}>
-                              <div className="invitee-form-dismiss">
-                                <OverlayTrigger
-                                  delay={{
-                                    show: DELAY_SHOW_HELP,
-                                    hide: DELAY_HIDE_HELP,
-                                  }}
-                                  trigger={["hover", "focus"]}
-                                  rootClose={true}
-                                  overlay={(props) => (
-                                    <Tooltip
-                                      id="tooltip-rm-invitation"
-                                      {...props}
-                                    >
-                                      <FormattedMessage
-                                        defaultMessage="Remove this entry from invitation"
-                                        key="rm-invitation-tootip"
-                                      />
-                                    </Tooltip>
-                                  )}
-                                >
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => arrayHelpers.remove(index)}
+                              {index > 0 && (
+                                <div className="invitee-form-dismiss">
+                                  <OverlayTrigger
+                                    delay={{
+                                      show: DELAY_SHOW_HELP,
+                                      hide: DELAY_HIDE_HELP,
+                                    }}
+                                    trigger={["hover", "focus"]}
+                                    rootClose={true}
+                                    overlay={(props) => (
+                                      <Tooltip
+                                        id="tooltip-rm-invitation"
+                                        {...props}
+                                      >
+                                        <FormattedMessage
+                                          defaultMessage="Remove this entry from invitation"
+                                          key="rm-invitation-tootip"
+                                        />
+                                      </Tooltip>
+                                    )}
                                   >
-                                    ×
-                                  </Button>
-                                </OverlayTrigger>
-                              </div>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => arrayHelpers.remove(index)}
+                                    >
+                                      ×
+                                    </Button>
+                                  </OverlayTrigger>
+                                </div>
+                              )}
                               <div className="invitee-form-row" key={index}>
                                 <div className="invitee-form-name">
                                   <BForm.Group>
@@ -154,6 +161,23 @@ class InviteForm extends React.Component {
                                       as={BForm.Control}
                                       type="text"
                                       validate={validateName}
+                                      isValid={
+                                        fprops.touched.invitees &&
+                                        fprops.touched.invitees[index] &&
+                                        fprops.touched.invitees[index].name &&
+                                        (!fprops.errors.invitees ||
+                                        (fprops.errors.invitees &&
+                                        (!fprops.errors.invitees[index] ||
+                                        (fprops.errors.invitees[index] && !fprops.errors.invitees[index].name))))
+                                      }
+                                      isInvalid={
+                                        fprops.touched.invitees &&
+                                        fprops.touched.invitees[index] &&
+                                        fprops.touched.invitees[index].name &&
+                                        fprops.errors.invitees &&
+                                        fprops.errors.invitees[index] &&
+                                        fprops.errors.invitees[index].name
+                                      }
                                     />
                                   </BForm.Group>
                                 </div>
@@ -179,7 +203,24 @@ class InviteForm extends React.Component {
                                       placeholder="jane@example.com"
                                       as={BForm.Control}
                                       type="email"
-                                      validate={validateEmail}
+                                      validate={validateEmail(this.props.mail)}
+                                      isValid={
+                                        fprops.touched.invitees &&
+                                        fprops.touched.invitees[index] &&
+                                        fprops.touched.invitees[index].email &&
+                                        (!fprops.errors.invitees ||
+                                        (fprops.errors.invitees &&
+                                        (!fprops.errors.invitees[index] ||
+                                        (fprops.errors.invitees[index] && !fprops.errors.invitees[index].email))))
+                                      }
+                                      isInvalid={
+                                        fprops.touched.invitees &&
+                                        fprops.touched.invitees[index] &&
+                                        fprops.touched.invitees[index].email &&
+                                        fprops.errors.invitees &&
+                                        fprops.errors.invitees[index] &&
+                                        fprops.errors.invitees[index].email
+                                      }
                                     />
                                   </BForm.Group>
                                 </div>
@@ -260,9 +301,10 @@ class InviteForm extends React.Component {
                   >
                     <Button
                       variant="outline-success"
-                      onClick={this.props.trySubmit(formId)}
+                      onClick={fprops.submitForm}
                       id={"button-send-invites-" + this.props.docName}
                       disabling={true}
+                      disabled={!fprops.isValid}
                       data-testid={"button-send-invites-" + this.props.docName}
                     >
                       <FormattedMessage

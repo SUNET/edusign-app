@@ -24,6 +24,7 @@ const mapStateToProps = (state, props) => {
   return {
     size: state.main.size,
     show: show,
+    mail: state.main.signer_attributes.mail,
   };
 };
 
@@ -37,16 +38,6 @@ const mapDispatchToProps = (dispatch, props) => {
     handleClose: function () {
       dispatch(unsetSpinning());
       dispatch(hideForm());
-    },
-    trySubmit: function (formId) {
-      return async () => {
-        const form = document.getElementById(formId);
-        if (form.requestSubmit) {
-          form.requestSubmit();
-        } else {
-          form.submit();
-        }
-      };
     },
   };
 };

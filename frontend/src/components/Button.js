@@ -52,7 +52,7 @@ Spin.propTypes = {
  */
 class Button extends Component {
   render() {
-    const isDisabled = this.props.spinning !== "";
+    const isDisabled = this.props.disabled || this.props.spinning !== "";
     const isSpinning = this.props.spinning === this.props.id;
     return (
       <BButton
@@ -75,12 +75,14 @@ class Button extends Component {
 
 Button.propTypes = {
   disabling: PropTypes.bool,
+  disabled: PropTypes.bool,
   spinning: PropTypes.string,
   onClick: PropTypes.func,
 };
 
 Button.defaultProps = {
   disabling: false,
+  disabled: false,
   spinning: "",
   onClick: async () => {},
 }
