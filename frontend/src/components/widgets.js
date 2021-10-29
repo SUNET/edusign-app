@@ -77,7 +77,7 @@ export const skipSignatureButton = (props, doc) => {
           )}
         >
           <Button
-            variant="outline-success"
+            variant="outline-dark"
             size="sm"
             onClick={props.handleSkipSigning(doc, props)}
           >
@@ -109,7 +109,7 @@ export const resendButton = (props, doc) => {
           )}
         >
           <Button
-            variant="outline-success"
+            variant="outline-dark"
             size="sm"
             data-testid={"button-open-resend-" + doc.name}
             onClick={props.handleResend(doc)}
@@ -178,7 +178,7 @@ export const forcedPreviewButton = (props, doc) => {
             onClick={props.handleForcedPreview(doc.key)}
           >
             <FormattedMessage
-              defaultMessage="Approve document for signature"
+              defaultMessage="Preview and approve for signature"
               key="forced-preview-button"
             />
           </Button>
@@ -329,21 +329,21 @@ export const multiSignButton = (props, doc) => {
           overlay={(
             <Tooltip placement="auto">
               <FormattedMessage
-                defaultMessage="Invite other users to sign the document. After all invitees sign, you'll be asked to add a final signature."
+                defaultMessage="Invite other users to sign the document. After all invitees sign, you'll be offered the chance to add a final signature."
                 key="button-multisign-tootip"
               />
             </Tooltip>
           )}
         >
           <Button
-            variant="outline-success"
+            variant="outline-dark"
             data-testid={"button-multisign-" + doc.name}
             size="sm"
             onClick={props.openInviteForm(doc)}
             data-docid={doc.id}
           >
             <FormattedMessage
-              defaultMessage="Ask for signature"
+              defaultMessage="Invite others to sign"
               key="multisign-button"
             />
           </Button>

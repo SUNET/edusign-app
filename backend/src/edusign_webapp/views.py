@@ -368,7 +368,8 @@ def recreate_sign_request(documents: dict) -> dict:
         tasks.append(loop.create_task(prepare(doc)))
         invited_docs.append(doc)
 
-    loop.run_until_complete(asyncio.wait(tasks))
+    if len(tasks) > 0:
+        loop.run_until_complete(asyncio.wait(tasks))
     loop.close()
 
     docs_data = [task.result() for task in tasks]
@@ -403,30 +404,40 @@ def recreate_sign_request(documents: dict) -> dict:
             }
         )
 
-    try:
-        current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
-        create_data, documents_with_id = current_app.api_client.create_sign_request(new_docs)
+    if len(new_docs) > 0:
+        try:
+            current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
+            create_data, documents_with_id = current_app.api_client.create_sign_request(new_docs)
 
-    except Exception as e:
-        current_app.logger.error(f'Problem creating sign request: {e}')
-        return {
-            'error': True,
-            'message': gettext('There was an error. Please try again, or contact the site administrator.'),
-        }
+        except Exception as e:
+            current_app.logger.error(f'Problem creating sign request: {e}')
+            return {
+                'error': True,
+                'message': gettext('There was an error. Please try again, or contact the site administrator.'),
+            }
 
-    try:
+        try:
+            sign_data = {
+                'relay_state': create_data['relayState'],
+                'sign_request': create_data['signRequest'],
+                'binding': create_data['binding'],
+                'destination_url': create_data['destinationUrl'],
+                'documents': documents_with_id,
+                'failed': failed,
+            }
+        except KeyError:
+            current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
+            # XXX translate
+            return {'error': True, 'message': create_data['message']}
+    else:
         sign_data = {
-            'relay_state': create_data['relayState'],
-            'sign_request': create_data['signRequest'],
-            'binding': create_data['binding'],
-            'destination_url': create_data['destinationUrl'],
-            'documents': documents_with_id,
+            'relay_state': "unused - nothing signing",
+            'sign_request': "unused - nothing signing",
+            'binding': "unused - nothing signing",
+            'destination_url': "unused - nothing signing",
+            'documents': [],
             'failed': failed,
         }
-    except KeyError:
-        current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
-        # XXX translate
-        return {'error': True, 'message': create_data['message']}
 
     return {'payload': sign_data}
 
@@ -867,6 +878,35 @@ def skip_final_signature(data: dict) -> dict:
     if not doc:
         current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
         return {'error': True, 'message': gettext('Document not found in the doc store')}
+
+    try:
+        recipients = [f"{invited['name']} <{invited['email']}>" for invited in current_app.doc_store.get_pending_invites(key) if invited['signed']]
+        msg = Message(
+            gettext("Document %(docname)s has been signed by all invited")
+            % {'docname': doc['name']},
+            recipients=recipients,
+        )
+        mail_context = {
+            'document_name': doc['name'],
+            'invited_name': session['displayName'],
+            'invited_email': session['mail'],
+        }
+        msg.body = render_template('signed_all_email.txt.jinja2', **mail_context)
+        current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
+        msg.html = render_template('signed_all_email.html.jinja2', **mail_context)
+
+        # attach PDF
+        doc_name = current_app.doc_store.get_document_name(key)
+        signed_doc_name = ''.join(doc_name.split('.')[:-1] + ['-signed']) + '.pdf'
+        attachment = MIMEBase('application', 'pdf')
+        attachment.set_payload(doc['blob'])
+        attachment.add_header('Content-Transfer-Encoding', 'base64')
+        attachment['Content-Disposition'] = 'attachment; filename="%s"' % signed_doc_name
+        msg.attach(attachment)
+
+        current_app.mailer.send(msg)
+    except Exception as e:
+        current_app.logger.error(f'Problem sending signed document to invited users: {e}')
 
     try:
         current_app.doc_store.remove_document(key)

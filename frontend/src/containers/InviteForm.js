@@ -14,6 +14,7 @@ import InviteForm from "components/InviteForm";
 
 import { sendInvites } from "slices/Documents";
 import { hideForm } from "slices/Modals";
+import { unsetSpinning } from "slices/Button";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -23,15 +24,19 @@ const mapStateToProps = (state, props) => {
   return {
     size: state.main.size,
     show: show,
+    mail: state.main.signer_attributes.mail,
   };
 };
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleSubmit: async function (values, props) {
-      await dispatch(sendInvites({ values: values, intl: props.intl }));
+    handleSubmit: async function (values) {
+      await dispatch(sendInvites({ values: values, intl: this.props.intl }));
+      dispatch(unsetSpinning());
+      dispatch(hideForm());
     },
     handleClose: function () {
+      dispatch(unsetSpinning());
       dispatch(hideForm());
     },
   };

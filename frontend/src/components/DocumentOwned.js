@@ -106,15 +106,15 @@ class DocumentOwned extends Component {
                         {widgets.docName(doc)}
                         <div className="owned-container-buttons-lg">
                           <>
+                            {widgets.resendButton(
+                              this.props,
+                              doc
+                            )}
                             {widgets.previewButton(
                               this.props,
                               doc
                             )}
                             {widgets.removeConfirmButton(
-                              this.props,
-                              doc
-                            )}
-                            {widgets.resendButton(
                               this.props,
                               doc
                             )}
@@ -133,15 +133,15 @@ class DocumentOwned extends Component {
                           </div>
                           <div className="owned-container-buttons-sm">
                             <>
+                              {widgets.resendButton(
+                                this.props,
+                                doc
+                              )}
                               {widgets.previewButton(
                                 this.props,
                                 doc
                               )}
                               {widgets.removeConfirmButton(
-                                this.props,
-                                doc
-                              )}
-                              {widgets.resendButton(
                                 this.props,
                                 doc
                               )}
@@ -164,15 +164,15 @@ class DocumentOwned extends Component {
                         {widgets.showMessage(doc)}
                         <div className="owned-container-buttons-lg">
                           <>
+                            {widgets.skipSignatureButton(
+                              this.props,
+                              doc
+                            )}
                             {widgets.previewButton(
                               this.props,
                               doc
                             )}
                             {widgets.removeConfirmButton(
-                              this.props,
-                              doc
-                            )}
-                            {widgets.skipSignatureButton(
                               this.props,
                               doc
                             )}
@@ -192,15 +192,15 @@ class DocumentOwned extends Component {
                           </div>
                           <div className="owned-container-buttons-sm">
                             <>
+                              {widgets.skipSignatureButton(
+                                this.props,
+                                doc
+                              )}
                               {widgets.previewButton(
                                 this.props,
                                 doc
                               )}
                               {widgets.removeConfirmButton(
-                                this.props,
-                                doc
-                              )}
-                              {widgets.skipSignatureButton(
                                 this.props,
                                 doc
                               )}
@@ -252,7 +252,7 @@ class DocumentOwned extends Component {
                   </div>
                 </>
               )}
-              {(doc.signed.length > 0 || doc.state === 'signed') && (
+              {doc.signed.length > 0 && (
                 <>
                   <div className="signed-invites">
                     <span className="signed-invites-label">
@@ -269,11 +269,6 @@ class DocumentOwned extends Component {
                           </span>
                         );
                       })}
-                      {(doc.state === 'signed') && (
-                        <span className="signed-invite-item" key={-1}>
-                          {this.props.name} &lt;{this.props.mail}&gt;
-                        </span>
-                      )}
                     </span>
                   </div>
                 </>

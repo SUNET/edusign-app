@@ -522,12 +522,12 @@ const mainSlice = createSlice({
      */
     setInvitedState(state, action) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
-        if (doc.name === action.payload.name) {
-          const document = {
+        if (doc.key === action.payload.key) {
+          const newDoc = {
             ...doc,
             ...action.payload,
           };
-          return document;
+          return newDoc;
         } else return doc;
       });
     },
