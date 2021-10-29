@@ -90,7 +90,7 @@ export const loadDocuments = createAsyncThunk(
       if (signing) {
         dataElem = document.getElementById("sign-response-holder");
         if (dataElem === null) {
-          documents = documents.map((doc) => {
+          documents = await documents.map( async (doc) => {
             if (doc.state === "signing") {
               const failedDoc = {
                 ...doc,
@@ -100,7 +100,7 @@ export const loadDocuments = createAsyncThunk(
                   id: "load-doc-problem-signing",
                 }),
               };
-              dbSaveDocument(failedDoc);
+              await dbSaveDocument(failedDoc);
               return failedDoc;
             } else return doc;
           });
