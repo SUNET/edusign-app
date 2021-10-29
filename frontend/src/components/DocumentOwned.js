@@ -106,15 +106,15 @@ class DocumentOwned extends Component {
                         {widgets.docName(doc)}
                         <div className="owned-container-buttons-lg">
                           <>
+                            {widgets.resendButton(
+                              this.props,
+                              doc
+                            )}
                             {widgets.previewButton(
                               this.props,
                               doc
                             )}
                             {widgets.removeConfirmButton(
-                              this.props,
-                              doc
-                            )}
-                            {widgets.resendButton(
                               this.props,
                               doc
                             )}
@@ -133,15 +133,15 @@ class DocumentOwned extends Component {
                           </div>
                           <div className="owned-container-buttons-sm">
                             <>
+                              {widgets.resendButton(
+                                this.props,
+                                doc
+                              )}
                               {widgets.previewButton(
                                 this.props,
                                 doc
                               )}
                               {widgets.removeConfirmButton(
-                                this.props,
-                                doc
-                              )}
-                              {widgets.resendButton(
                                 this.props,
                                 doc
                               )}
@@ -164,15 +164,15 @@ class DocumentOwned extends Component {
                         {widgets.showMessage(doc)}
                         <div className="owned-container-buttons-lg">
                           <>
+                            {widgets.skipSignatureButton(
+                              this.props,
+                              doc
+                            )}
                             {widgets.previewButton(
                               this.props,
                               doc
                             )}
                             {widgets.removeConfirmButton(
-                              this.props,
-                              doc
-                            )}
-                            {widgets.skipSignatureButton(
                               this.props,
                               doc
                             )}
@@ -192,15 +192,15 @@ class DocumentOwned extends Component {
                           </div>
                           <div className="owned-container-buttons-sm">
                             <>
+                              {widgets.skipSignatureButton(
+                                this.props,
+                                doc
+                              )}
                               {widgets.previewButton(
                                 this.props,
                                 doc
                               )}
                               {widgets.removeConfirmButton(
-                                this.props,
-                                doc
-                              )}
-                              {widgets.skipSignatureButton(
                                 this.props,
                                 doc
                               )}

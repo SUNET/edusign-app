@@ -77,7 +77,7 @@ export const skipSignatureButton = (props, doc) => {
           )}
         >
           <Button
-            variant="outline-success"
+            variant="outline-dark"
             size="sm"
             onClick={props.handleSkipSigning(doc, props)}
           >
@@ -109,7 +109,7 @@ export const resendButton = (props, doc) => {
           )}
         >
           <Button
-            variant="outline-success"
+            variant="outline-dark"
             size="sm"
             data-testid={"button-open-resend-" + doc.name}
             onClick={props.handleResend(doc)}
@@ -336,7 +336,7 @@ export const multiSignButton = (props, doc) => {
           )}
         >
           <Button
-            variant="outline-success"
+            variant="outline-dark"
             data-testid={"button-multisign-" + doc.name}
             size="sm"
             onClick={props.openInviteForm(doc)}
