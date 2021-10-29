@@ -699,7 +699,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
     sign_response: dataElem.dataset.signresponse,
     relay_state: dataElem.dataset.relaystate,
   };
-  const body = preparePayload(thunkAPI.getState(), payload);
+  const body = preparePayload(state, payload);
   let data = null;
   try {
     const response = await fetch("/sign/get-signed", {
@@ -728,6 +728,8 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       });
       await state.main.owned_multisign.forEach(async (oldDoc) => {
         if (doc.id === oldDoc.key) {
+          let newSigned = [...oldDoc.signed];
+          newSigned.push({name: state.main.signer_attributes.name, email: state.main.signer_attributes.mail});
           const newDoc = {
             ...oldDoc,
             signedContent: "data:application/pdf;base64," + doc.signed_content,
@@ -735,6 +737,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
             state: "signed",
             show: false,
             showForced: false,
+            signed: newSigned,
           };
           thunkAPI.dispatch(removeOwned({key: doc.id}));
           thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));

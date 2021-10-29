@@ -252,7 +252,7 @@ class DocumentOwned extends Component {
                   </div>
                 </>
               )}
-              {(doc.signed.length > 0 || doc.state === 'signed') && (
+              {doc.signed.length > 0 && (
                 <>
                   <div className="signed-invites">
                     <span className="signed-invites-label">
@@ -269,11 +269,6 @@ class DocumentOwned extends Component {
                           </span>
                         );
                       })}
-                      {(doc.state === 'signed') && (
-                        <span className="signed-invite-item" key={-1}>
-                          {this.props.name} &lt;{this.props.mail}&gt;
-                        </span>
-                      )}
                     </span>
                   </div>
                 </>
