@@ -880,6 +880,35 @@ def skip_final_signature(data: dict) -> dict:
         return {'error': True, 'message': gettext('Document not found in the doc store')}
 
     try:
+        recipients = [f"{invited['name']} <{invited['email']}>" for invited in current_app.doc_store.get_pending_invites(key) if invited['signed']]
+        msg = Message(
+            gettext("Document %(docname)s has been signed by all invited")
+            % {'docname': doc['name']},
+            recipients=recipients,
+        )
+        mail_context = {
+            'document_name': doc['name'],
+            'invited_name': session['displayName'],
+            'invited_email': session['mail'],
+        }
+        msg.body = render_template('signed_all_email.txt.jinja2', **mail_context)
+        current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
+        msg.html = render_template('signed_all_email.html.jinja2', **mail_context)
+
+        # attach PDF
+        doc_name = current_app.doc_store.get_document_name(key)
+        signed_doc_name = ''.join(doc_name.split('.')[:-1] + ['-signed']) + '.pdf'
+        attachment = MIMEBase('application', 'pdf')
+        attachment.set_payload(doc['blob'])
+        attachment.add_header('Content-Transfer-Encoding', 'base64')
+        attachment['Content-Disposition'] = 'attachment; filename="%s"' % signed_doc_name
+        msg.attach(attachment)
+
+        current_app.mailer.send(msg)
+    except Exception as e:
+        current_app.logger.error(f'Problem sending signed document to invited users: {e}')
+
+    try:
         current_app.doc_store.remove_document(key)
 
     except Exception as e:
