@@ -55,6 +55,7 @@ class InviteForm extends React.Component {
         <Formik
           initialValues={initialValues(this.props.docId)}
           onSubmit={this.props.handleSubmit.bind(this)}
+          enableReinitialize={true}
           validateOnBlur={true}
           validateOnChange={true}
         >

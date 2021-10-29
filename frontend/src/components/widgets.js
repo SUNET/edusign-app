@@ -329,7 +329,7 @@ export const multiSignButton = (props, doc) => {
           overlay={(
             <Tooltip placement="auto">
               <FormattedMessage
-                defaultMessage="Invite other users to sign the document. After all invitees sign, you'll be asked to add a final signature."
+                defaultMessage="Invite other users to sign the document. After all invitees sign, you'll be offered the chance to add a final signature."
                 key="button-multisign-tootip"
               />
             </Tooltip>

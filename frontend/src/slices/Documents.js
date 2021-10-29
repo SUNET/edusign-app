@@ -140,13 +140,11 @@ export const checkStoredDocuments = createAsyncThunk(
     if (storedStr !== null) {
       const storedDocs = JSON.parse(storedStr);
       storedDocs.owned.forEach((doc) => {
-        console.log("stored owned,", doc);
         if (doc.state === 'failed-signing') {
           thunkAPI.dispatch(setOwnedState(doc));
         }
       });
       storedDocs.invited.forEach((doc) => {
-        console.log("stored invited,", doc);
         if (doc.state === 'failed-signing') {
           thunkAPI.dispatch(setInvitedState(doc));
         }
@@ -329,7 +327,6 @@ export const createDocument = createAsyncThunk(
         prepareDocument({ doc: newDoc, intl: args.intl })
       );
     } catch (err) {
-      console.log('ERROR', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -641,7 +638,6 @@ export const restartSigningDocuments = createAsyncThunk(
       delete data.payload.failed;
 
       if (data.payload.documents.length > 0) {
-        console.log("there are docs");
         delete data.payload.documents;
         thunkAPI.dispatch(updateSigningForm(data.payload));
         const form = document.getElementById("signing-form");
@@ -651,7 +647,6 @@ export const restartSigningDocuments = createAsyncThunk(
           form.submit();
         }
       } else {
-        console.log("checking stored");
         await thunkAPI.dispatch(checkStoredDocuments());
       }
     } catch (err) {
