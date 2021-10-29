@@ -368,7 +368,8 @@ def recreate_sign_request(documents: dict) -> dict:
         tasks.append(loop.create_task(prepare(doc)))
         invited_docs.append(doc)
 
-    loop.run_until_complete(asyncio.wait(tasks))
+    if len(tasks) > 0:
+        loop.run_until_complete(asyncio.wait(tasks))
     loop.close()
 
     docs_data = [task.result() for task in tasks]
@@ -403,30 +404,40 @@ def recreate_sign_request(documents: dict) -> dict:
             }
         )
 
-    try:
-        current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
-        create_data, documents_with_id = current_app.api_client.create_sign_request(new_docs)
+    if len(new_docs) > 0:
+        try:
+            current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
+            create_data, documents_with_id = current_app.api_client.create_sign_request(new_docs)
 
-    except Exception as e:
-        current_app.logger.error(f'Problem creating sign request: {e}')
-        return {
-            'error': True,
-            'message': gettext('There was an error. Please try again, or contact the site administrator.'),
-        }
+        except Exception as e:
+            current_app.logger.error(f'Problem creating sign request: {e}')
+            return {
+                'error': True,
+                'message': gettext('There was an error. Please try again, or contact the site administrator.'),
+            }
 
-    try:
+        try:
+            sign_data = {
+                'relay_state': create_data['relayState'],
+                'sign_request': create_data['signRequest'],
+                'binding': create_data['binding'],
+                'destination_url': create_data['destinationUrl'],
+                'documents': documents_with_id,
+                'failed': failed,
+            }
+        except KeyError:
+            current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
+            # XXX translate
+            return {'error': True, 'message': create_data['message']}
+    else:
         sign_data = {
-            'relay_state': create_data['relayState'],
-            'sign_request': create_data['signRequest'],
-            'binding': create_data['binding'],
-            'destination_url': create_data['destinationUrl'],
-            'documents': documents_with_id,
+            'relay_state': "unused - nothing signing",
+            'sign_request': "unused - nothing signing",
+            'binding': "unused - nothing signing",
+            'destination_url': "unused - nothing signing",
+            'documents': [],
             'failed': failed,
         }
-    except KeyError:
-        current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
-        # XXX translate
-        return {'error': True, 'message': create_data['message']}
 
     return {'payload': sign_data}
 

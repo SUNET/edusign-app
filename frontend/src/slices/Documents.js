@@ -115,6 +115,8 @@ export const loadDocuments = createAsyncThunk(
       thunkAPI.dispatch(documentsSlice.actions.setDocuments(documents));
       if (signing && dataElem !== null) {
         await fetchSignedDocuments(thunkAPI, dataElem, args.intl);
+      } else {
+        localStorage.removeItem(storageName);
       }
     } else {
       return {
@@ -133,16 +135,18 @@ export const checkStoredDocuments = createAsyncThunk(
   "documents/checkStoredDocuments",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const storedName = "signing-" + hashCode(state.main.signer_attributes.name);
+    const storedName = "signing-" + hashCode(state.main.signer_attributes.eppn);
     const storedStr = localStorage.getItem(storedName);
     if (storedStr !== null) {
       const storedDocs = JSON.parse(storedStr);
       storedDocs.owned.forEach((doc) => {
+        console.log("stored owned,", doc);
         if (doc.state === 'failed-signing') {
           thunkAPI.dispatch(setOwnedState(doc));
         }
       });
       storedDocs.invited.forEach((doc) => {
+        console.log("stored invited,", doc);
         if (doc.state === 'failed-signing') {
           thunkAPI.dispatch(setInvitedState(doc));
         }
@@ -508,10 +512,6 @@ export const startSigningDocuments = createAsyncThunk(
 
         throw new Error(data.message);
       }
-      data.payload.documents.forEach(async (doc) => {
-        thunkAPI.dispatch(documentsSlice.actions.updateDocumentWithId(doc));
-        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
-      });
       delete data.payload.documents;
 
       thunkAPI.dispatch(updateSigningForm(data.payload));
@@ -638,27 +638,21 @@ export const restartSigningDocuments = createAsyncThunk(
       });
       localStorage.setItem(storageName, storageContent);
 
-      await data.payload.documents.forEach(async (doc) => {
-        let found = false;
-        await state.documents.documents.forEach(async (oldDoc) => {
-          if (oldDoc.key === doc.key) {
-            found = true;
-            thunkAPI.dispatch(documentsSlice.actions.updateDocumentWithId(doc));
-            await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
-          }
-        });
-        if (!found) {
-        }
-      });
       delete data.payload.failed;
-      delete data.payload.documents;
 
-      thunkAPI.dispatch(updateSigningForm(data.payload));
-      const form = document.getElementById("signing-form");
-      if (form.requestSubmit) {
-        form.requestSubmit();
+      if (data.payload.documents.length > 0) {
+        console.log("there are docs");
+        delete data.payload.documents;
+        thunkAPI.dispatch(updateSigningForm(data.payload));
+        const form = document.getElementById("signing-form");
+        if (form.requestSubmit) {
+          form.requestSubmit();
+        } else {
+          form.submit();
+        }
       } else {
-        form.submit();
+        console.log("checking stored");
+        await thunkAPI.dispatch(checkStoredDocuments());
       }
     } catch (err) {
       thunkAPI.dispatch(
@@ -1288,29 +1282,12 @@ const documentsSlice = createSlice({
     },
     /**
      * @public
-     * @function updateDocumentWithId
-     * @desc Redux action to update a document with the id sent to the sign API
-     */
-    updateDocumentWithId(state, action) {
-      state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload.name) {
-          const document = {
-            ...doc,
-            signing_id: action.payload.key,
-          };
-          return document;
-        } else return doc;
-      });
-    },
-    /**
-     * @public
      * @function updateDocumentWithSignedContent
      * @desc Redux action to update a document with the signed content
      */
     updateDocumentWithSignedContent(state, action) {
       state.documents = state.documents.map((doc) => {
         if (
-          doc.signing_id === action.payload.id ||
           doc.key === action.payload.id
         ) {
           const document = {
