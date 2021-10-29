@@ -36,18 +36,16 @@ import "styles/Invitation.scss";
 class DocManager extends React.Component {
 
   render() {
-    let someSelected = false;
-    let showSignButton = false;
+    let disableSigning = true;
     [this.props.pending, this.props.owned].forEach((docs) => {
       docs.forEach((doc) => {
         if (doc.state === "selected") {
-          someSelected = true;
-          showSignButton = true;
+          disableSigning = false;
         }
       });
     });
-    let showDlAllButton = false;
-    let showClearButton = false;
+    let disableDlAllButton = true;
+    let disableClearButton = true;
 
     return (
       <>
@@ -88,14 +86,9 @@ class DocManager extends React.Component {
                   />
                 </legend>
                 {this.props.documents.map((doc, index) => {
-                  showClearButton = true;
-                  if (
-                    ["loaded", "selected", "failed-signing"].includes(doc.state)
-                  ) {
-                    showSignButton = true;
-                  }
+                  disableClearButton = false;
                   if (doc.state === "signed") {
-                    showDlAllButton = true;
+                    disableDlAllButton = false;
                   }
                   const docFile = preparePDF(doc);
                   if (docFile === null) {
@@ -108,7 +101,7 @@ class DocManager extends React.Component {
                       }),
                     };
                   }
-                  if (doc.state === "selected") someSelected = true;
+                  if (doc.state === "selected") disableSigning = false;
 
                   let docRepr = null;
                   if (doc.hasOwnProperty('pending')) {
@@ -179,8 +172,8 @@ class DocManager extends React.Component {
           )}
         </div>
         <div id="adjust-vertical-space" />
-        <div id="global-buttons-wrapper">
-          {(showSignButton && (
+        {(!this.props.unauthn) && (
+          <div id="global-buttons-wrapper">
             <div className="button-sign-flex-item">
               <OverlayTrigger
                 delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
@@ -200,8 +193,8 @@ class DocManager extends React.Component {
                     variant="success"
                     id="button-sign"
                     size="lg"
-                    disabled={!someSelected}
-                    style={someSelected ? {} : { pointerEvents: "none" }}
+                    disabled={disableSigning}
+                    style={disableSigning ? { pointerEvents: "none" } : {}}
                     onClick={this.props.handleSubmitToSign.bind(this)}
                   >
                     <FormattedMessage
@@ -212,10 +205,6 @@ class DocManager extends React.Component {
                 </div>
               </OverlayTrigger>
             </div>
-          )) || (
-            <div className={"dummy-button-sign-flex-item-" + this.props.size} />
-          )}
-          {(showDlAllButton && (
             <div className="button-dlall-flex-item">
               <OverlayTrigger
                 delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
@@ -234,6 +223,7 @@ class DocManager extends React.Component {
                   <Button
                     variant="success"
                     id="button-dlall"
+                    disabled={disableDlAllButton}
                     data-testid="button-dlall"
                     size="lg"
                     onClick={this.props.handleDownloadAll.bind(this)}
@@ -246,12 +236,6 @@ class DocManager extends React.Component {
                 </div>
               </OverlayTrigger>
             </div>
-          )) || (
-            <div
-              className={"dummy-button-dlall-flex-item-" + this.props.size}
-            />
-          )}
-          {(showClearButton && (
             <div className="button-clear-flex-item">
               <OverlayTrigger
                 delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
@@ -260,7 +244,7 @@ class DocManager extends React.Component {
                 overlay={(
                   <Tooltip placement="auto">
                     <FormattedMessage
-                      defaultMessage="Discard all documents loaded above"
+                      defaultMessage='Discard all documents in the "Personal documents" list above'
                       key="clear-docs-tootip"
                     />
                   </Tooltip>
@@ -270,6 +254,7 @@ class DocManager extends React.Component {
                   <Button
                     variant="primary"
                     id="clear-session-button"
+                    disabled={disableClearButton}
                     size="lg"
                     onClick={this.props.showConfirm("confirm-clear-session")}
                   >
@@ -294,12 +279,8 @@ class DocManager extends React.Component {
                 confirm={this.props.clearDb}
               />
             </div>
-          )) || (
-            <div
-              className={"dummy-button-clear-flex-item-" + this.props.size}
-            />
-          )}
-        </div>
+          </div>
+        )}
         {this.props.destinationUrl !== undefined &&
           this.props.destinationUrl !== "https://dummy.destination.url" && (
             <div>

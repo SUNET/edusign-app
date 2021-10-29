@@ -8,7 +8,7 @@
   "components.DnDArea.dnd-area-head-sm": "Tap here to choose files to be signed",
   "components.DocManager.button-dlall-tootip": "Download all signed documents.",
   "components.DocManager.button-sign-tootip": "Select documents above and click here to send them for signing.",
-  "components.DocManager.clear-docs-tootip": "Discard all documents loaded above",
+  "components.DocManager.clear-docs-tootip": "Discard all documents in the \"Personal documents\" list above",
   "components.DocManager.clear-session-button": "Clear Personal Documents List",
   "components.DocManager.dlall-selected-button": "Download All Signed",
   "components.DocManager.invited-multisign-legend": "Documents you are invited to sign",
