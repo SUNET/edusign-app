@@ -178,7 +178,7 @@ export const forcedPreviewButton = (props, doc) => {
             onClick={props.handleForcedPreview(doc.key)}
           >
             <FormattedMessage
-              defaultMessage="Approve document for signature"
+              defaultMessage="Preview and approve for signature"
               key="forced-preview-button"
             />
           </Button>
@@ -343,7 +343,7 @@ export const multiSignButton = (props, doc) => {
             data-docid={doc.id}
           >
             <FormattedMessage
-              defaultMessage="Ask for signature"
+              defaultMessage="Invite others to sign"
               key="multisign-button"
             />
           </Button>

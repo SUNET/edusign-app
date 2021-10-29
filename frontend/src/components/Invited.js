@@ -39,7 +39,7 @@ class Invited extends Component {
       }),
       unconfirmed: this.props.intl.formatMessage({
         defaultMessage:
-          'Click on the button labeled "Approve document for signature" to review the document and confirm that you approve it for signature',
+          'Click on the button labeled "Preview and approve for signature" to review the document and confirm that you approve it for signature',
         id: "docmanager-help-unconfirmed",
       }),
       "selected-title": this.props.intl.formatMessage({

@@ -83,7 +83,7 @@ class DocManager extends React.Component {
               <fieldset className="local-monosign-container">
                 <legend>
                   <FormattedMessage
-                    defaultMessage="Local documents"
+                    defaultMessage="Personal documents"
                     key="local-monosign-legend"
                   />
                 </legend>
@@ -274,7 +274,7 @@ class DocManager extends React.Component {
                     onClick={this.props.showConfirm("confirm-clear-session")}
                   >
                     <FormattedMessage
-                      defaultMessage="Clear Local List"
+                      defaultMessage="Clear Personal Documents List"
                       key="clear-session-button"
                     />
                   </Button>
