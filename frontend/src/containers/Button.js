@@ -17,7 +17,7 @@ const mapDispatchToProps = (dispatch, props) => {
       }
       const promise = this.props.onClick();
       if (promise !== undefined) {
-        promise.catch(dispatch(unsetSpinning()));
+        promise.catch(e => dispatch(unsetSpinning()));
       }
     },
   };
