@@ -30,6 +30,10 @@ import {
 import { showForm } from "slices/Modals";
 import { clearDocStore } from "init-app/database";
 import { askConfirmation } from "slices/ConfirmDialog";
+import {
+  disablePolling,
+  enablePolling,
+} from "slices/Poll";
 
 const mapStateToProps = (state) => {
   return {
@@ -53,6 +57,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     handlePreview: function (key) {
       return () => {
+        dispatch(disablePolling());
         dispatch(showPreview(key));
       };
     },
@@ -101,12 +106,14 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleForcedPreview: function (key) {
       return () => {
+        dispatch(disablePolling());
         dispatch(showForcedPreview(key));
       };
     },
     handleCloseForcedPreview: function (name) {
       return () => {
         dispatch(hideForcedPreview(name));
+        dispatch(enablePolling());
       };
     },
     handleConfirmForcedPreview: function (name) {
@@ -114,17 +121,20 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(confirmForcedPreview(name));
         await dispatch(saveDocument({ docName: name }));
         dispatch(hideForcedPreview(name));
+        dispatch(enablePolling());
       };
     },
     handleUnConfirmForcedPreview: function (args) {
       return async () => {
         await dispatch(removeDocument({ docName: args.doc.name }));
         dispatch(hideForcedPreview(args.doc.name));
+        dispatch(enablePolling());
       };
     },
     handleClosePreview: function (name) {
       return () => {
         dispatch(hidePreview(name));
+        dispatch(enablePolling());
       };
     },
   };

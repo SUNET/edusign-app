@@ -8,6 +8,7 @@ import dnd from "slices/DnDArea";
 import confirm from "slices/ConfirmDialog";
 import modals from "slices/Modals";
 import button from "slices/Button";
+import poll from "slices/Poll";
 
 /**
  * @public
@@ -22,5 +23,6 @@ export default combineReducers({
   confirm,
   modals,
   button,
+  poll,
   intl: intlReducer,
 });

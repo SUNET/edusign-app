@@ -5,9 +5,10 @@ export default function Poll(props) {
     if (!props.disabled) {
       if (props.poll) {
         props.stopPolling();
-        setTimeout(() => {
+        const timerId = setTimeout(() => {
           props.pollInvitations();
         }, 10000);
+        props.setTimerId(timerId);
       }
     }
   });

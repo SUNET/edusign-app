@@ -11,7 +11,6 @@ import DocPreview from "components/DocPreview";
 
 const mapStateToProps = (state) => {
   return {
-    size: state.main.size,
     width: state.main.width,
   };
 };

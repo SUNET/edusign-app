@@ -36,6 +36,7 @@ import {
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 import { loadDocuments } from "slices/Documents";
+import { setPolling } from "slices/Poll";
 import { b64toBlob } from "components/utils";
 
 /**
@@ -70,6 +71,10 @@ export const fetchConfig = createAsyncThunk(
             eppn: configData.payload.signer_attributes.eppn,
           })
         );
+        thunkAPI.dispatch(
+          setPolling(configData.payload.poll)
+        );
+        delete configData.payload.poll;
         return configData;
       }
     } catch (err) {
@@ -86,60 +91,6 @@ export const fetchConfig = createAsyncThunk(
     }
   }
 );
-
-/**
- * @public
- * @function poll
- * @desc Redux async thunk to poll configuration data from the backend.
- */
-export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
-  const state = thunkAPI.getState();
-  if (state.main.disablePoll) {
-    return thunkAPI.rejectWithValue("Polling disabled");
-  }
-  try {
-    const response = await fetch("/sign/poll", getRequest);
-    const configData = await checkStatus(response);
-    extractCsrfToken(thunkAPI.dispatch, configData);
-    if (configData.error) {
-      return thunkAPI.rejectWithValue(configData.message);
-    } else {
-      const allOwned = state.main.owned_multisign.map((owned) => {
-        if (owned.pending.length > 0) {
-          const ownedCopy = { ...owned };
-          configData.payload.owned_multisign.forEach((newOwned) => {
-            if (ownedCopy.name === newOwned.name) {
-              ownedCopy.pending = newOwned.pending;
-              ownedCopy.signed = newOwned.signed;
-              ownedCopy.declined = newOwned.declined;
-            }
-          });
-          if (ownedCopy.pending.length === 0) ownedCopy.state = "loaded";
-          return ownedCopy;
-        }
-        return owned;
-      });
-      configData.payload.owned_multisign = allOwned;
-
-      const allInvited = state.main.pending_multisign.map((invited) => {
-        const invitedCopy = { ...invited };
-        configData.payload.pending_multisign.forEach((newInvited) => {
-          if (invitedCopy.name === newInvited.name) {
-            invitedCopy.pending = newInvited.pending;
-            invitedCopy.signed = newInvited.signed;
-            invitedCopy.declined = newInvited.declined;
-          }
-        });
-        return invitedCopy;
-      });
-      configData.payload.pending_multisign = allInvited;
-
-      return configData;
-    }
-  } catch (err) {
-    return thunkAPI.rejectWithValue(err.toString());
-  }
-});
 
 /**
  * @public
@@ -270,8 +221,6 @@ const mainSlice = createSlice({
     size: "lg",
     width: 0,
     multisign_buttons: "yes",
-    poll: false,
-    disablePoll: false,
     showHelp: true,
   },
   reducers: {
@@ -454,31 +403,6 @@ const mainSlice = createSlice({
           };
         } else return doc;
       });
-    },
-    /**
-     * @public
-     * @function setPolling
-     * @desc Redux action to set the polling state
-     */
-    setPolling(state, action) {
-      state.poll = action.payload;
-    },
-    /**
-     * @public
-     * @function enablePolling
-     * @desc Redux action to enable polling
-     */
-    enablePolling(state, action) {
-      state.disablePoll = false;
-      state.poll = true;
-    },
-    /**
-     * @public
-     * @function disablePolling
-     * @desc Redux action to disable polling
-     */
-    disablePolling(state, action) {
-      state.disablePoll = true;
     },
     /**
      * @function startSigningInvited
@@ -682,6 +606,22 @@ const mainSlice = createSlice({
     enableContextualHelp(state, action) {
       state.showHelp = action.payload;
     },
+    /**
+     * @public
+     * @function setOwnedDocs
+     * @desc Redux action to set the owned_multisign key
+     */
+    setOwnedDocs(state, action) {
+      state.owned_multisign = action.payload;
+    },
+    /**
+     * @public
+     * @function setInvitedDocs
+     * @desc Redux action to set the pending_multisign key
+     */
+    setInvitedDocs(state, action) {
+      state.pending_multisign = action.payload;
+    },
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
@@ -694,12 +634,6 @@ const mainSlice = createSlice({
       return {
         ...state,
         signer_attributes: null,
-      };
-    },
-    [poll.fulfilled]: (state, action) => {
-      return {
-        ...state,
-        ...action.payload.payload,
       };
     },
     [getPartiallySignedDoc.fulfilled]: (state, action) => {
@@ -749,9 +683,6 @@ export const {
   setOwnedSigning,
   hideInvitedPreview,
   hideOwnedPreview,
-  setPolling,
-  enablePolling,
-  disablePolling,
   startSigningInvited,
   startSigningOwned,
   setInvitedState,
@@ -765,6 +696,8 @@ export const {
   invitationsSignFailure,
   updateInvitationsFailed,
   enableContextualHelp,
+  setInvitedDocs,
+  setOwnedDocs,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;

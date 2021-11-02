@@ -24,7 +24,6 @@ import {
   removeOwned,
   updateOwned,
   finishInvited,
-  setPolling,
   startSigningInvited,
   startSigningOwned,
   setOwnedState,
@@ -33,6 +32,9 @@ import {
   invitationsSignFailure,
   updateInvitationsFailed,
 } from "slices/Main";
+import {
+  setPolling,
+} from "slices/Poll";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
 import { b64toBlob, hashCode } from "components/utils";

@@ -14,11 +14,13 @@ import {
   showForcedInvitedPreview,
   hideForcedInvitedPreview,
   confirmForcedInvitedPreview,
-  disablePolling,
-  enablePolling,
   declineSigning,
   downloadInvitedSigned,
 } from "slices/Main";
+import {
+  disablePolling,
+  enablePolling,
+} from "slices/Poll";
 
 const mapStateToProps = (state) => {
   return {
