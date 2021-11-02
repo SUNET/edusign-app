@@ -24,7 +24,6 @@ import {
   removeOwned,
   updateOwned,
   finishInvited,
-  setPolling,
   startSigningInvited,
   startSigningOwned,
   setOwnedState,
@@ -33,6 +32,9 @@ import {
   invitationsSignFailure,
   updateInvitationsFailed,
 } from "slices/Main";
+import {
+  setPolling,
+} from "slices/Poll";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
 import { b64toBlob, hashCode } from "components/utils";
@@ -90,7 +92,7 @@ export const loadDocuments = createAsyncThunk(
       if (signing) {
         dataElem = document.getElementById("sign-response-holder");
         if (dataElem === null) {
-          documents = documents.map((doc) => {
+          documents = await Promise.all(documents.map( async (doc) => {
             if (doc.state === "signing") {
               const failedDoc = {
                 ...doc,
@@ -100,10 +102,10 @@ export const loadDocuments = createAsyncThunk(
                   id: "load-doc-problem-signing",
                 }),
               };
-              dbSaveDocument(failedDoc);
+              await dbSaveDocument(failedDoc);
               return failedDoc;
             } else return doc;
-          });
+          }));
           thunkAPI.dispatch(updateInvitationsFailed(
             {message: args.intl.formatMessage({
               defaultMessage: "The signing process was interrupted, please try again.",
@@ -791,8 +793,8 @@ export const downloadAllSigned = createAsyncThunk(
     let docs = state.documents.documents.filter((doc) => {
       return doc.state === "signed";
     });
-    docs.concat(
-      state.main.owned_multisign.filter((doc) => {
+    docs = docs.concat(
+      state.main.pending_multisign.filter((doc) => {
         return doc.state === "signed";
       })
     );
