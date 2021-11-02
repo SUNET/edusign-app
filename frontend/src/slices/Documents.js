@@ -90,7 +90,7 @@ export const loadDocuments = createAsyncThunk(
       if (signing) {
         dataElem = document.getElementById("sign-response-holder");
         if (dataElem === null) {
-          documents = await documents.map( async (doc) => {
+          documents = await Promise.all(documents.map( async (doc) => {
             if (doc.state === "signing") {
               const failedDoc = {
                 ...doc,
@@ -103,7 +103,7 @@ export const loadDocuments = createAsyncThunk(
               await dbSaveDocument(failedDoc);
               return failedDoc;
             } else return doc;
-          });
+          }));
           thunkAPI.dispatch(updateInvitationsFailed(
             {message: args.intl.formatMessage({
               defaultMessage: "The signing process was interrupted, please try again.",
