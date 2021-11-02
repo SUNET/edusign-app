@@ -791,8 +791,8 @@ export const downloadAllSigned = createAsyncThunk(
     let docs = state.documents.documents.filter((doc) => {
       return doc.state === "signed";
     });
-    docs.concat(
-      state.main.owned_multisign.filter((doc) => {
+    docs = docs.concat(
+      state.main.pending_multisign.filter((doc) => {
         return doc.state === "signed";
       })
     );
