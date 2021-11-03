@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import asyncio
+from base64 import b64decode
 import json
 import os
 import uuid
@@ -550,11 +551,10 @@ def get_signed_documents(sign_data: dict) -> dict:
             # attach PDF
             doc_name = current_app.doc_store.get_document_name(key)
             signed_doc_name = ''.join(doc_name.split('.')[:-1] + ['-signed']) + '.pdf'
-            attachment = MIMEBase('application', 'pdf')
-            attachment.set_payload(doc['signedContent'])
-            attachment.add_header('Content-Transfer-Encoding', 'base64')
-            attachment['Content-Disposition'] = 'attachment; filename="%s"' % signed_doc_name
-            msg.attach(attachment)
+            pdf_bytes = b64decode(doc['signedContent'], validate=True)
+            msg.add_attachment(pdf_bytes, maintype='application', subtype='pdf', filename=signed_doc_name)
+
+            current_app.logger.debug(f"Email with PDF attached:\n\n{msg}\n\n")
 
             current_app.mailer.send(msg)
 
