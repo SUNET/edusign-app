@@ -14,6 +14,7 @@ import ReInviteForm from "components/ReInviteForm";
 
 import { resendInvitations } from "slices/Documents";
 import { hideResend } from "slices/Modals";
+import { unsetSpinning } from "slices/Button";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -30,8 +31,11 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: async function (values, props) {
       await dispatch(resendInvitations({ values: values, intl: props.intl }));
+      dispatch(unsetSpinning());
+      dispatch(hideResend());
     },
     handleClose: function () {
+      dispatch(unsetSpinning());
       dispatch(hideResend());
     },
   };
