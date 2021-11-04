@@ -114,6 +114,20 @@ export const loadDocuments = createAsyncThunk(
           ));
         }
       }
+      documents = await Promise.all(documents.map( async (doc) => {
+        if (doc.state === "loading") {
+          const failedDoc = {
+            ...doc,
+            state: "failed-preparing",
+            message: args.intl.formatMessage({
+              defaultMessage: "There was a problem preparing the document, please try again",
+              id: "load-doc-problem-preparing",
+            }),
+          };
+          await dbSaveDocument(failedDoc);
+          return failedDoc;
+        } else return doc;
+      }));
       thunkAPI.dispatch(documentsSlice.actions.setDocuments(documents));
       if (signing && dataElem !== null) {
         await fetchSignedDocuments(thunkAPI, dataElem, args.intl);
