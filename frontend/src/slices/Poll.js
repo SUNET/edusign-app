@@ -33,7 +33,9 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
     if (configData.error) {
       return thunkAPI.rejectWithValue(configData.message);
     } else {
+      const currentOwned = [];
       const allOwned = state.main.owned_multisign.map((owned) => {
+        currentOwned.push(owned.name);
         if (owned.pending.length > 0) {
           const ownedCopy = { ...owned };
           configData.payload.owned_multisign.forEach((newOwned) => {
@@ -48,10 +50,19 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
         }
         return owned;
       });
+      if (configData.payload.owned_multisign.length > currentOwned.length) {
+        configData.payload.owned_multisign.forEach((newOwned) => {
+          if (!currentOwned.includes(newOwned.name)) {
+            allOwned.push(newOwned);
+          }
+        });
+      }
       thunkAPI.dispatch(setOwnedDocs(allOwned));
       delete configData.payload.owned_multisign;
 
+      const currentInvited = [];
       const allInvited = state.main.pending_multisign.map((invited) => {
+        currentInvited.push(invited.name);
         const invitedCopy = { ...invited };
         configData.payload.pending_multisign.forEach((newInvited) => {
           if (invitedCopy.name === newInvited.name) {
@@ -62,6 +73,13 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
         });
         return invitedCopy;
       });
+      if (configData.payload.pending_multisign.length > currentInvited.length) {
+        configData.payload.pending_multisign.forEach((newInvited) => {
+          if (!currentInvited.includes(newInvited.name)) {
+            allInvited.push(newInvited);
+          }
+        });
+      }
       thunkAPI.dispatch(setInvitedDocs(allInvited));
       delete configData.payload.pending_multisign;
 

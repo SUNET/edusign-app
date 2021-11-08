@@ -263,7 +263,14 @@ const mainSlice = createSlice({
      * @desc Redux action to add an owned multisign request
      */
     addOwned(state, action) {
-      state.owned_multisign.push(action.payload);
+      let present = false;
+      const doc = action.payload;
+      state.owned_multisign.forEach(owned => {
+        if (owned.name === doc.name) present = true;
+      });
+      if (!present) {
+        state.owned_multisign.push(doc);
+      }
     },
     /**
      * @public

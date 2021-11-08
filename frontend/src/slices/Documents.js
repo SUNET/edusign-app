@@ -892,8 +892,8 @@ export const sendInvites = createAsyncThunk(
       signed: [],
       state: "incomplete",
     };
-    thunkAPI.dispatch(addOwned(owned));
     await thunkAPI.dispatch(removeDocument({ docName: document.name }));
+    thunkAPI.dispatch(addOwned(owned));
     thunkAPI.dispatch(setPolling(true));
     return document.key;
   }
