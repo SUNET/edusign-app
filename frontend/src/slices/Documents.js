@@ -177,6 +177,24 @@ export const checkStoredDocuments = createAsyncThunk(
 );
 
 const dealWithPDFError = (doc, err) => {
+  if (err !== undefined && err.message.startsWith("Invalid")) {
+    doc.message = intl.formatMessage({
+      defaultMessage: "Document seems corrupted",
+      id: "validate-problem-corrupted",
+    });
+  } else if (err !== undefined && err.message === "No password given") {
+    doc.message = intl.formatMessage({
+      defaultMessage: "Please do not supply a password protected document",
+      id: "validate-problem-password",
+    });
+  } else {
+    doc.message = intl.formatMessage({
+      defaultMessage: "Document is unreadable",
+      id: "validate-problem-unreadable",
+    });
+  }
+  doc.state = "failed-loading";
+  return doc;
 };
 
 /**
@@ -202,16 +220,11 @@ async function validateDoc(doc, intl, state) {
   }
 
   return await pdfjs
-    .getDocument({ url: doc.blob, password: "", stopAtErrors: true })
-    .promise.then((validated) => {
-      return validated.getPage(1).promise.then(() => {
-        doc.show = false;
-        doc.state = "loading";
-        return doc;
-      }).catch((err) => {
-        console.log("Error reading PDF page", err);
-        return dealWithPDFError(doc, err);
-      })
+    .getDocument({ url: doc.blob, password: "" })
+    .promise.then(() => {
+      doc.show = false;
+      doc.state = "loading";
+      return doc;
     })
     .catch((err) => {
       console.log("Error reading PDF doc", err);
