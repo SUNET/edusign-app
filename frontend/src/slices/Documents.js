@@ -198,33 +198,43 @@ async function validateDoc(doc, intl, state) {
     return doc;
   }
 
-  return await pdfjs
-    .getDocument({ url: doc.blob, password: "" })
-    .promise.then((validated) => {
-      doc.show = false;
-      doc.state = "loading";
-      return doc;
-    })
-    .catch((err) => {
-      if (err.message === "No password given") {
-        doc.message = intl.formatMessage({
-          defaultMessage: "Please do not supply a password protected document",
-          id: "validate-problem-password",
-        });
-      } else if (err.message.startsWith("Invalid")) {
-        doc.message = intl.formatMessage({
-          defaultMessage: "Document seems corrupted",
-          id: "validate-problem-corrupted",
-        });
-      } else {
-        doc.message = intl.formatMessage({
-          defaultMessage: "Document is unreadable",
-          id: "validate-problem-unreadable",
-        });
-      }
-      doc.state = "failed-loading";
-      return doc;
+  try {
+    return await pdfjs
+      .getDocument({ url: doc.blob, password: "" })
+      .promise.then(() => {
+        doc.show = false;
+        doc.state = "loading";
+        return doc;
+      })
+      .catch((err) => {
+        if (err.message === "No password given") {
+          doc.message = intl.formatMessage({
+            defaultMessage: "Please do not supply a password protected document",
+            id: "validate-problem-password",
+          });
+        } else if (err.message.startsWith("Invalid")) {
+          doc.message = intl.formatMessage({
+            defaultMessage: "Document seems corrupted",
+            id: "validate-problem-corrupted",
+          });
+        } else {
+          doc.message = intl.formatMessage({
+            defaultMessage: "Document is unreadable",
+            id: "validate-problem-unreadable",
+          });
+        }
+        doc.state = "failed-loading";
+        return doc;
+      });
+  } catch(err) {
+    console.log("Unexpected error validating doc", err);
+    doc.message = intl.formatMessage({
+      defaultMessage: "Document seems corrupted",
+      id: "validate-problem-corrupted",
     });
+    doc.state = "failed-loading";
+    return doc;
+  }
 }
 
 /**
