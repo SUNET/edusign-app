@@ -219,22 +219,17 @@ async function validateDoc(doc, intl, state) {
     return doc;
   }
 
-  try {
-    return await pdfjs
-      .getDocument({ url: doc.blob, password: "", stopAtErrors: true })
-      .promise.then(() => {
-        doc.show = false;
-        doc.state = "loading";
-        return doc;
-      })
-      .catch((err) => {
-        console.log("Error reading PDF doc", err);
-        return dealWithPDFError(doc, err, intl);
-      });
-  } catch(err) {
-    console.log("Error reading PDF doc", err);
-    return dealWithPDFError(doc, err. intl);
-  }
+  return await pdfjs
+    .getDocument({ url: doc.blob, password: "", stopAtErrors: true })
+    .promise.then(() => {
+      doc.show = false;
+      doc.state = "loading";
+      return doc;
+    })
+    .catch((err) => {
+      console.log("Error reading PDF doc", err);
+      return dealWithPDFError(doc, err, intl);
+    });
 }
 
 /**
