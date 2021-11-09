@@ -141,7 +141,7 @@ export const hashCode = function (s) {
  */
 export const preparePrevSigs = (doc) => {
   if (doc.prev_signatures === undefined || doc.prev_signatures === null) return "";
-  const sigStrs = doc.prev_signatures.split(";");
+  const sigStrs = doc.prev_signatures.split(";").filter(sig => sig.length > 0);
   const sigElems = sigStrs.map((sigStr, i) => {
     const sigArr = sigStr.split(",");
     let sig = {};
