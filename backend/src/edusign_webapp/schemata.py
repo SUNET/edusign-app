@@ -143,6 +143,7 @@ class ReferenceSchema(Schema):
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     ref = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     sign_requirement = fields.String(required=True, validate=[validate_nonempty, validate_sign_requirement])
+    prev_signatures = fields.List(fields.String)
 
 
 class ToSignSchema(Schema):

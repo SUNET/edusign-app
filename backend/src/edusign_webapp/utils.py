@@ -110,11 +110,15 @@ def get_invitations():
     }
 
 
-def get_previous_signatures(document: dict) -> list:
-    bytes = b64decode(document['blob'], validate=True)
+def get_previous_signatures(document: dict) -> tuple:
+    content = document['blob']
+    if "," in content:
+        content = content.split(",")[1]
+
+    bytes = b64decode(content, validate=True)
     pdf = io.BytesIO(bytes)
     reader = PdfFileReader(pdf)
     sigs = []
     for sig in reader.embedded_regular_signatures:
         sigs.append(sig.signer_cert.subject.human_friendly)
-    return sigs
+    return tuple(sigs)

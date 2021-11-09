@@ -12,6 +12,9 @@ class OverlayTrigger extends Component {
     return (
       <BOverlayTrigger
         {...this.props}
+          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+          trigger={["hover", "focus"]}
+          rootClose={true}
           show={this.props.showHelp ? undefined : false}
       />
     );

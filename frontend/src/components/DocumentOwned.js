@@ -78,9 +78,6 @@ class DocumentOwned extends Component {
       <>
         <OverlayTrigger
           key={doc.name}
-          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-          trigger={["hover", "focus"]}
-          rootClose={true}
           overlay={
             <Popover placement="auto">
               <PopoverTitle>

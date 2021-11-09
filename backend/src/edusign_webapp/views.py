@@ -61,7 +61,7 @@ from edusign_webapp.schemata import (
     ToRestartSigningSchema,
     ToSignSchema,
 )
-from edusign_webapp.utils import add_attributes_to_session, get_invitations, prepare_document
+from edusign_webapp.utils import add_attributes_to_session, get_invitations, prepare_document, get_previous_signatures
 
 anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
 
@@ -242,7 +242,9 @@ def add_document(document: dict) -> dict:
     sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])
     key = str(uuid.uuid4())
 
-    return {'payload': {'key': key, 'ref': doc_ref, 'sign_requirement': sign_req}}
+    prev_signatures = get_previous_signatures(document)
+
+    return {'payload': {'key': key, 'ref': doc_ref, 'sign_requirement': sign_req, 'prev_signatures': prev_signatures}}
 
 
 @edusign_views.route('/create-sign-request', methods=['POST'])

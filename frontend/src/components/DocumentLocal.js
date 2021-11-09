@@ -8,6 +8,7 @@ import PopoverContent from "react-bootstrap/PopoverContent";
 import PopoverTitle from "react-bootstrap/PopoverTitle";
 
 import * as widgets from "components/widgets";
+import { preparePrevSigs } from "components/utils";
 
 import "styles/DocManager.scss";
 
@@ -130,13 +131,25 @@ class DocumentLocal extends React.Component {
       </div>
     ) || "";
 
+    const prevSignatures = (doc.prev_signatures && doc.prev_signatures.length > 0) && (
+      <div className="signed-previous" key="-1">
+        <span className="signed-previous-label">
+          <FormattedMessage
+            defaultMessage="Previously signed by:"
+            key="multisign-owned-prev-signed"
+          />
+        </span>
+        <span className="signed-previous-items">
+          {preparePrevSigs(doc.prev_signatures)}
+        </span>
+      </div>
+    ) || "";
+
     if (this.props.size === "lg") {
       return (
         <>
           <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
+            key={doc.name}
             overlay={
               <Popover placement="auto">
                 <PopoverTitle>
@@ -148,102 +161,101 @@ class DocumentLocal extends React.Component {
               </Popover>
             }
           >
-            <>
-              <div className={"doc-flex-container-local " + doc.state} key="0">
-                <div className="doc-flex-container">
-                  {doc.state === "loading" && (
-                    <>
-                      {widgets.dummySelectDoc()}
-                      {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                      <div className="doc-manager-buttons">
-                        {widgets.namedSpinner(doc.name, "loading")}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "failed-loading" && (
-                    <>
-                      {widgets.dummySelectDoc()}
-                      {widgets.docName(doc)}
-                      {widgets.showMessage(doc)}
-                      <div className="doc-manager-buttons">
-                        {widgets.removeButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "failed-preparing" && (
-                    <>
-                      {widgets.dummySelectDoc()}
-                      {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                      {widgets.showMessage(doc)}
-                      <div className="doc-manager-buttons">
-                        {widgets.retryButton(this.props, doc)}
-                        {widgets.removeButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "unconfirmed" && (
-                    <>
-                      {widgets.dummySelectDoc()}
-                      {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                      <div className="doc-manager-buttons">
-                        {widgets.forcedPreviewButton(this.props, doc)}
-                        {widgets.removeButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                  {(doc.state === "loaded" ||
-                    doc.state === "selected") && (
-                    <>
-                      {widgets.selectDoc(this.props, doc)}
-                      {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                      <div className="doc-manager-buttons">
-                        {widgets.multiSignButton(this.props, doc)}
-                        {widgets.previewButton(this.props, doc)}
-                        {widgets.removeButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "signing" && (
-                    <>
-                      {widgets.dummySelectDoc()}
-                      {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                      <div className="doc-manager-buttons">
-                        {widgets.namedSpinner(doc.name, "signing")}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "signed" && (
-                    <>
-                      {widgets.dummySelectDoc()}
-                      {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                      <div className="doc-manager-buttons">
-                        {widgets.downloadSignedButton(this.props, doc)}
-                        {widgets.removeButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "failed-signing" && (
-                    <>
-                      {widgets.selectDoc(this.props, doc)}
-                      {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                      {widgets.showMessage(doc)}
-                      <div className="doc-manager-buttons">
-                        {widgets.previewButton(this.props, doc)}
-                        {widgets.removeButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                </div>
-                {signed}
+            <div className={"doc-flex-container-local " + doc.state} key="0">
+              <div className="doc-flex-container">
+                {doc.state === "loading" && (
+                  <>
+                    {widgets.dummySelectDoc()}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                    <div className="doc-manager-buttons">
+                      {widgets.namedSpinner(doc.name, "loading")}
+                    </div>
+                  </>
+                )}
+                {doc.state === "failed-loading" && (
+                  <>
+                    {widgets.dummySelectDoc()}
+                    {widgets.docName(doc)}
+                    {widgets.showMessage(doc)}
+                    <div className="doc-manager-buttons">
+                      {widgets.removeButton(this.props, doc)}
+                    </div>
+                  </>
+                )}
+                {doc.state === "failed-preparing" && (
+                  <>
+                    {widgets.dummySelectDoc()}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                    {widgets.showMessage(doc)}
+                    <div className="doc-manager-buttons">
+                      {widgets.retryButton(this.props, doc)}
+                      {widgets.removeButton(this.props, doc)}
+                    </div>
+                  </>
+                )}
+                {doc.state === "unconfirmed" && (
+                  <>
+                    {widgets.dummySelectDoc()}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                    <div className="doc-manager-buttons">
+                      {widgets.forcedPreviewButton(this.props, doc)}
+                      {widgets.removeButton(this.props, doc)}
+                    </div>
+                  </>
+                )}
+                {(doc.state === "loaded" ||
+                  doc.state === "selected") && (
+                  <>
+                    {widgets.selectDoc(this.props, doc)}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                    <div className="doc-manager-buttons">
+                      {widgets.multiSignButton(this.props, doc)}
+                      {widgets.previewButton(this.props, doc)}
+                      {widgets.removeButton(this.props, doc)}
+                    </div>
+                  </>
+                )}
+                {doc.state === "signing" && (
+                  <>
+                    {widgets.dummySelectDoc()}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                    <div className="doc-manager-buttons">
+                      {widgets.namedSpinner(doc.name, "signing")}
+                    </div>
+                  </>
+                )}
+                {doc.state === "signed" && (
+                  <>
+                    {widgets.dummySelectDoc()}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                    <div className="doc-manager-buttons">
+                      {widgets.downloadSignedButton(this.props, doc)}
+                      {widgets.removeButton(this.props, doc)}
+                    </div>
+                  </>
+                )}
+                {doc.state === "failed-signing" && (
+                  <>
+                    {widgets.selectDoc(this.props, doc)}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                    {widgets.showMessage(doc)}
+                    <div className="doc-manager-buttons">
+                      {widgets.previewButton(this.props, doc)}
+                      {widgets.removeButton(this.props, doc)}
+                    </div>
+                  </>
+                )}
               </div>
-            </>
+              {signed}
+              {prevSignatures}
+            </div>
           </OverlayTrigger>
         </>
       );
@@ -251,9 +263,7 @@ class DocumentLocal extends React.Component {
       return (
         <>
           <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
+            key={doc.name}
             overlay={
               <Tooltip placement="auto">
                 {this.getHelp(doc.state)}
@@ -376,6 +386,7 @@ class DocumentLocal extends React.Component {
                   )}
                 </div>
                 {signed}
+                {prevSignatures}
               </div>
             </>
           </OverlayTrigger>

@@ -1,3 +1,6 @@
+import React from "react";
+
+
 /**
  * @module components/utils
  * @desc Utility functions used in the components.
@@ -127,4 +130,39 @@ export const hashCode = function (s) {
     hash |= 0; // Convert to 32bit integer
   }
   return hash.toString();
+};
+
+/**
+ * @public
+ * @function preparePrevSig
+ * @desc Prepare previous signature for display
+ *
+ */
+export const preparePrevSigs = (sigStrs) => {
+  return sigStrs.map((sigStr, i) => {
+    const sigArr = sigStr.split(",");
+    let sig = {};
+    sigArr.forEach(segment => {
+      const [k, v] = segment.split(":");
+      sig[k.trim()] = v.trim();
+    });
+    let mainVal = "";
+    if (sig.hasOwnProperty("Common Name")) {
+      mainVal = sig["Common Name"];
+      delete sig["Common Name"];
+    } else if (sig.hasOwnProperty("Given Name") && sig.hasOwnProperty("Surname")) {
+      mainVal = `{sig["Given Name"]} {sig["Surname"]}`;
+      delete sig["Given Name"];
+      delete sig["Surname"];
+    } else {
+      mainVal = sig["Serial Number"];
+      delete sig["Serial Number"];
+    }
+    let alt = Object.keys(sig).map(key => {
+      return `${key}: ${sig[key]}`;
+    });
+    return (
+      <span className="signed-previous-item" title={alt} key={i}>{mainVal}</span>
+    );
+  });
 };

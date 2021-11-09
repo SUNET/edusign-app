@@ -168,6 +168,7 @@
 .invitation-doc-name-label,
 .invited-by-label,
 .signed-invites-label,
+.signed-previous-label,
 .declined-invites-label,
 .pending-invites-label {
   margin-right: 0.5rem;
@@ -178,6 +179,8 @@
 .invited-by,
 .pending-invites,
 .declined-invites,
+.declined-invites,
+.signed-previous,
 .signed-invites {
   flex: none;
   margin-top: .2rem;
@@ -200,6 +203,14 @@
 
 .signed-invites-items {
   .signed-invite-item {
+    margin-left: 0.5rem;
+    font-size: 0.8rem;
+    display: inline-block;
+  }
+}
+
+.signed-previous-items {
+  .signed-previous-item {
     margin-left: 0.5rem;
     font-size: 0.8rem;
     display: inline-block;
