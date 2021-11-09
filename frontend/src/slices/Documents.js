@@ -232,8 +232,8 @@ async function validateDoc(doc, intl, state) {
         return dealWithPDFError(doc, err, intl);
       });
   } catch(err) {
-    console.log("Error reading PDF doc", err, intl);
-    return dealWithPDFError(doc, err);
+    console.log("Error reading PDF doc", err);
+    return dealWithPDFError(doc, err. intl);
   }
 }
 
