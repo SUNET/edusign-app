@@ -250,7 +250,9 @@ export const removeDocument = createAsyncThunk(
     const doc = state.documents.documents.filter((d) => {
       return d.name === args.docName;
     })[0];
-    await dbRemoveDocument(doc);
+    if (doc.id !== undefined) {
+      await dbRemoveDocument(doc);
+    }
     thunkAPI.dispatch(documentsSlice.actions.rmDocument(doc.name));
   }
 );
@@ -1359,7 +1361,7 @@ const documentsSlice = createSlice({
   },
   extraReducers: {
     [createDocument.rejected]: (state, action) => {
-      if (action.payload.state !== "dup") {
+      if (action.payload !== undefined && action.payload.state !== "dup") {
         state.documents.push(action.payload);
       }
     },
