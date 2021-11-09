@@ -176,6 +176,9 @@ export const checkStoredDocuments = createAsyncThunk(
   }
 );
 
+const dealWithPDFError = (doc, err) => {
+};
+
 /**
  * @public
  * @function validateDoc
@@ -198,44 +201,20 @@ async function validateDoc(doc, intl, state) {
     return doc;
   }
 
-  try {
-    return await pdfjs
-      .getDocument({ url: doc.blob, password: "" })
-      .promise.then(() => {
+  return await pdfjs
+    .getDocument({ url: doc.blob, password: "" })
+    .promise.then((validated) => {
+      return validated.getPage(1).then(() => {
         doc.show = false;
         doc.state = "loading";
         return doc;
+      }).catch((err) => {
+        return dealWithPDFError(doc, err);
       })
-      .catch((err) => {
-        console.log("Catched error validating PDF", err);
-        if (err.message === "No password given") {
-          doc.message = intl.formatMessage({
-            defaultMessage: "Please do not supply a password protected document",
-            id: "validate-problem-password",
-          });
-        } else if (err.message.startsWith("Invalid")) {
-          doc.message = intl.formatMessage({
-            defaultMessage: "Document seems corrupted",
-            id: "validate-problem-corrupted",
-          });
-        } else {
-          doc.message = intl.formatMessage({
-            defaultMessage: "Document is unreadable",
-            id: "validate-problem-unreadable",
-          });
-        }
-        doc.state = "failed-loading";
-        return doc;
-      });
-  } catch(err) {
-    console.log("Unexpected error validating doc", err);
-    doc.message = intl.formatMessage({
-      defaultMessage: "Document seems corrupted",
-      id: "validate-problem-corrupted",
+    })
+    .catch((err) => {
+      return dealWithPDFError(doc, err);
     });
-    doc.state = "failed-loading";
-    return doc;
-  }
 }
 
 /**
