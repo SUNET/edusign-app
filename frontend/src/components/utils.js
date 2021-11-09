@@ -1,5 +1,6 @@
 import React from "react";
 
+import { FormattedMessage } from "react-intl";
 
 /**
  * @module components/utils
@@ -138,8 +139,10 @@ export const hashCode = function (s) {
  * @desc Prepare previous signature for display
  *
  */
-export const preparePrevSigs = (sigStrs) => {
-  return sigStrs.map((sigStr, i) => {
+export const preparePrevSigs = (doc) => {
+  if (doc.prev_signatures === undefined || doc.prev_signatures === null) return "";
+  const sigStrs = doc.prev_signatures.split(";");
+  const sigElems = sigStrs.map((sigStr, i) => {
     const sigArr = sigStr.split(",");
     let sig = {};
     sigArr.forEach(segment => {
@@ -160,9 +163,22 @@ export const preparePrevSigs = (sigStrs) => {
     }
     let alt = Object.keys(sig).map(key => {
       return `${key}: ${sig[key]}`;
-    });
+    }).join(", ");
     return (
       <span className="signed-previous-item" title={alt} key={i}>{mainVal}</span>
     );
   });
+  return (doc.prev_signatures && doc.prev_signatures.length > 0) && (
+    <div className="signed-previous" key="-1">
+      <span className="signed-previous-label">
+        <FormattedMessage
+          defaultMessage="Previously signed by:"
+          key="multisign-owned-prev-signed"
+        />
+      </span>
+      <span className="signed-previous-items">
+        {sigElems}
+      </span>
+    </div>
+  ) || "";
 };

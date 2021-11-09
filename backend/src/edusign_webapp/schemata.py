@@ -64,6 +64,7 @@ class InvitationsSchema(Schema):
         signed = fields.List(fields.Nested(Invitee))
         declined = fields.List(fields.Nested(Invitee))
         state = fields.String(required=True, validate=[validate_nonempty])
+        prev_signatures = fields.String(default="")
 
     class OwnedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
@@ -71,6 +72,7 @@ class InvitationsSchema(Schema):
         signed = fields.List(fields.Nested(Invitee))
         declined = fields.List(fields.Nested(Invitee))
         state = fields.String(required=True, validate=[validate_nonempty])
+        prev_signatures = fields.String(default="")
 
     pending_multisign = fields.List(fields.Nested(PendingDocument))
     owned_multisign = fields.List(fields.Nested(OwnedDocument))
@@ -108,13 +110,19 @@ class BlobSchema(Schema):
     blob = fields.Raw(required=True, validate=[validate_nonempty])
 
 
-class DocumentSchemaWithKey(_DocumentSchema):
+class _DocumentSchemaWithKey(_DocumentSchema):
     """
     Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
     """
-
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     blob = fields.Raw(required=True, validate=[validate_nonempty])
+
+
+class DocumentSchemaWithKey(_DocumentSchemaWithKey):
+    """
+    Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
+    """
+    prev_signatures = fields.String()
 
 
 class DocumentSchemaWithKeyNoBlob(_DocumentSchema):
@@ -134,16 +142,20 @@ class DocumentSchemaWithKeyInvite(_DocumentSchema):
     invite_key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
 
 
-class ReferenceSchema(Schema):
+class _ReferenceSchema(Schema):
+    """
+    """
+    key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+    ref = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+    sign_requirement = fields.String(required=True, validate=[validate_nonempty, validate_sign_requirement])
+
+
+class ReferenceSchema(_ReferenceSchema):
     """
     Schema to marshal data returned from the `prepare` API endpoint
     referencing a document just prepared for signing.
     """
-
-    key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
-    ref = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
-    sign_requirement = fields.String(required=True, validate=[validate_nonempty, validate_sign_requirement])
-    prev_signatures = fields.List(fields.String)
+    prev_signatures = fields.String(default="")
 
 
 class ToSignSchema(Schema):
@@ -151,7 +163,7 @@ class ToSignSchema(Schema):
     Schema to unmarshal (already prepared) documents to be included in a sign request.
     """
 
-    class ToSignDocumentSchema(ReferenceSchema):
+    class ToSignDocumentSchema(_ReferenceSchema):
         name = fields.String(required=True, validate=[validate_nonempty])
         type = fields.String(required=True, validate=[validate_nonempty, validate_doc_type])
 
@@ -166,7 +178,7 @@ class ToRestartSigningSchema(Schema):
     """
 
     class AllDocuments(Schema):
-        local = fields.List(fields.Nested(DocumentSchemaWithKey))
+        local = fields.List(fields.Nested(_DocumentSchemaWithKey))
         invited = fields.List(fields.Nested(DocumentSchemaWithKeyInvite))
         owned = fields.List(fields.Nested(DocumentSchemaWithKeyNoBlob))
 
@@ -183,7 +195,7 @@ class SignRequestSchema(Schema):
     binding = fields.String(required=True, validate=[validate_nonempty])
     destination_url = fields.String(required=True, validate=[validate_nonempty])
 
-    class DocumentWithIdSchema(ReferenceSchema):
+    class DocumentWithIdSchema(_ReferenceSchema):
         name = fields.String(required=True, validate=[validate_nonempty])
         size = fields.Integer(required=False)
         type = fields.String(required=False)

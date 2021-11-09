@@ -131,20 +131,6 @@ class DocumentLocal extends React.Component {
       </div>
     ) || "";
 
-    const prevSignatures = (doc.prev_signatures && doc.prev_signatures.length > 0) && (
-      <div className="signed-previous" key="-1">
-        <span className="signed-previous-label">
-          <FormattedMessage
-            defaultMessage="Previously signed by:"
-            key="multisign-owned-prev-signed"
-          />
-        </span>
-        <span className="signed-previous-items">
-          {preparePrevSigs(doc.prev_signatures)}
-        </span>
-      </div>
-    ) || "";
-
     if (this.props.size === "lg") {
       return (
         <>
@@ -254,7 +240,7 @@ class DocumentLocal extends React.Component {
                 )}
               </div>
               {signed}
-              {prevSignatures}
+              {preparePrevSigs(doc)}
             </div>
           </OverlayTrigger>
         </>
@@ -386,7 +372,7 @@ class DocumentLocal extends React.Component {
                   )}
                 </div>
                 {signed}
-                {prevSignatures}
+                {preparePrevSigs(doc)}
               </div>
             </>
           </OverlayTrigger>

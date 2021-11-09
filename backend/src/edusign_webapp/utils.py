@@ -110,7 +110,7 @@ def get_invitations():
     }
 
 
-def get_previous_signatures(document: dict) -> tuple:
+def get_previous_signatures(document: dict) -> str:
     content = document['blob']
     if "," in content:
         content = content.split(",")[1]
@@ -121,4 +121,4 @@ def get_previous_signatures(document: dict) -> tuple:
     sigs = []
     for sig in reader.embedded_regular_signatures:
         sigs.append(sig.signer_cert.subject.human_friendly)
-    return tuple(sigs)
+    return ";".join(sigs)

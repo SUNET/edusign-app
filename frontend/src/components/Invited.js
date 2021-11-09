@@ -13,6 +13,7 @@ import DocPreviewContainer from "containers/DocPreview";
 import LittleSpinner from "components/LittleSpinner";
 import ForcedPreviewContainer from "containers/ForcedPreview";
 import * as widgets from "components/widgets";
+import { preparePrevSigs } from "components/utils";
 
 import "styles/Invitation.scss";
 
@@ -263,6 +264,7 @@ class Invited extends Component {
                         </div>
                       </>
                     )}
+                    {preparePrevSigs(doc)}
                   </div>
                 </div>
               </OverlayTrigger>

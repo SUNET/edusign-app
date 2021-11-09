@@ -7,6 +7,7 @@ import PopoverContent from "react-bootstrap/PopoverContent";
 import PopoverTitle from "react-bootstrap/PopoverTitle";
 
 import * as widgets from "components/widgets";
+import { preparePrevSigs } from "components/utils";
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
@@ -291,6 +292,7 @@ class DocumentOwned extends Component {
                   </div>
                 </>
               )}
+              {preparePrevSigs(doc)}
             </div>
           </div>
         </OverlayTrigger>

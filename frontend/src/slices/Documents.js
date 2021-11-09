@@ -856,6 +856,7 @@ export const sendInvites = createAsyncThunk(
         blob: document.blob.split(",")[1],
         size: document.size,
         type: document.type,
+        prev_signatures: document.prev_signatures,
       },
     };
     const body = preparePayload(thunkAPI.getState(), dataToSend);
@@ -888,9 +889,11 @@ export const sendInvites = createAsyncThunk(
       name: document.name,
       size: document.size,
       type: document.type,
+      prev_signatures: document.prev_signatures,
+      state: "incomplete",
       pending: invitees,
       signed: [],
-      state: "incomplete",
+      declined: [],
     };
     await thunkAPI.dispatch(removeDocument({ docName: document.name }));
     thunkAPI.dispatch(addOwned(owned));
