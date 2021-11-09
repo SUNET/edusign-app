@@ -7,7 +7,6 @@ import Tooltip from "react-bootstrap/Tooltip";
 import { humanFileSize } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
 
-
 export const docName = (doc) => {
   return <div className="name-flex-item">{doc.name}</div>;
 };
@@ -32,14 +31,14 @@ export const selectDoc = (props, doc) => {
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
           rootClose={true}
-          overlay={(
+          overlay={
             <Tooltip placement="auto">
               <FormattedMessage
                 defaultMessage="Select the document for signing"
                 key="select-doc-tootip"
               />
             </Tooltip>
-          )}
+          }
         >
           <input
             type="checkbox"
@@ -67,14 +66,14 @@ export const skipSignatureButton = (props, doc) => {
         <OverlayTrigger
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
-          overlay={(
+          overlay={
             <Tooltip placement="auto">
               <FormattedMessage
                 defaultMessage="All requested users have alredy signed the document, click here to skip adding your final signature"
                 key="owned-skip-button-help"
               />
             </Tooltip>
-          )}
+          }
         >
           <Button
             variant="outline-dark"
@@ -99,14 +98,14 @@ export const resendButton = (props, doc) => {
         <OverlayTrigger
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
-          overlay={(
+          overlay={
             <Tooltip placement="auto">
               <FormattedMessage
                 defaultMessage="Click here to re-send an invitation email to all pending users"
                 key="owned-resend-button-help"
               />
             </Tooltip>
-          )}
+          }
         >
           <Button
             variant="outline-dark"
@@ -133,14 +132,14 @@ export const previewButton = (props, doc) => {
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
           rootClose={true}
-          overlay={(
+          overlay={
             <Tooltip placement="auto">
               <FormattedMessage
                 defaultMessage="Display a preview of the unsigned document"
                 key="preview-button-tootip"
               />
             </Tooltip>
-          )}
+          }
         >
           <Button
             variant="outline-dark"
@@ -162,14 +161,14 @@ export const forcedPreviewButton = (props, doc) => {
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
           rootClose={true}
-          overlay={(
+          overlay={
             <Tooltip placement="auto">
               <FormattedMessage
                 defaultMessage="You need to approve all documents for signature"
                 key="forced-preview-button-tootip"
               />
             </Tooltip>
-          )}
+          }
         >
           <Button
             variant="outline-dark"
@@ -186,7 +185,7 @@ export const forcedPreviewButton = (props, doc) => {
       </div>
     </>
   );
-}
+};
 
 export const removeConfirmButton = (props, doc, help) => {
   return (
@@ -195,14 +194,14 @@ export const removeConfirmButton = (props, doc, help) => {
         <OverlayTrigger
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
-          overlay={(
+          overlay={
             <Tooltip placement="auto">
               <FormattedMessage
                 defaultMessage="Cancel Request"
                 key="owned-close-button-help"
               />
             </Tooltip>
-          )}
+          }
         >
           <>
             <Button
@@ -227,14 +226,14 @@ export const removeButton = (props, doc) => {
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
           rootClose={true}
-          overlay={(
+          overlay={
             <Tooltip placement="auto">
               <FormattedMessage
                 defaultMessage="Discard document"
                 key="button-remove-tootip"
               />
             </Tooltip>
-          )}
+          }
         >
           <Button
             variant="outline-danger"
@@ -248,7 +247,7 @@ export const removeButton = (props, doc) => {
       </div>
     </>
   );
-}
+};
 
 export const downloadSignedButton = (props, doc) => {
   return (
@@ -257,14 +256,14 @@ export const downloadSignedButton = (props, doc) => {
         <OverlayTrigger
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
-          overlay={(
+          overlay={
             <Tooltip placement="auto">
               <FormattedMessage
                 defaultMessage="Download signed document. Be sure to save the original rather than a copy."
                 key="button-download-tootip"
               />
             </Tooltip>
-          )}
+          }
         >
           <Button
             variant="outline-success"
@@ -289,14 +288,14 @@ export const retryButton = (props, doc) => {
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
           rootClose={true}
-          overlay={(
+          overlay={
             <Tooltip placement="auto">
               <FormattedMessage
                 defaultMessage="Try again to prepare the document for signing"
                 key="retry-button-tootip"
               />
             </Tooltip>
-          )}
+          }
         >
           <Button
             variant="outline-success"
@@ -310,12 +309,10 @@ export const retryButton = (props, doc) => {
       </div>
     </>
   );
-}
+};
 export const multiSignButton = (props, doc) => {
   if (
-    !["Yes", "yes", "True", "true", "T", "t"].includes(
-      props.multisign_buttons
-    )
+    !["Yes", "yes", "True", "true", "T", "t"].includes(props.multisign_buttons)
   ) {
     return "";
   }
@@ -326,14 +323,14 @@ export const multiSignButton = (props, doc) => {
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
           rootClose={true}
-          overlay={(
+          overlay={
             <Tooltip placement="auto">
               <FormattedMessage
                 defaultMessage="Invite other users to sign the document. After all invitees sign, you'll be offered the chance to add a final signature."
                 key="button-multisign-tootip"
               />
             </Tooltip>
-          )}
+          }
         >
           <Button
             variant="outline-dark"
@@ -351,7 +348,7 @@ export const multiSignButton = (props, doc) => {
       </div>
     </>
   );
-}
+};
 export const showMessage = (doc) => {
   return (
     <>
@@ -360,7 +357,7 @@ export const showMessage = (doc) => {
       </div>
     </>
   );
-}
+};
 
 export const declineSignatureButton = (props, doc) => {
   return (
@@ -369,19 +366,19 @@ export const declineSignatureButton = (props, doc) => {
         <OverlayTrigger
           delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
           trigger={["hover", "focus"]}
-          overlay={(
+          overlay={
             <Tooltip placement="auto">
               <FormattedMessage
                 defaultMessage="Click here to decline your invitation to sign this document."
                 key="invited-decline-button-help"
               />
             </Tooltip>
-          )}
+          }
         >
           <Button
             variant="outline-danger"
             size="sm"
-            onClick={props.handleDeclineSigning({doc: doc, intl: props.intl})}
+            onClick={props.handleDeclineSigning({ doc: doc, intl: props.intl })}
           >
             <FormattedMessage
               defaultMessage="Decline Signature"
@@ -399,4 +396,4 @@ export const dummyButton = (doc) => {
       <div className="button-dummy-flex-item"></div>
     </>
   );
-}
+};

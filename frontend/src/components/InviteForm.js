@@ -15,13 +15,20 @@ const validateEmail = (mail) => {
     let error;
 
     if (!value) {
-      error = <FormattedMessage defaultMessage="Required" key="required-field" />;
+      error = (
+        <FormattedMessage defaultMessage="Required" key="required-field" />
+      );
     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
       error = (
         <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
       );
     } else if (value === mail) {
-      error = <FormattedMessage defaultMessage="Do not invite yourself" key="do-no-invite-yourself" />;
+      error = (
+        <FormattedMessage
+          defaultMessage="Do not invite yourself"
+          key="do-no-invite-yourself"
+        />
+      );
     }
     return error;
   };
@@ -167,9 +174,11 @@ class InviteForm extends React.Component {
                                         fprops.touched.invitees[index] &&
                                         fprops.touched.invitees[index].name &&
                                         (!fprops.errors.invitees ||
-                                        (fprops.errors.invitees &&
-                                        (!fprops.errors.invitees[index] ||
-                                        (fprops.errors.invitees[index] && !fprops.errors.invitees[index].name))))
+                                          (fprops.errors.invitees &&
+                                            (!fprops.errors.invitees[index] ||
+                                              (fprops.errors.invitees[index] &&
+                                                !fprops.errors.invitees[index]
+                                                  .name))))
                                       }
                                       isInvalid={
                                         fprops.touched.invitees &&
@@ -210,9 +219,11 @@ class InviteForm extends React.Component {
                                         fprops.touched.invitees[index] &&
                                         fprops.touched.invitees[index].email &&
                                         (!fprops.errors.invitees ||
-                                        (fprops.errors.invitees &&
-                                        (!fprops.errors.invitees[index] ||
-                                        (fprops.errors.invitees[index] && !fprops.errors.invitees[index].email))))
+                                          (fprops.errors.invitees &&
+                                            (!fprops.errors.invitees[index] ||
+                                              (fprops.errors.invitees[index] &&
+                                                !fprops.errors.invitees[index]
+                                                  .email))))
                                       }
                                       isInvalid={
                                         fprops.touched.invitees &&

@@ -80,7 +80,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
 CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([owner]);
 CREATE INDEX IF NOT EXISTS [InviteeIX] ON [Invites] ([user_id]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-PRAGME user_version = 1;
+PRAGMA user_version = 1;
 """
 
 

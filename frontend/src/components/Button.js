@@ -30,15 +30,11 @@ const spinnerOpts = {
  */
 class Spin extends Component {
   componentDidMount() {
-    const anchor = document.getElementById(
-      this.props.id
-    );
+    const anchor = document.getElementById(this.props.id);
     new Spinner(spinnerOpts).spin(anchor);
   }
   render() {
-    return (
-      <div className="spinner-button-item" id={this.props.id}></div>
-    );
+    return <div className="spinner-button-item" id={this.props.id}></div>;
   }
 }
 
@@ -64,9 +60,7 @@ class Button extends Component {
         disabled={isDisabled}
         onClick={this.props.doHandleClick.bind(this)}
       >
-        {(isSpinning) && (
-          <Spin id={"spinner-" + this.props.id} />
-        )}
+        {isSpinning && <Spin id={"spinner-" + this.props.id} />}
         {this.props.children}
       </BButton>
     );
@@ -85,6 +79,6 @@ Button.defaultProps = {
   disabled: false,
   spinning: "",
   onClick: async () => {},
-}
+};
 
 export default Button;

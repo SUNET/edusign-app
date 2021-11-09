@@ -8,13 +8,8 @@
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import {
-  getRequest,
-  checkStatus,
-  extractCsrfToken,
-} from "slices/fetch-utils";
+import { getRequest, checkStatus, extractCsrfToken } from "slices/fetch-utils";
 import { setOwnedDocs, setInvitedDocs } from "slices/Main";
-
 
 /**
  * @public
@@ -146,11 +141,7 @@ const pollSlice = createSlice({
   },
 });
 
-export const {
-  setPolling,
-  enablePolling,
-  disablePolling,
-  setTimerId,
-} = pollSlice.actions;
+export const { setPolling, enablePolling, disablePolling, setTimerId } =
+  pollSlice.actions;
 
 export default pollSlice.reducer;

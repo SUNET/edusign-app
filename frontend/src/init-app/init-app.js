@@ -90,8 +90,8 @@ const init_app = function (target, component) {
   };
 
   let showHelp = Cookies.get("showHelp");
-  if (showHelp === undefined || showHelp === 'true') showHelp = true;
-  if (showHelp === 'false') showHelp = false;
+  if (showHelp === undefined || showHelp === "true") showHelp = true;
+  if (showHelp === "false") showHelp = false;
   store.dispatch(enableContextualHelp(showHelp));
 
   const wrappedComponent = <Provider store={store}>{component}</Provider>;

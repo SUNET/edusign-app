@@ -152,7 +152,10 @@ function ForcedPreview(props) {
           >
             <Button
               variant="outline-danger"
-              onClick={props.handleUnConfirm({doc: props.doc, intl: props.intl})}
+              onClick={props.handleUnConfirm({
+                doc: props.doc,
+                intl: props.intl,
+              })}
               data-testid={"preview-button-dissaprove-" + props.index}
             >
               <FormattedMessage

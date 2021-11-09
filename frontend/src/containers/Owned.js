@@ -15,10 +15,7 @@ import {
   setOwnedSigning,
   selectOwnedDoc,
 } from "slices/Main";
-import {
-  disablePolling,
-  enablePolling,
-} from "slices/Poll";
+import { disablePolling, enablePolling } from "slices/Poll";
 import { skipOwnedSignature } from "slices/Documents";
 
 const mapStateToProps = (state) => {

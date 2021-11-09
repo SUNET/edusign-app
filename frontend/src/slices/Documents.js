@@ -32,9 +32,7 @@ import {
   invitationsSignFailure,
   updateInvitationsFailed,
 } from "slices/Main";
-import {
-  setPolling,
-} from "slices/Poll";
+import { setPolling } from "slices/Poll";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
 import { b64toBlob, hashCode } from "components/utils";
@@ -92,42 +90,50 @@ export const loadDocuments = createAsyncThunk(
       if (signing) {
         dataElem = document.getElementById("sign-response-holder");
         if (dataElem === null) {
-          documents = await Promise.all(documents.map( async (doc) => {
-            if (doc.state === "signing") {
-              const failedDoc = {
-                ...doc,
-                state: "failed-signing",
-                message: args.intl.formatMessage({
-                  defaultMessage: "There was a problem signing the document",
-                  id: "load-doc-problem-signing",
-                }),
-              };
-              await dbSaveDocument(failedDoc);
-              return failedDoc;
-            } else return doc;
-          }));
-          thunkAPI.dispatch(updateInvitationsFailed(
-            {message: args.intl.formatMessage({
-              defaultMessage: "The signing process was interrupted, please try again.",
-              id: "load-doc-interrupted-signing",
-            })}
-          ));
+          documents = await Promise.all(
+            documents.map(async (doc) => {
+              if (doc.state === "signing") {
+                const failedDoc = {
+                  ...doc,
+                  state: "failed-signing",
+                  message: args.intl.formatMessage({
+                    defaultMessage: "There was a problem signing the document",
+                    id: "load-doc-problem-signing",
+                  }),
+                };
+                await dbSaveDocument(failedDoc);
+                return failedDoc;
+              } else return doc;
+            })
+          );
+          thunkAPI.dispatch(
+            updateInvitationsFailed({
+              message: args.intl.formatMessage({
+                defaultMessage:
+                  "The signing process was interrupted, please try again.",
+                id: "load-doc-interrupted-signing",
+              }),
+            })
+          );
         }
       }
-      documents = await Promise.all(documents.map( async (doc) => {
-        if (doc.state === "loading") {
-          const failedDoc = {
-            ...doc,
-            state: "failed-preparing",
-            message: args.intl.formatMessage({
-              defaultMessage: "There was a problem preparing the document, please try again",
-              id: "load-doc-problem-preparing",
-            }),
-          };
-          await dbSaveDocument(failedDoc);
-          return failedDoc;
-        } else return doc;
-      }));
+      documents = await Promise.all(
+        documents.map(async (doc) => {
+          if (doc.state === "loading") {
+            const failedDoc = {
+              ...doc,
+              state: "failed-preparing",
+              message: args.intl.formatMessage({
+                defaultMessage:
+                  "There was a problem preparing the document, please try again",
+                id: "load-doc-problem-preparing",
+              }),
+            };
+            await dbSaveDocument(failedDoc);
+            return failedDoc;
+          } else return doc;
+        })
+      );
       thunkAPI.dispatch(documentsSlice.actions.setDocuments(documents));
       if (signing && dataElem !== null) {
         await fetchSignedDocuments(thunkAPI, dataElem, args.intl);
@@ -156,12 +162,12 @@ export const checkStoredDocuments = createAsyncThunk(
     if (storedStr !== null) {
       const storedDocs = JSON.parse(storedStr);
       storedDocs.owned.forEach((doc) => {
-        if (doc.state === 'failed-signing') {
+        if (doc.state === "failed-signing") {
           thunkAPI.dispatch(setOwnedState(doc));
         }
       });
       storedDocs.invited.forEach((doc) => {
-        if (doc.state === 'failed-signing') {
+        if (doc.state === "failed-signing") {
           thunkAPI.dispatch(setInvitedState(doc));
         }
       });
@@ -319,10 +325,7 @@ export const createDocument = createAsyncThunk(
     let newDoc = null;
     try {
       thunkAPI.dispatch(documentsSlice.actions.addDocument(doc));
-      newDoc = await addDocumentToDb(
-        doc,
-        state.main.signer_attributes.eppn
-      );
+      newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn);
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
@@ -349,7 +352,8 @@ export const createDocument = createAsyncThunk(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
-            defaultMessage: "Problem preparing document for signing. Please try again or contact the site administration.",
+            defaultMessage:
+              "Problem preparing document for signing. Please try again or contact the site administration.",
             id: "save-docs-problem-preparing",
           }),
         })
@@ -368,7 +372,8 @@ export const createDocument = createAsyncThunk(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
-            defaultMessage: "Problem saving document(s) in session. Please try again or contact the site administration.",
+            defaultMessage:
+              "Problem saving document(s) in session. Please try again or contact the site administration.",
             id: "save-docs-problem-session",
           }),
         })
@@ -736,7 +741,10 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       await state.main.owned_multisign.forEach(async (oldDoc) => {
         if (doc.id === oldDoc.key) {
           let newSigned = [...oldDoc.signed];
-          newSigned.push({name: state.main.signer_attributes.name, email: state.main.signer_attributes.mail});
+          newSigned.push({
+            name: state.main.signer_attributes.name,
+            email: state.main.signer_attributes.mail,
+          });
           const newDoc = {
             ...oldDoc,
             signedContent: "data:application/pdf;base64," + doc.signed_content,
@@ -746,7 +754,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
             showForced: false,
             signed: newSigned,
           };
-          thunkAPI.dispatch(removeOwned({key: doc.id}));
+          thunkAPI.dispatch(removeOwned({ key: doc.id }));
           thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
           await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
         }
@@ -1128,7 +1136,7 @@ export const skipOwnedSignature = createAsyncThunk(
         state: "signed",
         show: false,
       };
-      thunkAPI.dispatch(removeOwned({key: doc.key}));
+      thunkAPI.dispatch(removeOwned({ key: doc.key }));
       const newDoc = await addDocumentToDb(
         doc,
         state.main.signer_attributes.eppn
@@ -1303,9 +1311,7 @@ const documentsSlice = createSlice({
      */
     updateDocumentWithSignedContent(state, action) {
       state.documents = state.documents.map((doc) => {
-        if (
-          doc.key === action.payload.id
-        ) {
+        if (doc.key === action.payload.id) {
           const document = {
             ...doc,
             signedContent:

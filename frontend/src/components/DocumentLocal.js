@@ -28,7 +28,6 @@ import "styles/DocManager.scss";
  * @component
  */
 class DocumentLocal extends React.Component {
-
   getHelp(msg) {
     const msgs = {
       "loading-title": this.props.intl.formatMessage({
@@ -115,21 +114,23 @@ class DocumentLocal extends React.Component {
 
   render() {
     const doc = this.props.doc;
-    const signed = (doc.state === 'signed') && (
-      <div className="signed-invites" key="-1">
-        <span className="signed-invites-label">
-          <FormattedMessage
-            defaultMessage="Signed by:"
-            key="multisign-owned-signed"
-          />
-        </span>
-        <span className="signed-invites-items">
-          <span className="signed-invite-item">
-            {this.props.name} &lt;{this.props.mail}&gt;
+    const signed =
+      (doc.state === "signed" && (
+        <div className="signed-invites" key="-1">
+          <span className="signed-invites-label">
+            <FormattedMessage
+              defaultMessage="Signed by:"
+              key="multisign-owned-signed"
+            />
           </span>
-        </span>
-      </div>
-    ) || "";
+          <span className="signed-invites-items">
+            <span className="signed-invite-item">
+              {this.props.name} &lt;{this.props.mail}&gt;
+            </span>
+          </span>
+        </div>
+      )) ||
+      "";
 
     if (this.props.size === "lg") {
       return (
@@ -141,9 +142,7 @@ class DocumentLocal extends React.Component {
                 <PopoverTitle>
                   {this.getHelp(doc.state + "-title")}
                 </PopoverTitle>
-                <PopoverContent>
-                  {this.getHelp(doc.state)}
-                </PopoverContent>
+                <PopoverContent>{this.getHelp(doc.state)}</PopoverContent>
               </Popover>
             }
           >
@@ -192,8 +191,7 @@ class DocumentLocal extends React.Component {
                     </div>
                   </>
                 )}
-                {(doc.state === "loaded" ||
-                  doc.state === "selected") && (
+                {(doc.state === "loaded" || doc.state === "selected") && (
                   <>
                     {widgets.selectDoc(this.props, doc)}
                     {widgets.docSize(doc)}
@@ -251,13 +249,14 @@ class DocumentLocal extends React.Component {
           <OverlayTrigger
             key={doc.name}
             overlay={
-              <Tooltip placement="auto">
-                {this.getHelp(doc.state)}
-              </Tooltip>
+              <Tooltip placement="auto">{this.getHelp(doc.state)}</Tooltip>
             }
           >
             <>
-              <div className={"doc-flex-container-local-sm " + doc.state} key="0">
+              <div
+                className={"doc-flex-container-local-sm " + doc.state}
+                key="0"
+              >
                 <div className="doc-flex-container-sm">
                   {doc.state === "loading" && (
                     <>
@@ -314,8 +313,7 @@ class DocumentLocal extends React.Component {
                       </div>
                     </>
                   )}
-                  {(doc.state === "loaded" ||
-                    doc.state === "selected") && (
+                  {(doc.state === "loaded" || doc.state === "selected") && (
                     <>
                       <div className="doc-container-first-row">
                         {widgets.selectDoc(this.props, doc)}
@@ -394,4 +392,3 @@ DocumentLocal.propTypes = {
 };
 
 export default injectIntl(DocumentLocal);
-
