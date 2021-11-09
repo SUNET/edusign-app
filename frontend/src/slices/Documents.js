@@ -176,7 +176,7 @@ export const checkStoredDocuments = createAsyncThunk(
   }
 );
 
-const dealWithPDFError = (doc, err) => {
+const dealWithPDFError = (doc, err, intl) => {
   if (err !== undefined && err.message.startsWith("Invalid")) {
     doc.message = intl.formatMessage({
       defaultMessage: "Document seems corrupted",
@@ -219,17 +219,22 @@ async function validateDoc(doc, intl, state) {
     return doc;
   }
 
-  return await pdfjs
-    .getDocument({ url: doc.blob, password: "" })
-    .promise.then(() => {
-      doc.show = false;
-      doc.state = "loading";
-      return doc;
-    })
-    .catch((err) => {
-      console.log("Error reading PDF doc", err);
-      return dealWithPDFError(doc, err);
-    });
+  try {
+    return await pdfjs
+      .getDocument({ url: doc.blob, password: "" })
+      .promise.then(() => {
+        doc.show = false;
+        doc.state = "loading";
+        return doc;
+      })
+      .catch((err) => {
+        console.log("Error reading PDF doc", err);
+        return dealWithPDFError(doc, err, intl);
+      });
+  } catch(err) {
+    console.log("Error reading PDF doc", err, intl);
+    return dealWithPDFError(doc, err);
+  }
 }
 
 /**
