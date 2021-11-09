@@ -202,17 +202,19 @@ async function validateDoc(doc, intl, state) {
   }
 
   return await pdfjs
-    .getDocument({ url: doc.blob, password: "" })
+    .getDocument({ url: doc.blob, password: "", stopAtErrors: true })
     .promise.then((validated) => {
-      return validated.getPage(1).then(() => {
+      return validated.getPage(1).promise.then(() => {
         doc.show = false;
         doc.state = "loading";
         return doc;
       }).catch((err) => {
+        console.log("Error reading PDF page", err);
         return dealWithPDFError(doc, err);
       })
     })
     .catch((err) => {
+      console.log("Error reading PDF doc", err);
       return dealWithPDFError(doc, err);
     });
 }
