@@ -119,6 +119,10 @@ def get_previous_signatures(document: dict) -> str:
     pdf = io.BytesIO(bytes)
     reader = PdfFileReader(pdf)
     sigs = []
-    for sig in reader.embedded_regular_signatures:
-        sigs.append(sig.signer_cert.subject.human_friendly)
-    return ";".join(sigs)
+    try:
+        for sig in reader.embedded_regular_signatures:
+            sigs.append(sig.signer_cert.subject.human_friendly)
+        return ";".join(sigs)
+    except Exception as e:
+        current_app.logger.error(f'Problem reading previous signatures: {e}')
+        return ""
