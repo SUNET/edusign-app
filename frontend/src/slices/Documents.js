@@ -221,7 +221,7 @@ async function validateDoc(doc, intl, state) {
 
   try {
     return await pdfjs
-      .getDocument({ url: doc.blob, password: "" })
+      .getDocument({ url: doc.blob, password: "", stopAtErrors: true })
       .promise.then(() => {
         doc.show = false;
         doc.state = "loading";
