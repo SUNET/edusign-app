@@ -30,9 +30,11 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+import io
 from base64 import b64decode
 from xml.etree import cElementTree as ET
 
+from pyhanko.pdf_utils.reader import PdfFileReader
 from flask import current_app, request, session
 from flask_babel import gettext
 
@@ -106,3 +108,21 @@ def get_invitations():
         'pending_multisign': invited,
         'poll': poll,
     }
+
+
+def get_previous_signatures(document: dict) -> str:
+    content = document['blob']
+    if "," in content:
+        content = content.split(",")[1]
+
+    bytes = b64decode(content, validate=True)
+    pdf = io.BytesIO(bytes)
+    reader = PdfFileReader(pdf)
+    sigs = []
+    try:
+        for sig in reader.embedded_regular_signatures:
+            sigs.append(sig.signer_cert.subject.human_friendly)
+        return ";".join(sigs)
+    except Exception as e:
+        current_app.logger.error(f'Problem reading previous signatures: {e}')
+        return ""

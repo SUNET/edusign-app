@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import asyncio
+from base64 import b64decode
 import json
 import os
 import uuid
@@ -60,7 +61,7 @@ from edusign_webapp.schemata import (
     ToRestartSigningSchema,
     ToSignSchema,
 )
-from edusign_webapp.utils import add_attributes_to_session, get_invitations, prepare_document
+from edusign_webapp.utils import add_attributes_to_session, get_invitations, prepare_document, get_previous_signatures
 
 anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
 
@@ -241,7 +242,9 @@ def add_document(document: dict) -> dict:
     sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])
     key = str(uuid.uuid4())
 
-    return {'payload': {'key': key, 'ref': doc_ref, 'sign_requirement': sign_req}}
+    prev_signatures = get_previous_signatures(document)
+
+    return {'payload': {'key': key, 'ref': doc_ref, 'sign_requirement': sign_req, 'prev_signatures': prev_signatures}}
 
 
 @edusign_views.route('/create-sign-request', methods=['POST'])
@@ -549,12 +552,11 @@ def get_signed_documents(sign_data: dict) -> dict:
 
             # attach PDF
             doc_name = current_app.doc_store.get_document_name(key)
-            signed_doc_name = ''.join(doc_name.split('.')[:-1] + ['-signed']) + '.pdf'
-            attachment = MIMEBase('application', 'pdf')
-            attachment.set_payload(doc['signedContent'])
-            attachment.add_header('Content-Transfer-Encoding', 'base64')
-            attachment['Content-Disposition'] = 'attachment; filename="%s"' % signed_doc_name
-            msg.attach(attachment)
+            signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
+            pdf_bytes = b64decode(doc['signedContent'], validate=True)
+            msg.attach(signed_doc_name, 'application/pdf', pdf_bytes)
+
+            current_app.logger.debug(f"Email with PDF attached:\n\n{msg}\n\n")
 
             current_app.mailer.send(msg)
 
@@ -897,12 +899,11 @@ def skip_final_signature(data: dict) -> dict:
 
         # attach PDF
         doc_name = current_app.doc_store.get_document_name(key)
-        signed_doc_name = ''.join(doc_name.split('.')[:-1] + ['-signed']) + '.pdf'
-        attachment = MIMEBase('application', 'pdf')
-        attachment.set_payload(doc['blob'])
-        attachment.add_header('Content-Transfer-Encoding', 'base64')
-        attachment['Content-Disposition'] = 'attachment; filename="%s"' % signed_doc_name
-        msg.attach(attachment)
+        signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
+        pdf_bytes = b64decode(doc['blob'], validate=True)
+        msg.attach(signed_doc_name, 'application/pdf', pdf_bytes)
+
+        current_app.logger.debug(f"Email with PDF attached:\n\n{msg}\n\n")
 
         current_app.mailer.send(msg)
     except Exception as e:

@@ -78,7 +78,7 @@ class RedisStorageBackend:
         }
         return user
 
-    def insert_document(self, key, name, size, type, owner):
+    def insert_document(self, key, name, size, type, owner, prev_signatures):
         doc_id = self.redis.incr('doc-counter')
         now = datetime.now().timestamp()
         mapping = dict(
@@ -89,6 +89,7 @@ class RedisStorageBackend:
             owner=owner,
             created=now,
             updated=now,
+            prev_signatures=prev_signatures,
         )
         self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
         self.transaction.set(f"doc:key:{key}", doc_id)
@@ -133,6 +134,7 @@ class RedisStorageBackend:
             size=int(b_doc[b'size']),
             type=b_doc[b'type'].decode('utf8'),
             owner=int(b_doc[b'owner']),
+            prev_signatures=b_doc[b'prev_signatures'].decode('utf8'),
         )
         return doc
 
@@ -152,6 +154,7 @@ class RedisStorageBackend:
                 name=b_doc[b'name'].decode('utf8'),
                 size=int(b_doc[b'size']),
                 type=b_doc[b'type'].decode('utf8'),
+                prev_signatures=b_doc[b'prev_signatures'].decode('utf8'),
             )
             docs.append(doc)
         return docs
@@ -327,6 +330,7 @@ class RedisMD(ABCMetadata):
                          + name: The name of the document
                          + size: Size of the doc
                          + type: Content type of the doc
+                         + prev_signatures: previous signatures
         :param owner: Name and email address of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -342,7 +346,7 @@ class RedisMD(ABCMetadata):
             return
 
         document_id = self.client.insert_document(
-            str(key), document['name'], document['size'], document['type'], owner_id
+            str(key), document['name'], document['size'], document['type'], owner_id, document.get('prev_signatures', '')
         )
 
         if document_id is None:  # This should never happen, it's just to please mypy
@@ -384,6 +388,10 @@ class RedisMD(ABCMetadata):
                  + type: Content type of the doc
                  + owner: Email and name of the user requesting the signature
                  + state: the state of the invitation
+                 + pending: List of emails of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails of the users invited to sign the document who have already done so.
+                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + prev_signatures: previous signatures
         """
         invites = self.client.query_invites_from_email(email)
         if invites is None or isinstance(invites, dict):
@@ -504,6 +512,8 @@ class RedisMD(ABCMetadata):
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + state: the state of the invitation
+                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + prev_signatures: previous signatures
         """
         documents = self.client.query_documents_from_owner(email)
         if documents is None or isinstance(documents, dict):

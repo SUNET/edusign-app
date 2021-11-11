@@ -71,9 +71,7 @@ export const fetchConfig = createAsyncThunk(
             eppn: configData.payload.signer_attributes.eppn,
           })
         );
-        thunkAPI.dispatch(
-          setPolling(configData.payload.poll)
-        );
+        thunkAPI.dispatch(setPolling(configData.payload.poll));
         delete configData.payload.poll;
         return configData;
       }
@@ -171,7 +169,8 @@ export const declineSigning = createAsyncThunk(
         message: args.intl.formatMessage({
           defaultMessage: "You have declined to sign this document.",
           id: "declining-document-signature",
-        })};
+        }),
+      };
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
@@ -263,7 +262,14 @@ const mainSlice = createSlice({
      * @desc Redux action to add an owned multisign request
      */
     addOwned(state, action) {
-      state.owned_multisign.push(action.payload);
+      let present = false;
+      const doc = action.payload;
+      state.owned_multisign.forEach((owned) => {
+        if (owned.name === doc.name) present = true;
+      });
+      if (!present) {
+        state.owned_multisign.push(doc);
+      }
     },
     /**
      * @public
@@ -300,9 +306,10 @@ const mainSlice = createSlice({
         if (doc.key === action.payload.id) {
           return {
             ...doc,
-            state: 'signed',
-            message: '',
-            signedContent: "data:application/pdf;base64," + action.payload.signed_content,
+            state: "signed",
+            message: "",
+            signedContent:
+              "data:application/pdf;base64," + action.payload.signed_content,
           };
         }
         return doc;
@@ -320,7 +327,7 @@ const mainSlice = createSlice({
           return {
             ...doc,
             state: state,
-            message: '',
+            message: "",
           };
         } else return doc;
       });
@@ -337,7 +344,7 @@ const mainSlice = createSlice({
           return {
             ...doc,
             state: st,
-            message: '',
+            message: "",
           };
         } else return doc;
       });
@@ -353,7 +360,7 @@ const mainSlice = createSlice({
           return {
             ...doc,
             state: "signing",
-            message: '',
+            message: "",
           };
         } else return doc;
       });
@@ -369,7 +376,7 @@ const mainSlice = createSlice({
           return {
             ...doc,
             state: "signing",
-            message: '',
+            message: "",
           };
         } else return doc;
       });
@@ -415,7 +422,7 @@ const mainSlice = createSlice({
           const document = {
             ...doc,
             state: "signing",
-            message: '',
+            message: "",
           };
           return document;
         } else return doc;
@@ -433,7 +440,7 @@ const mainSlice = createSlice({
           const document = {
             ...doc,
             state: "signing",
-            message: '',
+            message: "",
           };
           return document;
         } else return doc;
@@ -518,7 +525,7 @@ const mainSlice = createSlice({
             ...doc,
             showForced: false,
             state: "selected",
-            message: '',
+            message: "",
           };
         } else return doc;
       });
@@ -532,13 +539,13 @@ const mainSlice = createSlice({
      */
     updateInvitations(state, action) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
-        if (doc.state !== 'signed') {
+        if (doc.state !== "signed") {
           action.payload.owned.forEach((storedDoc) => {
             if (doc.key === storedDoc.key) {
               doc = {
                 ...doc,
                 ...storedDoc,
-                message: '',
+                message: "",
               };
             }
           });
@@ -551,7 +558,7 @@ const mainSlice = createSlice({
             doc = {
               ...doc,
               ...storedDoc,
-              message: '',
+              message: "",
             };
           }
         });
@@ -588,7 +595,7 @@ const mainSlice = createSlice({
      * after encountering a general problem while trying to create a sign request
      */
     invitationsSignFailure(state, action) {
-      ['pending_multisign', 'owned_multisign'].forEach((key) => {
+      ["pending_multisign", "owned_multisign"].forEach((key) => {
         state[key] = state[key].map((doc) => {
           if (doc.state === "signing") {
             doc.state = "failed-signing";
@@ -655,17 +662,15 @@ const mainSlice = createSlice({
       );
     },
     [declineSigning.fulfilled]: (state, action) => {
-      state.pending_multisign = state.pending_multisign.map(
-        (doc) => {
-          if (doc.key === action.payload.key) {
-            return {
-              ...doc,
-              state: 'declined',
-              message: action.payload.message,
-            };
-          } else return doc;
-        }
-      );
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.key === action.payload.key) {
+          return {
+            ...doc,
+            state: "declined",
+            message: action.payload.message,
+          };
+        } else return doc;
+      });
     },
   },
 });

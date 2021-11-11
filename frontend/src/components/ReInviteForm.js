@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
+import Button from "containers/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
@@ -75,14 +75,14 @@ class ReInviteForm extends React.Component {
                     trigger={["hover", "focus"]}
                     rootClose={true}
                     className="tooltip-in-modal"
-                    overlay={(
+                    overlay={
                       <Tooltip className="tooltip-in-modal">
                         <FormattedMessage
                           defaultMessage="Dismiss invitation form"
                           key="cancel-invitation-tootip"
                         />
                       </Tooltip>
-                    )}
+                    }
                   >
                     <Button
                       variant="outline-secondary"
@@ -101,18 +101,22 @@ class ReInviteForm extends React.Component {
                     delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                     trigger={["hover", "focus"]}
                     rootClose={true}
-                    overlay={(
+                    overlay={
                       <Tooltip className="tooltip-in-modal">
                         <FormattedMessage
                           defaultMessage="Resend invitations to sign to invitees pending to sign"
                           key="resend-invitation-tootip"
                         />
                       </Tooltip>
-                    )}
+                    }
                   >
                     <Button
                       variant="outline-success"
-                      type="submit"
+                      onClick={fprops.submitForm}
+                      id={"button-send-invites-" + this.props.docName}
+                      id={"button-resend-" + this.props.doc.name}
+                      disabling={true}
+                      disabled={!fprops.isValid}
                       data-testid={"button-resend-" + this.props.doc.name}
                     >
                       <FormattedMessage

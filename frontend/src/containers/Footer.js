@@ -27,7 +27,11 @@ const mapDispatchToProps = (dispatch) => {
     changeLanguage: function (e) {
       const lang = e.target.closest(".lang-selected").dataset.lang;
       Cookies.remove("lang");
-      Cookies.set("lang", lang, { expires: 365, ameSite: 'Strict', secure: true });
+      Cookies.set("lang", lang, {
+        expires: 365,
+        ameSite: "Strict",
+        secure: true,
+      });
       const msgs = LOCALIZED_MESSAGES[lang];
       dispatch(
         updateIntl({
@@ -39,7 +43,11 @@ const mapDispatchToProps = (dispatch) => {
     handleHelpControl: function (e) {
       const showHelp = e.target.checked;
       Cookies.remove("showHelp");
-      Cookies.set("showHelp", showHelp, { expires: 365, SameSite: 'Strict', secure: true });
+      Cookies.set("showHelp", showHelp, {
+        expires: 365,
+        SameSite: "Strict",
+        secure: true,
+      });
       dispatch(enableContextualHelp(showHelp));
     },
   };

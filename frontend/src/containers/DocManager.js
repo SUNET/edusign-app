@@ -30,10 +30,7 @@ import {
 import { showForm } from "slices/Modals";
 import { clearDocStore } from "init-app/database";
 import { askConfirmation } from "slices/ConfirmDialog";
-import {
-  disablePolling,
-  enablePolling,
-} from "slices/Poll";
+import { disablePolling, enablePolling } from "slices/Poll";
 
 const mapStateToProps = (state) => {
   return {
@@ -47,7 +44,7 @@ const mapStateToProps = (state) => {
     pending: state.main.pending_multisign,
     owned: state.main.owned_multisign,
     unauthn: state.main.unauthn,
-    invitedUnauthn: (state.main.pending_multisign.length > 0),
+    invitedUnauthn: state.main.pending_multisign.length > 0,
     name: state.main.signer_attributes.name,
     mail: state.main.signer_attributes.mail,
   };

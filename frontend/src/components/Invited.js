@@ -13,6 +13,7 @@ import DocPreviewContainer from "containers/DocPreview";
 import LittleSpinner from "components/LittleSpinner";
 import ForcedPreviewContainer from "containers/ForcedPreview";
 import * as widgets from "components/widgets";
+import { preparePrevSigs } from "components/utils";
 
 import "styles/Invitation.scss";
 
@@ -74,7 +75,7 @@ class Invited extends Component {
       }),
       signed: this.props.intl.formatMessage({
         defaultMessage:
-          'You have succesfully signed the document. Once it is signed by all invited parties, you will receive a copy of it by email. Note that if you reload the app, you will not be able to access the document until you receive it via email.',
+          "You have succesfully signed the document. Once it is signed by all invited parties, you will receive a copy of it by email. Note that if you reload the app, you will not be able to access the document until you receive it via email.",
         id: "docmanager-help-signed-invited",
       }),
       "declined-title": this.props.intl.formatMessage({
@@ -83,7 +84,7 @@ class Invited extends Component {
       }),
       declined: this.props.intl.formatMessage({
         defaultMessage:
-          'You have declined to sign this document. It will dissapear from here if you reload the app.',
+          "You have declined to sign this document. It will dissapear from here if you reload the app.",
         id: "docmanager-help-declined-invited",
       }),
     };
@@ -110,30 +111,24 @@ class Invited extends Component {
                     <PopoverTitle>
                       {this.getHelp(doc.state + "-title")}
                     </PopoverTitle>
-                    <PopoverContent>
-                      {this.getHelp(doc.state)}
-                    </PopoverContent>
+                    <PopoverContent>{this.getHelp(doc.state)}</PopoverContent>
                   </Popover>
                 }
               >
                 <div className={"invitation-multisign " + doc.state}>
                   <div className="invitation-multisign-request">
                     <div
-                      className={"invitation-name-and-buttons-" + this.props.size}
+                      className={
+                        "invitation-name-and-buttons-" + this.props.size
+                      }
                     >
                       {doc.state === "unconfirmed" && (
                         <>
                           {widgets.dummySelectDoc()}
                           {widgets.docSize(doc)}
                           {widgets.docName(doc)}
-                          {widgets.forcedPreviewButton(
-                            this.props,
-                            doc
-                          )}
-                          {widgets.declineSignatureButton(
-                            this.props,
-                            doc
-                          )}
+                          {widgets.forcedPreviewButton(this.props, doc)}
+                          {widgets.declineSignatureButton(this.props, doc)}
                         </>
                       )}
                       {["loaded", "selected", "failed-signing"].includes(
@@ -144,14 +139,8 @@ class Invited extends Component {
                           {widgets.docSize(doc)}
                           {widgets.docName(doc)}
                           {widgets.showMessage(doc)}
-                          {widgets.previewButton(
-                            this.props,
-                            doc
-                          )}
-                          {widgets.declineSignatureButton(
-                            this.props,
-                            doc
-                          )}
+                          {widgets.previewButton(this.props, doc)}
+                          {widgets.declineSignatureButton(this.props, doc)}
                         </>
                       )}
                       {doc.state === "signing" && (
@@ -167,10 +156,7 @@ class Invited extends Component {
                           {widgets.dummySelectDoc()}
                           {widgets.docSize(doc)}
                           {widgets.docName(doc)}
-                          {widgets.downloadSignedButton(
-                            this.props,
-                            doc
-                          )}
+                          {widgets.downloadSignedButton(this.props, doc)}
                         </>
                       )}
                       {doc.state === "declined" && (
@@ -207,7 +193,10 @@ class Invited extends Component {
                           <span className="pending-invites-items">
                             {doc.pending.map((invite, index) => {
                               return (
-                                <span className="pending-invite-item" key={index}>
+                                <span
+                                  className="pending-invite-item"
+                                  key={index}
+                                >
                                   {invite.name} &lt;{invite.email}&gt;
                                 </span>
                               );
@@ -216,7 +205,7 @@ class Invited extends Component {
                         </div>
                       </>
                     )}
-                    {(doc.signed.length > 0 || doc.state === 'signed') && (
+                    {(doc.signed.length > 0 || doc.state === "signed") && (
                       <>
                         <div className="signed-invites">
                           <span className="signed-invites-label">
@@ -228,12 +217,15 @@ class Invited extends Component {
                           <span className="signed-invites-items">
                             {doc.signed.map((invite, index) => {
                               return (
-                                <span className="signed-invite-item" key={index}>
+                                <span
+                                  className="signed-invite-item"
+                                  key={index}
+                                >
                                   {invite.name} &lt;{invite.email}&gt;
                                 </span>
                               );
                             })}
-                            {(doc.state === 'signed') && (
+                            {doc.state === "signed" && (
                               <span className="signed-invite-item" key={-1}>
                                 {this.props.name} &lt;{this.props.mail}&gt;
                               </span>
@@ -242,7 +234,7 @@ class Invited extends Component {
                         </div>
                       </>
                     )}
-                    {(doc.declined !== undefined && doc.declined.length > 0) && (
+                    {doc.declined !== undefined && doc.declined.length > 0 && (
                       <>
                         <div className="declined-invites">
                           <span className="declined-invites-label">
@@ -254,7 +246,10 @@ class Invited extends Component {
                           <span className="declined-invites-items">
                             {doc.declined.map((invite, index) => {
                               return (
-                                <span className="declined-invite-item" key={index}>
+                                <span
+                                  className="declined-invite-item"
+                                  key={index}
+                                >
                                   {invite.name} &lt;{invite.email}&gt;
                                 </span>
                               );
@@ -263,6 +258,7 @@ class Invited extends Component {
                         </div>
                       </>
                     )}
+                    {preparePrevSigs(doc)}
                   </div>
                 </div>
               </OverlayTrigger>

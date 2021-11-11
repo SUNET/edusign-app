@@ -128,7 +128,7 @@
       .button-download-flex-item,
       .button-decline-flex-item,
       .button-dummy-flex-item,
-      .button-skip-flex-item{
+      .button-skip-flex-item {
         flex: none;
       }
       .owned-name-and-buttons {
@@ -168,6 +168,7 @@
 .invitation-doc-name-label,
 .invited-by-label,
 .signed-invites-label,
+.signed-previous-label,
 .declined-invites-label,
 .pending-invites-label {
   margin-right: 0.5rem;
@@ -178,10 +179,12 @@
 .invited-by,
 .pending-invites,
 .declined-invites,
+.declined-invites,
+.signed-previous,
 .signed-invites {
   flex: none;
-  margin-top: .2rem;
-  margin-bottom: .2rem;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
 }
 
 .owner-item {
@@ -200,6 +203,14 @@
 
 .signed-invites-items {
   .signed-invite-item {
+    margin-left: 0.5rem;
+    font-size: 0.8rem;
+    display: inline-block;
+  }
+}
+
+.signed-previous-items {
+  .signed-previous-item {
     margin-left: 0.5rem;
     font-size: 0.8rem;
     display: inline-block;

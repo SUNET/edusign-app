@@ -1,6 +1,6 @@
 {
   "name": "edusign-front",
-  "version": "1.0.0rc18",
+  "version": "1.0.0rc37",
   "description": "",
   "browser": "src/entry-points/index.js",
   "scripts": {
@@ -38,7 +38,7 @@
     "react-dropzone": "^11.4.2",
     "react-intl": "^5.20.12",
     "react-intl-redux": "^2.2.0",
-    "react-pdf": "^5.4.0",
+    "react-pdf": "5.4.0",
     "react-redux": "^7.2.5",
     "redux": "^4.1.1",
     "sass": "^1.42.1",

@@ -30,8 +30,17 @@ class Footer extends Component {
       <footer key="0" id="footer" data-testid="edusign-footer">
         <div id="help-control">
           <label className="help-control-container">
-            {(<FormattedMessage defaultMessage="Show contextual help" key="show-help" />)}
-            <input type="checkbox" onChange={this.props.handleHelpControl} checked={this.props.showHelp} />
+            {
+              <FormattedMessage
+                defaultMessage="Show contextual help"
+                key="show-help"
+              />
+            }
+            <input
+              type="checkbox"
+              onChange={this.props.handleHelpControl}
+              checked={this.props.showHelp}
+            />
             <span className="help-control-checkmark"></span>
           </label>
         </div>

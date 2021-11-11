@@ -7,6 +7,7 @@ import PopoverContent from "react-bootstrap/PopoverContent";
 import PopoverTitle from "react-bootstrap/PopoverTitle";
 
 import * as widgets from "components/widgets";
+import { preparePrevSigs } from "components/utils";
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
@@ -31,7 +32,7 @@ class DocumentOwned extends Component {
       }),
       incomplete: this.props.intl.formatMessage({
         defaultMessage:
-          'You must wait for all invited people to sign before signing this document yourself.',
+          "You must wait for all invited people to sign before signing this document yourself.",
         id: "docmanager-help-incomplete",
       }),
       "selected-title": this.props.intl.formatMessage({
@@ -78,25 +79,16 @@ class DocumentOwned extends Component {
       <>
         <OverlayTrigger
           key={doc.name}
-          delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-          trigger={["hover", "focus"]}
-          rootClose={true}
           overlay={
             <Popover placement="auto">
-              <PopoverTitle>
-                {this.getHelp(doc.state + "-title")}
-              </PopoverTitle>
-              <PopoverContent>
-                {this.getHelp(doc.state)}
-              </PopoverContent>
+              <PopoverTitle>{this.getHelp(doc.state + "-title")}</PopoverTitle>
+              <PopoverContent>{this.getHelp(doc.state)}</PopoverContent>
             </Popover>
           }
         >
           <div className={"invitation-multisign " + doc.state}>
             <div className="invitation-multisign-request">
-              <div
-                className={"invitation-name-and-buttons-" + this.props.size}
-              >
+              <div className={"invitation-name-and-buttons-" + this.props.size}>
                 {doc.state === "incomplete" && (
                   <>
                     {(this.props.size === "lg" && (
@@ -106,18 +98,9 @@ class DocumentOwned extends Component {
                         {widgets.docName(doc)}
                         <div className="owned-container-buttons-lg">
                           <>
-                            {widgets.resendButton(
-                              this.props,
-                              doc
-                            )}
-                            {widgets.previewButton(
-                              this.props,
-                              doc
-                            )}
-                            {widgets.removeConfirmButton(
-                              this.props,
-                              doc
-                            )}
+                            {widgets.resendButton(this.props, doc)}
+                            {widgets.previewButton(this.props, doc)}
+                            {widgets.removeConfirmButton(this.props, doc)}
                           </>
                         </div>
                       </>
@@ -133,18 +116,9 @@ class DocumentOwned extends Component {
                           </div>
                           <div className="owned-container-buttons-sm">
                             <>
-                              {widgets.resendButton(
-                                this.props,
-                                doc
-                              )}
-                              {widgets.previewButton(
-                                this.props,
-                                doc
-                              )}
-                              {widgets.removeConfirmButton(
-                                this.props,
-                                doc
-                              )}
+                              {widgets.resendButton(this.props, doc)}
+                              {widgets.previewButton(this.props, doc)}
+                              {widgets.removeConfirmButton(this.props, doc)}
                             </>
                           </div>
                         </div>
@@ -164,18 +138,9 @@ class DocumentOwned extends Component {
                         {widgets.showMessage(doc)}
                         <div className="owned-container-buttons-lg">
                           <>
-                            {widgets.skipSignatureButton(
-                              this.props,
-                              doc
-                            )}
-                            {widgets.previewButton(
-                              this.props,
-                              doc
-                            )}
-                            {widgets.removeConfirmButton(
-                              this.props,
-                              doc
-                            )}
+                            {widgets.skipSignatureButton(this.props, doc)}
+                            {widgets.previewButton(this.props, doc)}
+                            {widgets.removeConfirmButton(this.props, doc)}
                           </>
                         </div>
                       </>
@@ -192,18 +157,9 @@ class DocumentOwned extends Component {
                           </div>
                           <div className="owned-container-buttons-sm">
                             <>
-                              {widgets.skipSignatureButton(
-                                this.props,
-                                doc
-                              )}
-                              {widgets.previewButton(
-                                this.props,
-                                doc
-                              )}
-                              {widgets.removeConfirmButton(
-                                this.props,
-                                doc
-                              )}
+                              {widgets.skipSignatureButton(this.props, doc)}
+                              {widgets.previewButton(this.props, doc)}
+                              {widgets.removeConfirmButton(this.props, doc)}
                             </>
                           </div>
                         </div>
@@ -224,10 +180,7 @@ class DocumentOwned extends Component {
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
-                    {widgets.downloadSignedButton(
-                      this.props,
-                      doc
-                    )}
+                    {widgets.downloadSignedButton(this.props, doc)}
                   </>
                 )}
               </div>
@@ -273,7 +226,7 @@ class DocumentOwned extends Component {
                   </div>
                 </>
               )}
-              {(doc.declined !== undefined && doc.declined.length > 0) && (
+              {doc.declined !== undefined && doc.declined.length > 0 && (
                 <>
                   <div className="declined-invites">
                     <span className="declined-invites-label">
@@ -294,6 +247,7 @@ class DocumentOwned extends Component {
                   </div>
                 </>
               )}
+              {preparePrevSigs(doc)}
             </div>
           </div>
         </OverlayTrigger>

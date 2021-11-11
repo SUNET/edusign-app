@@ -117,6 +117,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                          + name: The name of the document
                          + type: Content type of the doc
                          + size: Size of the doc
+                         + prev_signatures: previous signatures
         :param owner: Email address and name of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -136,6 +137,10 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + type: Content type of the doc
                  + size: Size of the doc
                  + owner: Email of the user requesting the signature
+                 + pending: List of emails of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails of the users invited to sign the document who have already done so.
+                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + prev_signatures: previous signatures
         """
 
     @abc.abstractmethod
@@ -169,6 +174,8 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + size: Size of the doc
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
                  + signed: List of emails of the users invited to sign the document who have already done so.
+                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + prev_signatures: previous signatures
         """
 
     @abc.abstractmethod
@@ -300,6 +307,7 @@ class DocStore(object):
                          + type: Content type of the doc
                          + size: Size of the doc
                          + blob: Contents of the document, as a base64 string.
+                         + prev_signatures: previous signatures
         :param owner: Email address and name of the user that has uploaded the document.
         :param invites: List of names and email addresses of the users that should sign the document.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -321,6 +329,10 @@ class DocStore(object):
                  + type: Content type of the doc
                  + size: Size of the doc
                  + owner: Email and name of the user requesting the signature
+                 + pending: List of emails of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails of the users invited to sign the document who have already done so.
+                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + prev_signatures: previous signatures
         """
         return self.metadata.get_pending(email)
 
@@ -375,6 +387,8 @@ class DocStore(object):
                  + size: Size of the doc
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
                  + signed: List of emails of the users invited to sign the document who have already done so.
+                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + prev_signatures: previous signatures
         """
         return self.metadata.get_owned(email)
 

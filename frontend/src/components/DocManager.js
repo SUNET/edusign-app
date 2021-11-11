@@ -34,7 +34,6 @@ import "styles/Invitation.scss";
  * @component
  */
 class DocManager extends React.Component {
-
   render() {
     let disableSigning = true;
     [this.props.pending, this.props.owned].forEach((docs) => {
@@ -49,7 +48,7 @@ class DocManager extends React.Component {
 
     return (
       <>
-        {(this.props.unauthn && this.props.invitedUnauthn) && (
+        {this.props.unauthn && this.props.invitedUnauthn && (
           <>
             <div className="invited-unauthn-title">
               <FormattedMessage
@@ -59,7 +58,7 @@ class DocManager extends React.Component {
             </div>
           </>
         )}
-        {(this.props.unauthn && !this.props.invitedUnauthn) && (
+        {this.props.unauthn && !this.props.invitedUnauthn && (
           <>
             <div className="invited-unauthn-title">
               <FormattedMessage
@@ -75,7 +74,7 @@ class DocManager extends React.Component {
             </div>
           </>
         )}
-        {(!this.props.unauthn) && (
+        {!this.props.unauthn && (
           <>
             {this.props.documents.length > 0 && (
               <fieldset className="local-monosign-container">
@@ -104,10 +103,14 @@ class DocManager extends React.Component {
                   if (doc.state === "selected") disableSigning = false;
 
                   let docRepr = null;
-                  if (doc.hasOwnProperty('pending')) {
-                    docRepr = (<DocumentOwned key={index} doc={doc} {...this.props} />);
+                  if (doc.hasOwnProperty("pending")) {
+                    docRepr = (
+                      <DocumentOwned key={index} doc={doc} {...this.props} />
+                    );
                   } else {
-                    docRepr = (<DocumentLocal key={index} doc={doc} {...this.props} />);
+                    docRepr = (
+                      <DocumentLocal key={index} doc={doc} {...this.props} />
+                    );
                   }
                   return (
                     <React.Fragment key={index}>
@@ -134,7 +137,10 @@ class DocManager extends React.Component {
                         />
                       )}
                       {["loaded", "selected"].includes(doc.state) && (
-                        <InviteFormContainer docId={doc.id} docName={doc.name} />
+                        <InviteFormContainer
+                          docId={doc.id}
+                          docName={doc.name}
+                        />
                       )}
                     </React.Fragment>
                   );
@@ -144,7 +150,7 @@ class DocManager extends React.Component {
           </>
         )}
         <div className={"multisign-container-" + this.props.size}>
-          {(!this.props.unauthn) && (
+          {!this.props.unauthn && (
             <>
               {this.props.owned.length > 0 && (
                 <fieldset className="owned-multisign-container">
@@ -178,14 +184,14 @@ class DocManager extends React.Component {
               delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
               trigger={["hover", "focus"]}
               rootClose={true}
-              overlay={(
+              overlay={
                 <Tooltip placement="auto">
                   <FormattedMessage
                     defaultMessage="Select documents above and click here to send them for signing."
                     key="button-sign-tootip"
                   />
                 </Tooltip>
-              )}
+              }
             >
               <div id="button-sign-wrapper">
                 <Button
@@ -204,21 +210,21 @@ class DocManager extends React.Component {
               </div>
             </OverlayTrigger>
           </div>
-          {(!this.props.unauthn) && (
+          {!this.props.unauthn && (
             <>
               <div className="button-dlall-flex-item">
                 <OverlayTrigger
                   delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                   trigger={["hover", "focus"]}
                   rootClose={true}
-                  overlay={(
+                  overlay={
                     <Tooltip placement="auto">
                       <FormattedMessage
                         defaultMessage="Download all signed documents."
                         key="button-dlall-tootip"
                       />
                     </Tooltip>
-                  )}
+                  }
                 >
                   <div id="button-dlall-wrapper">
                     <Button
@@ -242,14 +248,14 @@ class DocManager extends React.Component {
                   delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
                   trigger={["hover", "focus"]}
                   rootClose={true}
-                  overlay={(
+                  overlay={
                     <Tooltip placement="auto">
                       <FormattedMessage
                         defaultMessage='Discard all documents in the "Personal documents" list above'
                         key="clear-docs-tootip"
                       />
                     </Tooltip>
-                  )}
+                  }
                 >
                   <div id="button-clear-wrapper">
                     <Button

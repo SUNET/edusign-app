@@ -17,10 +17,7 @@ import {
   declineSigning,
   downloadInvitedSigned,
 } from "slices/Main";
-import {
-  disablePolling,
-  enablePolling,
-} from "slices/Poll";
+import { disablePolling, enablePolling } from "slices/Poll";
 
 const mapStateToProps = (state) => {
   return {
@@ -90,20 +87,24 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleUnConfirmForcedPreview: function (args) {
       return () => {
-        dispatch(declineSigning({
-          key: args.doc.key,
-          intl: args.intl,
-        }));
+        dispatch(
+          declineSigning({
+            key: args.doc.key,
+            intl: args.intl,
+          })
+        );
         dispatch(enablePolling());
         dispatch(hideForcedInvitedPreview(args.doc.name));
       };
     },
     handleDeclineSigning: function (args) {
       return () => {
-        dispatch(declineSigning({
-          key: args.doc.key,
-          intl: args.intl,
-        }));
+        dispatch(
+          declineSigning({
+            key: args.doc.key,
+            intl: args.intl,
+          })
+        );
       };
     },
     handleDlSigned: function (name) {

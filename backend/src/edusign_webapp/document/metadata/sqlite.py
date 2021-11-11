@@ -55,6 +55,7 @@ CREATE TABLE [Documents]
        [created] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
        [updated] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
        [owner] INTEGER NOT NULL,
+       [prev_signatures] TEXT,
        [locked] TIMESTAMP DEFAULT NULL,
        [locked_by] INTEGER DEFAULT NULL,
             FOREIGN KEY ([owner]) REFERENCES [Users] ([user_id])
@@ -79,18 +80,19 @@ CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
 CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([owner]);
 CREATE INDEX IF NOT EXISTS [InviteeIX] ON [Invites] ([user_id]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
+PRAGMA user_version = 1;
 """
 
 
 USER_INSERT = "INSERT INTO Users (name, email) VALUES (?, ?);"
 USER_QUERY_ID = "SELECT user_id FROM Users WHERE email = ?;"
 USER_QUERY = "SELECT name, email FROM Users WHERE user_id = ?;"
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner) VALUES (?, ?, ?, ?, ?);"
+DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner, prev_signatures) VALUES (?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOCK = "SELECT locked, locked_by FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY = "SELECT key, name, size, type, owner FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT d.doc_id, d.key, d.name, d.size, d.type FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.user_id;"
+DOCUMENT_QUERY = "SELECT key, name, size, type, owner, prev_signatures FROM Documents WHERE doc_id = ?;"
+DOCUMENT_QUERY_FROM_OWNER = "SELECT d.doc_id, d.key, d.name, d.size, d.type, d.prev_signatures FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.user_id;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locked_by = NULL WHERE doc_id = ?;"
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locked_by = ? WHERE doc_id = ?;"
@@ -125,7 +127,20 @@ def get_db(db_path):
 
         db.row_factory = make_dicts
 
+        upgrade(db)
+
     return db
+
+
+def upgrade(db):
+    version = db.execute("PRAGMA user_version;").fetchone()['user_version']
+
+    if version == 0:
+        cur = db.cursor()
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [prev_signatures] TEXT;")
+        cur.execute("PRAGMA user_version = 1;")
+        cur.close()
+        db.commit()
 
 
 def close_connection(exception):
@@ -178,6 +193,7 @@ class SqliteMD(ABCMetadata):
                          + name: The name of the document
                          + size: Size of the doc
                          + type: Content type of the doc
+                         + prev_signatures: previous signatures
         :param owner: Name and email address of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -193,8 +209,9 @@ class SqliteMD(ABCMetadata):
             return
 
         owner_id = owner_result['user_id']
+        prev_sigs = document.get("prev_signatures", "")
 
-        self._db_execute(DOCUMENT_INSERT, (str(key), document['name'], document['size'], document['type'], owner_id))
+        self._db_execute(DOCUMENT_INSERT, (str(key), document['name'], document['size'], document['type'], owner_id, prev_sigs))
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
 
         if document_result is None or isinstance(
@@ -244,6 +261,10 @@ class SqliteMD(ABCMetadata):
                  + type: Content type of the doc
                  + owner: Email and name of the user requesting the signature
                  + state: the state of the invitation
+                 + pending: List of emails of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails of the users invited to sign the document who have already done so.
+                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + prev_signatures: previous signatures
         """
         invites = self._db_query(INVITE_QUERY_FROM_EMAIL, (email,))
         if invites is None or isinstance(invites, dict):
@@ -377,6 +398,8 @@ class SqliteMD(ABCMetadata):
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + state: the state of the invitation
+                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + prev_signatures: previous signatures
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (email,))
         if documents is None or isinstance(documents, dict):

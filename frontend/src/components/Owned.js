@@ -36,7 +36,7 @@ class Owned extends Component {
                   handleClose={this.props.handleClosePreview}
                 />
               )}
-              {(doc.state === 'incomplete') && (
+              {doc.state === "incomplete" && (
                 <ReInviteFormContainer doc={doc} />
               )}
               <ConfirmDialogContainer

@@ -1,12 +1,10 @@
 @import "./variables.scss";
 
-
 button.button-with-spinner {
   display: block;
 
   .spinner-button-item {
     position: relative;
-    top: .8rem;
+    top: 0.8rem;
   }
 }
-
