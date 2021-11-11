@@ -64,8 +64,7 @@ dev-env-prepare:
 dev-env-start: dev-env-prepare
 	@cd $(ENV_DIR); \
     docker-compose -f docker-compose-dev.yml rm -s -f; \
-    docker-compose -f docker-compose-dev.yml  up --build $*; \
-    docker-compose -f docker-compose-dev.yml  logs -tf
+    docker-compose -f docker-compose-dev.yml up --build
 
 ## Stop the docker environment
 .PHONY: dev-env-stop

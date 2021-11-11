@@ -2,8 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
-import OverlayTrigger from "containers/Overlay";
-import Tooltip from "react-bootstrap/Tooltip";
 
 import ForcedPreviewContainer from "containers/ForcedPreview";
 import DocPreviewContainer from "containers/DocPreview";
@@ -14,6 +12,7 @@ import { preparePDF } from "components/utils";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 import DocumentLocal from "components/DocumentLocal";
 import DocumentOwned from "components/DocumentOwned";
+import { ESTooltip } from "containers/Overlay";
 
 import "styles/DocManager.scss";
 import "styles/Invitation.scss";
@@ -180,17 +179,12 @@ class DocManager extends React.Component {
         <div id="adjust-vertical-space" />
         <div id="global-buttons-wrapper">
           <div className="button-sign-flex-item">
-            <OverlayTrigger
-              delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-              trigger={["hover", "focus"]}
-              rootClose={true}
-              overlay={
-                <Tooltip placement="auto">
+            <ESTooltip
+              tooltip={
                   <FormattedMessage
                     defaultMessage="Select documents above and click here to send them for signing."
                     key="button-sign-tootip"
                   />
-                </Tooltip>
               }
             >
               <div id="button-sign-wrapper">
@@ -208,22 +202,17 @@ class DocManager extends React.Component {
                   />
                 </Button>
               </div>
-            </OverlayTrigger>
+            </ESTooltip>
           </div>
           {!this.props.unauthn && (
             <>
               <div className="button-dlall-flex-item">
-                <OverlayTrigger
-                  delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-                  trigger={["hover", "focus"]}
-                  rootClose={true}
-                  overlay={
-                    <Tooltip placement="auto">
+                <ESTooltip
+                  tooltip={
                       <FormattedMessage
                         defaultMessage="Download all signed documents."
                         key="button-dlall-tootip"
                       />
-                    </Tooltip>
                   }
                 >
                   <div id="button-dlall-wrapper">
@@ -232,6 +221,7 @@ class DocManager extends React.Component {
                       id="button-dlall"
                       disabled={disableDlAllButton}
                       data-testid="button-dlall"
+                      style={disableDlAllButton ? { pointerEvents: "none" } : {}}
                       size="lg"
                       onClick={this.props.handleDownloadAll.bind(this)}
                     >
@@ -241,20 +231,15 @@ class DocManager extends React.Component {
                       />
                     </Button>
                   </div>
-                </OverlayTrigger>
+                </ESTooltip>
               </div>
               <div className="button-clear-flex-item">
-                <OverlayTrigger
-                  delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-                  trigger={["hover", "focus"]}
-                  rootClose={true}
-                  overlay={
-                    <Tooltip placement="auto">
+                <ESTooltip
+                  tooltip={
                       <FormattedMessage
                         defaultMessage='Discard all documents in the "Personal documents" list above'
                         key="clear-docs-tootip"
                       />
-                    </Tooltip>
                   }
                 >
                   <div id="button-clear-wrapper">
@@ -263,6 +248,7 @@ class DocManager extends React.Component {
                       id="clear-session-button"
                       disabled={disableClearButton}
                       size="lg"
+                      style={disableClearButton ? { pointerEvents: "none" } : {}}
                       onClick={this.props.showConfirm("confirm-clear-session")}
                     >
                       <FormattedMessage
@@ -271,7 +257,7 @@ class DocManager extends React.Component {
                       />
                     </Button>
                   </div>
-                </OverlayTrigger>
+                </ESTooltip>
                 <ConfirmDialogContainer
                   confirmId="confirm-clear-session"
                   title={this.props.intl.formatMessage({
