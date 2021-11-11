@@ -935,6 +935,31 @@ def decline_invitation(data):
         current_app.logger.error(f'Problem declining signature of document: {e}')
         return {'error': True, 'message': gettext('Problem declining signature')}
 
+    try:
+        owner_data = current_app.doc_store.get_owner_data(key)
+        if not owner_data:
+            current_app.logger.error(f"Problem declining document {key} for {session['mail']} with no owner data")
+
+        recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
+        msg = Message(
+            gettext("User %(name)s has declined signing %(docname)s")
+            % {'name': owner_data['name'], 'docname': owner_data['docname']},
+            recipients=recipients,
+        )
+        mail_context = {
+            'document_name': owner_data['docname'],
+            'invited_name': session['displayName'],
+            'invited_email': session['mail'],
+        }
+        msg.body = render_template('declined_by_email.txt.jinja2', **mail_context)
+        current_app.logger.debug(f"Sending email to user {owner_data['email']}:\n{msg.body}")
+        msg.html = render_template('declined_by_email.html.jinja2', **mail_context)
+
+        current_app.mailer.send(msg)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem sending email of declination: {e}')
+
     message = gettext("Success declining signature")
 
     return {'message': message}
