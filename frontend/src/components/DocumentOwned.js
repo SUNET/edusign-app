@@ -181,6 +181,7 @@ class DocumentOwned extends Component {
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
                     {widgets.downloadSignedButton(this.props, doc)}
+                    {widgets.removeConfirmButton(this.props, doc, "confirm-remove-signed-owned-" + doc.name)}
                   </>
                 )}
               </div>

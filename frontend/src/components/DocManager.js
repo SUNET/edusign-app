@@ -103,9 +103,31 @@ class DocManager extends React.Component {
 
                   let docRepr = null;
                   if (doc.hasOwnProperty("pending")) {
-                    docRepr = (
+                    const _docRepr = (
                       <DocumentOwned key={index} doc={doc} {...this.props} />
                     );
+                    if (doc.state === 'signed') {
+                      docRepr = (
+                        <>
+                          {_docRepr}
+                          <ConfirmDialogContainer
+                            confirmId={"confirm-remove-signed-owned-" + doc.name}
+                            title={this.props.intl.formatMessage({
+                              defaultMessage: "Confirm Removal of signed invitation",
+                              id: "header-confirm-remove-signed-owned-title",
+                            })}
+                            mainText={this.props.intl.formatMessage({
+                              defaultMessage:
+                                'Clicking "Confirm" will remove the document',
+                              id: "header-confirm-remove-owned-signed-text",
+                            })}
+                            confirm={this.props.handleSignedRemove(doc.name)}
+                          />
+                        </>
+                      );
+                    } else {
+                      docRepr = _docRepr;
+                    }
                   } else {
                     docRepr = (
                       <DocumentLocal key={index} doc={doc} {...this.props} />

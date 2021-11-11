@@ -187,7 +187,10 @@ export const forcedPreviewButton = (props, doc) => {
   );
 };
 
-export const removeConfirmButton = (props, doc, help) => {
+export const removeConfirmButton = (props, doc, id) => {
+  if (id === undefined) {
+    id = "confirm-remove-owned-" + doc.name;
+  }
   return (
     <>
       <div className="button-remove-flex-item">
@@ -207,7 +210,7 @@ export const removeConfirmButton = (props, doc, help) => {
             <Button
               variant="outline-danger"
               size="sm"
-              onClick={props.showConfirm("confirm-remove-owned-" + doc.name)}
+              onClick={props.showConfirm(id)}
               data-testid={"rm-invitation-" + doc.name}
             >
               <FormattedMessage defaultMessage="Remove" key="remove-button" />

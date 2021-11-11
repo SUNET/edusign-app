@@ -63,6 +63,11 @@ const mapDispatchToProps = (dispatch, props) => {
         await dispatch(removeDocument({ docName: name }));
       };
     },
+    handleSignedRemove: function (name) {
+      return async () => {
+        await dispatch(removeDocument({ docName: name }));
+      };
+    },
     handleRetry: function (doc, props) {
       return async () => {
         dispatch(setState({ name: doc.name, state: "loading" }));
