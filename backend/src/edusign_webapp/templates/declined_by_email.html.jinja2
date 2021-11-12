@@ -1,0 +1,13 @@
+<html>
+<head>
+</head>
+<body>
+{% trans invited_email=invited_email, invited_name=invited_name, document_name=document_name %}
+
+<p>{{ invited_name }} <{{ invited_email }}> has declined signing a document named {{ document_name }}.</p>
+
+{% endtrans %}
+</body>
+</html>
+
+
