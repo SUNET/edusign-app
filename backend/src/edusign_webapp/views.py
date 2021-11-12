@@ -606,27 +606,25 @@ def create_multi_sign_request(data: dict) -> dict:
         return {'error': True, 'message': gettext('Problem storing the document to be multi signed')}
 
     try:
-        for invite in invites:
-            current_app.logger.debug(f"Adding invitation {invite} for {data['document']['name']}")
-            recipients = [f"{invite['name']} <{invite['email']}>"]
-            msg = Message(gettext("XXX Invite mail subject"), recipients=recipients)
-            invited_link = url_for('edusign.get_index', _external=True)
-            context = {
-                'document_name': data['document']['name'],
-                'inviter_name_and_email': f"{owner['name']} <{owner['email']}>",
-                'inviter_name': f"{owner['name']}",
-                'invited_link': invited_link,
-                'text': data['text'],
-            }
-            msg.body = render_template('invitation_email.txt.jinja2', **context)
-            current_app.logger.debug(f"Sending email to user {invite['email']}:\n{msg.body}")
-            msg.html = render_template('invitation_email.html.jinja2', **context)
+        recipients = [f"{invite['name']} <{invite['email']}>" for invite in invites]
+        msg = Message(gettext("XXX Invite mail subject"), recipients=recipients)
+        invited_link = url_for('edusign.get_index', _external=True)
+        context = {
+            'document_name': data['document']['name'],
+            'inviter_name_and_email': f"{owner['name']} <{owner['email']}>",
+            'inviter_name': f"{owner['name']}",
+            'invited_link': invited_link,
+            'text': data['text'],
+        }
+        msg.body = render_template('invitation_email.txt.jinja2', **context)
+        current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
+        msg.html = render_template('invitation_email.html.jinja2', **context)
 
-            current_app.mailer.send(msg)
+        current_app.mailer.send(msg)
 
     except Exception as e:
         current_app.doc_store.remove_document(uuid.UUID(data['document']['key']), force=True)
-        current_app.logger.error(f'Problem sending mails: {e}')
+        current_app.logger.error(f'Problem sending invitation email: {e}')
         return {'error': True, 'message': gettext('Problem sending invitation emails')}
 
     message = gettext("Success creating multi signature request")
@@ -899,29 +897,30 @@ def skip_final_signature(data: dict) -> dict:
 
     try:
         recipients = [f"{invited['name']} <{invited['email']}>" for invited in current_app.doc_store.get_pending_invites(key) if invited['signed']]
-        msg = Message(
-            gettext("Document %(docname)s has been signed by all invited")
-            % {'docname': doc['name']},
-            recipients=recipients,
-        )
-        mail_context = {
-            'document_name': doc['name'],
-            'invited_name': session['displayName'],
-            'invited_email': session['mail'],
-        }
-        msg.body = render_template('signed_all_email.txt.jinja2', **mail_context)
-        current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
-        msg.html = render_template('signed_all_email.html.jinja2', **mail_context)
+        if len(recipients) > 0:
+            msg = Message(
+                gettext("Document %(docname)s has been signed by all invited")
+                % {'docname': doc['name']},
+                recipients=recipients,
+            )
+            mail_context = {
+                'document_name': doc['name'],
+                'invited_name': session['displayName'],
+                'invited_email': session['mail'],
+            }
+            msg.body = render_template('signed_all_email.txt.jinja2', **mail_context)
+            current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
+            msg.html = render_template('signed_all_email.html.jinja2', **mail_context)
 
-        # attach PDF
-        doc_name = current_app.doc_store.get_document_name(key)
-        signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
-        pdf_bytes = b64decode(doc['blob'], validate=True)
-        msg.attach(signed_doc_name, 'application/pdf', pdf_bytes)
+            # attach PDF
+            doc_name = current_app.doc_store.get_document_name(key)
+            signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
+            pdf_bytes = b64decode(doc['blob'], validate=True)
+            msg.attach(signed_doc_name, 'application/pdf', pdf_bytes)
 
-        current_app.logger.debug(f"Email with PDF attached:\n\n{msg}\n\n")
+            current_app.logger.debug(f"Email with PDF attached:\n\n{msg}\n\n")
 
-        current_app.mailer.send(msg)
+            current_app.mailer.send(msg)
     except Exception as e:
         current_app.logger.error(f'Problem sending signed document to invited users: {e}')
 
