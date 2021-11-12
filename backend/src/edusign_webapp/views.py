@@ -31,12 +31,12 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import asyncio
-from base64 import b64decode
 import json
 import os
 import uuid
-from typing import Any, Dict, List, Union
+from base64 import b64decode
 from email.mime.base import MIMEBase
+from typing import Any, Dict, List, Union
 
 import pkg_resources
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
@@ -61,7 +61,7 @@ from edusign_webapp.schemata import (
     ToRestartSigningSchema,
     ToSignSchema,
 )
-from edusign_webapp.utils import add_attributes_to_session, get_invitations, prepare_document, get_previous_signatures
+from edusign_webapp.utils import add_attributes_to_session, get_invitations, get_previous_signatures, prepare_document
 
 anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
 
@@ -350,7 +350,8 @@ def recreate_sign_request(documents: dict) -> dict:
             failedDoc = {
                 'key': doc['key'],
                 'state': 'failed-signing',
-                'message': gettext("There doesn't seem to be an invitation for you to sign %(docname)s.") % {'docname': doc.name},
+                'message': gettext("There doesn't seem to be an invitation for you to sign %(docname)s.")
+                % {'docname': doc.name},
             }
             failed.append(failedDoc)
             continue
@@ -362,7 +363,8 @@ def recreate_sign_request(documents: dict) -> dict:
             failedDoc = {
                 'key': doc['key'],
                 'state': 'failed-signing',
-                'message': gettext("The email %(email)s invited to sign %(docname)s does not coincide with yours.") % {'email': stored['user']['email'], 'docname': doc.name},
+                'message': gettext("The email %(email)s invited to sign %(docname)s does not coincide with yours.")
+                % {'email': stored['user']['email'], 'docname': doc.name},
             }
             failed.append(failedDoc)
             continue
@@ -539,12 +541,15 @@ def get_signed_documents(sign_data: dict) -> dict:
                 current_app.logger.error(f"Problem sending signed by {session['email']} email to {owner['email']}: {e}")
 
         elif owner:
-            recipients = [f"{invited['name']} <{invited['email']}>" for invited in current_app.doc_store.get_pending_invites(key) if invited['signed']]
+            recipients = [
+                f"{invited['name']} <{invited['email']}>"
+                for invited in current_app.doc_store.get_pending_invites(key)
+                if invited['signed']
+            ]
             if len(recipients) > 0:
                 try:
                     msg = Message(
-                        gettext("Document %(docname)s has been signed by all invited")
-                        % {'docname': owner['docname']},
+                        gettext("Document %(docname)s has been signed by all invited") % {'docname': owner['docname']},
                         recipients=recipients,
                     )
                     mail_context = {
@@ -896,11 +901,14 @@ def skip_final_signature(data: dict) -> dict:
         return {'error': True, 'message': gettext('Document not found in the doc store')}
 
     try:
-        recipients = [f"{invited['name']} <{invited['email']}>" for invited in current_app.doc_store.get_pending_invites(key) if invited['signed']]
+        recipients = [
+            f"{invited['name']} <{invited['email']}>"
+            for invited in current_app.doc_store.get_pending_invites(key)
+            if invited['signed']
+        ]
         if len(recipients) > 0:
             msg = Message(
-                gettext("Document %(docname)s has been signed by all invited")
-                % {'docname': doc['name']},
+                gettext("Document %(docname)s has been signed by all invited") % {'docname': doc['name']},
                 recipients=recipients,
             )
             mail_context = {

@@ -230,7 +230,11 @@ class RedisStorageBackend:
 
     def query_invites_from_doc(self, doc_id):
         """"""
-        invite_ids = self.redis.sunion(f'invites:unsigned:document:{doc_id}', f'invites:signed:document:{doc_id}', f'invites:declined:document:{doc_id}')
+        invite_ids = self.redis.sunion(
+            f'invites:unsigned:document:{doc_id}',
+            f'invites:signed:document:{doc_id}',
+            f'invites:declined:document:{doc_id}',
+        )
         invites = []
         for invite_id in invite_ids:
             b_invite = self.redis.hgetall(f"invite:{int(invite_id)}")
@@ -346,7 +350,12 @@ class RedisMD(ABCMetadata):
             return
 
         document_id = self.client.insert_document(
-            str(key), document['name'], document['size'], document['type'], owner_id, document.get('prev_signatures', '')
+            str(key),
+            document['name'],
+            document['size'],
+            document['type'],
+            owner_id,
+            document.get('prev_signatures', ''),
         )
 
         if document_id is None:  # This should never happen, it's just to please mypy

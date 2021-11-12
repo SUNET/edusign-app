@@ -106,14 +106,17 @@ class DocManager extends React.Component {
                     const _docRepr = (
                       <DocumentOwned key={index} doc={doc} {...this.props} />
                     );
-                    if (doc.state === 'signed') {
+                    if (doc.state === "signed") {
                       docRepr = (
                         <>
                           {_docRepr}
                           <ConfirmDialogContainer
-                            confirmId={"confirm-remove-signed-owned-" + doc.name}
+                            confirmId={
+                              "confirm-remove-signed-owned-" + doc.name
+                            }
                             title={this.props.intl.formatMessage({
-                              defaultMessage: "Confirm Removal of signed invitation",
+                              defaultMessage:
+                                "Confirm Removal of signed invitation",
                               id: "header-confirm-remove-signed-owned-title",
                             })}
                             mainText={this.props.intl.formatMessage({
@@ -203,10 +206,10 @@ class DocManager extends React.Component {
           <div className="button-sign-flex-item">
             <ESTooltip
               tooltip={
-                  <FormattedMessage
-                    defaultMessage="Select documents above and click here to send them for signing."
-                    key="button-sign-tootip"
-                  />
+                <FormattedMessage
+                  defaultMessage="Select documents above and click here to send them for signing."
+                  key="button-sign-tootip"
+                />
               }
             >
               <div id="button-sign-wrapper">
@@ -231,10 +234,10 @@ class DocManager extends React.Component {
               <div className="button-dlall-flex-item">
                 <ESTooltip
                   tooltip={
-                      <FormattedMessage
-                        defaultMessage="Download all signed documents."
-                        key="button-dlall-tootip"
-                      />
+                    <FormattedMessage
+                      defaultMessage="Download all signed documents."
+                      key="button-dlall-tootip"
+                    />
                   }
                 >
                   <div id="button-dlall-wrapper">
@@ -243,7 +246,9 @@ class DocManager extends React.Component {
                       id="button-dlall"
                       disabled={disableDlAllButton}
                       data-testid="button-dlall"
-                      style={disableDlAllButton ? { pointerEvents: "none" } : {}}
+                      style={
+                        disableDlAllButton ? { pointerEvents: "none" } : {}
+                      }
                       size="lg"
                       onClick={this.props.handleDownloadAll.bind(this)}
                     >
@@ -258,10 +263,10 @@ class DocManager extends React.Component {
               <div className="button-clear-flex-item">
                 <ESTooltip
                   tooltip={
-                      <FormattedMessage
-                        defaultMessage='Discard all documents in the "Personal documents" list above'
-                        key="clear-docs-tootip"
-                      />
+                    <FormattedMessage
+                      defaultMessage='Discard all documents in the "Personal documents" list above'
+                      key="clear-docs-tootip"
+                    />
                   }
                 >
                   <div id="button-clear-wrapper">
@@ -270,7 +275,9 @@ class DocManager extends React.Component {
                       id="clear-session-button"
                       disabled={disableClearButton}
                       size="lg"
-                      style={disableClearButton ? { pointerEvents: "none" } : {}}
+                      style={
+                        disableClearButton ? { pointerEvents: "none" } : {}
+                      }
                       onClick={this.props.showConfirm("confirm-clear-session")}
                     >
                       <FormattedMessage

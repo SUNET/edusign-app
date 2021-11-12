@@ -41,11 +41,7 @@ export class ESTooltip extends Component {
         trigger={["hover", "focus"]}
         rootClose={true}
         show={props.showHelp ? undefined : false}
-        overlay={
-          <Tooltip placement="auto">
-          {tooltip}
-          </Tooltip>
-        }
+        overlay={<Tooltip placement="auto">{tooltip}</Tooltip>}
       />
     );
   }

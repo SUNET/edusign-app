@@ -211,7 +211,9 @@ class SqliteMD(ABCMetadata):
         owner_id = owner_result['user_id']
         prev_sigs = document.get("prev_signatures", "")
 
-        self._db_execute(DOCUMENT_INSERT, (str(key), document['name'], document['size'], document['type'], owner_id, prev_sigs))
+        self._db_execute(
+            DOCUMENT_INSERT, (str(key), document['name'], document['size'], document['type'], owner_id, prev_sigs)
+        )
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
 
         if document_result is None or isinstance(
