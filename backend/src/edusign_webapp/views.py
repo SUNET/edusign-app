@@ -517,48 +517,57 @@ def get_signed_documents(sign_data: dict) -> dict:
             current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
             current_app.doc_store.unlock_document(key, session['mail'])
 
-            recipients = [f"{owner['name']} <{owner['email']}>"]
-            msg = Message(
-                gettext("User %(name)s has signed %(docname)s")
-                % {'name': session['displayName'], 'docname': owner['docname']},
-                recipients=recipients,
-            )
-            mail_context = {
-                'document_name': owner['docname'],
-                'invited_name': session['displayName'],
-                'invited_email': session['mail'],
-            }
-            msg.body = render_template('signed_by_email.txt.jinja2', **mail_context)
-            current_app.logger.debug(f"Sending email to user {owner['email']}:\n{msg.body}")
-            msg.html = render_template('signed_by_email.html.jinja2', **mail_context)
+            try:
+                recipients = [f"{owner['name']} <{owner['email']}>"]
+                msg = Message(
+                    gettext("User %(name)s has signed %(docname)s")
+                    % {'name': session['displayName'], 'docname': owner['docname']},
+                    recipients=recipients,
+                )
+                mail_context = {
+                    'document_name': owner['docname'],
+                    'invited_name': session['displayName'],
+                    'invited_email': session['mail'],
+                }
+                msg.body = render_template('signed_by_email.txt.jinja2', **mail_context)
+                current_app.logger.debug(f"Sending email to user {owner['email']}:\n{msg.body}")
+                msg.html = render_template('signed_by_email.html.jinja2', **mail_context)
 
-            current_app.mailer.send(msg)
+                current_app.mailer.send(msg)
+
+            except Exception as e:
+                current_app.logger.error(f"Problem sending signed by {session['email']} email to {owner['email']}: {e}")
 
         elif owner:
             recipients = [f"{invited['name']} <{invited['email']}>" for invited in current_app.doc_store.get_pending_invites(key) if invited['signed']]
-            msg = Message(
-                gettext("Document %(docname)s has been signed by all invited")
-                % {'docname': owner['docname']},
-                recipients=recipients,
-            )
-            mail_context = {
-                'document_name': owner['docname'],
-                'invited_name': session['displayName'],
-                'invited_email': session['mail'],
-            }
-            msg.body = render_template('signed_all_email.txt.jinja2', **mail_context)
-            current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
-            msg.html = render_template('signed_all_email.html.jinja2', **mail_context)
+            if len(recipients) > 0:
+                try:
+                    msg = Message(
+                        gettext("Document %(docname)s has been signed by all invited")
+                        % {'docname': owner['docname']},
+                        recipients=recipients,
+                    )
+                    mail_context = {
+                        'document_name': owner['docname'],
+                        'invited_name': session['displayName'],
+                        'invited_email': session['mail'],
+                    }
+                    msg.body = render_template('signed_all_email.txt.jinja2', **mail_context)
+                    current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
+                    msg.html = render_template('signed_all_email.html.jinja2', **mail_context)
 
-            # attach PDF
-            doc_name = current_app.doc_store.get_document_name(key)
-            signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
-            pdf_bytes = b64decode(doc['signedContent'], validate=True)
-            msg.attach(signed_doc_name, 'application/pdf', pdf_bytes)
+                    # attach PDF
+                    doc_name = current_app.doc_store.get_document_name(key)
+                    signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
+                    pdf_bytes = b64decode(doc['signedContent'], validate=True)
+                    msg.attach(signed_doc_name, 'application/pdf', pdf_bytes)
 
-            current_app.logger.debug(f"Email with PDF attached:\n\n{msg}\n\n")
+                    current_app.logger.debug(f"Email with PDF attached:\n\n{msg}\n\n")
 
-            current_app.mailer.send(msg)
+                    current_app.mailer.send(msg)
+
+                except Exception as e:
+                    current_app.logger.error(f"Problem sending signed by {owner['email']} email to all invited: {e}")
 
             current_app.doc_store.remove_document(key)
 
@@ -651,9 +660,8 @@ def send_multisign_reminder(data: dict) -> dict:
         current_app.logger.error(f"Could not find document {data['key']} pending signing the multi sign request")
         return {'error': True, 'message': gettext('Could not find users to multi sign the document')}
 
-    for invite in pending:
-        current_app.logger.debug(f"Sending reminder to {invite} for {docname}")
-        recipients = [f"{invite['name']} <{invite['email']}>"]
+    try:
+        recipients = [f"{invite['name']} <{invite['email']}>" for invite in pending]
         msg = Message(gettext("XXX Reminder mail subject"), recipients=recipients)
         invited_link = url_for('edusign.get_index', _external=True)
         context = {
@@ -664,10 +672,14 @@ def send_multisign_reminder(data: dict) -> dict:
             'text': 'text' in data and data['text'] or "",
         }
         msg.body = render_template('reminder_email.txt.jinja2', **context)
-        current_app.logger.debug(f"Sending email to user {invite['email']}:\n{msg.body}")
+        current_app.logger.debug(f"Sending reminder email to users {recipients}:\n{msg.body}")
         msg.html = render_template('reminder_email.html.jinja2', **context)
 
         current_app.mailer.send(msg)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem sending reminder email: {e}')
+        return {'error': True, 'message': gettext('Problem sending the email')}
 
     message = gettext("Success reminding pending users")
 
@@ -749,29 +761,33 @@ def multi_sign_service_callback(doc_key) -> str:
     current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
     current_app.doc_store.unlock_document(key, session['mail'])
 
-    owner_data = current_app.doc_store.get_owner_data(key)
-    if not owner_data:
-        current_app.logger.error(f"Problem signing document {key} for {session['mail']} with no owner data")
-        context['title'] = gettext("Problem signing the document")
-        context['message'] = gettext('There is no owner data for this document')
-        return render_template('error-generic.jinja2', **context)
+    try:
+        owner_data = current_app.doc_store.get_owner_data(key)
+        if not owner_data:
+            current_app.logger.error(f"Problem signing document {key} for {session['mail']} with no owner data")
+            context['title'] = gettext("Problem signing the document")
+            context['message'] = gettext('There is no owner data for this document')
+            return render_template('error-generic.jinja2', **context)
 
-    recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
-    msg = Message(
-        gettext("User %(name)s has signed %(docname)s")
-        % {'name': owner_data['name'], 'docname': owner_data['docname']},
-        recipients=recipients,
-    )
-    mail_context = {
-        'document_name': owner_data['docname'],
-        'invited_name': session['displayName'],
-        'invited_email': session['mail'],
-    }
-    msg.body = render_template('signed_by_email.txt.jinja2', **mail_context)
-    current_app.logger.debug(f"Sending email to user {owner_data['email']}:\n{msg.body}")
-    msg.html = render_template('signed_by_email.html.jinja2', **mail_context)
+        recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
+        msg = Message(
+            gettext("User %(name)s has signed %(docname)s")
+            % {'name': owner_data['name'], 'docname': owner_data['docname']},
+            recipients=recipients,
+        )
+        mail_context = {
+            'document_name': owner_data['docname'],
+            'invited_name': session['displayName'],
+            'invited_email': session['mail'],
+        }
+        msg.body = render_template('signed_by_email.txt.jinja2', **mail_context)
+        current_app.logger.debug(f"Sending email to user {owner_data['email']}:\n{msg.body}")
+        msg.html = render_template('signed_by_email.html.jinja2', **mail_context)
 
-    current_app.mailer.send(msg)
+        current_app.mailer.send(msg)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem sending email to all that signed: {e}')
 
     context['title'] = gettext("Document signed")
     context['message'] = gettext("Success processing document sign request")
