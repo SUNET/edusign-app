@@ -630,7 +630,7 @@ def create_multi_sign_request(data: dict) -> dict:
     except Exception as e:
         current_app.doc_store.remove_document(uuid.UUID(data['document']['key']), force=True)
         current_app.logger.error(f'Problem sending invitation email: {e}')
-        return {'error': True, 'message': gettext('Problem sending invitation emails')}
+        return {'error': True, 'message': gettext('There was a problem and the invitation email(s) were not sent')}
 
     message = gettext("Success creating multi signature request")
 
