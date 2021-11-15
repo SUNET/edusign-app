@@ -17,7 +17,7 @@
   "components.DocManager.owned-multisign-legend": "",
   "components.DocManager.sign-selected-button": "Signera valda dokument",
   "components.DocManager.unauthn-text": "",
-  "components.DocManager.unauthn-title": "",
+  "components.DocManager.unauthn-title": "Ej behörig",
   "components.DocPreview.button-close": "Stäng",
   "components.DocumentLocal.multisign-owned-signed": "",
   "components.DocumentOwned.multisign-owned-declined": "",
