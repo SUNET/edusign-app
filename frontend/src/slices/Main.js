@@ -135,7 +135,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
-            defaultMessage: "Problem fetching document from the backend ",
+            defaultMessage: "Problem fetching document from the backend, please try again",
             id: "problem-fetching-document",
           }),
         })
