@@ -125,7 +125,6 @@
   "problem-getting-signed": "Problem getting signed documents",
   "problem-removing-multisign": "Problem removing multi sign request, please try again",
   "problem-sending-invitations": "Problem sending invitations to sign, please try again",
-  "problem-sending-multisign": "Problem sending multi sign request, please try again",
   "problem-signing": "Problem signing the document",
   "problem-skipping-signature": "Problem skipping final signature",
   "save-doc-problem-db": "Problem adding document to in-browser database",
