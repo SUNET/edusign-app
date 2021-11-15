@@ -750,11 +750,11 @@ def skip_final_signature(data: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem getting signed document: {e}')
-        return {'error': True, 'message': gettext('Problem getting the signed document')}
+        return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
     if not doc:
         current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
-        return {'error': True, 'message': gettext('Document not found in the doc store')}
+        return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
     try:
         recipients = [

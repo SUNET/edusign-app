@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-15 14:40+0100\n"
+"POT-Creation-Date: 2021-11-15 14:41+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -164,15 +164,8 @@ msgid "Success removing invitation to sign"
 msgstr ""
 
 #: src/edusign_webapp/views.py:733 src/edusign_webapp/views.py:737
+#: src/edusign_webapp/views.py:753 src/edusign_webapp/views.py:757
 msgid "Cannot find the document being signed"
-msgstr ""
-
-#: src/edusign_webapp/views.py:753
-msgid "Problem getting the signed document"
-msgstr ""
-
-#: src/edusign_webapp/views.py:757
-msgid "Document not found in the doc store"
 msgstr ""
 
 #: src/edusign_webapp/views.py:815
@@ -438,5 +431,11 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Problem getting the document being signed"
+#~ msgstr ""
+
+#~ msgid "Problem getting the signed document"
+#~ msgstr ""
+
+#~ msgid "Document not found in the doc store"
 #~ msgstr ""
 
