@@ -684,7 +684,7 @@ def send_multisign_reminder(data: dict) -> dict:
         current_app.logger.error(f'Problem sending reminder email: {e}')
         return {'error': True, 'message': gettext('Problem sending the email, please try again')}
 
-    message = gettext("Success reminding pending users")
+    message = gettext("Success sending reminder email to pending users")
 
     return {'message': message}
 
