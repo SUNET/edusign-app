@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-15 11:38+0100\n"
+"POT-Creation-Date: 2021-11-15 12:29+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -131,8 +131,12 @@ msgstr ""
 msgid "Problem finding the users pending to multi sign"
 msgstr ""
 
-#: src/edusign_webapp/views.py:660 src/edusign_webapp/views.py:664
+#: src/edusign_webapp/views.py:660
 msgid "Could not find users to multi sign the document"
+msgstr ""
+
+#: src/edusign_webapp/views.py:664
+msgid "Could not find the document"
 msgstr ""
 
 #: src/edusign_webapp/views.py:668
