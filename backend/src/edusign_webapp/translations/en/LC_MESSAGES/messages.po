@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-12 10:20+0100\n"
+"POT-Creation-Date: 2021-11-15 11:38+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -96,12 +96,12 @@ msgid ""
 "site administrator."
 msgstr ""
 
-#: src/edusign_webapp/views.py:525 src/edusign_webapp/views.py:777
+#: src/edusign_webapp/views.py:525
 #, python-format
 msgid "User %(name)s has signed %(docname)s"
 msgstr ""
 
-#: src/edusign_webapp/views.py:552 src/edusign_webapp/views.py:911
+#: src/edusign_webapp/views.py:552 src/edusign_webapp/views.py:767
 #, python-format
 msgid "Document %(docname)s has been signed by all invited"
 msgstr ""
@@ -159,73 +159,28 @@ msgstr ""
 msgid "Success removing multi signature request"
 msgstr ""
 
-#: src/edusign_webapp/views.py:728
-msgid "Back to site"
-msgstr ""
-
-#: src/edusign_webapp/views.py:733 src/edusign_webapp/views.py:752
-#: src/edusign_webapp/views.py:758 src/edusign_webapp/views.py:771
-msgid "Problem signing the document"
-msgstr ""
-
-#: src/edusign_webapp/views.py:734
-msgid "Timeout signing the document, please try again"
-msgstr ""
-
-#: src/edusign_webapp/views.py:753
-msgid "Communication error with the process endpoint of the eduSign API"
-msgstr ""
-
-#: src/edusign_webapp/views.py:759
-msgid "Data error with the process endpoint of the eduSign API"
-msgstr ""
-
-#: src/edusign_webapp/views.py:772
-msgid "There is no owner data for this document"
-msgstr ""
-
-#: src/edusign_webapp/views.py:795
-msgid "Document signed"
-msgstr ""
-
-#: src/edusign_webapp/views.py:796
-msgid "Success processing document sign request"
-msgstr ""
-
-#: src/edusign_webapp/views.py:815
-msgid "Multisigned document not found in the doc store"
-msgstr ""
-
-#: src/edusign_webapp/views.py:843
-msgid "Communication error with the create endpoint of the eduSign API"
-msgstr ""
-
-#: src/edusign_webapp/views.py:857
-msgid "Success creating sign request"
-msgstr ""
-
-#: src/edusign_webapp/views.py:877
+#: src/edusign_webapp/views.py:733
 msgid "Problem getting the document being signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:881 src/edusign_webapp/views.py:901
+#: src/edusign_webapp/views.py:737 src/edusign_webapp/views.py:757
 msgid "Document not found in the doc store"
 msgstr ""
 
-#: src/edusign_webapp/views.py:897
+#: src/edusign_webapp/views.py:753
 msgid "Problem getting the signed document"
 msgstr ""
 
-#: src/edusign_webapp/views.py:959
+#: src/edusign_webapp/views.py:815
 msgid "Problem declining signature"
 msgstr ""
 
-#: src/edusign_webapp/views.py:968
+#: src/edusign_webapp/views.py:824
 #, python-format
 msgid "User %(name)s has declined signing %(docname)s"
 msgstr ""
 
-#: src/edusign_webapp/views.py:986
+#: src/edusign_webapp/views.py:842
 msgid "Success declining signature"
 msgstr ""
 
@@ -398,5 +353,38 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Press the button below to finish the signing process"
+#~ msgstr ""
+
+#~ msgid "Back to site"
+#~ msgstr ""
+
+#~ msgid "Problem signing the document"
+#~ msgstr ""
+
+#~ msgid "Timeout signing the document, please try again"
+#~ msgstr ""
+
+#~ msgid "Communication error with the process endpoint of the eduSign API"
+#~ msgstr ""
+
+#~ msgid "Data error with the process endpoint of the eduSign API"
+#~ msgstr ""
+
+#~ msgid "There is no owner data for this document"
+#~ msgstr ""
+
+#~ msgid "Document signed"
+#~ msgstr ""
+
+#~ msgid "Success processing document sign request"
+#~ msgstr ""
+
+#~ msgid "Multisigned document not found in the doc store"
+#~ msgstr ""
+
+#~ msgid "Communication error with the create endpoint of the eduSign API"
+#~ msgstr ""
+
+#~ msgid "Success creating sign request"
 #~ msgstr ""
 
