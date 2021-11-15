@@ -554,8 +554,6 @@ def get_signed_documents(sign_data: dict) -> dict:
                     )
                     mail_context = {
                         'document_name': owner['docname'],
-                        'invited_name': session['displayName'],
-                        'invited_email': session['mail'],
                     }
                     msg.body = render_template('signed_all_email.txt.jinja2', **mail_context)
                     current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
