@@ -148,10 +148,9 @@ class APIClient(object):
 
         return response
 
-    def _try_creating_sign_request(self, documents: list, single_sign=True, add_blob=False) -> tuple:
+    def _try_creating_sign_request(self, documents: list, add_blob=False) -> tuple:
         """
         :param documents: List with (already prepared) documents to include in the sign request.
-        :param single_sign:  Whether we are creating a request for a single or for multiple signatures
         :return: Pair of  Flask representation of the HTTP response from the API,
                  and list of mappings linking the documents' names with the generated ids.
         """
@@ -162,14 +161,7 @@ class APIClient(object):
             authn_context = self.config['DEBUG_AUTHN_CONTEXT']
 
         correlation_id = str(uuid.uuid4())
-        if single_sign:
-            return_url = url_for('edusign.sign_service_callback', _external=True, _scheme='https')
-        else:
-            current_app.logger.debug(f"Doc key for multi sign: {documents[0]['key']} :: {type(documents[0]['key'])}")
-            doc_key = str(documents[0]['key'])
-            return_url = url_for(
-                'edusign.multi_sign_service_callback', doc_key=doc_key, _external=True, _scheme='https'
-            )
+        return_url = url_for('edusign.sign_service_callback', _external=True, _scheme='https')
         attrs = [{'name': attr, 'value': session[name]} for attr, name in self.config['SIGNER_ATTRIBUTES'].items()]
 
         request_data = {
@@ -204,20 +196,19 @@ class APIClient(object):
 
         return self._post(api_url, request_data), documents_with_id
 
-    def create_sign_request(self, documents: list, single_sign=True, add_blob=False) -> tuple:
+    def create_sign_request(self, documents: list, add_blob=False) -> tuple:
         """
         Send request to the `create` endpoint of the API.
         This API method will create and return the DSS SignRequest message
         that is to be sent to the signature service.
 
         :param documents: List with (already prepared) documents to include in the sign request.
-        :param single_sign:  Whether we are creating a request for a single or for multiple signatures
         :raises ExpiredCache: When the response from the API indicates that the documents to sign have dissapeared from the API's cache.
         :return: Pair of  Flask representation of the HTTP response from the API,
                  and list of mappings linking the documents' names with the generated ids.
         """
         response_data, documents_with_id = self._try_creating_sign_request(
-            documents, single_sign=single_sign, add_blob=add_blob
+            documents, add_blob=add_blob
         )
 
         if (
