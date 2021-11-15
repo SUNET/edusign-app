@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-15 14:07+0100\n"
+"POT-Creation-Date: 2021-11-15 14:25+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sv\n"
@@ -116,7 +116,7 @@ msgid "You cannot invite as %(owner)s"
 msgstr ""
 
 #: src/edusign_webapp/views.py:611
-msgid "Problem storing the document to be multi signed"
+msgid "Problem creating invitation to sign, please try again"
 msgstr ""
 
 #: src/edusign_webapp/views.py:615
@@ -411,5 +411,8 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "User %(name)s has declined signing %(docname)s"
+#~ msgstr ""
+
+#~ msgid "Problem storing the document to be multi signed"
 #~ msgstr ""
 

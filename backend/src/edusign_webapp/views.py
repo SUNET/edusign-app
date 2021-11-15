@@ -608,7 +608,7 @@ def create_multi_sign_request(data: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem processing multi sign request: {e}')
-        return {'error': True, 'message': gettext('Problem storing the document to be multi signed')}
+        return {'error': True, 'message': gettext('Problem creating invitation to sign, please try again')}
 
     try:
         recipients = [f"{invite['name']} <{invite['email']}>" for invite in invites]
