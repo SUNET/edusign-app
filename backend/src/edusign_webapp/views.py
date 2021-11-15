@@ -632,7 +632,7 @@ def create_multi_sign_request(data: dict) -> dict:
         current_app.logger.error(f'Problem sending invitation email: {e}')
         return {'error': True, 'message': gettext('There was a problem and the invitation email(s) were not sent')}
 
-    message = gettext("Success creating multi signature request")
+    message = gettext("Success sending invitations to sign")
 
     return {'message': message}
 
