@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-15 14:29+0100\n"
+"POT-Creation-Date: 2021-11-15 14:31+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -126,8 +126,12 @@ msgstr ""
 msgid "Success sending invitations to sign"
 msgstr ""
 
-#: src/edusign_webapp/views.py:656 src/edusign_webapp/views.py:660
+#: src/edusign_webapp/views.py:656
 msgid "Problem finding the users pending to multi sign"
+msgstr ""
+
+#: src/edusign_webapp/views.py:660
+msgid "Problem finding the users pending to sign"
 msgstr ""
 
 #: src/edusign_webapp/views.py:664
