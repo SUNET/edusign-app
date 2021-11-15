@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-15 14:35+0100\n"
+"POT-Creation-Date: 2021-11-15 14:37+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -151,11 +151,11 @@ msgid "Success sending reminder email to pending users"
 msgstr ""
 
 #: src/edusign_webapp/views.py:707
-msgid "Problem removing the document to be multi signed"
+msgid "Problem removing the invitation, please try again"
 msgstr ""
 
 #: src/edusign_webapp/views.py:711
-msgid "Document has not been removed"
+msgid "Document has not been removed, please try again"
 msgstr ""
 
 #: src/edusign_webapp/views.py:713

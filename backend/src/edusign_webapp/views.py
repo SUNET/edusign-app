@@ -704,11 +704,11 @@ def remove_multi_sign_request(data: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem removing multi sign request: {e}')
-        return {'error': True, 'message': gettext('Problem removing the document to be multi signed')}
+        return {'error': True, 'message': gettext('Problem removing the invitation, please try again')}
 
     if not removed:
         current_app.logger.error(f'Could not remove the multi sign request corresponding to data: {data}')
-        return {'error': True, 'message': gettext('Document has not been removed')}
+        return {'error': True, 'message': gettext('Document has not been removed, please try again')}
 
     message = gettext("Success removing multi signature request")
 
