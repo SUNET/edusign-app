@@ -657,7 +657,7 @@ def send_multisign_reminder(data: dict) -> dict:
 
     if not pending:
         current_app.logger.error(f"Could not find users pending signing the multi sign request {data['key']}")
-        return {'error': True, 'message': gettext('Could not find users to multi sign the document')}
+        return {'error': True, 'message': gettext('Problem finding the users pending to multi sign')}
 
     if not docname:
         current_app.logger.error(f"Could not find document {data['key']} pending signing the multi sign request")
