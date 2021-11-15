@@ -118,7 +118,7 @@
   "no-persistent-state": "no persistent state",
   "prepare-doc-problem": "Problem preparing document, please try again",
   "problem-clearing-db": "problem clearing db, please try again",
-  "problem-creating-multisign": "Problem creating multi sign request, please try again",
+  "problem-creating-multisign": "Problem creating invitation to sign, please try again",
   "problem-creating-sign-request": "Problem creating signature request",
   "problem-declining-document": "Problem declining signature",
   "problem-fetching-document": "Problem fetching document from the backend ",

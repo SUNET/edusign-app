@@ -893,7 +893,7 @@ export const sendInvites = createAsyncThunk(
     }
     if (data.error) {
       const message = args.intl.formatMessage({
-        defaultMessage: "Problem creating multi sign request, please try again",
+        defaultMessage: "Problem creating invitation to sign, please try again",
         id: "problem-creating-multisign",
       });
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
