@@ -710,7 +710,7 @@ def remove_multi_sign_request(data: dict) -> dict:
         current_app.logger.error(f'Could not remove the multi sign request corresponding to data: {data}')
         return {'error': True, 'message': gettext('Document has not been removed, please try again')}
 
-    message = gettext("Success removing multi signature request")
+    message = gettext("Success removing invitation to sign")
 
     return {'message': message}
 
@@ -730,11 +730,11 @@ def get_partially_signed_doc(data: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem getting multi sign document: {e}')
-        return {'error': True, 'message': gettext('Problem getting the document being signed')}
+        return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
     if not doc:
         current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
-        return {'error': True, 'message': gettext('Document not found in the doc store')}
+        return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
     return {'message': 'Success', 'payload': {'blob': doc}}
 
