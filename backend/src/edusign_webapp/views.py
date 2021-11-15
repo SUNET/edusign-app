@@ -350,7 +350,7 @@ def recreate_sign_request(documents: dict) -> dict:
             failedDoc = {
                 'key': doc['key'],
                 'state': 'failed-signing',
-                'message': gettext("There doesn't seem to be an invitation for you to sign %(docname)s.")
+                'message': gettext("There doesn't seem to be an invitation for you to sign \"%(docname)s\".")
                 % {'docname': doc.name},
             }
             failed.append(failedDoc)
@@ -363,7 +363,7 @@ def recreate_sign_request(documents: dict) -> dict:
             failedDoc = {
                 'key': doc['key'],
                 'state': 'failed-signing',
-                'message': gettext("The email %(email)s invited to sign %(docname)s does not coincide with yours.")
+                'message': gettext("The email %(email)s invited to sign \"%(docname)s\" does not coincide with yours.")
                 % {'email': stored['user']['email'], 'docname': doc.name},
             }
             failed.append(failedDoc)
@@ -522,7 +522,7 @@ def get_signed_documents(sign_data: dict) -> dict:
             try:
                 recipients = [f"{owner['name']} <{owner['email']}>"]
                 msg = Message(
-                    gettext("User %(name)s has signed %(docname)s")
+                    gettext("User %(name)s has signed \"%(docname)s\"")
                     % {'name': session['displayName'], 'docname': owner['docname']},
                     recipients=recipients,
                 )
@@ -549,7 +549,7 @@ def get_signed_documents(sign_data: dict) -> dict:
             if len(recipients) > 0:
                 try:
                     msg = Message(
-                        gettext("Document %(docname)s has been signed by all invited") % {'docname': owner['docname']},
+                        gettext("Document \"%(docname)s\" has been signed by all invited") % {'docname': owner['docname']},
                         recipients=recipients,
                     )
                     mail_context = {
@@ -764,7 +764,7 @@ def skip_final_signature(data: dict) -> dict:
         ]
         if len(recipients) > 0:
             msg = Message(
-                gettext("Document %(docname)s has been signed by all invited") % {'docname': doc['name']},
+                gettext("Document \"%(docname)s\" has been signed by all invited") % {'docname': doc['name']},
                 recipients=recipients,
             )
             mail_context = {
@@ -821,7 +821,7 @@ def decline_invitation(data):
 
         recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
         msg = Message(
-            gettext("User %(name)s has declined signing %(docname)s")
+            gettext("User %(name)s has declined signing \"%(docname)s\"")
             % {'name': owner_data['name'], 'docname': owner_data['docname']},
             recipients=recipients,
         )

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-15 14:02+0100\n"
+"POT-Creation-Date: 2021-11-15 14:07+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -79,14 +79,14 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:353
 #, python-format
-msgid "There doesn't seem to be an invitation for you to sign %(docname)s."
+msgid "There doesn't seem to be an invitation for you to sign \"%(docname)s\"."
 msgstr ""
 
 #: src/edusign_webapp/views.py:366
 #, python-format
 msgid ""
-"The email %(email)s invited to sign %(docname)s does not coincide with "
-"yours."
+"The email %(email)s invited to sign \"%(docname)s\" does not coincide "
+"with yours."
 msgstr ""
 
 #: src/edusign_webapp/views.py:392
@@ -97,12 +97,12 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:525
 #, python-format
-msgid "User %(name)s has signed %(docname)s"
+msgid "User %(name)s has signed \"%(docname)s\""
 msgstr ""
 
 #: src/edusign_webapp/views.py:552 src/edusign_webapp/views.py:767
 #, python-format
-msgid "Document %(docname)s has been signed by all invited"
+msgid "Document \"%(docname)s\" has been signed by all invited"
 msgstr ""
 
 #: src/edusign_webapp/views.py:602
@@ -176,7 +176,7 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:824
 #, python-format
-msgid "User %(name)s has declined signing %(docname)s"
+msgid "User %(name)s has declined signing \"%(docname)s\""
 msgstr ""
 
 #: src/edusign_webapp/views.py:842
