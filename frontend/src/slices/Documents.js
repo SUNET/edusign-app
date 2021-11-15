@@ -336,14 +336,14 @@ export const createDocument = createAsyncThunk(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
-            defaultMessage: "Problem adding documents to in-browser database",
+            defaultMessage: "Problem adding documents, please try again",
             id: "save-docs-problem-db",
           }),
         })
       );
       doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
-        defaultMessage: "Problem adding document to in-browser database",
+        defaultMessage: "Problem adding document, please try again",
         id: "save-doc-problem-db",
       });
       return thunkAPI.rejectWithValue(doc);
@@ -1090,7 +1090,7 @@ export const skipOwnedSignature = createAsyncThunk(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
-            defaultMessage: "Problem skipping final signature",
+            defaultMessage: "Problem skipping final signature, please try again",
             id: "problem-skipping-signature",
           }),
         })
