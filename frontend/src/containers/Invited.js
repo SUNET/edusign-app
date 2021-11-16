@@ -18,6 +18,7 @@ import {
   downloadInvitedSigned,
 } from "slices/Main";
 import { disablePolling, enablePolling } from "slices/Poll";
+import { unsetSpinning } from "slices/Button";
 
 const mapStateToProps = (state) => {
   return {
@@ -42,27 +43,29 @@ const mapDispatchToProps = (dispatch, props) => {
       };
     },
     handlePreview: (docKey) => {
-      return () => {
+      return async () => {
         dispatch(disablePolling());
-        dispatch(
+        await dispatch(
           getPartiallySignedDoc({
             key: docKey,
             stateKey: "pending_multisign",
             intl: props.intl,
           })
         );
+        dispatch(unsetSpinning());
       };
     },
     handleClosePreview: function (docKey) {
       return () => {
         dispatch(enablePolling());
+        dispatch(unsetSpinning());
         dispatch(hideInvitedPreview(docKey));
       };
     },
     handleForcedPreview: function (docKey) {
-      return () => {
+      return async () => {
         dispatch(disablePolling());
-        dispatch(
+        await dispatch(
           getPartiallySignedDoc({
             key: docKey,
             stateKey: "pending_multisign",
@@ -70,11 +73,13 @@ const mapDispatchToProps = (dispatch, props) => {
             showForced: true,
           })
         );
+        dispatch(unsetSpinning());
       };
     },
     handleCloseForcedPreview: function (name) {
       return () => {
         dispatch(enablePolling());
+        dispatch(unsetSpinning());
         dispatch(hideForcedInvitedPreview(name));
       };
     },
@@ -82,34 +87,38 @@ const mapDispatchToProps = (dispatch, props) => {
       return () => {
         dispatch(enablePolling());
         dispatch(confirmForcedInvitedPreview(name));
+        dispatch(unsetSpinning());
         dispatch(hideForcedInvitedPreview(name));
       };
     },
     handleUnConfirmForcedPreview: function (args) {
-      return () => {
-        dispatch(
+      return async () => {
+        await dispatch(
           declineSigning({
             key: args.doc.key,
             intl: args.intl,
           })
         );
         dispatch(enablePolling());
+        dispatch(unsetSpinning());
         dispatch(hideForcedInvitedPreview(args.doc.name));
       };
     },
     handleDeclineSigning: function (args) {
-      return () => {
-        dispatch(
+      return async () => {
+        await dispatch(
           declineSigning({
             key: args.doc.key,
             intl: args.intl,
           })
         );
+        dispatch(unsetSpinning());
       };
     },
     handleDlSigned: function (name) {
       return async () => {
         await dispatch(downloadInvitedSigned(name));
+        dispatch(unsetSpinning());
       };
     },
   };

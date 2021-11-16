@@ -103,7 +103,6 @@ class ReInviteForm extends React.Component {
                     <Button
                       variant="outline-success"
                       onClick={fprops.submitForm}
-                      id={"button-send-invites-" + this.props.docName}
                       id={"button-resend-" + this.props.doc.name}
                       disabling={true}
                       disabled={!fprops.isValid}

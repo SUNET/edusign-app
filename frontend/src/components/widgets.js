@@ -1,8 +1,8 @@
 import React from "react";
 import { FormattedMessage, injectIntl } from "react-intl";
-import Button from "react-bootstrap/Button";
 import { ESTooltip } from "containers/Overlay";
 
+import Button from "containers/Button";
 import { humanFileSize } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
 
@@ -68,6 +68,8 @@ export const skipSignatureButton = (props, doc) => {
           <Button
             variant="outline-dark"
             size="sm"
+            id={"button-skipping-" + doc.key}
+            disabling={true}
             onClick={props.handleSkipSigning(doc, props)}
           >
             <FormattedMessage
@@ -124,7 +126,9 @@ export const previewButton = (props, doc) => {
         >
           <Button
             variant="outline-dark"
+            id={"button-preview-" + doc.key}
             size="sm"
+            disabling={true}
             onClick={props.handlePreview(doc.key)}
           >
             <FormattedMessage defaultMessage="Preview" key="preview-button" />
@@ -148,8 +152,9 @@ export const forcedPreviewButton = (props, doc) => {
         >
           <Button
             variant="outline-dark"
-            data-testid={"button-forced-preview-" + doc.name}
+            id={"button-forced-preview-" + doc.key}
             size="sm"
+            disabling={true}
             onClick={props.handleForcedPreview(doc.key)}
           >
             <FormattedMessage
@@ -182,7 +187,7 @@ export const removeConfirmButton = (props, doc, id) => {
             variant="outline-danger"
             size="sm"
             onClick={props.showConfirm(id)}
-            data-testid={"rm-invitation-" + doc.name}
+            id={"button-rm-invitation-" + doc.key}
           >
             <FormattedMessage defaultMessage="Remove" key="remove-button" />
           </Button>
@@ -232,6 +237,8 @@ export const downloadSignedButton = (props, doc) => {
           <Button
             variant="outline-success"
             size="sm"
+            id={"button-donwload-signed-" + doc.key}
+            disabling={true}
             onClick={props.handleDlSigned(doc.name)}
           >
             <FormattedMessage
@@ -258,7 +265,8 @@ export const retryButton = (props, doc) => {
         >
           <Button
             variant="outline-success"
-            data-testid={"button-retry-" + doc.name}
+            id={"button-retry-" + doc.key}
+            disabling={true}
             size="sm"
             onClick={props.handleRetry(doc, props)}
           >
@@ -328,6 +336,8 @@ export const declineSignatureButton = (props, doc) => {
           <Button
             variant="outline-danger"
             size="sm"
+            id={"button-decline-" + doc.key}
+            disabling={true}
             onClick={props.handleDeclineSigning({ doc: doc, intl: props.intl })}
           >
             <FormattedMessage

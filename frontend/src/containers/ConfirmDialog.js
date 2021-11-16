@@ -8,6 +8,7 @@ import { connect } from "react-redux";
 
 import ConfirmDialog from "components/ConfirmDialog";
 import { closeConfirmation } from "slices/ConfirmDialog";
+import { unsetSpinning } from "slices/Button";
 
 const mapStateToProps = (state, props) => {
   return {
@@ -20,6 +21,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     closeConfirm: function () {
       dispatch(closeConfirmation(props.confirmId));
+      dispatch(unsetSpinning());
     },
   };
 };
