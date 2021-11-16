@@ -35,14 +35,16 @@ import "styles/Invitation.scss";
 class DocManager extends React.Component {
   render() {
     let disableSigning = true;
+    let disableDlAllButton = true;
     [this.props.pending, this.props.owned].forEach((docs) => {
       docs.forEach((doc) => {
         if (doc.state === "selected") {
           disableSigning = false;
+        } else if (doc.state === 'signed') {
+          disableDlAllButton= false;
         }
       });
     });
-    let disableDlAllButton = true;
     let disableClearButton = true;
 
     return (
