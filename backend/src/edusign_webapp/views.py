@@ -608,27 +608,28 @@ def create_multi_sign_request(data: dict) -> dict:
         current_app.logger.error(f'Problem processing multi sign request: {e}')
         return {'error': True, 'message': gettext('Problem creating invitation to sign, please try again')}
 
-    try:
-        recipients = [f"{invite['name']} <{invite['email']}>" for invite in invites]
-        msg = Message(gettext("XXX Invite mail subject"), recipients=recipients)
-        invited_link = url_for('edusign.get_index', _external=True)
-        context = {
-            'document_name': data['document']['name'],
-            'inviter_name_and_email': f"{owner['name']} <{owner['email']}>",
-            'inviter_name': f"{owner['name']}",
-            'invited_link': invited_link,
-            'text': data['text'],
-        }
-        msg.body = render_template('invitation_email.txt.jinja2', **context)
-        current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
-        msg.html = render_template('invitation_email.html.jinja2', **context)
+    recipients = [f"{invite['name']} <{invite['email']}>" for invite in invites]
+    if len(recipients) > 0:
+        try:
+            msg = Message(gettext("XXX Invite mail subject"), recipients=recipients)
+            invited_link = url_for('edusign.get_index', _external=True)
+            context = {
+                'document_name': data['document']['name'],
+                'inviter_name_and_email': f"{owner['name']} <{owner['email']}>",
+                'inviter_name': f"{owner['name']}",
+                'invited_link': invited_link,
+                'text': data['text'],
+            }
+            msg.body = render_template('invitation_email.txt.jinja2', **context)
+            current_app.logger.debug(f"Sending email to users {recipients}:\n{msg.body}")
+            msg.html = render_template('invitation_email.html.jinja2', **context)
 
-        current_app.mailer.send(msg)
+            current_app.mailer.send(msg)
 
-    except Exception as e:
-        current_app.doc_store.remove_document(uuid.UUID(data['document']['key']), force=True)
-        current_app.logger.error(f'Problem sending invitation email: {e}')
-        return {'error': True, 'message': gettext('There was a problem and the invitation email(s) were not sent')}
+        except Exception as e:
+            current_app.doc_store.remove_document(uuid.UUID(data['document']['key']), force=True)
+            current_app.logger.error(f'Problem sending invitation email: {e}')
+            return {'error': True, 'message': gettext('There was a problem and the invitation email(s) were not sent')}
 
     message = gettext("Success sending invitations to sign")
 
@@ -661,26 +662,27 @@ def send_multisign_reminder(data: dict) -> dict:
         current_app.logger.error(f"Could not find document {data['key']} pending signing the multi sign request")
         return {'error': True, 'message': gettext('Could not find the document')}
 
-    try:
-        recipients = [f"{invite['name']} <{invite['email']}>" for invite in pending]
-        msg = Message(gettext("XXX Reminder mail subject"), recipients=recipients)
-        invited_link = url_for('edusign.get_index', _external=True)
-        context = {
-            'document_name': docname,
-            'inviter_name_and_email': f"{session['displayName']} <{session['mail']}>",
-            'inviter_name': f"{session['displayName']}",
-            'invited_link': invited_link,
-            'text': 'text' in data and data['text'] or "",
-        }
-        msg.body = render_template('reminder_email.txt.jinja2', **context)
-        current_app.logger.debug(f"Sending reminder email to users {recipients}:\n{msg.body}")
-        msg.html = render_template('reminder_email.html.jinja2', **context)
+    recipients = [f"{invite['name']} <{invite['email']}>" for invite in pending]
+    if len(recipients) > 0:
+        try:
+            msg = Message(gettext("XXX Reminder mail subject"), recipients=recipients)
+            invited_link = url_for('edusign.get_index', _external=True)
+            context = {
+                'document_name': docname,
+                'inviter_name_and_email': f"{session['displayName']} <{session['mail']}>",
+                'inviter_name': f"{session['displayName']}",
+                'invited_link': invited_link,
+                'text': 'text' in data and data['text'] or "",
+            }
+            msg.body = render_template('reminder_email.txt.jinja2', **context)
+            current_app.logger.debug(f"Sending reminder email to users {recipients}:\n{msg.body}")
+            msg.html = render_template('reminder_email.html.jinja2', **context)
 
-        current_app.mailer.send(msg)
+            current_app.mailer.send(msg)
 
-    except Exception as e:
-        current_app.logger.error(f'Problem sending reminder email: {e}')
-        return {'error': True, 'message': gettext('Problem sending the email, please try again')}
+        except Exception as e:
+            current_app.logger.error(f'Problem sending reminder email: {e}')
+            return {'error': True, 'message': gettext('Problem sending the email, please try again')}
 
     message = gettext("Success sending reminder email to pending users")
 
@@ -815,24 +817,25 @@ def decline_invitation(data):
     try:
         owner_data = current_app.doc_store.get_owner_data(key)
         if not owner_data:
-            current_app.logger.error(f"Problem declining document {key} for {session['mail']} with no owner data")
+            current_app.logger.error(f"Problem sending email about {session['mail']} declining document {key} with no owner data")
 
-        recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
-        msg = Message(
-            gettext("User %(name)s has declined signing \"%(docname)s\"")
-            % {'name': owner_data['name'], 'docname': owner_data['docname']},
-            recipients=recipients,
-        )
-        mail_context = {
-            'document_name': owner_data['docname'],
-            'invited_name': session['displayName'],
-            'invited_email': session['mail'],
-        }
-        msg.body = render_template('declined_by_email.txt.jinja2', **mail_context)
-        current_app.logger.debug(f"Sending email to user {owner_data['email']}:\n{msg.body}")
-        msg.html = render_template('declined_by_email.html.jinja2', **mail_context)
+        else:
+            recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
+            msg = Message(
+                gettext("User %(name)s has declined signing \"%(docname)s\"")
+                % {'name': owner_data['name'], 'docname': owner_data['docname']},
+                recipients=recipients,
+            )
+            mail_context = {
+                'document_name': owner_data['docname'],
+                'invited_name': session['displayName'],
+                'invited_email': session['mail'],
+            }
+            msg.body = render_template('declined_by_email.txt.jinja2', **mail_context)
+            current_app.logger.debug(f"Sending email to user {owner_data['email']}:\n{msg.body}")
+            msg.html = render_template('declined_by_email.html.jinja2', **mail_context)
 
-        current_app.mailer.send(msg)
+            current_app.mailer.send(msg)
 
     except Exception as e:
         current_app.logger.error(f'Problem sending email of declination: {e}')
