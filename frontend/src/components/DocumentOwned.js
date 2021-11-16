@@ -1,10 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
-import OverlayTrigger from "containers/Overlay";
-import Popover from "react-bootstrap/Popover";
-import PopoverContent from "react-bootstrap/PopoverContent";
-import PopoverTitle from "react-bootstrap/PopoverTitle";
+import { ESPopover } from "containers/Overlay";
 
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
@@ -77,14 +74,10 @@ class DocumentOwned extends Component {
     const doc = this.props.doc;
     return (
       <>
-        <OverlayTrigger
+        <ESPopover
           key={doc.name}
-          overlay={
-            <Popover placement="auto">
-              <PopoverTitle>{this.getHelp(doc.state + "-title")}</PopoverTitle>
-              <PopoverContent>{this.getHelp(doc.state)}</PopoverContent>
-            </Popover>
-          }
+          title={this.getHelp(doc.state + "-title")}
+          body={this.getHelp(doc.state)}
         >
           <div className={"invitation-multisign " + doc.state}>
             <div className="invitation-multisign-request">
@@ -255,7 +248,7 @@ class DocumentOwned extends Component {
               {preparePrevSigs(doc)}
             </div>
           </div>
-        </OverlayTrigger>
+        </ESPopover>
       </>
     );
   }

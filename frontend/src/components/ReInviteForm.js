@@ -5,8 +5,7 @@ import Button from "containers/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
-import OverlayTrigger from "containers/Overlay";
-import Tooltip from "react-bootstrap/Tooltip";
+import { ESTooltip } from "containers/Overlay";
 
 import "styles/ReInviteForm.scss";
 
@@ -70,18 +69,13 @@ class ReInviteForm extends React.Component {
                   </div>
                 </Modal.Body>
                 <Modal.Footer>
-                  <OverlayTrigger
-                    delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-                    trigger={["hover", "focus"]}
-                    rootClose={true}
+                  <ESTooltip
                     className="tooltip-in-modal"
-                    overlay={
-                      <Tooltip className="tooltip-in-modal">
-                        <FormattedMessage
-                          defaultMessage="Dismiss invitation form"
-                          key="cancel-invitation-tootip"
-                        />
-                      </Tooltip>
+                    tooltip={
+                      <FormattedMessage
+                        defaultMessage="Dismiss invitation form"
+                        key="cancel-invitation-tootip"
+                      />
                     }
                   >
                     <Button
@@ -96,18 +90,14 @@ class ReInviteForm extends React.Component {
                         key="cancel-invite"
                       />
                     </Button>
-                  </OverlayTrigger>
-                  <OverlayTrigger
-                    delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-                    trigger={["hover", "focus"]}
-                    rootClose={true}
-                    overlay={
-                      <Tooltip className="tooltip-in-modal">
-                        <FormattedMessage
-                          defaultMessage="Resend invitations to sign to invitees pending to sign"
-                          key="resend-invitation-tootip"
-                        />
-                      </Tooltip>
+                  </ESTooltip>
+                  <ESTooltip
+                    className="tooltip-in-modal"
+                    tooltip={
+                      <FormattedMessage
+                        defaultMessage="Resend invitations to sign to invitees pending to sign"
+                        key="resend-invitation-tootip"
+                      />
                     }
                   >
                     <Button
@@ -124,7 +114,7 @@ class ReInviteForm extends React.Component {
                         key="resend-invite"
                       />
                     </Button>
-                  </OverlayTrigger>
+                  </ESTooltip>
                 </Modal.Footer>
               </Form>
             </Modal>

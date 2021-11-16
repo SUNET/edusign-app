@@ -12,4 +12,6 @@ const mapStateToProps = (state) => {
 
 export const ESTooltip = connect(mapStateToProps)(overlay.ESTooltip);
 
+export const ESPopover = connect(mapStateToProps)(overlay.ESPopover);
+
 export default connect(mapStateToProps)(OverlayTrigger);

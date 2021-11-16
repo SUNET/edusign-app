@@ -2,11 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
-import OverlayTrigger from "containers/Overlay";
-import Tooltip from "react-bootstrap/Tooltip";
-import Popover from "react-bootstrap/Popover";
-import PopoverContent from "react-bootstrap/PopoverContent";
-import PopoverTitle from "react-bootstrap/PopoverTitle";
+import { ESPopover } from "containers/Overlay";
 
 import { docToFile, humanFileSize } from "components/utils";
 import DocPreviewContainer from "containers/DocPreview";
@@ -101,19 +97,10 @@ class Invited extends Component {
           }
           return (
             <React.Fragment key={index}>
-              <OverlayTrigger
+              <ESPopover
                 key={index}
-                delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-                trigger={["hover", "focus"]}
-                rootClose={true}
-                overlay={
-                  <Popover placement="auto">
-                    <PopoverTitle>
-                      {this.getHelp(doc.state + "-title")}
-                    </PopoverTitle>
-                    <PopoverContent>{this.getHelp(doc.state)}</PopoverContent>
-                  </Popover>
-                }
+                title={this.getHelp(doc.state + "-title")}
+                body={this.getHelp(doc.state)}
               >
                 <div className={"invitation-multisign " + doc.state}>
                   <div className="invitation-multisign-request">
@@ -261,7 +248,7 @@ class Invited extends Component {
                     {preparePrevSigs(doc)}
                   </div>
                 </div>
-              </OverlayTrigger>
+              </ESPopover>
               {doc.show && (
                 <DocPreviewContainer
                   doc={doc}
