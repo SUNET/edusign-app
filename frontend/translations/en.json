@@ -31,7 +31,7 @@
   "components.ForcedPreview.dissaprove-doc-tootip": "Click here to reject/remove the document",
   "components.Header.header-unauthz-for-site": "You don't seem to be authorized to use this site at this moment",
   "components.Header.logout-button": "Logout",
-  "components.Header.signing-with": "Signed in as {name} ({eppn})",
+  "components.Header.signing-with": "Signed in as {name}",
   "components.InviteForm.add-invitation-tootip": "Invite one more person to sign this document",
   "components.InviteForm.add-invite": "Invite more people",
   "components.InviteForm.cancel-invitation-tootip": "Dismiss invitation form",

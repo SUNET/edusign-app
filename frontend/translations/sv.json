@@ -31,7 +31,7 @@
   "components.ForcedPreview.dissaprove-doc-tootip": "Klicka här för att ta bort ett dokument",
   "components.Header.header-unauthz-for-site": "Du verkar inte ha behörighet att använda denna webbplats för tillfället",
   "components.Header.logout-button": "Logga ut",
-  "components.Header.signing-with": "Inloggad som  {name} ({eppn})",
+  "components.Header.signing-with": "Inloggad som  {name}",
   "components.InviteForm.add-invitation-tootip": "",
   "components.InviteForm.add-invite": "",
   "components.InviteForm.cancel-invitation-tootip": "",
