@@ -750,7 +750,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
             name: state.main.signer_attributes.name,
             email: state.main.signer_attributes.mail,
           });
-          const newDoc = {
+          let newDoc = {
             ...oldDoc,
             signedContent: "data:application/pdf;base64," + doc.signed_content,
             blob: "data:application/pdf;base64," + doc.signed_content,
@@ -760,8 +760,8 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
             signed: newSigned,
           };
           thunkAPI.dispatch(removeOwned({ key: doc.id }));
+          newDoc = await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
           thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
-          await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
         }
       });
       thunkAPI.dispatch(finishInvited(doc));
