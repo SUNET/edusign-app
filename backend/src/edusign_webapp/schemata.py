@@ -114,6 +114,7 @@ class _DocumentSchemaWithKey(_DocumentSchema):
     """
     Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
     """
+
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     blob = fields.Raw(required=True, validate=[validate_nonempty])
 
@@ -122,6 +123,7 @@ class DocumentSchemaWithKey(_DocumentSchemaWithKey):
     """
     Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
     """
+
     prev_signatures = fields.String()
 
 
@@ -143,8 +145,8 @@ class DocumentSchemaWithKeyInvite(_DocumentSchema):
 
 
 class _ReferenceSchema(Schema):
-    """
-    """
+    """"""
+
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     ref = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     sign_requirement = fields.String(required=True, validate=[validate_nonempty, validate_sign_requirement])
@@ -155,6 +157,7 @@ class ReferenceSchema(_ReferenceSchema):
     Schema to marshal data returned from the `prepare` API endpoint
     referencing a document just prepared for signing.
     """
+
     prev_signatures = fields.String(default="")
 
 

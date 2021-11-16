@@ -4,8 +4,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
-import OverlayTrigger from "containers/Overlay";
-import Tooltip from "react-bootstrap/Tooltip";
+import { ESTooltip } from "containers/Overlay";
 
 import "styles/DocPreview.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -137,18 +136,13 @@ function ForcedPreview(props) {
               &#x23E9;
             </Button>
           </div>
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-dissaprove-doc" {...props}>
-                <FormattedMessage
-                  defaultMessage="Click here to reject/remove the document"
-                  key="dissaprove-doc-tootip"
-                />
-              </Tooltip>
-            )}
+          <ESTooltip
+            tooltip={
+              <FormattedMessage
+                defaultMessage="Click here to reject/remove the document"
+                key="dissaprove-doc-tootip"
+              />
+            }
           >
             <Button
               variant="outline-danger"
@@ -163,26 +157,19 @@ function ForcedPreview(props) {
                 key="button-dissaprove"
               />
             </Button>
-          </OverlayTrigger>
-          <OverlayTrigger
-            delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-            trigger={["hover", "focus"]}
-            rootClose={true}
-            overlay={(props) => (
-              <Tooltip id="tooltip-confirm-doc" {...props}>
-                {(readyToConfirm && (
+          </ESTooltip>
+          <ESTooltip
+            tooltip={readyToConfirm && (
                   <FormattedMessage
                     defaultMessage="Click here to approve the document for signing"
                     key="confirm-doc-tootip"
                   />
-                )) || (
+                ) || (
                   <FormattedMessage
                     defaultMessage="Once you have scrolled to the end of the document you will be able to approve the document for signing"
                     key="disabled-confirm-doc-tootip"
                   />
                 )}
-              </Tooltip>
-            )}
           >
             <span className="d-inline-block">
               <Button
@@ -198,7 +185,7 @@ function ForcedPreview(props) {
                 />
               </Button>
             </span>
-          </OverlayTrigger>
+          </ESTooltip>
         </Modal.Footer>
       </Modal>
     </>

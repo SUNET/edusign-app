@@ -309,7 +309,7 @@ def _i18n_marshmallow_validation_errors(msgs: List[str]) -> List[str]:
     for msg in msgs:
         msg = msg.strip('.')
         if msg == "Missing data for required field":
-            msg = gettext("Missing data for required field")
+            msg = gettext("Required")
         elif msg == "Not a valid integer":
             msg = gettext("Not a valid integer")
         field_msgs.append(msg)

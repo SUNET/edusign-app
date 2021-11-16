@@ -336,14 +336,14 @@ export const createDocument = createAsyncThunk(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
-            defaultMessage: "Problem adding documents to in-browser database",
+            defaultMessage: "Problem adding documents, please try again",
             id: "save-docs-problem-db",
           }),
         })
       );
       doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
-        defaultMessage: "Problem adding document to in-browser database",
+        defaultMessage: "Problem adding document, please try again",
         id: "save-doc-problem-db",
       });
       return thunkAPI.rejectWithValue(doc);
@@ -750,7 +750,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
             name: state.main.signer_attributes.name,
             email: state.main.signer_attributes.mail,
           });
-          const newDoc = {
+          let newDoc = {
             ...oldDoc,
             signedContent: "data:application/pdf;base64," + doc.signed_content,
             blob: "data:application/pdf;base64," + doc.signed_content,
@@ -760,8 +760,8 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
             signed: newSigned,
           };
           thunkAPI.dispatch(removeOwned({ key: doc.id }));
+          newDoc = await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
           thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
-          await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
         }
       });
       thunkAPI.dispatch(finishInvited(doc));
@@ -885,15 +885,15 @@ export const sendInvites = createAsyncThunk(
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
       const message = args.intl.formatMessage({
-        defaultMessage: "Problem sending multi sign request, please try again",
-        id: "problem-sending-multisign",
+        defaultMessage: "Problem sending invitations to sign, please try again",
+        id: "problem-sending-invitations",
       });
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return thunkAPI.rejectWithValue(null);
     }
     if (data.error) {
       const message = args.intl.formatMessage({
-        defaultMessage: "Problem creating multi sign request, please try again",
+        defaultMessage: "Problem creating invitation to sign, please try again",
         id: "problem-creating-multisign",
       });
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
@@ -1041,68 +1041,6 @@ export const resendInvitations = createAsyncThunk(
 
 /**
  * @public
- * @function signInvitedDoc
- * @desc Redux async thunk to finally sign a multi signed document
- */
-export const signInvitedDoc = createAsyncThunk(
-  "main/signInvitedDoc",
-  async (args, thunkAPI) => {
-    const state = thunkAPI.getState();
-    let data = null;
-    const docToSign = {
-      key: args.doc.key,
-    };
-    const body = preparePayload(state, docToSign);
-    try {
-      const response = await fetch("/sign/final-sign-request", {
-        ...postRequest,
-        body: body,
-      });
-      data = await checkStatus(response);
-      extractCsrfToken(thunkAPI.dispatch, data);
-      if (data.error) {
-        throw new Error(data.message);
-      }
-      const doc = {
-        ...data.payload.documents[0],
-        state: "signing",
-        show: false,
-      };
-      doc.blob = "data:application/pdf;base64," + doc.blob;
-      await addDocumentToDb(doc, state.main.signer_attributes.eppn);
-      delete data.payload.documents;
-
-      thunkAPI.dispatch(updateSigningForm(data.payload));
-      // XXX dispatch removal of owned invitation box
-      const form = document.getElementById("signing-form");
-      if (form.requestSubmit) {
-        form.requestSubmit();
-      } else {
-        form.submit();
-      }
-    } catch (err) {
-      thunkAPI.dispatch(
-        addNotification({
-          level: "danger",
-          message: args.intl.formatMessage({
-            defaultMessage: "Problem creating signature request",
-            id: "problem-creating-sign-request",
-          }),
-        })
-      );
-      const message = args.intl.formatMessage({
-        defaultMessage: "Problem signing the document",
-        id: "problem-signing",
-      });
-      thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
-      thunkAPI.dispatch(invitationsSignFailure(message));
-      await thunkAPI.dispatch(saveDocument({ docName: args.doc.name }));
-    }
-  }
-);
-
-/**
- * @public
  * @function skipOwnedSignature
  * @desc Redux async thunk to skip the final signature of a multi signed document
  */
@@ -1152,7 +1090,7 @@ export const skipOwnedSignature = createAsyncThunk(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
-            defaultMessage: "Problem skipping final signature",
+            defaultMessage: "Problem skipping final signature, please try again",
             id: "problem-skipping-signature",
           }),
         })

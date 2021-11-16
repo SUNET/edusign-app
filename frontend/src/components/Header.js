@@ -23,7 +23,7 @@ class Header extends Component {
               <span id="name-in-header">
                 <span id="signing-with-span">
                   <FormattedMessage
-                    defaultMessage="Signed in as {name} ({eppn})"
+                    defaultMessage="Signed in as {name}"
                     key="signing-with"
                     values={{ ...this.props.signer_attributes }}
                   />

@@ -31,6 +31,7 @@ import { showForm } from "slices/Modals";
 import { clearDocStore } from "init-app/database";
 import { askConfirmation } from "slices/ConfirmDialog";
 import { disablePolling, enablePolling } from "slices/Poll";
+import { unsetSpinning } from "slices/Button";
 
 const mapStateToProps = (state) => {
   return {
@@ -53,12 +54,18 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handlePreview: function (key) {
-      return () => {
+      return async () => {
         dispatch(disablePolling());
-        dispatch(showPreview(key));
+        await dispatch(showPreview(key));
+        dispatch(unsetSpinning());
       };
     },
     handleRemove: function (name) {
+      return async () => {
+        await dispatch(removeDocument({ docName: name }));
+      };
+    },
+    handleSignedRemove: function (name) {
       return async () => {
         await dispatch(removeDocument({ docName: name }));
       };
@@ -68,6 +75,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(setState({ name: doc.name, state: "loading" }));
         await dispatch(prepareDocument({ doc: doc, intl: props.intl }));
         await dispatch(saveDocument({ docName: doc.name }));
+        dispatch(unsetSpinning());
       };
     },
     handleDocSelection: function (name) {
@@ -85,6 +93,7 @@ const mapDispatchToProps = (dispatch, props) => {
     handleDlSigned: function (name) {
       return async () => {
         await dispatch(downloadSigned(name));
+        dispatch(unsetSpinning());
       };
     },
     openInviteForm: function (doc) {
@@ -105,11 +114,13 @@ const mapDispatchToProps = (dispatch, props) => {
       return () => {
         dispatch(disablePolling());
         dispatch(showForcedPreview(key));
+        dispatch(unsetSpinning());
       };
     },
     handleCloseForcedPreview: function (name) {
       return () => {
         dispatch(hideForcedPreview(name));
+        dispatch(unsetSpinning());
         dispatch(enablePolling());
       };
     },
@@ -118,6 +129,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(confirmForcedPreview(name));
         await dispatch(saveDocument({ docName: name }));
         dispatch(hideForcedPreview(name));
+        dispatch(unsetSpinning());
         dispatch(enablePolling());
       };
     },
@@ -125,12 +137,14 @@ const mapDispatchToProps = (dispatch, props) => {
       return async () => {
         await dispatch(removeDocument({ docName: args.doc.name }));
         dispatch(hideForcedPreview(args.doc.name));
+        dispatch(unsetSpinning());
         dispatch(enablePolling());
       };
     },
     handleClosePreview: function (name) {
       return () => {
         dispatch(hidePreview(name));
+        dispatch(unsetSpinning());
         dispatch(enablePolling());
       };
     },

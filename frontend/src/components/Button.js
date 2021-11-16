@@ -50,24 +50,24 @@ class Button extends Component {
   render() {
     const isDisabled = this.props.disabled || this.props.spinning !== "";
     const isSpinning = this.props.spinning === this.props.id;
+    const {doHandleClick, disabling, disabled, onClick, ...props} = this.props;
     return (
       <BButton
-        id={this.props.id}
         className={isSpinning ? "button-with-spinner" : ""}
-        data-testid={this.props.id}
-        type={this.props.type}
-        variant={this.props.variant}
+        data-testid={props.id}
         disabled={isDisabled}
-        onClick={this.props.doHandleClick.bind(this)}
+        onClick={doHandleClick.bind(this)}
+        {...props}
       >
-        {isSpinning && <Spin id={"spinner-" + this.props.id} />}
-        {this.props.children}
+        {isSpinning && <Spin id={"spinner-" + props.id} />}
+        {props.children}
       </BButton>
     );
   }
 }
 
 Button.propTypes = {
+  id: PropTypes.string,
   disabling: PropTypes.bool,
   disabled: PropTypes.bool,
   spinning: PropTypes.string,

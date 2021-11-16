@@ -5,8 +5,7 @@ import Button from "containers/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
-import OverlayTrigger from "containers/Overlay";
-import Tooltip from "react-bootstrap/Tooltip";
+import { ESTooltip } from "containers/Overlay";
 
 import "styles/InviteForm.scss";
 
@@ -116,24 +115,13 @@ class InviteForm extends React.Component {
                             <div className="invitation-fields" key={index}>
                               {index > 0 && (
                                 <div className="invitee-form-dismiss">
-                                  <OverlayTrigger
-                                    delay={{
-                                      show: DELAY_SHOW_HELP,
-                                      hide: DELAY_HIDE_HELP,
-                                    }}
-                                    trigger={["hover", "focus"]}
-                                    rootClose={true}
-                                    overlay={(props) => (
-                                      <Tooltip
-                                        id="tooltip-rm-invitation"
-                                        {...props}
-                                      >
-                                        <FormattedMessage
-                                          defaultMessage="Remove this entry from invitation"
-                                          key="rm-invitation-tootip"
-                                        />
-                                      </Tooltip>
-                                    )}
+                                  <ESTooltip
+                                    tooltip={
+                                      <FormattedMessage
+                                        defaultMessage="Remove this entry from invitation"
+                                        key="rm-invitation-tootip"
+                                      />
+                                    }
                                   >
                                     <Button
                                       variant="outline"
@@ -142,7 +130,7 @@ class InviteForm extends React.Component {
                                     >
                                       ×
                                     </Button>
-                                  </OverlayTrigger>
+                                  </ESTooltip>
                                 </div>
                               )}
                               <div className="invitee-form-row" key={index}>
@@ -239,21 +227,13 @@ class InviteForm extends React.Component {
                               </div>
                             </div>
                           ))}
-                        <OverlayTrigger
-                          delay={{
-                            show: DELAY_SHOW_HELP,
-                            hide: DELAY_HIDE_HELP,
-                          }}
-                          trigger={["hover", "focus"]}
-                          rootClose={true}
-                          overlay={(props) => (
-                            <Tooltip id="tooltip-add-invitation" {...props}>
-                              <FormattedMessage
-                                defaultMessage="Invite one more person to sign this document"
-                                key="add-invitation-tootip"
-                              />
-                            </Tooltip>
-                          )}
+                        <ESTooltip
+                          tooltip={
+                            <FormattedMessage
+                              defaultMessage="Invite one more person to sign this document"
+                              key="add-invitation-tootip"
+                            />
+                          }
                         >
                           <Button
                             variant="outline-secondary"
@@ -269,24 +249,19 @@ class InviteForm extends React.Component {
                               key="add-invite"
                             />
                           </Button>
-                        </OverlayTrigger>
+                        </ESTooltip>
                       </div>
                     )}
                   </FieldArray>
                 </Modal.Body>
                 <Modal.Footer>
-                  <OverlayTrigger
-                    delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-                    trigger={["hover", "focus"]}
-                    rootClose={true}
-                    overlay={(props) => (
-                      <Tooltip id="tooltip-cancel-invitation" {...props}>
-                        <FormattedMessage
-                          defaultMessage="Dismiss invitation form"
-                          key="cancel-invitation-tootip"
-                        />
-                      </Tooltip>
-                    )}
+                  <ESTooltip
+                    tooltip={
+                      <FormattedMessage
+                        defaultMessage="Dismiss invitation form"
+                        key="cancel-invitation-tootip"
+                      />
+                    }
                   >
                     <Button
                       variant="outline-secondary"
@@ -297,19 +272,14 @@ class InviteForm extends React.Component {
                         key="cancel-invite"
                       />
                     </Button>
-                  </OverlayTrigger>
-                  <OverlayTrigger
-                    delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-                    trigger={["hover", "focus"]}
-                    rootClose={true}
-                    overlay={(props) => (
-                      <Tooltip id="tooltip-send-invitation" {...props}>
-                        <FormattedMessage
-                          defaultMessage="Send invitations to sign to indicated people"
-                          key="send-invitation-tootip"
-                        />
-                      </Tooltip>
-                    )}
+                  </ESTooltip>
+                  <ESTooltip
+                    tooltip={
+                      <FormattedMessage
+                        defaultMessage="Send invitations to sign to indicated people"
+                        key="send-invitation-tootip"
+                      />
+                    }
                   >
                     <Button
                       variant="outline-success"
@@ -324,7 +294,7 @@ class InviteForm extends React.Component {
                         key="send-invite"
                       />
                     </Button>
-                  </OverlayTrigger>
+                  </ESTooltip>
                 </Modal.Footer>
               </Form>
             </Modal>

@@ -34,9 +34,9 @@ import io
 from base64 import b64decode
 from xml.etree import cElementTree as ET
 
-from pyhanko.pdf_utils.reader import PdfFileReader
 from flask import current_app, request, session
 from flask_babel import gettext
+from pyhanko.pdf_utils.reader import PdfFileReader
 
 
 def add_attributes_to_session(check_whitelisted=True):

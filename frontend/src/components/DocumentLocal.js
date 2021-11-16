@@ -1,11 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
-import OverlayTrigger from "containers/Overlay";
-import Tooltip from "react-bootstrap/Tooltip";
-import Popover from "react-bootstrap/Popover";
-import PopoverContent from "react-bootstrap/PopoverContent";
-import PopoverTitle from "react-bootstrap/PopoverTitle";
+import { ESPopover } from "containers/Overlay";
+import { ESTooltip } from "containers/Overlay";
 
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
@@ -135,16 +132,10 @@ class DocumentLocal extends React.Component {
     if (this.props.size === "lg") {
       return (
         <>
-          <OverlayTrigger
+          <ESPopover
             key={doc.name}
-            overlay={
-              <Popover placement="auto">
-                <PopoverTitle>
-                  {this.getHelp(doc.state + "-title")}
-                </PopoverTitle>
-                <PopoverContent>{this.getHelp(doc.state)}</PopoverContent>
-              </Popover>
-            }
+            title={this.getHelp(doc.state + "-title")}
+            body={this.getHelp(doc.state)}
           >
             <div className={"doc-flex-container-local " + doc.state} key="0">
               <div className="doc-flex-container">
@@ -240,17 +231,15 @@ class DocumentLocal extends React.Component {
               {signed}
               {preparePrevSigs(doc)}
             </div>
-          </OverlayTrigger>
+          </ESPopover>
         </>
       );
     } else if (this.props.size === "sm") {
       return (
         <>
-          <OverlayTrigger
+          <ESTooltip
             key={doc.name}
-            overlay={
-              <Tooltip placement="auto">{this.getHelp(doc.state)}</Tooltip>
-            }
+            tooltip={this.getHelp(doc.state)}
           >
             <>
               <div
@@ -373,7 +362,7 @@ class DocumentLocal extends React.Component {
                 {preparePrevSigs(doc)}
               </div>
             </>
-          </OverlayTrigger>
+          </ESTooltip>
         </>
       );
     }

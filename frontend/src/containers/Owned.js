@@ -5,7 +5,7 @@
  */
 import { connect } from "react-redux";
 
-import { removeInvites, signInvitedDoc } from "slices/Documents";
+import { removeInvites } from "slices/Documents";
 import Owned from "components/Owned";
 import { askConfirmation } from "slices/ConfirmDialog";
 import { showResend } from "slices/Modals";
@@ -17,6 +17,7 @@ import {
 } from "slices/Main";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { skipOwnedSignature } from "slices/Documents";
+import { unsetSpinning } from "slices/Button";
 
 const mapStateToProps = (state) => {
   return {
@@ -35,17 +36,13 @@ const mapDispatchToProps = (dispatch, props) => {
     handleRemove: function (doc, props) {
       return async () => {
         await dispatch(removeInvites({ doc: doc, intl: props.intl }));
-      };
-    },
-    handleSign: function (doc, props) {
-      return async () => {
-        dispatch(setOwnedSigning(doc.key));
-        await dispatch(signInvitedDoc({ doc: doc, intl: props.intl }));
+        dispatch(unsetSpinning());
       };
     },
     handleSkipSigning: function (doc, props) {
       return async () => {
         await dispatch(skipOwnedSignature({ doc: doc, intl: props.intl }));
+        dispatch(unsetSpinning());
       };
     },
     handleResend: function (doc) {
@@ -59,20 +56,22 @@ const mapDispatchToProps = (dispatch, props) => {
       };
     },
     handlePreview: (docKey) => {
-      return () => {
+      return async () => {
         dispatch(disablePolling());
-        dispatch(
+        await dispatch(
           getPartiallySignedDoc({
             key: docKey,
             stateKey: "owned_multisign",
             intl: props.intl,
           })
         );
+        dispatch(unsetSpinning());
       };
     },
     handleClosePreview: function (docKey) {
       return () => {
         dispatch(enablePolling());
+        dispatch(unsetSpinning());
         dispatch(hideOwnedPreview(docKey));
       };
     },

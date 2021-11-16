@@ -1,15 +1,16 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
 import { FormattedMessage, injectIntl } from "react-intl";
+
+import Button from "containers/Button";
 
 import "styles/ConfirmDialog.scss";
 
 class ConfirmDialog extends Component {
   handleConfirm(props) {
-    return () => {
-      props.confirm();
+    return async () => {
+      await props.confirm();
       props.closeConfirm();
     };
   }
@@ -34,7 +35,7 @@ class ConfirmDialog extends Component {
             <div className="confirm-buttons">
               <Button
                 id={this.props.confirmId + "-confirm-button"}
-                data-testid={this.props.confirmId + "-confirm-button"}
+                disabling={true}
                 variant="outline-success"
                 size="sm"
                 onClick={this.handleConfirm(this.props)}
@@ -46,7 +47,6 @@ class ConfirmDialog extends Component {
               </Button>
               <Button
                 id={this.props.confirmId + "-cancel-button"}
-                data-testid={this.props.confirmId + "-cancel-button"}
                 variant="outline-danger"
                 size="sm"
                 onClick={this.props.closeConfirm}

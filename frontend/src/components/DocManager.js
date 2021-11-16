@@ -2,8 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
-import OverlayTrigger from "containers/Overlay";
-import Tooltip from "react-bootstrap/Tooltip";
 
 import ForcedPreviewContainer from "containers/ForcedPreview";
 import DocPreviewContainer from "containers/DocPreview";
@@ -14,6 +12,7 @@ import { preparePDF } from "components/utils";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 import DocumentLocal from "components/DocumentLocal";
 import DocumentOwned from "components/DocumentOwned";
+import { ESTooltip } from "containers/Overlay";
 
 import "styles/DocManager.scss";
 import "styles/Invitation.scss";
@@ -36,14 +35,16 @@ import "styles/Invitation.scss";
 class DocManager extends React.Component {
   render() {
     let disableSigning = true;
+    let disableDlAllButton = true;
     [this.props.pending, this.props.owned].forEach((docs) => {
       docs.forEach((doc) => {
         if (doc.state === "selected") {
           disableSigning = false;
+        } else if (doc.state === 'signed') {
+          disableDlAllButton= false;
         }
       });
     });
-    let disableDlAllButton = true;
     let disableClearButton = true;
 
     return (
@@ -104,9 +105,34 @@ class DocManager extends React.Component {
 
                   let docRepr = null;
                   if (doc.hasOwnProperty("pending")) {
-                    docRepr = (
+                    const _docRepr = (
                       <DocumentOwned key={index} doc={doc} {...this.props} />
                     );
+                    if (doc.state === "signed") {
+                      docRepr = (
+                        <>
+                          {_docRepr}
+                          <ConfirmDialogContainer
+                            confirmId={
+                              "confirm-remove-signed-owned-" + doc.name
+                            }
+                            title={this.props.intl.formatMessage({
+                              defaultMessage:
+                                "Confirm Removal of signed invitation",
+                              id: "header-confirm-remove-signed-owned-title",
+                            })}
+                            mainText={this.props.intl.formatMessage({
+                              defaultMessage:
+                                'Clicking "Confirm" will remove the document',
+                              id: "header-confirm-remove-owned-signed-text",
+                            })}
+                            confirm={this.props.handleSignedRemove(doc.name)}
+                          />
+                        </>
+                      );
+                    } else {
+                      docRepr = _docRepr;
+                    }
                   } else {
                     docRepr = (
                       <DocumentLocal key={index} doc={doc} {...this.props} />
@@ -180,17 +206,12 @@ class DocManager extends React.Component {
         <div id="adjust-vertical-space" />
         <div id="global-buttons-wrapper">
           <div className="button-sign-flex-item">
-            <OverlayTrigger
-              delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-              trigger={["hover", "focus"]}
-              rootClose={true}
-              overlay={
-                <Tooltip placement="auto">
-                  <FormattedMessage
-                    defaultMessage="Select documents above and click here to send them for signing."
-                    key="button-sign-tootip"
-                  />
-                </Tooltip>
+            <ESTooltip
+              tooltip={
+                <FormattedMessage
+                  defaultMessage="Select documents above and click here to send them for signing."
+                  key="button-sign-tootip"
+                />
               }
             >
               <div id="button-sign-wrapper">
@@ -208,22 +229,17 @@ class DocManager extends React.Component {
                   />
                 </Button>
               </div>
-            </OverlayTrigger>
+            </ESTooltip>
           </div>
           {!this.props.unauthn && (
             <>
               <div className="button-dlall-flex-item">
-                <OverlayTrigger
-                  delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-                  trigger={["hover", "focus"]}
-                  rootClose={true}
-                  overlay={
-                    <Tooltip placement="auto">
-                      <FormattedMessage
-                        defaultMessage="Download all signed documents."
-                        key="button-dlall-tootip"
-                      />
-                    </Tooltip>
+                <ESTooltip
+                  tooltip={
+                    <FormattedMessage
+                      defaultMessage="Download all signed documents."
+                      key="button-dlall-tootip"
+                    />
                   }
                 >
                   <div id="button-dlall-wrapper">
@@ -232,6 +248,9 @@ class DocManager extends React.Component {
                       id="button-dlall"
                       disabled={disableDlAllButton}
                       data-testid="button-dlall"
+                      style={
+                        disableDlAllButton ? { pointerEvents: "none" } : {}
+                      }
                       size="lg"
                       onClick={this.props.handleDownloadAll.bind(this)}
                     >
@@ -241,20 +260,15 @@ class DocManager extends React.Component {
                       />
                     </Button>
                   </div>
-                </OverlayTrigger>
+                </ESTooltip>
               </div>
               <div className="button-clear-flex-item">
-                <OverlayTrigger
-                  delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
-                  trigger={["hover", "focus"]}
-                  rootClose={true}
-                  overlay={
-                    <Tooltip placement="auto">
-                      <FormattedMessage
-                        defaultMessage='Discard all documents in the "Personal documents" list above'
-                        key="clear-docs-tootip"
-                      />
-                    </Tooltip>
+                <ESTooltip
+                  tooltip={
+                    <FormattedMessage
+                      defaultMessage='Discard all documents in the "Personal documents" list above'
+                      key="clear-docs-tootip"
+                    />
                   }
                 >
                   <div id="button-clear-wrapper">
@@ -263,6 +277,9 @@ class DocManager extends React.Component {
                       id="clear-session-button"
                       disabled={disableClearButton}
                       size="lg"
+                      style={
+                        disableClearButton ? { pointerEvents: "none" } : {}
+                      }
                       onClick={this.props.showConfirm("confirm-clear-session")}
                     >
                       <FormattedMessage
@@ -271,7 +288,7 @@ class DocManager extends React.Component {
                       />
                     </Button>
                   </div>
-                </OverlayTrigger>
+                </ESTooltip>
                 <ConfirmDialogContainer
                   confirmId="confirm-clear-session"
                   title={this.props.intl.formatMessage({
