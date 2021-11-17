@@ -28,19 +28,19 @@ msgstr ""
 #: src/edusign_webapp/views.py:280 src/edusign_webapp/views.py:421
 #: src/edusign_webapp/views.py:505
 msgid "There was an error. Please try again, or contact the site administrator."
-msgstr ""
+msgstr "Ett problem uppstod. Var god försök igen eller kontakta administratör"
 
 #: src/edusign_webapp/marshal.py:236
 msgid "Document data seems corrupted"
-msgstr ""
+msgstr "Dokumentet verkar trasigt"
 
 #: src/edusign_webapp/marshal.py:312
 msgid "Required"
-msgstr ""
+msgstr "Obligatorisk"
 
 #: src/edusign_webapp/marshal.py:314
 msgid "Not a valid integer"
-msgstr ""
+msgstr "Inte ett giltigt heltal"
 
 #: src/edusign_webapp/views.py:128
 msgid "Back"
@@ -80,25 +80,27 @@ msgstr "Ej behörig"
 msgid ""
 "Document is being signed by another user, please try again in a few "
 "minutes."
-msgstr ""
+msgstr "Dokumentet håller på att signeras av en annan person, försök igen om någon minut."
 
 #: src/edusign_webapp/views.py:353
 #, python-format
 msgid "There doesn't seem to be an invitation for you to sign \"%(docname)s\"."
-msgstr ""
+msgstr "Det verkar inte finnas någon inbjudan till dig att signera  \"%(docname)s\"."
 
 #: src/edusign_webapp/views.py:366
 #, python-format
 msgid ""
 "The email %(email)s invited to sign \"%(docname)s\" does not coincide "
 "with yours."
-msgstr ""
+msgstr "E-posten %(email)s att signera \"%(docname)s\" stämmer inte överens med din."
 
 #: src/edusign_webapp/views.py:392
 msgid ""
 "Problem preparing document for signing. Please try again, or contact the "
 "site administrator."
 msgstr ""
+"Ett problem uppstod att ladda dokumentet. Var god försök igen eller "
+"kontakta administratör."
 
 #: src/edusign_webapp/views.py:525
 #, python-format
@@ -113,11 +115,11 @@ msgstr ""
 #: src/edusign_webapp/views.py:602
 #, python-format
 msgid "You cannot invite as %(owner)s"
-msgstr ""
+msgstr "Du kan inte bjuda in att signera som %(owner)s"
 
 #: src/edusign_webapp/views.py:611
 msgid "Problem creating invitation to sign, please try again"
-msgstr ""
+msgstr "Ett problem uppstod att skapa inbjudan att signera, var god försök igen"
 
 #: src/edusign_webapp/views.py:615
 msgid "XXX Invite mail subject"
@@ -125,23 +127,23 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:633
 msgid "There was a problem and the invitation email(s) were not sent"
-msgstr ""
+msgstr "Ett problem uppstod och inbjudningarna att signera skickades inte iväg"
 
 #: src/edusign_webapp/views.py:635
 msgid "Success sending invitations to sign"
-msgstr ""
+msgstr "Inbjudningarna att signera har skickats"
 
 #: src/edusign_webapp/views.py:656
 msgid "Problem finding the users pending to multi sign"
-msgstr ""
+msgstr "Ett problem uppstod att hitta användare som inte signerat"
 
 #: src/edusign_webapp/views.py:660
 msgid "Problem finding the users pending to sign"
-msgstr ""
+msgstr "Ett problem uppstod att hitta användare som inte signerat"
 
 #: src/edusign_webapp/views.py:664
 msgid "Could not find the document"
-msgstr ""
+msgstr "Det gick inte att hitta dokumentet"
 
 #: src/edusign_webapp/views.py:668
 msgid "XXX Reminder mail subject"
@@ -149,32 +151,32 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:685
 msgid "Problem sending the email, please try again"
-msgstr ""
+msgstr "Ett problem uppstod att meddelandet, var god försök igen"
 
 #: src/edusign_webapp/views.py:687
 msgid "Success sending reminder email to pending users"
-msgstr ""
+msgstr "Meddelandet skickades till alla som inte svarat på inbjudan att signera"
 
 #: src/edusign_webapp/views.py:707
 msgid "Problem removing the invitation, please try again"
-msgstr ""
+msgstr "Ett problem uppstod att ta bort inbjudan, var god försök igen"
 
 #: src/edusign_webapp/views.py:711
 msgid "Document has not been removed, please try again"
-msgstr ""
+msgstr "Dokumentet togs inte bort, var god försök igen"
 
 #: src/edusign_webapp/views.py:713
 msgid "Success removing invitation to sign"
-msgstr ""
+msgstr "Borttagningen av inbjudan att signera lyckades"
 
 #: src/edusign_webapp/views.py:733 src/edusign_webapp/views.py:737
 #: src/edusign_webapp/views.py:753 src/edusign_webapp/views.py:757
 msgid "Cannot find the document being signed"
-msgstr ""
+msgstr "Går inte att hitta dokumentet som skall signeras"
 
 #: src/edusign_webapp/views.py:815
 msgid "Problem declining signature, plase try again"
-msgstr ""
+msgstr "Ett problem uppstod att neka signering, var god försök igen"
 
 #: src/edusign_webapp/views.py:824
 #, python-format
@@ -183,7 +185,7 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:842
 msgid "Success declining signature"
-msgstr ""
+msgstr "Signeringen av dokumentet nekades"
 
 #: src/edusign_webapp/templates/declined_by_email.html.jinja2:5
 #, python-format

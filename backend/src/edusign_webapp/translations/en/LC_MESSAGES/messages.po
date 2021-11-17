@@ -129,7 +129,7 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:656
 msgid "Problem finding the users pending to multi sign"
-msgstr ""
+msgstr "Problem finding the users pending to sign"
 
 #: src/edusign_webapp/views.py:660
 msgid "Problem finding the users pending to sign"
