@@ -36,7 +36,7 @@ from edusign_webapp import run
 from edusign_webapp.marshal import ResponseSchema
 
 
-def test_add_document(app, environ_base, monkeypatch):
+def test_add_document(app, environ_base, monkeypatch, sample_new_doc_1):
 
     _, app = app
 
@@ -74,7 +74,7 @@ def test_add_document(app, environ_base, monkeypatch):
     assert response1.status == '200 OK'
 
     doc_data = {
-        'payload': {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'},
+        'payload': sample_new_doc_1
     }
 
     response = client.post(
@@ -94,7 +94,7 @@ def test_add_document(app, environ_base, monkeypatch):
     assert resp_data['payload']['ref'] == 'ba26478f-f8e0-43db-991c-08af7c65ed58'
 
 
-def test_add_document_error_preparing(client, monkeypatch):
+def test_add_document_error_preparing(client, monkeypatch, sample_new_doc_1):
 
     from edusign_webapp.api_client import APIClient
 
@@ -108,7 +108,7 @@ def test_add_document_error_preparing(client, monkeypatch):
     assert response1.status == '200 OK'
 
     doc_data = {
-        'payload': {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'},
+        'payload': sample_new_doc_1,
     }
 
     response = client.post(
@@ -128,7 +128,7 @@ def test_add_document_error_preparing(client, monkeypatch):
     assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
-def _add_document_missing_data(client, monkeypatch, data):
+def _add_document_missing_data(client, data):
 
     response1 = client.get('/sign/')
 
@@ -153,65 +153,65 @@ def _add_document_missing_data(client, monkeypatch, data):
     return json.loads(response.data)
 
 
-def test_add_document_missing_doc_name(client, monkeypatch):
-    data = {'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}
-    resp_data = _add_document_missing_data(client, monkeypatch, data)
+def test_add_document_missing_doc_name(client, sample_new_doc_1):
+    del sample_new_doc_1['name']
+    resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
-    assert resp_data['message'] == "name: Missing data for required field"
+    assert resp_data['message'] == "name: Required"
 
 
-def test_add_document_empty_doc_name(client, monkeypatch):
-    data = {'name': '', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}
-    resp_data = _add_document_missing_data(client, monkeypatch, data)
+def test_add_document_empty_doc_name(client, sample_new_doc_1):
+    sample_new_doc_1['name'] = ''
+    resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
     assert resp_data['message'] == 'name: There was an error. Please try again, or contact the site administrator'
 
 
-def test_add_document_missing_doc_size(client, monkeypatch):
-    data = {'name': 'test.pdf', 'type': 'application/pdf', 'blob': 'dummy,dummy'}
-    resp_data = _add_document_missing_data(client, monkeypatch, data)
+def test_add_document_missing_doc_size(client, sample_new_doc_1):
+    del sample_new_doc_1['size']
+    resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
-    assert resp_data['message'] == "size: Missing data for required field"
+    assert resp_data['message'] == "size: Required"
 
 
-def test_add_document_bad_doc_size(client, monkeypatch):
-    data = {'name': 'test.pdf', 'size': 'not an int', 'type': 'application/pdf', 'blob': 'dummy,dummy'}
-    resp_data = _add_document_missing_data(client, monkeypatch, data)
+def test_add_document_bad_doc_size(client, sample_new_doc_1):
+    sample_new_doc_1['size'] = 'not an int'
+    resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
     assert resp_data['message'] == "size: Not a valid integer"
 
 
-def test_add_document_missing_doc_type(client, monkeypatch):
-    data = {'name': 'test.pdf', 'size': 100, 'blob': 'dummy,dummy'}
-    resp_data = _add_document_missing_data(client, monkeypatch, data)
+def test_add_document_missing_doc_type(client, sample_new_doc_1):
+    del sample_new_doc_1['type']
+    resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
-    assert resp_data['message'] == "type: Missing data for required field"
+    assert resp_data['message'] == "type: Required"
 
 
-def test_add_document_bad_doc_type(client, monkeypatch):
-    data = {'name': 'test.pdf', 'size': 100, 'type': 'text/plain', 'blob': 'dummy,dummy'}
-    resp_data = _add_document_missing_data(client, monkeypatch, data)
+def test_add_document_bad_doc_type(client, sample_new_doc_1):
+    sample_new_doc_1['type'] = 'text/plain'
+    resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
     assert resp_data['message'] == 'type: There was an error. Please try again, or contact the site administrator'
 
 
-def test_add_document_missing_doc(client, monkeypatch):
-    data = {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf'}
-    resp_data = _add_document_missing_data(client, monkeypatch, data)
+def test_add_document_missing_doc(client, sample_new_doc_1):
+    del sample_new_doc_1['blob']
+    resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
-    assert resp_data['message'] == "blob: Missing data for required field"
+    assert resp_data['message'] == "blob: Required"
 
 
-def test_add_document_empty_doc(client, monkeypatch):
-    data = {'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': ''}
-    resp_data = _add_document_missing_data(client, monkeypatch, data)
+def test_add_document_empty_doc(client, sample_new_doc_1):
+    sample_new_doc_1['blob'] = ''
+    resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
     assert resp_data['message'] == 'blob: There was an error. Please try again, or contact the site administrator'
