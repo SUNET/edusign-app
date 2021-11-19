@@ -33,10 +33,10 @@
 import io
 from base64 import b64decode
 from xml.etree import cElementTree as ET
-from email.message import EmailMessage, MIMEPart
 
 from flask import current_app, request, session
 from flask_babel import gettext, force_locale, get_locale
+from flask_mail import Message
 from pyhanko.pdf_utils.reader import PdfFileReader
 
 
@@ -137,107 +137,29 @@ def sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body
 
     warning = f"{warning_sv}\n\n{warning_en}"
 
-    msg = EmailMessage()
-    msg.add_header('Subject', subject_sv)
-    msg.add_header('From', current_app.config['MAIL_DEFAULT_SENDER'])
-    msg.add_header('To', ', '.join(recipients))
-    msg.add_header('Content-Disposition', 'inline')
-    msg.set_content(warning)
+    mail = {
+        'en': {
+            'subject': subject_en,
+            'body_txt': body_txt_en,
+            'body_html': body_html_en,
+        },
+        'sv': {
+            'subject': subject_sv,
+            'body_txt': body_txt_sv,
+            'body_html': body_html_sv,
+        }
+    }
+    first = str(get_locale())
+    second = first == 'sv' and 'en' or 'sv'
 
-    msg_txt_sv = MIMEPart()
-    msg_txt_sv.add_header('Content-Disposition', 'inline')
-    msg_txt_sv.add_header('Content-Type', 'text/plain; charset="utf8"')
-    msg_txt_sv.set_content(body_txt_sv)
+    subject = f"{mail[first]['subject']} / {mail[second]['subject']}"
+    msg = Message(subject, recipients=recipients)
+    msg.body = f"{mail[first]['body_txt']} / {mail[second]['body_txt']}"
+    msg.html = f"{mail[first]['body_html']} / {mail[second]['body_html']}"
 
-    msg_html_sv = MIMEPart()
-    msg_html_sv.add_header('Content-Disposition', 'inline')
-    msg_html_sv.add_header('Content-Type', 'text/html; charset="utf8"')
-    msg_html_sv.set_content(body_html_sv)
-
-    msg_sv = MIMEPart()
-    msg_sv.add_header('Subject', subject_sv)
-    msg_sv.add_header('Content-Translation-Type', 'original')
-    msg_sv.add_header('Content-Language', 'sv')
-    msg_sv.add_header('Content-Disposition', 'inline')
-    msg_sv.add_header('Content-Type', 'multipart/alternative')
-    msg_sv.add_attachment(msg_txt_sv)
-    msg_sv.add_attachment(msg_html_sv)
-
-    msg_txt_en = MIMEPart()
-    msg_txt_en.add_header('Content-Disposition', 'inline')
-    msg_txt_en.add_header('Content-Type', 'text/plain; charset="utf8"')
-    msg_txt_en.set_content(body_txt_en)
-
-    msg_html_en = MIMEPart()
-    msg_html_en.add_header('Content-Disposition', 'inline')
-    msg_html_en.add_header('Content-Type', 'text/html; charset="utf8"')
-    msg_html_en.set_content(body_html_en)
-
-    msg_en = MIMEPart()
-    msg_en.add_header('Subject', subject_en)
-    msg_en.add_header('Content-Translation-Type', 'original')
-    msg_en.add_header('Content-Language', 'en')
-    msg_en.add_header('Content-Disposition', 'inline')
-    msg_en.add_header('Content-Type', 'multipart/alternative')
-    msg_en.add_attachment(msg_txt_en)
-    msg_en.add_attachment(msg_html_en)
-
-    msg.add_attachment(msg_sv)
-    msg.add_attachment(msg_en)
-    msg.replace_header('Content-type', 'multipart/multilingual')
-
-    if attachment_name and attachment:
-        msg.add_attachment(attachment_name, 'application/pdf', attachment)
+    if attachment and attachment_name:
+        msg.attach(attachment_name, 'application/pdf', attachment)
 
     current_app.logger.debug(f"Email to be sent:\n\n{msg}\n\n")
 
-    current_app.mailer.send(ESMessage(msg))
-
-
-class ESMessage(object):
-    """
-    Encapsulates an email message.
-
-    :param msg: EmailMessage
-    """
-
-    def __init__(self, msg: EmailMessage):
-
-        self.msg = msg
-
-        sender = current_app.extensions['mail'].default_sender
-
-        if isinstance(sender, tuple):
-            sender = "%s <%s>" % sender
-
-        self.sender = sender
-        self.date = None
-        self.mail_options = []
-        self.rcpt_options = []
-
-    @property
-    def send_to(self):
-        return set([recipient.strip() for recipient in self.msg.get('To').split(',')])
-
-    def _message(self):
-        return self
-
-    def __str__(self):
-        return self.msg.as_string()
-
-    def __bytes__(self):
-        return self.msg.as_bytes()
-
-    def as_string(self):
-        return self.msg.as_string()
-
-    def as_bytes(self):
-        return self.msg.as_bytes()
-
-    def has_bad_headers(self):
-        return False
-
-    def send(self, connection):
-        """Verifies and sends the message."""
-
-        connection.send(self)
+    current_app.mailer.send(msg)
