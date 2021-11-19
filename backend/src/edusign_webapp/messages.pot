@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-19 11:56+0100\n"
+"POT-Creation-Date: 2021-11-19 17:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: src/edusign_webapp/marshal.py:56 src/edusign_webapp/marshal.py:62
 #: src/edusign_webapp/marshal.py:68 src/edusign_webapp/marshal.py:72
-#: src/edusign_webapp/marshal.py:192 src/edusign_webapp/utils.py:92
+#: src/edusign_webapp/marshal.py:192 src/edusign_webapp/utils.py:93
 #: src/edusign_webapp/validators.py:50 src/edusign_webapp/validators.py:54
 #: src/edusign_webapp/validators.py:65 src/edusign_webapp/validators.py:78
 #: src/edusign_webapp/validators.py:82 src/edusign_webapp/validators.py:95
@@ -39,6 +39,14 @@ msgstr ""
 
 #: src/edusign_webapp/marshal.py:314
 msgid "Not a valid integer"
+msgstr ""
+
+#: src/edusign_webapp/utils.py:135
+msgid "Warning languages"
+msgstr ""
+
+#: src/edusign_webapp/utils.py:137
+msgid "Warning languages sv"
 msgstr ""
 
 #: src/edusign_webapp/views.py:128
@@ -67,7 +75,7 @@ msgid ""
 msgstr ""
 
 #: src/edusign_webapp/views.py:230 src/edusign_webapp/views.py:263
-#: src/edusign_webapp/views.py:316 src/edusign_webapp/views.py:596
+#: src/edusign_webapp/views.py:316 src/edusign_webapp/views.py:594
 msgid "Unauthorized"
 msgstr ""
 
@@ -95,26 +103,27 @@ msgid ""
 "site administrator."
 msgstr ""
 
-#: src/edusign_webapp/views.py:525
+#: src/edusign_webapp/views.py:531 src/edusign_webapp/views.py:534
 #, python-format
 msgid "%(name)s signed \"%(docname)s\""
 msgstr ""
 
-#: src/edusign_webapp/views.py:552 src/edusign_webapp/views.py:768
+#: src/edusign_webapp/views.py:556 src/edusign_webapp/views.py:559
+#: src/edusign_webapp/views.py:774 src/edusign_webapp/views.py:777
 #, python-format
 msgid "\"%(docname)s\" is now signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:600
+#: src/edusign_webapp/views.py:598
 #, python-format
 msgid "You cannot invite as %(owner)s"
 msgstr ""
 
-#: src/edusign_webapp/views.py:609
+#: src/edusign_webapp/views.py:607
 msgid "Problem creating invitation to sign, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:615
+#: src/edusign_webapp/views.py:622 src/edusign_webapp/views.py:625
 #, python-format
 msgid "You have been invited to sign \"%(document_name)s\""
 msgstr ""
@@ -139,46 +148,46 @@ msgstr ""
 msgid "Could not find the document"
 msgstr ""
 
-#: src/edusign_webapp/views.py:669
+#: src/edusign_webapp/views.py:678 src/edusign_webapp/views.py:681
 #, python-format
 msgid "A reminder to sign \"%(document_name)s\""
 msgstr ""
 
-#: src/edusign_webapp/views.py:686
+#: src/edusign_webapp/views.py:688
 msgid "Problem sending the email, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:688
+#: src/edusign_webapp/views.py:690
 msgid "Success sending reminder email to pending users"
 msgstr ""
 
-#: src/edusign_webapp/views.py:708
+#: src/edusign_webapp/views.py:710
 msgid "Problem removing the invitation, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:712
+#: src/edusign_webapp/views.py:714
 msgid "Document has not been removed, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:714
+#: src/edusign_webapp/views.py:716
 msgid "Success removing invitation to sign"
 msgstr ""
 
-#: src/edusign_webapp/views.py:734 src/edusign_webapp/views.py:738
-#: src/edusign_webapp/views.py:754 src/edusign_webapp/views.py:758
+#: src/edusign_webapp/views.py:736 src/edusign_webapp/views.py:740
+#: src/edusign_webapp/views.py:756 src/edusign_webapp/views.py:760
 msgid "Cannot find the document being signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:816
+#: src/edusign_webapp/views.py:814
 msgid "Problem declining signature, plase try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:826
+#: src/edusign_webapp/views.py:830 src/edusign_webapp/views.py:833
 #, python-format
 msgid "%(name)s declined to sign \"%(docname)s\""
 msgstr ""
 
-#: src/edusign_webapp/views.py:844
+#: src/edusign_webapp/views.py:842
 msgid "Success declining signature"
 msgstr ""
 
