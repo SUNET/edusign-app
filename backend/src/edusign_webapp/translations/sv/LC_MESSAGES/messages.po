@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-15 14:44+0100\n"
+"POT-Creation-Date: 2021-11-19 11:56+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sv\n"
@@ -72,7 +72,7 @@ msgstr ""
 "Kontakta din IT-avdelning för att få tillgång till tjänsten."
 
 #: src/edusign_webapp/views.py:230 src/edusign_webapp/views.py:263
-#: src/edusign_webapp/views.py:316 src/edusign_webapp/views.py:598
+#: src/edusign_webapp/views.py:316 src/edusign_webapp/views.py:596
 msgid "Unauthorized"
 msgstr "Ej behörig"
 
@@ -80,19 +80,25 @@ msgstr "Ej behörig"
 msgid ""
 "Document is being signed by another user, please try again in a few "
 "minutes."
-msgstr "Dokumentet håller på att signeras av en annan person, försök igen om någon minut."
+msgstr ""
+"Dokumentet håller på att signeras av en annan person, försök igen om "
+"någon minut."
 
 #: src/edusign_webapp/views.py:353
 #, python-format
 msgid "There doesn't seem to be an invitation for you to sign \"%(docname)s\"."
-msgstr "Det verkar inte finnas någon inbjudan till dig att signera  \"%(docname)s\"."
+msgstr ""
+"Det verkar inte finnas någon inbjudan till dig att signera  "
+"\"%(docname)s\"."
 
 #: src/edusign_webapp/views.py:366
 #, python-format
 msgid ""
 "The email %(email)s invited to sign \"%(docname)s\" does not coincide "
 "with yours."
-msgstr "E-posten %(email)s att signera \"%(docname)s\" stämmer inte överens med din."
+msgstr ""
+"E-posten %(email)s att signera \"%(docname)s\" stämmer inte överens med "
+"din."
 
 #: src/edusign_webapp/views.py:392
 msgid ""
@@ -104,26 +110,27 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:525
 #, python-format
-msgid "User %(name)s has signed \"%(docname)s\""
-msgstr ""
+msgid "%(name)s signed \"%(docname)s\""
+msgstr "%(name)s signerade \"%(docname)s\""
 
-#: src/edusign_webapp/views.py:552 src/edusign_webapp/views.py:767
+#: src/edusign_webapp/views.py:552 src/edusign_webapp/views.py:768
 #, python-format
-msgid "Document \"%(docname)s\" has been signed by all invited"
-msgstr ""
+msgid "\"%(docname)s\" is now signed"
+msgstr "\"%(docname)s\" är nu signerat"
 
-#: src/edusign_webapp/views.py:602
+#: src/edusign_webapp/views.py:600
 #, python-format
 msgid "You cannot invite as %(owner)s"
 msgstr "Du kan inte bjuda in att signera som %(owner)s"
 
-#: src/edusign_webapp/views.py:611
+#: src/edusign_webapp/views.py:609
 msgid "Problem creating invitation to sign, please try again"
 msgstr "Ett problem uppstod att skapa inbjudan att signera, var god försök igen"
 
 #: src/edusign_webapp/views.py:615
-msgid "XXX Invite mail subject"
-msgstr ""
+#, python-format
+msgid "You have been invited to sign \"%(document_name)s\""
+msgstr "Du har blivit inbjudan att signera \"%(document_name)s\""
 
 #: src/edusign_webapp/views.py:633
 msgid "There was a problem and the invitation email(s) were not sent"
@@ -145,186 +152,156 @@ msgstr "Ett problem uppstod att hitta användare som inte signerat"
 msgid "Could not find the document"
 msgstr "Det gick inte att hitta dokumentet"
 
-#: src/edusign_webapp/views.py:668
-msgid "XXX Reminder mail subject"
-msgstr ""
+#: src/edusign_webapp/views.py:669
+#, python-format
+msgid "A reminder to sign \"%(document_name)s\""
+msgstr "En påminnelse att signera \"%(document_name)s\""
 
-#: src/edusign_webapp/views.py:685
+#: src/edusign_webapp/views.py:686
 msgid "Problem sending the email, please try again"
 msgstr "Ett problem uppstod att meddelandet, var god försök igen"
 
-#: src/edusign_webapp/views.py:687
+#: src/edusign_webapp/views.py:688
 msgid "Success sending reminder email to pending users"
 msgstr "Meddelandet skickades till alla som inte svarat på inbjudan att signera"
 
-#: src/edusign_webapp/views.py:707
+#: src/edusign_webapp/views.py:708
 msgid "Problem removing the invitation, please try again"
 msgstr "Ett problem uppstod att ta bort inbjudan, var god försök igen"
 
-#: src/edusign_webapp/views.py:711
+#: src/edusign_webapp/views.py:712
 msgid "Document has not been removed, please try again"
 msgstr "Dokumentet togs inte bort, var god försök igen"
 
-#: src/edusign_webapp/views.py:713
+#: src/edusign_webapp/views.py:714
 msgid "Success removing invitation to sign"
 msgstr "Borttagningen av inbjudan att signera lyckades"
 
-#: src/edusign_webapp/views.py:733 src/edusign_webapp/views.py:737
-#: src/edusign_webapp/views.py:753 src/edusign_webapp/views.py:757
+#: src/edusign_webapp/views.py:734 src/edusign_webapp/views.py:738
+#: src/edusign_webapp/views.py:754 src/edusign_webapp/views.py:758
 msgid "Cannot find the document being signed"
 msgstr "Går inte att hitta dokumentet som skall signeras"
 
-#: src/edusign_webapp/views.py:815
+#: src/edusign_webapp/views.py:816
 msgid "Problem declining signature, plase try again"
 msgstr "Ett problem uppstod att neka signering, var god försök igen"
 
-#: src/edusign_webapp/views.py:824
+#: src/edusign_webapp/views.py:826
 #, python-format
-msgid "User %(name)s has declined signing \"%(docname)s\""
-msgstr ""
+msgid "%(name)s declined to sign \"%(docname)s\""
+msgstr "%(name)s nekade att signera \"%(docname)s\""
 
-#: src/edusign_webapp/views.py:842
+#: src/edusign_webapp/views.py:844
 msgid "Success declining signature"
 msgstr "Signeringen av dokumentet nekades"
 
-#: src/edusign_webapp/templates/declined_by_email.html.jinja2:5
-#, python-format
-msgid ""
-"\n"
-"\n"
-"<p>%(invited_name)s <%(invited_email)s> has declined signing a document "
-"named %(document_name)s.</p>\n"
-"\n"
-msgstr ""
-
+#: src/edusign_webapp/templates/declined_by_email.html.jinja2:6
 #: src/edusign_webapp/templates/declined_by_email.txt.jinja2:1
 #, python-format
 msgid ""
 "\n"
-"\n"
-"%(invited_name)s <%(invited_email)s> has declined signing a document "
-"named %(document_name)s.\n"
-"\n"
+"%(invited_name)s <%(invited_email)s> has declined to sign document "
+"\"%(document_name)s\".\n"
 msgstr ""
+"\n"
+"%(invited_name)s <%(invited_email)s> har nekat att signera dokumentet "
+"\"%(document_name)s\".\n"
+
+#: src/edusign_webapp/templates/declined_by_email.html.jinja2:12
+#: src/edusign_webapp/templates/declined_by_email.txt.jinja2:5
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:37
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:22
+#: src/edusign_webapp/templates/reminder_email.html.jinja2:37
+#: src/edusign_webapp/templates/reminder_email.txt.jinja2:22
+#: src/edusign_webapp/templates/signed_all_email.html.jinja2:12
+#: src/edusign_webapp/templates/signed_all_email.txt.jinja2:5
+#: src/edusign_webapp/templates/signed_by_email.html.jinja2:12
+#: src/edusign_webapp/templates/signed_by_email.txt.jinja2:5
+msgid ""
+"\n"
+"This is an email from eduSign, a service for secure digital signatures, "
+"developed by Sunet.\n"
+msgstr ""
+"\n"
+"Detta meddelande är skickat från eduSign, en tjänst för säkra digitala "
+"signaturer, utvecklat av Sunet.\n"
 
 #: src/edusign_webapp/templates/home.jinja2:135
 msgid "eduSign - Secure digital signature"
 msgstr "eduSign - säker digital underskrift"
 
-#: src/edusign_webapp/templates/invitation_email.html.jinja2:5
-#, python-format
-msgid ""
-"\n"
-"\n"
-"<p>You have been invited by %(inviter_name_and_email)s\n"
-"to digitally sign a document named %(document_name)s.</p>\n"
-"\n"
-"<p><a href=\"%(invited_link)s\">You can follow this link to do "
-"so.</a></p>\n"
-"\n"
-msgstr ""
-
-#: src/edusign_webapp/templates/invitation_email.html.jinja2:16
-#: src/edusign_webapp/templates/reminder_email.html.jinja2:16
-#, python-format
-msgid ""
-"\n"
-"\n"
-"<p>Message from %(inviter_name)s:</p>\n"
-"\n"
-msgstr ""
-
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:6
 #: src/edusign_webapp/templates/invitation_email.txt.jinja2:1
 #, python-format
 msgid ""
 "\n"
-"\n"
-"You have been invited by %(inviter_name_and_email)s\n"
-"to digitally sign a document named %(document_name)s.\n"
-"\n"
-"You can follow this link to do so:\n"
-"\n"
+"You have been invited by %(inviter_name_and_email)s,\n"
+"to digitally sign a document named \"%(document_name)s\".\n"
 msgstr ""
+"\n"
+"Du har blivit inbjuden av %(inviter_name_and_email)s,\n"
+"att digitalt signera dokumentet \"%(document_name)s\".\n"
 
-#: src/edusign_webapp/templates/invitation_email.txt.jinja2:14
-#: src/edusign_webapp/templates/reminder_email.txt.jinja2:14
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:15
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:8
+#: src/edusign_webapp/templates/reminder_email.html.jinja2:15
+#: src/edusign_webapp/templates/reminder_email.txt.jinja2:8
 #, python-format
 msgid ""
-"\n"
 "\n"
 "Message from %(inviter_name)s:\n"
-"\n"
 msgstr ""
+"\n"
+"Meddelande från %(inviter_name)s:\n"
 
-#: src/edusign_webapp/templates/reminder_email.html.jinja2:5
-#, python-format
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:27
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:16
+#: src/edusign_webapp/templates/reminder_email.html.jinja2:27
+#: src/edusign_webapp/templates/reminder_email.txt.jinja2:16
 msgid ""
 "\n"
-"\n"
-"<p>This is to remind you that you have been invited by "
-"%(inviter_name_and_email)s\n"
-"to digitally sign a document named %(document_name)s.</p>\n"
-"\n"
-"<p><a href=\"%(invited_link)s\">You can follow this link to do "
-"so.</a></p>\n"
-"\n"
+"Follow this link to preview and sign the document:\n"
 msgstr ""
+"\n"
+"Följ denna länk för att förhandsgranska och signera dokumentet:\n"
 
+#: src/edusign_webapp/templates/reminder_email.html.jinja2:6
 #: src/edusign_webapp/templates/reminder_email.txt.jinja2:1
 #, python-format
 msgid ""
 "\n"
-"\n"
-"This is to remind you that you have been invited by "
-"%(inviter_name_and_email)s\n"
-"to digitally sign a document named %(document_name)s.\n"
-"\n"
-"You can follow this link to do so:\n"
-"\n"
+"This is a reminder that you have been invited by "
+"%(inviter_name_and_email)s,\n"
+"to digitally sign a document named \"%(document_name)s\".\n"
 msgstr ""
+"\n"
+"Detta är en påminnelse att du har blivit inbjuden av "
+"%(inviter_name_and_email)s,\n"
+"att digitalt signera dokumentet \"%(document_name)s\".\n"
 
-#: src/edusign_webapp/templates/signed_all_email.html.jinja2:5
-#, python-format
-msgid ""
-"\n"
-"\n"
-"<p>A document named %(document_name)s has been signed by all invited "
-"parties.</p>\n"
-"<p>You can find a copy attached.</p>\n"
-"\n"
-msgstr ""
-
+#: src/edusign_webapp/templates/signed_all_email.html.jinja2:6
 #: src/edusign_webapp/templates/signed_all_email.txt.jinja2:1
 #, python-format
 msgid ""
 "\n"
-"\n"
-"A document named %(document_name)s has been signed by all invited "
-"parties.\n"
-"\n"
-"You can find a copy attached.\n"
-"\n"
+"The document \"%(document_name)s\" is now signed by all parties and "
+"attached to this email.\n"
 msgstr ""
+"\n"
+"Dokumentet \"%(document_name)s\" är nu signerat av alla parter och "
+"bifogat till detta e-post meddelande.\n"
 
-#: src/edusign_webapp/templates/signed_by_email.html.jinja2:5
-#, python-format
-msgid ""
-"\n"
-"\n"
-"<p>A document named %(document_name)s has been signed by %(invited_name)s"
-" <%(invited_email)s>.</p>\n"
-"\n"
-msgstr ""
-
+#: src/edusign_webapp/templates/signed_by_email.html.jinja2:6
 #: src/edusign_webapp/templates/signed_by_email.txt.jinja2:1
 #, python-format
 msgid ""
 "\n"
-"\n"
-"A document named %(document_name)s has been signed by %(invited_name)s "
-"<%(invited_email)s>.\n"
-"\n"
+"%(invited_name)s (%(invited_email)s) has signed the document "
+"\"%(document_name)s\".\n"
 msgstr ""
+"\n"
+"%(invited_name)s (%(invited_email)s) har signerat dokumentet "
+"\"%(document_name)s\".\n"
 
 #~ msgid ""
 #~ "Someone else is signing the document "
@@ -446,5 +423,140 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Problem declining signature"
+#~ msgstr ""
+
+#~ msgid "User %(name)s has signed \"%(docname)s\""
+#~ msgstr ""
+
+#~ msgid "Document \"%(docname)s\" has been signed by all invited"
+#~ msgstr ""
+
+#~ msgid "XXX Invite mail subject"
+#~ msgstr ""
+
+#~ msgid "XXX Reminder mail subject"
+#~ msgstr ""
+
+#~ msgid "User %(name)s has declined signing \"%(docname)s\""
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "<p>%(invited_name)s <%(invited_email)s> has declined"
+#~ " signing a document named "
+#~ "%(document_name)s.</p>\n"
+#~ "\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "%(invited_name)s <%(invited_email)s> has declined"
+#~ " signing a document named "
+#~ "%(document_name)s.\n"
+#~ "\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "<p>You have been invited by %(inviter_name_and_email)s\n"
+#~ "to digitally sign a document named %(document_name)s.</p>\n"
+#~ "\n"
+#~ "<p><a href=\"%(invited_link)s\">You can follow "
+#~ "this link to do so.</a></p>\n"
+#~ "\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "<p>Message from %(inviter_name)s:</p>\n"
+#~ "\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "You have been invited by %(inviter_name_and_email)s\n"
+#~ "to digitally sign a document named %(document_name)s.\n"
+#~ "\n"
+#~ "You can follow this link to do so:\n"
+#~ "\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "Message from %(inviter_name)s:\n"
+#~ "\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "<p>This is to remind you that you"
+#~ " have been invited by "
+#~ "%(inviter_name_and_email)s\n"
+#~ "to digitally sign a document named %(document_name)s.</p>\n"
+#~ "\n"
+#~ "<p><a href=\"%(invited_link)s\">You can follow "
+#~ "this link to do so.</a></p>\n"
+#~ "\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "This is to remind you that you "
+#~ "have been invited by "
+#~ "%(inviter_name_and_email)s\n"
+#~ "to digitally sign a document named %(document_name)s.\n"
+#~ "\n"
+#~ "You can follow this link to do so:\n"
+#~ "\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "<p>A document named %(document_name)s has "
+#~ "been signed by all invited parties.</p>"
+#~ "\n"
+#~ "<p>You can find a copy attached.</p>\n"
+#~ "\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "A document named %(document_name)s has "
+#~ "been signed by all invited parties.\n"
+#~ ""
+#~ "\n"
+#~ "You can find a copy attached.\n"
+#~ "\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "<p>A document named %(document_name)s has "
+#~ "been signed by %(invited_name)s "
+#~ "<%(invited_email)s>.</p>\n"
+#~ "\n"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "\n"
+#~ "\n"
+#~ "A document named %(document_name)s has "
+#~ "been signed by %(invited_name)s "
+#~ "<%(invited_email)s>.\n"
+#~ "\n"
+#~ msgstr ""
+
+#~ msgid "Document \"%(docname)s\" is now signed"
 #~ msgstr ""
 
