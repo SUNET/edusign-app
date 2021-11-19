@@ -129,13 +129,11 @@ def get_previous_signatures(document: dict) -> str:
         return ""
 
 
-def sendmail(recipients, subject_en, subject_sv, body_en, body_sv, attachment_name='', attachment=''):
-    orig_locale = get_locale()
-    force_locale('en')
-    warning_en = gettext("Warning languages")
-    force_locale('sv')
-    warning_sv = gettext("Warning languages sv")
-    force_locale(orig_locale)
+def sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv, attachment_name='', attachment=''):
+    with force_locale('en'):
+        warning_en = gettext("Warning languages")
+    with force_locale('sv'):
+        warning_sv = gettext("Warning languages")
 
     warning = f"{warning_sv}\n\n{warning_en}"
 
@@ -146,21 +144,43 @@ def sendmail(recipients, subject_en, subject_sv, body_en, body_sv, attachment_na
     msg.add_header('Content-Disposition', 'inline')
     msg.set_content(warning)
 
+    msg_txt_sv = MIMEPart()
+    msg_txt_sv.add_header('Content-Disposition', 'inline')
+    msg_txt_sv.add_header('Content-Type', 'text/plain; charset="utf8"')
+    msg_txt_sv.set_content(body_txt_sv)
+
+    msg_html_sv = MIMEPart()
+    msg_html_sv.add_header('Content-Disposition', 'inline')
+    msg_html_sv.add_header('Content-Type', 'text/html; charset="utf8"')
+    msg_html_sv.set_content(body_html_sv)
+
     msg_sv = MIMEPart()
     msg_sv.add_header('Subject', subject_sv)
     msg_sv.add_header('Content-Translation-Type', 'original')
     msg_sv.add_header('Content-Language', 'sv')
     msg_sv.add_header('Content-Disposition', 'inline')
-    msg_sv.add_header('Content-Type', 'text/plain; charset="utf8"')
-    msg_sv.set_content(body_sv)
+    msg_sv.add_header('Content-Type', 'multipart/alternative')
+    msg_sv.add_attachment(msg_txt_sv)
+    msg_sv.add_attachment(msg_html_sv)
+
+    msg_txt_en = MIMEPart()
+    msg_txt_en.add_header('Content-Disposition', 'inline')
+    msg_txt_en.add_header('Content-Type', 'text/plain; charset="utf8"')
+    msg_txt_en.set_content(body_txt_en)
+
+    msg_html_en = MIMEPart()
+    msg_html_en.add_header('Content-Disposition', 'inline')
+    msg_html_en.add_header('Content-Type', 'text/html; charset="utf8"')
+    msg_html_en.set_content(body_html_en)
 
     msg_en = MIMEPart()
     msg_en.add_header('Subject', subject_en)
-    msg_en.add_header('Content-Translation-Type', 'human')
+    msg_en.add_header('Content-Translation-Type', 'original')
     msg_en.add_header('Content-Language', 'en')
     msg_en.add_header('Content-Disposition', 'inline')
-    msg_en.add_header('Content-Type', 'text/plain; charset="utf8"')
-    msg_en.set_content(body_en)
+    msg_en.add_header('Content-Type', 'multipart/alternative')
+    msg_en.add_attachment(msg_txt_en)
+    msg_en.add_attachment(msg_html_en)
 
     msg.add_attachment(msg_sv)
     msg.add_attachment(msg_en)
