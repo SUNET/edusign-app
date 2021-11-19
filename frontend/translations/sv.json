@@ -106,7 +106,7 @@
   "docmanager-help-unconfirmed-title": "Detta dokument har ännu inte godkännts för signering",
   "header-confirm-clear-text": "När du klickar på \"Bekräfta\" kommer alla dokument att tas bort från din lista",
   "header-confirm-clear-title": "Bekräfta Rensa Lista",
-  "header-confirm-remove-owned-signed-text": "",
+  "header-confirm-remove-owned-signed-text": "Genom att klicka \"Bekräfta\" kommer dokumentet tas bort.",
   "header-confirm-remove-owned-text": "Klickar du på \"Bekräfta\" kommer alla inbjudningar att signera dokumentet tas bort",
   "header-confirm-remove-owned-title": "Bekräfta borttagning av inbjudningar",
   "header-confirm-remove-signed-owned-title": "Bekräfta borttagning av signerad inbjudan",
