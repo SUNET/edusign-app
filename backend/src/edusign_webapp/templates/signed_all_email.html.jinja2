@@ -2,13 +2,16 @@
 <head>
 </head>
 <body>
+<p>
 {% trans document_name=document_name %}
-
-<p>A document named {{ document_name }} has been signed by all invited parties.</p>
-<p>You can find a copy attached.</p>
-
+The document "{{document_name}}" is now signed by all parties and attached to this email.
 {% endtrans %}
+</p>
+
+<p>
+{% trans %}
+This is an email from eduSign, a service for secure digital signatures, developed by Sunet.
+{% endtrans %}
+</p>
 </body>
 </html>
-
-

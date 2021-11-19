@@ -2,11 +2,16 @@
 <head>
 </head>
 <body>
+<p>
 {% trans invited_email=invited_email, invited_name=invited_name, document_name=document_name %}
-
-<p>A document named {{ document_name }} has been signed by {{ invited_name }} <{{ invited_email }}>.</p>
-
+{{invited_name}} ({{invited_email}}) has signed the document "{{document_name}}".
 {% endtrans %}
+</p>
+
+<p>
+{% trans %}
+This is an email from eduSign, a service for secure digital signatures, developed by Sunet.
+{% endtrans %}
+</p>
 </body>
 </html>
-

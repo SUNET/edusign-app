@@ -522,7 +522,7 @@ def get_signed_documents(sign_data: dict) -> dict:
             try:
                 recipients = [f"{owner['name']} <{owner['email']}>"]
                 msg = Message(
-                    gettext("User %(name)s has signed \"%(docname)s\"")
+                    gettext('%(name)s signed "%(docname)s"')
                     % {'name': session['displayName'], 'docname': owner['docname']},
                     recipients=recipients,
                 )
@@ -549,7 +549,7 @@ def get_signed_documents(sign_data: dict) -> dict:
             if len(recipients) > 0:
                 try:
                     msg = Message(
-                        gettext("Document \"%(docname)s\" has been signed by all invited") % {'docname': owner['docname']},
+                        gettext("\"%(docname)s\" is now signed") % {'docname': owner['docname']},
                         recipients=recipients,
                     )
                     mail_context = {
@@ -611,10 +611,11 @@ def create_multi_sign_request(data: dict) -> dict:
     recipients = [f"{invite['name']} <{invite['email']}>" for invite in invites]
     if len(recipients) > 0:
         try:
-            msg = Message(gettext("XXX Invite mail subject"), recipients=recipients)
+            doc_name = data['document']['name']
+            msg = Message(gettext('You have been invited to sign "%(document_name)s"') % {'document_name': doc_name}, recipients=recipients)
             invited_link = url_for('edusign.get_index', _external=True)
             context = {
-                'document_name': data['document']['name'],
+                'document_name': doc_name,
                 'inviter_name_and_email': f"{owner['name']} <{owner['email']}>",
                 'inviter_name': f"{owner['name']}",
                 'invited_link': invited_link,
@@ -665,7 +666,7 @@ def send_multisign_reminder(data: dict) -> dict:
     recipients = [f"{invite['name']} <{invite['email']}>" for invite in pending]
     if len(recipients) > 0:
         try:
-            msg = Message(gettext("XXX Reminder mail subject"), recipients=recipients)
+            msg = Message(gettext('A reminder to sign "%(document_name)s"') % {'document_name': docname}, recipients=recipients)
             invited_link = url_for('edusign.get_index', _external=True)
             context = {
                 'document_name': docname,
@@ -764,7 +765,7 @@ def skip_final_signature(data: dict) -> dict:
         ]
         if len(recipients) > 0:
             msg = Message(
-                gettext("Document \"%(docname)s\" has been signed by all invited") % {'docname': doc['name']},
+                gettext('"%(docname)s" is now signed') % {'docname': doc['name']},
                 recipients=recipients,
             )
             mail_context = {
@@ -822,7 +823,7 @@ def decline_invitation(data):
         else:
             recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
             msg = Message(
-                gettext("User %(name)s has declined signing \"%(docname)s\"")
+                gettext('%(name)s declined to sign "%(docname)s"')
                 % {'name': owner_data['name'], 'docname': owner_data['docname']},
                 recipients=recipients,
             )
