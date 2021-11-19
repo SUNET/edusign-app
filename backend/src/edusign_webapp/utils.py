@@ -212,9 +212,8 @@ class ESMessage(object):
 
         self.sender = sender
         self.date = None
-        self.mail_options = None
-        self.rcpt_options = None
-
+        self.mail_options = []
+        self.rcpt_options = []
 
     @property
     def send_to(self):
