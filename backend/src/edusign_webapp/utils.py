@@ -191,10 +191,10 @@ def sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body
 
     current_app.logger.debug(f"Email to be sent:\n\n{msg}\n\n")
 
-    current_app.mailer.send(Message(msg))
+    current_app.mailer.send(ESMessage(msg))
 
 
-class Message(object):
+class ESMessage(object):
     """
     Encapsulates an email message.
 
@@ -227,6 +227,12 @@ class Message(object):
         return self.msg.as_string()
 
     def __bytes__(self):
+        return self.msg.as_bytes()
+
+    def as_string(self):
+        return self.msg.as_string()
+
+    def as_bytes(self):
         return self.msg.as_bytes()
 
     def has_bad_headers(self):
