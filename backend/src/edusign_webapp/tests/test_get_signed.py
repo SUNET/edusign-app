@@ -293,7 +293,7 @@ def test_get_signed_documents_no_sign_response(client, monkeypatch):
     resp_data = _get_signed_documents(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'sign_response: Missing data for required field'
+    assert resp_data['message'] == 'sign_response: Required'
 
 
 def test_get_signed_documents_empty_sign_response(client, monkeypatch):
@@ -311,7 +311,7 @@ def test_get_signed_documents_no_relay_state(client, monkeypatch):
     resp_data = _get_signed_documents(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'relay_state: Missing data for required field'
+    assert resp_data['message'] == 'relay_state: Required'
 
 
 def test_get_signed_documents_empty_relay_state(client, monkeypatch):
@@ -329,7 +329,7 @@ def test_get_signed_documents_no_csrf(client, monkeypatch):
     resp_data = _get_signed_documents(client, monkeypatch, data, csrf_token='rm')
 
     assert resp_data['error']
-    assert resp_data['message'] == 'csrf_token: Missing data for required field'
+    assert resp_data['message'] == 'csrf_token: Required'
 
 
 def test_get_signed_documents_wrong_csrf(client, monkeypatch):

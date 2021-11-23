@@ -129,7 +129,7 @@ def test_get_partially_signed_raises(app, environ_base, monkeypatch, sample_doc_
 
     resp_data = _test_get_partially_signed_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_get_content)
 
-    assert resp_data['message'] == 'Problem getting the document being signed'
+    assert resp_data['message'] == 'Cannot find the document being signed'
 
 
 def test_get_partially_signed_doesnt(app, environ_base, monkeypatch, sample_doc_1):
@@ -138,4 +138,4 @@ def test_get_partially_signed_doesnt(app, environ_base, monkeypatch, sample_doc_
 
     resp_data = _test_get_partially_signed_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_get_content)
 
-    assert resp_data['message'] == 'Document not found in the doc store'
+    assert resp_data['message'] == 'Cannot find the document being signed'

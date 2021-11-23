@@ -129,7 +129,7 @@ def test_get_partially_signed_raises_getting(app, environ_base, monkeypatch, sam
 
     resp_data = _test_skip_final_signature_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_get_signed)
 
-    assert resp_data['message'] == 'Problem getting the signed document'
+    assert resp_data['message'] == 'Cannot find the document being signed'
 
 
 def test_get_partially_signed_raises_removing(app, environ_base, monkeypatch, sample_doc_1):
@@ -151,4 +151,4 @@ def test_get_partially_signed_doesnt(app, environ_base, monkeypatch, sample_doc_
 
     resp_data = _test_skip_final_signature_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_get_signed)
 
-    assert resp_data['message'] == 'Document not found in the doc store'
+    assert resp_data['message'] == 'Cannot find the document being signed'

@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 from copy import deepcopy
+import json
 
 from edusign_webapp.doc_store import DocStore
 from edusign_webapp.marshal import ResponseSchema
@@ -147,7 +148,7 @@ def _test_create_invited_signature(
     monkeypatch.setattr(DocStore, "get_invitation", mock_get_invitation)
 
     return client.get(
-        f'/sign/invitation/{sample_doc_1["key"]}',
+        '/sign/config',
         headers={
             "X-Requested-With": "XMLHttpRequest",
             "Origin": "https://test.localhost",
@@ -167,97 +168,4 @@ def test_create_invited_signature(
         app, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, mock_invitation
     )
 
-    assert b'id="form"' in response.data
-
-
-def test_create_invited_signature_doc_locked(
-    app, environ_base, monkeypatch, sample_doc_1, sample_owned_doc_1, sample_invites_1
-):
-    mock_invitation = {
-        "document": sample_owned_doc_1,
-        "user": sample_invites_1[0],
-    }
-    response = _test_create_invited_signature(
-        app,
-        environ_base,
-        monkeypatch,
-        sample_owned_doc_1,
-        sample_invites_1,
-        mock_invitation,
-        doc_is_locked=True,
-    )
-
-    assert (
-        b"Someone else is signing the document right now, please try again in a few minutes"
-        in response.data
-    )
-
-
-def test_create_invited_signature_wrong_invitee(
-    app, environ_base, monkeypatch, sample_doc_1, sample_owned_doc_1, sample_invites_1
-):
-    mock_invitation = {
-        "document": sample_owned_doc_1,
-        "user": sample_invites_1[0],
-    }
-    mock_invitation["user"]["email"] = "non-invited@example.org"
-    response = _test_create_invited_signature(
-        app, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, mock_invitation
-    )
-
-    assert b"The invited email does not coincide with yours" in response.data
-
-
-def test_create_invited_signature_unknown_invitee(
-    app, environ_base, monkeypatch, sample_doc_1, sample_invites_1
-):
-    mock_invitation = {}
-    response = _test_create_invited_signature(
-        app, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, mock_invitation
-    )
-
-    assert b"There seems to be no invitation for you" in response.data
-
-
-def test_create_invited_signature_prepare_error(
-    app, environ_base, monkeypatch, sample_doc_1, sample_owned_doc_1, sample_invites_1
-):
-    mock_invitation = {
-        "document": sample_owned_doc_1,
-        "user": sample_invites_1[0],
-    }
-    prepare_data = {"error": True}
-    response = _test_create_invited_signature(
-        app,
-        environ_base,
-        monkeypatch,
-        sample_owned_doc_1,
-        sample_invites_1,
-        mock_invitation,
-        prepare_data=prepare_data,
-    )
-
-    assert b"Problem preparing document for multi sign by user" in response.data
-
-
-def test_create_invited_signature_create_error(
-    app, environ_base, monkeypatch, sample_doc_1, sample_owned_doc_1, sample_invites_1
-):
-    mock_invitation = {
-        "document": sample_owned_doc_1,
-        "user": sample_invites_1[0],
-    }
-    response = _test_create_invited_signature(
-        app,
-        environ_base,
-        monkeypatch,
-        sample_owned_doc_1,
-        sample_invites_1,
-        mock_invitation,
-        error_creation=True,
-    )
-
-    assert (
-        b"Communication error with the create endpoint of the eduSign API"
-        in response.data
-    )
+    assert 'test1.pdf' == json.loads(response.data)['payload']['owned_multisign'][0]['name']
