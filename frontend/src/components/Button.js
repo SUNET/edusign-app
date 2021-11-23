@@ -50,7 +50,8 @@ class Button extends Component {
   render() {
     const isDisabled = this.props.disabled || this.props.spinning !== "";
     const isSpinning = this.props.spinning === this.props.id;
-    const {doHandleClick, disabling, disabled, onClick, ...props} = this.props;
+    const { doHandleClick, disabling, disabled, onClick, ...props } =
+      this.props;
     return (
       <BButton
         className={isSpinning ? "button-with-spinner" : ""}

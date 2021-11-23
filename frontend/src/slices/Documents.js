@@ -760,7 +760,10 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
             signed: newSigned,
           };
           thunkAPI.dispatch(removeOwned({ key: doc.id }));
-          newDoc = await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
+          newDoc = await addDocumentToDb(
+            newDoc,
+            state.main.signer_attributes.eppn
+          );
           thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
         }
       });
@@ -1090,7 +1093,8 @@ export const skipOwnedSignature = createAsyncThunk(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
-            defaultMessage: "Problem skipping final signature, please try again",
+            defaultMessage:
+              "Problem skipping final signature, please try again",
             id: "problem-skipping-signature",
           }),
         })

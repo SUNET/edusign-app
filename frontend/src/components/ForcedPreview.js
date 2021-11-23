@@ -159,17 +159,19 @@ function ForcedPreview(props) {
             </Button>
           </ESTooltip>
           <ESTooltip
-            tooltip={readyToConfirm && (
-                  <FormattedMessage
-                    defaultMessage="Click here to approve the document for signing"
-                    key="confirm-doc-tootip"
-                  />
-                ) || (
-                  <FormattedMessage
-                    defaultMessage="Once you have scrolled to the end of the document you will be able to approve the document for signing"
-                    key="disabled-confirm-doc-tootip"
-                  />
-                )}
+            tooltip={
+              (readyToConfirm && (
+                <FormattedMessage
+                  defaultMessage="Click here to approve the document for signing"
+                  key="confirm-doc-tootip"
+                />
+              )) || (
+                <FormattedMessage
+                  defaultMessage="Once you have scrolled to the end of the document you will be able to approve the document for signing"
+                  key="disabled-confirm-doc-tootip"
+                />
+              )
+            }
           >
             <span className="d-inline-block">
               <Button
