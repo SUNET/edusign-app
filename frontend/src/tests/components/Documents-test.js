@@ -470,7 +470,7 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     let filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
 
-    let buttonPreview = screen.queryByTestId("button-forced-preview-0");
+    let buttonPreview = screen.queryByTestId("button-forced-preview-dummy-ref");
     expect(buttonPreview).to.equal(null);
 
     let buttonRemove = screen.queryByTestId("rm-button-test.pdf");
@@ -488,7 +488,7 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     fetchMock.post("/sign/add-doc", {
       message: "document added",
       payload: {
-        ref: "dummy ref",
+        ref: "dummy-ref",
         sign_requirement: "dummy sign requirement",
       },
     });
@@ -504,11 +504,11 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     expect(filename.length).to.equal(1);
 
     buttonPreview = await waitFor(() =>
-      screen.getAllByTestId("button-forced-preview-0")
+      screen.getAllByTestId("button-forced-preview-dummy-ref")
     );
     expect(buttonPreview.length).to.equal(1);
 
-    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-0"));
+    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-test.pdf"));
     expect(buttonRemove.length).to.equal(1);
   } catch (err) {
     unmount();
