@@ -30,8 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from copy import deepcopy
 import json
+from copy import deepcopy
 
 from edusign_webapp.doc_store import DocStore
 from edusign_webapp.marshal import ResponseSchema
@@ -196,7 +196,10 @@ def test_final_sign_multi_sign_request_no_doc(app, environ_base, monkeypatch, sa
         app, environ_base, monkeypatch, sample_doc_1, mock_invitation, create_sign_request=False
     )
 
-    assert data['payload']['failed'][0]['message'] == 'There was an error. Please try again, or contact the site administrator.'
+    assert (
+        data['payload']['failed'][0]['message']
+        == 'There was an error. Please try again, or contact the site administrator.'
+    )
 
 
 def test_final_sign_multi_sign_request_prepare_error(app, environ_base, monkeypatch, sample_doc_1):
@@ -213,7 +216,10 @@ def test_final_sign_multi_sign_request_prepare_error(app, environ_base, monkeypa
         app, environ_base, monkeypatch, sample_doc_1, mock_invitation, prepare_data=prepare_data
     )
 
-    assert data['payload']['failed'][0]['message'] == 'There was an error. Please try again, or contact the site administrator.'
+    assert (
+        data['payload']['failed'][0]['message']
+        == 'There was an error. Please try again, or contact the site administrator.'
+    )
 
 
 def test_final_sign_multi_sign_request_create_error(app, environ_base, monkeypatch, sample_doc_1):
@@ -229,7 +235,10 @@ def test_final_sign_multi_sign_request_create_error(app, environ_base, monkeypat
         app, environ_base, monkeypatch, sample_doc_1, mock_invitation, error_creation=True
     )
 
-    assert data['payload']['failed'][0]['message'] == 'There was an error. Please try again, or contact the site administrator.'
+    assert (
+        data['payload']['failed'][0]['message']
+        == 'There was an error. Please try again, or contact the site administrator.'
+    )
 
 
 def test_final_sign_multi_sign_request_no_relay_state(app, environ_base, monkeypatch, sample_doc_1):
@@ -253,7 +262,10 @@ def test_final_sign_multi_sign_request_no_relay_state(app, environ_base, monkeyp
         app, environ_base, monkeypatch, sample_doc_1, mock_invitation, create_data=create_data
     )
 
-    assert data['payload']['failed'][0]['message'] == 'There was an error. Please try again, or contact the site administrator.'
+    assert (
+        data['payload']['failed'][0]['message']
+        == 'There was an error. Please try again, or contact the site administrator.'
+    )
 
 
 def test_final_sign_multi_sign_request_no_sign_request(app, environ_base, monkeypatch, sample_doc_1):
@@ -277,4 +289,7 @@ def test_final_sign_multi_sign_request_no_sign_request(app, environ_base, monkey
         app, environ_base, monkeypatch, sample_doc_1, mock_invitation, create_data=create_data
     )
 
-    assert data['payload']['failed'][0]['message'] == 'There was an error. Please try again, or contact the site administrator.'
+    assert (
+        data['payload']['failed'][0]['message']
+        == 'There was an error. Please try again, or contact the site administrator.'
+    )

@@ -30,8 +30,8 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-from copy import deepcopy
 import json
+from copy import deepcopy
 
 from edusign_webapp.doc_store import DocStore
 from edusign_webapp.marshal import ResponseSchema
@@ -157,9 +157,7 @@ def _test_create_invited_signature(
     )
 
 
-def test_create_invited_signature(
-    app, environ_base, monkeypatch, sample_doc_1, sample_owned_doc_1, sample_invites_1
-):
+def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, sample_owned_doc_1, sample_invites_1):
     mock_invitation = {
         "document": sample_owned_doc_1,
         "user": sample_invites_1[0],

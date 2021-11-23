@@ -223,7 +223,10 @@ def test_recreate_sign_request_post_raises_on_prepare(client, monkeypatch, sampl
 
     resp_data = _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_on_prepare=True)
 
-    assert resp_data['payload']['failed'][0]['message'] == 'There was an error. Please try again, or contact the site administrator.'
+    assert (
+        resp_data['payload']['failed'][0]['message']
+        == 'There was an error. Please try again, or contact the site administrator.'
+    )
 
 
 def test_recreate_sign_request_post_raises_on_create(client, monkeypatch, sample_doc_1):
@@ -283,7 +286,9 @@ def _recreate_sign_request(client, monkeypatch, payload_data, csrf_token=None):
 def test_recreate_sign_request_no_name(client, monkeypatch, sample_doc_1):
     payload_data = {
         'documents': {
-            'local': [{'size': 100, 'type': 'application/pdf', 'blob': sample_doc_1['blob'], 'key': sample_doc_1['key']}],
+            'local': [
+                {'size': 100, 'type': 'application/pdf', 'blob': sample_doc_1['blob'], 'key': sample_doc_1['key']}
+            ],
             'owned': [],
             'invited': [],
         }

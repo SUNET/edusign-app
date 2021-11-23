@@ -35,7 +35,7 @@ from base64 import b64decode
 from xml.etree import cElementTree as ET
 
 from flask import current_app, request, session
-from flask_babel import gettext, force_locale, get_locale
+from flask_babel import force_locale, get_locale, gettext
 from flask_mail import Message
 from pyhanko.pdf_utils.reader import PdfFileReader
 
@@ -129,7 +129,17 @@ def get_previous_signatures(document: dict) -> str:
         return ""
 
 
-def sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv, attachment_name='', attachment=''):
+def sendmail(
+    recipients,
+    subject_en,
+    subject_sv,
+    body_txt_en,
+    body_html_en,
+    body_txt_sv,
+    body_html_sv,
+    attachment_name='',
+    attachment='',
+):
     with force_locale('en'):
         warning_en = gettext("Warning languages")
     with force_locale('sv'):
@@ -147,7 +157,7 @@ def sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body
             'subject': subject_sv,
             'body_txt': body_txt_sv,
             'body_html': body_html_sv,
-        }
+        },
     }
     first = str(get_locale())
     second = first == 'sv' and 'en' or 'sv'

@@ -73,9 +73,7 @@ def test_add_document(app, environ_base, monkeypatch, sample_new_doc_1):
 
     assert response1.status == '200 OK'
 
-    doc_data = {
-        'payload': sample_new_doc_1
-    }
+    doc_data = {'payload': sample_new_doc_1}
 
     response = client.post(
         '/sign/add-doc',
