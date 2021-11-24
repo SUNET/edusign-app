@@ -29,6 +29,9 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
           signer_attributes: {
             name: "Tester Testig",
             eppn: "tester@example.org",
@@ -37,7 +40,7 @@ describe("Multi sign invitations", function () {
           owned_multisign: [],
           pending_multisign: [],
         },
-      });
+      }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -74,7 +77,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const button = await waitFor(() =>
-        screen.getAllByTestId("button-multisign-0")
+        screen.getAllByTestId("button-multisign-test.pdf")
       );
       expect(button.length).to.equal(1);
 
@@ -99,6 +102,9 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
           signer_attributes: {
             name: "Tester Testig",
             eppn: "tester@example.org",
@@ -107,7 +113,7 @@ describe("Multi sign invitations", function () {
           owned_multisign: [],
           pending_multisign: [],
         },
-      });
+      }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -143,7 +149,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const button = await waitFor(() =>
-        screen.getAllByTestId("button-multisign-0")
+        screen.getAllByTestId("button-multisign-test.pdf")
       );
       expect(button.length).to.equal(1);
 
@@ -192,6 +198,9 @@ describe("Multi sign invitations", function () {
       fetchMock
         .get("/sign/config", {
           payload: {
+            unauthn: false,
+            poll: false,
+            multisign_buttons: "true",
             signer_attributes: {
               name: "Tester Testig",
               eppn: "tester@example.org",
@@ -212,7 +221,7 @@ describe("Multi sign invitations", function () {
         .post("/sign/create-multi-sign", {
           message: "Success creating multi signature request",
           error: false,
-        });
+        }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -244,7 +253,7 @@ describe("Multi sign invitations", function () {
       expect(filename.length).to.equal(1);
 
       const button = await waitFor(() =>
-        screen.getAllByTestId("button-multisign-0")
+        screen.getAllByTestId("button-multisign-testost.pdf")
       );
       expect(button.length).to.equal(1);
 
@@ -298,6 +307,9 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
           signer_attributes: {
             name: "Tester Testig",
             eppn: "tester@example.org",
@@ -307,9 +319,11 @@ describe("Multi sign invitations", function () {
             {
               name: "test1.pdf",
               type: "application/pdf",
+              state: 'incomplete',
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
               signed: [],
+              declined: [],
               pending: [
                 {
                   name: "Tester Invited1",
@@ -320,7 +334,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
         },
-      });
+      }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -356,6 +370,9 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
           signer_attributes: {
             name: "Tester Testig",
             eppn: "tester@example.org",
@@ -363,11 +380,14 @@ describe("Multi sign invitations", function () {
           },
           owned_multisign: [
             {
+              state: 'incomplete',
               name: "test1.pdf",
+              state: 'incomplete',
               type: "application/pdf",
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
               signed: [],
+              declined: [],
               pending: [
                 {
                   name: "Tester Invited1",
@@ -378,7 +398,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
         },
-      });
+      }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -446,6 +466,9 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
           signer_attributes: {
             name: "Tester Testig",
             eppn: "tester@example.org",
@@ -455,9 +478,11 @@ describe("Multi sign invitations", function () {
             {
               name: "test1.pdf",
               type: "application/pdf",
+              state: 'incomplete',
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
               signed: [],
+              declined: [],
               pending: [
                 {
                   name: "Tester Invited1",
@@ -468,7 +493,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
         },
-      });
+      }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -535,6 +560,9 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
           signer_attributes: {
             name: "Tester Testig",
             eppn: "tester@example.org",
@@ -544,9 +572,11 @@ describe("Multi sign invitations", function () {
             {
               name: "test1.pdf",
               type: "application/pdf",
+              state: 'incomplete',
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
               signed: [],
+              declined: [],
               pending: [
                 {
                   name: "Tester Invited1",
@@ -561,7 +591,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
         },
-      });
+      }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -602,6 +632,9 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
           signer_attributes: {
             name: "Tester Testig",
             eppn: "tester@example.org",
@@ -611,6 +644,7 @@ describe("Multi sign invitations", function () {
             {
               name: "test1.pdf",
               type: "application/pdf",
+              state: 'incomplete',
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
               signed: [
@@ -619,6 +653,7 @@ describe("Multi sign invitations", function () {
                   email: "invited1@example.org",
                 },
               ],
+              declined: [],
               pending: [
                 {
                   name: "Tester Invited2",
@@ -629,7 +664,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
         },
-      });
+      }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -656,11 +691,6 @@ describe("Multi sign invitations", function () {
         screen.getAllByText(/Tester Invited2/)
       );
       expect(invite2Name.length).to.equal(1);
-
-      const signButton = await waitFor(() =>
-        screen.queryAllByText(/Sign Document/)
-      );
-      expect(signButton.length).to.equal(0);
     } catch (err) {
       unmount();
       throw err;
@@ -675,6 +705,9 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
           signer_attributes: {
             name: "Tester Testig",
             eppn: "tester@example.org",
@@ -684,6 +717,7 @@ describe("Multi sign invitations", function () {
             {
               name: "test1.pdf",
               type: "application/pdf",
+              state: 'loaded',
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
               signed: [
@@ -696,12 +730,13 @@ describe("Multi sign invitations", function () {
                   email: "invited2@example.org",
                 },
               ],
+              declined: [],
               pending: [],
             },
           ],
           pending_multisign: [],
         },
-      });
+      }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -720,7 +755,7 @@ describe("Multi sign invitations", function () {
       expect(inviteName.length).to.equal(1);
 
       const signedWaiting = await waitFor(() =>
-        screen.getAllByText(/Already signed by/)
+        screen.getAllByText(/Signed by/)
       );
       expect(signedWaiting.length).to.equal(1);
 
@@ -730,7 +765,7 @@ describe("Multi sign invitations", function () {
       expect(invite2Name.length).to.equal(1);
 
       const signButton = await waitFor(() =>
-        screen.getAllByText(/Sign Document/)
+        screen.getAllByText(/Sign Selected Documents/)
       );
       expect(signButton.length).to.equal(1);
     } catch (err) {
@@ -748,6 +783,9 @@ describe("Multi sign invitations", function () {
       fetchMock
         .get("/sign/config", {
           payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
             signer_attributes: {
               name: "Tester Testig",
               eppn: "tester@example.org",
@@ -757,6 +795,7 @@ describe("Multi sign invitations", function () {
               {
                 name: "test1.pdf",
                 type: "application/pdf",
+                state: 'loaded',
                 size: 1500,
                 key: "11111111-1111-1111-1111-111111111111",
                 signed: [
@@ -769,6 +808,7 @@ describe("Multi sign invitations", function () {
                     email: "invited2@example.org",
                   },
                 ],
+                declined: [],
                 pending: [],
               },
             ],
@@ -778,7 +818,7 @@ describe("Multi sign invitations", function () {
         .post("/sign/remove-multi-sign", {
           error: false,
           message: "Success removing invitation",
-        });
+        }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -787,7 +827,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const rmButton = await waitFor(() =>
-        screen.getAllByTestId("rm-invitation-test1.pdf")
+        screen.getAllByTestId("button-rm-invitation-11111111-1111-1111-1111-111111111111")
       );
       expect(rmButton.length).to.equal(1);
 
@@ -816,6 +856,9 @@ describe("Multi sign invitations", function () {
       fetchMock
         .get("/sign/config", {
           payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
             signer_attributes: {
               name: "Tester Testig",
               eppn: "tester@example.org",
@@ -825,6 +868,7 @@ describe("Multi sign invitations", function () {
               {
                 name: "test1.pdf",
                 type: "application/pdf",
+                state: 'loaded',
                 size: 1500,
                 key: "11111111-1111-1111-1111-111111111111",
                 signed: [
@@ -837,6 +881,7 @@ describe("Multi sign invitations", function () {
                     email: "invited2@example.org",
                   },
                 ],
+                declined: [],
                 pending: [],
               },
             ],
@@ -846,7 +891,7 @@ describe("Multi sign invitations", function () {
         .post("/sign/remove-multi-sign", {
           error: false,
           message: "Success removing invitation",
-        });
+        }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -855,7 +900,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const rmButton = await waitFor(() =>
-        screen.getAllByTestId("rm-invitation-test1.pdf")
+        screen.getAllByTestId("button-rm-invitation-11111111-1111-1111-1111-111111111111")
       );
       expect(rmButton.length).to.equal(1);
 
@@ -883,6 +928,9 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
           signer_attributes: {
             name: "Tester Testig",
             eppn: "tester@example.org",
@@ -893,6 +941,7 @@ describe("Multi sign invitations", function () {
             {
               name: "test1.pdf",
               type: "application/pdf",
+              state: 'loaded',
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
               invite_key: "22222222-2222-2222-2222-222222222222",
@@ -902,10 +951,11 @@ describe("Multi sign invitations", function () {
               },
               pending: [],
               signed: [],
+              declined: [],
             },
           ],
         },
-      });
+      }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -937,6 +987,9 @@ describe("Multi sign invitations", function () {
       fetchMock
         .get("/sign/config", {
           payload: {
+            unauthn: false,
+            poll: false,
+            multisign_buttons: "true",
             signer_attributes: {
               name: "Tester Testig",
               eppn: "tester@example.org",
@@ -946,6 +999,7 @@ describe("Multi sign invitations", function () {
               {
                 name: "test1.pdf",
                 type: "application/pdf",
+                state: 'loaded',
                 size: 1500,
                 key: "11111111-1111-1111-1111-111111111111",
                 signed: [
@@ -958,6 +1012,7 @@ describe("Multi sign invitations", function () {
                     email: "invited2@example.org",
                   },
                 ],
+                declined: [],
                 pending: [],
               },
             ],
@@ -977,7 +1032,7 @@ describe("Multi sign invitations", function () {
               },
             ],
           },
-        });
+        }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -986,7 +1041,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const signButton = await waitFor(() =>
-        screen.getAllByText(/Sign Document/)
+        screen.getAllByText(/Sign Selected Documents/)
       );
       expect(signButton.length).to.equal(1);
 
@@ -1012,6 +1067,9 @@ describe("Multi sign invitations", function () {
       fetchMock
         .get("/sign/config", {
           payload: {
+            unauthn: false,
+            poll: false,
+            multisign_buttons: "true",
             signer_attributes: {
               name: "Tester Testig",
               eppn: "tester@example.org",
@@ -1021,6 +1079,7 @@ describe("Multi sign invitations", function () {
               {
                 name: "test1.pdf",
                 type: "application/pdf",
+                state: 'loaded',
                 size: 1500,
                 key: "11111111-1111-1111-1111-111111111111",
                 signed: [
@@ -1033,6 +1092,7 @@ describe("Multi sign invitations", function () {
                     email: "invited2@example.org",
                   },
                 ],
+                declined: [],
                 pending: [],
               },
             ],
@@ -1052,7 +1112,7 @@ describe("Multi sign invitations", function () {
             "2dHK9eEX$8be8af38c0ca02a0be346df372d43a65dbefdbed757a4d43a770e793aed4d02b",
           message: "Success",
           error: false,
-        });
+        }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1069,7 +1129,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const dlButton = await waitFor(() =>
-        screen.getAllByTestId("button-dlsigned-test1.pdf")
+        screen.getAllByTestId("button-download-signed-11111111-1111-1111-1111-111111111111")
       );
       expect(dlButton.length).to.equal(1);
     } catch (err) {
@@ -1086,6 +1146,9 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
           signer_attributes: {
             name: "Tester Testig",
             eppn: "tester@example.org",
@@ -1096,6 +1159,7 @@ describe("Multi sign invitations", function () {
             {
               name: "test1.pdf",
               type: "application/pdf",
+              state: 'incomplete',
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
               invite_key: "22222222-2222-2222-2222-222222222222",
@@ -1110,10 +1174,11 @@ describe("Multi sign invitations", function () {
                 },
               ],
               signed: [],
+              declined: [],
             },
           ],
         },
-      });
+      }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1149,6 +1214,9 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
           signer_attributes: {
             name: "Tester Testig",
             eppn: "tester@example.org",
@@ -1159,6 +1227,7 @@ describe("Multi sign invitations", function () {
             {
               name: "test1.pdf",
               type: "application/pdf",
+              state: 'loaded',
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
               invite_key: "22222222-2222-2222-2222-222222222222",
@@ -1172,11 +1241,12 @@ describe("Multi sign invitations", function () {
                   email: "invited1@example.org",
                 },
               ],
+              declined: [],
               pending: [],
             },
           ],
         },
-      });
+      }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1212,6 +1282,9 @@ describe("Multi sign invitations", function () {
     try {
       fetchMock.get("/sign/config", {
         payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
           signer_attributes: {
             name: "Tester Testig",
             eppn: "tester@example.org",
@@ -1222,6 +1295,7 @@ describe("Multi sign invitations", function () {
             {
               name: "test1.pdf",
               type: "application/pdf",
+              state: 'incomplete',
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
               invite_key: "22222222-2222-2222-2222-222222222222",
@@ -1235,6 +1309,7 @@ describe("Multi sign invitations", function () {
                   email: "invited1@example.org",
                 },
               ],
+              declined: [],
               pending: [
                 {
                   name: "Tester Pending",
@@ -1244,7 +1319,7 @@ describe("Multi sign invitations", function () {
             },
           ],
         },
-      });
+      }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },

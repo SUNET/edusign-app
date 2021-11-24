@@ -98,6 +98,7 @@ export const resendButton = (props, doc) => {
           <Button
             variant="outline-dark"
             size="sm"
+            id={"button-open-resend-" + doc.name}
             data-testid={"button-open-resend-" + doc.name}
             onClick={props.handleResend(doc)}
           >
@@ -237,7 +238,7 @@ export const downloadSignedButton = (props, doc) => {
           <Button
             variant="outline-success"
             size="sm"
-            id={"button-donwload-signed-" + doc.key}
+            id={"button-download-signed-" + doc.key}
             disabling={true}
             onClick={props.handleDlSigned(doc.name)}
           >
