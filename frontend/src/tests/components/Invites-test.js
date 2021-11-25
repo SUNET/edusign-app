@@ -353,7 +353,7 @@ describe("Multi sign invitations", function () {
       expect(inviteName.length).to.equal(1);
 
       const signedWaiting = await waitFor(() =>
-        screen.queryAllByText(/Already signed by/)
+        screen.queryAllByText(/Signed by/)
       );
       expect(signedWaiting.length).to.equal(0);
     } catch (err) {
@@ -610,7 +610,7 @@ describe("Multi sign invitations", function () {
       expect(inviteName.length).to.equal(1);
 
       const signedWaiting = await waitFor(() =>
-        screen.queryAllByText(/Already signed by/)
+        screen.queryAllByText(/Signed by/)
       );
       expect(signedWaiting.length).to.equal(0);
 
@@ -683,7 +683,7 @@ describe("Multi sign invitations", function () {
       expect(inviteName.length).to.equal(1);
 
       const signedWaiting = await waitFor(() =>
-        screen.getAllByText(/Already signed by/)
+        screen.getAllByText(/Signed by/)
       );
       expect(signedWaiting.length).to.equal(1);
 
@@ -999,7 +999,7 @@ describe("Multi sign invitations", function () {
               {
                 name: "test1.pdf",
                 type: "application/pdf",
-                state: 'loaded',
+                state: 'selected',
                 size: 1500,
                 key: "11111111-1111-1111-1111-111111111111",
                 signed: [
@@ -1019,8 +1019,9 @@ describe("Multi sign invitations", function () {
             pending_multisign: [],
           },
         })
-        .post("/sign/final-sign-request", {
+        .post("/sign/recreate-sign-request", {
           payload: {
+            failed: [],
             relay_state: "dummy relay state",
             sign_request: "dummy sign request",
             binding: "dummy binding",
@@ -1032,6 +1033,7 @@ describe("Multi sign invitations", function () {
               },
             ],
           },
+          error: false,
         }).get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
@@ -1255,7 +1257,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const signedWaiting = await waitFor(() =>
-        screen.getAllByText(/Already signed by/)
+        screen.getAllByText(/Signed by/)
       );
       expect(signedWaiting.length).to.equal(1);
 
@@ -1328,7 +1330,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const signedWaiting = await waitFor(() =>
-        screen.getAllByText(/Already signed by/)
+        screen.getAllByText(/Signed by/)
       );
       expect(signedWaiting.length).to.equal(1);
 
