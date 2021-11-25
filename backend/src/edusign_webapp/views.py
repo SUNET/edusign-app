@@ -793,14 +793,14 @@ def skip_final_signature(data: dict) -> dict:
         ]
         if len(recipients) > 0:
             mail_context = {
-                'document_name': owner['docname'],
+                'document_name': doc['name'],
             }
             with force_locale('en'):
-                subject_en = gettext("\"%(docname)s\" is now signed") % {'docname': owner['docname']}
+                subject_en = gettext("\"%(docname)s\" is now signed") % {'docname': doc['name']}
                 body_txt_en = render_template('signed_all_email.txt.jinja2', **mail_context)
                 body_html_en = render_template('signed_all_email.html.jinja2', **mail_context)
             with force_locale('sv'):
-                subject_sv = gettext("\"%(docname)s\" is now signed") % {'docname': owner['docname']}
+                subject_sv = gettext("\"%(docname)s\" is now signed") % {'docname': doc['name']}
                 body_txt_sv = render_template('signed_all_email.txt.jinja2', **mail_context)
                 body_html_sv = render_template('signed_all_email.html.jinja2', **mail_context)
 
