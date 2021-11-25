@@ -885,4 +885,5 @@ def decline_invitation(data):
 
     message = gettext("Success declining signature")
 
+    import time;time.sleep(3)
     return {'message': message}

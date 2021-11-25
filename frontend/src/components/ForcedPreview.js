@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
-import Button from "react-bootstrap/Button";
+import BButton from "react-bootstrap/Button";
+import Button from "containers/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
 import { ESTooltip } from "containers/Overlay";
@@ -92,7 +93,7 @@ function ForcedPreview(props) {
 
         <Modal.Footer>
           <div className="pdf-navigation">
-            <Button
+            <BButton
               variant="outline"
               size="sm"
               disabled={Number(pageNumber) <= 1}
@@ -100,8 +101,8 @@ function ForcedPreview(props) {
               data-testid={"preview-button-first-" + props.index}
             >
               &#x23EA;
-            </Button>
-            <Button
+            </BButton>
+            <BButton
               variant="outline"
               size="sm"
               disabled={Number(pageNumber) <= 1}
@@ -109,7 +110,7 @@ function ForcedPreview(props) {
               data-testid={"preview-button-prev-" + props.index}
             >
               &#x25C4;
-            </Button>
+            </BButton>
             <span>
               &nbsp;
               {(pageNumber || (numPages ? 1 : "--")) +
@@ -117,7 +118,7 @@ function ForcedPreview(props) {
                 (numPages || "--")}
               &nbsp;
             </span>
-            <Button
+            <BButton
               variant="outline"
               size="sm"
               disabled={Number(pageNumber) >= Number(numPages)}
@@ -125,8 +126,8 @@ function ForcedPreview(props) {
               data-testid={"preview-button-next-" + props.index}
             >
               &#x25BA;
-            </Button>
-            <Button
+            </BButton>
+            <BButton
               variant="outline"
               size="sm"
               disabled={Number(pageNumber) >= Number(numPages)}
@@ -134,7 +135,7 @@ function ForcedPreview(props) {
               data-testid={"preview-button-last-" + props.index}
             >
               &#x23E9;
-            </Button>
+            </BButton>
           </div>
           <ESTooltip
             tooltip={
@@ -146,11 +147,12 @@ function ForcedPreview(props) {
           >
             <Button
               variant="outline-danger"
+              disabling={true}
               onClick={props.handleUnConfirm({
                 doc: props.doc,
                 intl: props.intl,
               })}
-              data-testid={"preview-button-dissaprove-" + props.index}
+              id={"preview-button-dissaprove-" + props.index}
             >
               <FormattedMessage
                 defaultMessage="Reject"
@@ -179,7 +181,7 @@ function ForcedPreview(props) {
                 onClick={props.handleConfirm(props.doc.name)}
                 style={(!readyToConfirm && { pointerEvents: "none" }) || {}}
                 variant="outline-secondary"
-                data-testid={"preview-button-confirm-" + props.index}
+                id={"preview-button-confirm-" + props.index}
               >
                 <FormattedMessage
                   defaultMessage="Approve"
