@@ -140,13 +140,6 @@ def sendmail(
     attachment_name='',
     attachment='',
 ):
-    with force_locale('en'):
-        warning_en = gettext("Warning languages")
-    with force_locale('sv'):
-        warning_sv = gettext("Warning languages")
-
-    warning = f"{warning_sv}\n\n{warning_en}"
-
     mail = {
         'en': {
             'subject': subject_en,
@@ -164,8 +157,8 @@ def sendmail(
 
     subject = f"{mail[first]['subject']} / {mail[second]['subject']}"
     msg = Message(subject, recipients=recipients)
-    msg.body = f"{mail[first]['body_txt']} / {mail[second]['body_txt']}"
-    msg.html = f"{mail[first]['body_html']} / {mail[second]['body_html']}"
+    msg.body = f"{mail[first]['body_txt']} \n {mail[second]['body_txt']}"
+    msg.html = f"{mail[first]['body_html']} \n {mail[second]['body_html']}"
 
     if attachment and attachment_name:
         msg.attach(attachment_name, 'application/pdf', attachment)
