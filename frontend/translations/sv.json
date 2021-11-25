@@ -70,7 +70,7 @@
   "components.widgets.owned-resend-button-help": "Skicka meddelande till alla som inte signerat",
   "components.widgets.owned-skip-button-help": "Alla personer har svarat på inbjudan att signera dokumentet, klicka här för att gå vidare utan att själv signera",
   "components.widgets.preview-button": "Förhandsvisa",
-  "components.widgets.preview-button-tootip": "Visa en förhandsvisning av det osignerade dokumentet",
+  "components.widgets.preview-button-tootip": "Visa en förhandsvisning av dokumentet",
   "components.widgets.remove-button": "Ta bort",
   "components.widgets.resend-invitations-button": "Skicka om inbjudan",
   "components.widgets.retry-button": "Ladda om",

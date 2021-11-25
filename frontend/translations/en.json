@@ -70,7 +70,7 @@
   "components.widgets.owned-resend-button-help": "Click here to re-send an invitation email to all pending users",
   "components.widgets.owned-skip-button-help": "All requested users have answered your invitation to sign the document, click here to skip adding your final signature",
   "components.widgets.preview-button": "Preview",
-  "components.widgets.preview-button-tootip": "Display a preview of the unsigned document",
+  "components.widgets.preview-button-tootip": "Display a preview of the document",
   "components.widgets.remove-button": "Remove",
   "components.widgets.resend-invitations-button": "Resend invitations",
   "components.widgets.retry-button": "Retry",
