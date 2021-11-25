@@ -33,6 +33,7 @@ import {
   updateInvitationsFailed,
 } from "slices/Main";
 import { setPolling } from "slices/Poll";
+import { unsetSpinning } from "slices/Button";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
 import { b64toBlob, hashCode } from "components/utils";
