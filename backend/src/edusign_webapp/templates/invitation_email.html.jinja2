@@ -2,6 +2,11 @@
 <head>
 </head>
 <body>
+
+<p><strong>
+{% trans %}Message in English:{% endtrans %}
+</strong></p>
+
 <p>
 {% trans inviter_name_and_email=inviter_name_and_email, document_name=document_name %}
 You have been invited by {{ inviter_name_and_email }},

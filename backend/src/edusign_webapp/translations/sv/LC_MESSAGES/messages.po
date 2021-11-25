@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-19 17:32+0100\n"
+"POT-Creation-Date: 2021-11-25 12:09+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sv\n"
@@ -25,8 +25,8 @@ msgstr ""
 #: src/edusign_webapp/validators.py:65 src/edusign_webapp/validators.py:78
 #: src/edusign_webapp/validators.py:82 src/edusign_webapp/validators.py:95
 #: src/edusign_webapp/validators.py:99 src/edusign_webapp/validators.py:103
-#: src/edusign_webapp/views.py:280 src/edusign_webapp/views.py:421
-#: src/edusign_webapp/views.py:505
+#: src/edusign_webapp/views.py:286 src/edusign_webapp/views.py:427
+#: src/edusign_webapp/views.py:511
 msgid "There was an error. Please try again, or contact the site administrator."
 msgstr "Ett problem uppstod. Var god försök igen eller kontakta administratör"
 
@@ -42,23 +42,19 @@ msgstr "Obligatorisk"
 msgid "Not a valid integer"
 msgstr "Inte ett giltigt heltal"
 
-#: src/edusign_webapp/utils.py:135
+#: src/edusign_webapp/utils.py:144 src/edusign_webapp/utils.py:146
 msgid "Warning languages"
 msgstr ""
 
-#: src/edusign_webapp/utils.py:137
-msgid "Warning languages sv"
-msgstr ""
-
-#: src/edusign_webapp/views.py:128
+#: src/edusign_webapp/views.py:134
 msgid "Back"
 msgstr "Tillbaka"
 
-#: src/edusign_webapp/views.py:137
+#: src/edusign_webapp/views.py:143
 msgid "Missing information"
 msgstr "Saknad information"
 
-#: src/edusign_webapp/views.py:138
+#: src/edusign_webapp/views.py:144
 msgid ""
 "Your organization did not provide the correct information during login. "
 "Please contact your IT-support for assistance."
@@ -66,11 +62,11 @@ msgstr ""
 "Din organisation skickade inte rätt information vid inloggning till "
 "tjänsten. Kontakta din IT-avdelning för att avhjälpa problemet."
 
-#: src/edusign_webapp/views.py:149
+#: src/edusign_webapp/views.py:155
 msgid "Permission Denied"
 msgstr "Nekad åtkomst"
 
-#: src/edusign_webapp/views.py:150
+#: src/edusign_webapp/views.py:156
 msgid ""
 "The organization/identity provider you are affiliated with does not have "
 "permission to use this service. Please contact your IT-department to "
@@ -79,12 +75,12 @@ msgstr ""
 "Den organization du är kopplad till har inte rätt att använda tjänsten. "
 "Kontakta din IT-avdelning för att få tillgång till tjänsten."
 
-#: src/edusign_webapp/views.py:230 src/edusign_webapp/views.py:263
-#: src/edusign_webapp/views.py:316 src/edusign_webapp/views.py:594
+#: src/edusign_webapp/views.py:236 src/edusign_webapp/views.py:269
+#: src/edusign_webapp/views.py:322 src/edusign_webapp/views.py:616
 msgid "Unauthorized"
 msgstr "Ej behörig"
 
-#: src/edusign_webapp/views.py:343
+#: src/edusign_webapp/views.py:349
 msgid ""
 "Document is being signed by another user, please try again in a few "
 "minutes."
@@ -92,14 +88,14 @@ msgstr ""
 "Dokumentet håller på att signeras av en annan person, försök igen om "
 "någon minut."
 
-#: src/edusign_webapp/views.py:353
+#: src/edusign_webapp/views.py:359
 #, python-format
 msgid "There doesn't seem to be an invitation for you to sign \"%(docname)s\"."
 msgstr ""
 "Det verkar inte finnas någon inbjudan till dig att signera  "
 "\"%(docname)s\"."
 
-#: src/edusign_webapp/views.py:366
+#: src/edusign_webapp/views.py:372
 #, python-format
 msgid ""
 "The email %(email)s invited to sign \"%(docname)s\" does not coincide "
@@ -108,7 +104,7 @@ msgstr ""
 "E-posten %(email)s att signera \"%(docname)s\" stämmer inte överens med "
 "din."
 
-#: src/edusign_webapp/views.py:392
+#: src/edusign_webapp/views.py:398
 msgid ""
 "Problem preparing document for signing. Please try again, or contact the "
 "site administrator."
@@ -116,96 +112,109 @@ msgstr ""
 "Ett problem uppstod att ladda dokumentet. Var god försök igen eller "
 "kontakta administratör."
 
-#: src/edusign_webapp/views.py:531 src/edusign_webapp/views.py:534
+#: src/edusign_webapp/views.py:536 src/edusign_webapp/views.py:543
 #, python-format
 msgid "%(name)s signed \"%(docname)s\""
 msgstr "%(name)s signerade \"%(docname)s\""
 
-#: src/edusign_webapp/views.py:556 src/edusign_webapp/views.py:559
-#: src/edusign_webapp/views.py:774 src/edusign_webapp/views.py:777
+#: src/edusign_webapp/views.py:567 src/edusign_webapp/views.py:571
+#: src/edusign_webapp/views.py:799 src/edusign_webapp/views.py:803
 #, python-format
 msgid "\"%(docname)s\" is now signed"
 msgstr "\"%(docname)s\" är nu signerat"
 
-#: src/edusign_webapp/views.py:598
+#: src/edusign_webapp/views.py:620
 #, python-format
 msgid "You cannot invite as %(owner)s"
 msgstr "Du kan inte bjuda in att signera som %(owner)s"
 
-#: src/edusign_webapp/views.py:607
+#: src/edusign_webapp/views.py:629
 msgid "Problem creating invitation to sign, please try again"
 msgstr "Ett problem uppstod att skapa inbjudan att signera, var god försök igen"
 
-#: src/edusign_webapp/views.py:622 src/edusign_webapp/views.py:625
+#: src/edusign_webapp/views.py:644 src/edusign_webapp/views.py:648
 #, python-format
 msgid "You have been invited to sign \"%(document_name)s\""
 msgstr "Du har blivit inbjudan att signera \"%(document_name)s\""
 
-#: src/edusign_webapp/views.py:633
+#: src/edusign_webapp/views.py:657
 msgid "There was a problem and the invitation email(s) were not sent"
 msgstr "Ett problem uppstod och inbjudningarna att signera skickades inte iväg"
 
-#: src/edusign_webapp/views.py:635
+#: src/edusign_webapp/views.py:659
 msgid "Success sending invitations to sign"
 msgstr "Inbjudningarna att signera har skickats"
 
-#: src/edusign_webapp/views.py:656
+#: src/edusign_webapp/views.py:680
 msgid "Problem finding the users pending to multi sign"
 msgstr "Ett problem uppstod att hitta användare som inte signerat"
 
-#: src/edusign_webapp/views.py:660
+#: src/edusign_webapp/views.py:684
 msgid "Problem finding the users pending to sign"
 msgstr "Ett problem uppstod att hitta användare som inte signerat"
 
-#: src/edusign_webapp/views.py:664
+#: src/edusign_webapp/views.py:688
 msgid "Could not find the document"
 msgstr "Det gick inte att hitta dokumentet"
 
-#: src/edusign_webapp/views.py:678 src/edusign_webapp/views.py:681
+#: src/edusign_webapp/views.py:702 src/edusign_webapp/views.py:706
 #, python-format
 msgid "A reminder to sign \"%(document_name)s\""
 msgstr "En påminnelse att signera \"%(document_name)s\""
 
-#: src/edusign_webapp/views.py:688
+#: src/edusign_webapp/views.py:714
 msgid "Problem sending the email, please try again"
 msgstr "Ett problem uppstod att meddelandet, var god försök igen"
 
-#: src/edusign_webapp/views.py:690
+#: src/edusign_webapp/views.py:716
 msgid "Success sending reminder email to pending users"
 msgstr "Meddelandet skickades till alla som inte svarat på inbjudan att signera"
 
-#: src/edusign_webapp/views.py:710
+#: src/edusign_webapp/views.py:736
 msgid "Problem removing the invitation, please try again"
 msgstr "Ett problem uppstod att ta bort inbjudan, var god försök igen"
 
-#: src/edusign_webapp/views.py:714
+#: src/edusign_webapp/views.py:740
 msgid "Document has not been removed, please try again"
 msgstr "Dokumentet togs inte bort, var god försök igen"
 
-#: src/edusign_webapp/views.py:716
+#: src/edusign_webapp/views.py:742
 msgid "Success removing invitation to sign"
 msgstr "Borttagningen av inbjudan att signera lyckades"
 
-#: src/edusign_webapp/views.py:736 src/edusign_webapp/views.py:740
-#: src/edusign_webapp/views.py:756 src/edusign_webapp/views.py:760
+#: src/edusign_webapp/views.py:762 src/edusign_webapp/views.py:766
+#: src/edusign_webapp/views.py:782 src/edusign_webapp/views.py:786
 msgid "Cannot find the document being signed"
 msgstr "Går inte att hitta dokumentet som skall signeras"
 
-#: src/edusign_webapp/views.py:814
+#: src/edusign_webapp/views.py:850
 msgid "Problem declining signature, plase try again"
 msgstr "Ett problem uppstod att neka signering, var god försök igen"
 
-#: src/edusign_webapp/views.py:830 src/edusign_webapp/views.py:833
+#: src/edusign_webapp/views.py:867 src/edusign_webapp/views.py:874
 #, python-format
 msgid "%(name)s declined to sign \"%(docname)s\""
 msgstr "%(name)s nekade att signera \"%(docname)s\""
 
-#: src/edusign_webapp/views.py:842
+#: src/edusign_webapp/views.py:886
 msgid "Success declining signature"
 msgstr "Signeringen av dokumentet nekades"
 
-#: src/edusign_webapp/templates/declined_by_email.html.jinja2:6
+#: src/edusign_webapp/templates/declined_by_email.html.jinja2:7
 #: src/edusign_webapp/templates/declined_by_email.txt.jinja2:1
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:7
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:1
+#: src/edusign_webapp/templates/reminder_email.html.jinja2:7
+#: src/edusign_webapp/templates/reminder_email.txt.jinja2:1
+#: src/edusign_webapp/templates/signed_all_email.html.jinja2:7
+#: src/edusign_webapp/templates/signed_all_email.txt.jinja2:1
+#: src/edusign_webapp/templates/signed_by_email.html.jinja2:7
+#: src/edusign_webapp/templates/signed_by_email.txt.jinja2:1
+msgid "Message in English:"
+msgstr "Meddelande på svenska:"
+
+#: src/edusign_webapp/templates/declined_by_email.html.jinja2:11
+#: src/edusign_webapp/templates/declined_by_email.txt.jinja2:3
 #, python-format
 msgid ""
 "\n"
@@ -216,16 +225,16 @@ msgstr ""
 "%(invited_name)s <%(invited_email)s> har nekat att signera dokumentet "
 "\"%(document_name)s\".\n"
 
-#: src/edusign_webapp/templates/declined_by_email.html.jinja2:12
-#: src/edusign_webapp/templates/declined_by_email.txt.jinja2:5
-#: src/edusign_webapp/templates/invitation_email.html.jinja2:37
-#: src/edusign_webapp/templates/invitation_email.txt.jinja2:22
-#: src/edusign_webapp/templates/reminder_email.html.jinja2:37
-#: src/edusign_webapp/templates/reminder_email.txt.jinja2:22
-#: src/edusign_webapp/templates/signed_all_email.html.jinja2:12
-#: src/edusign_webapp/templates/signed_all_email.txt.jinja2:5
-#: src/edusign_webapp/templates/signed_by_email.html.jinja2:12
-#: src/edusign_webapp/templates/signed_by_email.txt.jinja2:5
+#: src/edusign_webapp/templates/declined_by_email.html.jinja2:17
+#: src/edusign_webapp/templates/declined_by_email.txt.jinja2:7
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:42
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:24
+#: src/edusign_webapp/templates/reminder_email.html.jinja2:42
+#: src/edusign_webapp/templates/reminder_email.txt.jinja2:24
+#: src/edusign_webapp/templates/signed_all_email.html.jinja2:17
+#: src/edusign_webapp/templates/signed_all_email.txt.jinja2:7
+#: src/edusign_webapp/templates/signed_by_email.html.jinja2:17
+#: src/edusign_webapp/templates/signed_by_email.txt.jinja2:7
 msgid ""
 "\n"
 "This is an email from eduSign, a service for secure digital signatures, "
@@ -239,8 +248,8 @@ msgstr ""
 msgid "eduSign - Secure digital signature"
 msgstr "eduSign - säker digital underskrift"
 
-#: src/edusign_webapp/templates/invitation_email.html.jinja2:6
-#: src/edusign_webapp/templates/invitation_email.txt.jinja2:1
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:11
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:3
 #, python-format
 msgid ""
 "\n"
@@ -251,10 +260,10 @@ msgstr ""
 "Du har blivit inbjuden av %(inviter_name_and_email)s,\n"
 "att digitalt signera dokumentet \"%(document_name)s\".\n"
 
-#: src/edusign_webapp/templates/invitation_email.html.jinja2:15
-#: src/edusign_webapp/templates/invitation_email.txt.jinja2:8
-#: src/edusign_webapp/templates/reminder_email.html.jinja2:15
-#: src/edusign_webapp/templates/reminder_email.txt.jinja2:8
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:20
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:10
+#: src/edusign_webapp/templates/reminder_email.html.jinja2:20
+#: src/edusign_webapp/templates/reminder_email.txt.jinja2:10
 #, python-format
 msgid ""
 "\n"
@@ -263,10 +272,10 @@ msgstr ""
 "\n"
 "Meddelande från %(inviter_name)s:\n"
 
-#: src/edusign_webapp/templates/invitation_email.html.jinja2:27
-#: src/edusign_webapp/templates/invitation_email.txt.jinja2:16
-#: src/edusign_webapp/templates/reminder_email.html.jinja2:27
-#: src/edusign_webapp/templates/reminder_email.txt.jinja2:16
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:32
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:18
+#: src/edusign_webapp/templates/reminder_email.html.jinja2:32
+#: src/edusign_webapp/templates/reminder_email.txt.jinja2:18
 msgid ""
 "\n"
 "Follow this link to preview and sign the document:\n"
@@ -274,8 +283,8 @@ msgstr ""
 "\n"
 "Följ denna länk för att förhandsgranska och signera dokumentet:\n"
 
-#: src/edusign_webapp/templates/reminder_email.html.jinja2:6
-#: src/edusign_webapp/templates/reminder_email.txt.jinja2:1
+#: src/edusign_webapp/templates/reminder_email.html.jinja2:11
+#: src/edusign_webapp/templates/reminder_email.txt.jinja2:3
 #, python-format
 msgid ""
 "\n"
@@ -288,8 +297,8 @@ msgstr ""
 "%(inviter_name_and_email)s,\n"
 "att digitalt signera dokumentet \"%(document_name)s\".\n"
 
-#: src/edusign_webapp/templates/signed_all_email.html.jinja2:6
-#: src/edusign_webapp/templates/signed_all_email.txt.jinja2:1
+#: src/edusign_webapp/templates/signed_all_email.html.jinja2:11
+#: src/edusign_webapp/templates/signed_all_email.txt.jinja2:3
 #, python-format
 msgid ""
 "\n"
@@ -300,8 +309,8 @@ msgstr ""
 "Dokumentet \"%(document_name)s\" är nu signerat av alla parter och "
 "bifogat till detta e-post meddelande.\n"
 
-#: src/edusign_webapp/templates/signed_by_email.html.jinja2:6
-#: src/edusign_webapp/templates/signed_by_email.txt.jinja2:1
+#: src/edusign_webapp/templates/signed_by_email.html.jinja2:11
+#: src/edusign_webapp/templates/signed_by_email.txt.jinja2:3
 #, python-format
 msgid ""
 "\n"
@@ -567,5 +576,8 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Document \"%(docname)s\" is now signed"
+#~ msgstr ""
+
+#~ msgid "Warning languages sv"
 #~ msgstr ""
 
