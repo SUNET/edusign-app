@@ -29,7 +29,7 @@ class DocumentOwned extends Component {
       }),
       incomplete: this.props.intl.formatMessage({
         defaultMessage:
-          "You must wait for all invited people to sign before signing this document yourself.",
+          "You must wait for all invited people to respond before signing this document yourself.",
         id: "docmanager-help-incomplete",
       }),
       "selected-title": this.props.intl.formatMessage({

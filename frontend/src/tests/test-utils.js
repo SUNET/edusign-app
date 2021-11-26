@@ -23,6 +23,7 @@ const initialState = {
     multisign_buttons: "yes",
     signer_attributes: {
       eppn: "dummy@example.org",
+      mail: "dummy@example.org",
       name: "Dummy name",
     },
   },
@@ -44,6 +45,17 @@ const initialState = {
     documentId: null,
     invitees: [],
   },
+  confirm: {},
+  modals: {
+    show_form: false,
+    form_id: null,
+    show_resend: false,
+    resend_id: null,
+    show_preview: false,
+    preview_id: null,
+  },
+  button: {spinning: ''},
+  poll: {poll: false, disablePoll: false, timerId: null},
 };
 
 /**

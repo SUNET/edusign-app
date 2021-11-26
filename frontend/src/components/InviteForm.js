@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 import Button from "containers/Button";
+import BButton from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
@@ -42,6 +43,19 @@ const validateName = (value) => {
   return error;
 };
 
+const validate = (mail) => {
+  return (values) => {
+    let errors = {};
+    values.invitees.forEach((val, i) => {
+      const nameError = validateName(val.name);
+      const emailError = validateEmail(mail)(val.email);
+      if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
+      if (emailError !== undefined) errors[`invitees.${i}.email`] = emailError;
+    });
+    return errors;
+  }
+};
+
 const initialValues = (docId) => ({
   invitationText: "",
   documentId: docId,
@@ -61,9 +75,11 @@ class InviteForm extends React.Component {
         <Formik
           initialValues={initialValues(this.props.docId)}
           onSubmit={this.props.handleSubmit.bind(this)}
+          validate={validate(this.props.mail)}
           enableReinitialize={true}
           validateOnBlur={true}
           validateOnChange={true}
+          validateOnMount={true}
         >
           {(fprops) => (
             <Modal
@@ -107,7 +123,7 @@ class InviteForm extends React.Component {
                       />
                     </BForm.Group>
                   </div>
-                  <FieldArray name="invitees">
+                  <FieldArray name="invitees" validateOnChange={true}>
                     {(arrayHelpers) => (
                       <div>
                         {fprops.values.invitees.length > 0 &&
@@ -123,13 +139,13 @@ class InviteForm extends React.Component {
                                       />
                                     }
                                   >
-                                    <Button
+                                    <BButton
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => arrayHelpers.remove(index)}
+                                      onClick={() => {arrayHelpers.remove(index)}}
                                     >
                                       ×
-                                    </Button>
+                                    </BButton>
                                   </ESTooltip>
                                 </div>
                               )}
@@ -156,7 +172,6 @@ class InviteForm extends React.Component {
                                       placeholder="Jane Doe"
                                       as={BForm.Control}
                                       type="text"
-                                      validate={validateName}
                                       isValid={
                                         fprops.touched.invitees &&
                                         fprops.touched.invitees[index] &&
@@ -201,7 +216,6 @@ class InviteForm extends React.Component {
                                       placeholder="jane@example.com"
                                       as={BForm.Control}
                                       type="email"
-                                      validate={validateEmail(this.props.mail)}
                                       isValid={
                                         fprops.touched.invitees &&
                                         fprops.touched.invitees[index] &&

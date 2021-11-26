@@ -111,7 +111,7 @@ def test_remove_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
 
     resp_data = _test_remove_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
 
-    assert resp_data['message'] == 'Success removing multi signature request'
+    assert resp_data['message'] == 'Success removing invitation to sign'
 
 
 def _test_remove_multi_sign_request_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_remove):
@@ -129,7 +129,7 @@ def test_remove_multi_sign_request_raises(app, environ_base, monkeypatch, sample
 
     resp_data = _test_remove_multi_sign_request_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_remove)
 
-    assert resp_data['message'] == 'Problem removing the document to be multi signed'
+    assert resp_data['message'] == 'Problem removing the invitation, please try again'
 
 
 def test_remove_multi_sign_request_doesnt(app, environ_base, monkeypatch, sample_doc_1):
@@ -138,4 +138,4 @@ def test_remove_multi_sign_request_doesnt(app, environ_base, monkeypatch, sample
 
     resp_data = _test_remove_multi_sign_request_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_remove)
 
-    assert resp_data['message'] == 'Document has not been removed'
+    assert resp_data['message'] == 'Document has not been removed, please try again'

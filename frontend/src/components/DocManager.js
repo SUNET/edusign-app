@@ -40,8 +40,8 @@ class DocManager extends React.Component {
       docs.forEach((doc) => {
         if (doc.state === "selected") {
           disableSigning = false;
-        } else if (doc.state === 'signed') {
-          disableDlAllButton= false;
+        } else if (doc.state === "signed") {
+          disableDlAllButton = false;
         }
       });
     });

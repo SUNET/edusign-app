@@ -35,7 +35,8 @@ from base64 import b64decode
 from xml.etree import cElementTree as ET
 
 from flask import current_app, request, session
-from flask_babel import gettext
+from flask_babel import force_locale, get_locale, gettext
+from flask_mail import Message
 from pyhanko.pdf_utils.reader import PdfFileReader
 
 
@@ -126,3 +127,42 @@ def get_previous_signatures(document: dict) -> str:
     except Exception as e:
         current_app.logger.error(f'Problem reading previous signatures: {e}')
         return ""
+
+
+def sendmail(
+    recipients,
+    subject_en,
+    subject_sv,
+    body_txt_en,
+    body_html_en,
+    body_txt_sv,
+    body_html_sv,
+    attachment_name='',
+    attachment='',
+):
+    mail = {
+        'en': {
+            'subject': subject_en,
+            'body_txt': body_txt_en,
+            'body_html': body_html_en,
+        },
+        'sv': {
+            'subject': subject_sv,
+            'body_txt': body_txt_sv,
+            'body_html': body_html_sv,
+        },
+    }
+    first = str(get_locale())
+    second = first == 'sv' and 'en' or 'sv'
+
+    subject = f"{mail[first]['subject']} / {mail[second]['subject']}"
+    msg = Message(subject, recipients=recipients)
+    msg.body = f"{mail[first]['body_txt']} \n {mail[second]['body_txt']}"
+    msg.html = f"{mail[first]['body_html']} \n {mail[second]['body_html']}"
+
+    if attachment and attachment_name:
+        msg.attach(attachment_name, 'application/pdf', attachment)
+
+    current_app.logger.debug(f"Email to be sent:\n\n{msg}\n\n")
+
+    current_app.mailer.send(msg)

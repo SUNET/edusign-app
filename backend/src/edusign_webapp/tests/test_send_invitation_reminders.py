@@ -112,4 +112,4 @@ def test_remove_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
 
     resp_data = _test_send_reminders(app, environ_base, monkeypatch, sample_doc_1)
 
-    assert resp_data['message'] == 'Success reminding pending users'
+    assert resp_data['message'] == 'Success sending reminder email to pending users'

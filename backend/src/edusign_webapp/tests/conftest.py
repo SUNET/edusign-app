@@ -219,6 +219,21 @@ def sample_metadata_1():
 
 
 @pytest.fixture
+def sample_new_doc_1():
+    doc = {'blob': _sample_pdf_data}
+    doc.update(_sample_metadata_1)
+    del doc['key']
+    yield doc
+
+
+@pytest.fixture
+def sample_owned_doc_1():
+    doc = {'blob': _sample_pdf_data, 'owner': 'owner@example.org'}
+    doc.update(_sample_metadata_1)
+    yield doc
+
+
+@pytest.fixture
 def sample_doc_1():
     doc = {'blob': _sample_pdf_data}
     doc.update(_sample_metadata_1)

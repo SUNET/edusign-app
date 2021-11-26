@@ -148,7 +148,7 @@ def _test_multisign_sevice_callback(client, monkeypatch, data, mock_post=None, m
     monkeypatch.setattr(DocStore, 'get_owner_data', mock_get_owner_data)
 
     return client.post(
-        '/sign/multisign-callback/11111111-1111-1111-1111-111111111111',
+        '/sign/callback',
         data=data,
     )
 
@@ -165,22 +165,7 @@ def test_multisign_sevice_callback(client, monkeypatch):
     assert response.status == '200 OK'
 
     assert b"<title>eduSign</title>" in response.data
-    assert b"Success processing document sign request" in response.data
-
-
-def test_multisign_sevice_callback_not_locked(client, monkeypatch):
-
-    data = {
-        'Binding': 'POST/XML/1.0',
-        'RelayState': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
-        'EidSignResponse': 'Dummy Sign Response',
-    }
-    response = _test_multisign_sevice_callback(client, monkeypatch, data, mock_locked=False)
-
-    assert response.status == '200 OK'
-
-    assert b"<title>eduSign</title>" in response.data
-    assert b"Timeout signing the document, please try again" in response.data
+    assert b"Dummy Sign Response" in response.data
 
 
 def test_multisign_sevice_callback_no_relay_state(client, monkeypatch):
@@ -203,34 +188,3 @@ def test_multisign_sevice_callback_no_sign_response(client, monkeypatch):
     response = _test_multisign_sevice_callback(client, monkeypatch, data)
 
     assert response.status == '400 BAD REQUEST'
-
-
-def test_multisign_sevice_callback_post_raises(client, monkeypatch):
-
-    data = {
-        'Binding': 'POST/XML/1.0',
-        'RelayState': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
-        'EidSignResponse': 'Dummy Sign Response',
-    }
-
-    def mock_post(*args):
-        raise Exception()
-
-    response = _test_multisign_sevice_callback(client, monkeypatch, data, mock_post=mock_post)
-
-    assert response.status == '200 OK'
-
-    assert b"<title>eduSign</title>" in response.data
-    assert b"Communication error with the process endpoint of the eduSign API" in response.data
-
-
-def test_multisign_sevice_callback_no_owner_data(client, monkeypatch):
-
-    data = {
-        'Binding': 'POST/XML/1.0',
-        'RelayState': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
-        'EidSignResponse': 'Dummy Sign Response',
-    }
-    response = _test_multisign_sevice_callback(client, monkeypatch, data, mock_owner_data={})
-
-    assert b'There is no owner data for this document' in response.data

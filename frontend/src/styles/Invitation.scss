@@ -1,7 +1,6 @@
 @import "./variables.scss";
 
 .invitation-multisign {
-  padding-top: 0.5rem;
   padding-left: 1rem;
   display: flex;
   flex: none;
@@ -19,6 +18,7 @@
     line-height: 1.5rem;
 
     .invitation-name-and-buttons-lg {
+      padding: .5rem;
       flex: none;
       display: flex;
       flex-wrap: wrap;

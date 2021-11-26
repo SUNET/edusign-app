@@ -60,7 +60,7 @@ export const skipSignatureButton = (props, doc) => {
         <ESTooltip
           tooltip={
             <FormattedMessage
-              defaultMessage="All requested users have alredy signed the document, click here to skip adding your final signature"
+              defaultMessage="All requested users have answered your invitation to sign the document, click here to skip adding your final signature"
               key="owned-skip-button-help"
             />
           }
@@ -98,6 +98,7 @@ export const resendButton = (props, doc) => {
           <Button
             variant="outline-dark"
             size="sm"
+            id={"button-open-resend-" + doc.name}
             data-testid={"button-open-resend-" + doc.name}
             onClick={props.handleResend(doc)}
           >
@@ -119,7 +120,7 @@ export const previewButton = (props, doc) => {
         <ESTooltip
           tooltip={
             <FormattedMessage
-              defaultMessage="Display a preview of the unsigned document"
+              defaultMessage="Display a preview of the document"
               key="preview-button-tootip"
             />
           }
@@ -145,7 +146,7 @@ export const forcedPreviewButton = (props, doc) => {
         <ESTooltip
           tooltip={
             <FormattedMessage
-              defaultMessage="You need to approve all documents for signature"
+              defaultMessage="You need to approve all documents before they can be signed"
               key="forced-preview-button-tootip"
             />
           }
@@ -237,7 +238,7 @@ export const downloadSignedButton = (props, doc) => {
           <Button
             variant="outline-success"
             size="sm"
-            id={"button-donwload-signed-" + doc.key}
+            id={"button-download-signed-" + doc.key}
             disabling={true}
             onClick={props.handleDlSigned(doc.name)}
           >

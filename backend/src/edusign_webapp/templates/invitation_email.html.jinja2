@@ -2,27 +2,46 @@
 <head>
 </head>
 <body>
-{% trans invited_link=invited_link, inviter_name_and_email=inviter_name_and_email, document_name=document_name %}
 
-<p>You have been invited by {{ inviter_name_and_email }}
-to digitally sign a document named {{ document_name }}.</p>
+<p><strong>
+{% trans %}Message in English:{% endtrans %}
+</strong></p>
 
-<p><a href="{{ invited_link }}">You can follow this link to do so.</a></p>
-
+<p>
+{% trans inviter_name_and_email=inviter_name_and_email, document_name=document_name %}
+You have been invited by {{ inviter_name_and_email }},
+to digitally sign a document named "{{ document_name }}".
 {% endtrans %}
+</p>
 
 {% if text != "" %}
 
+<p>
 {% trans inviter_name=inviter_name %}
-
-<p>Message from {{ inviter_name }}:</p>
-
+Message from {{ inviter_name }}:
 {% endtrans %}
+</p>
 
-<pre>
+<p>
 {{ text }}
-</pre>
+</p>
 
 {% endif %}
+
+<p>
+{% trans %}
+Follow this link to preview and sign the document:
+{% endtrans %}
+</p>
+
+<p>
+<a href="{{ invited_link }}">{{ invited_link }}</a>
+</p>
+
+<p>
+{% trans %}
+This is an email from eduSign, a service for secure digital signatures, developed by Sunet.
+{% endtrans %}
+</p>
 </body>
 </html>

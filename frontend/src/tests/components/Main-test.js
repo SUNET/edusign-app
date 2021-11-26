@@ -24,10 +24,20 @@ describe("Main Component", function () {
     const { unmount } = setupComponent(<Main />, {
       main: {
         loading: true,
+        unauthn: false,
+        csrf_token: 'dummy-token',
         size: "lg",
+        width: 1500,
         signingData: {},
+        signer_attributes: {
+          eppn: "dummy@example.org",
+          mail: "dummy@example.org",
+          name: "Dummy name",
+        },
         owned_multisign: [],
         pending_multisign: [],
+        multisign_buttons: true,
+        showHelp: true,
       },
     });
 
@@ -78,11 +88,21 @@ describe("Main Component", function () {
   it("Displays Header", function () {
     const { unmount } = setupComponent(<Main />, {
       main: {
+        unauthn: false,
         loading: false,
         size: "lg",
         signingData: {},
         owned_multisign: [],
         pending_multisign: [],
+        csrf_token: 'dummy-token',
+        width: 1500,
+        signer_attributes: {
+          eppn: "dummy@example.org",
+          mail: "dummy@example.org",
+          name: "Dummy name",
+        },
+        multisign_buttons: true,
+        showHelp: true,
       },
     });
 
@@ -106,11 +126,21 @@ describe("Main Component", function () {
   it("Displays Footer", function () {
     const { unmount } = setupComponent(<Main />, {
       main: {
+        unauthn: false,
         loading: false,
         size: "lg",
         signingData: {},
         owned_multisign: [],
         pending_multisign: [],
+        csrf_token: 'dummy-token',
+        width: 1500,
+        signer_attributes: {
+          eppn: "dummy@example.org",
+          mail: "dummy@example.org",
+          name: "Dummy name",
+        },
+        multisign_buttons: true,
+        showHelp: true,
       },
     });
 
@@ -134,11 +164,21 @@ describe("Main Component", function () {
   it("Displays English lang selector in Footer", function () {
     const { unmount } = setupComponent(<Main />, {
       main: {
+        unauthn: false,
         loading: false,
         size: "lg",
         signingData: {},
         owned_multisign: [],
         pending_multisign: [],
+        csrf_token: 'dummy-token',
+        width: 1500,
+        signer_attributes: {
+          eppn: "dummy@example.org",
+          mail: "dummy@example.org",
+          name: "Dummy name",
+        },
+        multisign_buttons: true,
+        showHelp: true,
       },
       intl: { locale: "sv" },
     });
@@ -186,11 +226,21 @@ describe("Main Component", function () {
   it("Contains a Notifications area", function () {
     const { unmount } = setupComponent(<Main />, {
       main: {
+        unauthn: false,
         loading: false,
         size: "lg",
         signingData: {},
         owned_multisign: [],
         pending_multisign: [],
+        csrf_token: 'dummy-token',
+        width: 1500,
+        signer_attributes: {
+          eppn: "dummy@example.org",
+          mail: "dummy@example.org",
+          name: "Dummy name",
+        },
+        multisign_buttons: true,
+        showHelp: true,
       },
     });
 

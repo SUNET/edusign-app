@@ -100,7 +100,7 @@ def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
 
     resp_data = json.loads(response.data)
 
-    assert resp_data['message'] == 'Success creating multi signature request'
+    assert resp_data['message'] == 'Success sending invitations to sign'
 
 
 def test_create_multi_sign_request_raises(app, environ_base, monkeypatch, sample_doc_1):
@@ -128,7 +128,7 @@ def test_create_multi_sign_request_raises(app, environ_base, monkeypatch, sample
 
     resp_data = json.loads(response.data)
 
-    assert resp_data['message'] == 'Problem storing the document to be multi signed'
+    assert resp_data['message'] == 'Problem creating invitation to sign, please try again'
 
 
 def test_create_multi_sign_wrong_owner(app, environ_base, monkeypatch, sample_doc_1):

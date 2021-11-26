@@ -353,7 +353,7 @@ def test_create_sign_request_doc_no_csrf(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload, csrf_token='rm')
 
     assert resp_data['error']
-    assert resp_data['message'] == "csrf_token: Missing data for required field"
+    assert resp_data['message'] == "csrf_token: Required"
 
 
 def test_create_sign_request_doc_wrong_csrf(client, monkeypatch):

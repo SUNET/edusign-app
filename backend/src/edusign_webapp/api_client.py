@@ -207,9 +207,7 @@ class APIClient(object):
         :return: Pair of  Flask representation of the HTTP response from the API,
                  and list of mappings linking the documents' names with the generated ids.
         """
-        response_data, documents_with_id = self._try_creating_sign_request(
-            documents, add_blob=add_blob
-        )
+        response_data, documents_with_id = self._try_creating_sign_request(documents, add_blob=add_blob)
 
         if (
             'status' in response_data

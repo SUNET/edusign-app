@@ -237,10 +237,7 @@ class DocumentLocal extends React.Component {
     } else if (this.props.size === "sm") {
       return (
         <>
-          <ESTooltip
-            key={doc.name}
-            tooltip={this.getHelp(doc.state)}
-          >
+          <ESTooltip key={doc.name} tooltip={this.getHelp(doc.state)}>
             <>
               <div
                 className={"doc-flex-container-local-sm " + doc.state}

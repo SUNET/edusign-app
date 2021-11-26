@@ -14,24 +14,21 @@ webpackKarma.devtool = "inline-source-map";
 webpackKarma.module.rules = [
   {
     test: /\.js$/,
-    use: {
+    use: [{
       loader: "istanbul-instrumenter-loader",
       options: {
         esModules: true,
       },
-    },
-    enforce: "post",
-    include: path.resolve("src/")
+    }],
+    include: path.resolve("src/"),
   },
   {
     test: /\.js$/,
-    use: { loader: "babel-loader" },
-    enforce: "pre",
-    exclude: /node_modules/
+    use: [{ loader: "babel-loader" }],
+    exclude: /node_modules/,
   },
   {
     test: /\.scss$/,
-    enforce: "pre",
     use: [
       {loader: "style-loader"},
       {loader: "css-loader"},
@@ -41,7 +38,6 @@ webpackKarma.module.rules = [
   },
   {
     test: /\.css$/,
-    enforce: "pre",
     use: [
       {loader: "style-loader"},
       {loader: "css-loader"},
@@ -49,12 +45,11 @@ webpackKarma.module.rules = [
   },
   {
     test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-    enforce: "pre",
-    type: "asset/resource"
+    type: "asset/resource",
   },
   {
     test: /\.png$/,
-    type: "asset/resource"
+    type: "asset/resource",
   },
 ];
 

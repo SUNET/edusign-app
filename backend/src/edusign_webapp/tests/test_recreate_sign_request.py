@@ -37,7 +37,7 @@ from edusign_webapp import run
 from edusign_webapp.marshal import ResponseSchema
 
 
-def test_recreate_sign_request(client, monkeypatch):
+def test_recreate_sign_request(client, monkeypatch, sample_doc_1):
 
     from edusign_webapp.api_client import APIClient
 
@@ -97,15 +97,19 @@ def test_recreate_sign_request(client, monkeypatch):
     doc_data = {
         'csrf_token': csrf_token,
         'payload': {
-            'documents': [
-                {
-                    'name': 'test.pdf',
-                    'size': 100,
-                    'type': 'application/pdf',
-                    'blob': 'dummy,dummy',
-                    'key': str(uuid.uuid4()),
-                }
-            ]
+            'documents': {
+                'local': [
+                    {
+                        'name': 'test.pdf',
+                        'size': 100,
+                        'type': 'application/pdf',
+                        'blob': sample_doc_1['blob'],
+                        'key': sample_doc_1['key'],
+                    }
+                ],
+                'owned': [],
+                'invited': [],
+            }
         },
     }
 
@@ -127,7 +131,7 @@ def test_recreate_sign_request(client, monkeypatch):
     assert resp_data['payload']['relay_state'] == '31dc573b-ab7d-496c-845e-cae8792ba063'
 
 
-def _recreate_sign_request_post_raises(client, monkeypatch, raise_on_prepare=True):
+def _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_on_prepare=True):
 
     from edusign_webapp.api_client import APIClient
 
@@ -184,15 +188,19 @@ def _recreate_sign_request_post_raises(client, monkeypatch, raise_on_prepare=Tru
     doc_data = {
         'csrf_token': csrf_token,
         'payload': {
-            'documents': [
-                {
-                    'name': 'test.pdf',
-                    'size': 100,
-                    'type': 'application/pdf',
-                    'blob': 'dummy,dummy',
-                    'key': str(uuid.uuid4()),
-                }
-            ]
+            'documents': {
+                'local': [
+                    {
+                        'name': 'test.pdf',
+                        'size': 100,
+                        'type': 'application/pdf',
+                        'blob': sample_doc_1['blob'],
+                        'key': sample_doc_1['key'],
+                    }
+                ],
+                'owned': [],
+                'invited': [],
+            }
         },
     }
 
@@ -211,16 +219,19 @@ def _recreate_sign_request_post_raises(client, monkeypatch, raise_on_prepare=Tru
     return json.loads(response.data)
 
 
-def test_recreate_sign_request_post_raises_on_prepare(client, monkeypatch):
+def test_recreate_sign_request_post_raises_on_prepare(client, monkeypatch, sample_doc_1):
 
-    resp_data = _recreate_sign_request_post_raises(client, monkeypatch, raise_on_prepare=True)
+    resp_data = _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_on_prepare=True)
 
-    assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
+    assert (
+        resp_data['payload']['failed'][0]['message']
+        == 'There was an error. Please try again, or contact the site administrator.'
+    )
 
 
-def test_recreate_sign_request_post_raises_on_create(client, monkeypatch):
+def test_recreate_sign_request_post_raises_on_create(client, monkeypatch, sample_doc_1):
 
-    resp_data = _recreate_sign_request_post_raises(client, monkeypatch, raise_on_prepare=False)
+    resp_data = _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_on_prepare=False)
 
     assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
@@ -272,9 +283,15 @@ def _recreate_sign_request(client, monkeypatch, payload_data, csrf_token=None):
     return json.loads(response.data)
 
 
-def test_recreate_sign_request_no_name(client, monkeypatch):
+def test_recreate_sign_request_no_name(client, monkeypatch, sample_doc_1):
     payload_data = {
-        'documents': [{'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy', 'key': str(uuid.uuid4())}]
+        'documents': {
+            'local': [
+                {'size': 100, 'type': 'application/pdf', 'blob': sample_doc_1['blob'], 'key': sample_doc_1['key']}
+            ],
+            'owned': [],
+            'invited': [],
+        }
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
@@ -365,34 +382,42 @@ def test_recreate_sign_request_empty_blob(client, monkeypatch):
     assert resp_data['message'] == 'Document data seems corrupted'
 
 
-def test_recreate_sign_request_no_csrf(client, monkeypatch, csrf_token='rm'):
+def test_recreate_sign_request_no_csrf(client, monkeypatch, sample_doc_1, csrf_token='rm'):
     payload_data = {
-        'documents': [
-            {
-                'name': 'test.pdf',
-                'size': 100,
-                'type': 'application/pdf',
-                'blob': 'dummy,dummy',
-                'key': str(uuid.uuid4()),
-            }
-        ]
+        'documents': {
+            'local': [
+                {
+                    'name': 'test.pdf',
+                    'size': 100,
+                    'type': 'application/pdf',
+                    'blob': sample_doc_1['blob'],
+                    'key': sample_doc_1['key'],
+                }
+            ],
+            'owned': [],
+            'invited': [],
+        }
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data, csrf_token='rm')
 
-    assert resp_data['message'] == 'csrf_token: Missing data for required field'
+    assert resp_data['message'] == 'csrf_token: Required'
 
 
-def test_recreate_sign_request_wrong_csrf(client, monkeypatch, csrf_token='rm'):
+def test_recreate_sign_request_wrong_csrf(client, monkeypatch, sample_doc_1, csrf_token='rm'):
     payload_data = {
-        'documents': [
-            {
-                'name': 'test.pdf',
-                'size': 100,
-                'type': 'application/pdf',
-                'blob': 'dummy,dummy',
-                'key': str(uuid.uuid4()),
-            }
-        ]
+        'documents': {
+            'local': [
+                {
+                    'name': 'test.pdf',
+                    'size': 100,
+                    'type': 'application/pdf',
+                    'blob': sample_doc_1['blob'],
+                    'key': sample_doc_1['key'],
+                }
+            ],
+            'owned': [],
+            'invited': [],
+        }
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data, csrf_token='wrong token')
 
@@ -417,7 +442,7 @@ def test_recreate_sign_request_invalid_key(client, monkeypatch):
     assert resp_data['message'] == 'Document data seems corrupted'
 
 
-def test_recreate_sign_request_bad_api_response(client, monkeypatch):
+def test_recreate_sign_request_bad_api_response(client, monkeypatch, sample_doc_1):
 
     from edusign_webapp.api_client import APIClient
 
@@ -471,15 +496,19 @@ def test_recreate_sign_request_bad_api_response(client, monkeypatch):
     doc_data = {
         'csrf_token': csrf_token,
         'payload': {
-            'documents': [
-                {
-                    'name': 'test.pdf',
-                    'size': 100,
-                    'type': 'application/pdf',
-                    'blob': 'dummy,dummy',
-                    'key': str(uuid.uuid4()),
-                }
-            ]
+            'documents': {
+                'local': [
+                    {
+                        'name': 'test.pdf',
+                        'size': 100,
+                        'type': 'application/pdf',
+                        'blob': sample_doc_1['blob'],
+                        'key': sample_doc_1['key'],
+                    }
+                ],
+                'owned': [],
+                'invited': [],
+            }
         },
     }
 
