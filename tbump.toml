@@ -6,8 +6,8 @@ regex = '''
   (?P<minor>\d+)
   \.
   (?P<patch>\d+)
-  rc
-  (?P<release_candidate>\d+)
+  (rc
+  (?P<release_candidate>\d+))?
 '''
 
 [git]
