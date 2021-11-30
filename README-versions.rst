@@ -1,110 +1,53 @@
-VERSIONS
-========
+RELEASING
+=========
 
-Bump version in edusign-app
----------------------------
+EduSign tries to adhere as closely as possible to the semantic versioning
+scheme semver [1]_.
 
-Bump version in backend/setup.py
+It uses `tbump` [2]_ to manage releases.
 
-Bump version in frontend/package.json
+The project resides on 2 repositories, one for the code [3]_ and one for the
+docker deployment [4]_.
 
-Commit and push
+When we want to make a new release, we first bump the version at the code repo,
+and then at the docker repo.  To bump the version in both repos::
 
-Create (named, signed) tag with version as name (see below for the version naming scheme).
+  $ tbump <version string>
 
-Push tag
+Where version string is e.g. `1.0.0rc2` or `1.0.0`.
 
-Bump version in docker-edusign-app
-----------------------------------
+This will not only put the version string in all the appropriate places, it
+will make the appropriate git tags and commits and push's (after the user has
+agreed to the proposed changes). To see what is done with the version string in
+each repo, check out their `tbump.toml` files.
 
-You have bumped version in edusign-app (see above)
+To deploy a new version, we clone the docker repo [4]_ and checkout the tag
+corresponding to the new version (which is the version provided to `tbump`,
+prefixed with a `v`, e.g. `git checkout v1.0.0rc2`). Then we deploy it,
+building the docker images and starting containers from them.
 
-Reference new tag in backend/Dockerfile
+Each tagged version of the docker repo knows how to retrieve the correct
+version from the code repo to build the docker images, so the only
+responsibility of the deployer is to use the correct tag in the docker repo.
 
-Reference new tag in nginx/Dockerfile
+Development cycle
+-----------------
 
-Commit and push
+Development happens in temporary feature and bugfix git branches. There should
+be a github issue for each task, and the corresponding dedicated git branch
+should have a name prefixed with the corresponding issue number (e.g.
+`27-fix-send-button` would be a branch corresponding to github issue #27, about
+some problem with a send button).
 
-Create (named, signed) tag with version as name (same version as bumped in edusign-app)
+These temporary branches are branched off from the `staging` branch. Once work
+is completed in each of them, they are merged back to the `staging` branch. New
+versions are cut from the staging branch (using `tbump` as specified above).
+When a new version is released, the code in the `staging` branch is merged to
+the master branch, all the dedicated branches that are now behind master are
+deleted, and the corresponding issues closed.
 
-Push tag
 
-create new (bugfix|feature) branch
-----------------------------------
-
-Open issue in github
-
-Name of the branch: N-desc-of-issue, where N is the number of the github issue
-
-branch off staging.
-
-Merge (bugfix|feature) branch
------------------------------
-
-Development on the branch is complete
-
-Merge branch to staging
-
-Rebase with staging and force push any other remaining (bugfix|feature) branches
-
-Create new staging version
---------------------------
-
-You have one or more (bugfix|feature) edusign-app (and perhaps docker-edusign-app) branches, branched off staging.
-
-You merge those branches to staging.
-
-Version name is vN.N.N-rcN (N are integers).
-This is semver: minor number increased for bugfixes,
-middle number for backwards compatible features,
-major number for backwards incompatible changes.
-
-Bump version in edusign-app (see above), @ branch staging
-
-Bump version in docker-edusign-app (see above), @ branch staging
-
-Create new hotfix version
--------------------------
-
-You have one edusign-app (and perhaps docker-edusign-app) (bugfix|feature) branch, branched off staging.
-
-Create hotfix branch, with name hotfix-desc-of-issue
-
-Version name is vN.N.N-rcN (N are integers)
-
-Bump version in edusign-app (see above), @ the hotfix branch
-
-If there is no hotfix branch for docker-edusign-app, do create it
-
-Bump version in docker-edusign-app (see above), @ the hotfix branch
-
-Create new production version
------------------------------
-
-Version name is vN.N.N
-
-Staging environment holds a tag that has been approved for production
-
-Merge staging (or the hotfix branch in case of a hotfix) to master (both edusign-app and docker-edusign-app)
-
-Bump version in edusign-app (see above), @ branch master
-
-Bump version in docker-edusign-app (see above), @ branch master
-
-Remove the (bugfix|feature) branches that are behind master (check at github).
-
-If the new version comes from a hotfix, remove the hotfix branch
-
-Deploy new staging version
---------------------------
-
-In the staging server, update docker-edusign-app and checkout the tag to deploy
-
-Rebuild and deploy
-
-Deploy new production version
------------------------------
-
-In the production server, update docker-edusign-app and checkout the tag to deploy
-
-Rebuild and deploy
+.. [1] https://semver.org
+.. [2] https://pypi.org/project/tbump/
+.. [3] https://github.com/SUNET/edusign-app
+.. [4] https://github.com/SUNET/docker-edusign-app
