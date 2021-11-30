@@ -44,8 +44,6 @@ def _test_create_invited_signature(
     sample_doc_1,
     sample_invites_1,
     mock_invitation,
-    prepare_data=None,
-    error_creation=False,
     doc_is_locked=False,
 ):
 
@@ -103,8 +101,6 @@ def _test_create_invited_signature(
 
     def mock_post(self, url, *args, **kwargs):
         if "prepare" in url:
-            if prepare_data is not None:
-                return prepare_data
             return {
                 "policy": "edusign-test",
                 "updatedPdfDocumentReference": "ba26478f-f8e0-43db-991c-08af7c65ed58",
@@ -126,9 +122,6 @@ def _test_create_invited_signature(
                 },
             }
 
-        if error_creation:
-            raise Exception()
-
         return {
             "binding": "POST/XML/1.0",
             "destinationUrl": "https://sig.idsec.se/sigservice-dev/request",
@@ -138,14 +131,6 @@ def _test_create_invited_signature(
         }
 
     monkeypatch.setattr(APIClient, "_post", mock_post)
-
-    def mock_get_invitation(*args):
-        if doc_is_locked:
-            raise DocStore.DocumentLocked()
-
-        return mock_invitation
-
-    monkeypatch.setattr(DocStore, "get_invitation", mock_get_invitation)
 
     return client.get(
         '/sign/config',

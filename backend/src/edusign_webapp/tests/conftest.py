@@ -81,9 +81,27 @@ _environ_base = {
 }
 
 
+_environ_base_2 = {
+    "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
+    "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn-2@example.org',
+    "HTTP_GIVENNAME": b64encode('<Attribute>Invited</Attribute>'.encode("utf-8")),
+    "HTTP_DISPLAYNAME": b64encode('<Attribute>Invited Kid</Attribute>'.encode("utf-8")),
+    "HTTP_SN": b64encode(b'<Attribute>Pericue</Attribute>'),
+    "HTTP_MAIL": b64encode(b'<Attribute>invited0@example.org</Attribute>'),
+    "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
+    "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
+    "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
+}
+
+
 @pytest.fixture
 def environ_base():
     yield _environ_base
+
+
+@pytest.fixture
+def environ_base_2():
+    yield _environ_base_2
 
 
 @pytest.fixture(params=[config_dev, config_pro])

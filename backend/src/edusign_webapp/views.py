@@ -847,7 +847,7 @@ def decline_invitation(data):
         current_app.doc_store.decline_document(key, email)
     except Exception as e:
         current_app.logger.error(f'Problem declining signature of document: {e}')
-        return {'error': True, 'message': gettext('Problem declining signature, plase try again')}
+        return {'error': True, 'message': gettext('Problem declining signature, please try again')}
 
     try:
         owner_data = current_app.doc_store.get_owner_data(key)

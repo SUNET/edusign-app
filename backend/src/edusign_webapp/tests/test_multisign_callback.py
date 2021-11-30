@@ -32,120 +32,82 @@
 #
 
 
-def _test_multisign_sevice_callback(client, monkeypatch, data, mock_post=None, mock_locked=True, mock_owner_data=None):
+def _test_multisign_sevice_callback(client, monkeypatch, data, mock_locked=True):
 
     from edusign_webapp.api_client import APIClient
 
-    if mock_post is None:
-
-        def mock_post(*args, **kwargs):
-            return {
-                'correlationId': '2a08e13e-8719-4b53-8586-662037f153ec',
-                'id': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
-                'signedDocuments': [
-                    {
-                        'id': '6e46692d-7d34-4954-b760-96ee6ce48f61',
-                        'mimeType': 'application/pdf',
-                        'signedContent': 'Dummy signed content',
-                    }
-                ],
-                'signerAssertionInformation': {
-                    'assertion': 'Dummy signer assertion',
-                    'assertionReference': 'id-9bts2Fze4U1amT7GF',
-                    'authnContextRef': 'https://www.swamid.se/specs/id-fido-u2f-ce-transports',
-                    'authnInstant': 1611062701000,
-                    'authnServiceID': 'https://login.idp.eduid.se/idp.xml',
-                    'authnType': 'saml',
-                    'signerAttributes': [
-                        {
-                            'name': 'urn:oid:2.16.840.1.113730.3.1.241',
-                            'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-                            'type': 'saml',
-                            'value': 'Testing Tester',
-                        },
-                        {
-                            'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.6',
-                            'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-                            'type': 'saml',
-                            'value': 'dummy-dummy@example.org',
-                        },
-                        {
-                            'name': 'urn:oid:2.5.4.42',
-                            'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-                            'type': 'saml',
-                            'value': 'Testing',
-                        },
-                        {
-                            'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.13',
-                            'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-                            'type': 'saml',
-                            'value': 'dummy@example.org',
-                        },
-                        {
-                            'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11',
-                            'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-                            'type': 'saml',
-                            'value': 'http://www.swamid.se/policy/assurance/al1',
-                        },
-                        {
-                            'name': 'urn:oid:2.5.4.3',
-                            'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-                            'type': 'saml',
-                            'value': 'Testing Tester',
-                        },
-                        {
-                            'name': 'urn:oid:2.5.4.4',
-                            'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-                            'type': 'saml',
-                            'value': 'Tester',
-                        },
-                        {
-                            'name': 'urn:oid:0.9.2342.19200300.100.1.3',
-                            'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
-                            'type': 'saml',
-                            'value': 'dummy@example.org',
-                        },
-                    ],
-                },
-            }
-
-    monkeypatch.setattr(APIClient, '_post', mock_post)
-
-    from flask.sessions import SecureCookieSession
-
-    def mock_getitem(self, key):
-        if key == 'mail':
-            return 'tester@example.org'
-        if key == 'displayName':
-            return 'Testing Tester'
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
-
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
-
-    from edusign_webapp.doc_store import DocStore
-
-    def mock_update(*args):
-        pass
-
-    monkeypatch.setattr(DocStore, 'update_document', mock_update)
-
-    def mock_doc_locked(*args):
-        return mock_locked
-
-    monkeypatch.setattr(DocStore, 'check_document_locked', mock_doc_locked)
-
-    def mock_get_owner_data(*args):
-        if mock_owner_data is not None:
-            return mock_owner_data
-
+    def mock_post(*args, **kwargs):
         return {
-            'name': 'Owner',
-            'email': 'owner@example.org',
-            'docname': 'test.pdf',
+            'correlationId': '2a08e13e-8719-4b53-8586-662037f153ec',
+            'id': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
+            'signedDocuments': [
+                {
+                    'id': '6e46692d-7d34-4954-b760-96ee6ce48f61',
+                    'mimeType': 'application/pdf',
+                    'signedContent': 'Dummy signed content',
+                }
+            ],
+            'signerAssertionInformation': {
+                'assertion': 'Dummy signer assertion',
+                'assertionReference': 'id-9bts2Fze4U1amT7GF',
+                'authnContextRef': 'https://www.swamid.se/specs/id-fido-u2f-ce-transports',
+                'authnInstant': 1611062701000,
+                'authnServiceID': 'https://login.idp.eduid.se/idp.xml',
+                'authnType': 'saml',
+                'signerAttributes': [
+                    {
+                        'name': 'urn:oid:2.16.840.1.113730.3.1.241',
+                        'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                        'type': 'saml',
+                        'value': 'Testing Tester',
+                    },
+                    {
+                        'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.6',
+                        'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                        'type': 'saml',
+                        'value': 'dummy-dummy@example.org',
+                    },
+                    {
+                        'name': 'urn:oid:2.5.4.42',
+                        'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                        'type': 'saml',
+                        'value': 'Testing',
+                    },
+                    {
+                        'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.13',
+                        'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                        'type': 'saml',
+                        'value': 'dummy@example.org',
+                    },
+                    {
+                        'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11',
+                        'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                        'type': 'saml',
+                        'value': 'http://www.swamid.se/policy/assurance/al1',
+                    },
+                    {
+                        'name': 'urn:oid:2.5.4.3',
+                        'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                        'type': 'saml',
+                        'value': 'Testing Tester',
+                    },
+                    {
+                        'name': 'urn:oid:2.5.4.4',
+                        'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                        'type': 'saml',
+                        'value': 'Tester',
+                    },
+                    {
+                        'name': 'urn:oid:0.9.2342.19200300.100.1.3',
+                        'nameFormat': 'urn:oasis:names:tc:SAML:2.0:attrname-format:uri',
+                        'type': 'saml',
+                        'value': 'dummy@example.org',
+                    },
+                ],
+            },
         }
 
-    monkeypatch.setattr(DocStore, 'get_owner_data', mock_get_owner_data)
+    monkeypatch.setattr(APIClient, '_post', mock_post)
 
     return client.post(
         '/sign/callback',

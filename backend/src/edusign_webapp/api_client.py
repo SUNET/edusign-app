@@ -76,12 +76,6 @@ class APIClient(object):
         self.basic_auth = HTTPBasicAuth(config['EDUSIGN_API_USERNAME'], config['EDUSIGN_API_PASSWORD'])
         self.config = config
 
-    def get_policy(self):
-
-        url = urljoin(self.api_base_url, f'policy/get/{self.policy}')
-        r = requests.get(url, auth=self.basic_auth)
-        current_app.logger.debug(f"eduSign API policy  {r.text}")
-
     def _post(self, url: str, request_data: dict) -> requests.Response:
         """
         Method to POST to the eduSign API, used by all methods of the class
