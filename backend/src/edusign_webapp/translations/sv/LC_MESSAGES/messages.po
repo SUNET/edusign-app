@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-25 12:09+0100\n"
+"POT-Creation-Date: 2021-11-30 15:06+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sv\n"
@@ -41,10 +41,6 @@ msgstr "Obligatorisk"
 #: src/edusign_webapp/marshal.py:314
 msgid "Not a valid integer"
 msgstr "Inte ett giltigt heltal"
-
-#: src/edusign_webapp/utils.py:144 src/edusign_webapp/utils.py:146
-msgid "Warning languages"
-msgstr ""
 
 #: src/edusign_webapp/views.py:134
 msgid "Back"
@@ -188,7 +184,7 @@ msgid "Cannot find the document being signed"
 msgstr "Går inte att hitta dokumentet som skall signeras"
 
 #: src/edusign_webapp/views.py:850
-msgid "Problem declining signature, plase try again"
+msgid "Problem declining signature, please try again"
 msgstr "Ett problem uppstod att neka signering, var god försök igen"
 
 #: src/edusign_webapp/views.py:867 src/edusign_webapp/views.py:874
@@ -579,5 +575,8 @@ msgstr ""
 #~ msgstr ""
 
 #~ msgid "Warning languages sv"
+#~ msgstr ""
+
+#~ msgid "Warning languages"
 #~ msgstr ""
 

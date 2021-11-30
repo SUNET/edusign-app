@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2021-11-25 12:09+0100\n"
+"POT-Creation-Date: 2021-11-30 15:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,10 +39,6 @@ msgstr ""
 
 #: src/edusign_webapp/marshal.py:314
 msgid "Not a valid integer"
-msgstr ""
-
-#: src/edusign_webapp/utils.py:144 src/edusign_webapp/utils.py:146
-msgid "Warning languages"
 msgstr ""
 
 #: src/edusign_webapp/views.py:134
@@ -175,7 +171,7 @@ msgid "Cannot find the document being signed"
 msgstr ""
 
 #: src/edusign_webapp/views.py:850
-msgid "Problem declining signature, plase try again"
+msgid "Problem declining signature, please try again"
 msgstr ""
 
 #: src/edusign_webapp/views.py:867 src/edusign_webapp/views.py:874
