@@ -878,13 +878,30 @@ export const sendInvites = createAsyncThunk(
         prev_signatures: document.prev_signatures,
       },
     };
-    const body = preparePayload(thunkAPI.getState(), dataToSend);
+    const body = preparePayload(state, dataToSend);
     let data = null;
     try {
       const response = await fetch("/sign/create-multi-sign", {
         ...postRequest,
         body: body,
       });
+      if (response.status === 502) {
+        // Backend side worker timeout,
+        // Invitation has been persisted but emails were not sent,
+        // So let's remove it.
+        const dataToSend_rm = {
+          key: document.key,
+        };
+        const body_rm = preparePayload(state, dataToSend_rm);
+        const response = await fetch("/sign/remove-multi-sign", {
+          ...postRequest,
+          body: body_rm,
+        });
+        data = await checkStatus(response);
+        extractCsrfToken(thunkAPI.dispatch, data);
+
+        throw new Error("502 when trying to send invitations");
+      }
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
