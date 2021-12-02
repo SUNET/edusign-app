@@ -80,7 +80,7 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
     """
     app = EduSignApp(name)
 
-    CORS(app)
+    CORS(app, origins=[])
     Misaka(app)
 
     app.config.from_object('edusign_webapp.config')
