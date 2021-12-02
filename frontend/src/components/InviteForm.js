@@ -43,6 +43,10 @@ const validateName = (value) => {
   return error;
 };
 
+const validateBody = (value) => {
+  return undefined;
+};
+
 const validate = (mail) => {
   return (values) => {
     let errors = {};
@@ -117,8 +121,10 @@ class InviteForm extends React.Component {
                       </BForm.Label>
                       <Field
                         name="invitationText"
+                        id="invitation-text-input"
                         data-testid="invitation-text-input"
                         className="invitation-text"
+                        validate={validateBody}
                         as="textarea"
                       />
                     </BForm.Group>
@@ -142,7 +148,13 @@ class InviteForm extends React.Component {
                                     <BButton
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => {arrayHelpers.remove(index)}}
+                                      onClick={() => {
+                                        arrayHelpers.remove(index);
+                                        window.setTimeout(() => {
+                                          document.getElementById('invitation-text-input').focus();
+                                          document.getElementById('invitation-text-input').blur();
+                                        }, 0);
+                                      }}
                                     >
                                       ×
                                     </BButton>
@@ -172,6 +184,7 @@ class InviteForm extends React.Component {
                                       placeholder="Jane Doe"
                                       as={BForm.Control}
                                       type="text"
+                                      validate={validateName}
                                       isValid={
                                         fprops.touched.invitees &&
                                         fprops.touched.invitees[index] &&
@@ -216,6 +229,7 @@ class InviteForm extends React.Component {
                                       placeholder="jane@example.com"
                                       as={BForm.Control}
                                       type="email"
+                                      validate={validateEmail(this.props.mail)}
                                       isValid={
                                         fprops.touched.invitees &&
                                         fprops.touched.invitees[index] &&
