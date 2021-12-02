@@ -619,6 +619,9 @@ def create_multi_sign_request(data: dict) -> dict:
         current_app.logger.error(f"User {session['mail']} is trying to create an invitation as {data['owner']}")
         return {'error': True, 'message': gettext("You cannot invite as %(owner)s") % {'owner': data['owner']}}
 
+    for invite in data['invites']:
+        invite['email'] = invite['email'].lower()
+
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
         owner = {'name': session['displayName'], 'email': data['owner']}

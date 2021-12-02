@@ -56,6 +56,8 @@ def add_attributes_to_session(check_whitelisted=True):
                 f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
             )
             session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
+            if attr_in_session == 'mail':
+                session[attr_in_session] = session[attr_in_session].lower()
 
         session['eppn'] = eppn
         session['idp'] = request.headers.get('Shib-Identity-Provider')
