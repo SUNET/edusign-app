@@ -30,6 +30,40 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+Client for the Signature Service Integration REST-Service [1].
+==============================================================
+
+The service has 2 sides: a REST API, and a sign service.
+
+In what follows we will call "service" to both the REST API and the signature
+service, "client" to our backend service that sends requests to the API, and
+"user" or "browser" to the user agent that sends requests to our backend
+service and is eventually directed to the signature service.
+
+To use the service, it is necessary to have Basic Auth credentials for a
+particular profile policy in the service.
+
+There are 4 basic steps to complete a signature procedure:
+
++ The client sends a document to the API to be prepared for signature.
+
++ The client sends a request to the API to create and obtain a signature
+  request for one or more previously prepared documents.
+
++ The user POSTs the signature request obtained in the previous step to the
+  signature service, and is taken to an IdP where they provide credentials to
+  sign the document(s). This will end in the user POSTing a form with a sign
+  response to a callback in the client.
+
++ The client grabs the sign response provided by the service to the user and
+  POSTed by the user to the client, and uses it to retrieve the signed
+  documents from the API.
+
+See comments on the code below for details.
+
+1.- https://github.com/idsec-solutions/signservice-integration-rest/blob/master/docs/sample-flow.md
+"""
 import json
 import uuid
 from pprint import pformat
@@ -57,18 +91,33 @@ def pretty_print_req(req: requests.PreparedRequest) -> str:
 
 class APIClient(object):
     """
-    Methods to communicate with the eduSign API, using requests.
-    The API is documented at
-    https://github.com/idsec-solutions/signservice-integration-rest/blob/master/docs/sample-flow.md
+    Class holding methods to communicate with the Signature Service Integration REST-Service.
 
-    The eduSign Flask app has a property `api_client` that is an instance of this class.
+    The `edusign_webapp.run.EduSignApp` Flask app has a property `api_client` that is an
+    instance of this class.
     """
 
     class ExpiredCache(Exception):
+        """
+        When the client sends a document to the API to be prepared, the API will keep it
+        in its cache for a configurable amount of time (15 minutes by default). Afterwards
+        it will be removed.
+        If the client tries to create a sign request referencing a document that has been
+        removed from the cache, it will obtain an error response. So it uses this exception
+        to signal such condition, to indicate that it is necessary to prepare the document
+        again before trying to continue with the signing process.
+        """
         pass
 
     def __init__(self, config: dict):
         """
+        Initialize the client object with configuration gathered by flask.
+        We need 3 parameters here:
+
+        + The base URL of the signature service / API
+        + The profile in the API to use - for which we have credentials (HTTP Basic Auth)
+        + The HTTP Basic Auth credentials.
+
         :param config: Dict containing the configuration parameters provided to Flask.
         """
         self.api_base_url = config['EDUSIGN_API_BASE_URL']
@@ -101,13 +150,32 @@ class APIClient(object):
         Send request to the `prepare` endpoint of the API.
         This API method will prepare a PDF document
         with a PDF signature page containing a visible PDF signature image,
-        and keep it cached for 15min.
+        and keep it cached for 15min by default.
+
+        The main pieces of data we have to send to this endpoint are:
+
+        + pdfDocument: The PDF document as base64 data.
+
+        + signaturePagePreferences.visiblePdfSignatureUserInformation.signerName.signerAttributes:
+          The list of attributes to be used in the signature, given as `{name: <attr name>}` objects.
+          These are attributes released by the SAML IdP, and their name must be in uri format.
+
+        + signaturePagePreferences.visiblePdfSignatureUserInformation.fieldValues.idp:
+          The value of this field will appear in the signature image as the "Authenticated by" entity.
+          We here try to provide the organization name as provided by Shibboleth, and in case it is not
+          found, the entityID of the IdP chosen by the user. Note that the client (the flask app)
+          will try to identify the user via seamlessaccess.org, and it will record the IdP chosen by
+          the user to use it here.
+
+        There are other parameters to control the insertion of the signature image in the document,
+        which we've just valued as suggested in [1].
 
         :param document: Dict holding the PDF (data and metadata) to prepare for signing.
         :return: Flask representation of the HTTP response from the API.
         """
         idp = session['idp']
         if self.config['ENVIRONMENT'] == 'development':
+            # This is only to test the app in a development environment.
             idp = self.config['DEBUG_IDP']
 
         if session.get('organizationName', None) is not None:
