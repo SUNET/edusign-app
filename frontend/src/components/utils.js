@@ -142,41 +142,56 @@ export const hashCode = function (s) {
 export const preparePrevSigs = (doc) => {
   if (doc.prev_signatures === undefined || doc.prev_signatures === null)
     return "";
-  const sigArr = doc.prev_signatures
-    .split(";")
-    .filter((sig) => sig.length > 0);
-  let sig = {};
-  sigArr.forEach((segment) => {
-    const [k, v] = segment.split(":");
-    sig[k.trim()] = v.trim();
-  });
-  let mainVal = "";
-  if (sig.hasOwnProperty("Common Name")) {
-    mainVal = sig["Common Name"];
-    delete sig["Common Name"];
-  } else if (
-    sig.hasOwnProperty("Given Name") &&
-    sig.hasOwnProperty("Surname")
-  ) {
-    mainVal = `${sig["Given Name"]} ${sig["Surname"]}`;
-    delete sig["Given Name"];
-    delete sig["Surname"];
-  } else {
-    mainVal = sig["Serial Number"];
-    delete sig["Serial Number"];
-  }
-  let alt = Object.keys(sig)
-    .map((key) => {
-      return `${key}: ${sig[key]}`;
-    })
-    .join(", ");
-  return (
-    <span className="signed-previous-item" title={alt} key={i}>
-      {mainVal}
-    </span>
-  );
-  return (
-    (doc.prev_signatures && doc.prev_signatures.length > 0 && (
+  try {
+    const sigArr = doc.prev_signatures
+      .split(";")
+      .filter((sig) => sig.length > 0);
+    let sig = {};
+    sigArr.forEach((segment) => {
+      const [k, v] = segment.split(":");
+      sig[k.trim()] = v.trim();
+    });
+    let mainVal = "";
+    if (sig.hasOwnProperty("Common Name")) {
+      mainVal = sig["Common Name"];
+      delete sig["Common Name"];
+    } else if (
+      sig.hasOwnProperty("Given Name") &&
+      sig.hasOwnProperty("Surname")
+    ) {
+      mainVal = `${sig["Given Name"]} ${sig["Surname"]}`;
+      delete sig["Given Name"];
+      delete sig["Surname"];
+    } else {
+      mainVal = sig["Serial Number"];
+      delete sig["Serial Number"];
+    }
+    let alt = Object.keys(sig)
+      .map((key) => {
+        return `${key}: ${sig[key]}`;
+      })
+      .join(", ");
+    return (
+      <span className="signed-previous-item" title={alt} key={i}>
+        {mainVal}
+      </span>
+    );
+    return (
+      (doc.prev_signatures && doc.prev_signatures.length > 0 && (
+        <div className="signed-previous" key="-1">
+          <span className="signed-previous-label">
+            <FormattedMessage
+              defaultMessage="Previously signed by:"
+              key="multisign-owned-prev-signed"
+            />
+          </span>
+          <span className="signed-previous-items">{sigElems}</span>
+        </div>
+      )) ||
+      ""
+    );
+  } catch(err) {
+    return (
       <div className="signed-previous" key="-1">
         <span className="signed-previous-label">
           <FormattedMessage
@@ -184,9 +199,8 @@ export const preparePrevSigs = (doc) => {
             key="multisign-owned-prev-signed"
           />
         </span>
-        <span className="signed-previous-items">{sigElems}</span>
+        <span className="signed-previous-items">Unknown</span>
       </div>
-    )) ||
-    ""
-  );
+    );
+  }
 };
