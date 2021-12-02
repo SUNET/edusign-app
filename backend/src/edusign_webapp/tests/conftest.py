@@ -53,6 +53,7 @@ config_dev = {
     'ENVIRONMENT': 'development',
     'SCOPE_WHITELIST': 'example.org',
     'USER_BLACKLIST': 'blacklisted@example.org',
+    'USER_WHITELIST': 'whitelisted@example.org',
     'MAIL_SUPPRESS_SEND': True,
     'BABEL_DEFAULT_LOCALE': 'en',
 }
@@ -63,6 +64,7 @@ config_pro = {
     'ENVIRONMENT': 'production',
     'SCOPE_WHITELIST': 'example.org',
     'USER_BLACKLIST': 'blacklisted@example.org',
+    'USER_WHITELIST': 'whitelisted@example.org',
     'MAIL_SUPPRESS_SEND': True,
     'BABEL_DEFAULT_LOCALE': 'en',
 }

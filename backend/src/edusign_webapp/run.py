@@ -58,16 +58,20 @@ class EduSignApp(Flask):
         if not self.testing:
             self.url_map.host_matching = False
 
-    def is_whitelisted(self, address: str) -> bool:
+    def is_whitelisted(self, eppn: str) -> bool:
         """
         Check whether a given email address is whitelisted for starting sign processes
 
-        :param address: the email address
+        :param eppn: the eduPersonPrincipalName
         :return: whether it is whitelisted
         """
-        if address in self.config['USER_BLACKLIST']:
+        if eppn in self.config['USER_BLACKLIST']:
             return False
-        return address.split('@')[1] in self.config['SCOPE_WHITELIST']
+
+        elif eppn in self.config['USER_WHITELIST']:
+            return True
+
+        return eppn.split('@')[1] in self.config['SCOPE_WHITELIST']
 
 
 def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
