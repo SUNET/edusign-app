@@ -125,7 +125,7 @@ def get_previous_signatures(document: dict) -> str:
     try:
         for sig in reader.embedded_regular_signatures:
             sigs.append(sig.signer_cert.subject.human_friendly)
-        return ";".join(sigs)
+        return "|".join(sigs)
     except Exception as e:
         current_app.logger.error(f'Problem reading previous signatures: {e}')
         return ""
