@@ -192,15 +192,15 @@ export const preparePrevSigs = (doc) => {
     );
   } catch(err) {
     return (
-        <div className="signed-previous" key="-1">
-          <span className="signed-previous-label">
-            <FormattedMessage
-              defaultMessage="Previously signed by:"
-              key="multisign-owned-prev-signed"
-            />
-          </span>
-          <span className="signed-previous-items">Unknown</span>
-        </div>
+      <div className="signed-previous" key="-1">
+        <span className="signed-previous-label">
+          <FormattedMessage
+            defaultMessage="Previously signed by:"
+            key="multisign-owned-prev-signed"
+          />
+        </span>
+        <span className="signed-previous-items">Unknown</span>
+      </div>
     );
   }
 };
