@@ -147,7 +147,12 @@ export const preparePrevSigs = (doc) => {
       .split("|")
       .filter((sig) => sig.length > 0);
     const sigElems = sigStrs.map((sigStr, i) => {
-      const sigArr = sigStr.split(";");
+      let sigArr;
+      if (sigStr.includes(';')) {
+        sigArr = sigStr.split(";");
+      } else {
+        sigArr = sigStr.split(",");
+      }
       let sig = {};
       sigArr.forEach((segment) => {
         const [k, v] = segment.split(":");
