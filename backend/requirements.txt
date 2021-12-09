@@ -1,8 +1,8 @@
 setuptools>=50.3.2
-Flask>=2.0.1
-marshmallow>=3.9.1
+Flask==2.0.2
+marshmallow==3.10.0
 Flask-Babel==2.0.0
-requests>=2.25.0
+requests==2.26.0
 Flask-Mail==0.9.1
 boto3==1.17.34
 flask-redis==0.4.0

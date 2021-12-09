@@ -76,7 +76,14 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 
 @anon_edusign_views.route('/', methods=['GET'])
 def get_home() -> str:
-    """"""
+    """
+    View to serve the anonymous landing page.
+
+    The text on the page is extractd from markdown documents
+    at edusign_webapp/md/, and can be overridden with md documents at /etc/edusign.
+
+    :return: the rendered `home.jinja2` template as a string
+    """
     current_lang = str(get_locale())
     md_name = f"home-{current_lang}.md"
     md_etc = os.path.join('/etc/edusign/', md_name)
@@ -114,7 +121,16 @@ def get_home() -> str:
 
 @edusign_views.route('/logout', methods=['GET'])
 def logout() -> Response:
-    """"""
+    """
+    View to log out of the app.
+
+    Logging out just means clearing the data in the session;
+    it does not entail a SLO through the SAML IdP. So returning to
+    the app will automatically re-login the user if the session at
+    the IdP is still valid.
+
+    :return: A Werkzeug redirect Response to the anonymous landing page
+    """
     session.clear()
     return redirect(url_for('edusign_anon.get_home'))
 
@@ -124,10 +140,13 @@ def get_index() -> str:
     """
     View to get the index html that loads the frontside app.
 
-    This view assumes that it is secured by a Shibboleth SP, that has added some authn info as headers to the request,
+    This view assumes that it is secured by a Shibboleth SP,
+    that has added some authn info as headers to the request,
     and in case that info is not already in the session, adds it there.
 
-    :return: the rendered `index.jinja2` template as a string
+    If there is no authn info in the 
+
+    :return: the rendered `index.jinja2` template as a string (or `error-generic.jinja2` in case of errors)
     """
     context = {
         'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}",
