@@ -733,7 +733,9 @@ def send_multisign_reminder(data: dict) -> dict:
         current_app.logger.error(f"Could not find document {data['key']} pending signing the multi sign request")
         return {'error': True, 'message': gettext('Could not find the document')}
 
-    recipients = [f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']]
+    recipients = [
+        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
+    ]
     if len(recipients) > 0:
         try:
             invited_link = url_for('edusign.get_index', _external=True)

@@ -25,7 +25,7 @@ describe("Main Component", function () {
       main: {
         loading: true,
         unauthn: false,
-        csrf_token: 'dummy-token',
+        csrf_token: "dummy-token",
         size: "lg",
         width: 1500,
         signingData: {},
@@ -94,7 +94,7 @@ describe("Main Component", function () {
         signingData: {},
         owned_multisign: [],
         pending_multisign: [],
-        csrf_token: 'dummy-token',
+        csrf_token: "dummy-token",
         width: 1500,
         signer_attributes: {
           eppn: "dummy@example.org",
@@ -132,7 +132,7 @@ describe("Main Component", function () {
         signingData: {},
         owned_multisign: [],
         pending_multisign: [],
-        csrf_token: 'dummy-token',
+        csrf_token: "dummy-token",
         width: 1500,
         signer_attributes: {
           eppn: "dummy@example.org",
@@ -170,7 +170,7 @@ describe("Main Component", function () {
         signingData: {},
         owned_multisign: [],
         pending_multisign: [],
-        csrf_token: 'dummy-token',
+        csrf_token: "dummy-token",
         width: 1500,
         signer_attributes: {
           eppn: "dummy@example.org",
@@ -232,7 +232,7 @@ describe("Main Component", function () {
         signingData: {},
         owned_multisign: [],
         pending_multisign: [],
-        csrf_token: 'dummy-token',
+        csrf_token: "dummy-token",
         width: 1500,
         signer_attributes: {
           eppn: "dummy@example.org",

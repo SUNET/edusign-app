@@ -105,6 +105,7 @@ class APIClient(object):
         to signal such condition, to indicate that it is necessary to prepare the document
         again before trying to continue with the signing process.
         """
+
         pass
 
     def __init__(self, config: dict):

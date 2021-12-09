@@ -136,7 +136,9 @@ def test_decline_invitation_get_owner_raises(app, environ_base, environ_base_2, 
     def mock_get_owner_data(*args, **kwargs):
         raise Exception()
 
-    resp_data = _test_decline_invitation(app, environ_base, environ_base_2, monkeypatch, sample_doc_1, mock_get_owner_data)
+    resp_data = _test_decline_invitation(
+        app, environ_base, environ_base_2, monkeypatch, sample_doc_1, mock_get_owner_data
+    )
 
     assert resp_data['message'] == "Success declining signature"
 
@@ -145,6 +147,8 @@ def test_decline_invitation_no_owner(app, environ_base, environ_base_2, monkeypa
     def mock_get_owner_data(*args, **kwargs):
         return None
 
-    resp_data = _test_decline_invitation(app, environ_base, environ_base_2, monkeypatch, sample_doc_1, mock_get_owner_data)
+    resp_data = _test_decline_invitation(
+        app, environ_base, environ_base_2, monkeypatch, sample_doc_1, mock_get_owner_data
+    )
 
     assert resp_data['message'] == "Success declining signature"

@@ -54,8 +54,8 @@ const initialState = {
     show_preview: false,
     preview_id: null,
   },
-  button: {spinning: ''},
-  poll: {poll: false, disablePoll: false, timerId: null},
+  button: { spinning: "" },
+  poll: { poll: false, disablePoll: false, timerId: null },
 };
 
 /**

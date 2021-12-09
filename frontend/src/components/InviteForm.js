@@ -57,7 +57,7 @@ const validate = (mail) => {
       if (emailError !== undefined) errors[`invitees.${i}.email`] = emailError;
     });
     return errors;
-  }
+  };
 };
 
 const initialValues = (docId) => ({
@@ -151,8 +151,16 @@ class InviteForm extends React.Component {
                                       onClick={() => {
                                         arrayHelpers.remove(index);
                                         window.setTimeout(() => {
-                                          document.getElementById('invitation-text-input').focus();
-                                          document.getElementById('invitation-text-input').blur();
+                                          document
+                                            .getElementById(
+                                              "invitation-text-input"
+                                            )
+                                            .focus();
+                                          document
+                                            .getElementById(
+                                              "invitation-text-input"
+                                            )
+                                            .blur();
                                         }, 0);
                                       }}
                                     >
