@@ -152,9 +152,9 @@ def get_index() -> str:
             unauthn = True
         else:
             current_app.logger.debug(f"Not authorizing non-whitelisted invited user, has no invitations: {invites}")
-            context['title'] = gettext("Permission Denied")
+            context['title'] = gettext("No documents to sign")
             context['message'] = gettext(
-                'The organization/identity provider you are affiliated with does not have permission to use this service. Please contact your IT-department to obtain the necessary permissions.'
+                'You are currently not invited to sign any documents. The organization/identity provider you are affiliated with does not have permission to upload your own documents into eduSign to sign. Please contact your IT-department if you would like to be able to sign your own documents or invite others to sign your documents.'
             )
             return render_template('error-generic.jinja2', **context)
 
