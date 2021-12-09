@@ -1437,6 +1437,7 @@ having been evicted from the API’s cache.</p>
 <dt class="sig sig-object py" id="edusign_webapp.views.add_document">
 <span class="sig-prename descclassname"><span class="pre">edusign_webapp.views.</span></span><span class="sig-name descname"><span class="pre">add_document</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">document</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#edusign_webapp.views.add_document" title="Permalink to this definition">¶</a></dt>
 <dd><p>View that sends a document to the API to be prepared to be signed.</p>
+<p>This is called from the front side app as soon as the user loads a document.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>document</strong> – Representation of the document as unmarshaled by the DocumentSchema schema</p>
@@ -1467,6 +1468,10 @@ and the emails of the users invited to sign the doc.</p>
 <dt class="sig sig-object py" id="edusign_webapp.views.create_sign_request">
 <span class="sig-prename descclassname"><span class="pre">edusign_webapp.views.</span></span><span class="sig-name descname"><span class="pre">create_sign_request</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">documents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#edusign_webapp.views.create_sign_request" title="Permalink to this definition">¶</a></dt>
 <dd><p>View to send a request to the API to create a sign request.</p>
+<p>This is the first view that is called when the user starts the signature process for some document(s)
+that do not involve invitations.</p>
+<p>The prepared document might have been removed from the API’s cache, in which case the front side app will be
+informed so that documents can be re-prepared.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>documents</strong> – Representation of the documents to include in the sign request,
@@ -1487,7 +1492,15 @@ or information about some error obtained in the process.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="edusign_webapp.views.get_config">
 <span class="sig-prename descclassname"><span class="pre">edusign_webapp.views.</span></span><span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#edusign_webapp.views.get_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>VIew to serve the configuration for the front app.</p>
+<dd><p>View to serve the configuration for the front app.</p>
+<p>This is called once the browser has rendered the js app.
+The main info sent in the config JSON is:</p>
+<ul class="simple">
+<li><p>Info about pending invitations to sign, both as inviter and as invitee;</p></li>
+<li><p>Attributes released by the IdP;</p></li>
+<li><p>A flag to indicate whether to show the invitations button;</p></li>
+<li><p>A flag to indicate whether the user has logged in through a whitelisted organization.</p></li>
+</ul>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.</p>
@@ -1515,7 +1528,11 @@ at edusign_webapp/md/, and can be overridden with md documents at /etc/edusign.<
 <p>This view assumes that it is secured by a Shibboleth SP,
 that has added some authn info as headers to the request,
 and in case that info is not already in the session, adds it there.</p>
-<p>If there is no authn info in the</p>
+<p>If there is no correct authn info in the headers, the app assumes that the org / IdP
+used by the user is not releasing the appropriate attributes for eduSign.</p>
+<p>If the authn info in the headers does not correspond to a whitelisted user,
+this view returns a page informing the user that they have no permission to
+use the service.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>the rendered <cite>index.jinja2</cite> template as a string (or <cite>error-generic.jinja2</cite> in case of errors)</p>
@@ -1570,10 +1587,12 @@ the IdP is still valid.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="edusign_webapp.views.poll">
 <span class="sig-prename descclassname"><span class="pre">edusign_webapp.views.</span></span><span class="sig-name descname"><span class="pre">poll</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#edusign_webapp.views.poll" title="Permalink to this definition">¶</a></dt>
-<dd><p>VIew to serve the invitations configuration for the front app.</p>
+<dd><p>View to serve the invitations data for the front app.</p>
+<p>The front side js app will poll this view when the user has invited others to sign,
+and there are pending signatures, to update the representation of said invitations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>A dict with the configuration parameters.</p>
+<dd class="field-odd"><p>A dict with the invitation data.</p>
 </dd>
 </dl>
 </dd></dl>
