@@ -144,7 +144,12 @@ def get_index() -> str:
     that has added some authn info as headers to the request,
     and in case that info is not already in the session, adds it there.
 
-    If there is no authn info in the 
+    If there is no correct authn info in the headers, the app assumes that the org / IdP
+    used by the user is not releasing the appropriate attributes for eduSign.
+
+    If the authn info in the headers does not correspond to a whitelisted user,
+    this view returns a page informing the user that they have no permission to
+    use the service.
 
     :return: the rendered `index.jinja2` template as a string (or `error-generic.jinja2` in case of errors)
     """
@@ -200,7 +205,15 @@ def get_index() -> str:
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """
-    VIew to serve the configuration for the front app.
+    View to serve the configuration for the front app.
+
+    This is called once the browser has rendered the js app.
+    The main info sent in the config JSON is:
+
+    - Info about pending invitations to sign, both as inviter and as invitee;
+    - Attributes released by the IdP;
+    - A flag to indicate whether to show the invitations button;
+    - A flag to indicate whether the user has logged in through a whitelisted organization.
 
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
@@ -229,9 +242,12 @@ def get_config() -> dict:
 @Marshal(InvitationsSchema)
 def poll() -> dict:
     """
-    VIew to serve the invitations configuration for the front app.
+    View to serve the invitations data for the front app.
 
-    :return: A dict with the configuration parameters.
+    The front side js app will poll this view when the user has invited others to sign,
+    and there are pending signatures, to update the representation of said invitations.
+
+    :return: A dict with the invitation data.
     """
     payload = get_invitations()
 
@@ -246,6 +262,8 @@ def poll() -> dict:
 def add_document(document: dict) -> dict:
     """
     View that sends a document to the API to be prepared to be signed.
+
+    This is called from the front side app as soon as the user loads a document.
 
     :param document: Representation of the document as unmarshaled by the DocumentSchema schema
     :return: a dict with the data returned from the API after preparing the document,
@@ -278,6 +296,12 @@ def add_document(document: dict) -> dict:
 def create_sign_request(documents: dict) -> dict:
     """
     View to send a request to the API to create a sign request.
+
+    This is the first view that is called when the user starts the signature process for some document(s)
+    that do not involve invitations.
+
+    The prepared document might have been removed from the API's cache, in which case the front side app will be
+    informed so that documents can be re-prepared.
 
     :param documents: Representation of the documents to include in the sign request,
                       as unmarshaled by the ToSignSchema schema
