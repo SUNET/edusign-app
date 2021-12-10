@@ -469,9 +469,7 @@ describe("Document representations", function () {
 const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -492,7 +490,7 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     fetchMock.post("/sign/add-doc", {
       message: "document added",
@@ -517,7 +515,9 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     );
     expect(buttonPreview.length).to.equal(1);
 
-    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-test.pdf"));
+    buttonRemove = await waitFor(() =>
+      screen.getAllByTestId("rm-button-test.pdf")
+    );
     expect(buttonRemove.length).to.equal(1);
   } catch (err) {
     unmount();
@@ -529,13 +529,10 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
 };
 
 const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
-
   async (payload) => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
     try {
-      fetchMock
-        .get("/sign/config", payload)
-        .get("/sign/poll", payload);
+      fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
       store.dispatch(fetchConfig());
       await flushPromises(rerender, wrapped);
 
@@ -552,7 +549,7 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
         size: fileObj.size,
         type: fileObj.type,
         blob: "data:application/pdf;base64," + b64SamplePasswordPDFData,
-        key: 'dummy-ref',
+        key: "dummy-ref",
       };
       fetchMock.post("/sign/add-doc", {
         message: "document added",
@@ -589,9 +586,7 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
 ) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -612,7 +607,7 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     fetchMock.post("/sign/add-doc", {
       message: "dummy error in add-doc",
@@ -626,10 +621,14 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
     );
     await flushPromises(rerender, wrapped);
 
-    buttonRetry = await waitFor(() => screen.getAllByTestId("button-retry-dummy-ref"));
+    buttonRetry = await waitFor(() =>
+      screen.getAllByTestId("button-retry-dummy-ref")
+    );
     expect(buttonRetry.length).to.equal(1);
 
-    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-test.pdf"));
+    buttonRemove = await waitFor(() =>
+      screen.getAllByTestId("rm-button-test.pdf")
+    );
     expect(buttonRemove.length).to.equal(1);
   } catch (err) {
     unmount();
@@ -643,9 +642,7 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
 const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -663,7 +660,7 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
       size: 1500,
       type: "application/pdf",
       blob: "Bad PDF document",
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     fetchMock.post("/sign/add-doc", {
       message: "document added",
@@ -680,7 +677,9 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     );
     await flushPromises(rerender, wrapped);
 
-    buttonRemove = await waitFor(() => screen.getAllByTestId("rm-button-test.pdf"));
+    buttonRemove = await waitFor(() =>
+      screen.getAllByTestId("rm-button-test.pdf")
+    );
     expect(buttonRemove.length).to.equal(1);
 
     buttonRemove = await waitFor(() => screen.getAllByText(/Malformed PDF/i));
@@ -697,9 +696,7 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
 const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -714,7 +711,7 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     fetchMock.post("/sign/add-doc", {
       message: "document added",
@@ -768,9 +765,7 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
 const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -782,14 +777,14 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     const file2 = {
       name: "test2.pdf",
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref-2',
+      key: "dummy-ref-2",
     };
     fetchMock.post("/sign/add-doc", {
       message: "document added",
@@ -867,9 +862,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
 ) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -881,7 +874,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64Sample2pPDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     fetchMock.post("/sign/add-doc", {
       message: "document added",
@@ -960,9 +953,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
 const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -974,14 +965,14 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     const file2 = {
       name: "test2.pdf",
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref-2',
+      key: "dummy-ref-2",
     };
     fetchMock.post("/sign/add-doc", {
       message: "document added",
@@ -1046,9 +1037,7 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
 const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1060,7 +1049,7 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     fetchMock
       .once(
@@ -1128,9 +1117,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
 ) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1142,7 +1129,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     fetchMock
       .once(
@@ -1205,9 +1192,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
 ) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1219,7 +1204,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     fetchMock
       .post("/sign/add-doc", {
@@ -1285,9 +1270,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
 ) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1299,7 +1282,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     fetchMock
       .post("/sign/add-doc", {
@@ -1358,9 +1341,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
 const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1372,7 +1353,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     fetchMock
       .post("/sign/add-doc", {
@@ -1461,9 +1442,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
 const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1475,7 +1454,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     fetchMock
       .post("/sign/add-doc", {
@@ -1562,9 +1541,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
 const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock
-      .get("/sign/config", payload)
-      .get("/sign/poll", payload);
+    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1576,7 +1553,7 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
       size: fileObj.size,
       type: fileObj.type,
       blob: "data:application/pdf;base64," + b64SamplePDFData,
-      key: 'dummy-ref',
+      key: "dummy-ref",
     };
     const file2 = {
       name: "test2.pdf",

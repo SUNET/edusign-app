@@ -11,6 +11,8 @@ FRONT_SOURCE=src/
 BACK_DIR=backend/
 BACK_SOURCE=src/
 
+DOCS_DIR=docs/
+
 # Get any extra command line arguments
 args=`arg="$(filter-out $@,$(MAKECMDGOALS))" && echo $${arg:-${1}}`
 
@@ -186,6 +188,15 @@ back-test:
 	@cd $(BACK_DIR); \
 		./venv/bin/pytest --log-cli-level DEBUG $(BACK_SOURCE) ; \
 		./venv/bin/coverage html
+
+## -- Docs --
+
+## build the documentation
+.PHONY: build-docs
+build-docs:
+	@cd $(DOCS_DIR); \
+		sphinx-apidoc -o python ../backend/src/edusign_webapp/ ; \
+		make html
 
 ## -- Misc --
 

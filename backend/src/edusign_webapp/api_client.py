@@ -30,6 +30,38 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+"""
+Client for the Signature Service Integration REST-Service [1].
+==============================================================
+
+The service has 2 sides: a REST API, and a sign service.
+
+In what follows we will call "service" to both the REST API and the signature
+service, "client" to our backend service that sends requests to the API, and
+"user" or "browser" to the user agent that sends requests to our backend
+service and is eventually directed to the signature service.
+
+To use the service, it is necessary to have Basic Auth credentials for a
+profile policy in the service.
+
+There are 4 basic steps to complete a signature procedure:
+
++ The client sends a document to the API to be prepared for signature.
+
++ The client sends a request to the API to create and obtain a signature
+  request for one or more previously prepared documents.
+
++ The user POSTs the signature request obtained in the previous step to the
+  signature service, and is taken to an IdP where they provide credentials to
+  sign the document(s). This will end in the user POSTing a form with a sign
+  response to a callback in the client.
+
++ The client grabs the sign response provided by the service to the user and
+  POSTed by the user to the client, and uses it to retrieve the signed
+  documents from the API.
+
+1.- https://github.com/idsec-solutions/signservice-integration-rest/blob/master/docs/sample-flow.md
+"""
 import json
 import uuid
 from pprint import pformat
@@ -57,18 +89,34 @@ def pretty_print_req(req: requests.PreparedRequest) -> str:
 
 class APIClient(object):
     """
-    Methods to communicate with the eduSign API, using requests.
-    The API is documented at
-    https://github.com/idsec-solutions/signservice-integration-rest/blob/master/docs/sample-flow.md
+    Class holding methods to communicate with the Signature Service Integration REST-Service.
 
-    The eduSign Flask app has a property `api_client` that is an instance of this class.
+    Instances of `edusign_webapp.run.EduSignApp` Flask app has a property `api_client` that is an
+    instance of this class.
     """
 
     class ExpiredCache(Exception):
+        """
+        When the client sends a document to the API to be prepared, the API will keep it
+        in its cache for a configurable amount of time (15 minutes by default). Afterwards
+        it will be removed.
+        If the client tries to create a sign request referencing a document that has been
+        removed from the cache, it will obtain an error response. So it uses this exception
+        to signal such condition, to indicate that it is necessary to prepare the document
+        again before trying to continue with the signing process.
+        """
+
         pass
 
     def __init__(self, config: dict):
         """
+        Initialize the client object with configuration gathered by flask.
+        We need 3 parameters here:
+
+        + The base URL of the signature service / API
+        + The profile in the API to use - for which we have credentials (HTTP Basic Auth)
+        + The HTTP Basic Auth credentials.
+
         :param config: Dict containing the configuration parameters provided to Flask.
         """
         self.api_base_url = config['EDUSIGN_API_BASE_URL']
@@ -101,13 +149,47 @@ class APIClient(object):
         Send request to the `prepare` endpoint of the API.
         This API method will prepare a PDF document
         with a PDF signature page containing a visible PDF signature image,
-        and keep it cached for 15min.
+        and keep it cached for 15min by default.
+
+        The main pieces of data we have to send to this endpoint are:
+
+        + pdfDocument: The PDF document as base64 data.
+
+        + signaturePagePreferences.visiblePdfSignatureUserInformation.signerName.signerAttributes:
+          The list of attributes to be used in the signature, given as `{name: <attr name>}` objects.
+          These are attributes released by the SAML IdP, and their name must be in uri format.
+
+        + signaturePagePreferences.visiblePdfSignatureUserInformation.fieldValues.idp:
+          The value of this field will appear in the signature image as the "Authenticated by" entity.
+          We here try to provide the organization name as provided by Shibboleth, and in case it is not
+          found, the entityID of the IdP chosen by the user. Note that the client (the flask app)
+          will try to identify the user via seamlessaccess.org, and it will record the IdP chosen by
+          the user to use it here.
+
+        There are other parameters to control the insertion of the signature image in the document,
+        which we've just valued as suggested in [1].
+
+        The structure of the JSON to send would be something like:
+
+        {
+            "pdfDocument": "JVBERi0xLj...lJUVPRgo=",
+            "signaturePagePreferences": {
+                "visiblePdfSignatureUserInformation": {
+                    "signerName": {"signerAttributes": [ {"name" : "urn:oid:2.16.840.1.113730.3.1.241"} ]},
+                    "fieldValues": {"idp": "Snake Oil Co"},
+                },
+                "failWhenSignPageFull": true,
+                "insertPageAt": 0,
+                "returnDocumentReference": true,
+            },
+        }
 
         :param document: Dict holding the PDF (data and metadata) to prepare for signing.
         :return: Flask representation of the HTTP response from the API.
         """
         idp = session['idp']
         if self.config['ENVIRONMENT'] == 'development':
+            # This is only to test the app in a development environment.
             idp = self.config['DEBUG_IDP']
 
         if session.get('organizationName', None) is not None:
@@ -144,6 +226,75 @@ class APIClient(object):
 
     def _try_creating_sign_request(self, documents: list, add_blob=False) -> tuple:
         """
+        Send request to the `create` endpoint of the API.
+        This API method is used to create a sign request that can then be POSTed
+        to the signature service, to initiate the actual signing process.
+
+        It will include references to all the already prepared documents that
+        need to be signed, kept in the API's cache.
+
+        The main pieces of data we have to send to this endpoint are:
+
+        + correlationId: A unique identifier for this request to create a sign request.
+
+        + signRequesterID: is the SAML entityID of the SAML SP that authenticated the user,
+          and who is the requesting entity of the signature operation. It has to coincide with
+          whatever has been configured in the signature service.
+
+        + returnUrl: The URL of the callback endpoint in the client, to which the user
+          will be redirected after completing the signature process at the sign service.
+
+        + authnRequirements.authnServiceID: entityID of the IdP that will perform the authentication
+          for signature.
+
+        + authnRequirements.authnContextClassRefs: The AuthnContextClassRef URI(s) that we request
+          that the user is authenticated under.
+
+        + authnRequirements.requestedSignerAttributes: A list of SAML attributes and values.
+          It is necessary to provide values for all atributes previously sent as signerAttributes
+          to the `prepare` endpoint.
+
+        + tbsDocuments: A list in which each item carries metadata about one the documents to be signed.
+          The metadata is as follows:
+
+        + tbsDocuments.N.id: A unique identifier for the document issued by the client.
+
+        + tbsDocuments.N.contentReference: This value was in the response from the API to the call
+          to the `prepare` endpoint, as `updatedPdfDocumentReference`.
+
+        + tbsDocuments.N.mimeType: application/pdf
+
+        + tbsDocuments.N.visiblePdfSignatureRequirement: This was also in the response from the API
+          to the call to the `prepare` endpoint.
+
+        So the structure of the JSON to send would be something like:
+
+        {
+            "correlationId": "11111111-1111-1111-1111-111111111111",
+            "signRequesterID": "https://example.org/shibboleth",
+            "returnUrl": "https://example.org/callback",
+            "authnRequirements": {
+                "authnServiceID": "https://idp.example.org/shibboleth",
+                "authnContextClassRefs": [ "http://id.elegnamnden.se/loa/1.0/loa3" ],
+                "requestedSignerAttributes": [
+                    {
+                        "name": "urn:oid:2.16.840.1.113730.3.1.241",
+                        "value": "John Doe",
+                    }
+                ],
+            },
+            "tbsDocuments": [],
+        }
+
+        And each itme in `tbsDocuments` would have the structure:
+
+        {
+            "id": "22222222-2222-2222-2222-222222222222",
+            "contentReference": "33333333-3333-3333-3333-333333333333",
+            "mimeType": "application/pdf",
+            "visiblePdfSignatureRequirement": { "..." },
+        }
+
         :param documents: List with (already prepared) documents to include in the sign request.
         :return: Pair of  Flask representation of the HTTP response from the API,
                  and list of mappings linking the documents' names with the generated ids.
@@ -192,14 +343,24 @@ class APIClient(object):
 
     def create_sign_request(self, documents: list, add_blob=False) -> tuple:
         """
-        Send request to the `create` endpoint of the API.
-        This API method will create and return the DSS SignRequest message
-        that is to be sent to the signature service.
+        Use the `_try_creating_sign_request` method to create a sign request
+        at the `create` endpoint of the API.
+
+        It is possible that the documents referenced in the requests have been cleared from
+        the API's cache; in that case, the response from the API will have an error code
+        indicating that condition. This method will then raise an `ExpiredCache` eception,
+        and it is the responsability of the calling method to restart the process: Send the
+        documents again to be prepared, and then try again to create a sign request.
+
+        If successful, this method will return the response with the sign request, to be POSTed
+        from the user agent to initiate the actual signing of the document.
 
         :param documents: List with (already prepared) documents to include in the sign request.
-        :raises ExpiredCache: When the response from the API indicates that the documents to sign have dissapeared from the API's cache.
-        :return: Pair of  Flask representation of the HTTP response from the API,
-                 and list of mappings linking the documents' names with the generated ids.
+        :raises ExpiredCache: When the response from the API indicates that the documents to sign
+                              have dissapeared from the API's cache.
+        :return: Data (with the sign request) contained in the response from the API,
+                 and a list of mappings linking the documents' names with the generated ids (sent to
+                 the API as tbsDocuments.N.id).
         """
         response_data, documents_with_id = self._try_creating_sign_request(documents, add_blob=add_blob)
 
@@ -218,12 +379,33 @@ class APIClient(object):
 
     def process_sign_request(self, sign_response: dict, relay_state: str) -> requests.Response:
         """
+        This method is meant to be called after the user has completed the sgnature process, through the
+        sign service and the IdP. At this point, the documents are signed and kept in the API's cache.
+        So here we send a request to the `proccess` endpoint of the API to retrieve them.
+
+        The main pieces of data we have to send to this endpoint are:
+
+        + signResponse
+        + realyState
+        + state
+
+        The values for these are all present in the POST that the user agent sends to the callback in the client app
+        (whose URL we sent to the `create` endpoint as `returnUrl`), after returning from the sign service and IdP.
+
+        The reponse to this call will contain, in addition to some more metadata, the signed documents, in a list
+        `signedDocuments`, where each document includes:
+
+        + id: the id of the document, sent to the `create` endpoint as tbsDocuments.N.id;
+        + signedContent: The signed document encoded as base64;
+        + mimeType: "application/pdf"
+
         Send request to the `process` endpoint of the API.
         This API method will process the DSS SignRequest in order to get the signed document.
 
         :param sign_response: signResponse data as returned from the `create` endpoint of the eduSign API.
         :param relay_state: Relay state as returned from the `create` endpoint of the eduSign API.
-        :return: Flask representation of the HTTP response from the API.
+        :return: Data (containing the signed documents in successful requests) received in the HTTP response
+                 from the API.
         """
         request_data = {"signResponse": sign_response, "relayState": relay_state, "state": {"id": relay_state}}
         api_url = urljoin(self.api_base_url, 'process')

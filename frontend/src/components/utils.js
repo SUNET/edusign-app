@@ -148,7 +148,7 @@ export const preparePrevSigs = (doc) => {
       .filter((sig) => sig.length > 0);
     const sigElems = sigStrs.map((sigStr, i) => {
       let sigArr;
-      if (sigStr.includes(';')) {
+      if (sigStr.includes(";")) {
         sigArr = sigStr.split(";");
       } else {
         sigArr = sigStr.split(",");
@@ -198,7 +198,7 @@ export const preparePrevSigs = (doc) => {
       )) ||
       ""
     );
-  } catch(err) {
+  } catch (err) {
     return (
       <div className="signed-previous" key="-1">
         <span className="signed-previous-label">

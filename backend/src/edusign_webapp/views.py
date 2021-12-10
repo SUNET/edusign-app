@@ -76,7 +76,14 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 
 @anon_edusign_views.route('/', methods=['GET'])
 def get_home() -> str:
-    """"""
+    """
+    View to serve the anonymous landing page.
+
+    The text on the page is extractd from markdown documents
+    at edusign_webapp/md/, and can be overridden with md documents at /etc/edusign.
+
+    :return: the rendered `home.jinja2` template as a string
+    """
     current_lang = str(get_locale())
     md_name = f"home-{current_lang}.md"
     md_etc = os.path.join('/etc/edusign/', md_name)
@@ -114,7 +121,16 @@ def get_home() -> str:
 
 @edusign_views.route('/logout', methods=['GET'])
 def logout() -> Response:
-    """"""
+    """
+    View to log out of the app.
+
+    Logging out just means clearing the data in the session;
+    it does not entail a SLO through the SAML IdP. So returning to
+    the app will automatically re-login the user if the session at
+    the IdP is still valid.
+
+    :return: A Werkzeug redirect Response to the anonymous landing page
+    """
     session.clear()
     return redirect(url_for('edusign_anon.get_home'))
 
@@ -124,10 +140,18 @@ def get_index() -> str:
     """
     View to get the index html that loads the frontside app.
 
-    This view assumes that it is secured by a Shibboleth SP, that has added some authn info as headers to the request,
+    This view assumes that it is secured by a Shibboleth SP,
+    that has added some authn info as headers to the request,
     and in case that info is not already in the session, adds it there.
 
-    :return: the rendered `index.jinja2` template as a string
+    If there is no correct authn info in the headers, the app assumes that the org / IdP
+    used by the user is not releasing the appropriate attributes for eduSign.
+
+    If the authn info in the headers does not correspond to a whitelisted user,
+    this view returns a page informing the user that they have no permission to
+    use the service.
+
+    :return: the rendered `index.jinja2` template as a string (or `error-generic.jinja2` in case of errors)
     """
     context = {
         'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}",
@@ -181,7 +205,15 @@ def get_index() -> str:
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """
-    VIew to serve the configuration for the front app.
+    View to serve the configuration for the front app.
+
+    This is called once the browser has rendered the js app.
+    The main info sent in the config JSON is:
+
+    - Info about pending invitations to sign, both as inviter and as invitee;
+    - Attributes released by the IdP;
+    - A flag to indicate whether to show the invitations button;
+    - A flag to indicate whether the user has logged in through a whitelisted organization.
 
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
@@ -210,9 +242,12 @@ def get_config() -> dict:
 @Marshal(InvitationsSchema)
 def poll() -> dict:
     """
-    VIew to serve the invitations configuration for the front app.
+    View to serve the invitations data for the front app.
 
-    :return: A dict with the configuration parameters.
+    The front side js app will poll this view when the user has invited others to sign,
+    and there are pending signatures, to update the representation of said invitations.
+
+    :return: A dict with the invitation data.
     """
     payload = get_invitations()
 
@@ -227,6 +262,8 @@ def poll() -> dict:
 def add_document(document: dict) -> dict:
     """
     View that sends a document to the API to be prepared to be signed.
+
+    This is called from the front side app as soon as the user loads a document.
 
     :param document: Representation of the document as unmarshaled by the DocumentSchema schema
     :return: a dict with the data returned from the API after preparing the document,
@@ -259,6 +296,15 @@ def add_document(document: dict) -> dict:
 def create_sign_request(documents: dict) -> dict:
     """
     View to send a request to the API to create a sign request.
+
+    This is the first view that is called when the user starts the signature process for some document(s)
+    that do not involve invitations.
+
+    The sign request obtained from the API in this view is sent back to the eduSign js app in the browser,
+    which will immediately POST it to the sign service to start the actual signing process.
+
+    The prepared document might have been removed from the API's cache, in which case the front side app will be
+    informed so that documents can be re-prepared.
 
     :param documents: Representation of the documents to include in the sign request,
                       as unmarshaled by the ToSignSchema schema
@@ -312,6 +358,17 @@ def recreate_sign_request(documents: dict) -> dict:
 
     This is used when a call to the `create` sign request API method has failed
     due to the prepared documents having been evicted from the API's cache.
+
+    This is also used when there are invitations among the documents to sign,
+    either as inviter or as invitee, since we assume that the invitations signing process is
+    generally longer than the cache timeout in the API.
+
+    This view will check for locks in invited documents to make sure no race condition
+    occurs as different invitees try signing the same document in parallell,
+    and inform the front side app about them so it can tell the user.
+
+    The sign request obtained from the API in this view is sent back to the eduSign js app in the browser,
+    which will immediately POST it to the sign service to start the actual signing process.
 
     :param documents: representation of the documents as returned by the ToRestartSigningSchema
     :return: A dict with either the relevant information returned by the API's `create` sign request endpoint,
@@ -456,8 +513,14 @@ def recreate_sign_request(documents: dict) -> dict:
 @edusign_views.route('/callback', methods=['POST', 'GET'])
 def sign_service_callback() -> Union[str, Response]:
     """
-    Callback to be called from the signature service, after the user has visited it
-    to finish signing some documents.
+    After the user has used the sign request to go through the sign service and IdP to sign the documents,
+    the sign service will respond with a redirect to this view. This redirect will carry the sign response
+    obtained in the sign process.
+
+    The response of this view will trigger loading the frontside js eduSign app in the browser,
+    adding the sign response to the mix as data attributes in the html. When the frontside app loads,
+    and detects a sign response in the html, it will automatically call the `get_signed_docs` view below,
+    to get the signed documents in the browser and hand them over to the user.
 
     :return: The rendered template `index-with-sign-response.jinja2`, which loads the app like the index,
              and in addition contains some information POSTed from the signature service, needed
@@ -690,7 +753,9 @@ def send_multisign_reminder(data: dict) -> dict:
         current_app.logger.error(f"Could not find document {data['key']} pending signing the multi sign request")
         return {'error': True, 'message': gettext('Could not find the document')}
 
-    recipients = [f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']]
+    recipients = [
+        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
+    ]
     if len(recipients) > 0:
         try:
             invited_link = url_for('edusign.get_index', _external=True)
