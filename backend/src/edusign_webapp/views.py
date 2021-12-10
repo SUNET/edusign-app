@@ -300,6 +300,9 @@ def create_sign_request(documents: dict) -> dict:
     This is the first view that is called when the user starts the signature process for some document(s)
     that do not involve invitations.
 
+    The sign request obtained from the API in this view is sent back to the eduSign js app in the browser,
+    which will immediately POST it to the sign service to start the actual signing process.
+
     The prepared document might have been removed from the API's cache, in which case the front side app will be
     informed so that documents can be re-prepared.
 
@@ -355,6 +358,17 @@ def recreate_sign_request(documents: dict) -> dict:
 
     This is used when a call to the `create` sign request API method has failed
     due to the prepared documents having been evicted from the API's cache.
+
+    This is also used when there are invitations among the documents to sign,
+    either as inviter or as invitee, since we assume that the invitations signing process is
+    generally longer than the cache timeout in the API.
+
+    This view will check for locks in invited documents to make sure no race condition
+    occurs as different invitees try signing the same document in parallell,
+    and inform the front side app about them so it can tell the user.
+
+    The sign request obtained from the API in this view is sent back to the eduSign js app in the browser,
+    which will immediately POST it to the sign service to start the actual signing process.
 
     :param documents: representation of the documents as returned by the ToRestartSigningSchema
     :return: A dict with either the relevant information returned by the API's `create` sign request endpoint,
@@ -499,8 +513,14 @@ def recreate_sign_request(documents: dict) -> dict:
 @edusign_views.route('/callback', methods=['POST', 'GET'])
 def sign_service_callback() -> Union[str, Response]:
     """
-    Callback to be called from the signature service, after the user has visited it
-    to finish signing some documents.
+    After the user has used the sign request to go through the sign service and IdP to sign the documents,
+    the sign service will respond with a redirect to this view. This redirect will carry the sign response
+    obtained in the sign process.
+
+    The response of this view will trigger loading the frontside js eduSign app in the browser,
+    adding the sign response to the mix as data attributes in the html. When the frontside app loads,
+    and detects a sign response in the html, it will automatically call the `get_signed_docs` view below,
+    to get the signed documents in the browser and hand them over to the user.
 
     :return: The rendered template `index-with-sign-response.jinja2`, which loads the app like the index,
              and in addition contains some information POSTed from the signature service, needed

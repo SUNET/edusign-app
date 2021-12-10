@@ -1470,6 +1470,8 @@ and the emails of the users invited to sign the doc.</p>
 <dd><p>View to send a request to the API to create a sign request.</p>
 <p>This is the first view that is called when the user starts the signature process for some document(s)
 that do not involve invitations.</p>
+<p>The sign request obtained from the API in this view is sent back to the eduSign js app in the browser,
+which will immediately POST it to the sign service to start the actual signing process.</p>
 <p>The prepared document might have been removed from the API’s cache, in which case the front side app will be
 informed so that documents can be re-prepared.</p>
 <dl class="field-list simple">
@@ -1604,6 +1606,14 @@ and there are pending signatures, to update the representation of said invitatio
 and to send the results of the preparations to create a sign request.</p>
 <p>This is used when a call to the <cite>create</cite> sign request API method has failed
 due to the prepared documents having been evicted from the API’s cache.</p>
+<p>This is also used when there are invitations among the documents to sign,
+either as inviter or as invitee, since we assume that the invitations signing process is
+generally longer than the cache timeout in the API.</p>
+<p>This view will check for locks in invited documents to make sure no race condition
+occurs as different invitees try signing the same document in parallell,
+and inform the front side app about them so it can tell the user.</p>
+<p>The sign request obtained from the API in this view is sent back to the eduSign js app in the browser,
+which will immediately POST it to the sign service to start the actual signing process.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>documents</strong> – representation of the documents as returned by the ToRestartSigningSchema</p>
@@ -1646,8 +1656,13 @@ or information about some error obtained in the process.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="edusign_webapp.views.sign_service_callback">
 <span class="sig-prename descclassname"><span class="pre">edusign_webapp.views.</span></span><span class="sig-name descname"><span class="pre">sign_service_callback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">werkzeug.wrappers.response.Response</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#edusign_webapp.views.sign_service_callback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Callback to be called from the signature service, after the user has visited it
-to finish signing some documents.</p>
+<dd><p>After the user has used the sign request to go through the sign service and IdP to sign the documents,
+the sign service will respond with a redirect to this view. This redirect will carry the sign response
+obtained in the sign process.</p>
+<p>The response of this view will trigger loading the frontside js eduSign app in the browser,
+adding the sign response to the mix as data attributes in the html. When the frontside app loads,
+and detects a sign response in the html, it will automatically call the <cite>get_signed_docs</cite> view below,
+to get the signed documents in the browser and hand them over to the user.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>The rendered template <cite>index-with-sign-response.jinja2</cite>, which loads the app like the index,
