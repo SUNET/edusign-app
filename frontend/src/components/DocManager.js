@@ -63,13 +63,13 @@ class DocManager extends React.Component {
           <>
             <div className="invited-unauthn-title">
               <FormattedMessage
-                defaultMessage="Unauthorized"
+                defaultMessage="No documents to sign"
                 key="unauthn-title"
               />
             </div>
             <div className="invited-unauthn-text">
               <FormattedMessage
-                defaultMessage="The organization/identity provider you are affiliated with does not have permission to use this service. Please contact your IT-department to obtain the necessary permissions."
+                defaultMessage="You are currently not invited to sign any documents. The organization/identity provider you are affiliated with does not have permission to upload your own documents into eduSign to sign. Please contact your IT-department if you would like to be able to sign your own documents or invite others to sign your documents."
                 key="unauthn-text"
               />
             </div>
