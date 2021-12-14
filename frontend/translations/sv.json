@@ -57,6 +57,8 @@
   "components.ReInviteForm.resend-invitation-tootip": "Skicka meddelande till alla som inte signerat",
   "components.ReInviteForm.resend-invite": "Skicka",
   "components.utils.multisign-owned-prev-signed": "Tidigare signerat av:",
+  "components.utils.multisign-owned-prev-signed-pdf-error": "Inte möjligt att tolka dokumentets metadata",
+  "components.utils.multisign-owned-prev-signed-unknown": "Okänd",
   "components.widgets.button-download-tootip": "Ladda ner signerat dokument. Var uppmärksam på att spara orginalet snarare än en kopia.",
   "components.widgets.button-multisign-tootip": "Bjud in andra att signera dokumentet. Efter att alla signerat får du valet att lägga till den slutgiltiga signaturen.",
   "components.widgets.button-remove-tootip": "Ta bort dokument",

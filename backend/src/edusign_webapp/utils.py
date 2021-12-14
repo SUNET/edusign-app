@@ -37,7 +37,7 @@ from xml.etree import cElementTree as ET
 from flask import current_app, request, session
 from flask_babel import force_locale, get_locale, gettext
 from flask_mail import Message
-from pyhanko.pdf_utils.reader import PdfFileReader
+from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
 
 
 def add_attributes_to_session(check_whitelisted=True):
@@ -120,7 +120,10 @@ def get_previous_signatures(document: dict) -> str:
 
     bytes = b64decode(content, validate=True)
     pdf = io.BytesIO(bytes)
-    reader = PdfFileReader(pdf)
+    try:
+        reader = PdfFileReader(pdf)
+    except PdfReadError:
+        return "pdf read error"
     sigs = []
     try:
         for sig in reader.embedded_regular_signatures:

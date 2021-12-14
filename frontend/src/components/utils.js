@@ -142,6 +142,26 @@ export const hashCode = function (s) {
 export const preparePrevSigs = (doc) => {
   if (doc.prev_signatures === undefined || doc.prev_signatures === null)
     return "";
+  if (doc.prev_signatures === "pdf read error") {
+    return (
+      <div className="signed-previous" key="-1">
+        <span className="signed-previous-label">
+          <FormattedMessage
+            defaultMessage="Previously signed by:"
+            key="multisign-owned-prev-signed"
+          />
+        </span>
+        <span className="signed-previous-items">
+          <span className="signed-previous-item">
+            <FormattedMessage
+              defaultMessage="Unable to interpret document metadata"
+              key="multisign-owned-prev-signed-pdf-error"
+            />
+          </span>
+        </span>
+      </div>
+    );
+  }
   try {
     const sigStrs = doc.prev_signatures
       .split("|")
@@ -207,7 +227,14 @@ export const preparePrevSigs = (doc) => {
             key="multisign-owned-prev-signed"
           />
         </span>
-        <span className="signed-previous-items">Unknown</span>
+        <span className="signed-previous-items">
+          <span className="signed-previous-item">
+            <FormattedMessage
+              defaultMessage="Unknown"
+              key="multisign-owned-prev-signed-unknown"
+            />
+          </span>
+        </span>
       </div>
     );
   }

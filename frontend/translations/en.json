@@ -57,6 +57,8 @@
   "components.ReInviteForm.resend-invitation-tootip": "Resend invitations to sign to invitees pending to sign",
   "components.ReInviteForm.resend-invite": "Resend",
   "components.utils.multisign-owned-prev-signed": "Previously signed by:",
+  "components.utils.multisign-owned-prev-signed-pdf-error": "Unable to interpret document metadata",
+  "components.utils.multisign-owned-prev-signed-unknown": "Unknown",
   "components.widgets.button-download-tootip": "Download signed document. Be sure to save the original rather than a copy.",
   "components.widgets.button-multisign-tootip": "Invite other users to sign the document. After all invitees sign, you'll be offered the chance to add a final signature.",
   "components.widgets.button-remove-tootip": "Discard document",
