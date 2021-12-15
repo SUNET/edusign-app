@@ -162,8 +162,8 @@ def sendmail(
 
     subject = f"{mail[first]['subject']} / {mail[second]['subject']}"
     msg = Message(subject, recipients=recipients)
-    msg.body = f"{mail[first]['body_txt']} \n {mail[second]['body_txt']}"
-    msg.html = f"{mail[first]['body_html']} \n {mail[second]['body_html']}"
+    msg.body = f"{mail[first]['body_txt']} \n\n {mail[second]['body_txt']}"
+    msg.html = f"{mail[first]['body_html']} <br/><br/> {mail[second]['body_html']}"
 
     if attachment and attachment_name:
         msg.attach(attachment_name, 'application/pdf', attachment)

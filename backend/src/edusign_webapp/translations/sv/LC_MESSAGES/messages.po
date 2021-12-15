@@ -136,7 +136,7 @@ msgstr "Ett problem uppstod att skapa inbjudan att signera, var god försök ige
 #: src/edusign_webapp/views.py:710 src/edusign_webapp/views.py:714
 #, python-format
 msgid "You have been invited to sign \"%(document_name)s\""
-msgstr "Du har blivit inbjudan att signera \"%(document_name)s\""
+msgstr "Du har blivit inbjuden att signera \"%(document_name)s\""
 
 #: src/edusign_webapp/views.py:723
 msgid "There was a problem and the invitation email(s) were not sent"
