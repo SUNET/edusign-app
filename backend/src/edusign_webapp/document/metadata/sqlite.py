@@ -56,6 +56,7 @@ CREATE TABLE [Documents]
        [updated] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
        [owner] INTEGER NOT NULL,
        [prev_signatures] TEXT,
+       [sendsigned] INTEGER DEFAULT 1,
        [locked] TIMESTAMP DEFAULT NULL,
        [locked_by] INTEGER DEFAULT NULL,
             FOREIGN KEY ([owner]) REFERENCES [Users] ([user_id])
@@ -80,19 +81,20 @@ CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
 CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([owner]);
 CREATE INDEX IF NOT EXISTS [InviteeIX] ON [Invites] ([user_id]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-PRAGMA user_version = 1;
+PRAGMA user_version = 2;
 """
 
 
 USER_INSERT = "INSERT INTO Users (name, email) VALUES (?, ?);"
 USER_QUERY_ID = "SELECT user_id FROM Users WHERE email = ?;"
 USER_QUERY = "SELECT name, email FROM Users WHERE user_id = ?;"
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner, prev_signatures) VALUES (?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner, prev_signatures, sendsigned) VALUES (?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOCK = "SELECT locked, locked_by FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner, prev_signatures FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY_FROM_OWNER = "SELECT d.doc_id, d.key, d.name, d.size, d.type, d.prev_signatures FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.user_id;"
+DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locked_by = NULL WHERE doc_id = ?;"
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locked_by = ? WHERE doc_id = ?;"
@@ -142,6 +144,13 @@ def upgrade(db):
         cur.close()
         db.commit()
 
+    if version == 1:
+        cur = db.cursor()
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [sendsigned] INTEGER DEFAULT 1;")
+        cur.execute("PRAGMA user_version = 2;")
+        cur.close()
+        db.commit()
+
 
 def close_connection(exception):
     db = getattr(g, '_database', None)
@@ -184,7 +193,7 @@ class SqliteMD(ABCMetadata):
         db = get_db(self.db_path)
         db.commit()
 
-    def add(self, key: uuid.UUID, document: Dict[str, Any], owner: Dict[str, str], invites: List[Dict[str, str]]):
+    def add(self, key: uuid.UUID, document: Dict[str, Any], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool):
         """
         Store metadata for a new document.
 
@@ -196,6 +205,7 @@ class SqliteMD(ABCMetadata):
                          + prev_signatures: previous signatures
         :param owner: Name and email address of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
+        :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
         owner_result = self._db_query(USER_QUERY_ID, (owner['email'],), one=True)
@@ -212,7 +222,7 @@ class SqliteMD(ABCMetadata):
         prev_sigs = document.get("prev_signatures", "")
 
         self._db_execute(
-            DOCUMENT_INSERT, (str(key), document['name'], document['size'], document['type'], owner_id, prev_sigs)
+            DOCUMENT_INSERT, (str(key), document['name'], document['size'], document['type'], owner_id, prev_sigs, sendsigned)
         )
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
 
@@ -680,3 +690,17 @@ class SqliteMD(ABCMetadata):
             return {}
 
         return user_info
+
+    def get_sendsigned(self, key: uuid.UUID) -> bool:
+        """
+        Whether the final signed document should be sent by email to signataries
+
+        :param key: The key identifying the document
+        :return: whether to send emails
+        """
+        document_result = self._db_query(DOCUMENT_QUERY_SENDSIGNED, (str(key),), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.error(f"Trying to find a non-existing document with key {key}")
+            return True
+
+        return bool(document_result['sendsigned'])

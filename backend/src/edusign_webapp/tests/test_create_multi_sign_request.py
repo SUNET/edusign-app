@@ -87,6 +87,7 @@ def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
             'document': sample_doc_1,
             'owner': 'tester@example.org',
             'text': 'Test text',
+            'sendsigned': True,
             'invites': [
                 {'name': 'invite0', 'email': 'invite0@example.org'},
                 {'name': 'invite1', 'email': 'invite1@example.org'},
@@ -110,6 +111,7 @@ def test_create_multi_sign_request_raises(app, environ_base, monkeypatch, sample
             'document': sample_doc_1,
             'owner': 'tester@example.org',
             'text': 'Test text',
+            'sendsigned': True,
             'invites': [
                 {'name': 'invite0', 'email': 'invite0@example.org'},
                 {'name': 'invite1', 'email': 'invite1@example.org'},
@@ -137,6 +139,7 @@ def test_create_multi_sign_wrong_owner(app, environ_base, monkeypatch, sample_do
         'payload': {
             'document': sample_doc_1,
             'owner': 'non-tester@example.org',
+            'sendsigned': True,
             'invites': [
                 {'name': 'invite0', 'email': 'invite0@example.org'},
                 {'name': 'invite1', 'email': 'invite1@example.org'},

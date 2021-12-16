@@ -869,6 +869,7 @@ export const sendInvites = createAsyncThunk(
       owner: owner,
       invites: invitees,
       text: args.values.invitationText,
+      sendsigned: args.values.sendsignedChoice,
       document: {
         key: document.key,
         name: document.name,

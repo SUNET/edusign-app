@@ -47,6 +47,10 @@ const validateBody = (value) => {
   return undefined;
 };
 
+const validateSendsigned = (value) => {
+  return undefined;
+};
+
 const validate = (mail) => {
   return (values) => {
     let errors = {};
@@ -62,6 +66,7 @@ const validate = (mail) => {
 
 const initialValues = (docId) => ({
   invitationText: "",
+  sendsignedChoice: true,
   documentId: docId,
   invitees: [
     {
@@ -126,6 +131,27 @@ class InviteForm extends React.Component {
                         className="invitation-text"
                         validate={validateBody}
                         as="textarea"
+                      />
+                    </BForm.Group>
+                  </div>
+                  <div className="sendsigned-choice-holder">
+                    <BForm.Group className="sendsigned-choice-group">
+                      <BForm.Label
+                        className="sendsigned-choice-label"
+                        htmlFor="sendsigned-choice-input"
+                      >
+                        <FormattedMessage
+                          defaultMessage="Send final signed document to all who signed it"
+                          key="sendsigned-choice-field"
+                        />
+                      </BForm.Label>
+                      <Field
+                        name="sendsignedChoice"
+                        id="sendsigned-choice-input"
+                        data-testid="sendsigned-choice-input"
+                        className="sendsigned-choice"
+                        validate={validateSendsigned}
+                        type="checkbox"
                       />
                     </BForm.Group>
                   </div>

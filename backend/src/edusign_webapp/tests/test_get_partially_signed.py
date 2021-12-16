@@ -68,6 +68,7 @@ def _test_get_partially_signed_doc(app, environ_base, monkeypatch, sample_doc_1)
             'document': sample_doc_1,
             'owner': 'tester@example.org',
             'text': 'Dummy invitation text',
+            'sendsigned': True,
             'invites': [
                 {'name': 'invite0', 'email': 'invite0@example.org'},
                 {'name': 'invite1', 'email': 'invite1@example.org'},

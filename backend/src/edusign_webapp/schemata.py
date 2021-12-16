@@ -244,6 +244,7 @@ class MultiSignSchema(Schema):
 
     document = fields.Nested(DocumentSchemaWithKey, many=False)
     text = fields.String()
+    sendsigned = fields.Boolean()
     invites = fields.List(fields.Nested(Invitee))
     owner = fields.Email(required=True)
 
