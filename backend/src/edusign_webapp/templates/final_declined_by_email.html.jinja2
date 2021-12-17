@@ -1,0 +1,23 @@
+<html>
+<head>
+</head>
+<body>
+
+<p><strong>
+{% trans %}Message in English:{% endtrans %}
+</strong></p>
+
+<p>
+{% trans invited_email=invited_email, invited_name=invited_name, document_name=document_name %}
+{{ invited_name }} &lt;{{ invited_email }}&gt; has declined to sign document "{{ document_name }}".
+{% endtrans %}
+</p>
+
+<p>
+{% trans %}
+This is an email from eduSign, a service for secure digital signatures, developed by Sunet.
+{% endtrans %}
+<p>
+</body>
+</html>
+
