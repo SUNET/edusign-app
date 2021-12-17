@@ -629,39 +629,39 @@ def get_signed_documents(sign_data: dict) -> dict:
                     for invited in current_app.doc_store.get_pending_invites(key)
                     if invited['signed']
                 ]
-                if len(recipients) > 0:
-                    try:
-                        mail_context = {
-                            'document_name': owner['docname'],
-                        }
-                        with force_locale('en'):
-                            subject_en = gettext("\"%(docname)s\" is now signed") % {'docname': owner['docname']}
-                            body_txt_en = render_template('signed_all_email.txt.jinja2', **mail_context)
-                            body_html_en = render_template('signed_all_email.html.jinja2', **mail_context)
-                        with force_locale('sv'):
-                            subject_sv = gettext("\"%(docname)s\" is now signed") % {'docname': owner['docname']}
-                            body_txt_sv = render_template('signed_all_email.txt.jinja2', **mail_context)
-                            body_html_sv = render_template('signed_all_email.html.jinja2', **mail_context)
+                recipients.append(f"{owner['name']} <{owner['email']}>")
+                try:
+                    mail_context = {
+                        'document_name': owner['docname'],
+                    }
+                    with force_locale('en'):
+                        subject_en = gettext("\"%(docname)s\" is now signed") % {'docname': owner['docname']}
+                        body_txt_en = render_template('signed_all_email.txt.jinja2', **mail_context)
+                        body_html_en = render_template('signed_all_email.html.jinja2', **mail_context)
+                    with force_locale('sv'):
+                        subject_sv = gettext("\"%(docname)s\" is now signed") % {'docname': owner['docname']}
+                        body_txt_sv = render_template('signed_all_email.txt.jinja2', **mail_context)
+                        body_html_sv = render_template('signed_all_email.html.jinja2', **mail_context)
 
-                        # attach PDF
-                        doc_name = current_app.doc_store.get_document_name(key)
-                        signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
-                        pdf_bytes = b64decode(doc['signedContent'], validate=True)
+                    # attach PDF
+                    doc_name = current_app.doc_store.get_document_name(key)
+                    signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
+                    pdf_bytes = b64decode(doc['signedContent'], validate=True)
 
-                        sendmail(
-                            recipients,
-                            subject_en,
-                            subject_sv,
-                            body_txt_en,
-                            body_html_en,
-                            body_txt_sv,
-                            body_html_sv,
-                            attachment_name=signed_doc_name,
-                            attachment=pdf_bytes,
-                        )
+                    sendmail(
+                        recipients,
+                        subject_en,
+                        subject_sv,
+                        body_txt_en,
+                        body_html_en,
+                        body_txt_sv,
+                        body_html_sv,
+                        attachment_name=signed_doc_name,
+                        attachment=pdf_bytes,
+                    )
 
-                    except Exception as e:
-                        current_app.logger.error(f"Problem sending signed by {owner['email']} email to all invited: {e}")
+                except Exception as e:
+                    current_app.logger.error(f"Problem sending signed by {owner['email']} email to all invited: {e}")
 
             current_app.doc_store.remove_document(key)
 
@@ -873,35 +873,37 @@ def skip_final_signature(data: dict) -> dict:
                 for invited in current_app.doc_store.get_pending_invites(key)
                 if invited['signed']
             ]
-            if len(recipients) > 0:
-                mail_context = {
-                    'document_name': doc['name'],
-                }
-                with force_locale('en'):
-                    subject_en = gettext("\"%(docname)s\" is now signed") % {'docname': doc['name']}
-                    body_txt_en = render_template('signed_all_email.txt.jinja2', **mail_context)
-                    body_html_en = render_template('signed_all_email.html.jinja2', **mail_context)
-                with force_locale('sv'):
-                    subject_sv = gettext("\"%(docname)s\" is now signed") % {'docname': doc['name']}
-                    body_txt_sv = render_template('signed_all_email.txt.jinja2', **mail_context)
-                    body_html_sv = render_template('signed_all_email.html.jinja2', **mail_context)
+            owner = current_app.doc_store.get_owner_data(key)
+            recipients.append(f"{owner['name']} <{owner['email']}>")
 
-                # attach PDF
-                doc_name = current_app.doc_store.get_document_name(key)
-                signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
-                pdf_bytes = b64decode(doc['blob'], validate=True)
+            mail_context = {
+                'document_name': doc['name'],
+            }
+            with force_locale('en'):
+                subject_en = gettext("\"%(docname)s\" is now signed") % {'docname': doc['name']}
+                body_txt_en = render_template('signed_all_email.txt.jinja2', **mail_context)
+                body_html_en = render_template('signed_all_email.html.jinja2', **mail_context)
+            with force_locale('sv'):
+                subject_sv = gettext("\"%(docname)s\" is now signed") % {'docname': doc['name']}
+                body_txt_sv = render_template('signed_all_email.txt.jinja2', **mail_context)
+                body_html_sv = render_template('signed_all_email.html.jinja2', **mail_context)
 
-                sendmail(
-                    recipients,
-                    subject_en,
-                    subject_sv,
-                    body_txt_en,
-                    body_html_en,
-                    body_txt_sv,
-                    body_html_sv,
-                    attachment_name=signed_doc_name,
-                    attachment=pdf_bytes,
-                )
+            # attach PDF
+            doc_name = current_app.doc_store.get_document_name(key)
+            signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
+            pdf_bytes = b64decode(doc['blob'], validate=True)
+
+            sendmail(
+                recipients,
+                subject_en,
+                subject_sv,
+                body_txt_en,
+                body_html_en,
+                body_txt_sv,
+                body_html_sv,
+                attachment_name=signed_doc_name,
+                attachment=pdf_bytes,
+            )
         except Exception as e:
             current_app.logger.error(f'Problem sending signed document to invited users: {e}')
 
