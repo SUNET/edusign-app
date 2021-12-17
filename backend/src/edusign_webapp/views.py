@@ -588,6 +588,12 @@ def get_signed_documents(sign_data: dict) -> dict:
         if 'email' in owner and owner['email'] != session['mail']:
             current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
             current_app.doc_store.unlock_document(key, session['mail'])
+            pending = current_app.doc_store.get_pending_invites(key)
+
+            if len(pending) > 0:
+                template = 'signed_by_email'
+            else:
+                template = 'final_signed_by_email'
 
             try:
                 mail_context = {
@@ -601,15 +607,15 @@ def get_signed_documents(sign_data: dict) -> dict:
                         'name': session['displayName'],
                         'docname': owner['docname'],
                     }
-                    body_txt_en = render_template('signed_by_email.txt.jinja2', **mail_context)
-                    body_html_en = render_template('signed_by_email.html.jinja2', **mail_context)
+                    body_txt_en = render_template(f'{template}.txt.jinja2', **mail_context)
+                    body_html_en = render_template(f'{template}.html.jinja2', **mail_context)
                 with force_locale('sv'):
                     subject_sv = gettext('%(name)s signed "%(docname)s"') % {
                         'name': session['displayName'],
                         'docname': owner['docname'],
                     }
-                    body_txt_sv = render_template('signed_by_email.txt.jinja2', **mail_context)
-                    body_html_sv = render_template('signed_by_email.html.jinja2', **mail_context)
+                    body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
+                    body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
 
                 sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
@@ -933,6 +939,12 @@ def decline_invitation(data):
             )
 
         else:
+            pending = current_app.doc_store.get_pending_invites(key)
+            if len(pending) > 0:
+                template = 'declined_by_email'
+            else:
+                template = 'final_declined_by_email'
+
             recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
             mail_context = {
                 'document_name': owner_data['docname'],
@@ -944,15 +956,15 @@ def decline_invitation(data):
                     'name': owner_data['name'],
                     'docname': owner_data['docname'],
                 }
-                body_txt_en = render_template('declined_by_email.txt.jinja2', **mail_context)
-                body_html_en = render_template('declined_by_email.html.jinja2', **mail_context)
+                body_txt_en = render_template(f'{template}.txt.jinja2', **mail_context)
+                body_html_en = render_template(f'{template}.html.jinja2', **mail_context)
             with force_locale('sv'):
                 subject_sv = gettext('%(name)s declined to sign "%(docname)s"') % {
                     'name': owner_data['name'],
                     'docname': owner_data['docname'],
                 }
-                body_txt_sv = render_template('declined_by_email.txt.jinja2', **mail_context)
-                body_html_sv = render_template('declined_by_email.html.jinja2', **mail_context)
+                body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
+                body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
 
             sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
