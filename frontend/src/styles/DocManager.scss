@@ -205,21 +205,27 @@ div.selected {
   }
 }
 
-.multisign-container-lg {
+section#panel-lg {
 
-  fieldset.local-monosign-container,
-  fieldset.owned-multisign-container,
-  fieldset.invited-multisign-container {
-    width: 80%;
+  div#main-content {
+
+    fieldset.local-monosign-container,
+    fieldset.owned-multisign-container,
+    fieldset.invited-multisign-container {
+      width: 80%;
+    }
   }
 }
 
-.multisign-container-sm {
+section#panel-sm {
 
-  fieldset.local-monosign-container,
-  fieldset.owned-multisign-container,
-  fieldset.invited-multisign-container {
-    width: 100%;
+  div#main-content {
+
+    fieldset.local-monosign-container,
+    fieldset.owned-multisign-container,
+    fieldset.invited-multisign-container {
+      width: 100%;
+    }
   }
 }
 
