@@ -1,7 +1,7 @@
 {% trans %}Message in English:{% endtrans %}
 
-{% trans inviter_name_and_email=inviter_name_and_email, document_name=document_name %}
-You have been invited by {{ inviter_name_and_email }},
+{% trans inviter_name=inviter_name, inviter_email=inviter_email, document_name=document_name %}
+You have been invited by {{ inviter_name }} <{{ inviter_email }}>,
 to digitally sign a document named "{{ document_name }}".
 {% endtrans %}
 {% if text != "" %}
@@ -17,6 +17,10 @@ Follow this link to preview and sign the document:
 {% endtrans %}
 
 {{ invited_link }}
+
+{% trans %}
+If you experience problems with this service contact the local IT-department at the organisation that invited you to sign. If you are unsure how to do that please reach out to the person who invited you.
+{% endtrans %}
 
 {% trans %}
 This is an email from eduSign, a service for secure digital signatures, developed by Sunet.
