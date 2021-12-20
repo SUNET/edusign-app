@@ -709,7 +709,7 @@ def create_multi_sign_request(data: dict) -> dict:
             invited_link = url_for('edusign.get_index', _external=True)
             mail_context = {
                 'document_name': doc_name,
-                'inviter_name_and_email': f"{owner['name']} <{owner['email']}>",
+                'inviter_email': f"{owner['email']}",
                 'inviter_name': f"{owner['name']}",
                 'invited_link': invited_link,
                 'text': data['text'],
@@ -771,7 +771,7 @@ def send_multisign_reminder(data: dict) -> dict:
             invited_link = url_for('edusign.get_index', _external=True)
             mail_context = {
                 'document_name': docname,
-                'inviter_name_and_email': f"{session['displayName']} <{session['mail']}>",
+                'inviter__email': f"{session['mail']}",
                 'inviter_name': f"{session['displayName']}",
                 'invited_link': invited_link,
                 'text': 'text' in data and data['text'] or "",
