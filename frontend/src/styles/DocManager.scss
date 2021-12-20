@@ -205,12 +205,29 @@ div.selected {
   }
 }
 
+.multisign-container-lg {
+
+  fieldset.local-monosign-container,
+  fieldset.owned-multisign-container,
+  fieldset.invited-multisign-container {
+    width: 80%;
+  }
+}
+
+.multisign-container-sm {
+
+  fieldset.local-monosign-container,
+  fieldset.owned-multisign-container,
+  fieldset.invited-multisign-container {
+    width: 100%;
+  }
+}
+
 fieldset.local-monosign-container,
 fieldset.owned-multisign-container,
 fieldset.invited-multisign-container {
   border: $darker-grey solid 1px;
   border-radius: 3px;
-  width: 100%;
   padding-top: 0.6rem;
   padding-left: 0.4rem;
   padding-right: 0.4rem;
