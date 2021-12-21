@@ -586,9 +586,7 @@ def get_signed_documents(sign_data: dict) -> dict:
         sendsigned = current_app.doc_store.get_sendsigned(key)
 
         if 'email' in owner and owner['email'] != session['mail']:
-            current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
-            current_app.doc_store.unlock_document(key, session['mail'])
-            pending = current_app.doc_store.get_pending_invites(key)
+            pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
 
             if len(pending) > 0:
                 template = 'signed_by_email'
@@ -663,6 +661,15 @@ def get_signed_documents(sign_data: dict) -> dict:
                 except Exception as e:
                     current_app.logger.error(f"Problem sending signed by {owner['email']} email to all invited: {e}")
 
+    for doc in process_data['signedDocuments']:
+        key = doc['id']
+        owner = current_app.doc_store.get_owner_data(key)
+
+        if 'email' in owner and owner['email'] != session['mail']:
+            current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
+            current_app.doc_store.unlock_document(key, session['mail'])
+
+        elif owner:
             current_app.doc_store.remove_document(key)
 
         docs.append({'id': key, 'signed_content': doc['signedContent']})

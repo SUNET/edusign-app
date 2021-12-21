@@ -515,7 +515,7 @@ class DocStore(object):
             'docname': doc['name'],
         }
 
-    def get_pending_invites(self, key: uuid.UUID) -> Dict[str, Any]:
+    def get_pending_invites(self, key: uuid.UUID, exclude: str = '') -> List[Dict[str, Any]]:
         """
         Get information about the users that have been invited to sign the document identified by `key`
 
@@ -526,7 +526,10 @@ class DocStore(object):
                  + signed: Whether the user has already signed the document
                  + key: the key identifying the invite
         """
-        return self.metadata.get_invited(key)
+        invites = self.metadata.get_invited(key)
+        if exclude:
+            invites = [i for i in invites if i['email'] != exclude]
+        return invites
 
     def get_sendsigned(self, key: uuid.UUID) -> bool:
         """
