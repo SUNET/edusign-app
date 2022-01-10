@@ -75,7 +75,7 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 
 
 @anon_edusign_views.route('/', methods=['GET'])
-def get_home() -> str:
+def get_home():
     """
     View to serve the anonymous landing page.
 
@@ -114,6 +114,48 @@ def get_home() -> str:
 
     try:
         return render_template('home.jinja2', **context)
+    except AttributeError as e:
+        current_app.logger.error(f'Template rendering failed: {e}')
+        abort(500)
+
+
+@anon_edusign_views.route('/about', methods=['GET'])
+def get_about_page():
+    """
+    View to serve the anonymous about page.
+
+    The text on the page is extractd from markdown documents
+    at edusign_webapp/md/, and can be overridden with md documents at /etc/edusign.
+
+    :return: the rendered `about.jinja2` template as a string
+    """
+    current_lang = str(get_locale())
+    md_name = f"about-{current_lang}.md"
+    md_etc = os.path.join('/etc/edusign/', md_name)
+    if os.path.exists(md_etc):
+        md_file = md_etc
+    else:
+        md_file = os.path.join(current_app.config['HERE'], 'md', md_name)
+
+    with open(md_file) as f:
+        body = f.read()
+
+    for lang in current_app.config['SUPPORTED_LANGUAGES']:
+        if lang != current_lang:
+            other_lang = lang
+            break
+
+    version = pkg_resources.require('edusign-webapp')[0].version
+
+    context = {
+        'body': body,
+        'other_lang': other_lang,
+        'other_lang_name': current_app.config['SUPPORTED_LANGUAGES'][other_lang],
+        'version': version,
+    }
+
+    try:
+        return render_template('about.jinja2', **context)
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
         abort(500)

@@ -8,4 +8,4 @@ This service can be used to upload and sign PDF documents or XML documents. This
 3. Identify yourself with the appropriate SWAMID electronic ID
 4. Download signed document
 
-For more information [read more here](https://wiki.sunet.se/display/EDUSIGN).
+For more information [read more here](https://edusign.sunet.se/about).
