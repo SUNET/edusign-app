@@ -6,3 +6,9 @@
             {{ body | markdown }}
           </div>
     {% endblock %}
+
+    {% block foot_link %}
+              <a href="/">
+                {% trans %}Home{% endtrans %}
+              </a>
+    {% endblock %}

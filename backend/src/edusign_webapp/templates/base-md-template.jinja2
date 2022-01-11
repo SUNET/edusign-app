@@ -63,16 +63,27 @@ footer {
   display: flex;
   justify-content: space-between;
 }
-#lang-selector {
+#faq-and-lang {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+#lang-selector,
+#faq-link {
   padding: 1rem 2rem;
   cursor: pointer;
+}
+#faq-link a {
+  color: inherit;
+  text-decoration: none;
 }
 #app-version {
   padding: 1rem 2rem;
   font-size: .7rem;
   color: #999;
 }
-#lang-selector:hover {
+#lang-selector:hover,
+#faq-link:hover {
   text-decoration: underline;
 }
 
@@ -248,8 +259,17 @@ k/taSf8P6O12hPcQ9TcAAAAASUVORK5CYII=">
           <div id="app-version">
             {{ version }}
           </div>
-          <div id="lang-selector">
-            {{ other_lang_name }}
+          <div id="faq-and-lang">
+            <div id="faq-link">
+              {% block foot_link %}
+              <a href="/faq">
+                {% trans %}Help{% endtrans %}
+              </a>
+              {% endblock %}
+            </div>
+            <div id="lang-selector">
+              {{ other_lang_name }}
+            </div>
           </div>
         </footer>
       </div>

@@ -97,10 +97,7 @@ def get_home():
 
     base_url = f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}"
 
-    for lang in current_app.config['SUPPORTED_LANGUAGES']:
-        if lang != current_lang:
-            other_lang = lang
-            break
+    other_lang = 'en' if current_lang == 'sv' else 'sv'
 
     version = pkg_resources.require('edusign-webapp')[0].version
 
@@ -119,8 +116,8 @@ def get_home():
         abort(500)
 
 
-@anon_edusign_views.route('/about', methods=['GET'])
-def get_about_page():
+@anon_edusign_views.route('/faq', methods=['GET'])
+def get_help_page():
     """
     View to serve the anonymous about page.
 
@@ -140,10 +137,7 @@ def get_about_page():
     with open(md_file) as f:
         body = f.read()
 
-    for lang in current_app.config['SUPPORTED_LANGUAGES']:
-        if lang != current_lang:
-            other_lang = lang
-            break
+    other_lang = 'en' if current_lang == 'sv' else 'sv'
 
     version = pkg_resources.require('edusign-webapp')[0].version
 
