@@ -127,7 +127,7 @@ def get_help_page():
     :return: the rendered `about.jinja2` template as a string
     """
     current_lang = str(get_locale())
-    md_name = f"about-{current_lang}.md"
+    md_name = f"faq-{current_lang}.md"
     md_etc = os.path.join('/etc/edusign/', md_name)
     if os.path.exists(md_etc):
         md_file = md_etc
