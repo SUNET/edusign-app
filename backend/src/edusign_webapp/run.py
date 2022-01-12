@@ -97,8 +97,6 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
     app.doc_store = DocStore(app)
 
-    app.mailer = Mail(app)
-
     from edusign_webapp.views import anon_edusign_views, edusign_views
 
     app.register_blueprint(anon_edusign_views)
@@ -117,6 +115,7 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
 
 app = edusign_init_app('edusign')
+mailer = Mail(app)
 
 
 @app.babel.localeselector
