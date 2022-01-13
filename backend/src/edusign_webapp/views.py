@@ -66,8 +66,14 @@ from edusign_webapp.utils import (
     get_invitations,
     get_previous_signatures,
     prepare_document,
-    sendmail,
 )
+try:
+    import redis
+    import rq
+except ImportError:
+    from edusign_webapp.mail import sendmail_sync as sendmail
+else:
+    from edusign_webapp.mail import sendmail_async as sendmail
 
 anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
 

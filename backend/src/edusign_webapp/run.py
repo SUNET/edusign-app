@@ -38,6 +38,8 @@ from flask_babel import Babel
 from flask_cors import CORS
 from flask_mail import Mail
 from flask_misaka import Misaka
+import redis
+from rq import Worker, Queue, Connection
 from werkzeug.wrappers import Response
 
 from edusign_webapp.api_client import APIClient
@@ -97,6 +99,8 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
     app.doc_store = DocStore(app)
 
+    app.mailer = Mail(app)
+
     from edusign_webapp.views import anon_edusign_views, edusign_views
 
     app.register_blueprint(anon_edusign_views)
@@ -111,11 +115,18 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
     app.logger.info(f'Init {name} app...')
 
+    redis_url = app.config.get('REDIS_URL', 'redis://localhost:6379/0')
+
+    app.redis_conn = redis.from_url(redis_url)
+
+    app.mail_queue = Queue(connection=app.redis_conn)
+
     return app
 
 
 app = edusign_init_app('edusign')
-mailer = Mail(app)
+
+listen = ['default']
 
 
 @app.babel.localeselector
@@ -128,40 +139,8 @@ def get_locale():
     return request.accept_languages.best_match(app.config.get('SUPPORTED_LANGUAGES'))
 
 
-class LoggingMiddleware(object):
-    """
-    Flask middleware to log every request and response,
-    activated in debug mode.
-    """
-
-    def __init__(self, app: EduSignApp):
-        """
-        :param app: The Flask app
-        """
-        self._app = app
-
-    def __call__(self, env: dict, resp: Callable) -> Response:
-        """
-        WSGI Call.
-
-        :param env: the WSGI environ
-        :param resp: The WSGI start_response callback
-        :return: Response
-        """
-        errorlog = env['wsgi.errors']
-        pprint.pprint(('REQUEST', env), stream=errorlog)
-
-        def log_response(status, headers, *args):
-            pprint.pprint(('RESPONSE', status, headers), stream=errorlog)
-            return resp(status, headers, *args)
-
-        return self._app(env, log_response)
-
-
 if __name__ == '__main__':
-    app.logger.info('Starting edusign app...')
 
-    if app.config['DEBUG']:
-        app.wsgi_app = LoggingMiddleware(app.wsgi_app)  # type: ignore
-
-    app.run()
+    with Connection(app.redis_conn):
+        worker = Worker(list(map(Queue, listen)))
+        worker.work()

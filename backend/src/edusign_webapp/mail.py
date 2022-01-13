@@ -1,8 +1,7 @@
 from flask import current_app
 from flask_babel import get_locale
 from flask_mail import Message
-
-from edusign_webapp.run import mailer
+from rq import Queue
 
 
 def compose_message(
@@ -67,17 +66,12 @@ def sendmail_sync(
 
     current_app.logger.debug(f"Email to be sent:\n\n{msg}\n\n")
 
-    mailer.send(msg)
+    current_app.mailer.send(msg)
 
 
-def sendmail_async(
-    recipients,
-    subject_en,
-    subject_sv,
-    body_txt_en,
-    body_html_en,
-    body_txt_sv,
-    body_html_sv,
-    attachment_name='',
-    attachment='',
-):
+def sendmail_async(*args, **kwargs):
+    job = current_app.mail_queue.enqueue_call(
+        func=sendmail_sync, args=args, kwargs=kwargs, result_ttl=5000
+    )
+    current_app.logger.debug(f"Queued message:\n  args: {args}\n  kwargs: {kwargs}")
+    return job
