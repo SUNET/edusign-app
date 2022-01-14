@@ -558,7 +558,7 @@ class SqliteMD(ABCMetadata):
         """
         document_result = self._db_query(DOCUMENT_QUERY_ALL, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
-            self.logger.error(f"Trying to find a non-existing document with key {key}")
+            self.logger.debug(f"Trying to find a non-existing document with key {key}")
             return {}
 
         return document_result
@@ -700,7 +700,7 @@ class SqliteMD(ABCMetadata):
         """
         document_result = self._db_query(DOCUMENT_QUERY_SENDSIGNED, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
-            self.logger.error(f"Trying to find a non-existing document with key {key}")
+            self.logger.debug(f"Trying to find a non-existing document with key {key}")
             return True
 
         return bool(document_result['sendsigned'])
