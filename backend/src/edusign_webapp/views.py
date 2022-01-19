@@ -67,13 +67,7 @@ from edusign_webapp.utils import (
     get_previous_signatures,
     prepare_document,
 )
-try:
-    import redis
-    import rq
-except ImportError:
-    from edusign_webapp.mail import sendmail_sync as sendmail
-else:
-    from edusign_webapp.mail import sendmail_async as sendmail
+from edusign_webapp.mail import BulkMailer, sendmail_async as sendmail
 
 anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
 
@@ -621,12 +615,9 @@ def get_signed_documents(sign_data: dict) -> dict:
         # XXX translate
         return {'error': True, 'message': process_data['message']}
 
-    async def queue_mail(*args, **kwargs):
-        return sendmail(*args, **kwargs)
+    mailer = BulkMailer()
 
     docs = []
-    loop = asyncio.new_event_loop()
-    tasks = []
     for doc in process_data['signedDocuments']:
         key = doc['id']
         owner = current_app.doc_store.get_owner_data(key)
@@ -662,8 +653,7 @@ def get_signed_documents(sign_data: dict) -> dict:
                     body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
                     body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
 
-                task = loop.create_task(queue_mail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv))
-                tasks.append(task)
+                mailer.add(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
             except Exception as e:
                 current_app.logger.error(f"Problem sending signed by {session['email']} email to {owner['email']}: {e}")
@@ -694,7 +684,7 @@ def get_signed_documents(sign_data: dict) -> dict:
                     signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
                     pdf_bytes = b64decode(doc['signedContent'], validate=True)
 
-                    task = loop.create_task(queue_mail(
+                    mailer.add(
                         recipients,
                         subject_en,
                         subject_sv,
@@ -704,15 +694,13 @@ def get_signed_documents(sign_data: dict) -> dict:
                         body_html_sv,
                         attachment_name=signed_doc_name,
                         attachment=pdf_bytes,
-                    ))
-                    tasks.append(task)
+                    )
 
                 except Exception as e:
                     current_app.logger.error(f"Problem sending signed by {owner['email']} email to all invited: {e}")
 
-    if len(tasks) > 0:
-        loop.run_until_complete(asyncio.wait(tasks))
-    loop.close()
+    if len(mailer.jobs) > 0:
+        mailer.send()
 
     for doc in process_data['signedDocuments']:
         key = doc['id']
