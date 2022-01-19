@@ -1,3 +1,5 @@
+from time import time
+
 from flask import current_app
 from flask_babel import get_locale
 from flask_mail import Message
@@ -75,3 +77,17 @@ def sendmail_async(*args, **kwargs):
     )
     current_app.logger.debug(f"Queued message:\n  args: {args}\n  kwargs: {kwargs}")
     return job
+
+
+class BulkMailer:
+
+    def __init__(self):
+        self.jobs = []
+
+    def add(self, *args, **kwargs):
+        self.jobs.append(Queue.prepare_data(sendmail_sync, *args, job_id=str(time()), **kwargs))
+
+    def send(self):
+        with current_app.mail_queue.connection.pipeline() as pipe:
+            current_app.mail_queue.enqueue_many(self.jobs, pipeline=pipe)
+            pipe.execute()

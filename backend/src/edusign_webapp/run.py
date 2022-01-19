@@ -29,18 +29,16 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import pprint
 from importlib import import_module
-from typing import Callable, Optional
+from typing import Optional
 
-from flask import Flask, current_app, request
+from flask import Flask, request
 from flask_babel import Babel
 from flask_cors import CORS
 from flask_mail import Mail
 from flask_misaka import Misaka
 import redis
 from rq import Worker, Queue, Connection
-from werkzeug.wrappers import Response
 
 from edusign_webapp.api_client import APIClient
 from edusign_webapp.doc_store import DocStore
@@ -115,18 +113,31 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
     app.logger.info(f'Init {name} app...')
 
-    redis_url = app.config.get('REDIS_URL', 'redis://localhost:6379/0')
-
-    app.redis_conn = redis.from_url(redis_url)
-
-    app.mail_queue = Queue(connection=app.redis_conn)
+    app.mail_queue = get_mail_queue()
 
     return app
 
 
-app = edusign_init_app('edusign')
+redis_conn = None
 
-listen = ['default']
+
+def get_redis_conn():
+    global redis_conn
+    if redis_conn is None:
+        from edusign_webapp import config
+        redis_url = getattr(config, 'REDIS_URL', 'redis://localhost:6379/0')
+        redis_conn = redis.from_url(redis_url)
+
+    return redis_conn
+
+
+def get_mail_queue():
+    redis_conn = get_redis_conn()
+    mail_queue = Queue(connection=redis_conn)
+    return mail_queue
+
+
+app = edusign_init_app('edusign')
 
 
 @app.babel.localeselector
@@ -137,10 +148,3 @@ def get_locale():
     if 'lang' in request.cookies:
         return request.cookies.get('lang')
     return request.accept_languages.best_match(app.config.get('SUPPORTED_LANGUAGES'))
-
-
-if __name__ == '__main__':
-
-    with Connection(app.redis_conn):
-        worker = Worker(list(map(Queue, listen)))
-        worker.work()
