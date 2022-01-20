@@ -29,16 +29,16 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import pprint
 from importlib import import_module
-from typing import Callable, Optional
+from typing import Optional
 
-from flask import Flask, current_app, request
+from flask import Flask, request
 from flask_babel import Babel
 from flask_cors import CORS
 from flask_mail import Mail
 from flask_misaka import Misaka
-from werkzeug.wrappers import Response
+import redis
+from rq import Worker, Queue, Connection
 
 from edusign_webapp.api_client import APIClient
 from edusign_webapp.doc_store import DocStore
@@ -113,7 +113,28 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
     app.logger.info(f'Init {name} app...')
 
+    app.mail_queue = get_mail_queue()
+
     return app
+
+
+redis_conn = None
+
+
+def get_redis_conn():
+    global redis_conn
+    if redis_conn is None:
+        from edusign_webapp import config
+        redis_url = getattr(config, 'REDIS_URL', 'redis://localhost:6379/0')
+        redis_conn = redis.from_url(redis_url)
+
+    return redis_conn
+
+
+def get_mail_queue():
+    redis_conn = get_redis_conn()
+    mail_queue = Queue(connection=redis_conn)
+    return mail_queue
 
 
 app = edusign_init_app('edusign')
@@ -127,42 +148,3 @@ def get_locale():
     if 'lang' in request.cookies:
         return request.cookies.get('lang')
     return request.accept_languages.best_match(app.config.get('SUPPORTED_LANGUAGES'))
-
-
-class LoggingMiddleware(object):
-    """
-    Flask middleware to log every request and response,
-    activated in debug mode.
-    """
-
-    def __init__(self, app: EduSignApp):
-        """
-        :param app: The Flask app
-        """
-        self._app = app
-
-    def __call__(self, env: dict, resp: Callable) -> Response:
-        """
-        WSGI Call.
-
-        :param env: the WSGI environ
-        :param resp: The WSGI start_response callback
-        :return: Response
-        """
-        errorlog = env['wsgi.errors']
-        pprint.pprint(('REQUEST', env), stream=errorlog)
-
-        def log_response(status, headers, *args):
-            pprint.pprint(('RESPONSE', status, headers), stream=errorlog)
-            return resp(status, headers, *args)
-
-        return self._app(env, log_response)
-
-
-if __name__ == '__main__':
-    app.logger.info('Starting edusign app...')
-
-    if app.config['DEBUG']:
-        app.wsgi_app = LoggingMiddleware(app.wsgi_app)  # type: ignore
-
-    app.run()
