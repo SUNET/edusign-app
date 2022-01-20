@@ -24,8 +24,10 @@ inkluderar det forskning och högre utbildning inom Europa.
 
 För att kunna ladda upp och signera dokument själv eller bjuda in andra att
 signera dokument krävs att den organisation du har ett användarkonto hos har
-ett avtal med Sunet att använda tjänsten eduSign. För att signera dokument som
-du har blivit inbjuden att signera krävs inget avtal med Sunet. 
+ett avtal med Sunet att använda tjänsten eduSign.
+
+För att signera dokument som du har blivit inbjuden att signera krävs inget
+avtal med Sunet. 
 
 ## Hur använder jag eduSign?
 

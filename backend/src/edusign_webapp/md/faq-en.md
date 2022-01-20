@@ -27,8 +27,10 @@ Europe.
 
 To be able to upload and sign your own documents or invite others to sign your
 documents the organisation you are part of needs to have a contract with Sunet
-to use eduSign. To sign documents that you are invited to sign there is no need
-for a contract to use the service.
+to use eduSign.
+
+To sign documents that you are invited to sign there is no need for a contract
+to use the service.
 
 ## How do I use eduSign?
 

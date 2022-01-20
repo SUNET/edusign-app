@@ -119,6 +119,15 @@ button:hover {
         {% block body %}{% endblock %}
       </section>
       <footer id="footer">
+        <div id="faq-and-lang">
+          <div id="faq-link">
+            {% block foot_link %}
+            <a href="/faq">
+              {% trans %}Help{% endtrans %}
+            </a>
+            {% endblock %}
+          </div>
+        </div>
       </footer>
     </div>
   </body>
