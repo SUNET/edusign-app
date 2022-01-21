@@ -619,7 +619,7 @@ def get_signed_documents(sign_data: dict) -> dict:
 
         if 'email' in owner and owner['email'] != session['mail']:
             pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
-            pending = [p for p in pending if not p['signed']]
+            pending = [p for p in pending if not p['signed'] and not p['declined']]
 
             if len(pending) > 0:
                 template = 'signed_by_email'
@@ -989,7 +989,7 @@ def decline_invitation(data):
 
         else:
             pending = current_app.doc_store.get_pending_invites(key)
-            pending = [p for p in pending if not p['signed']]
+            pending = [p for p in pending if not p['signed'] and not p['declined']]
             if len(pending) > 0:
                 template = 'declined_by_email'
             else:
