@@ -206,22 +206,11 @@ def get_index() -> str:
         )
         return render_template('error-generic.jinja2', **context)
     except ValueError:
-        invites = get_invitations()
-        if len(invites['pending_multisign']) > 0:
-            current_app.logger.debug(f"Authorizing non-whitelisted invited user, has invitations: {invites}")
-            unauthn = True
-        else:
-            current_app.logger.debug(f"Not authorizing non-whitelisted invited user, has no invitations: {invites}")
-            context['title'] = gettext("No documents to sign")
-            context['message'] = gettext(
-                'You are currently not invited to sign any documents. The organization/identity provider you are affiliated with does not have permission to upload your own documents into eduSign to sign. Please contact your IT-department if you would like to be able to sign your own documents or invite others to sign your documents.'
-            )
-            return render_template('error-generic.jinja2', **context)
+        current_app.logger.debug(f"Non-whitelisted user accessing")
+        unauthn = True
 
-    if 'invited-unauthn' in session:
-        invites = get_invitations()
-        if len(invites['pending_multisign']) > 0:
-            unauthn = True
+    if 'invited-unauthn' in session and session['invited-unauthn']:
+        unauthn = True
 
     session['invited-unauthn'] = unauthn
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
@@ -998,6 +987,7 @@ def decline_invitation(data):
 
         else:
             pending = current_app.doc_store.get_pending_invites(key)
+            pending = [p for p in pending if not p['signed']]
             if len(pending) > 0:
                 template = 'declined_by_email'
             else:
