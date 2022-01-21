@@ -206,11 +206,13 @@ def get_index() -> str:
         )
         return render_template('error-generic.jinja2', **context)
     except ValueError:
-        current_app.logger.debug(f"Non-whitelisted user accessing")
+        current_app.logger.debug(f"Authorizing non-whitelisted invited user, has invitations: {invites}")
         unauthn = True
 
-    if 'invited-unauthn' in session and session['invited-unauthn']:
-        unauthn = True
+    if 'invited-unauthn' in session:
+        invites = get_invitations()
+        if len(invites['pending_multisign']) > 0:
+            unauthn = True
 
     session['invited-unauthn'] = unauthn
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
@@ -337,7 +339,8 @@ def create_sign_request(documents: dict) -> dict:
              or information about some error obtained in the process.
     """
     if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
-        return {'error': True, 'message': gettext('Unauthorized')}
+        if not session['invited-unauthn']:
+            return {'error': True, 'message': gettext('Unauthorized')}
 
     current_app.logger.debug(f'Data gotten in create view: {documents}')
     try:
