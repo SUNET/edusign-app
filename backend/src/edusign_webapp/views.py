@@ -988,7 +988,7 @@ def decline_invitation(data):
             )
 
         else:
-            pending = current_app.doc_store.get_pending_invites(key)
+            pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
             pending = [p for p in pending if not p['signed'] and not p['declined']]
             if len(pending) > 0:
                 template = 'declined_by_email'
