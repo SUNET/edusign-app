@@ -1,6 +1,6 @@
 {
   "name": "edusign-front",
-  "version": "1.0.3rc17",
+  "version": "1.0.3rc18",
   "description": "",
   "browser": "src/entry-points/index.js",
   "scripts": {
