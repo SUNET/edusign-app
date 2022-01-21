@@ -206,7 +206,7 @@ def get_index() -> str:
         )
         return render_template('error-generic.jinja2', **context)
     except ValueError:
-        current_app.logger.debug(f"Authorizing non-whitelisted invited user, has invitations: {invites}")
+        current_app.logger.debug("Authorizing non-whitelisted user")
         unauthn = True
 
     if 'invited-unauthn' in session:
