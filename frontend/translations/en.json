@@ -46,7 +46,7 @@
   "components.InviteForm.rm-invitation-tootip": "Remove this entry from invitation",
   "components.InviteForm.send-invitation-tootip": "Send invitations to sign to indicated people",
   "components.InviteForm.send-invite": "Invite",
-  "components.InviteForm.sendsigned-choice-field": "Send final signed document to all who signed it",
+  "components.InviteForm.sendsigned-choice-field": "Send final signed document via email to all who signed it",
   "components.Invited.invited-by": "Invited by:",
   "components.Invited.multisign-owned-declined": "Declined to sign by:",
   "components.Invited.multisign-signed": "Signed by:",

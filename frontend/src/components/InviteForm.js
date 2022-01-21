@@ -141,7 +141,7 @@ class InviteForm extends React.Component {
                         htmlFor="sendsigned-choice-input"
                       >
                         <FormattedMessage
-                          defaultMessage="Send final signed document to all who signed it"
+                          defaultMessage="Send final signed document via email to all who signed it"
                           key="sendsigned-choice-field"
                         />
                       </BForm.Label>
