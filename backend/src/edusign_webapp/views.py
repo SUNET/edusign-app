@@ -607,6 +607,7 @@ def get_signed_documents(sign_data: dict) -> dict:
         return {'error': True, 'message': process_data['message']}
 
     current_lang = str(get_locale())
+    sender = current_app.config["MAIL_DEFAULT_SENDER"]
     mailer = BulkMailer()
 
     docs = []
@@ -646,7 +647,7 @@ def get_signed_documents(sign_data: dict) -> dict:
                     body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
                     body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
 
-                mailer.add(current_lang, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+                mailer.add(current_lang, sender, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
             except Exception as e:
                 current_app.logger.error(f"Problem sending signed by {session['email']} email to {owner['email']}: {e}")
@@ -678,7 +679,8 @@ def get_signed_documents(sign_data: dict) -> dict:
                     pdf_bytes = b64decode(doc['signedContent'], validate=True)
 
                     mailer.add(
-                        current_lang, 
+                        current_lang,
+                        sender,
                         recipients,
                         subject_en,
                         subject_sv,
@@ -769,7 +771,8 @@ def create_multi_sign_request(data: dict) -> dict:
                 body_html_sv = render_template('invitation_email.html.jinja2', **mail_context_html)
 
             current_lang = str(get_locale())
-            sendmail(current_lang, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+            sender = current_app.config["MAIL_DEFAULT_SENDER"]
+            sendmail(current_lang, sender, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
         except Exception as e:
             current_app.doc_store.remove_document(uuid.UUID(data['document']['key']), force=True)
@@ -832,7 +835,8 @@ def send_multisign_reminder(data: dict) -> dict:
                 body_html_sv = render_template('reminder_email.html.jinja2', **mail_context_html)
 
             current_lang = str(get_locale())
-            sendmail(current_lang, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+            sender = current_app.config["MAIL_DEFAULT_SENDER"]
+            sendmail(current_lang, sender, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
         except Exception as e:
             current_app.logger.error(f'Problem sending reminder email: {e}')
@@ -939,8 +943,10 @@ def skip_final_signature(data: dict) -> dict:
             pdf_bytes = b64decode(doc['blob'], validate=True)
 
             current_lang = str(get_locale())
+            sender = current_app.config["MAIL_DEFAULT_SENDER"]
             sendmail(
                 current_lang,
+                sender,
                 recipients,
                 subject_en,
                 subject_sv,
@@ -1017,7 +1023,8 @@ def decline_invitation(data):
                 body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
 
             current_lang = str(get_locale())
-            sendmail(current_lang, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+            sender = current_app.config["MAIL_DEFAULT_SENDER"]
+            sendmail(current_lang, sender, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
     except Exception as e:
         current_app.logger.error(f'Problem sending email of declination: {e}')
