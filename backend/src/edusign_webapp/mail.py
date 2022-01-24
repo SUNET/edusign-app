@@ -7,6 +7,7 @@ from rq import Queue
 
 
 def compose_message(
+    lang,
     recipients,
     subject_en,
     subject_sv,
@@ -29,7 +30,7 @@ def compose_message(
             'body_html': body_html_sv,
         },
     }
-    first = str(get_locale())
+    first = lang
     second = first == 'sv' and 'en' or 'sv'
 
     subject = f"{mail[first]['subject']} / {mail[second]['subject']}"
@@ -44,6 +45,7 @@ def compose_message(
 
 
 def sendmail_sync(
+    lang,
     recipients,
     subject_en,
     subject_sv,
@@ -55,6 +57,7 @@ def sendmail_sync(
     attachment='',
 ):
     msg = compose_message(
+        lang,
         recipients,
         subject_en,
         subject_sv,
