@@ -92,7 +92,7 @@ class BulkMailer:
         self.jobs = []
 
     def add(self, *args, **kwargs):
-        self.jobs.append(Queue.prepare_data(sendmail_sync, *args, job_id=str(time()), **kwargs))
+        self.jobs.append(Queue.prepare_data(sendmail_sync, args=args, kwargs=kwargs, job_id=str(time())))
 
     def send(self):
         with current_app.mail_queue.connection.pipeline() as pipe:

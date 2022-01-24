@@ -650,7 +650,7 @@ def get_signed_documents(sign_data: dict) -> dict:
                 mailer.add(current_lang, sender, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
             except Exception as e:
-                current_app.logger.error(f"Problem sending signed by {session['email']} email to {owner['email']}: {e}")
+                current_app.logger.error(f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}")
 
         elif owner:
             if sendsigned:
