@@ -5,8 +5,6 @@ from flask_babel import get_locale
 from flask_mail import Message
 from rq import Queue
 
-from edusign_webapp.run import app
-
 
 def compose_message(
     lang,
@@ -73,6 +71,8 @@ def sendmail_sync(
         attachment_name=attachment_name,
         attachment=attachment,
     )
+    from edusign_webapp.run import app
+
     with app.app_context():
         current_app.logger.debug(f"Email to be sent:\n\n{msg}\n\n")
         current_app.mailer.send(msg)
