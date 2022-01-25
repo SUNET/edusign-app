@@ -86,7 +86,7 @@ def error_callback(job, connection, type, value, traceback):
 
 def sendmail_async(*args, **kwargs):
     job = current_app.mail_queue.enqueue_call(
-        func=sendmail_sync, args=args, kwargs=kwargs, result_ttl=5000, on_error=error_callback
+        func=sendmail_sync, args=args, kwargs=kwargs, result_ttl=5000, on_failure=error_callback
     )
     current_app.logger.debug(f"Queued message:\n  args: {args}\n  kwargs: {kwargs}")
     return job
@@ -121,5 +121,5 @@ class BulkMailer:
     def send(self):
         with current_app.mail_queue.connection.pipeline() as pipe:
             current_app.mail_queue.enqueue_many(self.jobs, pipeline=pipe)
-            current_app.mail_queue.enqueue(bulk_callback, pipeline=pipe)
+            current_app.mail_queue.enqueue(bulk_callback, depends_on=self.mail_job_ids, pipeline=pipe)
             pipe.execute()
