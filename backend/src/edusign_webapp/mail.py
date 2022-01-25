@@ -3,7 +3,7 @@ from time import time
 from flask import current_app
 from flask_babel import get_locale
 from flask_mail import Message
-from rq import Queue
+from rq import Queue, current_job
 
 
 def compose_message(
@@ -78,23 +78,48 @@ def sendmail_sync(
         current_app.mailer.send(msg)
 
 
+def error_callback(job, connection, type, value, traceback):
+    from edusign_webapp.run import app
+    with app.app_context():
+        current_app.logger.error(f"Problem with email {job.id}: {value} ({type})\n{traceback}")
+
+
 def sendmail_async(*args, **kwargs):
     job = current_app.mail_queue.enqueue_call(
-        func=sendmail_sync, args=args, kwargs=kwargs, result_ttl=5000
+        func=sendmail_sync, args=args, kwargs=kwargs, result_ttl=5000, on_error=error_callback
     )
     current_app.logger.debug(f"Queued message:\n  args: {args}\n  kwargs: {kwargs}")
     return job
+
+
+def bulk_callback():
+    from edusign_webapp.run import app
+    current_job = get_current_job(current_app.mail_queue.connection)
+    failed = []
+    for job_id in current_job.dependency_ids:
+        job = current_app.mail_queue.fetch_job(job_id)
+        if job.is_failed:
+            failed.append(job)
+
+    if len(failed) > 0:
+        with app.app_context():
+            for job in failed:
+                current_app.logger.error(f"Problem with bulk email {job}")
 
 
 class BulkMailer:
 
     def __init__(self):
         self.jobs = []
+        self.mail_job_ids = []
 
     def add(self, *args, **kwargs):
-        self.jobs.append(Queue.prepare_data(sendmail_sync, args=args, kwargs=kwargs, job_id=str(time())))
+        job_id = str(time())
+        self.mail_job_ids.append(job_id)
+        self.jobs.append(Queue.prepare_data(sendmail_sync, args=args, kwargs=kwargs, job_id=job_id))
 
     def send(self):
         with current_app.mail_queue.connection.pipeline() as pipe:
             current_app.mail_queue.enqueue_many(self.jobs, pipeline=pipe)
+            current_app.mail_queue.enqueue(bulk_callback, pipeline=pipe)
             pipe.execute()
