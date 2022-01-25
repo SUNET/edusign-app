@@ -92,22 +92,6 @@ def sendmail_async(*args, **kwargs):
     return job
 
 
-def bulk_callback():
-    from edusign_webapp.run import app
-
-    current_job = get_current_job(current_app.mail_queue.connection)
-    failed = []
-    for job_id in current_job.dependency_ids:
-        job = current_app.mail_queue.fetch_job(job_id)
-        if job.is_failed:
-            failed.append(job)
-
-    if len(failed) > 0:
-        with app.app_context():
-            for job in failed:
-                current_app.logger.error(f"Problem with bulk email {job}")
-
-
 class BulkMailer:
     def __init__(self):
         self.jobs = []
@@ -116,10 +100,10 @@ class BulkMailer:
     def add(self, *args, **kwargs):
         job_id = str(time())
         self.mail_job_ids.append(job_id)
-        self.jobs.append(Queue.prepare_data(sendmail_sync, args=args, kwargs=kwargs, job_id=job_id))
+        self.jobs.append({'f': sendmail_sync, 'args': args, 'kwargs': kwargs, 'job_id': job_id})
 
     def send(self):
         with current_app.mail_queue.connection.pipeline() as pipe:
-            current_app.mail_queue.enqueue_many(self.jobs, pipeline=pipe)
-            current_app.mail_queue.enqueue(bulk_callback, depends_on=self.mail_job_ids, pipeline=pipe)
+            for job in self.jobs:
+                current_app.mail_queue.enqueue(job['f'], on_failure=error_callback, pipeline=pipe, **job)
             pipe.execute()
