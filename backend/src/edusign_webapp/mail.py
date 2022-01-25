@@ -95,11 +95,9 @@ def sendmail_async(*args, **kwargs):
 class BulkMailer:
     def __init__(self):
         self.jobs = []
-        self.mail_job_ids = []
 
     def add(self, *args, **kwargs):
         job_id = str(time())
-        self.mail_job_ids.append(job_id)
         self.jobs.append({'f': sendmail_sync, 'args': args, 'kwargs': kwargs, 'job_id': job_id})
 
     def send(self):
