@@ -1,9 +1,8 @@
 from time import time
 
 from flask import current_app
-from flask_babel import get_locale
 from flask_mail import Message
-from rq import Queue, current_job
+from rq import Queue, get_current_job
 
 
 def compose_message(
@@ -80,6 +79,7 @@ def sendmail_sync(
 
 def error_callback(job, connection, type, value, traceback):
     from edusign_webapp.run import app
+
     with app.app_context():
         current_app.logger.error(f"Problem with email {job.id}: {value} ({type})\n{traceback}")
 
@@ -94,6 +94,7 @@ def sendmail_async(*args, **kwargs):
 
 def bulk_callback():
     from edusign_webapp.run import app
+
     current_job = get_current_job(current_app.mail_queue.connection)
     failed = []
     for job_id in current_job.dependency_ids:
@@ -108,7 +109,6 @@ def bulk_callback():
 
 
 class BulkMailer:
-
     def __init__(self):
         self.jobs = []
         self.mail_job_ids = []

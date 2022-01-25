@@ -333,7 +333,14 @@ class RedisMD(ABCMetadata):
         client.init_app(app)
         self.client = RedisStorageBackend(client)
 
-    def add(self, key: uuid.UUID, document: Dict[str, Any], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool):
+    def add(
+        self,
+        key: uuid.UUID,
+        document: Dict[str, Any],
+        owner: Dict[str, str],
+        invites: List[Dict[str, str]],
+        sendsigned: bool,
+    ):
         """
         Store metadata for a new document.
 

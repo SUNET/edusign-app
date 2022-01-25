@@ -44,6 +44,8 @@ from flask_babel import force_locale, get_locale, gettext
 from flask_mail import Message
 from werkzeug.wrappers import Response
 
+from edusign_webapp.mail import BulkMailer
+from edusign_webapp.mail import sendmail_async as sendmail
 from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
     BlobSchema,
@@ -61,13 +63,7 @@ from edusign_webapp.schemata import (
     ToRestartSigningSchema,
     ToSignSchema,
 )
-from edusign_webapp.utils import (
-    add_attributes_to_session,
-    get_invitations,
-    get_previous_signatures,
-    prepare_document,
-)
-from edusign_webapp.mail import BulkMailer, sendmail_async as sendmail
+from edusign_webapp.utils import add_attributes_to_session, get_invitations, get_previous_signatures, prepare_document
 
 anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
 
@@ -647,7 +643,17 @@ def get_signed_documents(sign_data: dict) -> dict:
                     body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
                     body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
 
-                mailer.add(current_lang, sender, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+                mailer.add(
+                    current_lang,
+                    sender,
+                    recipients,
+                    subject_en,
+                    subject_sv,
+                    body_txt_en,
+                    body_html_en,
+                    body_txt_sv,
+                    body_html_sv,
+                )
 
             except Exception as e:
                 current_app.logger.error(f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}")
@@ -772,7 +778,17 @@ def create_multi_sign_request(data: dict) -> dict:
 
             current_lang = str(get_locale())
             sender = current_app.config["MAIL_DEFAULT_SENDER"]
-            sendmail(current_lang, sender, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+            sendmail(
+                current_lang,
+                sender,
+                recipients,
+                subject_en,
+                subject_sv,
+                body_txt_en,
+                body_html_en,
+                body_txt_sv,
+                body_html_sv,
+            )
 
         except Exception as e:
             current_app.doc_store.remove_document(uuid.UUID(data['document']['key']), force=True)
@@ -836,7 +852,17 @@ def send_multisign_reminder(data: dict) -> dict:
 
             current_lang = str(get_locale())
             sender = current_app.config["MAIL_DEFAULT_SENDER"]
-            sendmail(current_lang, sender, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+            sendmail(
+                current_lang,
+                sender,
+                recipients,
+                subject_en,
+                subject_sv,
+                body_txt_en,
+                body_html_en,
+                body_txt_sv,
+                body_html_sv,
+            )
 
         except Exception as e:
             current_app.logger.error(f'Problem sending reminder email: {e}')
@@ -1024,7 +1050,17 @@ def decline_invitation(data):
 
             current_lang = str(get_locale())
             sender = current_app.config["MAIL_DEFAULT_SENDER"]
-            sendmail(current_lang, sender, recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+            sendmail(
+                current_lang,
+                sender,
+                recipients,
+                subject_en,
+                subject_sv,
+                body_txt_en,
+                body_html_en,
+                body_txt_sv,
+                body_html_sv,
+            )
 
     except Exception as e:
         current_app.logger.error(f'Problem sending email of declination: {e}')

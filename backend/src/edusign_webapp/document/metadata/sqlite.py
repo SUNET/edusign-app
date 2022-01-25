@@ -88,7 +88,9 @@ PRAGMA user_version = 2;
 USER_INSERT = "INSERT INTO Users (name, email) VALUES (?, ?);"
 USER_QUERY_ID = "SELECT user_id FROM Users WHERE email = ?;"
 USER_QUERY = "SELECT name, email FROM Users WHERE user_id = ?;"
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner, prev_signatures, sendsigned) VALUES (?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT = (
+    "INSERT INTO Documents (key, name, size, type, owner, prev_signatures, sendsigned) VALUES (?, ?, ?, ?, ?, ?, ?);"
+)
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOCK = "SELECT locked, locked_by FROM Documents WHERE doc_id = ?;"
@@ -193,7 +195,14 @@ class SqliteMD(ABCMetadata):
         db = get_db(self.db_path)
         db.commit()
 
-    def add(self, key: uuid.UUID, document: Dict[str, Any], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool):
+    def add(
+        self,
+        key: uuid.UUID,
+        document: Dict[str, Any],
+        owner: Dict[str, str],
+        invites: List[Dict[str, str]],
+        sendsigned: bool,
+    ):
         """
         Store metadata for a new document.
 
@@ -222,7 +231,8 @@ class SqliteMD(ABCMetadata):
         prev_sigs = document.get("prev_signatures", "")
 
         self._db_execute(
-            DOCUMENT_INSERT, (str(key), document['name'], document['size'], document['type'], owner_id, prev_sigs, sendsigned)
+            DOCUMENT_INSERT,
+            (str(key), document['name'], document['size'], document['type'], owner_id, prev_sigs, sendsigned),
         )
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
 

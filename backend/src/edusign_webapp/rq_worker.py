@@ -1,8 +1,6 @@
-
 from rq import Connection, Queue, Worker
 
 from edusign_webapp.run import get_redis_conn
-
 
 if __name__ == '__main__':
 

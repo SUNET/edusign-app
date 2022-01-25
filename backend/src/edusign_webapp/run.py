@@ -32,13 +32,13 @@
 from importlib import import_module
 from typing import Optional
 
+import redis
 from flask import Flask, request
 from flask_babel import Babel
 from flask_cors import CORS
 from flask_mail import Mail
 from flask_misaka import Misaka
-import redis
-from rq import Worker, Queue, Connection
+from rq import Connection, Queue, Worker
 
 from edusign_webapp.api_client import APIClient
 from edusign_webapp.doc_store import DocStore
@@ -125,6 +125,7 @@ def get_redis_conn():
     global redis_conn
     if redis_conn is None:
         from edusign_webapp import config
+
         redis_url = getattr(config, 'REDIS_URL', 'redis://localhost:6379/0')
         redis_conn = redis.from_url(redis_url)
 
