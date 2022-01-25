@@ -103,5 +103,5 @@ class BulkMailer:
     def send(self):
         with current_app.mail_queue.connection.pipeline() as pipe:
             for job in self.jobs:
-                current_app.mail_queue.enqueue(job['f'], on_failure=error_callback, pipeline=pipe, **job)
+                current_app.mail_queue.enqueue_call(job['f'], on_failure=error_callback, pipeline=pipe, **job)
             pipe.execute()
