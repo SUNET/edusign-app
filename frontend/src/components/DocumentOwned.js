@@ -72,6 +72,82 @@ class DocumentOwned extends Component {
   }
   render() {
     const doc = this.props.doc;
+    const pending = (
+      <div className="doc-container-pending-row">
+        <span className="pending-invites-label">
+          <FormattedMessage
+            defaultMessage="Waiting for signatures by:"
+            key="multisign-owned-waiting"
+          />
+        </span>
+        <span className="pending-invites-items">
+          {doc.pending.map((invite, index) => {
+            return (
+              <span className="pending-invite-item" key={index}>
+                {invite.name} &lt;{invite.email}&gt;
+              </span>
+            );
+          })}
+        </span>
+      </div>
+    );
+    const signed = (
+      <div className="doc-container-signed-row">
+        <span className="signed-invites-label">
+          <FormattedMessage
+            defaultMessage="Signed by:"
+            key="multisign-owned-signed"
+          />
+        </span>
+        <span className="signed-invites-items">
+          {doc.signed.map((invite, index) => {
+            return (
+              <span className="signed-invite-item" key={index}>
+                {invite.name} &lt;{invite.email}&gt;
+              </span>
+            );
+          })}
+        </span>
+      </div>
+    );
+    const declined = (
+      <div className="doc-container-declined-row">
+        <span className="declined-invites-label">
+          <FormattedMessage
+            defaultMessage="Declined to sign by:"
+            key="multisign-owned-declined"
+          />
+        </span>
+        <span className="declined-invites-items">
+          {doc.declined.map((invite, index) => {
+            return (
+              <span className="declined-invite-item" key={index}>
+                {invite.name} &lt;{invite.email}&gt;
+              </span>
+            );
+          })}
+        </span>
+      </div>
+    );
+    const invites = (
+      <>
+        {doc.pending.length > 0 && (
+          <>
+            {pending}
+          </>
+        )}
+        {doc.signed.length > 0 && (
+          <>
+            {signed}
+          </>
+        )}
+        {doc.declined !== undefined && doc.declined.length > 0 && (
+          <>
+            {declined}
+          </>
+        )}
+      </>
+    );
     return (
       <>
         <ESPopover
@@ -79,175 +155,135 @@ class DocumentOwned extends Component {
           title={this.getHelp(doc.state + "-title")}
           body={this.getHelp(doc.state)}
         >
-          <div className={"invitation-multisign " + doc.state}>
-            <div className="invitation-multisign-request">
-              <div className={"invitation-name-and-buttons-" + this.props.size}>
-                {doc.state === "incomplete" && (
-                  <>
-                    {(this.props.size === "lg" && (
-                      <>
-                        {widgets.dummySelectDoc()}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                        <div className="owned-container-buttons-lg">
-                          <>
-                            {widgets.resendButton(this.props, doc)}
-                            {widgets.previewButton(this.props, doc)}
-                            {widgets.removeConfirmButton(this.props, doc)}
-                          </>
-                        </div>
-                      </>
-                    )) || (
-                      <>
-                        <div className="owned-name-and-buttons">
-                          <div className="owned-container-name">
-                            <>
-                              {widgets.dummySelectDoc()}
-                              {widgets.docSize(doc)}
-                              {widgets.docName(doc)}
-                            </>
-                          </div>
-                          <div className="owned-container-buttons-sm">
-                            <>
-                              {widgets.resendButton(this.props, doc)}
-                              {widgets.previewButton(this.props, doc)}
-                              {widgets.removeConfirmButton(this.props, doc)}
-                            </>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </>
-                )}
-                {["loaded", "selected", "failed-signing"].includes(
-                  doc.state
-                ) && (
-                  <>
-                    {(this.props.size === "lg" && (
-                      <>
-                        {widgets.selectDoc(this.props, doc)}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                        {widgets.showMessage(doc)}
-                        <div className="owned-container-buttons-lg">
-                          <>
-                            {widgets.skipSignatureButton(this.props, doc)}
-                            {widgets.previewButton(this.props, doc)}
-                            {widgets.removeConfirmButton(this.props, doc)}
-                          </>
-                        </div>
-                      </>
-                    )) || (
-                      <>
-                        <div className="owned-name-and-buttons">
-                          <div className="owned-container-name">
-                            <>
-                              {widgets.selectDoc(this.props, doc)}
-                              {widgets.docSize(doc)}
-                              {widgets.docName(doc)}
-                              {widgets.showMessage(doc)}
-                            </>
-                          </div>
-                          <div className="owned-container-buttons-sm">
-                            <>
-                              {widgets.skipSignatureButton(this.props, doc)}
-                              {widgets.previewButton(this.props, doc)}
-                              {widgets.removeConfirmButton(this.props, doc)}
-                            </>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </>
-                )}
-                {doc.state === "signing" && (
-                  <>
+          {(this.props.size === "lg" && (
+            <div className={"invitation-multisign " + doc.state}>
+              <div className="invitation-multisign-request">
+                <div className={"invitation-name-and-buttons-" + this.props.size}>
+                  {doc.state === "incomplete" && (
+                    <>
+                      {widgets.dummySelectDoc()}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                      <div className="owned-container-buttons-lg">
+                        <>
+                          {widgets.resendButton(this.props, doc)}
+                          {widgets.previewButton(this.props, doc)}
+                          {widgets.removeConfirmButton(this.props, doc)}
+                        </>
+                      </div>
+                    </>
+                  )}
+                  {["loaded", "selected", "failed-signing"].includes(
+                    doc.state
+                  ) && (
+                    <>
+                      {widgets.selectDoc(this.props, doc)}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                      {widgets.showMessage(doc)}
+                      <div className="owned-container-buttons-lg">
+                        <>
+                          {widgets.skipSignatureButton(this.props, doc)}
+                          {widgets.previewButton(this.props, doc)}
+                          {widgets.removeConfirmButton(this.props, doc)}
+                        </>
+                      </div>
+                    </>
+                  )}
+                  {doc.state === "signing" && (
+                    <>
+                      {widgets.dummySelectDoc()}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                      {widgets.namedSpinner(doc.name, "signing")}
+                    </>
+                  )}
+                  {doc.state === "signed" && (
+                    <>
+                      {widgets.dummySelectDoc()}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                      {widgets.downloadSignedButton(this.props, doc)}
+                      {widgets.removeConfirmButton(
+                        this.props,
+                        doc,
+                        "confirm-remove-signed-owned-" + doc.name
+                      )}
+                    </>
+                  )}
+                </div>
+                {invites}
+                {preparePrevSigs(doc)}
+              </div>
+            </div>
+          )) || (
+            <div className={"doc-flex-container-sm " + doc.state}>
+              {doc.state === "incomplete" && (
+                <>
+                  <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
+                  </div>
+                  <div className="doc-container-button-row">
+                    {widgets.resendButton(this.props, doc)}
+                    {widgets.previewButton(this.props, doc)}
+                    {widgets.removeConfirmButton(this.props, doc)}
+                  </div>
+                </>
+              )}
+              {["loaded", "selected", "failed-signing"].includes(
+                doc.state
+              ) && (
+                <>
+                  <div className="doc-container-md-row">
+                    {widgets.selectDoc(this.props, doc)}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                  </div>
+                  <div className="doc-container-msg-row">
+                    {widgets.showMessage(doc)}
+                  </div>
+                  <div className="doc-container-button-row">
+                    {widgets.skipSignatureButton(this.props, doc)}
+                    {widgets.previewButton(this.props, doc)}
+                    {widgets.removeConfirmButton(this.props, doc)}
+                  </div>
+                </>
+              )}
+              {doc.state === "signing" && (
+                <>
+                  <div className="doc-container-md-row">
+                    {widgets.dummySelectDoc()}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                  </div>
+                  <div className="doc-container-msg-row">
                     {widgets.namedSpinner(doc.name, "signing")}
-                  </>
-                )}
-                {doc.state === "signed" && (
-                  <>
+                  </div>
+                </>
+              )}
+              {doc.state === "signed" && (
+                <>
+                  <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
+                  </div>
+                  <div className="doc-container-button-row">
                     {widgets.downloadSignedButton(this.props, doc)}
                     {widgets.removeConfirmButton(
                       this.props,
                       doc,
                       "confirm-remove-signed-owned-" + doc.name
                     )}
-                  </>
-                )}
-              </div>
-              {doc.pending.length > 0 && (
-                <>
-                  <div className="pending-invites">
-                    <span className="pending-invites-label">
-                      <FormattedMessage
-                        defaultMessage="Waiting for signatures by:"
-                        key="multisign-owned-waiting"
-                      />
-                    </span>
-                    <span className="pending-invites-items">
-                      {doc.pending.map((invite, index) => {
-                        return (
-                          <span className="pending-invite-item" key={index}>
-                            {invite.name} &lt;{invite.email}&gt;
-                          </span>
-                        );
-                      })}
-                    </span>
                   </div>
                 </>
               )}
-              {doc.signed.length > 0 && (
-                <>
-                  <div className="signed-invites">
-                    <span className="signed-invites-label">
-                      <FormattedMessage
-                        defaultMessage="Signed by:"
-                        key="multisign-owned-signed"
-                      />
-                    </span>
-                    <span className="signed-invites-items">
-                      {doc.signed.map((invite, index) => {
-                        return (
-                          <span className="signed-invite-item" key={index}>
-                            {invite.name} &lt;{invite.email}&gt;
-                          </span>
-                        );
-                      })}
-                    </span>
-                  </div>
-                </>
-              )}
-              {doc.declined !== undefined && doc.declined.length > 0 && (
-                <>
-                  <div className="declined-invites">
-                    <span className="declined-invites-label">
-                      <FormattedMessage
-                        defaultMessage="Declined to sign by:"
-                        key="multisign-owned-declined"
-                      />
-                    </span>
-                    <span className="declined-invites-items">
-                      {doc.declined.map((invite, index) => {
-                        return (
-                          <span className="declined-invite-item" key={index}>
-                            {invite.name} &lt;{invite.email}&gt;
-                          </span>
-                        );
-                      })}
-                    </span>
-                  </div>
-                </>
-              )}
+              {invites}
               {preparePrevSigs(doc)}
             </div>
-          </div>
+          )}
         </ESPopover>
       </>
     );

@@ -144,7 +144,7 @@ export const preparePrevSigs = (doc) => {
     return "";
   if (doc.prev_signatures === "pdf read error") {
     return (
-      <div className="signed-previous" key="-1">
+      <div className="doc-container-prevsigs-row" key="-1">
         <span className="signed-previous-label">
           <FormattedMessage
             defaultMessage="Previously signed by:"
@@ -206,7 +206,7 @@ export const preparePrevSigs = (doc) => {
     });
     return (
       (doc.prev_signatures && doc.prev_signatures.length > 0 && (
-        <div className="signed-previous" key="-1">
+        <div className="doc-container-prevsigs-row" key="-1">
           <span className="signed-previous-label">
             <FormattedMessage
               defaultMessage="Previously signed by:"
@@ -220,7 +220,7 @@ export const preparePrevSigs = (doc) => {
     );
   } catch (err) {
     return (
-      <div className="signed-previous" key="-1">
+      <div className="doc-container-prevsigs-row" key="-1">
         <span className="signed-previous-label">
           <FormattedMessage
             defaultMessage="Previously signed by:"
