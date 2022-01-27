@@ -79,78 +79,6 @@
         flex-wrap: wrap;
       }
     }
-
-    .invitation-name-and-buttons-sm {
-      flex: none;
-      display: flex;
-      flex-wrap: wrap;
-      width: 100%;
-
-      .doc-selector-flex-item {
-        flex: none;
-        width: 2rem;
-      }
-
-      .button-dummy-flex-item {
-        flex: none;
-        width: 8rem;
-      }
-
-      .message-flex-item {
-        color: $error-red;
-      }
-
-      .size-flex-item {
-        flex: none;
-        margin-right: 1rem;
-        color: $darker-dark-grey;
-      }
-
-      .name-flex-item {
-        flex: 1 2 auto;
-        margin-right: 1rem;
-      }
-
-      .spinner-flex-item {
-        flex: none;
-        width: 2rem;
-        margin-bottom: -2rem;
-      }
-      .spinning-flex-item {
-        flex: none;
-        width: 5rem;
-      }
-
-      .button-preview-flex-item,
-      .button-forced-preview-flex-item,
-      .button-remove-flex-item,
-      .button-resend-flex-item,
-      .button-download-flex-item,
-      .button-decline-flex-item,
-      .button-dummy-flex-item,
-      .button-skip-flex-item {
-        flex: none;
-      }
-      .owned-name-and-buttons {
-        width: fit-content;
-        flex: none;
-        display: flex;
-        flex-direction: column;
-
-        .owned-container-name {
-          flex: none;
-          display: flex;
-          justify-content: flex-start;
-          flex-wrap: wrap;
-        }
-        .owned-container-buttons-sm {
-          flex: none;
-          display: flex;
-          flex-wrap: wrap;
-          line-height: 2.5rem;
-        }
-      }
-    }
   }
 }
 
@@ -165,7 +93,6 @@
   margin-left: 0.5rem;
 }
 
-.invitation-doc-name-label,
 .invited-by-label,
 .signed-invites-label,
 .signed-previous-label,
@@ -176,12 +103,10 @@
   font-size: 0.8rem;
 }
 
-.invited-by,
-.pending-invites,
-.declined-invites,
-.declined-invites,
-.signed-previous,
-.signed-invites {
+.doc-container-pending-row,
+.doc-container-declined-row,
+.doc-container-signedby-row,
+.doc-container-signed-row {
   flex: none;
   margin-top: 0.2rem;
   margin-bottom: 0.2rem;

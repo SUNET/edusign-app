@@ -85,11 +85,39 @@
 
   .doc-container-button-row {
     line-height: 2.5rem;
+    margin-bottom: 0.5rem;
+    flex: none;
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+
+    .button-forced-preview-flex-item,
+    .button-preview-flex-item,
+    .button-remove-flex-item,
+    .button-retry-flex-item,
+    .button-dlall-flex-item,
+    .button-clear-flex-item,
+    .button-sign-flex-item,
+    .button-download-flex-item,
+    .button-multisign-flex-item {
+      flex: none;
+      button {
+        padding: inherit 0.5rem;
+      }
+    }
   }
 
   .doc-container-md-row,
   .doc-container-msg-row,
-  .doc-container-button-row {
+  .doc-container-pending-row,
+  .doc-container-signed-row,
+  .doc-container-signedby-row,
+  .doc-container-declined-row {
+    line-height: 1.4rem;
+  }
+
+  .doc-container-md-row,
+  .doc-container-msg-row {
     margin-bottom: 0.5rem;
     flex: none;
     display: flex;
@@ -119,21 +147,6 @@
     .spinning-flex-item {
       flex: none;
       width: 5rem;
-    }
-
-    .button-forced-preview-flex-item,
-    .button-preview-flex-item,
-    .button-remove-flex-item,
-    .button-retry-flex-item,
-    .button-dlall-flex-item,
-    .button-clear-flex-item,
-    .button-sign-flex-item,
-    .button-download-flex-item,
-    .button-multisign-flex-item {
-      flex: none;
-      button {
-        padding: inherit 0.5rem;
-      }
     }
   }
 }
