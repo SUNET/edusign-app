@@ -56,7 +56,7 @@ export class ESTooltip extends Component {
 
 ESTooltip.propTypes = {
   showHelp: PropTypes.bool,
-  tooltip: PropTypes.object,
+  tooltip: PropTypes.node,
 };
 
 /**

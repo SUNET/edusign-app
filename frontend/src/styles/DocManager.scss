@@ -72,73 +72,67 @@
   }
 }
 
-.doc-flex-container-local-sm {
+.doc-flex-container-sm {
   display: flex;
   flex-direction: column;
+  margin-top: 0.5rem;
+  margin-bottom: 0.3rem;
+  padding: 0.5rem;
   border: $orange-opaque solid 2px;
   border-radius: 3px;
-  margin-bottom: 0.3rem;
+  width: 100%;
+  align-items: flex-start;
 
-  .doc-flex-container-sm {
-    margin-top: 0.5rem;
-    padding: 0.5rem;
+  .doc-container-button-row {
+    line-height: 2.5rem;
+  }
+
+  .doc-container-md-row,
+  .doc-container-msg-row,
+  .doc-container-button-row {
+    margin-bottom: 0.5rem;
     flex: none;
     display: flex;
-    flex-direction: column;
-    width: 100%;
-    align-items: flex-start;
+    justify-content: flex-start;
+    flex-wrap: wrap;
 
-    .doc-container-second-row {
-      line-height: 2.5rem;
+    .doc-selector-flex-item {
+      flex: none;
+      width: 2rem;
     }
 
-    .doc-container-first-row,
-    .doc-container-second-row,
-    .doc-container-third-row {
-      margin-bottom: 0.5rem;
+    .message-flex-item {
+      color: $error-red;
+    }
+
+    .size-flex-item {
       flex: none;
-      display: flex;
-      justify-content: flex-start;
-      flex-wrap: wrap;
+      margin-right: 1rem;
+      color: $darker-dark-grey;
+    }
 
-      .doc-selector-flex-item {
-        flex: none;
-        width: 2rem;
-      }
+    .spinner-flex-item {
+      flex: none;
+      width: 2rem;
+      margin-bottom: -2rem;
+    }
+    .spinning-flex-item {
+      flex: none;
+      width: 5rem;
+    }
 
-      .message-flex-item {
-        color: $error-red;
-      }
-
-      .size-flex-item {
-        flex: none;
-        margin-right: 1rem;
-        color: $darker-dark-grey;
-      }
-
-      .spinner-flex-item {
-        flex: none;
-        width: 2rem;
-        margin-bottom: -2rem;
-      }
-      .spinning-flex-item {
-        flex: none;
-        width: 5rem;
-      }
-
-      .button-forced-preview-flex-item,
-      .button-preview-flex-item,
-      .button-remove-flex-item,
-      .button-retry-flex-item,
-      .button-dlall-flex-item,
-      .button-clear-flex-item,
-      .button-sign-flex-item,
-      .button-download-flex-item,
-      .button-multisign-flex-item {
-        flex: none;
-        button {
-          padding: inherit 0.5rem;
-        }
+    .button-forced-preview-flex-item,
+    .button-preview-flex-item,
+    .button-remove-flex-item,
+    .button-retry-flex-item,
+    .button-dlall-flex-item,
+    .button-clear-flex-item,
+    .button-sign-flex-item,
+    .button-download-flex-item,
+    .button-multisign-flex-item {
+      flex: none;
+      button {
+        padding: inherit 0.5rem;
       }
     }
   }
