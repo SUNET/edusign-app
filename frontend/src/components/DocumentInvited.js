@@ -7,11 +7,11 @@ import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
 
 /**
- * @desc eduSign component showing a list of signing invitations by the logged in user.
+ * @desc eduSign component showing a list of signing invitations to the logged in user.
  *
  * @component
  */
-class DocumentOwned extends Component {
+class DocumentInvited extends Component {
   getHelp(msg) {
     const msgs = {
       "loaded-title": this.props.intl.formatMessage({
@@ -23,14 +23,14 @@ class DocumentOwned extends Component {
           'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign Selected Documents"',
         id: "docmanager-help-loaded",
       }),
-      "incomplete-title": this.props.intl.formatMessage({
-        defaultMessage: "Waiting for invited signatures",
-        id: "docmanager-help-incomplete-title",
+      "unconfirmed-title": this.props.intl.formatMessage({
+        defaultMessage: "This document has not yet been approved",
+        id: "docmanager-help-unconfirmed-title",
       }),
-      incomplete: this.props.intl.formatMessage({
+      unconfirmed: this.props.intl.formatMessage({
         defaultMessage:
-          "You must wait for all invited people to respond before signing this document yourself.",
-        id: "docmanager-help-incomplete",
+          'Click on the button labeled "Preview and approve for signature" to review the document and confirm that you approve it for signature',
+        id: "docmanager-help-unconfirmed",
       }),
       "selected-title": this.props.intl.formatMessage({
         defaultMessage: "Document selected for signing",
@@ -64,14 +64,36 @@ class DocumentOwned extends Component {
       }),
       signed: this.props.intl.formatMessage({
         defaultMessage:
-          'Document succesfully signed, click on the button labelled "Download (signed)" to download it',
-        id: "docmanager-help-signed",
+          "You have successfully signed the document. Note that if you reload the app you will not have access the document any more. The inviter has been notified of your signature, it is up to them to decide if the system should send you the final signed version.",
+        id: "docmanager-help-signed-invited",
+      }),
+      "declined-title": this.props.intl.formatMessage({
+        defaultMessage: "Signature declined",
+        id: "docmanager-help-declined-title",
+      }),
+      declined: this.props.intl.formatMessage({
+        defaultMessage:
+          "You have declined to sign this document. It will dissapear from here if you reload the app.",
+        id: "docmanager-help-declined-invited",
       }),
     };
     return msgs[msg];
   }
   render() {
     const doc = this.props.doc;
+    const invitedBy = (
+      <div className="doc-container-invitedby-row">
+        <span className="invited-by-label">
+          <FormattedMessage
+            defaultMessage="Invited by:"
+            key="invited-by"
+          />
+        </span>
+        <span className="owner-item">
+          {doc.owner.name} &lt;{doc.owner.email}&gt;
+        </span>
+      </div>
+    );
     const pending = (
       <div className="doc-container-pending-row">
         <span className="pending-invites-label">
@@ -96,7 +118,7 @@ class DocumentOwned extends Component {
         <span className="signed-invites-label">
           <FormattedMessage
             defaultMessage="Signed by:"
-            key="multisign-owned-signed"
+            key="multisign-signed"
           />
         </span>
         <span className="signed-invites-items">
@@ -131,6 +153,7 @@ class DocumentOwned extends Component {
     );
     const invites = (
       <>
+        {invitedBy}
         {doc.pending.length > 0 && (
           <>
             {pending}
@@ -158,19 +181,18 @@ class DocumentOwned extends Component {
           {(this.props.size === "lg" && (
             <div className={"invitation-multisign " + doc.state}>
               <div className="invitation-multisign-request">
-                <div className={"invitation-name-and-buttons-" + this.props.size}>
-                  {doc.state === "incomplete" && (
+                <div
+                  className={
+                    "invitation-name-and-buttons-" + this.props.size
+                  }
+                >
+                  {doc.state === "unconfirmed" && (
                     <>
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
-                      <div className="owned-container-buttons-lg">
-                        <>
-                          {widgets.resendButton(this.props, doc)}
-                          {widgets.previewButton(this.props, doc)}
-                          {widgets.removeConfirmButton(this.props, doc)}
-                        </>
-                      </div>
+                      {widgets.forcedPreviewButton(this.props, doc)}
+                      {widgets.declineSignatureButton(this.props, doc)}
                     </>
                   )}
                   {["loaded", "selected", "failed-signing"].includes(
@@ -181,13 +203,8 @@ class DocumentOwned extends Component {
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
                       {widgets.showMessage(doc)}
-                      <div className="owned-container-buttons-lg">
-                        <>
-                          {widgets.skipSignatureButton(this.props, doc)}
-                          {widgets.previewButton(this.props, doc)}
-                          {widgets.removeConfirmButton(this.props, doc)}
-                        </>
-                      </div>
+                      {widgets.previewButton(this.props, doc)}
+                      {widgets.declineSignatureButton(this.props, doc)}
                     </>
                   )}
                   {doc.state === "signing" && (
@@ -204,11 +221,15 @@ class DocumentOwned extends Component {
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
                       {widgets.downloadSignedButton(this.props, doc)}
-                      {widgets.removeConfirmButton(
-                        this.props,
-                        doc,
-                        "confirm-remove-signed-owned-" + doc.name
-                      )}
+                    </>
+                  )}
+                  {doc.state === "declined" && (
+                    <>
+                      {widgets.dummySelectDoc()}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                      {widgets.showMessage(doc)}
+                      {widgets.dummyButton()}
                     </>
                   )}
                 </div>
@@ -218,7 +239,7 @@ class DocumentOwned extends Component {
             </div>
           )) || (
             <div className={"doc-flex-container-sm " + doc.state}>
-              {doc.state === "incomplete" && (
+              {doc.state === "unconfirmed" && (
                 <>
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
@@ -226,9 +247,8 @@ class DocumentOwned extends Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.resendButton(this.props, doc)}
-                    {widgets.previewButton(this.props, doc)}
-                    {widgets.removeConfirmButton(this.props, doc)}
+                    {widgets.forcedPreviewButton(this.props, doc)}
+                    {widgets.declineSignatureButton(this.props, doc)}
                   </div>
                 </>
               )}
@@ -245,9 +265,8 @@ class DocumentOwned extends Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.skipSignatureButton(this.props, doc)}
                     {widgets.previewButton(this.props, doc)}
-                    {widgets.removeConfirmButton(this.props, doc)}
+                    {widgets.declineSignatureButton(this.props, doc)}
                   </div>
                 </>
               )}
@@ -272,11 +291,21 @@ class DocumentOwned extends Component {
                   </div>
                   <div className="doc-container-button-row">
                     {widgets.downloadSignedButton(this.props, doc)}
-                    {widgets.removeConfirmButton(
-                      this.props,
-                      doc,
-                      "confirm-remove-signed-owned-" + doc.name
-                    )}
+                  </div>
+                </>
+              )}
+              {doc.state === "declined" && (
+                <>
+                  <div className="doc-container-md-row">
+                    {widgets.dummySelectDoc()}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                  </div>
+                  <div className="doc-container-msg-row">
+                    {widgets.showMessage(doc)}
+                  </div>
+                  <div className="doc-container-button-row">
+                    {widgets.dummyButton()}
                   </div>
                 </>
               )}
@@ -290,8 +319,8 @@ class DocumentOwned extends Component {
   }
 }
 
-DocumentOwned.propTypes = {
+DocumentInvited.propTypes = {
   owned: PropTypes.array,
 };
 
-export default injectIntl(DocumentOwned);
+export default injectIntl(DocumentInvited);

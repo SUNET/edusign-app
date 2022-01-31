@@ -113,7 +113,7 @@ class DocumentLocal extends React.Component {
     const doc = this.props.doc;
     const signed =
       (doc.state === "signed" && (
-        <div className="signed-invites" key="-1">
+        <div className="doc-container-signed-row" key="-1">
           <span className="signed-invites-label">
             <FormattedMessage
               defaultMessage="Signed by:"
@@ -240,121 +240,119 @@ class DocumentLocal extends React.Component {
           <ESTooltip key={doc.name} tooltip={this.getHelp(doc.state)}>
             <>
               <div
-                className={"doc-flex-container-local-sm " + doc.state}
+                className={"doc-flex-container-sm " + doc.state}
                 key="0"
               >
-                <div className="doc-flex-container-sm">
-                  {doc.state === "loading" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {widgets.dummySelectDoc()}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {widgets.namedSpinner(doc.name, "loading")}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "failed-loading" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {widgets.dummySelectDoc()}
-                        {widgets.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {widgets.showMessage(doc)}
-                      </div>
-                      <div className="doc-container-third-row">
-                        {widgets.removeButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "failed-preparing" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {widgets.dummySelectDoc()}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {widgets.showMessage(doc)}
-                      </div>
-                      <div className="doc-container-third-row">
-                        {widgets.retryButton(this.props, doc)}
-                        {widgets.removeButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "unconfirmed" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {widgets.dummySelectDoc()}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {widgets.forcedPreviewButton(this.props, doc)}
-                        {widgets.removeButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                  {(doc.state === "loaded" || doc.state === "selected") && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {widgets.selectDoc(this.props, doc)}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {widgets.multiSignButton(this.props, doc)}
-                        {widgets.previewButton(this.props, doc)}
-                        {widgets.removeButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "signing" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {widgets.dummySelectDoc()}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {widgets.namedSpinner(doc.name, "signing")}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "signed" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {widgets.dummySelectDoc()}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {widgets.downloadSignedButton(this.props, doc)}
-                        {widgets.removeButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "failed-signing" && (
-                    <>
-                      <div className="doc-container-first-row">
-                        {widgets.selectDoc(this.props, doc)}
-                        {widgets.docSize(doc)}
-                        {widgets.docName(doc)}
-                      </div>
-                      <div className="doc-container-second-row">
-                        {widgets.showMessage(doc)}
-                      </div>
-                      <div className="doc-container-third-row">
-                        {widgets.previewButton(this.props, doc)}
-                        {widgets.removeButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                </div>
+                {doc.state === "loading" && (
+                  <>
+                    <div className="doc-container-md-row">
+                      {widgets.dummySelectDoc()}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                    </div>
+                    <div className="doc-container-msg-row">
+                      {widgets.namedSpinner(doc.name, "loading")}
+                    </div>
+                  </>
+                )}
+                {doc.state === "failed-loading" && (
+                  <>
+                    <div className="doc-container-md-row">
+                      {widgets.dummySelectDoc()}
+                      {widgets.docName(doc)}
+                    </div>
+                    <div className="doc-container-msg-row">
+                      {widgets.showMessage(doc)}
+                    </div>
+                    <div className="doc-container-button-row">
+                      {widgets.removeButton(this.props, doc)}
+                    </div>
+                  </>
+                )}
+                {doc.state === "failed-preparing" && (
+                  <>
+                    <div className="doc-container-md-row">
+                      {widgets.dummySelectDoc()}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                    </div>
+                    <div className="doc-container-msg-row">
+                      {widgets.showMessage(doc)}
+                    </div>
+                    <div className="doc-container-button-row">
+                      {widgets.retryButton(this.props, doc)}
+                      {widgets.removeButton(this.props, doc)}
+                    </div>
+                  </>
+                )}
+                {doc.state === "unconfirmed" && (
+                  <>
+                    <div className="doc-container-md-row">
+                      {widgets.dummySelectDoc()}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                    </div>
+                    <div className="doc-container-button-row">
+                      {widgets.forcedPreviewButton(this.props, doc)}
+                      {widgets.removeButton(this.props, doc)}
+                    </div>
+                  </>
+                )}
+                {(doc.state === "loaded" || doc.state === "selected") && (
+                  <>
+                    <div className="doc-container-md-row">
+                      {widgets.selectDoc(this.props, doc)}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                    </div>
+                    <div className="doc-container-button-row">
+                      {widgets.multiSignButton(this.props, doc)}
+                      {widgets.previewButton(this.props, doc)}
+                      {widgets.removeButton(this.props, doc)}
+                    </div>
+                  </>
+                )}
+                {doc.state === "signing" && (
+                  <>
+                    <div className="doc-container-md-row">
+                      {widgets.dummySelectDoc()}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                    </div>
+                    <div className="doc-container-msg-row">
+                      {widgets.namedSpinner(doc.name, "signing")}
+                    </div>
+                  </>
+                )}
+                {doc.state === "signed" && (
+                  <>
+                    <div className="doc-container-md-row">
+                      {widgets.dummySelectDoc()}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                    </div>
+                    <div className="doc-container-button-row">
+                      {widgets.downloadSignedButton(this.props, doc)}
+                      {widgets.removeButton(this.props, doc)}
+                    </div>
+                  </>
+                )}
+                {doc.state === "failed-signing" && (
+                  <>
+                    <div className="doc-container-md-row">
+                      {widgets.selectDoc(this.props, doc)}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                    </div>
+                    <div className="doc-container-msg-row">
+                      {widgets.showMessage(doc)}
+                    </div>
+                    <div className="doc-container-button-row">
+                      {widgets.previewButton(this.props, doc)}
+                      {widgets.removeButton(this.props, doc)}
+                    </div>
+                  </>
+                )}
                 {signed}
                 {preparePrevSigs(doc)}
               </div>
