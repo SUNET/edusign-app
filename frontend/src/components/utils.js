@@ -239,3 +239,21 @@ export const preparePrevSigs = (doc) => {
     );
   }
 };
+
+/**
+ * @public
+ * @function nameForCopy
+ * @desc Create name for copy of document to sign
+ *
+ */
+export const nameForCopy = (name) => {
+  const date = new Date().toISOString().substr(0, 19);
+  let newName = name;
+  let ext = "";
+  if (name.includes(".")) {
+    const split = name.split(".");
+    newName = split.slice(0, -1).join(".");
+    ext = split[split.length - 1];
+  }
+  return `${newName}-${date}.${ext}`
+};

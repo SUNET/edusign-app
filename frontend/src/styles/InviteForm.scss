@@ -90,6 +90,30 @@
   }
 }
 
+.makecopy-choice-group {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  margin-right: 10%;
+  margin-left: 10%;
+
+  .makecopy-choice-label {
+    padding-left: 1rem;
+  }
+  .makecopy-choice {
+    color: $form-field-text;
+    border: 1px solid $form-field-border-unfocused;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+
+  .makecopy-choice:focus {
+    border-color: $form-field-border;
+    box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
+    outline: 0;
+  }
+}
+
 @media (max-width: 1200px) {
   .invitation-fields {
     margin-left: 0;

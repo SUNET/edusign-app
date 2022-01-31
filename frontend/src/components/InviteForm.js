@@ -51,6 +51,10 @@ const validateSendsigned = (value) => {
   return undefined;
 };
 
+const validateMakecopy = (value) => {
+  return undefined;
+};
+
 const validate = (mail) => {
   return (values) => {
     let errors = {};
@@ -67,6 +71,7 @@ const validate = (mail) => {
 const initialValues = (docId) => ({
   invitationText: "",
   sendsignedChoice: true,
+  makecopyChoice: false,
   documentId: docId,
   invitees: [
     {
@@ -151,6 +156,27 @@ class InviteForm extends React.Component {
                         data-testid="sendsigned-choice-input"
                         className="sendsigned-choice"
                         validate={validateSendsigned}
+                        type="checkbox"
+                      />
+                    </BForm.Group>
+                  </div>
+                  <div className="makecopy-choice-holder">
+                    <BForm.Group className="makecopy-choice-group">
+                      <BForm.Label
+                        className="makecopy-choice-label"
+                        htmlFor="makecopy-choice-input"
+                      >
+                        <FormattedMessage
+                          defaultMessage="Make a copy of the document to sign, and keep the original unsigned"
+                          key="makecopy-choice-field"
+                        />
+                      </BForm.Label>
+                      <Field
+                        name="makecopyChoice"
+                        id="makecopy-choice-input"
+                        data-testid="makecopy-choice-input"
+                        className="makecopy-choice"
+                        validate={validateMakecopy}
                         type="checkbox"
                       />
                     </BForm.Group>

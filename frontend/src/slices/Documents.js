@@ -36,7 +36,7 @@ import { setPolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
-import { b64toBlob, hashCode } from "components/utils";
+import { b64toBlob, hashCode, nameForCopy } from "components/utils";
 
 /**
  * @public
@@ -857,13 +857,33 @@ export const sendInvites = createAsyncThunk(
     const documentId = args.values.documentId;
     const invitees = args.values.invitees;
 
-    const state = thunkAPI.getState();
+    let state = thunkAPI.getState();
 
-    const document = state.documents.documents.filter((doc) => {
+    let document = state.documents.documents.filter((doc) => {
       return doc.id === documentId;
     })[0];
 
     const owner = state.main.signer_attributes.mail;
+
+    if (args.values.makecopyChoice) {
+      const docName = nameForCopy(document.name);
+      const newDoc = {
+        name: docName,
+        blob: document.blob,
+        size: document.size,
+        type: document.type,
+      };
+      await thunkAPI.dispatch(
+        createDocument({ doc: newDoc, intl: args.intl })
+      );
+      state = thunkAPI.getState();
+      document = state.documents.documents.filter((doc) => {
+        return doc.name === docName;
+      })[0];
+      thunkAPI.dispatch(
+        setState({ name: docName, state: 'loaded' })
+      );
+    }
 
     const dataToSend = {
       owner: owner,
