@@ -89,8 +89,13 @@ class ConfigSchema(InvitationsSchema):
         name = fields.String(required=True, validate=[validate_nonempty])
         mail = fields.String(required=True, validate=[validate_nonempty])
 
+    class AvailableLoa(Schema):
+        name = fields.String(required=True, validate=[validate_nonempty])
+        uri = fields.String(required=True, validate=[validate_nonempty])
+
     signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)
+    available_loas = fields.List(fields.Nested(AvailableLoa))
     unauthn = fields.Boolean(default=True)
 
 
@@ -247,6 +252,7 @@ class MultiSignSchema(Schema):
     sendsigned = fields.Boolean()
     invites = fields.List(fields.Nested(Invitee))
     owner = fields.Email(required=True)
+    loa = fields.String()
 
 
 class KeyedMultiSignSchema(Schema):

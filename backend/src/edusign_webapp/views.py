@@ -259,6 +259,9 @@ def get_config() -> dict:
 
     payload['signer_attributes'] = attrs
     payload['multisign_buttons'] = current_app.config['MULTISIGN_BUTTONS']
+    payload['available_loas'] = []
+    for uri, name in current_app.config['AVAILABLE_LOAS'].items():
+        payload['available_loas'].append({'uri': uri, 'name': name})
 
     return {
         'payload': payload,
@@ -754,7 +757,7 @@ def create_multi_sign_request(data: dict) -> dict:
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
         owner = {'name': session['displayName'], 'email': data['owner']}
-        invites = current_app.doc_store.add_document(data['document'], owner, data['invites'], data['sendsigned'])
+        invites = current_app.doc_store.add_document(data['document'], owner, data['invites'], data['sendsigned'], data['loa'])
 
     except Exception as e:
         current_app.logger.error(f'Problem processing multi sign request: {e}')

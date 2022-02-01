@@ -71,6 +71,8 @@ import requests
 from flask import current_app, session, url_for
 from requests.auth import HTTPBasicAuth
 
+from edusign_webapp.utils import get_authn_context
+
 
 def pretty_print_req(req: requests.PreparedRequest) -> str:
     """
@@ -300,10 +302,10 @@ class APIClient(object):
                  and list of mappings linking the documents' names with the generated ids.
         """
         idp = session['idp']
-        authn_context = session['authn_context']
         if self.config['ENVIRONMENT'] == 'development':
             idp = self.config['DEBUG_IDP']
-            authn_context = self.config['DEBUG_AUTHN_CONTEXT']
+
+        authn_context = get_authn_context(documents)
 
         correlation_id = str(uuid.uuid4())
         return_url = url_for('edusign.sign_service_callback', _external=True, _scheme='https')

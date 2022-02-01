@@ -890,6 +890,7 @@ export const sendInvites = createAsyncThunk(
       invites: invitees,
       text: args.values.invitationText,
       sendsigned: args.values.sendsignedChoice,
+      loa: args.values.loa,
       document: {
         key: document.key,
         name: document.name,

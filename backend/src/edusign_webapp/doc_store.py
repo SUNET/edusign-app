@@ -107,7 +107,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def add(
-            self, key: uuid.UUID, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool
+            self, key: uuid.UUID, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool, loa: str
     ) -> List[Dict[str, str]]:
         """
         Store metadata for a new document.
@@ -121,6 +121,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :param owner: Email address and name of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
+        :param loa: The "authentication for signature" required LoA.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
 
@@ -275,6 +276,15 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :return: whether to send emails
         """
 
+    @abc.abstractmethod
+    def get_loa(self, key: uuid.UUID) -> str:
+        """
+        Required LoA for signature authn context
+
+        :param key: The key identifying the document
+        :return: LoA
+        """
+
 
 class DocStore(object):
     """
@@ -306,7 +316,7 @@ class DocStore(object):
         self.metadata = docmd_class(app)
 
     def add_document(
-            self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool
+            self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool, loa: str
     ) -> List[Dict[str, str]]:
         """
         Store document, to be signed by all users referenced in `invites`.
@@ -321,11 +331,12 @@ class DocStore(object):
         :param owner: Email address and name of the user that has uploaded the document.
         :param invites: List of names and email addresses of the users that should sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
+        :param loa: The "authentication for signature" required LoA.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
         key = uuid.UUID(document['key'])
         self.storage.add(key, document['blob'])
-        return self.metadata.add(key, document, owner, invites, sendsigned)
+        return self.metadata.add(key, document, owner, invites, sendsigned, loa)
 
     def get_pending_documents(self, email: str) -> List[Dict[str, Any]]:
         """
@@ -539,3 +550,12 @@ class DocStore(object):
         :return: whether to send emails
         """
         return self.metadata.get_sendsigned(key)
+
+    def get_loa(self, key: uuid.UUID) -> str:
+        """
+        Required LoA for signature authn context
+
+        :param key: The key identifying the document
+        :return: LoA
+        """
+        return self.metadata.get_loa(key)

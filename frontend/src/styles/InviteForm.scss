@@ -114,6 +114,24 @@
   }
 }
 
+.loa-select-group {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  margin-right: 10%;
+  margin-left: 10%;
+
+  .loa-select-label {
+    padding-left: 1rem;
+  }
+  .loa-select {
+    color: $form-field-text;
+    border: 1px solid $form-field-border-unfocused;
+    border-radius: 0.25rem;
+    height: 1.5rem;
+  }
+}
+
 @media (max-width: 1200px) {
   .invitation-fields {
     margin-left: 0;

@@ -78,7 +78,7 @@ class RedisStorageBackend:
         }
         return user
 
-    def insert_document(self, key, name, size, type, owner, prev_signatures, sendsigned):
+    def insert_document(self, key, name, size, type, owner, prev_signatures, sendsigned, loa):
         doc_id = self.redis.incr('doc-counter')
         now = datetime.now().timestamp()
         mapping = dict(
@@ -91,6 +91,7 @@ class RedisStorageBackend:
             updated=now,
             prev_signatures=prev_signatures,
             sendsigned=sendsigned,
+            loa=loa,
         )
         self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
         self.transaction.set(f"doc:key:{key}", doc_id)
@@ -166,6 +167,13 @@ class RedisStorageBackend:
             return True
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         return bool(b_doc[b'sendsigned'])
+
+    def query_loa(self, key):
+        doc_id = self.query_document_id(str(key))
+        if doc_id is None:
+            return "none"
+        b_doc = self.redis.hgetall(f"doc:{doc_id}")
+        return str(b_doc.get(b'loa', "none"))
 
     def update_document(self, key, updated):
         doc_id = int(self.redis.get(f"doc:key:{key}"))
@@ -333,7 +341,7 @@ class RedisMD(ABCMetadata):
         client.init_app(app)
         self.client = RedisStorageBackend(client)
 
-    def add(self, key: uuid.UUID, document: Dict[str, Any], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool):
+    def add(self, key: uuid.UUID, document: Dict[str, Any], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool, loa: str):
         """
         Store metadata for a new document.
 
@@ -346,6 +354,7 @@ class RedisMD(ABCMetadata):
         :param owner: Name and email address of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
+        :param loa: The "authentication for signature" required LoA.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
         self.client.pipeline()
@@ -365,7 +374,8 @@ class RedisMD(ABCMetadata):
             document['type'],
             owner_id,
             document.get('prev_signatures', ''),
-            document.get('sendsigned', 1),
+            sendsigned,
+            loa,
         )
 
         if document_id is None:  # This should never happen, it's just to please mypy
@@ -840,3 +850,12 @@ class RedisMD(ABCMetadata):
         :return: whether to send emails
         """
         return self.client.query_sendsigned(key)
+
+    def get_loa(self, key: uuid.UUID) -> str:
+        """
+        Required LoA for signature authn context
+
+        :param key: The key identifying the document
+        :return: LoA
+        """
+        return self.client.query_loa(key)

@@ -55,6 +55,10 @@ const validateMakecopy = (value) => {
   return undefined;
 };
 
+const validateLoa = (value) => {
+  return undefined;
+};
+
 const validate = (mail) => {
   return (values) => {
     let errors = {};
@@ -72,6 +76,7 @@ const initialValues = (docId) => ({
   invitationText: "",
   sendsignedChoice: true,
   makecopyChoice: false,
+  loaSelect: "",
   documentId: docId,
   invitees: [
     {
@@ -179,6 +184,30 @@ class InviteForm extends React.Component {
                         validate={validateMakecopy}
                         type="checkbox"
                       />
+                    </BForm.Group>
+                  </div>
+                  <div className="loa-select-holder">
+                    <BForm.Group className="loa-select-group">
+                      <BForm.Label
+                        className="loa-select-label"
+                        htmlFor="loa-select-input"
+                      >
+                        <FormattedMessage
+                          defaultMessage="Required LoA for the signature"
+                          key="loa-select-field"
+                        />
+                      </BForm.Label>
+                      <Field
+                        name="loa"
+                        id="loa-select-input"
+                        data-testid="loa-select-input"
+                        className="loa-select"
+                        validate={validateLoa}
+                        as="select">
+                        {this.props.loas.map((level, i) => {
+                          return (<option key={i} value={level.uri}>{level.name}</option>);
+                        })}
+                      </Field>
                     </BForm.Group>
                   </div>
                   <FieldArray name="invitees" validateOnChange={true}>

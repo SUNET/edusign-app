@@ -156,3 +156,10 @@ MAIL_SUPPRESS_SEND = get_boolean(RAW_MAIL_SUPPRESS_SEND)
 
 RAW_MAIL_ASCII_ATTACHMENTS = os.environ.get('MAIL_ASCII_ATTACHMENTS', default=False)
 MAIL_ASCII_ATTACHMENTS = get_boolean(RAW_MAIL_ASCII_ATTACHMENTS)
+
+RAW_AVAILABLE_LOAS = os.environ.get(
+    'AVAILABLE_LOAS',
+    default='none,none;https://example.org/loa1,loa1',
+)
+
+AVAILABLE_LOAS = {loa.split(",")[0].strip(): loa.split(",")[1].strip() for loa in RAW_AVAILABLE_LOAS.split(';')}

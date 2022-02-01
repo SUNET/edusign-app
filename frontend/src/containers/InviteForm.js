@@ -25,6 +25,7 @@ const mapStateToProps = (state, props) => {
     size: state.main.size,
     show: show,
     mail: state.main.signer_attributes.mail,
+    loas: state.main.available_loas,
   };
 };
 

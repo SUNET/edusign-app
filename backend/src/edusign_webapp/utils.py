@@ -171,3 +171,24 @@ def sendmail(
     current_app.logger.debug(f"Email to be sent:\n\n{msg}\n\n")
 
     current_app.mailer.send(msg)
+
+
+def get_authn_context(docs):
+    if current_app.config['ENVIRONMENT'] == 'development':
+        return current_app.config['DEBUG_AUTHN_CONTEXT']
+
+    loas = current_app.config['RAW_AVAILABLE_LOAS']
+    current_level = 0
+    authn_context = "none"
+    for doc in docs:
+        if "loa" in doc:
+            loa = doc['loa']
+            level = loas.index(loa)
+            if level > current_level:
+                current_level = level
+                authn_context = loa
+
+    if loas.index(session['authn_context']) > current_level:
+        authn_context = session['authn_context']
+
+    return authn_context
