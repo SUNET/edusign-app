@@ -68,13 +68,13 @@
 
 .sendsigned-choice-group {
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: flex-end;
+  flex-direction: row;
+  justify-content: flex-start;
   margin-right: 10%;
   margin-left: 10%;
 
   .sendsigned-choice-label {
-    padding-left: 1rem;
+    padding-right: 1rem;
   }
   .sendsigned-choice {
     color: $form-field-text;

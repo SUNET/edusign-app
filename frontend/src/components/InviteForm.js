@@ -88,6 +88,57 @@ const initialValues = (docId) => ({
 
 class InviteForm extends React.Component {
   render() {
+    const makecopyCtrl = (
+      <div className="makecopy-choice-holder">
+        <BForm.Group className="makecopy-choice-group">
+          <BForm.Label
+            className="makecopy-choice-label"
+            htmlFor="makecopy-choice-input"
+          >
+            <FormattedMessage
+              defaultMessage="Make a copy of the document to sign, and keep the original unsigned"
+              key="makecopy-choice-field"
+            />
+          </BForm.Label>
+          <Field
+            name="makecopyChoice"
+            id="makecopy-choice-input"
+            data-testid="makecopy-choice-input"
+            className="makecopy-choice"
+            validate={validateMakecopy}
+            type="checkbox"
+          />
+        </BForm.Group>
+      </div>
+    );
+    const loaCtrl = (
+      <div className="loa-select-holder">
+        <BForm.Group className="loa-select-group">
+          <BForm.Label
+            className="loa-select-label"
+            htmlFor="loa-select-input"
+          >
+            <FormattedMessage
+              defaultMessage="Required LoA for the signature"
+              key="loa-select-field"
+            />
+          </BForm.Label>
+          <Field
+            name="loa"
+            id="loa-select-input"
+            data-testid="loa-select-input"
+            className="loa-select"
+            validate={validateLoa}
+            as="select">
+            {this.props.loas.map((level, i) => {
+              return (<option key={i} value={level.uri}>{level.name}</option>);
+            })}
+          </Field>
+        </BForm.Group>
+      </div>
+    );
+    const makecopyControl = <Field name="makecopyChoice" value={false} type="hidden" />;
+    const loaControl = <Field name="loa" value="none" type="hidden" />;
     const formId = "invite-form-" + this.props.docName;
     return (
       <>
@@ -145,71 +196,37 @@ class InviteForm extends React.Component {
                     </BForm.Group>
                   </div>
                   <div className="sendsigned-choice-holder">
-                    <BForm.Group className="sendsigned-choice-group">
-                      <BForm.Label
-                        className="sendsigned-choice-label"
-                        htmlFor="sendsigned-choice-input"
-                      >
+                    <ESTooltip
+                      tooltip={
                         <FormattedMessage
-                          defaultMessage="Send final signed document via email to all who signed it"
-                          key="sendsigned-choice-field"
+                          defaultMessage="Send final signed document via email to all who signed it."
+                          key="sendsigned-choice-help"
                         />
-                      </BForm.Label>
-                      <Field
-                        name="sendsignedChoice"
-                        id="sendsigned-choice-input"
-                        data-testid="sendsigned-choice-input"
-                        className="sendsigned-choice"
-                        validate={validateSendsigned}
-                        type="checkbox"
-                      />
-                    </BForm.Group>
-                  </div>
-                  <div className="makecopy-choice-holder">
-                    <BForm.Group className="makecopy-choice-group">
-                      <BForm.Label
-                        className="makecopy-choice-label"
-                        htmlFor="makecopy-choice-input"
-                      >
-                        <FormattedMessage
-                          defaultMessage="Make a copy of the document to sign, and keep the original unsigned"
-                          key="makecopy-choice-field"
+                      }
+                    >
+                      <BForm.Group className="sendsigned-choice-group">
+                        <BForm.Label
+                          className="sendsigned-choice-label"
+                          htmlFor="sendsigned-choice-input"
+                        >
+                          <FormattedMessage
+                            defaultMessage="Send signed document in email"
+                            key="sendsigned-choice-field"
+                          />
+                        </BForm.Label>
+                        <Field
+                          name="sendsignedChoice"
+                          id="sendsigned-choice-input"
+                          data-testid="sendsigned-choice-input"
+                          className="sendsigned-choice"
+                          validate={validateSendsigned}
+                          type="checkbox"
                         />
-                      </BForm.Label>
-                      <Field
-                        name="makecopyChoice"
-                        id="makecopy-choice-input"
-                        data-testid="makecopy-choice-input"
-                        className="makecopy-choice"
-                        validate={validateMakecopy}
-                        type="checkbox"
-                      />
-                    </BForm.Group>
+                      </BForm.Group>
+                    </ESTooltip>
                   </div>
-                  <div className="loa-select-holder">
-                    <BForm.Group className="loa-select-group">
-                      <BForm.Label
-                        className="loa-select-label"
-                        htmlFor="loa-select-input"
-                      >
-                        <FormattedMessage
-                          defaultMessage="Required LoA for the signature"
-                          key="loa-select-field"
-                        />
-                      </BForm.Label>
-                      <Field
-                        name="loa"
-                        id="loa-select-input"
-                        data-testid="loa-select-input"
-                        className="loa-select"
-                        validate={validateLoa}
-                        as="select">
-                        {this.props.loas.map((level, i) => {
-                          return (<option key={i} value={level.uri}>{level.name}</option>);
-                        })}
-                      </Field>
-                    </BForm.Group>
-                  </div>
+                  {makecopyControl}
+                  {loaControl}
                   <FieldArray name="invitees" validateOnChange={true}>
                     {(arrayHelpers) => (
                       <div>
