@@ -107,7 +107,13 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def add(
-            self, key: uuid.UUID, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool, loa: str
+        self,
+        key: uuid.UUID,
+        document: Dict[str, str],
+        owner: Dict[str, str],
+        invites: List[Dict[str, str]],
+        sendsigned: bool,
+        loa: str,
     ) -> List[Dict[str, str]]:
         """
         Store metadata for a new document.
@@ -316,7 +322,7 @@ class DocStore(object):
         self.metadata = docmd_class(app)
 
     def add_document(
-            self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool, loa: str
+        self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool, loa: str
     ) -> List[Dict[str, str]]:
         """
         Store document, to be signed by all users referenced in `invites`.

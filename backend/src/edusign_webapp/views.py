@@ -651,7 +651,9 @@ def get_signed_documents(sign_data: dict) -> dict:
                     body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
                     body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
 
-                task = loop.create_task(queue_mail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv))
+                task = loop.create_task(
+                    queue_mail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+                )
                 tasks.append(task)
 
             except Exception as e:
@@ -659,11 +661,13 @@ def get_signed_documents(sign_data: dict) -> dict:
 
         elif owner:
             recipients = [f"{owner['name']} <{owner['email']}>"]
-            recipients.extend([
-                f"{invited['name']} <{invited['email']}>"
-                for invited in current_app.doc_store.get_pending_invites(key)
-                if invited['signed']
-            ])
+            recipients.extend(
+                [
+                    f"{invited['name']} <{invited['email']}>"
+                    for invited in current_app.doc_store.get_pending_invites(key)
+                    if invited['signed']
+                ]
+            )
             try:
                 mail_context = {
                     'document_name': owner['docname'],
@@ -694,17 +698,19 @@ def get_signed_documents(sign_data: dict) -> dict:
                     signed_doc_name = ''
                     pdf_bytes = ''
 
-                task = loop.create_task(queue_mail(
-                    recipients,
-                    subject_en,
-                    subject_sv,
-                    body_txt_en,
-                    body_html_en,
-                    body_txt_sv,
-                    body_html_sv,
-                    attachment_name=signed_doc_name,
-                    attachment=pdf_bytes,
-                ))
+                task = loop.create_task(
+                    queue_mail(
+                        recipients,
+                        subject_en,
+                        subject_sv,
+                        body_txt_en,
+                        body_html_en,
+                        body_txt_sv,
+                        body_html_sv,
+                        attachment_name=signed_doc_name,
+                        attachment=pdf_bytes,
+                    )
+                )
                 tasks.append(task)
 
             except Exception as e:
@@ -757,7 +763,9 @@ def create_multi_sign_request(data: dict) -> dict:
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
         owner = {'name': session['displayName'], 'email': data['owner']}
-        invites = current_app.doc_store.add_document(data['document'], owner, data['invites'], data['sendsigned'], data['loa'])
+        invites = current_app.doc_store.add_document(
+            data['document'], owner, data['invites'], data['sendsigned'], data['loa']
+        )
 
     except Exception as e:
         current_app.logger.error(f'Problem processing multi sign request: {e}')
@@ -930,11 +938,13 @@ def skip_final_signature(data: dict) -> dict:
     try:
         owner = current_app.doc_store.get_owner_data(key)
         recipients = [f"{owner['name']} <{owner['email']}>"]
-        recipients.extend([
-            f"{invited['name']} <{invited['email']}>"
-            for invited in current_app.doc_store.get_pending_invites(key)
-            if invited['signed']
-        ])
+        recipients.extend(
+            [
+                f"{invited['name']} <{invited['email']}>"
+                for invited in current_app.doc_store.get_pending_invites(key)
+                if invited['signed']
+            ]
+        )
 
         mail_context = {
             'document_name': doc['name'],

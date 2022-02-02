@@ -202,7 +202,15 @@ class SqliteMD(ABCMetadata):
         db = get_db(self.db_path)
         db.commit()
 
-    def add(self, key: uuid.UUID, document: Dict[str, Any], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool, loa: str):
+    def add(
+        self,
+        key: uuid.UUID,
+        document: Dict[str, Any],
+        owner: Dict[str, str],
+        invites: List[Dict[str, str]],
+        sendsigned: bool,
+        loa: str,
+    ):
         """
         Store metadata for a new document.
 
@@ -232,7 +240,8 @@ class SqliteMD(ABCMetadata):
         prev_sigs = document.get("prev_signatures", "")
 
         self._db_execute(
-            DOCUMENT_INSERT, (str(key), document['name'], document['size'], document['type'], owner_id, prev_sigs, sendsigned, loa)
+            DOCUMENT_INSERT,
+            (str(key), document['name'], document['size'], document['type'], owner_id, prev_sigs, sendsigned, loa),
         )
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
 
