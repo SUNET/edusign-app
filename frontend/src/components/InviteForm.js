@@ -76,7 +76,7 @@ const initialValues = (docId) => ({
   invitationText: "",
   sendsignedChoice: true,
   makecopyChoice: false,
-  loaSelect: "",
+  loa: "none",
   documentId: docId,
   invitees: [
     {

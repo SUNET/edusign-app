@@ -885,6 +885,7 @@ export const sendInvites = createAsyncThunk(
       );
     }
 
+    console.log('hooooooorl', args);
     const dataToSend = {
       owner: owner,
       invites: invitees,

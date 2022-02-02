@@ -178,7 +178,7 @@ def get_authn_context(docs):
         return current_app.config['DEBUG_AUTHN_CONTEXT']
 
     loas = current_app.config['RAW_AVAILABLE_LOAS']
-    current_level = -1
+    current_level = 0
     authn_context = "none"
     for doc in docs:
         if "loa" in doc:
@@ -189,7 +189,7 @@ def get_authn_context(docs):
                 authn_context = loa
 
     session_context = session['authn_context']
-    if (session_context in loas and loas.index(session_context) > current_level) or current_level == -1:
+    if (session_context in loas and loas.index(session_context) > current_level) or current_level == 0:
         authn_context = session_context
 
     return authn_context
