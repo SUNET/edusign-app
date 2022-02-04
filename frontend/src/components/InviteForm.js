@@ -114,10 +114,7 @@ class InviteForm extends React.Component {
     const loaControl = (
       <div className="loa-select-holder">
         <BForm.Group className="loa-select-group">
-          <BForm.Label
-            className="loa-select-label"
-            htmlFor="loa-select-input"
-          >
+          <BForm.Label className="loa-select-label" htmlFor="loa-select-input">
             <FormattedMessage
               defaultMessage="Security level for the signature"
               key="loa-select-field"
@@ -126,19 +123,28 @@ class InviteForm extends React.Component {
           <div
             id="loa-select-field"
             data-testid="loa-select-field"
-            className="loa-select-holder">
+            className="loa-select-holder"
+          >
             {this.props.loas.map((level, i) => {
               return (
                 <BForm.Label key={i} className="loa-checkbox">
-                  <Field name="loa" value={level.uri} className="loa-select" type="checkbox"/>
+                  <Field
+                    name="loa"
+                    value={level.uri}
+                    className="loa-select"
+                    type="checkbox"
+                  />
                   {level.name}
-                </BForm.Label>);
+                </BForm.Label>
+              );
             })}
           </div>
         </BForm.Group>
       </div>
     );
-    const makecopyControl = <Field name="makecopyChoice" value={false} type="hidden" />;
+    const makecopyControl = (
+      <Field name="makecopyChoice" value={false} type="hidden" />
+    );
     const loaControlHidden = <Field name="loa" value="none" type="hidden" />;
     const formId = "invite-form-" + this.props.docName;
     return (

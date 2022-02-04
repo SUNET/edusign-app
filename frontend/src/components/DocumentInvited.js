@@ -84,10 +84,7 @@ class DocumentInvited extends Component {
     const invitedBy = (
       <div className="doc-container-invitedby-row">
         <span className="invited-by-label">
-          <FormattedMessage
-            defaultMessage="Invited by:"
-            key="invited-by"
-          />
+          <FormattedMessage defaultMessage="Invited by:" key="invited-by" />
         </span>
         <span className="owner-item">
           {doc.owner.name} &lt;{doc.owner.email}&gt;
@@ -154,20 +151,10 @@ class DocumentInvited extends Component {
     const invites = (
       <>
         {invitedBy}
-        {doc.pending.length > 0 && (
-          <>
-            {pending}
-          </>
-        )}
-        {doc.signed.length > 0 && (
-          <>
-            {signed}
-          </>
-        )}
+        {doc.pending.length > 0 && <>{pending}</>}
+        {doc.signed.length > 0 && <>{signed}</>}
         {doc.declined !== undefined && doc.declined.length > 0 && (
-          <>
-            {declined}
-          </>
+          <>{declined}</>
         )}
       </>
     );
@@ -182,9 +169,7 @@ class DocumentInvited extends Component {
             <div className={"invitation-multisign " + doc.state}>
               <div className="invitation-multisign-request">
                 <div
-                  className={
-                    "invitation-name-and-buttons-" + this.props.size
-                  }
+                  className={"invitation-name-and-buttons-" + this.props.size}
                 >
                   {doc.state === "unconfirmed" && (
                     <>
@@ -252,9 +237,7 @@ class DocumentInvited extends Component {
                   </div>
                 </>
               )}
-              {["loaded", "selected", "failed-signing"].includes(
-                doc.state
-              ) && (
+              {["loaded", "selected", "failed-signing"].includes(doc.state) && (
                 <>
                   <div className="doc-container-md-row">
                     {widgets.selectDoc(this.props, doc)}

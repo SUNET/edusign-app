@@ -239,10 +239,7 @@ class DocumentLocal extends React.Component {
         <>
           <ESTooltip key={doc.name} tooltip={this.getHelp(doc.state)}>
             <>
-              <div
-                className={"doc-flex-container-sm " + doc.state}
-                key="0"
-              >
+              <div className={"doc-flex-container-sm " + doc.state} key="0">
                 {doc.state === "loading" && (
                   <>
                     <div className="doc-container-md-row">

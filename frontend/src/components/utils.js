@@ -255,5 +255,5 @@ export const nameForCopy = (name) => {
     newName = split.slice(0, -1).join(".");
     ext = split[split.length - 1];
   }
-  return `${newName}-${date}.${ext}`
+  return `${newName}-${date}.${ext}`;
 };

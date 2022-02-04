@@ -131,20 +131,10 @@ class DocumentOwned extends Component {
     );
     const invites = (
       <>
-        {doc.pending.length > 0 && (
-          <>
-            {pending}
-          </>
-        )}
-        {doc.signed.length > 0 && (
-          <>
-            {signed}
-          </>
-        )}
+        {doc.pending.length > 0 && <>{pending}</>}
+        {doc.signed.length > 0 && <>{signed}</>}
         {doc.declined !== undefined && doc.declined.length > 0 && (
-          <>
-            {declined}
-          </>
+          <>{declined}</>
         )}
       </>
     );
@@ -158,7 +148,9 @@ class DocumentOwned extends Component {
           {(this.props.size === "lg" && (
             <div className={"invitation-multisign " + doc.state}>
               <div className="invitation-multisign-request">
-                <div className={"invitation-name-and-buttons-" + this.props.size}>
+                <div
+                  className={"invitation-name-and-buttons-" + this.props.size}
+                >
                   {doc.state === "incomplete" && (
                     <>
                       {widgets.dummySelectDoc()}
@@ -232,9 +224,7 @@ class DocumentOwned extends Component {
                   </div>
                 </>
               )}
-              {["loaded", "selected", "failed-signing"].includes(
-                doc.state
-              ) && (
+              {["loaded", "selected", "failed-signing"].includes(doc.state) && (
                 <>
                   <div className="doc-container-md-row">
                     {widgets.selectDoc(this.props, doc)}
