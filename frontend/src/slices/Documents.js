@@ -873,16 +873,12 @@ export const sendInvites = createAsyncThunk(
         size: document.size,
         type: document.type,
       };
-      await thunkAPI.dispatch(
-        createDocument({ doc: newDoc, intl: args.intl })
-      );
+      await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
       state = thunkAPI.getState();
       document = state.documents.documents.filter((doc) => {
         return doc.name === docName;
       })[0];
-      thunkAPI.dispatch(
-        setState({ name: docName, state: 'loaded' })
-      );
+      thunkAPI.dispatch(setState({ name: docName, state: "loaded" }));
     }
 
     const dataToSend = {
