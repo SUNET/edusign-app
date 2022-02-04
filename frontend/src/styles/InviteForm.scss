@@ -116,19 +116,29 @@
 
 .loa-select-group {
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: column;
   justify-content: flex-end;
   margin-right: 10%;
   margin-left: 10%;
 
   .loa-select-label {
-    padding-left: 1rem;
+    margin-bottom: .3rem;
   }
-  .loa-select {
-    color: $form-field-text;
-    border: 1px solid $form-field-border-unfocused;
-    border-radius: 0.25rem;
-    height: 1.5rem;
+  #loa-select-field {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+
+    .loa-checkbox {
+      height: 1.5rem;
+
+      .loa-select {
+        color: $form-field-text;
+        border: 1px solid $form-field-border-unfocused;
+        border-radius: 0.25rem;
+        margin-right: .5rem;
+      }
+    }
   }
 }
 

@@ -45,7 +45,7 @@
   "components.InviteForm.invalid-email": "Ogiltig e-post",
   "components.InviteForm.invitation-text-field": "Lägg till ett meddelande till alla mottagare",
   "components.InviteForm.invite-people": "Bjud in personer att signera: {docName}",
-  "components.InviteForm.loa-select-field": "",
+  "components.InviteForm.loa-select-field": "Säkerhetsnivå på signaturen",
   "components.InviteForm.makecopy-choice-field": "",
   "components.InviteForm.name-input-field": "Namn",
   "components.InviteForm.required-field": "Obligatorisk",

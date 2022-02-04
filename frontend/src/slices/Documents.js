@@ -885,13 +885,12 @@ export const sendInvites = createAsyncThunk(
       );
     }
 
-    console.log('hooooooorl', args);
     const dataToSend = {
       owner: owner,
       invites: invitees,
       text: args.values.invitationText,
       sendsigned: args.values.sendsignedChoice,
-      loa: args.values.loa,
+      loa: args.values.loa.join(";"),
       document: {
         key: document.key,
         name: document.name,
