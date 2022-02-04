@@ -159,7 +159,11 @@ MAIL_ASCII_ATTACHMENTS = get_boolean(RAW_MAIL_ASCII_ATTACHMENTS)
 
 RAW_AVAILABLE_LOAS = os.environ.get(
     'AVAILABLE_LOAS',
-    default='none,none',
+    default=('http://id.elegnamnden.se/loa/1.0/loa1,loa1;'
+             'http://id.elegnamnden.se/loa/1.0/loa2,loa2;'
+             'http://id.elegnamnden.se/loa/1.0/loa3,loa3;'
+             'urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport,password protected;'
+             'https://refeds.org/profile/mfa,mfa'),
 )
 
 AVAILABLE_LOAS = {loa.split(",")[0].strip(): loa.split(",")[1].strip() for loa in RAW_AVAILABLE_LOAS.split(';')}

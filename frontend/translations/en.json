@@ -45,7 +45,7 @@
   "components.InviteForm.invalid-email": "Invalid email",
   "components.InviteForm.invitation-text-field": "Add a message to send to all invitees",
   "components.InviteForm.invite-people": "Invite people to sign: {docName}",
-  "components.InviteForm.loa-select-field": "Required LoA for the signature",
+  "components.InviteForm.loa-select-field": "Security level for the signature",
   "components.InviteForm.makecopy-choice-field": "Make a copy of the document to sign, and keep the original unsigned",
   "components.InviteForm.name-input-field": "Name",
   "components.InviteForm.required-field": "Required",

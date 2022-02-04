@@ -317,7 +317,7 @@ class APIClient(object):
             "returnUrl": return_url,
             "authnRequirements": {
                 "authnServiceID": idp,
-                "authnContextClassRefs": [authn_context],
+                "authnContextClassRefs": authn_context,
                 "requestedSignerAttributes": attrs,
             },
             "tbsDocuments": [],

@@ -175,21 +175,14 @@ def sendmail(
 
 def get_authn_context(docs):
     if current_app.config['ENVIRONMENT'] == 'development':
-        return current_app.config['DEBUG_AUTHN_CONTEXT']
+        return [current_app.config['DEBUG_AUTHN_CONTEXT']]
 
-    loas = current_app.config['RAW_AVAILABLE_LOAS']
-    current_level = 0
-    authn_context = "none"
+    authn_context = set()
     for doc in docs:
         if "loa" in doc:
-            loa = doc['loa']
-            level = loas.index(loa)
-            if level > current_level:
-                current_level = level
-                authn_context = loa
+            authn_context = authn_context.union(set(doc['loa'].split(';')))
 
-    session_context = session['authn_context']
-    if (session_context in loas and loas.index(session_context) > current_level) or current_level == 0:
-        authn_context = session_context
+    if not authn_context:
+        authn_context.add(session['authn_context'])
 
-    return authn_context
+    return list(authn_context)
