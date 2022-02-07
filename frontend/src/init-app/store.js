@@ -9,6 +9,7 @@ import confirm from "slices/ConfirmDialog";
 import modals from "slices/Modals";
 import button from "slices/Button";
 import poll from "slices/Poll";
+import inviteform from "slices/InviteForm";
 
 /**
  * @public
@@ -24,5 +25,6 @@ export default combineReducers({
   modals,
   button,
   poll,
+  inviteform,
   intl: intlReducer,
 });

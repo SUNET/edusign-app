@@ -122,7 +122,22 @@
   margin-left: 10%;
 
   .loa-select-label {
-    margin-bottom: 0.3rem;
+    margin-bottom: 1rem;
+
+    .security-level-sign {
+      display: inline-block;
+      margin-right: .6rem;
+      padding-left: .2rem;
+      border: 1px solid black;
+      width: 1rem;
+      font-family: monospace;
+      cursor: pointer;
+    }
+  }
+
+  .hidden {
+    visibility: hidden;
+    height: 0;
   }
   #loa-select-field {
     flex: none;
