@@ -112,35 +112,42 @@ class InviteForm extends React.Component {
       </div>
     );
     const loaControl = (
-      <div className="loa-select-holder">
-        <BForm.Group className="loa-select-group">
-          <BForm.Label className="loa-select-label" htmlFor="loa-select-input">
-            <FormattedMessage
-              defaultMessage="Security level for the signature"
-              key="loa-select-field"
-            />
-          </BForm.Label>
-          <div
-            id="loa-select-field"
-            data-testid="loa-select-field"
-            className="loa-select-holder"
-          >
-            {this.props.loas.map((level, i) => {
-              return (
-                <BForm.Label key={i} className="loa-checkbox">
-                  <Field
-                    name="loa"
-                    value={level.uri}
-                    className="loa-select"
-                    type="checkbox"
-                  />
-                  {level.name}
-                </BForm.Label>
-              );
-            })}
-          </div>
-        </BForm.Group>
-      </div>
+      <>
+        <div className="loa-select-holder">
+          <BForm.Group className="loa-select-group">
+            <BForm.Label className="loa-select-label" htmlFor="loa-select-input" onClick={this.props.handleToggleLoa}>
+              {!this.props.show_loa && (
+                <span className="security-level-sign">+</span>
+              ) || (
+                <span className="security-level-sign">-</span>
+              )}
+              <FormattedMessage
+                defaultMessage="Security level for the signature"
+                key="loa-select-field"
+              />
+            </BForm.Label>
+            <div
+              id="loa-select-field"
+              data-testid="loa-select-field"
+              className={!this.props.show_loa && "hidden" || ""}
+            >
+              {this.props.loas.map((level, i) => {
+                return (
+                  <BForm.Label key={i} className="loa-checkbox">
+                    <Field
+                      name="loa"
+                      value={level.uri}
+                      className="loa-select"
+                      type="checkbox"
+                    />
+                    {level.name}
+                  </BForm.Label>
+                );
+              })}
+            </div>
+          </BForm.Group>
+        </div>
+      </>
     );
     const makecopyControl = (
       <Field name="makecopyChoice" value={false} type="hidden" />
