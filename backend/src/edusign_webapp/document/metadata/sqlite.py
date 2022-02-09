@@ -736,4 +736,4 @@ class SqliteMD(ABCMetadata):
             self.logger.debug(f"Trying to find loa for a non-existing document with key {key}")
             return "none"
 
-        return str(document_result['sendsigned'])
+        return str(document_result['loa'])
