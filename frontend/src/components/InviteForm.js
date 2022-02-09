@@ -239,7 +239,7 @@ class InviteForm extends React.Component {
                       </BForm.Group>
                     </ESTooltip>
                   </div>
-                  {makecopyControlHidden}
+                  {makecopyControl}
                   {loaControlHidden}
                   <FieldArray name="invitees" validateOnChange={true}>
                     {(arrayHelpers) => (
