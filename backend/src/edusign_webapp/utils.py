@@ -32,6 +32,7 @@
 #
 import io
 from base64 import b64decode
+import uuid
 from xml.etree import cElementTree as ET
 
 from flask import current_app, request, session
@@ -179,10 +180,14 @@ def get_authn_context(docs):
 
     authn_context = set()
     for doc in docs:
-        if "loa" in doc:
-            authn_context = authn_context.union(set(doc['loa'].split(';')))
+        key = uuid.UUID(doc['key'])
+        loa = current_app.doc_store.get_loa(key)
+        if loa != "none":
+            authn_context = authn_context.union(set(loa.split(';')))
 
     if not authn_context:
         authn_context.add(session['authn_context'])
+
+    current_app.logger.debug(f"Authn context: {authn_context}")
 
     return list(authn_context)
