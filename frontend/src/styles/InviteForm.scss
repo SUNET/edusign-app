@@ -92,15 +92,13 @@
 
 .makecopy-choice-group {
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: flex-end;
+  flex-direction: row;
+  justify-content: flex-start;
   margin-right: 10%;
   margin-left: 10%;
 
-  .makecopy-choice-label {
-    padding-left: 1rem;
-  }
   .makecopy-choice {
+    margin-left: 1rem;
     color: $form-field-text;
     border: 1px solid $form-field-border-unfocused;
     border-radius: 0.25rem;
