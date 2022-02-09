@@ -8,7 +8,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const inviteFormSlice = createSlice({
   name: "inviteform",
   initialState: {
-    show_loa_selection: true,
+    show_loa_selection: false,
   },
   reducers: {
     /**

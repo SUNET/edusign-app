@@ -88,7 +88,7 @@ const initialValues = (docId) => ({
 
 class InviteForm extends React.Component {
   render() {
-    const makecopyCtrl = (
+    const makecopyControl = (
       <div className="makecopy-choice-holder">
         <BForm.Group className="makecopy-choice-group">
           <BForm.Label
@@ -149,7 +149,7 @@ class InviteForm extends React.Component {
         </div>
       </>
     );
-    const makecopyControl = (
+    const makecopyControlHidden = (
       <Field name="makecopyChoice" value={false} type="hidden" />
     );
     const loaControlHidden = <Field name="loa" value="none" type="hidden" />;
@@ -239,7 +239,7 @@ class InviteForm extends React.Component {
                       </BForm.Group>
                     </ESTooltip>
                   </div>
-                  {makecopyControl}
+                  {makecopyControlHidden}
                   {loaControl}
                   <FieldArray name="invitees" validateOnChange={true}>
                     {(arrayHelpers) => (
