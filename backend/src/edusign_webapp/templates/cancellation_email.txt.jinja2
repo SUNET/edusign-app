@@ -1,0 +1,10 @@
+{% trans %}Message in English:{% endtrans %}
+
+{% trans inviter_name=inviter_name, inviter_email=inviter_email, document_name=document_name %}
+This is to inform you that {{ inviter_name }} <{{ inviter_email }}>
+has cancelled an invitation to digitally sign a document named "{{document_name}}".
+{% endtrans %}
+
+{% trans %}
+This is an email from eduSign, a service for secure digital signatures, developed by Sunet.
+{% endtrans %}

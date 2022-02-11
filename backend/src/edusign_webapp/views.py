@@ -841,7 +841,7 @@ def send_multisign_reminder(data: dict) -> dict:
             invited_link = url_for('edusign.get_index', _external=True)
             mail_context = {
                 'document_name': docname,
-                'inviter__email': f"{session['mail']}",
+                'inviter_email': f"{session['mail']}",
                 'inviter_name': f"{session['displayName']}",
                 'invited_link': invited_link,
                 'text': 'text' in data and data['text'] or "",
@@ -878,8 +878,17 @@ def remove_multi_sign_request(data: dict) -> dict:
     :param data: The key of the document to remove
     :return: A message about the result of the procedure
     """
+    key = uuid.UUID(data['key'])
     try:
-        removed = current_app.doc_store.remove_document(uuid.UUID(data['key']), force=True)
+        pending = current_app.doc_store.get_pending_invites(key)
+        docname = current_app.doc_store.get_document_name(key)
+    except Exception as e:
+        current_app.logger.error(f'Problem getting info about document {key}: {e}')
+        pending = []
+        docname = ''
+
+    try:
+        removed = current_app.doc_store.remove_document(key, force=True)
 
     except Exception as e:
         current_app.logger.error(f'Problem removing multi sign request: {e}')
@@ -888,6 +897,30 @@ def remove_multi_sign_request(data: dict) -> dict:
     if not removed:
         current_app.logger.error(f'Could not remove the multi sign request corresponding to data: {data}')
         return {'error': True, 'message': gettext('Document has not been removed, please try again')}
+
+    recipients = [
+        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
+    ]
+    if len(recipients) > 0:
+        try:
+            mail_context = {
+                'document_name': docname,
+                'inviter_email': f"{session['mail']}",
+                'inviter_name': f"{session['displayName']}",
+            }
+            with force_locale('en'):
+                subject_en = gettext('Cancellation of invitation to sign "%(document_name)s"') % {'document_name': docname}
+                body_txt_en = render_template('cancellation_email.txt.jinja2', **mail_context)
+                body_html_en = render_template('cancellation_email.html.jinja2', **mail_context)
+            with force_locale('sv'):
+                subject_sv = gettext('Cancellation of invitation to sign "%(document_name)s"') % {'document_name': docname}
+                body_txt_sv = render_template('cancellation_email.txt.jinja2', **mail_context)
+                body_html_sv = render_template('cancellation_email.html.jinja2', **mail_context)
+
+            sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+
+        except Exception as e:
+            current_app.logger.error(f'Problem sending cancellation email: {e}')
 
     message = gettext("Success removing invitation to sign")
 
