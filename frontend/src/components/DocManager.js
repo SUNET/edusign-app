@@ -162,7 +162,7 @@ class DocManager extends React.Component {
                           handleClose={this.props.handleClosePreview}
                         />
                       )}
-                      {["loaded", "selected"].includes(doc.state) && (
+                      {["loaded", "selected", "signed"].includes(doc.state) && (
                         <InviteFormContainer
                           docId={doc.id}
                           docName={doc.name}

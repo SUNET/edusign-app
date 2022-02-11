@@ -17,7 +17,7 @@ const inviteFormSlice = createSlice({
      * @desc Redux action to show the widget to select required loa
      */
     toggleLoa(state) {
-      state.show_loa_selection = ! state.show_loa_selection;
+      state.show_loa_selection = !state.show_loa_selection;
     },
     /**
      * @public

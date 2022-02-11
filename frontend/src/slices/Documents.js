@@ -886,7 +886,8 @@ export const sendInvites = createAsyncThunk(
       invites: invitees,
       text: args.values.invitationText,
       sendsigned: args.values.sendsignedChoice,
-      loa: args.values.loa.join !== undefined? args.values.loa.join(";"): "none",
+      loa:
+        args.values.loa.join !== undefined ? args.values.loa.join(";") : "none",
       document: {
         key: document.key,
         name: document.name,
@@ -1293,12 +1294,14 @@ const documentsSlice = createSlice({
      * @desc Redux action to update a document with the signed content
      */
     updateDocumentWithSignedContent(state, action) {
+      const signedContent =
+        "data:application/pdf;base64," + action.payload.signed_content;
       state.documents = state.documents.map((doc) => {
         if (doc.key === action.payload.id) {
           const document = {
             ...doc,
-            signedContent:
-              "data:application/pdf;base64," + action.payload.signed_content,
+            signedContent: signedContent,
+            blob: signedContent,
             state: "signed",
           };
           return document;
