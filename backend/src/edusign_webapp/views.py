@@ -832,7 +832,9 @@ def send_multisign_reminder(data: dict) -> dict:
         return {'error': True, 'message': gettext('Could not find the document')}
 
     recipients = [
-        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined'] and invite['signer']
+        f"{invite['name']} <{invite['email']}>"
+        for invite in pending
+        if not invite['signed'] and not invite['declined'] and invite['signer']
     ]
     if len(recipients) > 0:
         try:
@@ -895,7 +897,9 @@ def remove_multi_sign_request(data: dict) -> dict:
         return {'error': True, 'message': gettext('Document has not been removed, please try again')}
 
     recipients = [
-        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined'] and invite['signer']
+        f"{invite['name']} <{invite['email']}>"
+        for invite in pending
+        if not invite['signed'] and not invite['declined'] and invite['signer']
     ]
     if len(recipients) > 0:
         try:
@@ -905,11 +909,15 @@ def remove_multi_sign_request(data: dict) -> dict:
                 'inviter_name': f"{session['displayName']}",
             }
             with force_locale('en'):
-                subject_en = gettext('Cancellation of invitation to sign "%(document_name)s"') % {'document_name': docname}
+                subject_en = gettext('Cancellation of invitation to sign "%(document_name)s"') % {
+                    'document_name': docname
+                }
                 body_txt_en = render_template('cancellation_email.txt.jinja2', **mail_context)
                 body_html_en = render_template('cancellation_email.html.jinja2', **mail_context)
             with force_locale('sv'):
-                subject_sv = gettext('Cancellation of invitation to sign "%(document_name)s"') % {'document_name': docname}
+                subject_sv = gettext('Cancellation of invitation to sign "%(document_name)s"') % {
+                    'document_name': docname
+                }
                 body_txt_sv = render_template('cancellation_email.txt.jinja2', **mail_context)
                 body_html_sv = render_template('cancellation_email.html.jinja2', **mail_context)
 

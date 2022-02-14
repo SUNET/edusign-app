@@ -31,8 +31,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import io
-from base64 import b64decode
 import uuid
+from base64 import b64decode
 from xml.etree import cElementTree as ET
 
 from flask import current_app, request, session
