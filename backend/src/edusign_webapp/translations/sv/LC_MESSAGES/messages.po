@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-02-11 12:40+0100\n"
+"POT-Creation-Date: 2022-02-14 13:16+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sv\n"
@@ -162,9 +162,9 @@ msgid "Document has not been removed, please try again"
 msgstr "Dokumentet togs inte bort, var god försök igen"
 
 #: src/edusign_webapp/views.py:912 src/edusign_webapp/views.py:916
-#, fuzzy, python-format
+#, python-format
 msgid "Cancellation of invitation to sign \"%(document_name)s\""
-msgstr "Du har blivit inbjuden att signera \"%(document_name)s\""
+msgstr "Borttagen inbjudan att signera \"%(document_name)s\""
 
 #: src/edusign_webapp/views.py:925
 msgid "Success removing invitation to sign"
@@ -223,17 +223,16 @@ msgid "Message in English:"
 msgstr "Meddelande på svenska:"
 
 #: src/edusign_webapp/templates/cancellation_email.html.jinja2:11
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "This is to inform you that %(inviter_name)s &lt;%(inviter_email)s&gt;\n"
-"has cancelled the invitation to digitally sign a document named "
+"has cancelled an invitation to digitally sign a document named "
 "\"%(document_name)s\".\n"
 msgstr ""
 "\n"
-"Detta är en påminnelse att du har blivit inbjuden av %(inviter_name)s "
-"&lt;%(inviter_email)s&gt;,\n"
-"att digitalt signera dokumentet \"%(document_name)s\".\n"
+"Detta är för att informera er om att  %(inviter_name)s &lt;%(inviter_email)s&gt;\n"
+" har tagit bort inbjudan att digitalt signera dokumentet \"%(document_name)s\".\n"
 
 #: src/edusign_webapp/templates/cancellation_email.html.jinja2:18
 #: src/edusign_webapp/templates/cancellation_email.txt.jinja2:8
@@ -263,7 +262,7 @@ msgstr ""
 "signaturer, utvecklat av Sunet.\n"
 
 #: src/edusign_webapp/templates/cancellation_email.txt.jinja2:3
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "This is to inform you that %(inviter_name)s <%(inviter_email)s>\n"
@@ -271,9 +270,8 @@ msgid ""
 "\"%(document_name)s\".\n"
 msgstr ""
 "\n"
-"Detta är en påminnelse att du har blivit inbjuden av %(inviter_name)s "
-"<%(inviter_email)s>,\n"
-"att digitalt signera dokumentet \"%(document_name)s\".\n"
+"Detta är för att informera er om att  %(inviter_name)s <%(inviter_email)s>\n"
+" har tagit bort inbjudan att digitalt signera dokumentet \"%(document_name)s\".\n"
 
 #: src/edusign_webapp/templates/declined_by_email.html.jinja2:11
 #: src/edusign_webapp/templates/final_declined_by_email.html.jinja2:11
