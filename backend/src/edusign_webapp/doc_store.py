@@ -111,7 +111,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         key: uuid.UUID,
         document: Dict[str, str],
         owner: Dict[str, str],
-        invites: List[Dict[str, str]],
+        invites: List[Dict[str, Any]],
         sendsigned: bool,
         loa: str,
     ) -> List[Dict[str, str]]:
@@ -126,6 +126,8 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                          + prev_signatures: previous signatures
         :param owner: Email address and name of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
+                        Also includes a `signer` boolean, indicating whether the invitation is for signing
+                        or just as a recipient of the final signed document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -196,7 +198,10 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + name: The name of the user
                  + email: The email of the user
                  + signed: Whether the user has already signed the document
+                 + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
+                 + signer: Whether the user has been invited to sign
+                           or just as recipient for the final signed document.
         """
 
     @abc.abstractmethod
@@ -322,7 +327,7 @@ class DocStore(object):
         self.metadata = docmd_class(app)
 
     def add_document(
-        self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, str]], sendsigned: bool, loa: str
+        self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, Any]], sendsigned: bool, loa: str
     ) -> List[Dict[str, str]]:
         """
         Store document, to be signed by all users referenced in `invites`.
@@ -336,6 +341,8 @@ class DocStore(object):
                          + prev_signatures: previous signatures
         :param owner: Email address and name of the user that has uploaded the document.
         :param invites: List of names and email addresses of the users that should sign the document.
+                        Also includes a `signer` boolean, indicating whether the invitation is for signing
+                        or just as a recipient of the final signed document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -541,7 +548,10 @@ class DocStore(object):
                  + name: The name of the user
                  + email: The email of the user
                  + signed: Whether the user has already signed the document
+                 + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
+                 + signer: Whether the user has been invited to sign
+                           or just as recipient for the final signed document.
         """
         invites = self.metadata.get_invited(key)
         if exclude:

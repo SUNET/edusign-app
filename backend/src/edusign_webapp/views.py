@@ -622,7 +622,7 @@ def get_signed_documents(sign_data: dict) -> dict:
 
         if 'email' in owner and owner['email'] != session['mail']:
             pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
-            pending = [p for p in pending if not p['signed'] and not p['declined']]
+            pending = [p for p in pending if not p['signed'] and not p['declined'] and p['signer']]
 
             if len(pending) > 0:
                 template = 'signed_by_email'
@@ -665,7 +665,7 @@ def get_signed_documents(sign_data: dict) -> dict:
                 [
                     f"{invited['name']} <{invited['email']}>"
                     for invited in current_app.doc_store.get_pending_invites(key)
-                    if invited['signed']
+                    if (invited['signed'] or not invited['signer'])
                 ]
             )
             try:
@@ -784,16 +784,14 @@ def create_multi_sign_request(data: dict) -> dict:
                 'invited_link': invited_link,
                 'text': data['text'],
             }
-            mail_context_html = mail_context.copy()
-            mail_context_html['inviter_name_and_email'] = f"{owner['name']} &lt;{owner['email']}&gt;"
             with force_locale('en'):
                 subject_en = gettext('You have been invited to sign "%(document_name)s"') % {'document_name': doc_name}
                 body_txt_en = render_template('invitation_email.txt.jinja2', **mail_context)
-                body_html_en = render_template('invitation_email.html.jinja2', **mail_context_html)
+                body_html_en = render_template('invitation_email.html.jinja2', **mail_context)
             with force_locale('sv'):
                 subject_sv = gettext('You have been invited to sign "%(document_name)s"') % {'document_name': doc_name}
                 body_txt_sv = render_template('invitation_email.txt.jinja2', **mail_context)
-                body_html_sv = render_template('invitation_email.html.jinja2', **mail_context_html)
+                body_html_sv = render_template('invitation_email.html.jinja2', **mail_context)
 
             sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
@@ -834,7 +832,7 @@ def send_multisign_reminder(data: dict) -> dict:
         return {'error': True, 'message': gettext('Could not find the document')}
 
     recipients = [
-        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
+        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined'] and invite['signer']
     ]
     if len(recipients) > 0:
         try:
@@ -846,16 +844,14 @@ def send_multisign_reminder(data: dict) -> dict:
                 'invited_link': invited_link,
                 'text': 'text' in data and data['text'] or "",
             }
-            mail_context_html = mail_context.copy()
-            mail_context_html['inviter_name_and_email'] = f"{session['displayName']} &lt;{session['mail']}&gt;"
             with force_locale('en'):
                 subject_en = gettext('A reminder to sign "%(document_name)s"') % {'document_name': docname}
                 body_txt_en = render_template('reminder_email.txt.jinja2', **mail_context)
-                body_html_en = render_template('reminder_email.html.jinja2', **mail_context_html)
+                body_html_en = render_template('reminder_email.html.jinja2', **mail_context)
             with force_locale('sv'):
                 subject_sv = gettext('A reminder to sign "%(document_name)s"') % {'document_name': docname}
                 body_txt_sv = render_template('reminder_email.txt.jinja2', **mail_context)
-                body_html_sv = render_template('reminder_email.html.jinja2', **mail_context_html)
+                body_html_sv = render_template('reminder_email.html.jinja2', **mail_context)
 
             sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
@@ -899,7 +895,7 @@ def remove_multi_sign_request(data: dict) -> dict:
         return {'error': True, 'message': gettext('Document has not been removed, please try again')}
 
     recipients = [
-        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
+        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined'] and invite['signer']
     ]
     if len(recipients) > 0:
         try:
@@ -976,7 +972,7 @@ def skip_final_signature(data: dict) -> dict:
             [
                 f"{invited['name']} <{invited['email']}>"
                 for invited in current_app.doc_store.get_pending_invites(key)
-                if invited['signed']
+                if (invited['signed'] or not invited['signer'])
             ]
         )
 
@@ -1058,7 +1054,7 @@ def decline_invitation(data):
 
         else:
             pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
-            pending = [p for p in pending if not p['signed'] and not p['declined']]
+            pending = [p for p in pending if not p['signed'] and not p['declined'] and p['signer']]
             if len(pending) > 0:
                 template = 'declined_by_email'
             else:
