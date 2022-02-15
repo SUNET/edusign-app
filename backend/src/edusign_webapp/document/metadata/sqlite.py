@@ -280,7 +280,7 @@ class SqliteMD(ABCMetadata):
                 continue
 
             user_id = user_result['user_id']
-            signer = user['signer']
+            signer = int(user['signer'])
             invite_key = str(uuid.uuid4())
             self._db_execute(INVITE_INSERT, (invite_key, document_id, user_id, signer))
 

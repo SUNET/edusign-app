@@ -56,6 +56,7 @@ config_dev = {
     'USER_WHITELIST': 'whitelisted@example.org',
     'MAIL_SUPPRESS_SEND': True,
     'BABEL_DEFAULT_LOCALE': 'en',
+    'DOC_LOCK_TIMEOUT': 300,
 }
 
 
@@ -67,6 +68,7 @@ config_pro = {
     'USER_WHITELIST': 'whitelisted@example.org',
     'MAIL_SUPPRESS_SEND': True,
     'BABEL_DEFAULT_LOCALE': 'en',
+    'DOC_LOCK_TIMEOUT': 300,
 }
 
 
@@ -279,12 +281,12 @@ def sample_doc_2():
 
 @pytest.fixture
 def sample_invites_1():
-    yield [{'name': 'invite0', 'email': 'invite0@example.org'}, {'name': 'invite1', 'email': 'invite1@example.org'}]
+    yield [{'name': 'invite0', 'email': 'invite0@example.org', 'signer': True}, {'name': 'invite1', 'email': 'invite1@example.org', 'signer': True}]
 
 
 @pytest.fixture
 def sample_invites_2():
-    yield [{'name': 'invite0', 'email': 'invite0@example.org'}, {'name': 'invite2', 'email': 'invite2@example.org'}]
+    yield [{'name': 'invite0', 'email': 'invite0@example.org', 'signer': True}, {'name': 'invite2', 'email': 'invite2@example.org', 'signer': True}]
 
 
 @pytest.fixture

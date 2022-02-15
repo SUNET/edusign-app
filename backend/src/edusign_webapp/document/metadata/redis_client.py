@@ -90,7 +90,7 @@ class RedisStorageBackend:
             created=now,
             updated=now,
             prev_signatures=prev_signatures,
-            sendsigned=sendsigned,
+            sendsigned=int(sendsigned),
             loa=loa,
         )
         self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
@@ -203,7 +203,7 @@ class RedisStorageBackend:
             owner_id=owner_id,
             signed=0,
             declined=0,
-            signer=signer,
+            signer=int(signer),
         )
         self.transaction.hset(f"invite:{invite_id}", mapping=mapping)
         self.transaction.set(f"invite:key:{key}", invite_id)
