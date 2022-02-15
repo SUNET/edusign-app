@@ -226,26 +226,35 @@ class InviteForm extends React.Component {
                       </BForm.Group>
                     </div>
                   </div>
-                  <div className="invitee-form-signer">
-                    <BForm.Group>
-                      <BForm.Label
-                        htmlFor={`invitees.${index}.signer`}
-                      >
-                        <FormattedMessage
-                          defaultMessage="Request signature"
-                          key="signer-input-field"
+                  {(this.props.sending_signed) && (
+                    <div className="invitee-form-signer">
+                      <BForm.Group>
+                        <BForm.Label
+                          htmlFor={`invitees.${index}.signer`}
+                        >
+                          <FormattedMessage
+                            defaultMessage="Request signature"
+                            key="signer-input-field"
+                          />
+                        </BForm.Label>
+                        <Field
+                          name={`invitees.${index}.signer`}
+                          data-testid={`invitees.${index}.signer`}
+                          className="signer-choice"
+                          checked={invitee.signer}
+                          validate={validateSigner}
+                          type="checkbox"
                         />
-                      </BForm.Label>
-                      <Field
-                        name={`invitees.${index}.signer`}
-                        data-testid={`invitees.${index}.signer`}
-                        className="signer-choice"
-                        checked={invitee.signer}
-                        validate={validateSigner}
-                        type="checkbox"
-                      />
-                    </BForm.Group>
-                  </div>
+                      </BForm.Group>
+                    </div>
+                  ) || (
+                    <Field
+                      name={`invitees.${index}.signer`}
+                      data-testid={`invitees.${index}.signer`}
+                      value={true}
+                      type="hidden"
+                    />
+                  )}
                 </div>
               ))}
             <ESTooltip
@@ -277,6 +286,40 @@ class InviteForm extends React.Component {
     );
   }
   render() {
+    const sendsignedControl = (
+      <div className="sendsigned-choice-holder">
+        <ESTooltip
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Send final signed document via email to all who signed it."
+              key="sendsigned-choice-help"
+            />
+          }
+        >
+          <BForm.Group className="sendsigned-choice-group">
+            <BForm.Label
+              className="sendsigned-choice-label"
+              htmlFor="sendsigned-choice-input"
+            >
+              <FormattedMessage
+                defaultMessage="Send signed document in email"
+                key="sendsigned-choice-field"
+              />
+            </BForm.Label>
+            <Field
+              name="sendsignedChoice"
+              id="sendsigned-choice-input"
+              data-testid="sendsigned-choice-input"
+              className="sendsigned-choice"
+              validate={validateSendsigned}
+              type="checkbox"
+              checked={this.props.sending_signed}
+              onChange={this.props.handleToggleSendSigned}
+            />
+          </BForm.Group>
+        </ESTooltip>
+      </div>
+    );
     const makecopyControl = (
       <div className="makecopy-choice-holder">
         <BForm.Group className="makecopy-choice-group">
@@ -400,36 +443,7 @@ class InviteForm extends React.Component {
                       />
                     </BForm.Group>
                   </div>
-                  <div className="sendsigned-choice-holder">
-                    <ESTooltip
-                      tooltip={
-                        <FormattedMessage
-                          defaultMessage="Send final signed document via email to all who signed it."
-                          key="sendsigned-choice-help"
-                        />
-                      }
-                    >
-                      <BForm.Group className="sendsigned-choice-group">
-                        <BForm.Label
-                          className="sendsigned-choice-label"
-                          htmlFor="sendsigned-choice-input"
-                        >
-                          <FormattedMessage
-                            defaultMessage="Send signed document in email"
-                            key="sendsigned-choice-field"
-                          />
-                        </BForm.Label>
-                        <Field
-                          name="sendsignedChoice"
-                          id="sendsigned-choice-input"
-                          data-testid="sendsigned-choice-input"
-                          className="sendsigned-choice"
-                          validate={validateSendsigned}
-                          type="checkbox"
-                        />
-                      </BForm.Group>
-                    </ESTooltip>
-                  </div>
+                  {sendsignedControl}
                   {makecopyControl}
                   {loaControl}
                   {this.inviteeControl(fprops)}

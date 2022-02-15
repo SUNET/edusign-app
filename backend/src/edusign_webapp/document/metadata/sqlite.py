@@ -34,7 +34,7 @@ import os
 import sqlite3
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, List, Union
 
 from flask import Flask, current_app, g
 
