@@ -93,29 +93,6 @@ const initialValues = (docId) => ({
 
 class InviteForm extends React.Component {
   inviteeControl(fprops) {
-    const makecopyControl = (
-      <div className="makecopy-choice-holder">
-        <BForm.Group className="makecopy-choice-group">
-          <BForm.Label
-            className="makecopy-choice-label"
-            htmlFor="makecopy-choice-input"
-          >
-            <FormattedMessage
-              defaultMessage="Make a copy of the document to sign, and keep the original unsigned"
-              key="makecopy-choice-field"
-            />
-          </BForm.Label>
-          <Field
-            name="makecopyChoice"
-            id="makecopy-choice-input"
-            data-testid="makecopy-choice-input"
-            className="makecopy-choice"
-            validate={validateMakecopy}
-            type="checkbox"
-          />
-        </BForm.Group>
-      </div>
-    );
     return (
       <FieldArray name="invitees" validateOnChange={true}>
         {(arrayHelpers) => (
@@ -263,7 +240,7 @@ class InviteForm extends React.Component {
                         name={`invitees.${index}.signer`}
                         data-testid={`invitees.${index}.signer`}
                         className="signer-choice"
-                        value={invitee.signer}
+                        checked={invitee.signer}
                         validate={validateSigner}
                         type="checkbox"
                       />
