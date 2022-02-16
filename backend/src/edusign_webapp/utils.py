@@ -182,7 +182,7 @@ def get_authn_context(docs):
     for doc in docs:
         key = uuid.UUID(doc['key'])
         loa = current_app.doc_store.get_loa(key)
-        if loa != "none":
+        if loa not in ("", "none"):
             authn_context = authn_context.union(set(loa.split(';')))
 
     if not authn_context:

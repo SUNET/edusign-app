@@ -34,6 +34,7 @@ import {
 } from "slices/Main";
 import { setPolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
+import { showSendSigned } from "slices/InviteForm";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
 import { b64toBlob, hashCode, nameForCopy } from "components/utils";
@@ -885,7 +886,7 @@ export const sendInvites = createAsyncThunk(
       owner: owner,
       invites: invitees,
       text: args.values.invitationText,
-      sendsigned: args.values.sendsignedChoice,
+      sendsigned: state.inviteform.send_signed,
       loa:
         args.values.loa.join !== undefined ? args.values.loa.join(";") : "none",
       document: {
@@ -953,6 +954,7 @@ export const sendInvites = createAsyncThunk(
     await thunkAPI.dispatch(removeDocument({ docName: document.name }));
     thunkAPI.dispatch(addOwned(owned));
     thunkAPI.dispatch(setPolling(true));
+    thunkAPI.dispatch(showSendSigned());
     return document.key;
   }
 );
