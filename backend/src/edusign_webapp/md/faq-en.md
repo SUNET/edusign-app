@@ -53,6 +53,29 @@ eduSign you will be able to invite others to sign your documents.
 You can validate documents signed with eduSign using Sunet's [validation 
 service](https://validator.edusign.sunet.se/).
 
+## Why can I not see the documents I uploaded to eduSign any more?
+
+Your "personal documents" in eduSign are saved in your local browser. In other
+words you will not see personal documents that you have uploaded in eduSign if
+you log in to eduSign using another browser than you used to upload the
+documents.
+
+Documents you have invited others to sign or been invited to sign are stored
+temporarily on Sunet's servers during the signature process. Which means that
+you will have access to those documents from any web browser, until the
+signature process is completed.
+
+## Why is there no document to sign when I login to eduSign, even though I got an email inviting me to sign a document?
+
+When you are invited to sign documents in eduSign the document is linked using
+the email adress you are invited with and the email address the account you
+login to eduSign have registered to it. Sometimes an account have a different
+email address registered to it than what you might usually use when sending
+emails. You can check which mail value your account has registered if you login
+to [SWAMID Release check](https://release-check.swamid.se/). It is important
+that your mail value match the email used to invite you to sign a document with
+eduSign.
+
 ## What is eduSign?
 
 eduSign is Sunet's service for e-signatures. The service can be found at
