@@ -83,6 +83,7 @@ def _test_create_invited_signature(
             "invites": sample_invites_1,
             "text": "text to send",
             "sendsigned": True,
+            "loa": '',
         },
     }
 

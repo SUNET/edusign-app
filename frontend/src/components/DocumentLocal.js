@@ -211,6 +211,7 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
                       {widgets.downloadSignedButton(this.props, doc)}
+                      {widgets.multiSignButton(this.props, doc)}
                       {widgets.removeButton(this.props, doc)}
                     </div>
                   </>
@@ -330,6 +331,7 @@ class DocumentLocal extends React.Component {
                     </div>
                     <div className="doc-container-button-row">
                       {widgets.downloadSignedButton(this.props, doc)}
+                      {widgets.multiSignButton(this.props, doc)}
                       {widgets.removeButton(this.props, doc)}
                     </div>
                   </>

@@ -247,10 +247,13 @@ class MultiSignSchema(Schema):
     Schema to unmarshal requests for multi signatures.
     """
 
+    class InviteeAny(Invitee):
+        signer = fields.Boolean()
+
     document = fields.Nested(DocumentSchemaWithKey, many=False)
     text = fields.String()
     sendsigned = fields.Boolean()
-    invites = fields.List(fields.Nested(Invitee))
+    invites = fields.List(fields.Nested(InviteeAny))
     owner = fields.Email(required=True)
     loa = fields.String()
 

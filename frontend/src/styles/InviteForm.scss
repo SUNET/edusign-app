@@ -9,19 +9,6 @@
   border: 1px solid $orange-opaque;
   border-radius: 2px;
 
-  .invitee-form-row {
-    flex: none;
-    display: flex;
-    flex-wrap: wrap;
-    margin: 1rem 1rem;
-    align-items: center;
-
-    .invitee-form-name,
-    .invitee-form-email {
-      flex: 1 0 auto;
-      margin-right: 1rem;
-    }
-  }
   .invitee-form-dismiss {
     flex: 0 0 auto;
     display: flex;
@@ -30,6 +17,29 @@
     button {
       flex: none;
       color: $orange-highlight;
+    }
+  }
+  .invitee-form-row {
+    flex: none;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 1rem 1rem 0 1rem;
+    align-items: center;
+
+    .invitee-form-name,
+    .invitee-form-email {
+      flex: 1 0 auto;
+      margin-right: 1rem;
+    }
+  }
+  .invitee-form-signer {
+    flex: none;
+    display: flex;
+    margin-left: 2rem;
+    align-items: flex-start;
+
+    .signer-choice {
+      margin-left: 1rem;
     }
   }
 
@@ -92,15 +102,13 @@
 
 .makecopy-choice-group {
   display: flex;
-  flex-direction: row-reverse;
-  justify-content: flex-end;
+  flex-direction: row;
+  justify-content: flex-start;
   margin-right: 10%;
   margin-left: 10%;
 
-  .makecopy-choice-label {
-    padding-left: 1rem;
-  }
   .makecopy-choice {
+    margin-left: 1rem;
     color: $form-field-text;
     border: 1px solid $form-field-border-unfocused;
     border-radius: 0.25rem;
@@ -122,7 +130,22 @@
   margin-left: 10%;
 
   .loa-select-label {
-    margin-bottom: 0.3rem;
+    margin-bottom: 1rem;
+
+    .security-level-sign {
+      display: inline-block;
+      margin-right: 0.6rem;
+      padding-left: 0.2rem;
+      border: 1px solid black;
+      width: 1rem;
+      font-family: monospace;
+      cursor: pointer;
+    }
+  }
+
+  .hidden {
+    visibility: hidden;
+    height: 0;
   }
   #loa-select-field {
     flex: none;
