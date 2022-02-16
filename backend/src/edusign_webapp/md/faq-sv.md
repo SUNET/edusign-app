@@ -51,6 +51,28 @@ eduSign kan du bjuda in andra att signera dina dokument.
 Du kan validera dokument signerade med eduSign
 på [Sunets valideringstjänst](https://validator.edusign.sunet.se/).
 
+## Varför kan jag inte se de dokument jag laddat upp i eduSign längre?
+
+Dina "personliga dokument" i eduSign sparas i din lokala webbläsare. Men andra
+ord så kommer du inte se personliga dokument som du laddat upp i eduSign om du
+loggar in via en annan webbläsare än du använde för att ladda upp dokumenten.
+
+Dokument som du bjudit in andra att signera eller blivit inbjuden att signera
+sparas dock på Sunets servrar temporärt under själva signeringsprocessen. Detta
+betyder att du kommer åt dessa dokument oavsett vilken webbläsare du använder,
+fram tills dess att signeringsprocessen avslutas.
+
+## Varför ser jag inget dokument att signera när jag logga in på eduSign trots att jag fått ett mail från eduSign att jag blivit inbjuden att signera ett dokument?
+
+När du blir inbjuden att signera dokument med eduSign så länkas dokumentet med
+den e-post du blir inbjuden och den e-post som ditt konto du loggar in med har
+kopplat till sig. Ibland kan det konto du loggar in med ha en annan e-post
+kopplad än den du vanligtvis använder för att skicka e-post. Det går att
+verifiera vilket mail värde ditt konto har kopplat genom att logga in på [SWAMID
+Release check](https://release-check.swamid.se/). Det är viktigt att det mail
+värde du ser där är samma e-post som du blivit inbjuden att signera dokument
+med
+
 ## Vad är eduSign?
 
 eduSign är Sunets tjänst för e-signaturer. Tjänsten finns på edusign.sunet.se
