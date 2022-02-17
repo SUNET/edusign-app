@@ -55,10 +55,6 @@ const validateMakecopy = (value) => {
   return undefined;
 };
 
-const validateSigner = (value) => {
-  return undefined;
-};
-
 const validateLoa = (value) => {
   return undefined;
 };
@@ -86,7 +82,6 @@ const initialValues = (docId) => ({
     {
       name: "",
       email: "",
-      signer: true,
     },
   ],
 });
@@ -226,35 +221,6 @@ class InviteForm extends React.Component {
                       </BForm.Group>
                     </div>
                   </div>
-                  {(this.props.sending_signed) && (
-                    <div className="invitee-form-signer">
-                      <BForm.Group>
-                        <BForm.Label
-                          htmlFor={`invitees.${index}.signer`}
-                        >
-                          <FormattedMessage
-                            defaultMessage="Request signature"
-                            key="signer-input-field"
-                          />
-                        </BForm.Label>
-                        <Field
-                          name={`invitees.${index}.signer`}
-                          data-testid={`invitees.${index}.signer`}
-                          className="signer-choice"
-                          checked={invitee.signer}
-                          validate={validateSigner}
-                          type="checkbox"
-                        />
-                      </BForm.Group>
-                    </div>
-                  ) || (
-                    <Field
-                      name={`invitees.${index}.signer`}
-                      data-testid={`invitees.${index}.signer`}
-                      value={true}
-                      type="hidden"
-                    />
-                  )}
                 </div>
               ))}
             <ESTooltip
@@ -271,7 +237,7 @@ class InviteForm extends React.Component {
                   "button-add-invitation-" + this.props.docName
                 }
                 onClick={() =>
-                  arrayHelpers.push({ name: "", email: "", signer: true })
+                  arrayHelpers.push({ name: "", email: "" })
                 }
               >
                 <FormattedMessage
@@ -313,8 +279,6 @@ class InviteForm extends React.Component {
               className="sendsigned-choice"
               validate={validateSendsigned}
               type="checkbox"
-              checked={this.props.sending_signed}
-              onChange={this.props.handleToggleSendSigned}
             />
           </BForm.Group>
         </ESTooltip>

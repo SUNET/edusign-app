@@ -622,7 +622,7 @@ def get_signed_documents(sign_data: dict) -> dict:
 
         if 'email' in owner and owner['email'] != session['mail']:
             pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
-            pending = [p for p in pending if not p['signed'] and not p['declined'] and p['signer']]
+            pending = [p for p in pending if not p['signed'] and not p['declined']]
 
             if len(pending) > 0:
                 template = 'signed_by_email'
@@ -665,7 +665,7 @@ def get_signed_documents(sign_data: dict) -> dict:
                 [
                     f"{invited['name']} <{invited['email']}>"
                     for invited in current_app.doc_store.get_pending_invites(key)
-                    if (invited['signed'] or not invited['signer'])
+                    if invited['signed']
                 ]
             )
             try:
@@ -834,7 +834,7 @@ def send_multisign_reminder(data: dict) -> dict:
     recipients = [
         f"{invite['name']} <{invite['email']}>"
         for invite in pending
-        if not invite['signed'] and not invite['declined'] and invite['signer']
+        if not invite['signed'] and not invite['declined']
     ]
     if len(recipients) > 0:
         try:
@@ -899,7 +899,7 @@ def remove_multi_sign_request(data: dict) -> dict:
     recipients = [
         f"{invite['name']} <{invite['email']}>"
         for invite in pending
-        if not invite['signed'] and not invite['declined'] and invite['signer']
+        if not invite['signed'] and not invite['declined']
     ]
     if len(recipients) > 0:
         try:
@@ -980,7 +980,7 @@ def skip_final_signature(data: dict) -> dict:
             [
                 f"{invited['name']} <{invited['email']}>"
                 for invited in current_app.doc_store.get_pending_invites(key)
-                if (invited['signed'] or not invited['signer'])
+                if invited['signed']
             ]
         )
 
@@ -1062,7 +1062,7 @@ def decline_invitation(data):
 
         else:
             pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
-            pending = [p for p in pending if not p['signed'] and not p['declined'] and p['signer']]
+            pending = [p for p in pending if not p['signed'] and not p['declined']]
             if len(pending) > 0:
                 template = 'declined_by_email'
             else:

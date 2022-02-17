@@ -281,12 +281,12 @@ def sample_doc_2():
 
 @pytest.fixture
 def sample_invites_1():
-    yield [{'name': 'invite0', 'email': 'invite0@example.org', 'signer': True}, {'name': 'invite1', 'email': 'invite1@example.org', 'signer': True}]
+    yield [{'name': 'invite0', 'email': 'invite0@example.org'}, {'name': 'invite1', 'email': 'invite1@example.org'}]
 
 
 @pytest.fixture
 def sample_invites_2():
-    yield [{'name': 'invite0', 'email': 'invite0@example.org', 'signer': True}, {'name': 'invite2', 'email': 'invite2@example.org', 'signer': True}]
+    yield [{'name': 'invite0', 'email': 'invite0@example.org'}, {'name': 'invite2', 'email': 'invite2@example.org'}]
 
 
 @pytest.fixture

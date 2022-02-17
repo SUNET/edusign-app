@@ -15,7 +15,7 @@ import InviteForm from "components/InviteForm";
 import { sendInvites } from "slices/Documents";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
-import { toggleLoa, toggleSendSigned } from "slices/InviteForm";
+import { toggleLoa } from "slices/InviteForm";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -28,7 +28,6 @@ const mapStateToProps = (state, props) => {
     mail: state.main.signer_attributes.mail,
     loas: state.main.available_loas,
     show_loa: state.inviteform.show_loa_selection,
-    sending_signed: state.inviteform.send_signed,
   };
 };
 
@@ -45,9 +44,6 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleToggleLoa: function () {
       dispatch(toggleLoa());
-    },
-    handleToggleSendSigned: function () {
-      dispatch(toggleSendSigned());
     },
   };
 };

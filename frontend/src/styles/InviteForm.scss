@@ -32,17 +32,6 @@
       margin-right: 1rem;
     }
   }
-  .invitee-form-signer {
-    flex: none;
-    display: flex;
-    margin-left: 2rem;
-    align-items: flex-start;
-
-    .signer-choice {
-      margin-left: 1rem;
-    }
-  }
-
   .field-error {
     display: inline-block;
     color: $error-red;
