@@ -7,6 +7,7 @@ import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
+import { nameForCopy } from "components/utils";
 
 import "styles/InviteForm.scss";
 
@@ -55,6 +56,10 @@ const validateMakecopy = (value) => {
   return undefined;
 };
 
+const validateNewname = (value) => {
+  return undefined;
+};
+
 const validateLoa = (value) => {
   return undefined;
 };
@@ -72,10 +77,11 @@ const validate = (mail) => {
   };
 };
 
-const initialValues = (docId) => ({
+const initialValues = (docId, docName) => ({
   invitationText: "",
   sendsignedChoice: true,
   makecopyChoice: false,
+  newcopyName: nameForCopy(docName),
   loa: "none",
   documentId: docId,
   invitees: [
@@ -303,6 +309,8 @@ class InviteForm extends React.Component {
             className="makecopy-choice"
             validate={validateMakecopy}
             type="checkbox"
+            checked={this.props.make_copy}
+            onChange={this.props.handleMakeCopyToggle}
           />
         </BForm.Group>
       </div>
@@ -347,6 +355,42 @@ class InviteForm extends React.Component {
         </div>
       </>
     );
+    const newNameControl = (props, fprops) => {
+      if (props.make_copy) {
+        return (
+          <>
+            <div className="newname-text-holder">
+              <BForm.Group>
+                <BForm.Label
+                  htmlFor="newnameInput"
+                >
+                  <FormattedMessage
+                    defaultMessage="New document name"
+                    key="newname-input-field"
+                  />
+                </BForm.Label>
+                <ErrorMessage
+                  name="newnameInput"
+                  component="div"
+                  className="field-error"
+                />
+                <Field
+                  name="newnameInput"
+                  data-testid="newnameInput"
+                  as={BForm.Control}
+                  type="text"
+                  validate={validateNewname}
+                  isValid={!fprops.errors.newnameInput}
+                  isInvalid={fprops.errors.newnameInput}
+                />
+              </BForm.Group>
+            </div>
+          </>
+        )
+      } else {
+        return <Field name="newnameInput" value="" type="hidden" />;
+      }
+    };
     const makecopyControlHidden = (
       <Field name="makecopyChoice" value={false} type="hidden" />
     );
@@ -355,7 +399,7 @@ class InviteForm extends React.Component {
     return (
       <>
         <Formik
-          initialValues={initialValues(this.props.docId)}
+          initialValues={initialValues(this.props.docId, this.props.docName)}
           onSubmit={this.props.handleSubmit.bind(this)}
           validate={validate(this.props.mail)}
           enableReinitialize={true}
@@ -409,6 +453,7 @@ class InviteForm extends React.Component {
                   </div>
                   {sendsignedControl}
                   {makecopyControl}
+                  {newNameControl(this.props, fprops)}
                   {loaControlHidden}
                   {this.inviteeControl(fprops)}
                 </Modal.Body>

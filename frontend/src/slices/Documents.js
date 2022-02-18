@@ -33,6 +33,7 @@ import {
   updateInvitationsFailed,
 } from "slices/Main";
 import { setPolling } from "slices/Poll";
+import { setTemplates, addTemplate } from "slices/Templates";
 import { unsetSpinning } from "slices/Button";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
@@ -58,6 +59,7 @@ export const loadDocuments = createAsyncThunk(
         };
         const docStore = transaction.objectStore("documents");
         const docs = [];
+        const temps = [];
         docStore.openCursor().onsuccess = (event) => {
           const cursor = event.target.result;
           if (cursor) {
@@ -65,15 +67,19 @@ export const loadDocuments = createAsyncThunk(
             if (doc.state === "signing") {
               signing = true;
             }
-            docs.push(doc);
+            if (doc.isTemplate) {
+              temps.push(doc);
+            } else {
+              docs.push(doc);
+            }
             cursor.continue();
           }
           if (cursor === null) {
-            resolve(docs);
+            resolve({templates: temps, documents: docs});
           }
         };
       });
-      let documents = await promisedDocuments;
+      let {documents, templates} = await promisedDocuments;
       let dataElem = null;
       const storageName =
         "signing-" + hashCode(state.main.signer_attributes.eppn);
@@ -136,6 +142,7 @@ export const loadDocuments = createAsyncThunk(
         })
       );
       thunkAPI.dispatch(documentsSlice.actions.setDocuments(documents));
+      thunkAPI.dispatch(setTemplates(documents));
       if (signing && dataElem !== null) {
         await fetchSignedDocuments(thunkAPI, dataElem, args.intl);
       } else {
@@ -865,8 +872,8 @@ export const sendInvites = createAsyncThunk(
 
     const owner = state.main.signer_attributes.mail;
 
-    if (args.values.makecopyChoice) {
-      const docName = nameForCopy(document.name);
+    if (state.inviteform.make_copy) {
+      const docName = args.values.newnameInput;
       const newDoc = {
         name: docName,
         blob: document.blob,
@@ -875,10 +882,13 @@ export const sendInvites = createAsyncThunk(
       };
       await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
       state = thunkAPI.getState();
-      document = state.documents.documents.filter((doc) => {
+      const newDocument = state.documents.documents.filter((doc) => {
         return doc.name === docName;
       })[0];
       thunkAPI.dispatch(setState({ name: docName, state: "loaded" }));
+      thunkAPI.dispatch(documentsSlice.rmDocument(document.name));
+      thunkAPI.dispatch(addTemplate(document));
+      document = newDocument;
     }
 
     const dataToSend = {

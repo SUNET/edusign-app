@@ -11,6 +11,7 @@ import InvitedContainer from "containers/Invited";
 import { preparePDF } from "components/utils";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 import DocumentLocal from "components/DocumentLocal";
+import DocumentTemplate from "components/DocumentTemplate";
 import DocumentOwned from "components/DocumentOwned";
 import { ESTooltip } from "containers/Overlay";
 
@@ -77,6 +78,54 @@ class DocManager extends React.Component {
         )}
         {!this.props.unauthn && (
           <>
+            {this.props.templates.length > 0 && (
+              <fieldset className="local-template-container">
+                <legend>
+                  <FormattedMessage
+                    defaultMessage="Templates"
+                    key="local-templates-legend"
+                  />
+                </legend>
+                {this.props.templates.map((doc, index) => {
+                  const docFile = preparePDF(doc);
+                  let docRepr = (
+                    <>
+                      <DocumentTemplate key={index} doc={doc} {...this.props} />
+                      <ConfirmDialogContainer
+                        confirmId={
+                          "confirm-remove-template-" + doc.name
+                        }
+                        title={this.props.intl.formatMessage({
+                          defaultMessage:
+                            "Confirm Removal of template",
+                          id: "header-confirm-remove-template-title",
+                        })}
+                        mainText={this.props.intl.formatMessage({
+                          defaultMessage:
+                            'Clicking "Confirm" will remove the template',
+                          id: "header-confirm-remove-template-text",
+                        })}
+                        confirm={this.props.handleTemplateRemove(doc.name)}
+                      />
+                    </>
+                  );
+                  return (
+                    <React.Fragment key={index}>
+                      {docRepr}
+                      <DocPreviewContainer
+                        doc={doc}
+                        docFile={docFile}
+                        handleClose={this.props.handleClosePreview}
+                      />
+                      <InviteFormContainer
+                        docId={doc.id}
+                        docName={doc.name}
+                      />
+                    </React.Fragment>
+                  );
+                })}
+              </fieldset>
+            )}
             {this.props.documents.length > 0 && (
               <fieldset className="local-monosign-container">
                 <legend>

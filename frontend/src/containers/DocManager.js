@@ -27,6 +27,7 @@ import {
   downloadAllSigned,
   saveDocument,
 } from "slices/Documents";
+import { rmTemplate } from "slices/Templates";
 import { showForm } from "slices/Modals";
 import { clearDocStore } from "init-app/database";
 import { askConfirmation } from "slices/ConfirmDialog";
@@ -36,6 +37,7 @@ import { unsetSpinning } from "slices/Button";
 const mapStateToProps = (state) => {
   return {
     documents: state.documents.documents,
+    templates: state.template.documents,
     destinationUrl: state.main.signingData.destination_url,
     binding: state.main.signingData.binding,
     relayState: state.main.signingData.relay_state,
@@ -68,6 +70,11 @@ const mapDispatchToProps = (dispatch, props) => {
     handleSignedRemove: function (name) {
       return async () => {
         await dispatch(removeDocument({ docName: name }));
+      };
+    },
+    handleTemplateRemove: function (docid) {
+      return async () => {
+        await dispatch(rmTemplate(docid));
       };
     },
     handleRetry: function (doc, props) {

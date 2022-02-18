@@ -9,6 +9,7 @@ const inviteFormSlice = createSlice({
   name: "inviteform",
   initialState: {
     show_loa_selection: false,
+    make_copy: false,
   },
   reducers: {
     /**
@@ -35,9 +36,33 @@ const inviteFormSlice = createSlice({
     hideLoa(state) {
       state.show_loa_selection = false;
     },
+    /**
+     * @public
+     * @function toggleMakeCopy
+     * @desc Redux action to show the widget to invite on a copy of a template
+     */
+    toggleMakeCopy(state) {
+      state.make_copy = !state.make_copy;
+    },
+    /**
+     * @public
+     * @function doMakeCopy
+     * @desc Redux action to invite on a copy of the document (template)
+     */
+    doMakeCopy(state) {
+      state.make_copy = true;
+    },
+    /**
+     * @public
+     * @function dontMakeCopy
+     * @desc Redux action to not invite on a copy
+     */
+    dontMakeCopy(state) {
+      state.make_copy = false;
+    },
   },
 });
 
-export const { toggleLoa, showLoa, hideLoa } = inviteFormSlice.actions;
+export const { toggleLoa, showLoa, hideLoa, toggleMakeCopy, doMakeCopy, dontMakeCopy } = inviteFormSlice.actions;
 
 export default inviteFormSlice.reducer;
