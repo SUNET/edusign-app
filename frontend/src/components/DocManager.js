@@ -92,12 +92,9 @@ class DocManager extends React.Component {
                     <React.Fragment key={index}>
                       <DocumentTemplate key={index} doc={doc} {...this.props} />
                       <ConfirmDialogContainer
-                        confirmId={
-                          "confirm-remove-template-" + doc.name
-                        }
+                        confirmId={"confirm-remove-template-" + doc.name}
                         title={this.props.intl.formatMessage({
-                          defaultMessage:
-                            "Confirm Removal of template",
+                          defaultMessage: "Confirm Removal of template",
                           id: "header-confirm-remove-template-title",
                         })}
                         mainText={this.props.intl.formatMessage({

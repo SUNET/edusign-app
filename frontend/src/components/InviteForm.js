@@ -66,7 +66,10 @@ const validateNewname = (props) => {
       );
     } else {
       const dupError = (
-        <FormattedMessage defaultMessage="A document with that name has already been loaded" key="save-doc-problem-dup" />
+        <FormattedMessage
+          defaultMessage="A document with that name has already been loaded"
+          key="save-doc-problem-dup"
+        />
       );
       props.templates.forEach((document) => {
         if (document.name === value) {
@@ -149,14 +152,10 @@ class InviteForm extends React.Component {
                             arrayHelpers.remove(index);
                             window.setTimeout(() => {
                               document
-                                .getElementById(
-                                  "invitation-text-input"
-                                )
+                                .getElementById("invitation-text-input")
                                 .focus();
                               document
-                                .getElementById(
-                                  "invitation-text-input"
-                                )
+                                .getElementById("invitation-text-input")
                                 .blur();
                             }, 0);
                           }}
@@ -169,9 +168,7 @@ class InviteForm extends React.Component {
                   <div className="invitee-form-row" key={index}>
                     <div className="invitee-form-name">
                       <BForm.Group>
-                        <BForm.Label
-                          htmlFor={`invitees.${index}.name`}
-                        >
+                        <BForm.Label htmlFor={`invitees.${index}.name`}>
                           <FormattedMessage
                             defaultMessage="Name"
                             key="name-input-field"
@@ -198,8 +195,7 @@ class InviteForm extends React.Component {
                               (fprops.errors.invitees &&
                                 (!fprops.errors.invitees[index] ||
                                   (fprops.errors.invitees[index] &&
-                                    !fprops.errors.invitees[index]
-                                      .name))))
+                                    !fprops.errors.invitees[index].name))))
                           }
                           isInvalid={
                             fprops.touched.invitees &&
@@ -214,9 +210,7 @@ class InviteForm extends React.Component {
                     </div>
                     <div className="invitee-form-email">
                       <BForm.Group>
-                        <BForm.Label
-                          htmlFor={`invitees.${index}.email`}
-                        >
+                        <BForm.Label htmlFor={`invitees.${index}.email`}>
                           <FormattedMessage
                             defaultMessage="Email"
                             key="email-input-field"
@@ -243,8 +237,7 @@ class InviteForm extends React.Component {
                               (fprops.errors.invitees &&
                                 (!fprops.errors.invitees[index] ||
                                   (fprops.errors.invitees[index] &&
-                                    !fprops.errors.invitees[index]
-                                      .email))))
+                                    !fprops.errors.invitees[index].email))))
                           }
                           isInvalid={
                             fprops.touched.invitees &&
@@ -270,12 +263,8 @@ class InviteForm extends React.Component {
             >
               <Button
                 variant="outline-secondary"
-                data-testid={
-                  "button-add-invitation-" + this.props.docName
-                }
-                onClick={() =>
-                  arrayHelpers.push({ name: "", email: "" })
-                }
+                data-testid={"button-add-invitation-" + this.props.docName}
+                onClick={() => arrayHelpers.push({ name: "", email: "" })}
               >
                 <FormattedMessage
                   defaultMessage="Invite more people"
@@ -424,7 +413,7 @@ class InviteForm extends React.Component {
               </BForm.Group>
             </div>
           </>
-        )
+        );
       } else {
         return <Field name="newnameInput" value="" type="hidden" />;
       }
@@ -434,7 +423,11 @@ class InviteForm extends React.Component {
     return (
       <>
         <Formik
-          initialValues={initialValues(this.props.docId, this.props.docName, this.props.isTemplate)}
+          initialValues={initialValues(
+            this.props.docId,
+            this.props.docName,
+            this.props.isTemplate
+          )}
           onSubmit={this.props.handleSubmit.bind(this)}
           validate={validate(this.props.mail)}
           enableReinitialize={true}
@@ -455,10 +448,7 @@ class InviteForm extends React.Component {
                   name="documentId"
                   value={fprops.values.documentId}
                 />
-                <Field
-                  type="hidden"
-                  name="isTemplate"
-                />
+                <Field type="hidden" name="isTemplate" />
                 <Modal.Header closeButton>
                   <Modal.Title>
                     <FormattedMessage

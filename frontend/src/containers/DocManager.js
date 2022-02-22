@@ -27,7 +27,11 @@ import {
   downloadAllSigned,
   saveDocument,
 } from "slices/Documents";
-import { removeTemplate, showTemplatePreview, hideTemplatePreview } from "slices/Templates";
+import {
+  removeTemplate,
+  showTemplatePreview,
+  hideTemplatePreview,
+} from "slices/Templates";
 import { showForm } from "slices/Modals";
 import { clearDocStore } from "init-app/database";
 import { askConfirmation } from "slices/ConfirmDialog";
@@ -81,7 +85,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleTemplateRemove: function (docid) {
       return async () => {
-        await dispatch(removeTemplate({docid: docid}));
+        await dispatch(removeTemplate({ docid: docid }));
       };
     },
     handleRetry: function (doc, props) {

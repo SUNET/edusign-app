@@ -63,6 +63,13 @@ const inviteFormSlice = createSlice({
   },
 });
 
-export const { toggleLoa, showLoa, hideLoa, toggleMakeCopy, doMakeCopy, dontMakeCopy } = inviteFormSlice.actions;
+export const {
+  toggleLoa,
+  showLoa,
+  hideLoa,
+  toggleMakeCopy,
+  doMakeCopy,
+  dontMakeCopy,
+} = inviteFormSlice.actions;
 
 export default inviteFormSlice.reducer;

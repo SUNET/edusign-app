@@ -75,11 +75,11 @@ export const loadDocuments = createAsyncThunk(
             cursor.continue();
           }
           if (cursor === null) {
-            resolve({templates: temps, documents: docs});
+            resolve({ templates: temps, documents: docs });
           }
         };
       });
-      let {documents, templates} = await promisedDocuments;
+      let { documents, templates } = await promisedDocuments;
       let dataElem = null;
       const storageName =
         "signing-" + hashCode(state.main.signer_attributes.eppn);
@@ -268,12 +268,15 @@ export const saveDocument = createAsyncThunk(
  * @function saveTemplate
  * @desc async function to persist a new template
  */
-export const saveTemplate =  async (doc, thunkAPI) => {
+export const saveTemplate = async (doc, thunkAPI) => {
   const state = thunkAPI.getState();
-  const newTemplate = await addDocumentToDb(doc, state.main.signer_attributes.eppn);
+  const newTemplate = await addDocumentToDb(
+    doc,
+    state.main.signer_attributes.eppn
+  );
   thunkAPI.dispatch(addTemplate(newTemplate));
   return doc;
-}
+};
 
 /**
  * @public
@@ -919,7 +922,7 @@ export const sendInvites = createAsyncThunk(
         }
         const newTemplate = {
           ...document,
-          state: 'loaded',
+          state: "loaded",
           isTemplate: true,
         };
         await saveTemplate(newTemplate, thunkAPI);

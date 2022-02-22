@@ -53,7 +53,9 @@ const templateSlice = createSlice({
      * @desc Redux action to remove a template from the store
      */
     rmTemplate(state, action) {
-      state.documents = state.documents.filter(doc => doc.id !== action.payload);
+      state.documents = state.documents.filter(
+        (doc) => doc.id !== action.payload
+      );
     },
     /**
      * @public
@@ -97,6 +99,12 @@ const templateSlice = createSlice({
   },
 });
 
-export const { setTemplates, addTemplate, rmTemplate, showTemplatePreview, hideTemplatePreview } = templateSlice.actions;
+export const {
+  setTemplates,
+  addTemplate,
+  rmTemplate,
+  showTemplatePreview,
+  hideTemplatePreview,
+} = templateSlice.actions;
 
 export default templateSlice.reducer;
