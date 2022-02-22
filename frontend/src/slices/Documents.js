@@ -881,11 +881,11 @@ export const sendInvites = createAsyncThunk(
   async (args, thunkAPI) => {
     const documentId = args.values.documentId;
     const invitees = args.values.invitees;
-    const isTemplate = args.values.invitees;
+    const isTemplate = args.values.isTemplate;
 
     let state = thunkAPI.getState();
 
-    let document = {};
+    let document;
     if (isTemplate) {
       document = state.template.documents.filter((doc) => {
         return doc.id === documentId;

@@ -112,7 +112,9 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     openInviteForm: function (doc) {
       return () => {
+        dispatch(disablePolling());
         dispatch(showForm(doc.id));
+        dispatch(unsetSpinning());
       };
     },
     clearDb: function () {

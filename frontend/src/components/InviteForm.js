@@ -107,11 +107,11 @@ const validate = (mail) => {
   };
 };
 
-const initialValues = (docId, docName) => ({
+const initialValues = (docId, docName, isTemplate) => ({
   invitationText: "",
   sendsignedChoice: true,
   makecopyChoice: false,
-  isTemplate: false,
+  isTemplate: isTemplate,
   newnameInput: nameForCopy(docName),
   loa: "none",
   documentId: docId,
@@ -417,7 +417,7 @@ class InviteForm extends React.Component {
                   data-testid="newnameInput"
                   as={BForm.Control}
                   type="text"
-                  validate={validateNewname(this.props)}
+                  validate={validateNewname(props)}
                   isValid={!fprops.errors.newnameInput}
                   isInvalid={fprops.errors.newnameInput}
                 />
@@ -434,7 +434,7 @@ class InviteForm extends React.Component {
     return (
       <>
         <Formik
-          initialValues={initialValues(this.props.docId, this.props.docName)}
+          initialValues={initialValues(this.props.docId, this.props.docName, this.props.isTemplate)}
           onSubmit={this.props.handleSubmit.bind(this)}
           validate={validate(this.props.mail)}
           enableReinitialize={true}
@@ -458,7 +458,6 @@ class InviteForm extends React.Component {
                 <Field
                   type="hidden"
                   name="isTemplate"
-                  value={this.props.isTemplate}
                 />
                 <Modal.Header closeButton>
                   <Modal.Title>

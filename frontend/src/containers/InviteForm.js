@@ -15,6 +15,7 @@ import InviteForm from "components/InviteForm";
 import { sendInvites } from "slices/Documents";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
+import { disablePolling, enablePolling } from "slices/Poll";
 import { toggleLoa, toggleMakeCopy } from "slices/InviteForm";
 
 const mapStateToProps = (state, props) => {
@@ -40,10 +41,12 @@ const mapDispatchToProps = (dispatch, props) => {
     handleSubmit: async function (values) {
       await dispatch(sendInvites({ values: values, intl: this.props.intl }));
       dispatch(unsetSpinning());
+      dispatch(enablePolling());
       dispatch(hideForm());
     },
     handleClose: function () {
       dispatch(unsetSpinning());
+      dispatch(enablePolling());
       dispatch(hideForm());
     },
     handleToggleLoa: function () {
