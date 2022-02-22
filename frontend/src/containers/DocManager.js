@@ -27,7 +27,7 @@ import {
   downloadAllSigned,
   saveDocument,
 } from "slices/Documents";
-import { rmTemplate } from "slices/Templates";
+import { removeTemplate, showTemplatePreview, hideTemplatePreview } from "slices/Templates";
 import { showForm } from "slices/Modals";
 import { clearDocStore } from "init-app/database";
 import { askConfirmation } from "slices/ConfirmDialog";
@@ -62,6 +62,13 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
       };
     },
+    handleTemplatePreview: function (key) {
+      return async () => {
+        dispatch(disablePolling());
+        await dispatch(showTemplatePreview(key));
+        dispatch(unsetSpinning());
+      };
+    },
     handleRemove: function (name) {
       return async () => {
         await dispatch(removeDocument({ docName: name }));
@@ -74,7 +81,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleTemplateRemove: function (docid) {
       return async () => {
-        await dispatch(rmTemplate(docid));
+        await dispatch(removeTemplate({docid: docid}));
       };
     },
     handleRetry: function (doc, props) {
@@ -151,6 +158,13 @@ const mapDispatchToProps = (dispatch, props) => {
     handleClosePreview: function (name) {
       return () => {
         dispatch(hidePreview(name));
+        dispatch(unsetSpinning());
+        dispatch(enablePolling());
+      };
+    },
+    handleCloseTemplatePreview: function (name) {
+      return () => {
+        dispatch(hideTemplatePreview(name));
         dispatch(unsetSpinning());
         dispatch(enablePolling());
       };

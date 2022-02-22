@@ -88,8 +88,8 @@ class DocManager extends React.Component {
                 </legend>
                 {this.props.templates.map((doc, index) => {
                   const docFile = preparePDF(doc);
-                  let docRepr = (
-                    <>
+                  return (
+                    <React.Fragment key={index}>
                       <DocumentTemplate key={index} doc={doc} {...this.props} />
                       <ConfirmDialogContainer
                         confirmId={
@@ -105,21 +105,17 @@ class DocManager extends React.Component {
                             'Clicking "Confirm" will remove the template',
                           id: "header-confirm-remove-template-text",
                         })}
-                        confirm={this.props.handleTemplateRemove(doc.name)}
+                        confirm={this.props.handleTemplateRemove(doc.id)}
                       />
-                    </>
-                  );
-                  return (
-                    <React.Fragment key={index}>
-                      {docRepr}
                       <DocPreviewContainer
                         doc={doc}
                         docFile={docFile}
-                        handleClose={this.props.handleClosePreview}
+                        handleClose={this.props.handleCloseTemplatePreview}
                       />
                       <InviteFormContainer
                         docId={doc.id}
                         docName={doc.name}
+                        isTemplate={true}
                       />
                     </React.Fragment>
                   );

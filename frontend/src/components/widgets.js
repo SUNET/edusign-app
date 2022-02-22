@@ -139,6 +139,33 @@ export const previewButton = (props, doc) => {
     </>
   );
 };
+
+export const previewTemplateButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-preview-flex-item">
+        <ESTooltip
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Display a preview of the document"
+              key="preview-button-tootip"
+            />
+          }
+        >
+          <Button
+            variant="outline-dark"
+            id={"button-preview-" + doc.key}
+            size="sm"
+            disabling={true}
+            onClick={props.handleTemplatePreview(doc.key)}
+          >
+            <FormattedMessage defaultMessage="Preview" key="preview-button" />
+          </Button>
+        </ESTooltip>
+      </div>
+    </>
+  );
+};
 export const forcedPreviewButton = (props, doc) => {
   return (
     <>
@@ -179,8 +206,8 @@ export const removeConfirmButton = (props, doc, id) => {
         <ESTooltip
           tooltip={
             <FormattedMessage
-              defaultMessage="Cancel Request"
-              key="owned-close-button-help"
+              defaultMessage="Remove document"
+              key="owned-remove-button-help"
             />
           }
         >
@@ -189,6 +216,33 @@ export const removeConfirmButton = (props, doc, id) => {
             size="sm"
             onClick={props.showConfirm(id)}
             id={"button-rm-invitation-" + doc.key}
+          >
+            <FormattedMessage defaultMessage="Remove" key="remove-button" />
+          </Button>
+        </ESTooltip>
+      </div>
+    </>
+  );
+};
+
+export const removeTemplate = (props, doc) => {
+  const id = "confirm-remove-template-" + doc.name;
+  return (
+    <>
+      <div className="button-remove-flex-item">
+        <ESTooltip
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Remove template"
+              key="template-remove-button-help"
+            />
+          }
+        >
+          <Button
+            variant="outline-danger"
+            size="sm"
+            onClick={props.showConfirm(id)}
+            id={"button-rm-template-" + doc.key}
           >
             <FormattedMessage defaultMessage="Remove" key="remove-button" />
           </Button>

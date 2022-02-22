@@ -56,8 +56,38 @@ const validateMakecopy = (value) => {
   return undefined;
 };
 
-const validateNewname = (value) => {
-  return undefined;
+const validateNewname = (props) => {
+  return (value) => {
+    let error;
+
+    if (!value) {
+      error = (
+        <FormattedMessage defaultMessage="Required" key="required-field" />
+      );
+    } else {
+      const dupError = (
+        <FormattedMessage defaultMessage="A document with that name has already been loaded" key="save-doc-problem-dup" />
+      );
+      props.templates.forEach((document) => {
+        if (document.name === value) {
+          error = dupError;
+        }
+      });
+
+      props.documents.forEach((document) => {
+        if (document.name === value) {
+          error = dupError;
+        }
+      });
+
+      props.owned.forEach((document) => {
+        if (document.name === value) {
+          error = dupError;
+        }
+      });
+    }
+    return error;
+  };
 };
 
 const validateLoa = (value) => {
@@ -81,7 +111,8 @@ const initialValues = (docId, docName) => ({
   invitationText: "",
   sendsignedChoice: true,
   makecopyChoice: false,
-  newcopyName: nameForCopy(docName),
+  isTemplate: false,
+  newnameInput: nameForCopy(docName),
   loa: "none",
   documentId: docId,
   invitees: [
@@ -290,31 +321,37 @@ class InviteForm extends React.Component {
         </ESTooltip>
       </div>
     );
-    const makecopyControl = (
-      <div className="makecopy-choice-holder">
-        <BForm.Group className="makecopy-choice-group">
-          <BForm.Label
-            className="makecopy-choice-label"
-            htmlFor="makecopy-choice-input"
-          >
-            <FormattedMessage
-              defaultMessage="Make a copy of the document to sign, and keep the original unsigned"
-              key="makecopy-choice-field"
-            />
-          </BForm.Label>
-          <Field
-            name="makecopyChoice"
-            id="makecopy-choice-input"
-            data-testid="makecopy-choice-input"
-            className="makecopy-choice"
-            validate={validateMakecopy}
-            type="checkbox"
-            checked={this.props.make_copy}
-            onChange={this.props.handleMakeCopyToggle}
-          />
-        </BForm.Group>
-      </div>
-    );
+    const makecopyControl = (props) => {
+      if (!props.isTemplate) {
+        return (
+          <div className="makecopy-choice-holder">
+            <BForm.Group className="makecopy-choice-group">
+              <BForm.Label
+                className="makecopy-choice-label"
+                htmlFor="makecopy-choice-input"
+              >
+                <FormattedMessage
+                  defaultMessage="Make a copy of the document to sign, and keep the original unsigned"
+                  key="makecopy-choice-field"
+                />
+              </BForm.Label>
+              <Field
+                name="makecopyChoice"
+                id="makecopy-choice-input"
+                data-testid="makecopy-choice-input"
+                className="makecopy-choice"
+                validate={validateMakecopy}
+                type="checkbox"
+                checked={props.make_copy}
+                onChange={props.handleMakeCopyToggle}
+              />
+            </BForm.Group>
+          </div>
+        );
+      } else {
+        return <Field name="makecopyChoice" value={true} type="hidden" />;
+      }
+    };
     const loaControl = (
       <>
         <div className="loa-select-holder">
@@ -356,17 +393,18 @@ class InviteForm extends React.Component {
       </>
     );
     const newNameControl = (props, fprops) => {
-      if (props.make_copy) {
+      if (props.make_copy || props.isTemplate) {
         return (
           <>
             <div className="newname-text-holder">
-              <BForm.Group>
+              <BForm.Group className="newname-text-group">
                 <BForm.Label
+                  className="newname-text-label"
                   htmlFor="newnameInput"
                 >
                   <FormattedMessage
                     defaultMessage="New document name"
-                    key="newname-input-field"
+                    key="newname-text-field"
                   />
                 </BForm.Label>
                 <ErrorMessage
@@ -379,7 +417,7 @@ class InviteForm extends React.Component {
                   data-testid="newnameInput"
                   as={BForm.Control}
                   type="text"
-                  validate={validateNewname}
+                  validate={validateNewname(this.props)}
                   isValid={!fprops.errors.newnameInput}
                   isInvalid={fprops.errors.newnameInput}
                 />
@@ -391,9 +429,6 @@ class InviteForm extends React.Component {
         return <Field name="newnameInput" value="" type="hidden" />;
       }
     };
-    const makecopyControlHidden = (
-      <Field name="makecopyChoice" value={false} type="hidden" />
-    );
     const loaControlHidden = <Field name="loa" value="none" type="hidden" />;
     const formId = "invite-form-" + this.props.docName;
     return (
@@ -419,6 +454,11 @@ class InviteForm extends React.Component {
                   type="hidden"
                   name="documentId"
                   value={fprops.values.documentId}
+                />
+                <Field
+                  type="hidden"
+                  name="isTemplate"
+                  value={this.props.isTemplate}
                 />
                 <Modal.Header closeButton>
                   <Modal.Title>
@@ -452,7 +492,7 @@ class InviteForm extends React.Component {
                     </BForm.Group>
                   </div>
                   {sendsignedControl}
-                  {makecopyControl}
+                  {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
                   {loaControlHidden}
                   {this.inviteeControl(fprops)}
@@ -513,8 +553,13 @@ InviteForm.propTypes = {
   size: PropTypes.string,
   docId: PropTypes.number,
   docName: PropTypes.string,
+  isTemplate: PropTypes.bool,
   handleClose: PropTypes.func,
   handleSubmit: PropTypes.func,
+};
+
+InviteForm.defaultProps = {
+  isTemplate: false,
 };
 
 export default injectIntl(InviteForm);

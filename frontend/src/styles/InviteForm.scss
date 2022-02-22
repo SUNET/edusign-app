@@ -111,6 +111,17 @@
   }
 }
 
+.newname-text-group {
+  margin-right: 10%;
+  margin-left: 10%;
+
+  .field-error {
+    display: inline-block;
+    color: $error-red;
+    margin-left: 2rem;
+  }
+}
+
 .loa-select-group {
   display: flex;
   flex-direction: column;

@@ -142,7 +142,7 @@ export const loadDocuments = createAsyncThunk(
         })
       );
       thunkAPI.dispatch(documentsSlice.actions.setDocuments(documents));
-      thunkAPI.dispatch(setTemplates(documents));
+      thunkAPI.dispatch(setTemplates(templates));
       if (signing && dataElem !== null) {
         await fetchSignedDocuments(thunkAPI, dataElem, args.intl);
       } else {
@@ -211,6 +211,12 @@ const dealWithPDFError = (doc, err, intl) => {
  * @desc async function to validate PDF documents
  */
 async function validateDoc(doc, intl, state) {
+  state.template.documents.forEach((document) => {
+    if (document.name === doc.name) {
+      doc.state = "dup";
+    }
+  });
+
   state.documents.documents.forEach((document) => {
     if (document.name === doc.name) {
       doc.state = "dup";
@@ -256,6 +262,18 @@ export const saveDocument = createAsyncThunk(
     return doc;
   }
 );
+
+/**
+ * @public
+ * @function saveTemplate
+ * @desc async function to persist a new template
+ */
+export const saveTemplate =  async (doc, thunkAPI) => {
+  const state = thunkAPI.getState();
+  const newTemplate = await addDocumentToDb(doc, state.main.signer_attributes.eppn);
+  thunkAPI.dispatch(addTemplate(newTemplate));
+  return doc;
+}
 
 /**
  * @public
@@ -863,16 +881,24 @@ export const sendInvites = createAsyncThunk(
   async (args, thunkAPI) => {
     const documentId = args.values.documentId;
     const invitees = args.values.invitees;
+    const isTemplate = args.values.invitees;
 
     let state = thunkAPI.getState();
 
-    let document = state.documents.documents.filter((doc) => {
-      return doc.id === documentId;
-    })[0];
+    let document = {};
+    if (isTemplate) {
+      document = state.template.documents.filter((doc) => {
+        return doc.id === documentId;
+      })[0];
+    } else {
+      document = state.documents.documents.filter((doc) => {
+        return doc.id === documentId;
+      })[0];
+    }
 
     const owner = state.main.signer_attributes.mail;
 
-    if (state.inviteform.make_copy) {
+    if (state.inviteform.make_copy || isTemplate) {
       const docName = args.values.newnameInput;
       const newDoc = {
         name: docName,
@@ -886,8 +912,18 @@ export const sendInvites = createAsyncThunk(
         return doc.name === docName;
       })[0];
       thunkAPI.dispatch(setState({ name: docName, state: "loaded" }));
-      thunkAPI.dispatch(documentsSlice.rmDocument(document.name));
-      thunkAPI.dispatch(addTemplate(document));
+      if (!isTemplate) {
+        thunkAPI.dispatch(documentsSlice.actions.rmDocument(document.name));
+        if (document.id !== undefined) {
+          await dbRemoveDocument(document);
+        }
+        const newTemplate = {
+          ...document,
+          state: 'loaded',
+          isTemplate: true,
+        };
+        await saveTemplate(newTemplate, thunkAPI);
+      }
       document = newDocument;
     }
 

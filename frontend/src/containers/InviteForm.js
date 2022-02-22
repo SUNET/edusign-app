@@ -29,6 +29,9 @@ const mapStateToProps = (state, props) => {
     loas: state.main.available_loas,
     show_loa: state.inviteform.show_loa_selection,
     make_copy: state.inviteform.make_copy,
+    templates: state.template.documents,
+    documents: state.documents.documents,
+    owned: state.main.owned_multisign,
   };
 };
 

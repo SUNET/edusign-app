@@ -214,6 +214,7 @@ div.selected {
 section#panel-lg {
   div#main-content {
     fieldset.local-monosign-container,
+    fieldset.local-template-container,
     fieldset.owned-multisign-container,
     fieldset.invited-multisign-container {
       width: 80%;
@@ -224,6 +225,7 @@ section#panel-lg {
 section#panel-sm {
   div#main-content {
     fieldset.local-monosign-container,
+    fieldset.local-template-container,
     fieldset.owned-multisign-container,
     fieldset.invited-multisign-container {
       width: 100%;
@@ -232,6 +234,7 @@ section#panel-sm {
 }
 
 fieldset.local-monosign-container,
+fieldset.local-template-container,
 fieldset.owned-multisign-container,
 fieldset.invited-multisign-container {
   border: $darker-grey solid 1px;

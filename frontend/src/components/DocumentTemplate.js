@@ -60,18 +60,14 @@ class DocumentTemplate extends React.Component {
           >
             <div className={"doc-flex-container-local " + doc.state} key="0">
               <div className="doc-flex-container">
-                {(doc.state === "loaded" || doc.state === "selected") && (
-                  <>
-                    {widgets.dummySelectDoc()}
-                    {widgets.docSize(doc)}
-                    {widgets.docName(doc)}
-                    <div className="doc-manager-buttons">
-                      {widgets.multiSignButton(this.props, doc)}
-                      {widgets.previewButton(this.props, doc)}
-                      {widgets.removeButton(this.props, doc)}
-                    </div>
-                  </>
-                )}
+                {widgets.dummySelectDoc()}
+                {widgets.docSize(doc)}
+                {widgets.docName(doc)}
+                <div className="doc-manager-buttons">
+                  {widgets.multiSignButton(this.props, doc)}
+                  {widgets.previewTemplateButton(this.props, doc)}
+                  {widgets.removeTemplate(this.props, doc)}
+                </div>
               </div>
               {signed}
               {preparePrevSigs(doc)}
@@ -94,7 +90,7 @@ class DocumentTemplate extends React.Component {
                     </div>
                     <div className="doc-container-button-row">
                       {widgets.multiSignButton(this.props, doc)}
-                      {widgets.previewButton(this.props, doc)}
+                      {widgets.previewTemplateButton(this.props, doc)}
                       {widgets.removeButton(this.props, doc)}
                     </div>
                   </>
