@@ -16,7 +16,7 @@ import { sendInvites } from "slices/Documents";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { disablePolling, enablePolling } from "slices/Poll";
-import { toggleLoa, toggleMakeCopy } from "slices/InviteForm";
+import { toggleLoa, toggleMakeCopy, dontMakeCopy } from "slices/InviteForm";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -43,11 +43,13 @@ const mapDispatchToProps = (dispatch, props) => {
       dispatch(unsetSpinning());
       dispatch(enablePolling());
       dispatch(hideForm());
+      dispatch(dontMakeCopy());
     },
     handleClose: function () {
       dispatch(unsetSpinning());
       dispatch(enablePolling());
       dispatch(hideForm());
+      dispatch(dontMakeCopy());
     },
     handleToggleLoa: function () {
       dispatch(toggleLoa());
