@@ -246,14 +246,49 @@ export const preparePrevSigs = (doc) => {
  * @desc Create name for copy of document to sign
  *
  */
-export const nameForCopy = (name) => {
-  const date = new Date().toISOString().substr(0, 19);
-  let newName = name;
+export const nameForCopy = (props) => {
+  let tmpName = props.docName;
   let ext = "";
-  if (name.includes(".")) {
-    const split = name.split(".");
-    newName = split.slice(0, -1).join(".");
+  if (tmpName.includes(".")) {
+    const split = tmpName.split(".");
+    tmpName = split.slice(0, -1).join(".");
     ext = split[split.length - 1];
   }
-  return `${newName}-${date}.${ext}`;
+  let newName;
+  let suffix = 1;
+  let nameOk = false;
+  while (!nameOk) {
+    newName = `${tmpName}-${suffix}`;
+    if (ext !== "") {
+      newName = `${newName}.${ext}`;
+    }
+    nameOk = true;
+    [props.templates, props.documents, props.owned].forEach(coll => {
+      coll.forEach(doc => {
+        if (doc.name === newName) {
+          nameOk = false;
+          suffix += 1;
+        }
+      });
+    });
+  }
+  return newName;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

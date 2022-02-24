@@ -110,14 +110,14 @@ const validate = (mail) => {
   };
 };
 
-const initialValues = (docId, docName, isTemplate) => ({
+const initialValues = (props) => ({
   invitationText: "",
   sendsignedChoice: true,
   makecopyChoice: false,
-  isTemplate: isTemplate,
-  newnameInput: nameForCopy(docName),
+  isTemplate: props.isTemplate,
+  newnameInput: nameForCopy(props),
   loa: "none",
-  documentId: docId,
+  documentId: props.docId,
   invitees: [
     {
       name: "",
@@ -432,11 +432,7 @@ class InviteForm extends React.Component {
     return (
       <>
         <Formik
-          initialValues={initialValues(
-            this.props.docId,
-            this.props.docName,
-            this.props.isTemplate
-          )}
+          initialValues={initialValues(this.props)}
           onSubmit={this.props.handleSubmit.bind(this)}
           validate={validate(this.props.mail)}
           enableReinitialize={true}
