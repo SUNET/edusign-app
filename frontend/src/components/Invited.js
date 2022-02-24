@@ -9,6 +9,7 @@ import DocPreviewContainer from "containers/DocPreview";
 import LittleSpinner from "components/LittleSpinner";
 import ForcedPreviewContainer from "containers/ForcedPreview";
 import DocumentInvited from "components/DocumentInvited";
+import DelegateForm from "components/DelegateForm";
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
 
@@ -47,6 +48,14 @@ class Invited extends Component {
                   handleClose={this.props.handleCloseForcedPreview}
                   handleConfirm={this.props.handleConfirmForcedPreview}
                   handleUnConfirm={this.props.handleUnConfirmForcedPreview}
+                />
+              )}
+              {["loaded", "selected"].includes(doc.state) && (
+                <DelegateForm
+                  doc={doc}
+                  index={doc.name}
+                  handleClose={this.props.handleCloseDelegateForm}
+                  handleSubmit={this.props.handleSubmitDelegateForm}
                 />
               )}
             </React.Fragment>

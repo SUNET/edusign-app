@@ -11,7 +11,7 @@ import { nameForCopy } from "components/utils";
 
 import "styles/InviteForm.scss";
 
-const validateEmail = (mail) => {
+export const validateEmail = (mail) => {
   return (value) => {
     let error;
 
@@ -35,7 +35,7 @@ const validateEmail = (mail) => {
   };
 };
 
-const validateName = (value) => {
+export const validateName = (value) => {
   let error;
 
   if (!value) {

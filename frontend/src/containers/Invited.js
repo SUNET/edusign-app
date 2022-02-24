@@ -16,6 +16,7 @@ import {
   confirmForcedInvitedPreview,
   declineSigning,
   downloadInvitedSigned,
+  delegateSignature,
 } from "slices/Main";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
@@ -118,6 +119,13 @@ const mapDispatchToProps = (dispatch, props) => {
     handleDlSigned: function (name) {
       return async () => {
         await dispatch(downloadInvitedSigned(name));
+        dispatch(unsetSpinning());
+      };
+    },
+    handleDelegateSigning: function (key) {
+      return async () => {
+        dispatch(disablePolling());
+        dispatch(startDelegating(key));
         dispatch(unsetSpinning());
       };
     },

@@ -412,3 +412,33 @@ export const dummyButton = (doc) => {
     </>
   );
 };
+
+export const delegateButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-delegate-flex-item">
+        <ESTooltip
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Click here to delegate the signature of this document to someone else."
+              key="invited-delegate-button-help"
+            />
+          }
+        >
+          <Button
+            variant="outline-dark"
+            size="sm"
+            id={"button-delegate-" + doc.key}
+            disabling={true}
+            onClick={props.handleDelegateSigning(doc.key)}
+          >
+            <FormattedMessage
+              defaultMessage="Delegate"
+              key="delegate-sign-button"
+            />
+          </Button>
+        </ESTooltip>
+      </div>
+    </>
+  );
+};
