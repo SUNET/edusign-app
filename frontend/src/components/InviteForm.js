@@ -280,15 +280,15 @@ class InviteForm extends React.Component {
   render() {
     const sendsignedControl = (
       <div className="sendsigned-choice-holder">
-        <ESTooltip
-          tooltip={
-            <FormattedMessage
-              defaultMessage="Send final signed document via email to all who signed it."
-              key="sendsigned-choice-help"
-            />
-          }
-        >
-          <BForm.Group className="sendsigned-choice-group">
+        <BForm.Group className="sendsigned-choice-group">
+          <ESTooltip
+            tooltip={
+              <FormattedMessage
+                defaultMessage="Send final signed document via email to all who signed it."
+                key="sendsigned-choice-help"
+              />
+            }
+          >
             <BForm.Label
               className="sendsigned-choice-label"
               htmlFor="sendsigned-choice-input"
@@ -298,16 +298,16 @@ class InviteForm extends React.Component {
                 key="sendsigned-choice-field"
               />
             </BForm.Label>
-            <Field
-              name="sendsignedChoice"
-              id="sendsigned-choice-input"
-              data-testid="sendsigned-choice-input"
-              className="sendsigned-choice"
-              validate={validateSendsigned}
-              type="checkbox"
-            />
-          </BForm.Group>
-        </ESTooltip>
+          </ESTooltip>
+          <Field
+            name="sendsignedChoice"
+            id="sendsigned-choice-input"
+            data-testid="sendsigned-choice-input"
+            className="sendsigned-choice"
+            validate={validateSendsigned}
+            type="checkbox"
+          />
+        </BForm.Group>
       </div>
     );
     const makecopyControl = (props) => {
@@ -315,15 +315,24 @@ class InviteForm extends React.Component {
         return (
           <div className="makecopy-choice-holder">
             <BForm.Group className="makecopy-choice-group">
-              <BForm.Label
-                className="makecopy-choice-label"
-                htmlFor="makecopy-choice-input"
+              <ESTooltip
+                tooltip={
+                  <FormattedMessage
+                    defaultMessage="Keep your original document as a template and creates a copy to invite others to sign."
+                    key="makecopy-choice-help"
+                  />
+                }
               >
-                <FormattedMessage
-                  defaultMessage="Make a copy of the document to sign, and keep the original unsigned"
-                  key="makecopy-choice-field"
-                />
-              </BForm.Label>
+                <BForm.Label
+                  className="makecopy-choice-label"
+                  htmlFor="makecopy-choice-input"
+                >
+                  <FormattedMessage
+                    defaultMessage="Create template"
+                    key="makecopy-choice-field"
+                  />
+                </BForm.Label>
+              </ESTooltip>
               <Field
                 name="makecopyChoice"
                 id="makecopy-choice-input"
@@ -392,7 +401,7 @@ class InviteForm extends React.Component {
                   htmlFor="newnameInput"
                 >
                   <FormattedMessage
-                    defaultMessage="New document name"
+                    defaultMessage="New name for document to send for signatures:"
                     key="newname-text-field"
                   />
                 </BForm.Label>

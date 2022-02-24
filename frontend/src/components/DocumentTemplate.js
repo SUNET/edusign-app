@@ -18,12 +18,12 @@ class DocumentTemplate extends React.Component {
   getHelp(msg) {
     const msgs = {
       "template-title": this.props.intl.formatMessage({
-        defaultMessage: "Template loaded",
+        defaultMessage: "Template",
         id: "docmanager-help-template-loaded-title",
       }),
       "template-body": this.props.intl.formatMessage({
         defaultMessage:
-          'To sign a copy of this template, click on the button labelled "XXX"',
+          'To create a copy of this template, click on "invite others to sign"',
         id: "docmanager-help-template-loaded",
       }),
     };
