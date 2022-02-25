@@ -9,7 +9,7 @@ import DocPreviewContainer from "containers/DocPreview";
 import LittleSpinner from "components/LittleSpinner";
 import ForcedPreviewContainer from "containers/ForcedPreview";
 import DocumentInvited from "components/DocumentInvited";
-import DelegateForm from "components/DelegateForm";
+import DelegateFormContainer from "containers/DelegateForm";
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
 
@@ -51,7 +51,7 @@ class Invited extends Component {
                 />
               )}
               {["loaded", "selected"].includes(doc.state) && (
-                <DelegateForm
+                <DelegateFormContainer
                   doc={doc}
                   index={doc.name}
                   handleClose={this.props.handleCloseDelegateForm}

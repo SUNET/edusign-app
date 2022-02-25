@@ -16,7 +16,7 @@ import {
   confirmForcedInvitedPreview,
   declineSigning,
   downloadInvitedSigned,
-  delegateSignature,
+  startDelegating,
 } from "slices/Main";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
@@ -129,6 +129,8 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
       };
     },
+    //handleCloseDelegateForm: function () {},
+    //handleSubmitDelegateForm: function () {},
   };
 };
 

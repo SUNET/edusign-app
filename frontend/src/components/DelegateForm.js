@@ -25,13 +25,13 @@ class DelegateForm extends React.Component {
           enableReinitialize={true}
           onSubmit={async (values) => {
             await this.props.handleSubmit(values, this.props);
-            this.props.handleClose();
+            this.props.handleClose(this.props.doc.key)();
           }}
         >
           {(fprops) => (
             <Modal
               show={this.props.doc.delegating}
-              onHide={this.props.handleClose}
+              onHide={this.props.handleClose(this.props.doc.key)}
               size={this.props.size}
             >
               <Form data-testid={"delegate-form-" + this.props.doc.name}>
@@ -115,7 +115,7 @@ class DelegateForm extends React.Component {
                   >
                     <Button
                       variant="outline-secondary"
-                      onClick={this.props.handleClose}
+                      onClick={this.props.handleClose(this.props.doc.key)}
                       id={
                         "button-cancel-delegating-" + this.props.doc.name
                       }

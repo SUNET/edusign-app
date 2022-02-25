@@ -6,8 +6,7 @@ import { connect } from "react-redux";
 
 import DelegateForm from "components/DelegateForm";
 
-import { delegateSignature } from "slices/Main";
-import { hideForm } from "slices/Modals";
+import { delegateSignature, stopDelegating } from "slices/Main";
 import { unsetSpinning } from "slices/Button";
 import { disablePolling, enablePolling } from "slices/Poll";
 
@@ -26,15 +25,17 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: async function (values) {
-      await dispatch(delegateSignature({ values: values, intl: this.props.intl }));
+      await dispatch(delegateSignature({ values: values, intl: props.intl }));
       dispatch(unsetSpinning());
       dispatch(enablePolling());
-      dispatch(hideForm());
+      dispatch(stopDelegating());
     },
-    handleClose: function () {
-      dispatch(unsetSpinning());
-      dispatch(enablePolling());
-      dispatch(hideForm());
+    handleClose: function (key) {
+      return () => {
+        dispatch(unsetSpinning());
+        dispatch(enablePolling());
+        dispatch(stopDelegating(key));
+      };
     },
   };
 };
