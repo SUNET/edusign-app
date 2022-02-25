@@ -10,10 +10,11 @@ import { validateName, validateEmail } from "components/InviteForm";
 
 import "styles/DelegateForm.scss";
 
-const initialValues = (docKey) => ({
+const initialValues = (inviteKey, documentKey) => ({
   delegationName: "",
   delegationEmail: "",
-  documentKey: docKey,
+  inviteKey: inviteKey,
+  documentKey: documentKey,
 });
 
 class DelegateForm extends React.Component {
@@ -21,7 +22,7 @@ class DelegateForm extends React.Component {
     return (
       <>
         <Formik
-          initialValues={initialValues(this.props.doc.key)}
+          initialValues={initialValues(this.props.doc.invite_key, this.props.doc.key)}
           enableReinitialize={true}
           onSubmit={async (values) => {
             await this.props.handleSubmit(values, this.props);
@@ -37,8 +38,13 @@ class DelegateForm extends React.Component {
               <Form data-testid={"delegate-form-" + this.props.doc.name}>
                 <Field
                   type="hidden"
-                  name="documentId"
-                  value={fprops.values.documentId}
+                  name="inviteKey"
+                  value={fprops.values.inviteKey}
+                />
+                <Field
+                  type="hidden"
+                  name="documentKey"
+                  value={fprops.values.documentKey}
                 />
                 <Modal.Header closeButton>
                   <Modal.Title>

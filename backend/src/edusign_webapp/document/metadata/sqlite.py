@@ -111,6 +111,7 @@ INVITE_QUERY_FROM_KEY = "SELECT user_id, doc_id FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_id = ? and doc_id = ?;"
 INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_id = ? and doc_id = ?;"
 INVITE_DELETE = "DELETE FROM Invites WHERE user_id = ? and doc_id = ?;"
+INVITE_DELETE_FROM_KEY = "DELETE FROM Invites WHERE key = ?;"
 INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
 
 
@@ -565,6 +566,52 @@ class SqliteMD(ABCMetadata):
         user = self._db_query(USER_QUERY, (invite['user_id'],), one=True)
 
         return {'document': doc, 'user': user}
+
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str) -> Dict[str, Any]:
+        """
+        Create a new invitation to sign
+
+        :param document_key: The key identifying the document to sign
+        :param name: The name for the new invitation
+        :param email: The email for the new invitation
+        :return: data on the new invitation
+        """
+        user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+        if user_result is None:
+            self._db_execute(USER_INSERT, (name, email))
+            user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+
+        if user_result is None or isinstance(
+            user_result, list
+        ):  # This should never happen, it's just to please mypy
+            return {}
+
+        user_id = user_result['user_id']
+
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(document_key),), one=True)
+        if document_result is None or isinstance(
+            document_result, list
+        ):  # This should never happen, it's just to please mypy
+            return {}
+
+        document_id = document_result['doc_id']
+        invite_key = str(uuid.uuid4())
+        self._db_execute(INVITE_INSERT, (invite_key, document_id, user_id))
+        self._db_commit()
+
+        return {'key': invite_key, 'id': user_id, 'name': name, 'email': email}
+
+    def rm_invitation(self, invite_key: uuid.UUID, document_key: uuid.UUID) -> bool:
+        """
+        Remove an invitation to sign
+
+        :param invite_key: The key identifying the signing invitation to remove
+        :param document_key: The key identifying the signing invitation to remove
+        :return: success
+        """
+        self._db_execute(INVITE_DELETE_FROM_KEY, (str(invite_key),))
+        self._db_commit()
+        return True
 
     def get_document(self, key: uuid.UUID) -> Dict[str, Any]:
         """

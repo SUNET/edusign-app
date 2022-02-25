@@ -219,6 +219,27 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str) -> Dict[str, Any]:
+        """
+        Create a new invitation to sign
+
+        :param document_key: The key identifying the document to sign
+        :param name: The name for the new invitation
+        :param email: The email for the new invitation
+        :return: data on the new invitation
+        """
+
+    @abc.abstractmethod
+    def rm_invitation(self, invite_key: uuid.UUID, document_key: uuid.UUID) -> bool:
+        """
+        Remove an invitation to sign
+
+        :param invite_key: The key identifying the signing invitation to remove
+        :param document_key: The key identifying the signing invitation to remove
+        :return: success
+        """
+
+    @abc.abstractmethod
     def get_document(self, key: uuid.UUID) -> Dict[str, Any]:
         """
         Get information about some document
@@ -454,6 +475,27 @@ class DocStore(object):
 
         data['document']['blob'] = self.storage.get_content(data['document']['key'])
         return data
+
+    def delegate(self, invite_key: uuid.UUID, document_key: uuid.UUID, name: str, email: str) -> bool:
+        """
+        Delegate an invitation: remove old invitation and create a new one with the provided name and email.
+
+        :param key: The key identifying the old signing invitation
+        :param name: The name for the new invitation
+        :param email: The email for the new invitation
+        :return: success
+        """
+        invitation = self.metadata.get_invitation(invite_key)
+        if not invitation:
+            return False
+
+        created = self.metadata.add_invitation(document_key, name, email)
+
+        if created:
+            self.metadata.rm_invitation(invite_key, document_key)
+            return True
+
+        return False
 
     def unlock_document(self, key: uuid.UUID, unlocked_by: str) -> bool:
         """

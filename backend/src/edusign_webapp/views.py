@@ -35,13 +35,11 @@ import json
 import os
 import uuid
 from base64 import b64decode
-from email.mime.base import MIMEBase
 from typing import Any, Dict, List, Union
 
 import pkg_resources
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
 from flask_babel import force_locale, get_locale, gettext
-from flask_mail import Message
 from werkzeug.wrappers import Response
 
 from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
@@ -60,6 +58,7 @@ from edusign_webapp.schemata import (
     SignRequestSchema,
     ToRestartSigningSchema,
     ToSignSchema,
+    DelegationSchema,
 )
 from edusign_webapp.utils import (
     add_attributes_to_session,
@@ -1095,5 +1094,61 @@ def decline_invitation(data):
         current_app.logger.error(f'Problem sending email of declination: {e}')
 
     message = gettext("Success declining signature")
+
+    return {'message': message}
+
+
+@edusign_views.route('/delegate-invitation', methods=['POST'])
+@UnMarshal(DelegationSchema)
+@Marshal()
+def delegate_invitation(data):
+
+    invite_key = uuid.UUID(data['invite_key'])
+    document_key = uuid.UUID(data['document_key'])
+    name = data['name']
+    email = data['email']
+    try:
+        current_app.doc_store.delegate(invite_key, document_key, name, email)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem delegating invitation: {e}')
+        return {'error': True, 'message': gettext('There was a problem delegating the invitation')}
+    try:
+        owner_data = current_app.doc_store.get_owner_data(document_key)
+        if not owner_data:
+            current_app.logger.error(
+                f"Problem sending email about {session['mail']} delegating signature of document {document_key} with no owner data"
+            )
+
+        else:
+            recipients = [f"{name} <{email}>"]
+            mail_context = {
+                'document_name': owner_data['docname'],
+                'delegater_name': session['displayName'],
+                'delegater_email': session['mail'],
+                'owner_name': owner_data['name'],
+                'owner_email': owner_data['email'],
+            }
+            with force_locale('en'):
+                subject_en = gettext('%(name)s has delegated signature of "%(docname)s" to you') % {
+                    'name': owner_data['name'],
+                    'docname': owner_data['docname'],
+                }
+                body_txt_en = render_template('delegation_email.txt.jinja2', **mail_context)
+                body_html_en = render_template('delegation_email.html.jinja2', **mail_context)
+            with force_locale('sv'):
+                subject_sv = gettext('%(name)s has delegated signature of "%(docname)s" to you') % {
+                    'name': owner_data['name'],
+                    'docname': owner_data['docname'],
+                }
+                body_txt_sv = render_template('delegation_email.txt.jinja2', **mail_context)
+                body_html_sv = render_template('delegation_email.html.jinja2', **mail_context)
+
+            sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem sending email of delegation: {e}')
+
+    message = gettext("Success delegating signature")
 
     return {'message': message}

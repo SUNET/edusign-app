@@ -689,6 +689,76 @@ class RedisMD(ABCMetadata):
 
         return {'document': doc, 'user': user}
 
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str) -> Dict[str, Any]:
+        """
+        Create a new invitation to sign
+
+        :param document_key: The key identifying the document to sign
+        :param name: The name for the new invitation
+        :param email: The email for the new invitation
+        :return: data on the new invitation
+        """
+        self.client.pipeline()
+        user_id = self.client.query_user_id(email)
+        if user_id is None:
+            self.logger.info(f"Adding new user: {name}, {email}")
+            user_id = self.client.insert_user(name, email)
+
+        if user_id is None:  # This should never happen, it's just to please mypy
+            self.client.abort()
+            return {}
+
+        document_id = self.client.query_document_id(str(document_key))
+        if document_id is None:
+            self.logger.error(f"Trying to find a non-existing document with key {document_key}")
+            self.client.abort()
+            return {}
+
+        document = self.client.query_document(document_id)
+        if document is None or isinstance(document, list):
+            self.logger.error(
+                f"Db seems corrupted, {document_key} references a non existing document with id {document_id}"
+            )
+            self.client.abort()
+            return {}
+
+        owner_id = document['owner']
+
+        invite_key = str(uuid.uuid4())
+        self.client.insert_invite(invite_key, document_id, user_id, owner_id)
+
+        self.client.commit()
+
+        return {'key': invite_key, 'name': name, 'email': email, 'id': user_id}
+
+    def rm_invitation(self, invite_key: uuid.UUID, document_key: uuid.UUID) -> bool:
+        """
+        Remove an invitation to sign
+
+        :param invite_key: The key identifying the signing invitation to remove
+        :param document_key: The key identifying the signing invitation to remove
+        :return: success
+        """
+        # XXX this belongs in the client class
+        self.client.pipeline()
+        invite_id = self.client.query_invite_id(invite_key)
+        owner_id = int(self.client.redis.hget(f"invite:{invite_id}", 'owner_id'))
+        user_id = int(self.client.redis.hget(f"invite:{invite_id}", 'user_id'))
+        doc_id = self.client.query_document_id(str(document_key))
+        self.client.transaction.delete(f"invite:{invite_id}")
+        self.client.transaction.srem(f"invites:unsigned:owner:{owner_id}", invite_id)
+        self.client.transaction.delete(f"invites:unsigned:document:{doc_id}")
+        self.client.transaction.srem(f"invites:unsigned:invited:{user_id}", invite_id)
+        self.client.transaction.srem(f"invites:signed:owner:{owner_id}", invite_id)
+        self.client.transaction.delete(f"invites:signed:document:{doc_id}")
+        self.client.transaction.srem(f"invites:signed:invited:{user_id}", invite_id)
+        self.client.transaction.srem(f"invites:declined:owner:{owner_id}", invite_id)
+        self.client.transaction.delete(f"invites:declined:document:{doc_id}")
+        self.client.transaction.srem(f"invites:declined:invited:{user_id}", invite_id)
+
+        self.client.commit()
+        return True
+
     def get_document(self, key: uuid.UUID) -> Dict[str, Any]:
         """
         Get information about some document

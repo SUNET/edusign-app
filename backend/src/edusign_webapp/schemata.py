@@ -268,3 +268,11 @@ class ResendMultiSignSchema(KeyedMultiSignSchema):
     """
 
     text = fields.String(default="")
+
+
+class DelegationSchema(Invitee):
+    """
+    Schema to unmarshal requests to delegate an invitation
+    """
+    invite_key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+    document_key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])

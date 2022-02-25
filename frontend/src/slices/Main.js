@@ -214,7 +214,12 @@ export const delegateSignature = createAsyncThunk(
   "main/delegateSignature",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const body = preparePayload(state, { key: args.values.documentKey });
+    const body = preparePayload(state, {
+      invite_key: args.values.inviteKey,
+      document_key: args.values.documentKey,
+      name: args.values.delegationName,
+      email: args.values.delegationEmail,
+    });
     try {
       const response = await fetch("/sign/delegate-invitation", {
         ...postRequest,
@@ -224,6 +229,14 @@ export const delegateSignature = createAsyncThunk(
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
         throw new Error(data.message);
+      }
+      if (data.message) {
+        thunkAPI.dispatch(
+          addNotification({
+            level: "success",
+            message: data.message,
+          })
+        );
       }
       return { key: args.values.documentKey };
     } catch (err) {
