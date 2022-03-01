@@ -97,15 +97,19 @@ const validateLoa = (value) => {
   return undefined;
 };
 
-const validate = (mail) => {
+const validate = (props) => {
   return (values) => {
     let errors = {};
     values.invitees.forEach((val, i) => {
       const nameError = validateName(val.name);
-      const emailError = validateEmail(mail)(val.email);
+      const emailError = validateEmail(props.mail)(val.email);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
       if (emailError !== undefined) errors[`invitees.${i}.email`] = emailError;
     });
+    if (values.makecopyChoice) {
+      const newNameError = validateNewname(props)(values.newnameInput);
+      if (newNameError !== undefined) errors.newnameInput = newNameError;
+    }
     return errors;
   };
 };
@@ -434,7 +438,7 @@ class InviteForm extends React.Component {
         <Formik
           initialValues={initialValues(this.props)}
           onSubmit={this.props.handleSubmit.bind(this)}
-          validate={validate(this.props.mail)}
+          validate={validate(this.props)}
           enableReinitialize={true}
           validateOnBlur={true}
           validateOnChange={true}
