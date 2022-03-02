@@ -188,7 +188,6 @@ class DocumentInvited extends Component {
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
                       {widgets.showMessage(doc)}
-                      // {widgets.delegateButton(this.props, doc)}
                       {widgets.previewButton(this.props, doc)}
                       {widgets.declineSignatureButton(this.props, doc)}
                     </>
