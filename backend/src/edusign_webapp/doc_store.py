@@ -41,8 +41,11 @@ from flask import Flask
 
 class ABCStorage(metaclass=abc.ABCMeta):
     """
-    Abstact base class for classes dealing with the storage of documents in the backend,
-    so that they can be consecutively signedby more than one user.
+    Abstact base class for classes dealing with the storage of the content of documents
+    in the backend.
+    We only keep in the backend documents that some user has invited other users to sign,
+    and only while they are being signed by all invited - up till the moment all invitations
+    have been fulfilled or declined.
     """
 
     @abc.abstractmethod
@@ -74,7 +77,7 @@ class ABCStorage(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def update(self, key: uuid.UUID, content: str):
         """
-        Update a document, usually because a new signature has been added.
+        Update the contents of a document, usually because a new signature has been added.
 
         :param key: The key identifying the document.
         :param content: base64 string with the contents of the new version of the document.
@@ -118,7 +121,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
         Store metadata for a new document.
 
-        :param key: The key that uniquely identifies the document in the storage.
+        :param key: A key that uniquely identifies the document in the storage.
         :param document: Content and metadata of the document. Dictionary containing 4 keys:
                          + name: The name of the document
                          + type: Content type of the doc
@@ -135,7 +138,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
     def get_pending(self, email: str) -> List[Dict[str, str]]:
         """
         Given the email address of some user, return information about the documents
-        she has been invited to sign, and has not yet signed.
+        they have been invited to sign, and have not yet signed.
 
         :param email: The email of the user
         :return: A list of dictionaries with information about the documents pending to be signed,
@@ -316,7 +319,8 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
 class DocStore(object):
     """
-    Interface to deal with multi-sign documents.
+    Interface to deal with the storage of both content and metadata for documents
+    that have invitations to sign.
     """
 
     class DocumentLocked(Exception):
@@ -499,7 +503,7 @@ class DocStore(object):
 
     def unlock_document(self, key: uuid.UUID, unlocked_by: str) -> bool:
         """
-        Unlock document
+        Unlock document on behalf of the user identified by `unlocked_by`.
 
         :param key: The key identifying the document to unlock
         :param locked_by: Email of the user unlocking the document
@@ -545,7 +549,7 @@ class DocStore(object):
 
     def get_document_name(self, key: uuid.UUID) -> str:
         """
-        Get document name
+        Get the name of the document identified by the provided key.
 
         :param key: the key identifying the document
         :return: the document name
@@ -555,7 +559,7 @@ class DocStore(object):
 
     def get_owner_data(self, key: uuid.UUID) -> Dict[str, Any]:
         """
-        Get data on the owner of the document
+        Get data on the owner of the document identified by the provided key.
 
         :param key: the key identifying the document
         :return: A dict with owner data, with keys:

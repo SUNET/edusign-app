@@ -76,6 +76,12 @@ class ResponseSchema(Schema):
     """
     Basic Schema for responses to front side app requests,
     that will acquire different payloads depending on the actual request being made.
+    These payloads will be constructed from the Schemata that the views use to marshal their responses.
+    The basic structure of this schema is:
+    * message: a string message informing about the results of the request
+    * error: a boolean indicating whether there was any error while processing the request
+    * csrf_token: the new CSRF token to be used in the next request
+    * payload: an arbitrary structure (optionally) added from the output from the view.
     """
 
     message = fields.String(required=False)
@@ -118,7 +124,7 @@ class Marshal(object):
         which will give form to the payload of the actual response schema
         used to produce the responses.
 
-        :param schema: Marshmallow schema detailing the structure and type of the data to marshal.
+        :param schema: Marshmallow schema detailing the structure and type of the data to marshal as payload.
         """
 
         if schema is None:
@@ -132,6 +138,9 @@ class Marshal(object):
 
     def __call__(self, f: Callable) -> Callable:
         """
+        Decorate the view with the Marshalling schema class, so that it will be used
+        to serialize any value returned by the view, as the payload of the `ResponseSchema`.
+
         :param f: The view to decorate
         :return: the decorated view
         """
@@ -166,6 +175,10 @@ class RequestSchema(Schema):
     """
     Basic Schema to validate requests from the front side app,
     that will acquire different payloads depending on the actual request being made.
+
+    The basic structure of this schema is:
+    * csrf_token: CSRF token sent from the front side app.
+    * payload: (optional) additional data sent from the frontend and specific to the request.
     """
 
     csrf_token = fields.String(required=True)
@@ -194,7 +207,7 @@ class RequestSchema(Schema):
     @post_load
     def post_processing(self, in_data: dict, **kwargs) -> dict:
         """
-        Remove token from data forwarded to views
+        Remove csrf token from data forwarded to views, once it has been validated.
 
         :param in_data: The data about to be returned from the schema
         :return: The provided data, without the csrf_token key
@@ -206,12 +219,20 @@ class RequestSchema(Schema):
 class _UnMarshal(object):
     """
     Decorator class for Flask views,
-    That will extract data from the requests, validate it,
+    That will extract data from the requests, deserialize it, validate it,
     and provide it to the views in the form of dicts and lists.
+
+    We provide 2 subclasses of this, that share the `__call__` method defined hre:
+    * UnMarshal: To unmarshal requests to views protected by a CSRF token
+    * UnMarshalNoCSRF: To unmarshal requests to views not protected by a CSRF token
     """
 
     def __call__(self, f: Callable) -> Callable:
         """
+        Decorate the view with the UnMarshalling schema class, so that it will be used
+        to deserialize any value sent to the view, aan set it as the payload of the
+        `RequestSchema`.
+
         :param f: The view to decorate
         :return: the decorated view
         """
@@ -252,8 +273,11 @@ class _UnMarshal(object):
 class UnMarshal(_UnMarshal):
     """
     Decorator class for Flask views,
-    That will extract data from the requests, validate it,
+    That will extract data from the requests, deserialize it, validate it,
     and provide it to the views in the form of dicts and lists.
+
+    The unmarshalling will check for a valid CSRF token in the request, and raise
+    a ValidationError in case there is no such token.
     """
 
     def __init__(self, schema: Type[Schema] = None):
@@ -280,6 +304,8 @@ class UnMarshalNoCSRF(_UnMarshal):
     Decorator class for Flask views,
     That will extract data from the requests, validate it,
     and provide it to the views in the form of dicts and lists.
+
+    The unmarshalling will not check for a valid CSRF token in the request.
     """
 
     def __init__(self, schema: Type[Schema] = None):

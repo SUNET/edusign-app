@@ -155,13 +155,13 @@ class APIClient(object):
 
         The main pieces of data we have to send to this endpoint are:
 
-        + pdfDocument: The PDF document as base64 data.
+        * pdfDocument: The PDF document as base64 data.
 
-        + signaturePagePreferences.visiblePdfSignatureUserInformation.signerName.signerAttributes:
+        * signaturePagePreferences.visiblePdfSignatureUserInformation.signerName.signerAttributes:
           The list of attributes to be used in the signature, given as `{name: <attr name>}` objects.
           These are attributes released by the SAML IdP, and their name must be in uri format.
 
-        + signaturePagePreferences.visiblePdfSignatureUserInformation.fieldValues.idp:
+        * signaturePagePreferences.visiblePdfSignatureUserInformation.fieldValues.idp:
           The value of this field will appear in the signature image as the "Authenticated by" entity.
           We here try to provide the organization name as provided by Shibboleth, and in case it is not
           found, the entityID of the IdP chosen by the user. Note that the client (the flask app)
@@ -173,18 +173,19 @@ class APIClient(object):
 
         The structure of the JSON to send would be something like:
 
-        {
-            "pdfDocument": "JVBERi0xLj...lJUVPRgo=",
-            "signaturePagePreferences": {
-                "visiblePdfSignatureUserInformation": {
-                    "signerName": {"signerAttributes": [ {"name" : "urn:oid:2.16.840.1.113730.3.1.241"} ]},
-                    "fieldValues": {"idp": "Snake Oil Co"},
+        .. code:
+            {
+                "pdfDocument": "JVBERi0xLj...lJUVPRgo=",
+                "signaturePagePreferences": {
+                    "visiblePdfSignatureUserInformation": {
+                        "signerName": {"signerAttributes": [ {"name" : "urn:oid:2.16.840.1.113730.3.1.241"} ]},
+                        "fieldValues": {"idp": "Snake Oil Co"},
+                    },
+                    "failWhenSignPageFull": true,
+                    "insertPageAt": 0,
+                    "returnDocumentReference": true,
                 },
-                "failWhenSignPageFull": true,
-                "insertPageAt": 0,
-                "returnDocumentReference": true,
-            },
-        }
+            }
 
         :param document: Dict holding the PDF (data and metadata) to prepare for signing.
         :return: Flask representation of the HTTP response from the API.

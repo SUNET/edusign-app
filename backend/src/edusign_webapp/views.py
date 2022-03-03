@@ -327,7 +327,7 @@ def create_sign_request(documents: dict) -> dict:
     View to send a request to the API to create a sign request.
 
     This is the first view that is called when the user starts the signature process for some document(s)
-    that do not involve invitations.
+    that are already loaded and that do not involve invitations.
 
     The sign request obtained from the API in this view is sent back to the eduSign js app in the browser,
     which will immediately POST it to the sign service to start the actual signing process.
@@ -588,6 +588,9 @@ def get_signed_documents(sign_data: dict) -> dict:
     """
     View to get the signed documents from the API.
 
+    This is called from the user agent after the user has completed a signing process,
+    to retrieve the signed documents from the backend and hand them to the user.
+
     :param sign_data: The data needed to identify the signed documents to be retrieved,
                       as obtained from the POST from the signature service to the `sign_service_callback`.
     :return: A dict with the signed documents, or with error information if some error has ocurred.
@@ -743,7 +746,12 @@ def get_signed_documents(sign_data: dict) -> dict:
 @Marshal()
 def create_multi_sign_request(data: dict) -> dict:
     """
-    View to create requests for collectively signing a document
+    View to create and send invitations for collectively signing a document.
+    This view receives the document (content and metadata) that is the subject of the invitation,
+    and stores it backend side. It then sends an email to each of the invitees, urging them to
+    sign the invitation, and providing a link to do so.
+    If there is an error sending the invitation emails, the document is removed from the backend db
+    and the user (inviter) is informed about the failure.
 
     :param data: The document to sign, the owner of the document,
                  and the emails of the users invited to sign the doc.
@@ -809,7 +817,10 @@ def create_multi_sign_request(data: dict) -> dict:
 @Marshal()
 def send_multisign_reminder(data: dict) -> dict:
     """
-    Send emails to remind people to sign some document
+    Send emails to remind people to sign some invitation.
+    This view receives a uuid key identifying the invitation,
+    retrieves said invitation from the backend db, and sends a reminder email
+    to each of the invitees that are still pending to sign.
 
     :param data: The key of the document pending signatures
     :return: A message about the result of the procedure
@@ -870,7 +881,9 @@ def send_multisign_reminder(data: dict) -> dict:
 @Marshal()
 def remove_multi_sign_request(data: dict) -> dict:
     """
-    View to remove requests for collectively signing a document
+    View to remove an invitation for collectively signing a document.
+    This view receives a uuid key identifying an invitation,
+    and removes all traces of it from the backend db.
 
     :param data: The key of the document to remove
     :return: A message about the result of the procedure
@@ -935,7 +948,10 @@ def remove_multi_sign_request(data: dict) -> dict:
 @Marshal(BlobSchema)
 def get_partially_signed_doc(data: dict) -> dict:
     """
-    View to get a document for preview that is only partially signed
+    View to get the contents of an invited document that is only partially signed,
+    this is, not all invitees have signed it.
+    This is called from the front app to show a preview of the document to sign
+    to the user.
 
     :param data: The key of the document to get
     :return: A message about the result of the procedure
@@ -958,6 +974,15 @@ def get_partially_signed_doc(data: dict) -> dict:
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal(SignedDocumentsSchema)
 def skip_final_signature(data: dict) -> dict:
+    """
+    View to skip adding a final signature to an invitation, by the inviter.
+    After all invitees have signed an invited document, the inviter can add a final signature,
+    or not. If they choose not to, the front side app will call this view, sending an uuid
+    identifying the invitation.
+    This will finish the multi signature process: The signed contents of the document
+    will be sent back to the front side app to be handed to the user, and also, by email,
+    to all invitees that have signed it. It will then be removed from the backend db.
+    """
 
     key = uuid.UUID(data['key'])
     try:
@@ -1042,6 +1067,13 @@ def skip_final_signature(data: dict) -> dict:
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal()
 def decline_invitation(data):
+    """
+    view to skip adding an invited signeture to a document.
+    When a user is invited to sign a document, they can either sign it, or decline signing it.
+    If they decline, the front side app calls this view, with the uuid identifying the invitation.
+    This view will mark the invitation regarding this particualr user as declined, and will send
+    an email to the inviter user informing them of the event.
+    """
 
     key = uuid.UUID(data['key'])
     email = session['mail']
@@ -1102,6 +1134,14 @@ def decline_invitation(data):
 @UnMarshal(DelegationSchema)
 @Marshal()
 def delegate_invitation(data):
+    """
+    View to delegate an invitation to someone other.
+    When a user receives an invitation to sign a document,
+    after reviewing the contents of the document, they are offered the
+    possibility to, rather than sign the document themselves,
+    delegate the invitation to someone else, so that it is this someone else
+    who signs the document.
+    """
 
     invite_key = uuid.UUID(data['invite_key'])
     document_key = uuid.UUID(data['document_key'])

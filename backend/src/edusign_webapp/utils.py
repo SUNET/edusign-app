@@ -42,6 +42,23 @@ from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
 
 
 def add_attributes_to_session(check_whitelisted=True):
+    """
+    If the Flask session does not contain information identifying the user,
+    this function will grab it from the HTTP headers, where it has been put by the
+    Shibboleth SP app, and add them to the session.
+    The particular info that is grabbed from the headers can be configured in 2 variables:
+    * SESSION_ATTRIBUTES: this is a list of attributes that will just be added to the session
+    * SIGNER_ATTRIBUTES: attributes that will be added to the session, and will be used for signing.
+    Shibboleth is configured to pass the attributes in the headers as XML snippets (to avoid encoding issues),
+    so here we extract the value with ElementTree.
+    Shibboleth also has to be configured to pass the organization name (corresponding to the IdP
+    chosen by the user) as a header.
+    If the parameter `check_whitelisted` is True, this function will check whether the identity
+    extracted from the headers is whitelisted to initiate signing procedures, and in case it's not,
+    will raise a ValueError.
+    :param check_whitelisted: whether to check if the user is whitelisted.
+    :type check_whitelisted: bool
+    """
     if 'eppn' not in session:
         eppn = request.headers.get('Edupersonprincipalname')
         current_app.logger.info(f'User {eppn} started a session')
@@ -82,6 +99,9 @@ def prepare_document(document: dict) -> dict:
     """
     Send documents to the eduSign API to be prepared for signing.
 
+    This just uses the API client to send the request, and return error information in case
+    of problems.
+
     :param document: a dict with metadata and contents of the document to be prepared.
     :return: a dict with the reponse obtained from the API, or with an error message.
     """
@@ -98,6 +118,17 @@ def prepare_document(document: dict) -> dict:
 
 
 def get_invitations():
+    """
+    Function that will retrieve from the db all invitations concerning the user in the current session.
+    This is called from the `get_config` and `poll` views, and the results are sent to the client side app
+    so it can show invitation information to the user.
+    The dict returned from this function will contain 3 keys:
+    * owned_multisign, with information about invitations made by the user;
+    * pending_multisign, with information about invitations made to the user;
+    * poll, a boolean that indicates whether the front side app should continue
+      polling the backend (this is, only when there are users pending to sign
+      any of the invitations).
+    """
     owned = current_app.doc_store.get_owned_documents(session['mail'])
     invited = current_app.doc_store.get_pending_documents(session['mail'])
     poll = False
@@ -115,6 +146,16 @@ def get_invitations():
 
 
 def get_previous_signatures(document: dict) -> str:
+    """
+    This function receives a document as a dict containing the metadata and the content,
+    and analyses the content to determine whether it contains any signatures made before
+    it was lodaded to eduSign.
+    This will only detect some kinds of PDF signatures, among which are those made by
+    the eduSign service.
+    :param document: document to inspect for signatures
+    :type document: dict
+    :return: a string with info on the previous signatures, or empty when there where none.
+    """
     content = document['blob']
     if "," in content:
         content = content.split(",")[1]
@@ -136,16 +177,31 @@ def get_previous_signatures(document: dict) -> str:
 
 
 def sendmail(
-    recipients,
-    subject_en,
-    subject_sv,
-    body_txt_en,
-    body_html_en,
-    body_txt_sv,
-    body_html_sv,
-    attachment_name='',
-    attachment='',
+    recipients: list,
+    subject_en: str,
+    subject_sv: str,
+    body_txt_en: str,
+    body_html_en: str,
+    body_txt_sv: str,
+    body_html_sv: str,
+    attachment_name: str = '',
+    attachment: str = '',
 ):
+    """
+    Compose a mail message, with subject and body in both Swedish and English,
+    and with the body in both plain text and html,
+    and send it using the mailer configured in the current app.
+
+    :param recipients: list of recipients of the email
+    :param subject_en: subject in English
+    :param subject_sv: subject in Swedish
+    :param body_txt_en: plain text body in English
+    :param body_html_en: html body in English
+    :param body_txt_sv: plain text body in Swedish
+    :param body_html_sv: html body in Swedish
+    :param attachment_name: the file name of the PDF to attach
+    :param attachment: the contents of the PDF to attach to the message
+    """
     mail = {
         'en': {
             'subject': subject_en,
@@ -174,7 +230,17 @@ def sendmail(
     current_app.mailer.send(msg)
 
 
-def get_authn_context(docs):
+def get_authn_context(docs: list) -> list:
+    """
+    Get the authentication context classes to send to the `create` API method.
+    If some of the docs to be signed are invitations and have a requirement
+    for some minimum LoA, use that. Otherwise, use the LoA obtained in the
+    authentication of the user, kept in the session.
+
+    :param docs: list of dicts with the data for the documents to be signed.
+    :return: a list with the authn context classes
+    """
+    # In development, use a configured context.
     if current_app.config['ENVIRONMENT'] == 'development':
         return [current_app.config['DEBUG_AUTHN_CONTEXT']]
 
