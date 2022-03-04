@@ -12,7 +12,7 @@ import { connect } from "react-redux";
 
 import InviteForm from "components/InviteForm";
 
-import { sendInvites } from "slices/Documents";
+import { sendInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { disablePolling, enablePolling } from "slices/Poll";

@@ -12,7 +12,7 @@ import { connect } from "react-redux";
 
 import ReInviteForm from "components/ReInviteForm";
 
-import { resendInvitations } from "slices/Documents";
+import { resendInvitations } from "slices/Invitations";
 import { hideResend } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 

@@ -14,6 +14,7 @@ import DocumentLocal from "components/DocumentLocal";
 import DocumentTemplate from "components/DocumentTemplate";
 import DocumentOwned from "components/DocumentOwned";
 import { ESTooltip } from "containers/Overlay";
+import * as widgets from "components/widgets";
 
 import "styles/DocManager.scss";
 import "styles/Invitation.scss";
@@ -247,104 +248,11 @@ class DocManager extends React.Component {
         </div>
         <div id="adjust-vertical-space" />
         <div id="global-buttons-wrapper">
-          <div className="button-sign-flex-item">
-            <ESTooltip
-              tooltip={
-                <FormattedMessage
-                  defaultMessage="Select documents above and click here to send them for signing."
-                  key="button-sign-tootip"
-                />
-              }
-            >
-              <div id="button-sign-wrapper">
-                <Button
-                  variant="success"
-                  id="button-sign"
-                  size="lg"
-                  disabled={disableSigning}
-                  style={disableSigning ? { pointerEvents: "none" } : {}}
-                  onClick={this.props.handleSubmitToSign.bind(this)}
-                >
-                  <FormattedMessage
-                    defaultMessage="Sign Selected Documents"
-                    key="sign-selected-button"
-                  />
-                </Button>
-              </div>
-            </ESTooltip>
-          </div>
+          {widgets.buttonSignSelected(disableSigning, this.props.handleSubmitToSign.bind(this))}
           {!this.props.unauthn && (
             <>
-              <div className="button-dlall-flex-item">
-                <ESTooltip
-                  tooltip={
-                    <FormattedMessage
-                      defaultMessage="Download all signed documents."
-                      key="button-dlall-tootip"
-                    />
-                  }
-                >
-                  <div id="button-dlall-wrapper">
-                    <Button
-                      variant="success"
-                      id="button-dlall"
-                      disabled={disableDlAllButton}
-                      data-testid="button-dlall"
-                      style={
-                        disableDlAllButton ? { pointerEvents: "none" } : {}
-                      }
-                      size="lg"
-                      onClick={this.props.handleDownloadAll.bind(this)}
-                    >
-                      <FormattedMessage
-                        defaultMessage="Download All Signed"
-                        key="dlall-selected-button"
-                      />
-                    </Button>
-                  </div>
-                </ESTooltip>
-              </div>
-              <div className="button-clear-flex-item">
-                <ESTooltip
-                  tooltip={
-                    <FormattedMessage
-                      defaultMessage='Discard all documents in the "Personal documents" list above'
-                      key="clear-docs-tootip"
-                    />
-                  }
-                >
-                  <div id="button-clear-wrapper">
-                    <Button
-                      variant="primary"
-                      id="clear-session-button"
-                      disabled={disableClearButton}
-                      size="lg"
-                      style={
-                        disableClearButton ? { pointerEvents: "none" } : {}
-                      }
-                      onClick={this.props.showConfirm("confirm-clear-session")}
-                    >
-                      <FormattedMessage
-                        defaultMessage="Clear Personal Documents List"
-                        key="clear-session-button"
-                      />
-                    </Button>
-                  </div>
-                </ESTooltip>
-                <ConfirmDialogContainer
-                  confirmId="confirm-clear-session"
-                  title={this.props.intl.formatMessage({
-                    defaultMessage: "Confirm Clear List",
-                    id: "header-confirm-clear-title",
-                  })}
-                  mainText={this.props.intl.formatMessage({
-                    defaultMessage:
-                      'Clicking "Confirm" will remove all documents from your list',
-                    id: "header-confirm-clear-text",
-                  })}
-                  confirm={this.props.clearDb}
-                />
-              </div>
+              {widgets.buttonDownloadAll(disableDlAllButton, this.props.handleDownloadAll.bind(this))}
+              {widgets.buttonClearPersonal(disableClearButton, this.props.showConfirm("confirm-clear-session"), this.props.clearDb, this.props.intl)}
             </>
           )}
         </div>
