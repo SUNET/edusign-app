@@ -1,4 +1,5 @@
 {
+  "cannot-sign-security": "You cannot sign together documents with different security requirements",
   "components.ConfirmDialog.confirm-dialog-cancel": "Cancel",
   "components.ConfirmDialog.confirm-dialog-confirm": "Confirm",
   "components.DelegateForm.cancel-delegate": "Cancel",
@@ -22,10 +23,12 @@
   "components.DocManager.unauthn-title": "No documents to sign",
   "components.DocPreview.button-close": "Close",
   "components.DocumentInvited.invited-by": "Invited by:",
+  "components.DocumentInvited.multisign-loa": "Required security level:",
   "components.DocumentInvited.multisign-owned-declined": "Declined to sign by:",
   "components.DocumentInvited.multisign-owned-waiting": "Waiting for signatures by:",
   "components.DocumentInvited.multisign-signed": "Signed by:",
   "components.DocumentLocal.multisign-owned-signed": "Signed by:",
+  "components.DocumentOwned.multisign-loa": "Required security level:",
   "components.DocumentOwned.multisign-owned-declined": "Declined to sign by:",
   "components.DocumentOwned.multisign-owned-signed": "Signed by:",
   "components.DocumentOwned.multisign-owned-waiting": "Waiting for signatures by:",

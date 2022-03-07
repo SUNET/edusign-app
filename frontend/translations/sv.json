@@ -1,4 +1,5 @@
 {
+  "cannot-sign-security": "",
   "components.ConfirmDialog.confirm-dialog-cancel": "Avbryt",
   "components.ConfirmDialog.confirm-dialog-confirm": "Bekräfta",
   "components.DelegateForm.cancel-delegate": "",
@@ -22,10 +23,12 @@
   "components.DocManager.unauthn-title": "Inga dokument att signera",
   "components.DocPreview.button-close": "Stäng",
   "components.DocumentInvited.invited-by": "Inbjuden att signera av:",
+  "components.DocumentInvited.multisign-loa": "",
   "components.DocumentInvited.multisign-owned-declined": "Nekat att signera:",
   "components.DocumentInvited.multisign-owned-waiting": "Väntar på signering av:",
   "components.DocumentInvited.multisign-signed": "Signerat av:",
   "components.DocumentLocal.multisign-owned-signed": "Signerat av:",
+  "components.DocumentOwned.multisign-loa": "",
   "components.DocumentOwned.multisign-owned-declined": "Nekat att signera:",
   "components.DocumentOwned.multisign-owned-signed": "Signerat av:",
   "components.DocumentOwned.multisign-owned-waiting": "Väntar på signering av:",
