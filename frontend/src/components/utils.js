@@ -263,8 +263,8 @@ export const nameForCopy = (props) => {
       newName = `${newName}.${ext}`;
     }
     nameOk = true;
-    [props.templates, props.documents, props.owned].forEach(coll => {
-      coll.forEach(doc => {
+    [props.templates, props.documents, props.owned].forEach((coll) => {
+      coll.forEach((doc) => {
         if (doc.name === newName) {
           nameOk = false;
           suffix += 1;
@@ -274,21 +274,3 @@ export const nameForCopy = (props) => {
   }
   return newName;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

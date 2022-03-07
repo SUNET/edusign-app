@@ -166,4 +166,6 @@ RAW_AVAILABLE_LOAS = os.environ.get(
     ),
 )
 
-AVAILABLE_LOAS = {loa.split(",")[0].strip(): loa.split(",")[1].strip() for loa in RAW_AVAILABLE_LOAS.strip().strip(';').split(';')}
+AVAILABLE_LOAS = {
+    loa.split(",")[0].strip(): loa.split(",")[1].strip() for loa in RAW_AVAILABLE_LOAS.strip().strip(';').split(';')
+}

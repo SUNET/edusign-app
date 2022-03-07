@@ -473,7 +473,7 @@ export const buttonSignSelected = (disableSigning, onClick) => {
       </ESTooltip>
     </div>
   );
-}
+};
 
 export const buttonDownloadAll = (disableDlAllButton, onClick) => {
   return (
@@ -492,9 +492,7 @@ export const buttonDownloadAll = (disableDlAllButton, onClick) => {
             id="button-dlall"
             disabled={disableDlAllButton}
             data-testid="button-dlall"
-            style={
-              disableDlAllButton ? { pointerEvents: "none" } : {}
-            }
+            style={disableDlAllButton ? { pointerEvents: "none" } : {}}
             size="lg"
             onClick={onClick}
           >
@@ -507,9 +505,14 @@ export const buttonDownloadAll = (disableDlAllButton, onClick) => {
       </ESTooltip>
     </div>
   );
-}
+};
 
-export const buttonClearPersonal = (disableClearButton, onClick, clearDb, intl) => {
+export const buttonClearPersonal = (
+  disableClearButton,
+  onClick,
+  clearDb,
+  intl
+) => {
   return (
     <div className="button-clear-flex-item">
       <ESTooltip
@@ -526,9 +529,7 @@ export const buttonClearPersonal = (disableClearButton, onClick, clearDb, intl) 
             id="clear-session-button"
             disabled={disableClearButton}
             size="lg"
-            style={
-              disableClearButton ? { pointerEvents: "none" } : {}
-            }
+            style={disableClearButton ? { pointerEvents: "none" } : {}}
             onClick={onClick}
           >
             <FormattedMessage
@@ -553,4 +554,4 @@ export const buttonClearPersonal = (disableClearButton, onClick, clearDb, intl) 
       />
     </div>
   );
-}
+};

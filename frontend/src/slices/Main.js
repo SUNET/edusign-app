@@ -753,7 +753,7 @@ const mainSlice = createSlice({
     },
     [delegateSignature.fulfilled]: (state, action) => {
       state.pending_multisign = state.pending_multisign.filter((doc) => {
-        return doc.key !== action.payload.key
+        return doc.key !== action.payload.key;
       });
     },
   },

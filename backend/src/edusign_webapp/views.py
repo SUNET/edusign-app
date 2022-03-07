@@ -46,6 +46,7 @@ from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
     BlobSchema,
     ConfigSchema,
+    DelegationSchema,
     DocumentSchema,
     InvitationsSchema,
     KeyedMultiSignSchema,
@@ -58,7 +59,6 @@ from edusign_webapp.schemata import (
     SignRequestSchema,
     ToRestartSigningSchema,
     ToSignSchema,
-    DelegationSchema,
 )
 from edusign_webapp.utils import (
     add_attributes_to_session,
@@ -848,9 +848,7 @@ def send_multisign_reminder(data: dict) -> dict:
         return {'error': True, 'message': gettext('Could not find the document')}
 
     recipients = [
-        f"{invite['name']} <{invite['email']}>"
-        for invite in pending
-        if not invite['signed'] and not invite['declined']
+        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
     ]
     if len(recipients) > 0:
         try:
@@ -915,9 +913,7 @@ def remove_multi_sign_request(data: dict) -> dict:
         return {'error': True, 'message': gettext('Document has not been removed, please try again')}
 
     recipients = [
-        f"{invite['name']} <{invite['email']}>"
-        for invite in pending
-        if not invite['signed'] and not invite['declined']
+        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
     ]
     if len(recipients) > 0:
         try:

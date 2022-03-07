@@ -7,10 +7,7 @@ import {
   preparePayload,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import {
-  addOwned,
-  removeOwned,
-} from "slices/Main";
+import { addOwned, removeOwned } from "slices/Main";
 import {
   createDocument,
   setState,
@@ -26,11 +23,11 @@ import { dbRemoveDocument } from "init-app/database";
  * @public
  * @function sendInvites
  * @desc Redux async thunk to create an invitation to sign documents.
-  *
-  * This is triggered from the submit button in the form in InviteForm.
-  *
-  * Here we first gather the data entered in the form, including the id of the document
-  * to be signed by the invitees;
+ *
+ * This is triggered from the submit button in the form in InviteForm.
+ *
+ * Here we first gather the data entered in the form, including the id of the document
+ * to be signed by the invitees;
  */
 export const sendInvites = createAsyncThunk(
   "main/sendInvites",
@@ -56,8 +53,8 @@ export const sendInvites = createAsyncThunk(
 
     if (state.inviteform.make_copy || isTemplate) {
       // If we want to create the invitation on a copy of the document,
-        // keeping the original unsigned as a template,
-        // we create the copy here.
+      // keeping the original unsigned as a template,
+      // we create the copy here.
       const docName = args.values.newnameInput;
       const newDoc = {
         name: docName,
@@ -180,7 +177,7 @@ export const removeInvites = createAsyncThunk(
     const state = thunkAPI.getState();
 
     // Get data on the document whose invitation we want to remove,
-      // and send it to the `remove-multi-sign` backend endpoint.
+    // and send it to the `remove-multi-sign` backend endpoint.
     const documentList = state.main.owned_multisign.filter((doc) => {
       return args.doc.key === doc.key || args.doc.id === doc.key;
     });
@@ -204,8 +201,7 @@ export const removeInvites = createAsyncThunk(
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
-
-    // in case of errors, inform the user, and update the local state.
+      // in case of errors, inform the user, and update the local state.
       const message = args.intl.formatMessage({
         defaultMessage: "Problem removing multi sign request, please try again",
         id: "problem-removing-multisign",
@@ -226,7 +222,7 @@ export const removeInvites = createAsyncThunk(
     };
     // If the request to the backend is successful, remove the representation
     // of the document from the collection of invitations from the user in the redux store,
-      // and inform the user.
+    // and inform the user.
     thunkAPI.dispatch(removeOwned(owned));
     const message = args.intl.formatMessage({
       defaultMessage: "Success removing multi sign request",
@@ -241,15 +237,14 @@ export const removeInvites = createAsyncThunk(
  * @public
  * @function resendInvitations
  * @desc Redux async thunk to resend invitations to sign to pending users
-  *
-  * Triggered from the submit button in the form in ReInviteForm.
-*/
+ *
+ * Triggered from the submit button in the form in ReInviteForm.
+ */
 export const resendInvitations = createAsyncThunk(
   "main/resendInvitations",
   async (args, thunkAPI) => {
-
     // First we gather the data to send to the backend,
-      // and send it to the `send-multisign-reminder` endpoint.
+    // and send it to the `send-multisign-reminder` endpoint.
     const docId = args.values.documentId;
     const text = args.values["re-invitationText"];
 
@@ -297,7 +292,7 @@ export const resendInvitations = createAsyncThunk(
     }
 
     // If the response from the backend indicates a successful operation,
-      // tell so to the user.
+    // tell so to the user.
     const message = args.intl.formatMessage({
       defaultMessage: "Success resending invitations to sign",
       id: "success-sending-invitations",
@@ -306,4 +301,3 @@ export const resendInvitations = createAsyncThunk(
     return document.key;
   }
 );
-

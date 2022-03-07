@@ -22,7 +22,10 @@ class DelegateForm extends React.Component {
     return (
       <>
         <Formik
-          initialValues={initialValues(this.props.doc.invite_key, this.props.doc.key)}
+          initialValues={initialValues(
+            this.props.doc.invite_key,
+            this.props.doc.key
+          )}
           enableReinitialize={true}
           onSubmit={async (values) => {
             await this.props.handleSubmit(values, this.props);
@@ -77,8 +80,14 @@ class DelegateForm extends React.Component {
                         as={BForm.Control}
                         type="text"
                         validate={validateName}
-                        isValid={fprops.touched.delegationName && !fprops.errors.delegationName}
-                        isInvalid={fprops.touched.delegationName && fprops.errors.delegationName}
+                        isValid={
+                          fprops.touched.delegationName &&
+                          !fprops.errors.delegationName
+                        }
+                        isInvalid={
+                          fprops.touched.delegationName &&
+                          fprops.errors.delegationName
+                        }
                       />
                     </BForm.Group>
                   </div>
@@ -103,8 +112,14 @@ class DelegateForm extends React.Component {
                         as={BForm.Control}
                         type="text"
                         validate={validateEmail(this.props.email)}
-                        isValid={fprops.touched.delegationEmail && !fprops.errors.delegationEmail}
-                        isInvalid={fprops.touched.delegationEmail && fprops.errors.delegationEmail}
+                        isValid={
+                          fprops.touched.delegationEmail &&
+                          !fprops.errors.delegationEmail
+                        }
+                        isInvalid={
+                          fprops.touched.delegationEmail &&
+                          fprops.errors.delegationEmail
+                        }
                       />
                     </BForm.Group>
                   </div>
@@ -122,9 +137,7 @@ class DelegateForm extends React.Component {
                     <Button
                       variant="outline-secondary"
                       onClick={this.props.handleClose(this.props.doc.key)}
-                      id={
-                        "button-cancel-delegating-" + this.props.doc.name
-                      }
+                      id={"button-cancel-delegating-" + this.props.doc.name}
                     >
                       <FormattedMessage
                         defaultMessage="Cancel"
@@ -173,4 +186,3 @@ DelegateForm.propTypes = {
 };
 
 export default injectIntl(DelegateForm);
-

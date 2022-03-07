@@ -5,33 +5,33 @@
  *
  * The documents key of the redux state holds the documents added by the user to be signed,
  * in whatever stage of the signing procedure they may be.
-  *
-  * Loaded documents are persisted in an IndexedDB database. These docs can be already signed,
-  * or waiting to be signed.
-  *
-  * When other users are invited to sign a document, this document is removed from IndexedDB,
-  * and sent to the backend, where they are persisted in a database (redis or sqlite).
-  *
-  * When then app is loaded, it retrieves the persisted documents, both from the local
-  * indexedDB and from the database in the backend, to display them in the UI.
-  *
-  * The functions in this module deal mainly with sending requests to the backend,
-  * related to both the signing processes and the invitation processes.
-  *
-  * The main complication in all this comes from the possibility of sending different
-  * documents to be signed all together; i.e., documents kept locally in the browser's
-  * IndexedDB, and documents kept in the backend database, both as invitations from the
-  * user and to the user.
-  *
-  * The use of the browser's localStorage to keep track of invitations being signed
-  * deverves a special note. If there is some problem retrieving documents from the
-  * backend database, that are referenced in a signature request, they will simply
-  * not be included in the set of signed documents; so the frontend app needs to keep
-  * track of those, and check that they are included (or not) in the obtained set of
-  * signed documents. The frontside app does this by keeping a reference to all
-  * invitations sent for signing in local storage. Then, when the user has been through
-  * the sign service and IdP to sign the documents, and the frontside js app is loaded
-  * again, it checks the data kept in local storage to update the state accordingly.
+ *
+ * Loaded documents are persisted in an IndexedDB database. These docs can be already signed,
+ * or waiting to be signed.
+ *
+ * When other users are invited to sign a document, this document is removed from IndexedDB,
+ * and sent to the backend, where they are persisted in a database (redis or sqlite).
+ *
+ * When then app is loaded, it retrieves the persisted documents, both from the local
+ * indexedDB and from the database in the backend, to display them in the UI.
+ *
+ * The functions in this module deal mainly with sending requests to the backend,
+ * related to both the signing processes and the invitation processes.
+ *
+ * The main complication in all this comes from the possibility of sending different
+ * documents to be signed all together; i.e., documents kept locally in the browser's
+ * IndexedDB, and documents kept in the backend database, both as invitations from the
+ * user and to the user.
+ *
+ * The use of the browser's localStorage to keep track of invitations being signed
+ * deverves a special note. If there is some problem retrieving documents from the
+ * backend database, that are referenced in a signature request, they will simply
+ * not be included in the set of signed documents; so the frontend app needs to keep
+ * track of those, and check that they are included (or not) in the obtained set of
+ * signed documents. The frontside app does this by keeping a reference to all
+ * invitations sent for signing in local storage. Then, when the user has been through
+ * the sign service and IdP to sign the documents, and the frontside js app is loaded
+ * again, it checks the data kept in local storage to update the state accordingly.
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { pdfjs } from "react-pdf/dist/esm/entry.webpack";
@@ -119,9 +119,9 @@ export const loadDocuments = createAsyncThunk(
       let dataElem = null;
       // If we are getting back to the app after a signing procedure,
       // here we get information from local storage in the browser
-      // about the (invitation) documents that were sent to be signed. (see the 
+      // about the (invitation) documents that were sent to be signed. (see the
       // `restartSigningDocuments` thunk, where this information is set).
-        //
+      //
       const storageName =
         "signing-" + hashCode(state.main.signer_attributes.eppn);
       const stored = JSON.parse(localStorage.getItem(storageName));
@@ -212,22 +212,22 @@ export const loadDocuments = createAsyncThunk(
  * @public
  * @function checkStoredDocuments
  * @desc Redux async thunk to load documents saved in localStorage, after going
-  * through the process of signing. The main objective here is to update the info
-  * on the documents that failed to be properly prepared for signing.
-  *
-  * Data on invited documents is kept locally in the browser in the redux store,
-  * but during the signing process, this data is discarded to be loaded again afterwards.
-  * The data for the locally (in IndexedDB) stored documents is persistent and can
-  * be loaded afterwards with no problem. But the data about invitations that have
-  * failed to be prepared for signing belongs to documents that are not persisted in the
-  * browser, and at the same time, it is very transient data, to be consumed immediately
-  * after returning from the signing procedure. So both sending it to the backend to
-  * retrieve it later, and providing a specific IndexedDB table to keep it in the browser,
-  * seem overkill. The solution is just keeping it in local storage.
-  *
-  * So this retrieves the documents from the local storage, and checks whether any of
-  * them are failed, and update their representation in the redux store with that info,
-  * and then deletes the data from localStorage.
+ * through the process of signing. The main objective here is to update the info
+ * on the documents that failed to be properly prepared for signing.
+ *
+ * Data on invited documents is kept locally in the browser in the redux store,
+ * but during the signing process, this data is discarded to be loaded again afterwards.
+ * The data for the locally (in IndexedDB) stored documents is persistent and can
+ * be loaded afterwards with no problem. But the data about invitations that have
+ * failed to be prepared for signing belongs to documents that are not persisted in the
+ * browser, and at the same time, it is very transient data, to be consumed immediately
+ * after returning from the signing procedure. So both sending it to the backend to
+ * retrieve it later, and providing a specific IndexedDB table to keep it in the browser,
+ * seem overkill. The solution is just keeping it in local storage.
+ *
+ * So this retrieves the documents from the local storage, and checks whether any of
+ * them are failed, and update their representation in the redux store with that info,
+ * and then deletes the data from localStorage.
  */
 export const checkStoredDocuments = createAsyncThunk(
   "documents/checkStoredDocuments",
@@ -256,7 +256,7 @@ export const checkStoredDocuments = createAsyncThunk(
  * @public
  * @function dealWithPDFError
  * @desc Function that knows about the errors that can produce the PDF.js library
-  * while reading PDFs and translates them to our needs.
+ * while reading PDFs and translates them to our needs.
  */
 const dealWithPDFError = (doc, err, intl) => {
   if (err !== undefined && err.message.startsWith("Invalid")) {
@@ -283,9 +283,9 @@ const dealWithPDFError = (doc, err, intl) => {
  * @public
  * @function validateDoc
  * @desc async function to validate PDF documents
-  *
-  * Reject documents with the same name as an already loaded document,
-  * and then try to read the document with PDF.js to see if it produces any errors.
+ *
+ * Reject documents with the same name as an already loaded document,
+ * and then try to read the document with PDF.js to see if it produces any errors.
  */
 async function validateDoc(doc, intl, state) {
   state.template.documents.forEach((document) => {
@@ -327,9 +327,9 @@ async function validateDoc(doc, intl, state) {
  * @public
  * @function saveDocument
  * @desc Redux async thunk to save an existing document to IndexedDB
-  *
-  * Used when the state of some document has changed in redux's central store,
-  * to sync the change to the persisted representation in IndexedDB.
+ *
+ * Used when the state of some document has changed in redux's central store,
+ * to sync the change to the persisted representation in IndexedDB.
  */
 export const saveDocument = createAsyncThunk(
   "documents/saveDocument",
@@ -381,10 +381,10 @@ export const removeDocument = createAsyncThunk(
  * @public
  * @function addDocumentToDb
  * @desc async function to add a new document to IndexedDB
-  *
-  * This is used when loading a document into the app in createDocument,
-  * and when an invitation has been signed by all parties, thus being removed from
-  * the backend database, and added to the local IndexedDB database.
+ *
+ * This is used when loading a document into the app in createDocument,
+ * and when an invitation has been signed by all parties, thus being removed from
+ * the backend database, and added to the local IndexedDB database.
  */
 const addDocumentToDb = async (document, name) => {
   const db = await getDb(name);
@@ -448,7 +448,7 @@ export const createDocument = createAsyncThunk(
       newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn);
     } catch (err) {
       // If there was an error saving the document, we mark it as so,
-        // and still try to save it to the redux store, so it can be displayed
+      // and still try to save it to the redux store, so it can be displayed
       // as failed in the UI.
       thunkAPI.dispatch(
         addNotification({
@@ -584,18 +584,18 @@ export const prepareDocument = createAsyncThunk(
  * @function startSigning
  * @desc Redux async thunk to tell the backend to create a sign request
  *       with loaded, invited and inviting documents.
-  *
-  *  This function is called when the user clicks on the "sign selected documents" button.
-  *  Here we mark the selected documents as being signed, and, in case some of the
-  *  documentws being signed are invitations, we call the `restartSigningDocuments` 
-  *  function; otherwise, we call the `startSigningDocuments` function.
-  *
-  *  restartSigningDocuments will try 1st to prepare the documents; in case we are signing
-  *  an invitation, this is necessary, since we have never prepared it for signing.
-  *
-  *  startSigningDocuments will assume optimistically that the documents are already prepared,
-  *  and only when it receives information to the contrary (which would indicate that the
-  *  preparation has expired), will it resort to calling restartSigningDocuments.
+ *
+ *  This function is called when the user clicks on the "sign selected documents" button.
+ *  Here we mark the selected documents as being signed, and, in case some of the
+ *  documentws being signed are invitations, we call the `restartSigningDocuments`
+ *  function; otherwise, we call the `startSigningDocuments` function.
+ *
+ *  restartSigningDocuments will try 1st to prepare the documents; in case we are signing
+ *  an invitation, this is necessary, since we have never prepared it for signing.
+ *
+ *  startSigningDocuments will assume optimistically that the documents are already prepared,
+ *  and only when it receives information to the contrary (which would indicate that the
+ *  preparation has expired), will it resort to calling restartSigningDocuments.
  */
 export const startSigning = createAsyncThunk(
   "documents/startSigning",
@@ -627,7 +627,8 @@ export const startSigning = createAsyncThunk(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
-            defaultMessage: "You cannot sign together documents with different security requirements",
+            defaultMessage:
+              "You cannot sign together documents with different security requirements",
             id: "cannot-sign-security",
           }),
         })
@@ -666,15 +667,15 @@ export const startSigning = createAsyncThunk(
  * @public
  * @function startSigningDocuments
  * @desc Redux async thunk to tell the backend to create a sign request
-  *
-  * Here we assume optimistically that the documents are already prepared, and try to
-  * directly create a sign request. If the preparation has expired, it will be indicated
-  * in the response to `create-sign-request`, and we will resort to calling
-  * restartSigningDocuments, that starts preparing the documents.
-  *
-  * If the creation of the sign request succeeds, the returned data is added to the form
-  * to be POSTed to the sign service, and the form is POSTed, to go through the signing
-  * process.
+ *
+ * Here we assume optimistically that the documents are already prepared, and try to
+ * directly create a sign request. If the preparation has expired, it will be indicated
+ * in the response to `create-sign-request`, and we will resort to calling
+ * restartSigningDocuments, that starts preparing the documents.
+ *
+ * If the creation of the sign request succeeds, the returned data is added to the form
+ * to be POSTed to the sign service, and the form is POSTed, to go through the signing
+ * process.
  */
 export const startSigningDocuments = createAsyncThunk(
   "documents/startSigningDocuments",
@@ -705,7 +706,7 @@ export const startSigningDocuments = createAsyncThunk(
       extractCsrfToken(thunkAPI.dispatch, data);
 
       // If preparation data had expired for the documents being signed,
-        // call restartSigningDocuments
+      // call restartSigningDocuments
       if (data.error) {
         if (data.message === "expired cache") {
           thunkAPI.dispatch(
@@ -761,20 +762,20 @@ export const startSigningDocuments = createAsyncThunk(
  * @public
  * @function restartSigningDocuments
  * @desc Redux async thunk to tell the backend to prepare the documents and create a sign request
-  *
-  * Gather all documents that have been put in "signing" state (both local documents
-  * and invitations) and send them to the backend endpoint `recreate-sign-request` for
-  * preprocessing; then, if all went well, use the data in the response from that endpoint
-  * to send a POST to the sign service (loosing control of the browser) to be redirected
-  * to the IdP's authentication pages.
-  *
-  * After getting the response from the backend, and before POSTing to the sign service,
-  * we compare the data in the response with the document data that was sent in the request,
-  * and we update the document data (setting the state of each document to "signing" if
-  * all went well, and to an error state if something went wrong), and keeping this
-  * document data in localStorage for the documents corresponding to invitations,
-  * to be checked after going through the signing process and reloading back the
-  * frontside js app.
+ *
+ * Gather all documents that have been put in "signing" state (both local documents
+ * and invitations) and send them to the backend endpoint `recreate-sign-request` for
+ * preprocessing; then, if all went well, use the data in the response from that endpoint
+ * to send a POST to the sign service (loosing control of the browser) to be redirected
+ * to the IdP's authentication pages.
+ *
+ * After getting the response from the backend, and before POSTing to the sign service,
+ * we compare the data in the response with the document data that was sent in the request,
+ * and we update the document data (setting the state of each document to "signing" if
+ * all went well, and to an error state if something went wrong), and keeping this
+ * document data in localStorage for the documents corresponding to invitations,
+ * to be checked after going through the signing process and reloading back the
+ * frontside js app.
  */
 export const restartSigningDocuments = createAsyncThunk(
   "documents/restartSigningDocuments",
@@ -821,7 +822,7 @@ export const restartSigningDocuments = createAsyncThunk(
         });
       }
     });
-    // send data about documents to be signed to the backend 
+    // send data about documents to be signed to the backend
     const body = preparePayload(state, { documents: docsToSign });
     try {
       const response = await fetch("/sign/recreate-sign-request", {
@@ -883,7 +884,7 @@ export const restartSigningDocuments = createAsyncThunk(
       // If there is any data at all in the response from the backend regarding
       // documents successfully prepared for signing, we update the form to be POSTed to
       // the sign service, and submit it.
-      // 
+      //
       // Otherwise, we just check the data stored in local storage, mainly to clean it up,
       // since it is not going to be needed - it is only needed after coming back from the
       // sign service / IdP.
@@ -931,11 +932,11 @@ export const restartSigningDocuments = createAsyncThunk(
  * @public
  * @function fetchSignedDocuments
  * @desc async funtion to get signed documents from the backend.
-  *
-  * This is called after completing the signing process, and reloading the frontside app
-  * after leaving the IdP.
-  *
-  * The data needed to retrieve the signed documents is placed in a DOM element as a dateset.
+ *
+ * This is called after completing the signing process, and reloading the frontside app
+ * after leaving the IdP.
+ *
+ * The data needed to retrieve the signed documents is placed in a DOM element as a dateset.
  */
 const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
   const state = thunkAPI.getState();
@@ -963,7 +964,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
         addNotification({ level: level, message: data.message })
       );
     }
-    // Update the documents kept locally in IndexedDB with the signed content 
+    // Update the documents kept locally in IndexedDB with the signed content
     await data.payload.documents.forEach(async (doc) => {
       await state.documents.documents.forEach(async (oldDoc) => {
         if (doc.id === oldDoc.key) {
@@ -974,10 +975,10 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
         }
       });
       // In the case of documents corresponding to invitations from the owner,
-        // in which case all invited parties have signed
-        // and the document has been removed from the backend database,
-        // we must add them to the browser's local IndexedDB database,
-        // and also remove them from the collection (in the redux store)
+      // in which case all invited parties have signed
+      // and the document has been removed from the backend database,
+      // we must add them to the browser's local IndexedDB database,
+      // and also remove them from the collection (in the redux store)
       // of invitations pending to be signed, and add them to the collection
       // (in the redux store) of non-invitation documents.
       await state.main.owned_multisign.forEach(async (oldDoc) => {
@@ -1041,8 +1042,8 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
  * @public
  * @function downloadSigned
  * @desc Redux async thunk to hand a single signed document to the user.
-  *
-  * Using FileSaver.js
+ *
+ * Using FileSaver.js
  */
 export const downloadSigned = createAsyncThunk(
   "documents/downloadSigned",
@@ -1062,10 +1063,10 @@ export const downloadSigned = createAsyncThunk(
  * @public
  * @function downloadAllSigned
  * @desc Redux async thunk to hand signed documents to the user.
-  *
-  * First the documents are gathered from the redux store,
-  * then they are bundled into a zip,
-  * and then they are handed to the user, using FileSaver.js.
+ *
+ * First the documents are gathered from the redux store,
+ * then they are bundled into a zip,
+ * and then they are handed to the user, using FileSaver.js.
  */
 export const downloadAllSigned = createAsyncThunk(
   "documents/downloadAllSigned",
@@ -1143,7 +1144,7 @@ export const skipOwnedSignature = createAsyncThunk(
       };
 
       // Remove the document from the collection of invitations to the user in the redux store,
-        // and add it to the IndexedDB database
+      // and add it to the IndexedDB database
       // and to the collection of non-invitation documents in the redux store.
       thunkAPI.dispatch(removeOwned({ key: doc.key }));
       const newDoc = await addDocumentToDb(
@@ -1152,7 +1153,7 @@ export const skipOwnedSignature = createAsyncThunk(
       );
       thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
 
-    // In case of errors, inform the user.
+      // In case of errors, inform the user.
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({

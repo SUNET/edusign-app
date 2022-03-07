@@ -104,9 +104,7 @@ DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_id) VALUES (?, ?, ?)"
 INVITE_QUERY_FROM_EMAIL = "SELECT Invites.doc_id, Invites.key FROM Invites, Users WHERE Users.email = ? AND Invites.user_id = Users.user_id AND Invites.signed = 0 AND Invites.declined = 0;"
 INVITE_QUERY_FROM_DOC = "SELECT user_id, signed, declined, key FROM Invites WHERE doc_id = ?;"
-INVITE_QUERY_UNSIGNED_FROM_DOC = (
-    "SELECT user_id FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0;"
-)
+INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT user_id FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0;"
 INVITE_QUERY_FROM_KEY = "SELECT user_id, doc_id FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_id = ? and doc_id = ?;"
 INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_id = ? and doc_id = ?;"
@@ -583,9 +581,7 @@ class SqliteMD(ABCMetadata):
             self._db_execute(USER_INSERT, (name, email))
             user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
 
-        if user_result is None or isinstance(
-            user_result, list
-        ):  # This should never happen, it's just to please mypy
+        if user_result is None or isinstance(user_result, list):  # This should never happen, it's just to please mypy
             return {}
 
         user_id = user_result['user_id']

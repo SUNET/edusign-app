@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import BOverlayTrigger from "react-bootstrap/OverlayTrigger";
 import BTooltip from "react-bootstrap/Tooltip";
 
-
 /**
  * @desc Overlay trigger with tooltip
  * to be able to disable all overlays at once
@@ -31,10 +30,7 @@ class Tooltip extends Component {
 
 Tooltip.propTypes = {
   showHelp: PropTypes.bool,
-  tooltip: PropTypes.oneOfType([
-    PropTypes.string,
-    PropTypes.object,
-  ]),
+  tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
 };
 
 export default Tooltip;

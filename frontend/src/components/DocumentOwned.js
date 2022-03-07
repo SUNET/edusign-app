@@ -141,7 +141,7 @@ class DocumentOwned extends Component {
     );
     let requiredLoa = "";
     if (doc.loa !== undefined && !("", "none").includes(doc.loa)) {
-      const loa = doc.loa.split(',');
+      const loa = doc.loa.split(",");
       const loaName = loa[1];
       const loaValue = loa[0];
       requiredLoa = (
@@ -153,13 +153,9 @@ class DocumentOwned extends Component {
             />
           </span>
           &nbsp;
-          <ESTooltip
-            tooltip={loaValue}
-          >
-            <span className="invite-loa-item">
-              {loaName}
-            </span>
-        </ESTooltip>
+          <ESTooltip tooltip={loaValue}>
+            <span className="invite-loa-item">{loaName}</span>
+          </ESTooltip>
         </div>
       );
     }
