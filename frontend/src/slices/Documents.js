@@ -601,31 +601,63 @@ export const startSigning = createAsyncThunk(
   "documents/startSigning",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    await state.documents.documents.forEach(async (doc) => {
-      if (doc.state === "selected") {
-        thunkAPI.dispatch(
-          documentsSlice.actions.startSigningDocument(doc.name)
-        );
-        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
-      }
-    });
     let invited = false;
+    let requiredLoa = null;
+    let loaOk = true;
     state.main.owned_multisign.forEach((doc) => {
-      if (doc.state === "selected") {
-        invited = true;
-        thunkAPI.dispatch(startSigningOwned(doc.name));
+      if (requiredLoa === null) {
+        requiredLoa = doc.loa;
+      } else {
+        if (requiredLoa !== doc.loa) {
+          loaOk = false;
+        }
       }
     });
     state.main.pending_multisign.forEach((doc) => {
-      if (doc.state === "selected") {
-        invited = true;
-        thunkAPI.dispatch(startSigningInvited(doc.name));
+      if (requiredLoa === null) {
+        requiredLoa = doc.loa;
+      } else {
+        if (requiredLoa !== doc.loa) {
+          loaOk = false;
+        }
       }
     });
-    if (invited) {
-      thunkAPI.dispatch(restartSigningDocuments(args));
+    if (!loaOk) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: args.intl.formatMessage({
+            defaultMessage: "You cannot sign together documents with different security requirements",
+            id: "cannot-sign-security",
+          }),
+        })
+      );
     } else {
-      thunkAPI.dispatch(startSigningDocuments(args));
+      await state.documents.documents.forEach(async (doc) => {
+        if (doc.state === "selected") {
+          thunkAPI.dispatch(
+            documentsSlice.actions.startSigningDocument(doc.name)
+          );
+          await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+        }
+      });
+      state.main.owned_multisign.forEach((doc) => {
+        if (doc.state === "selected") {
+          invited = true;
+          thunkAPI.dispatch(startSigningOwned(doc.name));
+        }
+      });
+      state.main.pending_multisign.forEach((doc) => {
+        if (doc.state === "selected") {
+          invited = true;
+          thunkAPI.dispatch(startSigningInvited(doc.name));
+        }
+      });
+      if (invited) {
+        thunkAPI.dispatch(restartSigningDocuments(args));
+      } else {
+        thunkAPI.dispatch(startSigningDocuments(args));
+      }
     }
   }
 );
@@ -986,10 +1018,15 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
         }),
       })
     );
-    const message = intl.formatMessage({
-      defaultMessage: "Problem signing the document",
-      id: "problem-signing",
-    });
+    let message;
+    if (data.message) {
+      message = data.message;
+    } else {
+      message = intl.formatMessage({
+        defaultMessage: "Problem signing the document",
+        id: "problem-signing",
+      });
+    }
     thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
     thunkAPI.dispatch(invitationsSignFailure(message));
     if (data && data.payload && data.payload.documents) {

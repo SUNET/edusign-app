@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESPopover } from "containers/Overlay";
+import { ESTooltip } from "containers/Overlay";
 
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
@@ -138,6 +139,30 @@ class DocumentOwned extends Component {
         )}
       </>
     );
+    let requiredLoa = "";
+    if (doc.loa !== undefined && !("", "none").includes(doc.loa)) {
+      const loa = doc.loa.split(',');
+      const loaName = loa[1];
+      const loaValue = loa[0];
+      requiredLoa = (
+        <div className="doc-container-loa-row">
+          <span className="invite-loa-label">
+            <FormattedMessage
+              defaultMessage="Required security level:"
+              key="multisign-loa"
+            />
+          </span>
+          &nbsp;
+          <ESTooltip
+            tooltip={loaValue}
+          >
+            <span className="invite-loa-item">
+              {loaName}
+            </span>
+        </ESTooltip>
+        </div>
+      );
+    }
     return (
       <>
         <ESPopover
@@ -204,6 +229,7 @@ class DocumentOwned extends Component {
                     </>
                   )}
                 </div>
+                {requiredLoa}
                 {invites}
                 {preparePrevSigs(doc)}
               </div>
@@ -270,6 +296,7 @@ class DocumentOwned extends Component {
                   </div>
                 </>
               )}
+              {requiredLoa}
               {invites}
               {preparePrevSigs(doc)}
             </div>

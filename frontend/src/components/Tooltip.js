@@ -31,7 +31,10 @@ class Tooltip extends Component {
 
 Tooltip.propTypes = {
   showHelp: PropTypes.bool,
-  tooltip: PropTypes.object,
+  tooltip: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.object,
+  ]),
 };
 
 export default Tooltip;

@@ -608,8 +608,14 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     if 'errorCode' in process_data:
         current_app.logger.error(f"Problem processing sign request, error code received: {process_data}")
+        message = process_data['message']
+        if message == "Requested LoA does not match the Assertion LoA":
+            return {
+                'error': True,
+                'message': gettext('Could not provide the requested security level.'),
+            }
         # XXX translate
-        return {'error': True, 'message': process_data['message']}
+        return {'error': True, 'message': message}
 
     async def queue_mail(*args, **kwargs):
         return sendmail(*args, **kwargs)

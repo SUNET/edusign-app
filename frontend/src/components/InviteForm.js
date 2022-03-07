@@ -492,7 +492,7 @@ class InviteForm extends React.Component {
                   {sendsignedControl}
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
-                  {loaControlHidden}
+                  {loaControl}
                   {this.inviteeControl(fprops)}
                 </Modal.Body>
                 <Modal.Footer>

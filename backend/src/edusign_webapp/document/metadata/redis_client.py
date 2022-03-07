@@ -137,6 +137,7 @@ class RedisStorageBackend:
             type=b_doc[b'type'].decode('utf8'),
             owner=int(b_doc[b'owner']),
             prev_signatures=b_doc[b'prev_signatures'].decode('utf8'),
+            loa=b_doc[b'loa'].decode('utf8'),
         )
         return doc
 
@@ -157,6 +158,7 @@ class RedisStorageBackend:
                 size=int(b_doc[b'size']),
                 type=b_doc[b'type'].decode('utf8'),
                 prev_signatures=b_doc[b'prev_signatures'].decode('utf8'),
+                loa=b_doc[b'loa'].decode('utf8'),
             )
             docs.append(doc)
         return docs
@@ -429,6 +431,7 @@ class RedisMD(ABCMetadata):
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
         invites = self.client.query_invites_from_email(email)
         if invites is None or isinstance(invites, dict):
@@ -451,7 +454,6 @@ class RedisMD(ABCMetadata):
                 continue
 
             document['owner'] = email_result
-            document['key'] = document['key']
             document['invite_key'] = invite['key']
             document['pending'] = []
             document['signed'] = []
@@ -551,6 +553,7 @@ class RedisMD(ABCMetadata):
                  + state: the state of the invitation
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
         documents = self.client.query_documents_from_owner(email)
         if documents is None or isinstance(documents, dict):

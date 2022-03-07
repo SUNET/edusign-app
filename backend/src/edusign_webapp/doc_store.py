@@ -152,6 +152,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
 
     @abc.abstractmethod
@@ -187,6 +188,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
 
     @abc.abstractmethod
@@ -387,6 +389,7 @@ class DocStore(object):
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
         return self.metadata.get_pending(email)
 
@@ -443,6 +446,7 @@ class DocStore(object):
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
         return self.metadata.get_owned(email)
 

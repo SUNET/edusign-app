@@ -13,7 +13,6 @@ import ConfirmDialogContainer from "containers/ConfirmDialog";
 import DocumentLocal from "components/DocumentLocal";
 import DocumentTemplate from "components/DocumentTemplate";
 import DocumentOwned from "components/DocumentOwned";
-import { ESTooltip } from "containers/Overlay";
 import * as widgets from "components/widgets";
 
 import "styles/DocManager.scss";

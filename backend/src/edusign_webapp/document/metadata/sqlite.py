@@ -93,8 +93,8 @@ DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner, prev_sig
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOCK = "SELECT locked, locked_by FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY = "SELECT key, name, size, type, owner, prev_signatures FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT d.doc_id, d.key, d.name, d.size, d.type, d.prev_signatures FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.user_id;"
+DOCUMENT_QUERY = "SELECT key, name, size, type, owner, prev_signatures, loa FROM Documents WHERE doc_id = ?;"
+DOCUMENT_QUERY_FROM_OWNER = "SELECT d.doc_id, d.key, d.name, d.size, d.type, d.prev_signatures, d.loa FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.user_id;"
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOA = "SELECT loa FROM Documents WHERE key = ?;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
@@ -299,6 +299,7 @@ class SqliteMD(ABCMetadata):
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
         invites = self._db_query(INVITE_QUERY_FROM_EMAIL, (email,))
         if invites is None or isinstance(invites, dict):
@@ -434,6 +435,7 @@ class SqliteMD(ABCMetadata):
                  + state: the state of the invitation
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (email,))
         if documents is None or isinstance(documents, dict):

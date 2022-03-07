@@ -136,7 +136,8 @@ def get_invitations():
         for doc in docs:
             if len(doc['pending']) > 0:
                 poll = True
-                break
+            if doc['loa'] not in ("", "none"):
+                doc['loa'] += ',' + current_app.config['AVAILABLE_LOAS'][doc['loa']]
 
     return {
         'owned_multisign': owned,
