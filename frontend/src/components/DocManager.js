@@ -266,6 +266,20 @@ class DocManager extends React.Component {
             </>
           )}
         </div>
+      {/**
+      * This is the form that is sent to the sign service.
+      * Both the data sent in the form (`binding`, `relayState`, and `signRequest`)
+      * and the `destinationUrl` are obtained in the response to the call to the `create` API method.
+      * This form is automatically submitted after receiving the above data from the backend
+      * (see the functions -thunks- `startSigningDocuments` and `restartSigningDocuments`
+      * in `frontend/src/slices/Documents.js`).
+      *
+      * Once this form is submitted, we loose control of the user agent in favor of the sign service;
+      * and after the user finishes their interaction with the sign service, it redirects the user to the
+      * callback in the backend (see the `sign_service_callback` function -view- in backend/src/edusign_webapp/views.py).
+      * This callback was provided to the API in the call to the `create` method, as `returnUrl`;
+      * and the API included it in the returned signRequest, which we are here in this form sending to the sign service.
+        **/}
         {this.props.destinationUrl !== undefined &&
           this.props.destinationUrl !== "https://dummy.destination.url" && (
             <div>
@@ -293,6 +307,9 @@ class DocManager extends React.Component {
               </form>
             </div>
           )}
+      {/**
+      * Dummy form rendered when there's been no call to the `create` API method.
+        **/} 
         {this.props.destinationUrl === "https://dummy.destination.url" && (
           <div>
             <form
