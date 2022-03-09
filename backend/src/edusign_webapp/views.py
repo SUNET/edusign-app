@@ -1109,14 +1109,14 @@ def decline_invitation(data):
             }
             with force_locale('en'):
                 subject_en = gettext('%(name)s declined to sign "%(docname)s"') % {
-                    'name': owner_data['name'],
+                    'name': session['displayName'],
                     'docname': owner_data['docname'],
                 }
                 body_txt_en = render_template(f'{template}.txt.jinja2', **mail_context)
                 body_html_en = render_template(f'{template}.html.jinja2', **mail_context)
             with force_locale('sv'):
                 subject_sv = gettext('%(name)s declined to sign "%(docname)s"') % {
-                    'name': owner_data['name'],
+                    'name': session['displayName'],
                     'docname': owner_data['docname'],
                 }
                 body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
