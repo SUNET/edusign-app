@@ -9,7 +9,7 @@ const inviteFormSlice = createSlice({
   name: "inviteform",
   initialState: {
     show_loa_selection: false,
-    send_signed: true,
+    make_copy: false,
   },
   reducers: {
     /**
@@ -38,34 +38,38 @@ const inviteFormSlice = createSlice({
     },
     /**
      * @public
-     * @function toggleSendSigned
-     * @desc Redux action to toggle the send_signed flag, used to decide whether to
-     * show the controls to invite people only as recipients of the signed document.
+     * @function toggleMakeCopy
+     * @desc Redux action to show the widget to invite on a copy of a template
      */
-    toggleSendSigned(state) {
-      state.send_signed = !state.send_signed;
+    toggleMakeCopy(state) {
+      state.make_copy = !state.make_copy;
     },
     /**
      * @public
-     * @function showSendSigned
-     * @desc Redux action to turn on the send_signed flag, used to decide whether to
-     * show the controls to invite people only as recipients of the signed document.
+     * @function doMakeCopy
+     * @desc Redux action to invite on a copy of the document (template)
      */
-    showSendSigned(state) {
-      state.send_signed = true;
+    doMakeCopy(state) {
+      state.make_copy = true;
     },
     /**
      * @public
-     * @function hideSendSigned
-     * @desc Redux action to turn off the send_signed flag, used to decide whether to
-     * show the controls to invite people only as recipients of the signed document.
+     * @function dontMakeCopy
+     * @desc Redux action to not invite on a copy
      */
-    hideSendSigned(state) {
-      state.send_signed = false;
+    dontMakeCopy(state) {
+      state.make_copy = false;
     },
   },
 });
 
-export const { toggleLoa, showLoa, hideLoa, toggleSendSigned, showSendSigned, hideSendSigned } = inviteFormSlice.actions;
+export const {
+  toggleLoa,
+  showLoa,
+  hideLoa,
+  toggleMakeCopy,
+  doMakeCopy,
+  dontMakeCopy,
+} = inviteFormSlice.actions;
 
 export default inviteFormSlice.reducer;

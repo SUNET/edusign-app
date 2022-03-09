@@ -7,10 +7,11 @@ import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
+import { nameForCopy } from "components/utils";
 
 import "styles/InviteForm.scss";
 
-const validateEmail = (mail) => {
+export const validateEmail = (mail) => {
   return (value) => {
     let error;
 
@@ -34,7 +35,7 @@ const validateEmail = (mail) => {
   };
 };
 
-const validateName = (value) => {
+export const validateName = (value) => {
   let error;
 
   if (!value) {
@@ -55,38 +56,76 @@ const validateMakecopy = (value) => {
   return undefined;
 };
 
-const validateSigner = (value) => {
-  return undefined;
+const validateNewname = (props) => {
+  return (value) => {
+    let error;
+
+    if (!value) {
+      error = (
+        <FormattedMessage defaultMessage="Required" key="required-field" />
+      );
+    } else {
+      const dupError = (
+        <FormattedMessage
+          defaultMessage="A document with that name has already been loaded"
+          key="save-doc-problem-dup"
+        />
+      );
+      props.templates.forEach((document) => {
+        if (document.name === value) {
+          error = dupError;
+        }
+      });
+
+      props.documents.forEach((document) => {
+        if (document.name === value) {
+          error = dupError;
+        }
+      });
+
+      props.owned.forEach((document) => {
+        if (document.name === value) {
+          error = dupError;
+        }
+      });
+    }
+    return error;
+  };
 };
 
 const validateLoa = (value) => {
   return undefined;
 };
 
-const validate = (mail) => {
+const validate = (props) => {
   return (values) => {
     let errors = {};
     values.invitees.forEach((val, i) => {
       const nameError = validateName(val.name);
-      const emailError = validateEmail(mail)(val.email);
+      const emailError = validateEmail(props.mail)(val.email);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
       if (emailError !== undefined) errors[`invitees.${i}.email`] = emailError;
     });
+    if (values.makecopyChoice) {
+      const newNameError = validateNewname(props)(values.newnameInput);
+      if (newNameError !== undefined) errors.newnameInput = newNameError;
+    }
     return errors;
   };
 };
 
-const initialValues = (docId) => ({
+const initialValues = (props) => ({
   invitationText: "",
   sendsignedChoice: true,
   makecopyChoice: false,
+  isTemplate: props.isTemplate,
+  newnameInput: nameForCopy(props),
   loa: "none",
-  documentId: docId,
+  documentId: props.docId,
   invitees: [
     {
       name: "",
       email: "",
-      signer: true,
     },
   ],
 });
@@ -117,14 +156,10 @@ class InviteForm extends React.Component {
                             arrayHelpers.remove(index);
                             window.setTimeout(() => {
                               document
-                                .getElementById(
-                                  "invitation-text-input"
-                                )
+                                .getElementById("invitation-text-input")
                                 .focus();
                               document
-                                .getElementById(
-                                  "invitation-text-input"
-                                )
+                                .getElementById("invitation-text-input")
                                 .blur();
                             }, 0);
                           }}
@@ -137,9 +172,7 @@ class InviteForm extends React.Component {
                   <div className="invitee-form-row" key={index}>
                     <div className="invitee-form-name">
                       <BForm.Group>
-                        <BForm.Label
-                          htmlFor={`invitees.${index}.name`}
-                        >
+                        <BForm.Label htmlFor={`invitees.${index}.name`}>
                           <FormattedMessage
                             defaultMessage="Name"
                             key="name-input-field"
@@ -166,8 +199,7 @@ class InviteForm extends React.Component {
                               (fprops.errors.invitees &&
                                 (!fprops.errors.invitees[index] ||
                                   (fprops.errors.invitees[index] &&
-                                    !fprops.errors.invitees[index]
-                                      .name))))
+                                    !fprops.errors.invitees[index].name))))
                           }
                           isInvalid={
                             fprops.touched.invitees &&
@@ -182,9 +214,7 @@ class InviteForm extends React.Component {
                     </div>
                     <div className="invitee-form-email">
                       <BForm.Group>
-                        <BForm.Label
-                          htmlFor={`invitees.${index}.email`}
-                        >
+                        <BForm.Label htmlFor={`invitees.${index}.email`}>
                           <FormattedMessage
                             defaultMessage="Email"
                             key="email-input-field"
@@ -211,8 +241,7 @@ class InviteForm extends React.Component {
                               (fprops.errors.invitees &&
                                 (!fprops.errors.invitees[index] ||
                                   (fprops.errors.invitees[index] &&
-                                    !fprops.errors.invitees[index]
-                                      .email))))
+                                    !fprops.errors.invitees[index].email))))
                           }
                           isInvalid={
                             fprops.touched.invitees &&
@@ -226,35 +255,6 @@ class InviteForm extends React.Component {
                       </BForm.Group>
                     </div>
                   </div>
-                  {(this.props.sending_signed) && (
-                    <div className="invitee-form-signer">
-                      <BForm.Group>
-                        <BForm.Label
-                          htmlFor={`invitees.${index}.signer`}
-                        >
-                          <FormattedMessage
-                            defaultMessage="Request signature"
-                            key="signer-input-field"
-                          />
-                        </BForm.Label>
-                        <Field
-                          name={`invitees.${index}.signer`}
-                          data-testid={`invitees.${index}.signer`}
-                          className="signer-choice"
-                          checked={invitee.signer}
-                          validate={validateSigner}
-                          type="checkbox"
-                        />
-                      </BForm.Group>
-                    </div>
-                  ) || (
-                    <Field
-                      name={`invitees.${index}.signer`}
-                      data-testid={`invitees.${index}.signer`}
-                      value={true}
-                      type="hidden"
-                    />
-                  )}
                 </div>
               ))}
             <ESTooltip
@@ -267,12 +267,8 @@ class InviteForm extends React.Component {
             >
               <Button
                 variant="outline-secondary"
-                data-testid={
-                  "button-add-invitation-" + this.props.docName
-                }
-                onClick={() =>
-                  arrayHelpers.push({ name: "", email: "", signer: true })
-                }
+                data-testid={"button-add-invitation-" + this.props.docName}
+                onClick={() => arrayHelpers.push({ name: "", email: "" })}
               >
                 <FormattedMessage
                   defaultMessage="Invite more people"
@@ -288,15 +284,15 @@ class InviteForm extends React.Component {
   render() {
     const sendsignedControl = (
       <div className="sendsigned-choice-holder">
-        <ESTooltip
-          tooltip={
-            <FormattedMessage
-              defaultMessage="Send final signed document via email to all who signed it."
-              key="sendsigned-choice-help"
-            />
-          }
-        >
-          <BForm.Group className="sendsigned-choice-group">
+        <BForm.Group className="sendsigned-choice-group">
+          <ESTooltip
+            tooltip={
+              <FormattedMessage
+                defaultMessage="Send final signed document via email to all who signed it."
+                key="sendsigned-choice-help"
+              />
+            }
+          >
             <BForm.Label
               className="sendsigned-choice-label"
               htmlFor="sendsigned-choice-input"
@@ -306,43 +302,58 @@ class InviteForm extends React.Component {
                 key="sendsigned-choice-field"
               />
             </BForm.Label>
-            <Field
-              name="sendsignedChoice"
-              id="sendsigned-choice-input"
-              data-testid="sendsigned-choice-input"
-              className="sendsigned-choice"
-              validate={validateSendsigned}
-              type="checkbox"
-              checked={this.props.sending_signed}
-              onChange={this.props.handleToggleSendSigned}
-            />
-          </BForm.Group>
-        </ESTooltip>
-      </div>
-    );
-    const makecopyControl = (
-      <div className="makecopy-choice-holder">
-        <BForm.Group className="makecopy-choice-group">
-          <BForm.Label
-            className="makecopy-choice-label"
-            htmlFor="makecopy-choice-input"
-          >
-            <FormattedMessage
-              defaultMessage="Make a copy of the document to sign, and keep the original unsigned"
-              key="makecopy-choice-field"
-            />
-          </BForm.Label>
+          </ESTooltip>
           <Field
-            name="makecopyChoice"
-            id="makecopy-choice-input"
-            data-testid="makecopy-choice-input"
-            className="makecopy-choice"
-            validate={validateMakecopy}
+            name="sendsignedChoice"
+            id="sendsigned-choice-input"
+            data-testid="sendsigned-choice-input"
+            className="sendsigned-choice"
+            validate={validateSendsigned}
             type="checkbox"
           />
         </BForm.Group>
       </div>
     );
+    const makecopyControl = (props) => {
+      if (!props.isTemplate) {
+        return (
+          <div className="makecopy-choice-holder">
+            <BForm.Group className="makecopy-choice-group">
+              <ESTooltip
+                tooltip={
+                  <FormattedMessage
+                    defaultMessage="Keep your original document as a template and creates a copy to invite others to sign."
+                    key="makecopy-choice-help"
+                  />
+                }
+              >
+                <BForm.Label
+                  className="makecopy-choice-label"
+                  htmlFor="makecopy-choice-input"
+                >
+                  <FormattedMessage
+                    defaultMessage="Create template"
+                    key="makecopy-choice-field"
+                  />
+                </BForm.Label>
+              </ESTooltip>
+              <Field
+                name="makecopyChoice"
+                id="makecopy-choice-input"
+                data-testid="makecopy-choice-input"
+                className="makecopy-choice"
+                validate={validateMakecopy}
+                type="checkbox"
+                checked={props.make_copy}
+                onChange={props.handleMakeCopyToggle}
+              />
+            </BForm.Group>
+          </div>
+        );
+      } else {
+        return <Field name="makecopyChoice" value={true} type="hidden" />;
+      }
+    };
     const loaControl = (
       <>
         <div className="loa-select-holder">
@@ -383,17 +394,51 @@ class InviteForm extends React.Component {
         </div>
       </>
     );
-    const makecopyControlHidden = (
-      <Field name="makecopyChoice" value={false} type="hidden" />
-    );
+    const newNameControl = (props, fprops) => {
+      if (props.make_copy || props.isTemplate) {
+        return (
+          <>
+            <div className="newname-text-holder">
+              <BForm.Group className="newname-text-group">
+                <BForm.Label
+                  className="newname-text-label"
+                  htmlFor="newnameInput"
+                >
+                  <FormattedMessage
+                    defaultMessage="New name for document to send for signatures:"
+                    key="newname-text-field"
+                  />
+                </BForm.Label>
+                <ErrorMessage
+                  name="newnameInput"
+                  component="div"
+                  className="field-error"
+                />
+                <Field
+                  name="newnameInput"
+                  data-testid="newnameInput"
+                  as={BForm.Control}
+                  type="text"
+                  validate={validateNewname(props)}
+                  isValid={!fprops.errors.newnameInput}
+                  isInvalid={fprops.errors.newnameInput}
+                />
+              </BForm.Group>
+            </div>
+          </>
+        );
+      } else {
+        return <Field name="newnameInput" value="" type="hidden" />;
+      }
+    };
     const loaControlHidden = <Field name="loa" value="none" type="hidden" />;
     const formId = "invite-form-" + this.props.docName;
     return (
       <>
         <Formik
-          initialValues={initialValues(this.props.docId)}
+          initialValues={initialValues(this.props)}
           onSubmit={this.props.handleSubmit.bind(this)}
-          validate={validate(this.props.mail)}
+          validate={validate(this.props)}
           enableReinitialize={true}
           validateOnBlur={true}
           validateOnChange={true}
@@ -412,6 +457,7 @@ class InviteForm extends React.Component {
                   name="documentId"
                   value={fprops.values.documentId}
                 />
+                <Field type="hidden" name="isTemplate" />
                 <Modal.Header closeButton>
                   <Modal.Title>
                     <FormattedMessage
@@ -444,8 +490,9 @@ class InviteForm extends React.Component {
                     </BForm.Group>
                   </div>
                   {sendsignedControl}
-                  {makecopyControl}
-                  {loaControlHidden}
+                  {makecopyControl(this.props)}
+                  {newNameControl(this.props, fprops)}
+                  {loaControl}
                   {this.inviteeControl(fprops)}
                 </Modal.Body>
                 <Modal.Footer>
@@ -504,8 +551,13 @@ InviteForm.propTypes = {
   size: PropTypes.string,
   docId: PropTypes.number,
   docName: PropTypes.string,
+  isTemplate: PropTypes.bool,
   handleClose: PropTypes.func,
   handleSubmit: PropTypes.func,
+};
+
+InviteForm.defaultProps = {
+  isTemplate: false,
 };
 
 export default injectIntl(InviteForm);

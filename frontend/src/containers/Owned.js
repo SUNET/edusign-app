@@ -5,7 +5,7 @@
  */
 import { connect } from "react-redux";
 
-import { removeInvites } from "slices/Documents";
+import { removeInvites } from "slices/Invitations";
 import Owned from "components/Owned";
 import { askConfirmation } from "slices/ConfirmDialog";
 import { showResend } from "slices/Modals";

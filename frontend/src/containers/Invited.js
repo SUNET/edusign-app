@@ -16,6 +16,7 @@ import {
   confirmForcedInvitedPreview,
   declineSigning,
   downloadInvitedSigned,
+  startDelegating,
 } from "slices/Main";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
@@ -121,6 +122,15 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
       };
     },
+    handleDelegateSigning: function (key) {
+      return async () => {
+        dispatch(disablePolling());
+        dispatch(startDelegating(key));
+        dispatch(unsetSpinning());
+      };
+    },
+    //handleCloseDelegateForm: function () {},
+    //handleSubmitDelegateForm: function () {},
   };
 };
 

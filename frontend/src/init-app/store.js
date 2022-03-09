@@ -10,6 +10,7 @@ import modals from "slices/Modals";
 import button from "slices/Button";
 import poll from "slices/Poll";
 import inviteform from "slices/InviteForm";
+import template from "slices/Templates";
 
 /**
  * @public
@@ -20,6 +21,7 @@ export default combineReducers({
   main,
   notifications,
   documents,
+  template,
   dnd,
   confirm,
   modals,

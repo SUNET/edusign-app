@@ -70,7 +70,6 @@ CREATE TABLE [Invites]
        [key] VARCHAR(255) NOT NULL,
        [user_id] INTEGER NOT NULL,
        [doc_id] INTEGER NOT NULL,
-       [signer] INTEGER DEFAULT 1,
        [signed] INTEGER DEFAULT 0,
        [declined] INTEGER DEFAULT 0,
             FOREIGN KEY ([user_id]) REFERENCES [Users] ([user_id])
@@ -83,7 +82,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
 CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([owner]);
 CREATE INDEX IF NOT EXISTS [InviteeIX] ON [Invites] ([user_id]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-PRAGMA user_version = 4;
+PRAGMA user_version = 3;
 """
 
 
@@ -94,25 +93,23 @@ DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner, prev_sig
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOCK = "SELECT locked, locked_by FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY = "SELECT key, name, size, type, owner, prev_signatures FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT d.doc_id, d.key, d.name, d.size, d.type, d.prev_signatures FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.user_id;"
+DOCUMENT_QUERY = "SELECT key, name, size, type, owner, prev_signatures, loa FROM Documents WHERE doc_id = ?;"
+DOCUMENT_QUERY_FROM_OWNER = "SELECT d.doc_id, d.key, d.name, d.size, d.type, d.prev_signatures, d.loa FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.user_id;"
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOA = "SELECT loa FROM Documents WHERE key = ?;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locked_by = NULL WHERE doc_id = ?;"
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locked_by = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
-INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_id, signer) VALUES (?, ?, ?, ?)"
-INVITE_QUERY_FROM_EMAIL = "SELECT Invites.doc_id, Invites.key FROM Invites, Users WHERE Users.email = ? AND Invites.user_id = Users.user_id AND Invites.signed = 0 AND Invites.declined = 0 AND Invites.signer = 1;"
-INVITE_QUERY_FROM_DOC = "SELECT user_id, signed, declined, key FROM Invites WHERE doc_id = ? AND signer = 1;"
-INVITE_QUERY_FROM_DOC_ANY = "SELECT user_id, signed, declined, key, signer FROM Invites WHERE doc_id = ?;"
-INVITE_QUERY_UNSIGNED_FROM_DOC = (
-    "SELECT user_id FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0 AND signer = 1;"
-)
+INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_id) VALUES (?, ?, ?)"
+INVITE_QUERY_FROM_EMAIL = "SELECT Invites.doc_id, Invites.key FROM Invites, Users WHERE Users.email = ? AND Invites.user_id = Users.user_id AND Invites.signed = 0 AND Invites.declined = 0;"
+INVITE_QUERY_FROM_DOC = "SELECT user_id, signed, declined, key FROM Invites WHERE doc_id = ?;"
+INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT user_id FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0;"
 INVITE_QUERY_FROM_KEY = "SELECT user_id, doc_id FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_id = ? and doc_id = ?;"
 INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_id = ? and doc_id = ?;"
 INVITE_DELETE = "DELETE FROM Invites WHERE user_id = ? and doc_id = ?;"
+INVITE_DELETE_FROM_KEY = "DELETE FROM Invites WHERE key = ?;"
 INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
 
 
@@ -161,13 +158,6 @@ def upgrade(db):
         cur = db.cursor()
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [loa] VARCHAR(255) DEFAULT \"none\";")
         cur.execute("PRAGMA user_version = 3;")
-        cur.close()
-        db.commit()
-
-    if version == 3:
-        cur = db.cursor()
-        cur.execute("ALTER TABLE [Invites] ADD COLUMN [signer] Integer DEFAULT 1;")
-        cur.execute("PRAGMA user_version = 4;")
         cur.close()
         db.commit()
 
@@ -233,8 +223,6 @@ class SqliteMD(ABCMetadata):
                          + prev_signatures: previous signatures
         :param owner: Name and email address of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
-                        Also includes a `signer` boolean, indicating whether the invitation is for signing
-                        or just as a recipient of the final signed document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -280,9 +268,8 @@ class SqliteMD(ABCMetadata):
                 continue
 
             user_id = user_result['user_id']
-            signer = int(user['signer'])
             invite_key = str(uuid.uuid4())
-            self._db_execute(INVITE_INSERT, (invite_key, document_id, user_id, signer))
+            self._db_execute(INVITE_INSERT, (invite_key, document_id, user_id))
 
             updated_invite = {'key': invite_key}
             updated_invite.update(user)
@@ -310,6 +297,7 @@ class SqliteMD(ABCMetadata):
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
         invites = self._db_query(INVITE_QUERY_FROM_EMAIL, (email,))
         if invites is None or isinstance(invites, dict):
@@ -445,6 +433,7 @@ class SqliteMD(ABCMetadata):
                  + state: the state of the invitation
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (email,))
         if documents is None or isinstance(documents, dict):
@@ -494,8 +483,6 @@ class SqliteMD(ABCMetadata):
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
-                 + signer: Whether the user has been invited to sign
-                           or just as recipient for the final signed document.
         """
         invitees: List[Dict[str, Any]] = []
 
@@ -504,7 +491,7 @@ class SqliteMD(ABCMetadata):
             self.logger.error(f"Trying to remind invitees to sign non-existing document with key {key}")
             return invitees
 
-        invites = self._db_query(INVITE_QUERY_FROM_DOC_ANY, (document_result['doc_id'],))
+        invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_result['doc_id'],))
         if invites is None or isinstance(invites, dict):
             self.logger.error(f"Trying to remind non-existing invitees to sign document with key {key}")
             return invitees
@@ -522,7 +509,6 @@ class SqliteMD(ABCMetadata):
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
-            email_result['signer'] = bool(invite['signer'])
             invitees.append(email_result)
 
         return invitees
@@ -580,6 +566,50 @@ class SqliteMD(ABCMetadata):
         user = self._db_query(USER_QUERY, (invite['user_id'],), one=True)
 
         return {'document': doc, 'user': user}
+
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str) -> Dict[str, Any]:
+        """
+        Create a new invitation to sign
+
+        :param document_key: The key identifying the document to sign
+        :param name: The name for the new invitation
+        :param email: The email for the new invitation
+        :return: data on the new invitation
+        """
+        user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+        if user_result is None:
+            self._db_execute(USER_INSERT, (name, email))
+            user_result = self._db_query(USER_QUERY_ID, (email,), one=True)
+
+        if user_result is None or isinstance(user_result, list):  # This should never happen, it's just to please mypy
+            return {}
+
+        user_id = user_result['user_id']
+
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(document_key),), one=True)
+        if document_result is None or isinstance(
+            document_result, list
+        ):  # This should never happen, it's just to please mypy
+            return {}
+
+        document_id = document_result['doc_id']
+        invite_key = str(uuid.uuid4())
+        self._db_execute(INVITE_INSERT, (invite_key, document_id, user_id))
+        self._db_commit()
+
+        return {'key': invite_key, 'id': user_id, 'name': name, 'email': email}
+
+    def rm_invitation(self, invite_key: uuid.UUID, document_key: uuid.UUID) -> bool:
+        """
+        Remove an invitation to sign
+
+        :param invite_key: The key identifying the signing invitation to remove
+        :param document_key: The key identifying the signing invitation to remove
+        :return: success
+        """
+        self._db_execute(INVITE_DELETE_FROM_KEY, (str(invite_key),))
+        self._db_commit()
+        return True
 
     def get_document(self, key: uuid.UUID) -> Dict[str, Any]:
         """

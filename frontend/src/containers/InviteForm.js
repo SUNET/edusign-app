@@ -12,10 +12,11 @@ import { connect } from "react-redux";
 
 import InviteForm from "components/InviteForm";
 
-import { sendInvites } from "slices/Documents";
+import { sendInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
-import { toggleLoa, toggleSendSigned } from "slices/InviteForm";
+import { disablePolling, enablePolling } from "slices/Poll";
+import { toggleLoa, toggleMakeCopy, dontMakeCopy } from "slices/InviteForm";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -28,26 +29,33 @@ const mapStateToProps = (state, props) => {
     mail: state.main.signer_attributes.mail,
     loas: state.main.available_loas,
     show_loa: state.inviteform.show_loa_selection,
-    sending_signed: state.inviteform.send_signed,
+    make_copy: state.inviteform.make_copy,
+    templates: state.template.documents,
+    documents: state.documents.documents,
+    owned: state.main.owned_multisign,
   };
 };
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: async function (values) {
+      dispatch(hideForm());
       await dispatch(sendInvites({ values: values, intl: this.props.intl }));
       dispatch(unsetSpinning());
-      dispatch(hideForm());
+      dispatch(enablePolling());
+      dispatch(dontMakeCopy());
     },
     handleClose: function () {
       dispatch(unsetSpinning());
+      dispatch(enablePolling());
       dispatch(hideForm());
+      dispatch(dontMakeCopy());
     },
     handleToggleLoa: function () {
       dispatch(toggleLoa());
     },
-    handleToggleSendSigned: function () {
-      dispatch(toggleSendSigned());
+    handleMakeCopyToggle: function () {
+      dispatch(toggleMakeCopy());
     },
   };
 };

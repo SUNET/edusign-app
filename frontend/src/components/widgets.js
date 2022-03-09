@@ -5,6 +5,7 @@ import { ESTooltip } from "containers/Overlay";
 import Button from "containers/Button";
 import { humanFileSize } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
+import ConfirmDialogContainer from "containers/ConfirmDialog";
 
 export const docName = (doc) => {
   return <div className="name-flex-item">{doc.name}</div>;
@@ -139,6 +140,33 @@ export const previewButton = (props, doc) => {
     </>
   );
 };
+
+export const previewTemplateButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-preview-flex-item">
+        <ESTooltip
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Display a preview of the document"
+              key="preview-button-tootip"
+            />
+          }
+        >
+          <Button
+            variant="outline-dark"
+            id={"button-preview-" + doc.key}
+            size="sm"
+            disabling={true}
+            onClick={props.handleTemplatePreview(doc.key)}
+          >
+            <FormattedMessage defaultMessage="Preview" key="preview-button" />
+          </Button>
+        </ESTooltip>
+      </div>
+    </>
+  );
+};
 export const forcedPreviewButton = (props, doc) => {
   return (
     <>
@@ -179,8 +207,8 @@ export const removeConfirmButton = (props, doc, id) => {
         <ESTooltip
           tooltip={
             <FormattedMessage
-              defaultMessage="Cancel Request"
-              key="owned-close-button-help"
+              defaultMessage="Remove document"
+              key="owned-remove-button-help"
             />
           }
         >
@@ -189,6 +217,33 @@ export const removeConfirmButton = (props, doc, id) => {
             size="sm"
             onClick={props.showConfirm(id)}
             id={"button-rm-invitation-" + doc.key}
+          >
+            <FormattedMessage defaultMessage="Remove" key="remove-button" />
+          </Button>
+        </ESTooltip>
+      </div>
+    </>
+  );
+};
+
+export const removeTemplate = (props, doc) => {
+  const id = "confirm-remove-template-" + doc.name;
+  return (
+    <>
+      <div className="button-remove-flex-item">
+        <ESTooltip
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Remove template"
+              key="template-remove-button-help"
+            />
+          }
+        >
+          <Button
+            variant="outline-danger"
+            size="sm"
+            onClick={props.showConfirm(id)}
+            id={"button-rm-template-" + doc.key}
           >
             <FormattedMessage defaultMessage="Remove" key="remove-button" />
           </Button>
@@ -356,5 +411,147 @@ export const dummyButton = (doc) => {
     <>
       <div className="button-dummy-flex-item"></div>
     </>
+  );
+};
+
+export const delegateButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-delegate-flex-item">
+        <ESTooltip
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Click here to delegate the signature of this document to someone else."
+              key="invited-delegate-button-help"
+            />
+          }
+        >
+          <Button
+            variant="outline-dark"
+            size="sm"
+            id={"button-delegate-" + doc.key}
+            disabling={true}
+            onClick={props.handleDelegateSigning(doc.key)}
+          >
+            <FormattedMessage
+              defaultMessage="Delegate"
+              key="delegate-sign-button"
+            />
+          </Button>
+        </ESTooltip>
+      </div>
+    </>
+  );
+};
+
+export const buttonSignSelected = (disableSigning, onClick) => {
+  return (
+    <div className="button-sign-flex-item">
+      <ESTooltip
+        tooltip={
+          <FormattedMessage
+            defaultMessage="Select documents above and click here to send them for signing."
+            key="button-sign-tootip"
+          />
+        }
+      >
+        <div id="button-sign-wrapper">
+          <Button
+            variant="success"
+            id="button-sign"
+            size="lg"
+            disabled={disableSigning}
+            style={disableSigning ? { pointerEvents: "none" } : {}}
+            onClick={onClick}
+          >
+            <FormattedMessage
+              defaultMessage="Sign Selected Documents"
+              key="sign-selected-button"
+            />
+          </Button>
+        </div>
+      </ESTooltip>
+    </div>
+  );
+};
+
+export const buttonDownloadAll = (disableDlAllButton, onClick) => {
+  return (
+    <div className="button-dlall-flex-item">
+      <ESTooltip
+        tooltip={
+          <FormattedMessage
+            defaultMessage="Download all signed documents."
+            key="button-dlall-tootip"
+          />
+        }
+      >
+        <div id="button-dlall-wrapper">
+          <Button
+            variant="success"
+            id="button-dlall"
+            disabled={disableDlAllButton}
+            data-testid="button-dlall"
+            style={disableDlAllButton ? { pointerEvents: "none" } : {}}
+            size="lg"
+            onClick={onClick}
+          >
+            <FormattedMessage
+              defaultMessage="Download All Signed"
+              key="dlall-selected-button"
+            />
+          </Button>
+        </div>
+      </ESTooltip>
+    </div>
+  );
+};
+
+export const buttonClearPersonal = (
+  disableClearButton,
+  onClick,
+  clearDb,
+  intl
+) => {
+  return (
+    <div className="button-clear-flex-item">
+      <ESTooltip
+        tooltip={
+          <FormattedMessage
+            defaultMessage='Discard all documents in the "Personal documents" list above'
+            key="clear-docs-tootip"
+          />
+        }
+      >
+        <div id="button-clear-wrapper">
+          <Button
+            variant="primary"
+            id="clear-session-button"
+            disabled={disableClearButton}
+            size="lg"
+            style={disableClearButton ? { pointerEvents: "none" } : {}}
+            onClick={onClick}
+          >
+            <FormattedMessage
+              defaultMessage="Clear Personal Documents List"
+              key="clear-session-button"
+            />
+          </Button>
+        </div>
+      </ESTooltip>
+      <ConfirmDialogContainer
+        confirmId="confirm-clear-session"
+        title={intl.formatMessage({
+          defaultMessage: "Confirm Clear List",
+          id: "header-confirm-clear-title",
+        })}
+        mainText={intl.formatMessage({
+          defaultMessage:
+            'Clicking "Confirm" will remove all documents from your list',
+          id: "header-confirm-clear-text",
+        })}
+        confirm={clearDb}
+      />
+    </div>
   );
 };

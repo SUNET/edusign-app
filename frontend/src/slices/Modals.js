@@ -36,7 +36,7 @@ const modalsSlice = createSlice({
     },
     /**
      * @public
-     * @function showForm
+     * @function showResend
      * @desc Redux action to trigger opening an re-invite form modal
      */
     showResend(state, action) {
@@ -45,7 +45,7 @@ const modalsSlice = createSlice({
     },
     /**
      * @public
-     * @function hideForm
+     * @function hideResend
      * @desc Redux action to trigger hiding an re-invite form modal
      */
     hideResend(state) {

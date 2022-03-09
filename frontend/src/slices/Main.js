@@ -96,7 +96,7 @@ export const fetchConfig = createAsyncThunk(
  * @desc Redux async thunk to get from the backend a partially signed multisign doc
  */
 export const getPartiallySignedDoc = createAsyncThunk(
-  "documents/getPartiallySignedDoc",
+  "main/getPartiallySignedDoc",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     const oldDocs = state.main[args.stateKey].filter((doc) => {
@@ -151,7 +151,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
  * @desc Redux async thunk to decline signing an invited document.
  */
 export const declineSigning = createAsyncThunk(
-  "documents/declineSigning",
+  "main/declineSigning",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     const body = preparePayload(state, { key: args.key });
@@ -192,7 +192,7 @@ export const declineSigning = createAsyncThunk(
  * @desc Redux async thunk to hand signed documents to the user.
  */
 export const downloadInvitedSigned = createAsyncThunk(
-  "documents/downloadInvitedSigned",
+  "main/downloadInvitedSigned",
   async (docname, thunkAPI) => {
     const state = thunkAPI.getState();
     const doc = state.main.pending_multisign.filter((d) => {
@@ -202,6 +202,54 @@ export const downloadInvitedSigned = createAsyncThunk(
     const blob = b64toBlob(b64content);
     const newName = doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
     FileSaver.saveAs(blob, newName);
+  }
+);
+
+/**
+ * @public
+ * @function delegateSignature
+ * @desc Redux async thunk to delegate signing a document to someone else.
+ */
+export const delegateSignature = createAsyncThunk(
+  "main/delegateSignature",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const body = preparePayload(state, {
+      invite_key: args.values.inviteKey,
+      document_key: args.values.documentKey,
+      name: args.values.delegationName,
+      email: args.values.delegationEmail,
+    });
+    try {
+      const response = await fetch("/sign/delegate-invitation", {
+        ...postRequest,
+        body: body,
+      });
+      let data = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, data);
+      if (data.error) {
+        throw new Error(data.message);
+      }
+      if (data.message) {
+        thunkAPI.dispatch(
+          addNotification({
+            level: "success",
+            message: data.message,
+          })
+        );
+      }
+      return { key: args.values.documentKey };
+    } catch (err) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: args.intl.formatMessage({
+            defaultMessage: "Problem delegating signature",
+            id: "problem-delegating-document",
+          }),
+        })
+      );
+    }
   }
 );
 
@@ -630,6 +678,36 @@ const mainSlice = createSlice({
     setInvitedDocs(state, action) {
       state.pending_multisign = action.payload;
     },
+    /**
+     * @public
+     * @function startDelegating
+     * @desc Redux action to open a delegation form
+     */
+    startDelegating(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.key === action.payload) {
+          return {
+            ...doc,
+            delegating: true,
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function stopDelegating
+     * @desc Redux action to close a delegation form
+     */
+    stopDelegating(state, action) {
+      state.pending_multisign = state.pending_multisign.map((doc) => {
+        if (doc.key === action.payload) {
+          return {
+            ...doc,
+            delegating: false,
+          };
+        } else return doc;
+      });
+    },
   },
   extraReducers: {
     [fetchConfig.fulfilled]: (state, action) => {
@@ -673,6 +751,11 @@ const mainSlice = createSlice({
         } else return doc;
       });
     },
+    [delegateSignature.fulfilled]: (state, action) => {
+      state.pending_multisign = state.pending_multisign.filter((doc) => {
+        return doc.key !== action.payload.key;
+      });
+    },
   },
 });
 
@@ -704,6 +787,8 @@ export const {
   enableContextualHelp,
   setInvitedDocs,
   setOwnedDocs,
+  startDelegating,
+  stopDelegating,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;

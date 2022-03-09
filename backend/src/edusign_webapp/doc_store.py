@@ -41,8 +41,11 @@ from flask import Flask
 
 class ABCStorage(metaclass=abc.ABCMeta):
     """
-    Abstact base class for classes dealing with the storage of documents in the backend,
-    so that they can be consecutively signedby more than one user.
+    Abstact base class for classes dealing with the storage of the content of documents
+    in the backend.
+    We only keep in the backend documents that some user has invited other users to sign,
+    and only while they are being signed by all invited - up till the moment all invitations
+    have been fulfilled or declined.
     """
 
     @abc.abstractmethod
@@ -74,7 +77,7 @@ class ABCStorage(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def update(self, key: uuid.UUID, content: str):
         """
-        Update a document, usually because a new signature has been added.
+        Update the contents of a document, usually because a new signature has been added.
 
         :param key: The key identifying the document.
         :param content: base64 string with the contents of the new version of the document.
@@ -118,7 +121,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
         Store metadata for a new document.
 
-        :param key: The key that uniquely identifies the document in the storage.
+        :param key: A key that uniquely identifies the document in the storage.
         :param document: Content and metadata of the document. Dictionary containing 4 keys:
                          + name: The name of the document
                          + type: Content type of the doc
@@ -126,8 +129,6 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                          + prev_signatures: previous signatures
         :param owner: Email address and name of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
-                        Also includes a `signer` boolean, indicating whether the invitation is for signing
-                        or just as a recipient of the final signed document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -137,7 +138,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
     def get_pending(self, email: str) -> List[Dict[str, str]]:
         """
         Given the email address of some user, return information about the documents
-        she has been invited to sign, and has not yet signed.
+        they have been invited to sign, and have not yet signed.
 
         :param email: The email of the user
         :return: A list of dictionaries with information about the documents pending to be signed,
@@ -151,6 +152,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
 
     @abc.abstractmethod
@@ -186,6 +188,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
 
     @abc.abstractmethod
@@ -200,8 +203,6 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
-                 + signer: Whether the user has been invited to sign
-                           or just as recipient for the final signed document.
         """
 
     @abc.abstractmethod
@@ -220,6 +221,27 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
         :param key: The key identifying the signing invitation
         :return: A dict with data on the user and the document
+        """
+
+    @abc.abstractmethod
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str) -> Dict[str, Any]:
+        """
+        Create a new invitation to sign
+
+        :param document_key: The key identifying the document to sign
+        :param name: The name for the new invitation
+        :param email: The email for the new invitation
+        :return: data on the new invitation
+        """
+
+    @abc.abstractmethod
+    def rm_invitation(self, invite_key: uuid.UUID, document_key: uuid.UUID) -> bool:
+        """
+        Remove an invitation to sign
+
+        :param invite_key: The key identifying the signing invitation to remove
+        :param document_key: The key identifying the signing invitation to remove
+        :return: success
         """
 
     @abc.abstractmethod
@@ -299,7 +321,8 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
 class DocStore(object):
     """
-    Interface to deal with multi-sign documents.
+    Interface to deal with the storage of both content and metadata for documents
+    that have invitations to sign.
     """
 
     class DocumentLocked(Exception):
@@ -341,8 +364,6 @@ class DocStore(object):
                          + prev_signatures: previous signatures
         :param owner: Email address and name of the user that has uploaded the document.
         :param invites: List of names and email addresses of the users that should sign the document.
-                        Also includes a `signer` boolean, indicating whether the invitation is for signing
-                        or just as a recipient of the final signed document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -368,6 +389,7 @@ class DocStore(object):
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
         return self.metadata.get_pending(email)
 
@@ -424,6 +446,7 @@ class DocStore(object):
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
         """
         return self.metadata.get_owned(email)
 
@@ -461,9 +484,30 @@ class DocStore(object):
         data['document']['blob'] = self.storage.get_content(data['document']['key'])
         return data
 
+    def delegate(self, invite_key: uuid.UUID, document_key: uuid.UUID, name: str, email: str) -> bool:
+        """
+        Delegate an invitation: remove old invitation and create a new one with the provided name and email.
+
+        :param key: The key identifying the old signing invitation
+        :param name: The name for the new invitation
+        :param email: The email for the new invitation
+        :return: success
+        """
+        invitation = self.metadata.get_invitation(invite_key)
+        if not invitation:
+            return False
+
+        created = self.metadata.add_invitation(document_key, name, email)
+
+        if created:
+            self.metadata.rm_invitation(invite_key, document_key)
+            return True
+
+        return False
+
     def unlock_document(self, key: uuid.UUID, unlocked_by: str) -> bool:
         """
-        Unlock document
+        Unlock document on behalf of the user identified by `unlocked_by`.
 
         :param key: The key identifying the document to unlock
         :param locked_by: Email of the user unlocking the document
@@ -509,7 +553,7 @@ class DocStore(object):
 
     def get_document_name(self, key: uuid.UUID) -> str:
         """
-        Get document name
+        Get the name of the document identified by the provided key.
 
         :param key: the key identifying the document
         :return: the document name
@@ -519,7 +563,7 @@ class DocStore(object):
 
     def get_owner_data(self, key: uuid.UUID) -> Dict[str, Any]:
         """
-        Get data on the owner of the document
+        Get data on the owner of the document identified by the provided key.
 
         :param key: the key identifying the document
         :return: A dict with owner data, with keys:
@@ -550,8 +594,6 @@ class DocStore(object):
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
-                 + signer: Whether the user has been invited to sign
-                           or just as recipient for the final signed document.
         """
         invites = self.metadata.get_invited(key)
         if exclude:

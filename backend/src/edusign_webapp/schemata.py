@@ -65,6 +65,7 @@ class InvitationsSchema(Schema):
         declined = fields.List(fields.Nested(Invitee))
         state = fields.String(required=True, validate=[validate_nonempty])
         prev_signatures = fields.String(default="")
+        loa = fields.String(default="")
 
     class OwnedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
@@ -73,6 +74,7 @@ class InvitationsSchema(Schema):
         declined = fields.List(fields.Nested(Invitee))
         state = fields.String(required=True, validate=[validate_nonempty])
         prev_signatures = fields.String(default="")
+        loa = fields.String(default="")
 
     pending_multisign = fields.List(fields.Nested(PendingDocument))
     owned_multisign = fields.List(fields.Nested(OwnedDocument))
@@ -247,13 +249,10 @@ class MultiSignSchema(Schema):
     Schema to unmarshal requests for multi signatures.
     """
 
-    class InviteeAny(Invitee):
-        signer = fields.Boolean()
-
     document = fields.Nested(DocumentSchemaWithKey, many=False)
     text = fields.String()
     sendsigned = fields.Boolean()
-    invites = fields.List(fields.Nested(InviteeAny))
+    invites = fields.List(fields.Nested(Invitee))
     owner = fields.Email(required=True)
     loa = fields.String()
 
@@ -272,3 +271,12 @@ class ResendMultiSignSchema(KeyedMultiSignSchema):
     """
 
     text = fields.String(default="")
+
+
+class DelegationSchema(Invitee):
+    """
+    Schema to unmarshal requests to delegate an invitation
+    """
+
+    invite_key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+    document_key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])

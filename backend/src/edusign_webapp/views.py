@@ -35,19 +35,18 @@ import json
 import os
 import uuid
 from base64 import b64decode
-from email.mime.base import MIMEBase
 from typing import Any, Dict, List, Union
 
 import pkg_resources
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
 from flask_babel import force_locale, get_locale, gettext
-from flask_mail import Message
 from werkzeug.wrappers import Response
 
 from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
     BlobSchema,
     ConfigSchema,
+    DelegationSchema,
     DocumentSchema,
     InvitationsSchema,
     KeyedMultiSignSchema,
@@ -328,7 +327,7 @@ def create_sign_request(documents: dict) -> dict:
     View to send a request to the API to create a sign request.
 
     This is the first view that is called when the user starts the signature process for some document(s)
-    that do not involve invitations.
+    that are already loaded and that do not involve invitations.
 
     The sign request obtained from the API in this view is sent back to the eduSign js app in the browser,
     which will immediately POST it to the sign service to start the actual signing process.
@@ -589,6 +588,9 @@ def get_signed_documents(sign_data: dict) -> dict:
     """
     View to get the signed documents from the API.
 
+    This is called from the user agent after the user has completed a signing process,
+    to retrieve the signed documents from the backend and hand them to the user.
+
     :param sign_data: The data needed to identify the signed documents to be retrieved,
                       as obtained from the POST from the signature service to the `sign_service_callback`.
     :return: A dict with the signed documents, or with error information if some error has ocurred.
@@ -606,8 +608,14 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     if 'errorCode' in process_data:
         current_app.logger.error(f"Problem processing sign request, error code received: {process_data}")
+        message = process_data['message']
+        if message == "Requested LoA does not match the Assertion LoA":
+            return {
+                'error': True,
+                'message': gettext('Could not provide the requested security level.'),
+            }
         # XXX translate
-        return {'error': True, 'message': process_data['message']}
+        return {'error': True, 'message': message}
 
     async def queue_mail(*args, **kwargs):
         return sendmail(*args, **kwargs)
@@ -622,7 +630,7 @@ def get_signed_documents(sign_data: dict) -> dict:
 
         if 'email' in owner and owner['email'] != session['mail']:
             pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
-            pending = [p for p in pending if not p['signed'] and not p['declined'] and p['signer']]
+            pending = [p for p in pending if not p['signed'] and not p['declined']]
 
             if len(pending) > 0:
                 template = 'signed_by_email'
@@ -665,7 +673,7 @@ def get_signed_documents(sign_data: dict) -> dict:
                 [
                     f"{invited['name']} <{invited['email']}>"
                     for invited in current_app.doc_store.get_pending_invites(key)
-                    if (invited['signed'] or not invited['signer'])
+                    if invited['signed']
                 ]
             )
             try:
@@ -744,7 +752,12 @@ def get_signed_documents(sign_data: dict) -> dict:
 @Marshal()
 def create_multi_sign_request(data: dict) -> dict:
     """
-    View to create requests for collectively signing a document
+    View to create and send invitations for collectively signing a document.
+    This view receives the document (content and metadata) that is the subject of the invitation,
+    and stores it backend side. It then sends an email to each of the invitees, urging them to
+    sign the invitation, and providing a link to do so.
+    If there is an error sending the invitation emails, the document is removed from the backend db
+    and the user (inviter) is informed about the failure.
 
     :param data: The document to sign, the owner of the document,
                  and the emails of the users invited to sign the doc.
@@ -810,7 +823,10 @@ def create_multi_sign_request(data: dict) -> dict:
 @Marshal()
 def send_multisign_reminder(data: dict) -> dict:
     """
-    Send emails to remind people to sign some document
+    Send emails to remind people to sign some invitation.
+    This view receives a uuid key identifying the invitation,
+    retrieves said invitation from the backend db, and sends a reminder email
+    to each of the invitees that are still pending to sign.
 
     :param data: The key of the document pending signatures
     :return: A message about the result of the procedure
@@ -832,9 +848,7 @@ def send_multisign_reminder(data: dict) -> dict:
         return {'error': True, 'message': gettext('Could not find the document')}
 
     recipients = [
-        f"{invite['name']} <{invite['email']}>"
-        for invite in pending
-        if not invite['signed'] and not invite['declined'] and invite['signer']
+        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
     ]
     if len(recipients) > 0:
         try:
@@ -871,7 +885,9 @@ def send_multisign_reminder(data: dict) -> dict:
 @Marshal()
 def remove_multi_sign_request(data: dict) -> dict:
     """
-    View to remove requests for collectively signing a document
+    View to remove an invitation for collectively signing a document.
+    This view receives a uuid key identifying an invitation,
+    and removes all traces of it from the backend db.
 
     :param data: The key of the document to remove
     :return: A message about the result of the procedure
@@ -897,9 +913,7 @@ def remove_multi_sign_request(data: dict) -> dict:
         return {'error': True, 'message': gettext('Document has not been removed, please try again')}
 
     recipients = [
-        f"{invite['name']} <{invite['email']}>"
-        for invite in pending
-        if not invite['signed'] and not invite['declined'] and invite['signer']
+        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
     ]
     if len(recipients) > 0:
         try:
@@ -936,7 +950,10 @@ def remove_multi_sign_request(data: dict) -> dict:
 @Marshal(BlobSchema)
 def get_partially_signed_doc(data: dict) -> dict:
     """
-    View to get a document for preview that is only partially signed
+    View to get the contents of an invited document that is only partially signed,
+    this is, not all invitees have signed it.
+    This is called from the front app to show a preview of the document to sign
+    to the user.
 
     :param data: The key of the document to get
     :return: A message about the result of the procedure
@@ -959,6 +976,15 @@ def get_partially_signed_doc(data: dict) -> dict:
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal(SignedDocumentsSchema)
 def skip_final_signature(data: dict) -> dict:
+    """
+    View to skip adding a final signature to an invitation, by the inviter.
+    After all invitees have signed an invited document, the inviter can add a final signature,
+    or not. If they choose not to, the front side app will call this view, sending an uuid
+    identifying the invitation.
+    This will finish the multi signature process: The signed contents of the document
+    will be sent back to the front side app to be handed to the user, and also, by email,
+    to all invitees that have signed it. It will then be removed from the backend db.
+    """
 
     key = uuid.UUID(data['key'])
     try:
@@ -980,7 +1006,7 @@ def skip_final_signature(data: dict) -> dict:
             [
                 f"{invited['name']} <{invited['email']}>"
                 for invited in current_app.doc_store.get_pending_invites(key)
-                if (invited['signed'] or not invited['signer'])
+                if invited['signed']
             ]
         )
 
@@ -1043,6 +1069,13 @@ def skip_final_signature(data: dict) -> dict:
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal()
 def decline_invitation(data):
+    """
+    view to skip adding an invited signeture to a document.
+    When a user is invited to sign a document, they can either sign it, or decline signing it.
+    If they decline, the front side app calls this view, with the uuid identifying the invitation.
+    This view will mark the invitation regarding this particualr user as declined, and will send
+    an email to the inviter user informing them of the event.
+    """
 
     key = uuid.UUID(data['key'])
     email = session['mail']
@@ -1062,7 +1095,7 @@ def decline_invitation(data):
 
         else:
             pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
-            pending = [p for p in pending if not p['signed'] and not p['declined'] and p['signer']]
+            pending = [p for p in pending if not p['signed'] and not p['declined']]
             if len(pending) > 0:
                 template = 'declined_by_email'
             else:
@@ -1095,5 +1128,69 @@ def decline_invitation(data):
         current_app.logger.error(f'Problem sending email of declination: {e}')
 
     message = gettext("Success declining signature")
+
+    return {'message': message}
+
+
+@edusign_views.route('/delegate-invitation', methods=['POST'])
+@UnMarshal(DelegationSchema)
+@Marshal()
+def delegate_invitation(data):
+    """
+    View to delegate an invitation to someone other.
+    When a user receives an invitation to sign a document,
+    after reviewing the contents of the document, they are offered the
+    possibility to, rather than sign the document themselves,
+    delegate the invitation to someone else, so that it is this someone else
+    who signs the document.
+    """
+
+    invite_key = uuid.UUID(data['invite_key'])
+    document_key = uuid.UUID(data['document_key'])
+    name = data['name']
+    email = data['email']
+    try:
+        current_app.doc_store.delegate(invite_key, document_key, name, email)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem delegating invitation: {e}')
+        return {'error': True, 'message': gettext('There was a problem delegating the invitation')}
+    try:
+        owner_data = current_app.doc_store.get_owner_data(document_key)
+        if not owner_data:
+            current_app.logger.error(
+                f"Problem sending email about {session['mail']} delegating signature of document {document_key} with no owner data"
+            )
+
+        else:
+            recipients = [f"{name} <{email}>"]
+            mail_context = {
+                'document_name': owner_data['docname'],
+                'delegater_name': session['displayName'],
+                'delegater_email': session['mail'],
+                'owner_name': owner_data['name'],
+                'owner_email': owner_data['email'],
+            }
+            with force_locale('en'):
+                subject_en = gettext('%(name)s has delegated signature of "%(docname)s" to you') % {
+                    'name': owner_data['name'],
+                    'docname': owner_data['docname'],
+                }
+                body_txt_en = render_template('delegation_email.txt.jinja2', **mail_context)
+                body_html_en = render_template('delegation_email.html.jinja2', **mail_context)
+            with force_locale('sv'):
+                subject_sv = gettext('%(name)s has delegated signature of "%(docname)s" to you') % {
+                    'name': owner_data['name'],
+                    'docname': owner_data['docname'],
+                }
+                body_txt_sv = render_template('delegation_email.txt.jinja2', **mail_context)
+                body_html_sv = render_template('delegation_email.html.jinja2', **mail_context)
+
+            sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem sending email of delegation: {e}')
+
+    message = gettext("Success delegating signature")
 
     return {'message': message}

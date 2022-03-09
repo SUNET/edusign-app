@@ -46,7 +46,7 @@ from edusign_webapp.doc_store import DocStore
 
 class EduSignApp(Flask):
     """
-    Edusign's Flask app, with blueprint with the views needed by the eduSign app.
+    Edusign's Flask app, with blueprints with the views needed by the eduSign app.
     """
 
     def __init__(self, name: str, **kwargs):
@@ -76,7 +76,12 @@ class EduSignApp(Flask):
 
 def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
     """
-    Create an instance of an edusign data app.
+    Create an instance of EduSignApp.
+    This will a few facilities to the app instance as attributes:
+    * api_client: an instance of the ApiClient class, to communicate with the API.
+    * babel: flask-babel instance for internationalization
+    * doc_store: an instance of the DocStore class, to manage invitations to sign
+    * mailer: an instance of flask-mail, for sending emails
 
     :param name: Name for the Flask app
     :param config: To update the config, mainly used in tests
