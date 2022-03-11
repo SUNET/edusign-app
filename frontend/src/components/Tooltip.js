@@ -10,14 +10,15 @@ import BTooltip from "react-bootstrap/Tooltip";
  */
 class Tooltip extends Component {
   render() {
-    const { tooltip, showHelp, dispatch, ...props } = this.props;
+    const { tooltip, showHelp, dispatch, handleToggleOverlay, helpId, ...props } = this.props;
     return (
       <BOverlayTrigger
         {...props}
         delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
         trigger={["hover", "focus"]}
         rootClose={true}
-        show={showHelp ? undefined : false}
+        show={showHelp}
+        onToggle={handleToggleOverlay(helpId)}
         overlay={
           <BTooltip placement="auto" {...props}>
             {tooltip}

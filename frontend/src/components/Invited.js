@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
-import { ESPopover } from "containers/Overlay";
 
 import { docToFile, humanFileSize } from "components/utils";
 import DocPreviewContainer from "containers/DocPreview";

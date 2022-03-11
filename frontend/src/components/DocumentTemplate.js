@@ -54,6 +54,7 @@ class DocumentTemplate extends React.Component {
       return (
         <>
           <ESPopover
+            helpId={"template-doc-container-" + doc.name}
             key={doc.name}
             title={this.getHelp("template-title")}
             body={this.getHelp("template-body")}
@@ -78,7 +79,7 @@ class DocumentTemplate extends React.Component {
     } else if (this.props.size === "sm") {
       return (
         <>
-          <ESTooltip key={doc.name} tooltip={this.getHelp(doc.state)}>
+          <ESTooltip key={doc.name} tooltip={this.getHelp(doc.state)} helpId={"template-container-" + doc.name}>
             <>
               <div className={"doc-flex-container-sm " + doc.state} key="0">
                 {(doc.state === "loaded" || doc.state === "selected") && (

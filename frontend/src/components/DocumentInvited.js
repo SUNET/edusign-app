@@ -173,7 +173,7 @@ class DocumentInvited extends Component {
             />
           </span>
           &nbsp;
-          <ESTooltip tooltip={loaValue}>
+          <ESTooltip tooltip={loaValue} helpId={"tooltip-" + loaValue}>
             <span className="invite-loa-item">{loaName}</span>
           </ESTooltip>
         </div>
@@ -182,6 +182,7 @@ class DocumentInvited extends Component {
     return (
       <>
         <ESPopover
+          helpId={"invited-doc-container-" + doc.name}
           key={doc.name}
           title={this.getHelp(doc.state + "-title")}
           body={this.getHelp(doc.state)}

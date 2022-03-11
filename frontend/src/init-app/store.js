@@ -11,6 +11,7 @@ import button from "slices/Button";
 import poll from "slices/Poll";
 import inviteform from "slices/InviteForm";
 import template from "slices/Templates";
+import overlay from "slices/Overlay";
 
 /**
  * @public
@@ -28,5 +29,6 @@ export default combineReducers({
   button,
   poll,
   inviteform,
+  overlay,
   intl: intlReducer,
 });

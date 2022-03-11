@@ -70,6 +70,7 @@ class ReInviteForm extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                   <ESTooltip
+                    helpId={"button-cancel-resend-" + this.props.doc.name}
                     className="tooltip-in-modal"
                     tooltip={
                       <FormattedMessage
@@ -92,6 +93,7 @@ class ReInviteForm extends React.Component {
                     </Button>
                   </ESTooltip>
                   <ESTooltip
+                    helpId={"button-resend-" + this.props.doc.name}
                     className="tooltip-in-modal"
                     tooltip={
                       <FormattedMessage

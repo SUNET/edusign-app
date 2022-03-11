@@ -133,6 +133,7 @@ class DocumentLocal extends React.Component {
       return (
         <>
           <ESPopover
+            helpId={"local-doc-container-" + doc.name}
             key={doc.name}
             title={this.getHelp(doc.state + "-title")}
             body={this.getHelp(doc.state)}
@@ -238,7 +239,7 @@ class DocumentLocal extends React.Component {
     } else if (this.props.size === "sm") {
       return (
         <>
-          <ESTooltip key={doc.name} tooltip={this.getHelp(doc.state)}>
+          <ESTooltip key={doc.name} tooltip={this.getHelp(doc.state)} helpId={"local-container-" + doc.name}>
             <>
               <div className={"doc-flex-container-sm " + doc.state} key="0">
                 {doc.state === "loading" && (
