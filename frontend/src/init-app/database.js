@@ -34,7 +34,6 @@ async function _getDb(name) {
 }
 async function getNewDb(name) {
   const newname = "eduSignDB-" + hashCode(name);
-  console.log("newname ", newname);
   return await _getDb(newname);
 }
 async function getOldDb() {
@@ -51,17 +50,13 @@ async function getOldDb() {
  *
  */
 export async function getDb(name) {
-  console.log("opening db");
   if (db === null) {
-    console.log("db is null");
     const olddb = await getOldDb();
     db = await getNewDb(name);
 
     const oldTransaction = olddb.transaction(["documents"], "readwrite");
     oldTransaction.onerror = (event) => {};
     const oldStore = oldTransaction.objectStore("documents");
-
-    console.log("opened old store");
 
     await new Promise((resolve) => {
       oldStore.openCursor().onsuccess = (event) => {
@@ -78,15 +73,11 @@ export async function getDb(name) {
             console.log("error recovering document, ", event);
           };
 
-          console.log("transferring document ", document.name);
-
           cursor.continue();
         }
         if (cursor === null) {
-          console.log("clearing the old db");
           const docRequest = oldStore.clear();
           docRequest.onsuccess = (e) => {
-            console.log("cleared the old db");
             resolve();
           };
         }
@@ -94,7 +85,6 @@ export async function getDb(name) {
     });
     return db;
   } else {
-    console.log("db is not null");
     return db;
   }
 }
