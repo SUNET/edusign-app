@@ -12,7 +12,15 @@ import PopoverTitle from "react-bootstrap/PopoverTitle";
  */
 class Popover extends Component {
   render() {
-    const { title, body, showHelp, dispatch, handleToggleOverlay, helpId, ...props } = this.props;
+    const {
+      title,
+      body,
+      showHelp,
+      dispatch,
+      handleToggleOverlay,
+      helpId,
+      ...props
+    } = this.props;
     return (
       <BOverlayTrigger
         {...props}

@@ -8,8 +8,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const overlaySlice = createSlice({
   name: "overlay",
   initialState: {
-    active: '',
-    previous: '',
+    active: "",
+    previous: "",
   },
   reducers: {
     /**
@@ -28,7 +28,7 @@ const overlaySlice = createSlice({
      */
     unsetActiveId(state, action) {
       state.active = state.previous;
-      state.previous = '';
+      state.previous = "";
     },
   },
 });

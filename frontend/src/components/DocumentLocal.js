@@ -137,7 +137,7 @@ class DocumentLocal extends React.Component {
           title={this.getHelp(doc.state + "-title")}
           body={this.getHelp(doc.state)}
         >
-          {(this.props.size === "lg") && (
+          {(this.props.size === "lg" && (
             <div className={"doc-flex-container-local " + doc.state} key="0">
               <div className="doc-flex-container">
                 {doc.state === "loading" && (
@@ -233,7 +233,7 @@ class DocumentLocal extends React.Component {
               {signed}
               {preparePrevSigs(doc)}
             </div>
-          ) || (
+          )) || (
             <div className={"doc-flex-container-sm " + doc.state} key="0">
               {doc.state === "loading" && (
                 <>

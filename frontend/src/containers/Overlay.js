@@ -9,7 +9,7 @@ const mapStateToProps = (state, props) => {
   let showHelp = state.main.showHelp ? undefined : false;
   if (showHelp === undefined) {
     const active = state.overlay.active;
-    if (active !== '') {
+    if (active !== "") {
       if (props.helpId === active) {
         showHelp = true;
       } else {
@@ -31,10 +31,10 @@ const mapDispatchToProps = (dispatch, props) => {
         } else {
           dispatch(unsetActiveId(helpId));
         }
-      }
-    }
+      };
+    },
   };
-}
+};
 
 export const ESTooltip = connect(mapStateToProps, mapDispatchToProps)(Tooltip);
 

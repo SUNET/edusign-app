@@ -10,7 +10,14 @@ import BTooltip from "react-bootstrap/Tooltip";
  */
 class Tooltip extends Component {
   render() {
-    const { tooltip, showHelp, dispatch, handleToggleOverlay, helpId, ...props } = this.props;
+    const {
+      tooltip,
+      showHelp,
+      dispatch,
+      handleToggleOverlay,
+      helpId,
+      ...props
+    } = this.props;
     return (
       <BOverlayTrigger
         {...props}

@@ -57,7 +57,7 @@ class DocumentTemplate extends React.Component {
           title={this.getHelp("template-title")}
           body={this.getHelp("template-body")}
         >
-          {(this.props.size === "lg") && (
+          {(this.props.size === "lg" && (
             <div className={"doc-flex-container-local " + doc.state} key="0">
               <div className="doc-flex-container">
                 {widgets.dummySelectDoc()}
@@ -72,7 +72,7 @@ class DocumentTemplate extends React.Component {
               {signed}
               {preparePrevSigs(doc)}
             </div>
-          ) || (
+          )) || (
             <div className={"doc-flex-container-sm " + doc.state} key="0">
               {(doc.state === "loaded" || doc.state === "selected") && (
                 <>
