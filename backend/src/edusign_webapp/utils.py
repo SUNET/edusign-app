@@ -219,7 +219,8 @@ def sendmail(
     second = first == 'sv' and 'en' or 'sv'
 
     subject = f"{mail[first]['subject']} / {mail[second]['subject']}"
-    msg = Message(subject, recipients=recipients)
+    utf8_subject = subject.encode('utf8')
+    msg = Message(utf8_subject, recipients=recipients)
     msg.body = f"{mail[first]['body_txt']} \n\n {mail[second]['body_txt']}"
     msg.html = f"{mail[first]['body_html']} <br/><br/> {mail[second]['body_html']}"
 
