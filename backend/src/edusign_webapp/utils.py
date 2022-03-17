@@ -33,6 +33,7 @@
 import io
 import uuid
 from base64 import b64decode
+from email.header import Header
 from xml.etree import cElementTree as ET
 
 from flask import current_app, request, session
@@ -218,9 +219,9 @@ def sendmail(
     first = str(get_locale())
     second = first == 'sv' and 'en' or 'sv'
 
-    subject = f"{mail[first]['subject']} / {mail[second]['subject']}"
-    utf8_subject = subject.encode('utf8')
-    msg = Message(utf8_subject, recipients=recipients)
+    subject = f"{mail[first]['subject']} | {mail[second]['subject']}"
+    current_app.logger.debug(f"Subject to be sent:\n\n{subject}\n\n")
+    msg = Message(subject, recipients=recipients, charset='utf8')
     msg.body = f"{mail[first]['body_txt']} \n\n {mail[second]['body_txt']}"
     msg.html = f"{mail[first]['body_html']} <br/><br/> {mail[second]['body_html']}"
 
