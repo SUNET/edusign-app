@@ -1,0 +1,24 @@
+@startuml
+
+title Loading the app
+
+participant Browser as br
+participant "eduSign\nfrontend" as front
+participant "eduSign\nbackend" as back
+participant IdP
+
+br -> back: Get home page
+back -> br: Serve home page
+
+br -> br: "User clicks on\nseamlessaccess button"
+br -> IdP: Authentication request
+IdP -> br: Authentication response in redirect to backend
+br -> back: Get frontent app JS sources
+back -> br: Serve JS app sources
+br -> front: Load frontend app
+
+front -> br: Get old documents\nfrom IndexedDB db
+br -> front: Hand over old documents\n(and templates)
+front -> front: App is loaded and ready
+
+@enduml
