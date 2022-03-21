@@ -219,9 +219,9 @@ def sendmail(
     first = str(get_locale())
     second = first == 'sv' and 'en' or 'sv'
 
-    subject = f"{mail[first]['subject']} | {mail[second]['subject']}"
-    current_app.logger.debug(f"Subject to be sent:\n\n{subject}\n\n")
-    msg = Message(subject, recipients=recipients, charset='utf8')
+    subject_str = f"{mail[first]['subject']} | {mail[second]['subject']}"
+    subject = Header(subject_str, charset='utf8', header_name="Subject")
+    msg = Message(subject.encode(), recipients=recipients, charset='utf8')
     msg.body = f"{mail[first]['body_txt']} \n\n {mail[second]['body_txt']}"
     msg.html = f"{mail[first]['body_html']} <br/><br/> {mail[second]['body_html']}"
 
