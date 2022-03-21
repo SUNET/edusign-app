@@ -33,11 +33,13 @@
 import io
 import uuid
 from base64 import b64decode
-from email.header import Header
+from email.header import Header, decode_header
+from email.policy import default
 from xml.etree import cElementTree as ET
 
 from flask import current_app, request, session
 from flask_babel import force_locale, get_locale, gettext
+import flask_mail
 from flask_mail import Message
 from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
 
@@ -219,9 +221,15 @@ def sendmail(
     first = str(get_locale())
     second = first == 'sv' and 'en' or 'sv'
 
+    # Fix weird bug in flask_mail where Subject with non ascii chars break
+    flask_mail.message_policy = default
+
     subject_str = f"{mail[first]['subject']} | {mail[second]['subject']}"
-    subject = Header(subject_str, charset='utf8', header_name="Subject")
-    msg = Message(subject.encode(), recipients=recipients, charset='utf8')
+    #  subject = Header(subject_str, charset='utf8', header_name="Subject")
+    #  subject_decoded = decode_header(subject.encode())[0][0]
+    #  subject_str = subject_decoded.decode('utf8')
+    current_app.logger.debug(f"Subject to be sent:\n\n{subject_str}\n\n")
+    msg = Message(subject_str, recipients=recipients, charset='utf8')
     msg.body = f"{mail[first]['body_txt']} \n\n {mail[second]['body_txt']}"
     msg.html = f"{mail[first]['body_html']} <br/><br/> {mail[second]['body_html']}"
 
