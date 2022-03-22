@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-09 14:52+0100\n"
+"POT-Creation-Date: 2022-03-22 11:03+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: src/edusign_webapp/marshal.py:56 src/edusign_webapp/marshal.py:62
 #: src/edusign_webapp/marshal.py:68 src/edusign_webapp/marshal.py:72
-#: src/edusign_webapp/marshal.py:205 src/edusign_webapp/utils.py:116
+#: src/edusign_webapp/marshal.py:205 src/edusign_webapp/utils.py:119
 #: src/edusign_webapp/validators.py:50 src/edusign_webapp/validators.py:54
 #: src/edusign_webapp/validators.py:65 src/edusign_webapp/validators.py:78
 #: src/edusign_webapp/validators.py:82 src/edusign_webapp/validators.py:95
@@ -91,13 +91,13 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:648 src/edusign_webapp/views.py:655
 #, python-format
-msgid "%(name)s signed \"%(docname)s\""
+msgid "%(name)s signed '%(docname)s'"
 msgstr ""
 
 #: src/edusign_webapp/views.py:684 src/edusign_webapp/views.py:692
 #: src/edusign_webapp/views.py:1017 src/edusign_webapp/views.py:1025
 #, python-format
-msgid "\"%(docname)s\" is now signed"
+msgid "'%(docname)s' is now signed"
 msgstr ""
 
 #: src/edusign_webapp/views.py:771
@@ -111,7 +111,7 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:801 src/edusign_webapp/views.py:805
 #, python-format
-msgid "You have been invited to sign \"%(document_name)s\""
+msgid "You have been invited to sign '%(document_name)s'"
 msgstr ""
 
 #: src/edusign_webapp/views.py:814
@@ -136,7 +136,7 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:864 src/edusign_webapp/views.py:868
 #, python-format
-msgid "A reminder to sign \"%(document_name)s\""
+msgid "A reminder to sign '%(document_name)s'"
 msgstr ""
 
 #: src/edusign_webapp/views.py:876
@@ -157,7 +157,7 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:926 src/edusign_webapp/views.py:932
 #, python-format
-msgid "Cancellation of invitation to sign \"%(document_name)s\""
+msgid "Cancellation of invitation to sign '%(document_name)s'"
 msgstr ""
 
 #: src/edusign_webapp/views.py:943
@@ -175,7 +175,7 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:1111 src/edusign_webapp/views.py:1118
 #, python-format
-msgid "%(name)s declined to sign \"%(docname)s\""
+msgid "%(name)s declined to sign '%(docname)s'"
 msgstr ""
 
 #: src/edusign_webapp/views.py:1130
@@ -188,7 +188,7 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:1175 src/edusign_webapp/views.py:1182
 #, python-format
-msgid "%(name)s has delegated signature of \"%(docname)s\" to you"
+msgid "%(name)s has delegated signature of '%(docname)s' to you"
 msgstr ""
 
 #: src/edusign_webapp/views.py:1194
@@ -741,5 +741,26 @@ msgstr ""
 #~ "has cancelled the invitation to "
 #~ "digitally sign a document named "
 #~ "\"%(document_name)s\".\n"
+#~ msgstr ""
+
+#~ msgid "%(name)s signed \"%(docname)s\""
+#~ msgstr ""
+
+#~ msgid "\"%(docname)s\" is now signed"
+#~ msgstr ""
+
+#~ msgid "You have been invited to sign \"%(document_name)s\""
+#~ msgstr ""
+
+#~ msgid "A reminder to sign \"%(document_name)s\""
+#~ msgstr ""
+
+#~ msgid "Cancellation of invitation to sign \"%(document_name)s\""
+#~ msgstr ""
+
+#~ msgid "%(name)s declined to sign \"%(docname)s\""
+#~ msgstr ""
+
+#~ msgid "%(name)s has delegated signature of \"%(docname)s\" to you"
 #~ msgstr ""
 
