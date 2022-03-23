@@ -34,7 +34,7 @@ import io
 import uuid
 from base64 import b64decode
 from email.header import Header, decode_header
-from email.policy import default
+from email import policy
 from xml.etree import cElementTree as ET
 
 from flask import current_app, request, session
@@ -222,7 +222,7 @@ def sendmail(
     second = first == 'sv' and 'en' or 'sv'
 
     # Fix weird bug in flask_mail where Subject with non ascii chars break
-    flask_mail.message_policy = default
+    flask_mail.message_policy = policy.SMTP
 
     subject_str = f"{mail[first]['subject']} | {mail[second]['subject']}"
     #  subject = Header(subject_str, charset='utf8', header_name="Subject")
