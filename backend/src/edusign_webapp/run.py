@@ -36,7 +36,7 @@ from typing import Callable, Optional
 from flask import Flask, current_app, request
 from flask_babel import Babel
 from flask_cors import CORS
-from flask_mail import Mail
+from flask_mailman import Mail
 from flask_misaka import Misaka
 from werkzeug.wrappers import Response
 

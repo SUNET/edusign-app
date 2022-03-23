@@ -33,14 +33,11 @@
 import io
 import uuid
 from base64 import b64decode
-from email.header import Header, decode_header
-from email import policy
 from xml.etree import cElementTree as ET
 
 from flask import current_app, request, session
 from flask_babel import force_locale, get_locale, gettext
-import flask_mail
-from flask_mail import Message
+from flask_mailman import EmailMultiAlternatives
 from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
 
 
@@ -218,26 +215,27 @@ def sendmail(
             'body_html': body_html_sv,
         },
     }
-    first = str(get_locale())
-    second = first == 'sv' and 'en' or 'sv'
+    first_lang = str(get_locale())
+    second_lang = first_lang == 'sv' and 'en' or 'sv'
 
-    # Fix weird bug in flask_mail where Subject with non ascii chars break
-    flask_mail.message_policy = policy.SMTP
+    subject = f"{mail[first_lang]['subject']} | {mail[second_lang]['subject']}"
+    text_body = f"{mail[first_lang]['body_txt']} \n\n {mail[second_lang]['body_txt']}"
+    html_body = f"{mail[first_lang]['body_html']} <br/><br/> {mail[second_lang]['body_html']}"
 
-    subject_str = f"{mail[first]['subject']} | {mail[second]['subject']}"
-    subject_header = Header(subject_str, charset='utf8')
-    subject_encoded = subject_header.encode()
-    current_app.logger.debug(f"Subject to be sent:\n\n{subject_encoded}: {type(subject_encoded)}\n\n")
-    msg = Message(subject_encoded, recipients=recipients, charset='utf8')
-    msg.body = f"{mail[first]['body_txt']} \n\n {mail[second]['body_txt']}"
-    msg.html = f"{mail[first]['body_html']} <br/><br/> {mail[second]['body_html']}"
+    msg = EmailMultiAlternatives(
+        subject,
+        text_body,
+        current_app.config['MAIL_DEFAULT_SENDER'],
+        recipients
+    )
+    msg.attach_alternative(html_body, 'text/html')
 
     if attachment and attachment_name:
-        msg.attach(attachment_name, 'application/pdf', attachment)
+        msg.attach((attachment_name, attachment, 'application/pdf'))
 
     current_app.logger.debug(f"Email to be sent:\n\n{msg}\n\n")
 
-    current_app.mailer.send(msg)
+    msg.send()
 
 
 def get_authn_context(docs: list) -> list:
