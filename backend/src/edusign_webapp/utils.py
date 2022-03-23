@@ -225,10 +225,9 @@ def sendmail(
     flask_mail.message_policy = policy.SMTP
 
     subject_str = f"{mail[first]['subject']} | {mail[second]['subject']}"
-    #  subject = Header(subject_str, charset='utf8', header_name="Subject")
-    #  subject_decoded = decode_header(subject.encode())[0][0]
-    #  subject_str = subject_decoded.decode('utf8')
-    current_app.logger.debug(f"Subject to be sent:\n\n{subject_str}\n\n")
+    subject_header = Header(subject_str, charset='utf8', header_name="Subject")
+    subject_encoded = subject_header.encode()
+    current_app.logger.debug(f"Subject to be sent:\n\n{subject_encoded}: {type(subject_encoded)}\n\n")
     msg = Message(subject_str, recipients=recipients, charset='utf8')
     msg.body = f"{mail[first]['body_txt']} \n\n {mail[second]['body_txt']}"
     msg.html = f"{mail[first]['body_html']} <br/><br/> {mail[second]['body_html']}"
