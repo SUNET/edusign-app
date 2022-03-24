@@ -126,6 +126,7 @@ class DelegateForm extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                   <ESTooltip
+                    helpId={"button-cancel-delegating-" + this.props.doc.name}
                     className="tooltip-in-modal"
                     tooltip={
                       <FormattedMessage
@@ -146,6 +147,7 @@ class DelegateForm extends React.Component {
                     </Button>
                   </ESTooltip>
                   <ESTooltip
+                    helpId={"button-delegate-" + this.props.doc.name}
                     className="tooltip-in-modal"
                     tooltip={
                       <FormattedMessage

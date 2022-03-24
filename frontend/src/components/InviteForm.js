@@ -258,6 +258,7 @@ class InviteForm extends React.Component {
                 </div>
               ))}
             <ESTooltip
+              helpId={"button-add-invitation-" + this.props.docName}
               tooltip={
                 <FormattedMessage
                   defaultMessage="Invite one more person to sign this document"
@@ -286,6 +287,7 @@ class InviteForm extends React.Component {
       <div className="sendsigned-choice-holder">
         <BForm.Group className="sendsigned-choice-group">
           <ESTooltip
+            helpId="sendsigned-choice-input"
             tooltip={
               <FormattedMessage
                 defaultMessage="Send final signed document via email to all who signed it."
@@ -320,6 +322,7 @@ class InviteForm extends React.Component {
           <div className="makecopy-choice-holder">
             <BForm.Group className="makecopy-choice-group">
               <ESTooltip
+                helpId="makecopy-choice-field"
                 tooltip={
                   <FormattedMessage
                     defaultMessage="Keep your original document as a template and creates a copy to invite others to sign."
@@ -492,11 +495,12 @@ class InviteForm extends React.Component {
                   {sendsignedControl}
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
-                  {loaControl}
+                  {loaControlHidden}
                   {this.inviteeControl(fprops)}
                 </Modal.Body>
                 <Modal.Footer>
                   <ESTooltip
+                    helpId="button-cancel-invite"
                     tooltip={
                       <FormattedMessage
                         defaultMessage="Dismiss invitation form"
@@ -515,6 +519,7 @@ class InviteForm extends React.Component {
                     </Button>
                   </ESTooltip>
                   <ESTooltip
+                    helpId={"button-send-invites-" + this.props.docName}
                     tooltip={
                       <FormattedMessage
                         defaultMessage="Send invitations to sign to indicated people"

@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESPopover } from "containers/Overlay";
-import { ESTooltip } from "containers/Overlay";
 
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
@@ -50,14 +49,15 @@ class DocumentTemplate extends React.Component {
       )) ||
       "";
 
-    if (this.props.size === "lg") {
-      return (
-        <>
-          <ESPopover
-            key={doc.name}
-            title={this.getHelp("template-title")}
-            body={this.getHelp("template-body")}
-          >
+    return (
+      <>
+        <ESPopover
+          helpId={"template-doc-container-" + doc.name}
+          key={doc.name}
+          title={this.getHelp("template-title")}
+          body={this.getHelp("template-body")}
+        >
+          {(this.props.size === "lg" && (
             <div className={"doc-flex-container-local " + doc.state} key="0">
               <div className="doc-flex-container">
                 {widgets.dummySelectDoc()}
@@ -72,37 +72,29 @@ class DocumentTemplate extends React.Component {
               {signed}
               {preparePrevSigs(doc)}
             </div>
-          </ESPopover>
-        </>
-      );
-    } else if (this.props.size === "sm") {
-      return (
-        <>
-          <ESTooltip key={doc.name} tooltip={this.getHelp(doc.state)}>
-            <>
-              <div className={"doc-flex-container-sm " + doc.state} key="0">
-                {(doc.state === "loaded" || doc.state === "selected") && (
-                  <>
-                    <div className="doc-container-md-row">
-                      {widgets.dummySelectDoc()}
-                      {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                    </div>
-                    <div className="doc-container-button-row">
-                      {widgets.multiSignButton(this.props, doc)}
-                      {widgets.previewTemplateButton(this.props, doc)}
-                      {widgets.removeButton(this.props, doc)}
-                    </div>
-                  </>
-                )}
-                {signed}
-                {preparePrevSigs(doc)}
-              </div>
-            </>
-          </ESTooltip>
-        </>
-      );
-    }
+          )) || (
+            <div className={"doc-flex-container-sm " + doc.state} key="0">
+              {(doc.state === "loaded" || doc.state === "selected") && (
+                <>
+                  <div className="doc-container-md-row">
+                    {widgets.dummySelectDoc()}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                  </div>
+                  <div className="doc-container-button-row">
+                    {widgets.multiSignButton(this.props, doc)}
+                    {widgets.previewTemplateButton(this.props, doc)}
+                    {widgets.removeButton(this.props, doc)}
+                  </div>
+                </>
+              )}
+              {signed}
+              {preparePrevSigs(doc)}
+            </div>
+          )}
+        </ESPopover>
+      </>
+    );
   }
 }
 

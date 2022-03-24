@@ -26,6 +26,7 @@ const initialState = {
       mail: "dummy@example.org",
       name: "Dummy name",
     },
+    available_loas: [],
   },
   notifications: {
     message: null,
@@ -38,6 +39,9 @@ const initialState = {
     state: "waiting",
   },
   documents: {
+    documents: [],
+  },
+  template: {
     documents: [],
   },
   invites: {
@@ -56,6 +60,14 @@ const initialState = {
   },
   button: { spinning: "" },
   poll: { poll: false, disablePoll: false, timerId: null },
+  inviteform: {
+    show_loa_selection: false,
+    make_copy: false,
+  },
+  overlay: {
+    active: "",
+    previous: "",
+  },
 };
 
 /**

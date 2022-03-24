@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2022-03-07 16:18+0100\n"
+"POT-Creation-Date: 2022-03-22 11:03+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sv\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: src/edusign_webapp/marshal.py:56 src/edusign_webapp/marshal.py:62
 #: src/edusign_webapp/marshal.py:68 src/edusign_webapp/marshal.py:72
-#: src/edusign_webapp/marshal.py:205 src/edusign_webapp/utils.py:116
+#: src/edusign_webapp/marshal.py:205 src/edusign_webapp/utils.py:119
 #: src/edusign_webapp/validators.py:50 src/edusign_webapp/validators.py:54
 #: src/edusign_webapp/validators.py:65 src/edusign_webapp/validators.py:78
 #: src/edusign_webapp/validators.py:82 src/edusign_webapp/validators.py:95
@@ -101,14 +101,14 @@ msgstr ""
 
 #: src/edusign_webapp/views.py:648 src/edusign_webapp/views.py:655
 #, python-format
-msgid "%(name)s signed \"%(docname)s\""
-msgstr "%(name)s signerade \"%(docname)s\""
+msgid "%(name)s signed '%(docname)s'"
+msgstr "%(name)s signerade '%(docname)s'"
 
 #: src/edusign_webapp/views.py:684 src/edusign_webapp/views.py:692
-#: src/edusign_webapp/views.py:1021 src/edusign_webapp/views.py:1029
+#: src/edusign_webapp/views.py:1017 src/edusign_webapp/views.py:1025
 #, python-format
-msgid "\"%(docname)s\" is now signed"
-msgstr "\"%(docname)s\" är nu signerat"
+msgid "'%(docname)s' is now signed"
+msgstr "'%(docname)s' är nu signerat"
 
 #: src/edusign_webapp/views.py:771
 #, python-format
@@ -121,8 +121,8 @@ msgstr "Ett problem uppstod att skapa inbjudan att signera, var god försök ige
 
 #: src/edusign_webapp/views.py:801 src/edusign_webapp/views.py:805
 #, python-format
-msgid "You have been invited to sign \"%(document_name)s\""
-msgstr "Du har blivit inbjuden att signera \"%(document_name)s\""
+msgid "You have been invited to sign '%(document_name)s'"
+msgstr "Du har blivit inbjuden att signera '%(document_name)s'"
 
 #: src/edusign_webapp/views.py:814
 msgid "There was a problem and the invitation email(s) were not sent"
@@ -144,65 +144,65 @@ msgstr "Ett problem uppstod att hitta användare som inte signerat"
 msgid "Could not find the document"
 msgstr "Det gick inte att hitta dokumentet"
 
-#: src/edusign_webapp/views.py:866 src/edusign_webapp/views.py:870
+#: src/edusign_webapp/views.py:864 src/edusign_webapp/views.py:868
 #, python-format
-msgid "A reminder to sign \"%(document_name)s\""
-msgstr "En påminnelse att signera \"%(document_name)s\""
+msgid "A reminder to sign '%(document_name)s'"
+msgstr "En påminnelse att signera '%(document_name)s'"
 
-#: src/edusign_webapp/views.py:878
+#: src/edusign_webapp/views.py:876
 msgid "Problem sending the email, please try again"
 msgstr "Ett problem uppstod att meddelandet, var god försök igen"
 
-#: src/edusign_webapp/views.py:880
+#: src/edusign_webapp/views.py:878
 msgid "Success sending reminder email to pending users"
 msgstr "Meddelandet skickades till alla som inte svarat på inbjudan att signera"
 
-#: src/edusign_webapp/views.py:911
+#: src/edusign_webapp/views.py:909
 msgid "Problem removing the invitation, please try again"
 msgstr "Ett problem uppstod att ta bort inbjudan, var god försök igen"
 
-#: src/edusign_webapp/views.py:915
+#: src/edusign_webapp/views.py:913
 msgid "Document has not been removed, please try again"
 msgstr "Dokumentet togs inte bort, var god försök igen"
 
-#: src/edusign_webapp/views.py:930 src/edusign_webapp/views.py:936
+#: src/edusign_webapp/views.py:926 src/edusign_webapp/views.py:932
 #, python-format
-msgid "Cancellation of invitation to sign \"%(document_name)s\""
-msgstr "Borttagen inbjudan att signera \"%(document_name)s\""
+msgid "Cancellation of invitation to sign '%(document_name)s'"
+msgstr "Borttagen inbjudan att signera '%(document_name)s'"
 
-#: src/edusign_webapp/views.py:947
+#: src/edusign_webapp/views.py:943
 msgid "Success removing invitation to sign"
 msgstr "Borttagningen av inbjudan att signera lyckades"
 
-#: src/edusign_webapp/views.py:970 src/edusign_webapp/views.py:974
-#: src/edusign_webapp/views.py:1000 src/edusign_webapp/views.py:1004
+#: src/edusign_webapp/views.py:966 src/edusign_webapp/views.py:970
+#: src/edusign_webapp/views.py:996 src/edusign_webapp/views.py:1000
 msgid "Cannot find the document being signed"
 msgstr "Går inte att hitta dokumentet som skall signeras"
 
-#: src/edusign_webapp/views.py:1091
+#: src/edusign_webapp/views.py:1087
 msgid "Problem declining signature, please try again"
 msgstr "Ett problem uppstod att neka signering, var god försök igen"
 
-#: src/edusign_webapp/views.py:1115 src/edusign_webapp/views.py:1122
+#: src/edusign_webapp/views.py:1111 src/edusign_webapp/views.py:1118
 #, python-format
-msgid "%(name)s declined to sign \"%(docname)s\""
-msgstr "%(name)s nekade att signera \"%(docname)s\""
+msgid "%(name)s declined to sign '%(docname)s'"
+msgstr "%(name)s nekade att signera '%(docname)s'"
 
-#: src/edusign_webapp/views.py:1134
+#: src/edusign_webapp/views.py:1130
 msgid "Success declining signature"
 msgstr "Signeringen av dokumentet nekades"
 
-#: src/edusign_webapp/views.py:1161
+#: src/edusign_webapp/views.py:1157
 #, fuzzy
 msgid "There was a problem delegating the invitation"
 msgstr "Ett problem uppstod och inbjudningarna att signera skickades inte iväg"
 
-#: src/edusign_webapp/views.py:1179 src/edusign_webapp/views.py:1186
+#: src/edusign_webapp/views.py:1175 src/edusign_webapp/views.py:1182
 #, fuzzy, python-format
-msgid "%(name)s has delegated signature of \"%(docname)s\" to you"
+msgid "%(name)s has delegated signature of '%(docname)s' to you"
 msgstr "%(name)s nekade att signera \"%(docname)s\""
 
-#: src/edusign_webapp/views.py:1198
+#: src/edusign_webapp/views.py:1194
 #, fuzzy
 msgid "Success delegating signature"
 msgstr "Signeringen av dokumentet nekades"

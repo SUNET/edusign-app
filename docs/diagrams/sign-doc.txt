@@ -1,0 +1,49 @@
+@startuml
+
+title: Signing a document
+
+participant Browser as br
+participant "eduSign\nfrontend" as front
+participant "eduSign\nbackend" as back
+participant "Sign API" as api
+participant "Sign service" as serv
+participant IdP
+
+front -> front: User selects document(s)\nand clicks on\n"sign selected documents"
+front -> back: Sign document(s)\n(sends reference(s) to document(s))
+back -> api: Create sign request\n(sends references to documents)
+api -[#blue]-> back: Timeout response
+note right
+  Arrows in blue happen only if the document
+  was prepared more than 15min ago, and thus is
+  no longer in the API's cache.
+end note
+back -[#blue]-> front: Timeout response
+front -[#blue]-> back: Send document\nto be prepared
+back -[#blue]-> api: Prepare document
+api -[#blue]-> api: prepare document\ncache document for 15min
+api -[#blue]-> back: Ok / Not Ok\nreturn reference\nto prepared document
+back -[#blue]-> api: Create sign request\n(sends references to documents)
+api -> back: Return sign request
+back -> front: Send sign request
+front -> front: Receiving the sign request\ntriggers POSTing it\nto the sign service
+front -> serv: POST sign request
+serv -> br: redirect to IdP
+br -> IdP: Authentication
+IdP -> br: Redirect to Sign service\n(with SAML authn assertion)
+br -> serv: Send SAML assertion
+serv -> serv: The document(s) are signed\nand kept cached
+serv -> br: Return redirect to the eduSign backend\nwith sign response\ncontaining metadata\nabout the signature process
+br -> back: Get frontend JS app sources
+back -> br: Return JS app sources\nand sign response
+br -> front: Load the app
+front -> front: On loading the app,\ndetecting the sign response\ntriggers a request\nfor the signed documents
+front -> back: request signed documents
+back -> api: request signed docs\n(to the process endpoint in the API)
+api -> back: return signed documents
+back -> front: return signed documents
+front -> br: store signed documents\nin IndexedDB
+br -> front: Ok
+front -> front: Show signed documents in UI
+
+@enduml

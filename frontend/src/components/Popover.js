@@ -12,14 +12,23 @@ import PopoverTitle from "react-bootstrap/PopoverTitle";
  */
 class Popover extends Component {
   render() {
-    const { title, body, showHelp, dispatch, ...props } = this.props;
+    const {
+      title,
+      body,
+      showHelp,
+      dispatch,
+      handleToggleOverlay,
+      helpId,
+      ...props
+    } = this.props;
     return (
       <BOverlayTrigger
         {...props}
         delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
         trigger={["hover", "focus"]}
         rootClose={true}
-        show={showHelp ? undefined : false}
+        show={showHelp}
+        onToggle={handleToggleOverlay(helpId)}
         overlay={
           <BPopover placement="auto" {...props}>
             <PopoverTitle>{title}</PopoverTitle>

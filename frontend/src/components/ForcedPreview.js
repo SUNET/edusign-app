@@ -138,6 +138,7 @@ function ForcedPreview(props) {
             </BButton>
           </div>
           <ESTooltip
+            helpId={"preview-button-dissaprove-" + props.index}
             tooltip={
               <FormattedMessage
                 defaultMessage="Click here to reject/remove the document"
@@ -161,6 +162,7 @@ function ForcedPreview(props) {
             </Button>
           </ESTooltip>
           <ESTooltip
+            helpId={"preview-button-confirm-" + props.index}
             tooltip={
               (readyToConfirm && (
                 <FormattedMessage

@@ -153,7 +153,7 @@ class DocumentOwned extends Component {
             />
           </span>
           &nbsp;
-          <ESTooltip tooltip={loaValue}>
+          <ESTooltip tooltip={loaValue} helpId={"invited-" + loaValue}>
             <span className="invite-loa-item">{loaName}</span>
           </ESTooltip>
         </div>
@@ -162,6 +162,7 @@ class DocumentOwned extends Component {
     return (
       <>
         <ESPopover
+          helpId={"owned-doc-container-" + doc.name}
           key={doc.name}
           title={this.getHelp(doc.state + "-title")}
           body={this.getHelp(doc.state)}

@@ -28,6 +28,7 @@ export const selectDoc = (props, doc) => {
     <>
       <div className="doc-selector-flex-item">
         <ESTooltip
+          helpId={"doc-selector-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Select the document for signing"
@@ -59,6 +60,7 @@ export const skipSignatureButton = (props, doc) => {
     <>
       <div className="button-skip-flex-item">
         <ESTooltip
+          helpId={"button-skipping-" + doc.key}
           tooltip={
             <FormattedMessage
               defaultMessage="All requested users have answered your invitation to sign the document, click here to skip adding your final signature"
@@ -89,6 +91,7 @@ export const resendButton = (props, doc) => {
     <>
       <div className="button-resend-flex-item">
         <ESTooltip
+          helpId={"button-open-resend-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Click here to re-send an invitation email to all pending users"
@@ -119,6 +122,7 @@ export const previewButton = (props, doc) => {
     <>
       <div className="button-preview-flex-item">
         <ESTooltip
+          helpId={"button-preview-" + doc.key}
           tooltip={
             <FormattedMessage
               defaultMessage="Display a preview of the document"
@@ -146,6 +150,7 @@ export const previewTemplateButton = (props, doc) => {
     <>
       <div className="button-preview-flex-item">
         <ESTooltip
+          helpId={"button-preview-" + doc.key}
           tooltip={
             <FormattedMessage
               defaultMessage="Display a preview of the document"
@@ -172,6 +177,7 @@ export const forcedPreviewButton = (props, doc) => {
     <>
       <div className="button-forced-preview-flex-item">
         <ESTooltip
+          helpId={"button-forced-preview-" + doc.key}
           tooltip={
             <FormattedMessage
               defaultMessage="You need to approve all documents before they can be signed"
@@ -205,6 +211,7 @@ export const removeConfirmButton = (props, doc, id) => {
     <>
       <div className="button-remove-flex-item">
         <ESTooltip
+          helpId={id}
           tooltip={
             <FormattedMessage
               defaultMessage="Remove document"
@@ -232,6 +239,7 @@ export const removeTemplate = (props, doc) => {
     <>
       <div className="button-remove-flex-item">
         <ESTooltip
+          helpId={id}
           tooltip={
             <FormattedMessage
               defaultMessage="Remove template"
@@ -257,6 +265,7 @@ export const removeButton = (props, doc) => {
     <>
       <div className="button-remove-flex-item">
         <ESTooltip
+          helpId={"rm-button-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Discard document"
@@ -283,6 +292,7 @@ export const downloadSignedButton = (props, doc) => {
     <>
       <div className="button-download-flex-item">
         <ESTooltip
+          helpId={"button-download-signed-" + doc.key}
           tooltip={
             <FormattedMessage
               defaultMessage="Download signed document. Be sure to save the original rather than a copy."
@@ -312,6 +322,7 @@ export const retryButton = (props, doc) => {
     <>
       <div className="button-retry-flex-item">
         <ESTooltip
+          helpId={"button-retry-" + doc.key}
           tooltip={
             <FormattedMessage
               defaultMessage="Try again to prepare the document for signing"
@@ -343,6 +354,7 @@ export const multiSignButton = (props, doc) => {
     <>
       <div className="button-multisign-flex-item">
         <ESTooltip
+          helpId={"button-multisign-" + doc.key}
           tooltip={
             <FormattedMessage
               defaultMessage="Invite other users to sign the document. After all invitees sign, you'll be offered the chance to add a final signature."
@@ -382,6 +394,7 @@ export const declineSignatureButton = (props, doc) => {
     <>
       <div className="button-decline-flex-item">
         <ESTooltip
+          helpId={"button-decline-" + doc.key}
           tooltip={
             <FormattedMessage
               defaultMessage="Click here to decline your invitation to sign this document."
@@ -419,6 +432,7 @@ export const delegateButton = (props, doc) => {
     <>
       <div className="button-delegate-flex-item">
         <ESTooltip
+          helpId={"button-delegate-" + doc.key}
           tooltip={
             <FormattedMessage
               defaultMessage="Click here to delegate the signature of this document to someone else."
@@ -448,6 +462,7 @@ export const buttonSignSelected = (disableSigning, onClick) => {
   return (
     <div className="button-sign-flex-item">
       <ESTooltip
+        helpId="button-sign-selected"
         tooltip={
           <FormattedMessage
             defaultMessage="Select documents above and click here to send them for signing."
@@ -479,6 +494,7 @@ export const buttonDownloadAll = (disableDlAllButton, onClick) => {
   return (
     <div className="button-dlall-flex-item">
       <ESTooltip
+        helpId="button-dlall"
         tooltip={
           <FormattedMessage
             defaultMessage="Download all signed documents."
@@ -516,6 +532,7 @@ export const buttonClearPersonal = (
   return (
     <div className="button-clear-flex-item">
       <ESTooltip
+        helpId="clear-session-button"
         tooltip={
           <FormattedMessage
             defaultMessage='Discard all documents in the "Personal documents" list above'

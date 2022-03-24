@@ -1,18 +1,41 @@
 import { connect } from "react-redux";
 
-import OverlayTrigger from "components/Overlay";
 import Tooltip from "components/Tooltip";
 import Popover from "components/Popover";
 import { enableContextualHelp } from "slices/Main";
+import { setActiveId, unsetActiveId } from "slices/Overlay";
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, props) => {
+  let showHelp = state.main.showHelp ? undefined : false;
+  if (showHelp === undefined) {
+    const active = state.overlay.active;
+    if (active !== "") {
+      if (props.helpId === active) {
+        showHelp = true;
+      } else {
+        showHelp = false;
+      }
+    }
+  }
   return {
-    showHelp: state.main.showHelp,
+    showHelp: showHelp,
   };
 };
 
-export const ESTooltip = connect(mapStateToProps)(Tooltip);
+const mapDispatchToProps = (dispatch, props) => {
+  return {
+    handleToggleOverlay: (helpId) => {
+      return (val) => {
+        if (val) {
+          dispatch(setActiveId(helpId));
+        } else {
+          dispatch(unsetActiveId(helpId));
+        }
+      };
+    },
+  };
+};
 
-export const ESPopover = connect(mapStateToProps)(Popover);
+export const ESTooltip = connect(mapStateToProps, mapDispatchToProps)(Tooltip);
 
-export default connect(mapStateToProps)(OverlayTrigger);
+export const ESPopover = connect(mapStateToProps, mapDispatchToProps)(Popover);

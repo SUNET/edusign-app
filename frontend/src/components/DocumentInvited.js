@@ -65,7 +65,7 @@ class DocumentInvited extends Component {
       }),
       signed: this.props.intl.formatMessage({
         defaultMessage:
-          "You have successfully signed the document. Note that if you reload the app you will not have access the document any more. The inviter has been notified of your signature, it is up to them to decide if the system should send you the final signed version.",
+          "You have successfully signed the document. Note that if you reload the app you will not have access to the document any more. The inviter has been notified of your signature, it is up to them to decide if the system should send you the final signed version.",
         id: "docmanager-help-signed-invited",
       }),
       "declined-title": this.props.intl.formatMessage({
@@ -173,7 +173,7 @@ class DocumentInvited extends Component {
             />
           </span>
           &nbsp;
-          <ESTooltip tooltip={loaValue}>
+          <ESTooltip tooltip={loaValue} helpId={"tooltip-" + loaValue}>
             <span className="invite-loa-item">{loaName}</span>
           </ESTooltip>
         </div>
@@ -182,6 +182,7 @@ class DocumentInvited extends Component {
     return (
       <>
         <ESPopover
+          helpId={"invited-doc-container-" + doc.name}
           key={doc.name}
           title={this.getHelp(doc.state + "-title")}
           body={this.getHelp(doc.state)}
