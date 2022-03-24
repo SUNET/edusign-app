@@ -717,9 +717,7 @@ describe("Multi sign invitations", function () {
         target: { value: "dummy-2@example.com" },
       });
 
-      nameInput = await waitFor(() =>
-        screen.getAllByTestId("invitees.0.name")
-      );
+      nameInput = await waitFor(() => screen.getAllByTestId("invitees.0.name"));
       expect(nameInput.length).to.equal(1);
 
       fireEvent.change(nameInput[0], { target: { value: "Dummy-2 Doe" } });
@@ -734,12 +732,12 @@ describe("Multi sign invitations", function () {
       fireEvent.click(buttonSend[0]);
       await flushPromises(rerender, wrapped);
 
-      filenameCopy = await waitFor(() =>
-        screen.getAllByText("testost-2.pdf")
-      );
+      filenameCopy = await waitFor(() => screen.getAllByText("testost-2.pdf"));
       expect(filenameCopy.length).to.equal(1);
 
-      const inviteName = await waitFor(() => screen.getAllByText(/Dummy-2 Doe/));
+      const inviteName = await waitFor(() =>
+        screen.getAllByText(/Dummy-2 Doe/)
+      );
       expect(inviteName.length).to.equal(1);
     } catch (err) {
       unmount();

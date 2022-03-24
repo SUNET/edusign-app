@@ -605,27 +605,27 @@ export const startSigning = createAsyncThunk(
     let requiredLoa = null;
     let loaOk = true;
     /**
-      * state.main.owned_multisign.forEach((doc) => {
-      *   if (requiredLoa === null) {
-      *     requiredLoa = doc.loa;
-      *   } else {
-      *     if (requiredLoa !== doc.loa) {
-      *       console.log(requiredLoa, doc.loa);
-      *       loaOk = false;
-      *     }
-      *   }
-      * });
-      * state.main.pending_multisign.forEach((doc) => {
-      *   if (requiredLoa === null) {
-      *     requiredLoa = doc.loa;
-      *   } else {
-      *     if (requiredLoa !== doc.loa) {
-      *       console.log(requiredLoa, doc.loa);
-      *       loaOk = false;
-      *     }
-      *   }
-      * });
-    **/
+     * state.main.owned_multisign.forEach((doc) => {
+     *   if (requiredLoa === null) {
+     *     requiredLoa = doc.loa;
+     *   } else {
+     *     if (requiredLoa !== doc.loa) {
+     *       console.log(requiredLoa, doc.loa);
+     *       loaOk = false;
+     *     }
+     *   }
+     * });
+     * state.main.pending_multisign.forEach((doc) => {
+     *   if (requiredLoa === null) {
+     *     requiredLoa = doc.loa;
+     *   } else {
+     *     if (requiredLoa !== doc.loa) {
+     *       console.log(requiredLoa, doc.loa);
+     *       loaOk = false;
+     *     }
+     *   }
+     * });
+     **/
     if (!loaOk) {
       thunkAPI.dispatch(
         addNotification({
