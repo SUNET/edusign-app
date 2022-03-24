@@ -122,7 +122,7 @@
   "docmanager-help-selected": "Click on the button below labelled \"Sign Selected Documents\" to sign this document",
   "docmanager-help-selected-title": "Document selected for signing",
   "docmanager-help-signed": "Document succesfully signed, click on the button labelled \"Download (signed)\" to download it",
-  "docmanager-help-signed-invited": "You have successfully signed the document. Note that if you reload the app you will not have access the document any more. The inviter has been notified of your signature, it is up to them to decide if the system should send you the final signed version.",
+  "docmanager-help-signed-invited": "You have successfully signed the document. Note that if you reload the app you will not have access to the document any more. The inviter has been notified of your signature, it is up to them to decide if the system should send you the final signed version.",
   "docmanager-help-signed-title": "Document signed",
   "docmanager-help-signing": "Please wait while the document is signed",
   "docmanager-help-signing-title": "Signing document",
