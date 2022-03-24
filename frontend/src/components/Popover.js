@@ -24,7 +24,7 @@ class Popover extends Component {
     return (
       <BOverlayTrigger
         {...props}
-        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
+        delay={{ show: 0, hide: 0 }}
         trigger={["hover", "focus"]}
         rootClose={true}
         show={showHelp}
