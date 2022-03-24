@@ -65,7 +65,7 @@ class DocumentInvited extends Component {
       }),
       signed: this.props.intl.formatMessage({
         defaultMessage:
-          "You have successfully signed the document. Note that if you reload the app you will not have access the document any more. The inviter has been notified of your signature, it is up to them to decide if the system should send you the final signed version.",
+          "You have successfully signed the document. Note that if you reload the app you will not have access to the document any more. The inviter has been notified of your signature, it is up to them to decide if the system should send you the final signed version.",
         id: "docmanager-help-signed-invited",
       }),
       "declined-title": this.props.intl.formatMessage({
