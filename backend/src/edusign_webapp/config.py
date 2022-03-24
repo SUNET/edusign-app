@@ -138,6 +138,7 @@ TO_TEAR_DOWN_WITH_APP_CONTEXT = os.environ.get(
 
 MAIL_DEBUG = DEBUG
 
+MAIL_BACKEND = os.environ.get('MAIL_BACKEND', default='smtp')
 MAIL_SERVER = os.environ.get('MAIL_SERVER', default='localhost')
 MAIL_PORT = os.environ.get('MAIL_PORT', default=25)
 MAIL_USERNAME = os.environ.get('MAIL_USERNAME', default='')

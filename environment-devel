@@ -42,3 +42,5 @@ DOC_METADATA_CLASS_PATH=edusign_webapp.document.metadata.sqlite.SqliteMD
 SQLITE_MD_DB_PATH=/tmp/test.db
 
 REDIS_URL=redis://localhost:6379/0
+
+MAIL_BACKEND=dummy

@@ -66,6 +66,7 @@ from edusign_webapp.utils import (
     get_previous_signatures,
     prepare_document,
     sendmail,
+    sendmail_bulk,
 )
 
 anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
@@ -617,12 +618,8 @@ def get_signed_documents(sign_data: dict) -> dict:
         # XXX translate
         return {'error': True, 'message': message}
 
-    async def queue_mail(*args, **kwargs):
-        return sendmail(*args, **kwargs)
-
     docs = []
-    loop = asyncio.new_event_loop()
-    tasks = []
+    emails = []
     for doc in process_data['signedDocuments']:
         key = doc['id']
         owner = current_app.doc_store.get_owner_data(key)
@@ -659,10 +656,8 @@ def get_signed_documents(sign_data: dict) -> dict:
                     body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
                     body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
 
-                task = loop.create_task(
-                    queue_mail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
-                )
-                tasks.append(task)
+                email_args = (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+                emails.append((email_args, {}))
 
             except Exception as e:
                 current_app.logger.error(f"Problem sending signed by {session['email']} email to {owner['email']}: {e}")
@@ -706,27 +701,26 @@ def get_signed_documents(sign_data: dict) -> dict:
                     signed_doc_name = ''
                     pdf_bytes = ''
 
-                task = loop.create_task(
-                    queue_mail(
-                        recipients,
-                        subject_en,
-                        subject_sv,
-                        body_txt_en,
-                        body_html_en,
-                        body_txt_sv,
-                        body_html_sv,
-                        attachment_name=signed_doc_name,
-                        attachment=pdf_bytes,
-                    )
+                email_args = (
+                    recipients,
+                    subject_en,
+                    subject_sv,
+                    body_txt_en,
+                    body_html_en,
+                    body_txt_sv,
+                    body_html_sv
                 )
-                tasks.append(task)
+                email_kwargs = dict(
+                    attachment_name=signed_doc_name,
+                    attachment=pdf_bytes,
+                )
+                emails.append((email_args, email_kwargs))
 
             except Exception as e:
                 current_app.logger.error(f"Problem sending signed by {owner['email']} email to all invited: {e}")
 
-    if len(tasks) > 0:
-        loop.run_until_complete(asyncio.wait(tasks))
-    loop.close()
+    if len(emails) > 0:
+        sendmail_bulk(emails)
 
     for doc in process_data['signedDocuments']:
         key = doc['id']

@@ -30,6 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+import asyncio
 import io
 import uuid
 from base64 import b64decode
@@ -177,7 +178,7 @@ def get_previous_signatures(document: dict) -> str:
         return ""
 
 
-def sendmail(
+def compose_message(
     recipients: list,
     subject_en: str,
     subject_sv: str,
@@ -190,8 +191,7 @@ def sendmail(
 ):
     """
     Compose a mail message, with subject and body in both Swedish and English,
-    and with the body in both plain text and html,
-    and send it using the mailer configured in the current app.
+    and with the body in both plain text and html.
 
     :param recipients: list of recipients of the email
     :param subject_en: subject in English
@@ -231,11 +231,43 @@ def sendmail(
     msg.attach_alternative(html_body, 'text/html')
 
     if attachment and attachment_name:
-        msg.attach((attachment_name, attachment, 'application/pdf'))
+        msg.attach(attachment_name, attachment, 'application/pdf')
+
+    return msg
+
+
+def sendmail(*args, **kwargs):
+    """
+    Compose a mail message and send it.
+    The arguments are the same as those for `compose_message`.
+    """
+    msg = compose_message(*args, **kwargs)
 
     current_app.logger.debug(f"Email to be sent:\n\n{msg}\n\n")
 
     msg.send()
+
+
+def sendmail_bulk(msgs_data: list):
+    """
+    Compose a number of mail messages and send it.
+
+    :param msgs: a list of arguments for `compose_message`.
+    """
+    async def queue_mail(msg):
+        return msg.send()
+
+    loop = asyncio.new_event_loop()
+    tasks = []
+    for args, kwargs in msgs_data:
+        msg = compose_message(*args, **kwargs)
+        task = loop.create_task(queue_mail(msg))
+        tasks.append(task)
+
+    with current_app.mailer.get_connection():
+        loop.run_until_complete(asyncio.wait(tasks))
+
+    loop.close()
 
 
 def get_authn_context(docs: list) -> list:
