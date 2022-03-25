@@ -37,6 +37,7 @@ import { clearDocStore } from "init-app/database";
 import { askConfirmation } from "slices/ConfirmDialog";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
+import { setActiveId, unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state) => {
   return {
@@ -62,6 +63,7 @@ const mapDispatchToProps = (dispatch, props) => {
     handlePreview: function (key) {
       return async () => {
         dispatch(disablePolling());
+        dispatch(setActiveId("dummy-help-id"));
         await dispatch(showPreview(key));
         dispatch(unsetSpinning());
       };
@@ -69,6 +71,7 @@ const mapDispatchToProps = (dispatch, props) => {
     handleTemplatePreview: function (key) {
       return async () => {
         dispatch(disablePolling());
+        dispatch(setActiveId("dummy-help-id"));
         await dispatch(showTemplatePreview(key));
         dispatch(unsetSpinning());
       };
@@ -117,6 +120,7 @@ const mapDispatchToProps = (dispatch, props) => {
     openInviteForm: function (doc) {
       return () => {
         dispatch(disablePolling());
+        dispatch(setActiveId("dummy-help-id"));
         dispatch(showForm(doc.id));
         dispatch(unsetSpinning());
       };
@@ -127,12 +131,14 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     showConfirm: function (confirmId) {
       return () => {
+        dispatch(setActiveId("dummy-help-id"));
         dispatch(askConfirmation(confirmId));
       };
     },
     handleForcedPreview: function (key) {
       return () => {
         dispatch(disablePolling());
+        dispatch(setActiveId("dummy-help-id"));
         dispatch(showForcedPreview(key));
         dispatch(unsetSpinning());
       };
@@ -142,6 +148,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(hideForcedPreview(name));
         dispatch(unsetSpinning());
         dispatch(enablePolling());
+        dispatch(unsetActiveId());
       };
     },
     handleConfirmForcedPreview: function (name) {
@@ -151,6 +158,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(hideForcedPreview(name));
         dispatch(unsetSpinning());
         dispatch(enablePolling());
+        dispatch(unsetActiveId());
       };
     },
     handleUnConfirmForcedPreview: function (args) {
@@ -159,6 +167,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(hideForcedPreview(args.doc.name));
         dispatch(unsetSpinning());
         dispatch(enablePolling());
+        dispatch(unsetActiveId());
       };
     },
     handleClosePreview: function (name) {
@@ -166,6 +175,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(hidePreview(name));
         dispatch(unsetSpinning());
         dispatch(enablePolling());
+        dispatch(unsetActiveId());
       };
     },
     handleCloseTemplatePreview: function (name) {
@@ -173,6 +183,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(hideTemplatePreview(name));
         dispatch(unsetSpinning());
         dispatch(enablePolling());
+        dispatch(unsetActiveId());
       };
     },
   };

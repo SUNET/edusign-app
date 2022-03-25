@@ -9,6 +9,7 @@ import { connect } from "react-redux";
 import ConfirmDialog from "components/ConfirmDialog";
 import { closeConfirmation } from "slices/ConfirmDialog";
 import { unsetSpinning } from "slices/Button";
+import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {
   return {
@@ -22,6 +23,7 @@ const mapDispatchToProps = (dispatch, props) => {
     closeConfirm: function () {
       dispatch(closeConfirmation(props.confirmId));
       dispatch(unsetSpinning());
+      dispatch(unsetActiveId());
     },
   };
 };

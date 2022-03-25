@@ -21,7 +21,7 @@ class Tooltip extends Component {
     return (
       <BOverlayTrigger
         {...props}
-        delay={{ show: 0, hide: 0 }}
+        delay={{ show: DELAY_SHOW_HELP, hide: DELAY_HIDE_HELP }}
         trigger={["hover", "focus"]}
         rootClose={true}
         show={showHelp}

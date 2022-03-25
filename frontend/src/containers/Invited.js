@@ -20,6 +20,7 @@ import {
 } from "slices/Main";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
+import { setActiveId, unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state) => {
   return {
@@ -46,6 +47,7 @@ const mapDispatchToProps = (dispatch, props) => {
     handlePreview: (docKey) => {
       return async () => {
         dispatch(disablePolling());
+        dispatch(setActiveId("dummy-help-id"));
         await dispatch(
           getPartiallySignedDoc({
             key: docKey,
@@ -61,11 +63,13 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(enablePolling());
         dispatch(unsetSpinning());
         dispatch(hideInvitedPreview(docKey));
+        dispatch(unsetActiveId());
       };
     },
     handleForcedPreview: function (docKey) {
       return async () => {
         dispatch(disablePolling());
+        dispatch(setActiveId("dummy-help-id"));
         await dispatch(
           getPartiallySignedDoc({
             key: docKey,
@@ -82,6 +86,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(enablePolling());
         dispatch(unsetSpinning());
         dispatch(hideForcedInvitedPreview(name));
+        dispatch(unsetActiveId());
       };
     },
     handleConfirmForcedPreview: function (name) {
@@ -90,6 +95,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(confirmForcedInvitedPreview(name));
         dispatch(unsetSpinning());
         dispatch(hideForcedInvitedPreview(name));
+        dispatch(unsetActiveId());
       };
     },
     handleUnConfirmForcedPreview: function (args) {
@@ -103,6 +109,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(enablePolling());
         dispatch(unsetSpinning());
         dispatch(hideForcedInvitedPreview(args.doc.name));
+        dispatch(unsetActiveId());
       };
     },
     handleDeclineSigning: function (args) {

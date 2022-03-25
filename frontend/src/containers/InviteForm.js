@@ -17,6 +17,7 @@ import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { toggleLoa, toggleMakeCopy, dontMakeCopy } from "slices/InviteForm";
+import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -43,12 +44,14 @@ const mapDispatchToProps = (dispatch, props) => {
       await dispatch(sendInvites({ values: values, intl: this.props.intl }));
       dispatch(unsetSpinning());
       dispatch(enablePolling());
+      dispatch(unsetActiveId());
       dispatch(dontMakeCopy());
     },
     handleClose: function () {
       dispatch(unsetSpinning());
       dispatch(enablePolling());
       dispatch(hideForm());
+      dispatch(unsetActiveId());
       dispatch(dontMakeCopy());
     },
     handleToggleLoa: function () {

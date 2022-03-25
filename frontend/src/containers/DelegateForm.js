@@ -9,6 +9,7 @@ import DelegateForm from "components/DelegateForm";
 import { delegateSignature, stopDelegating } from "slices/Main";
 import { unsetSpinning } from "slices/Button";
 import { disablePolling, enablePolling } from "slices/Poll";
+import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -28,12 +29,14 @@ const mapDispatchToProps = (dispatch, props) => {
       await dispatch(delegateSignature({ values: values, intl: props.intl }));
       dispatch(unsetSpinning());
       dispatch(enablePolling());
+      dispatch(unsetActiveId());
       dispatch(stopDelegating());
     },
     handleClose: function (key) {
       return () => {
         dispatch(unsetSpinning());
         dispatch(enablePolling());
+        dispatch(unsetActiveId());
         dispatch(stopDelegating(key));
       };
     },
