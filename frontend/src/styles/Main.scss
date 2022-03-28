@@ -30,5 +30,10 @@ div#main-content {
   align-items: center;
 }
 
+.popover,
+.tooltip {
+  z-index: 999 !important;
+}
+
 @media (max-width: 1200px) {
 }
