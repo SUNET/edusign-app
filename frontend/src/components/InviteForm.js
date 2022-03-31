@@ -142,6 +142,7 @@ class InviteForm extends React.Component {
                   {index > 0 && (
                     <div className="invitee-form-dismiss">
                       <ESTooltip
+                        inModal={true}
                         tooltip={
                           <FormattedMessage
                             defaultMessage="Remove this entry from invitation"
@@ -259,6 +260,7 @@ class InviteForm extends React.Component {
               ))}
             <ESTooltip
               helpId={"button-add-invitation-" + this.props.docName}
+              inModal={true}
               tooltip={
                 <FormattedMessage
                   defaultMessage="Invite one more person to sign this document"
@@ -288,6 +290,7 @@ class InviteForm extends React.Component {
         <BForm.Group className="sendsigned-choice-group">
           <ESTooltip
             helpId="sendsigned-choice-input"
+            inModal={true}
             tooltip={
               <FormattedMessage
                 defaultMessage="Send final signed document via email to all who signed it."
@@ -323,6 +326,7 @@ class InviteForm extends React.Component {
             <BForm.Group className="makecopy-choice-group">
               <ESTooltip
                 helpId="makecopy-choice-field"
+                inModal={true}
                 tooltip={
                   <FormattedMessage
                     defaultMessage="Keep your original document as a template and creates a copy to invite others to sign."
@@ -501,6 +505,7 @@ class InviteForm extends React.Component {
                 <Modal.Footer>
                   <ESTooltip
                     helpId="button-cancel-invite"
+                    inModal={true}
                     tooltip={
                       <FormattedMessage
                         defaultMessage="Dismiss invitation form"
@@ -520,6 +525,7 @@ class InviteForm extends React.Component {
                   </ESTooltip>
                   <ESTooltip
                     helpId={"button-send-invites-" + this.props.docName}
+                    inModal={true}
                     tooltip={
                       <FormattedMessage
                         defaultMessage="Send invitations to sign to indicated people"
