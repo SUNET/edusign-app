@@ -40,12 +40,12 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: async function (values) {
-      dispatch(hideForm());
       await dispatch(sendInvites({ values: values, intl: this.props.intl }));
       dispatch(unsetSpinning());
       dispatch(enablePolling());
       dispatch(unsetActiveId());
       dispatch(dontMakeCopy());
+      dispatch(hideForm());
     },
     handleClose: function () {
       dispatch(unsetSpinning());
