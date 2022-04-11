@@ -255,7 +255,9 @@ def sendmail_bulk(msgs_data: list):
     :param msgs: a list of arguments for `compose_message`.
     """
     async def queue_mail(msg):
-        return msg.send()
+        with current_app.mailer.get_connection():
+            result = msg.send()
+        return result
 
     loop = asyncio.new_event_loop()
     tasks = []
@@ -264,9 +266,7 @@ def sendmail_bulk(msgs_data: list):
         task = loop.create_task(queue_mail(msg))
         tasks.append(task)
 
-    with current_app.mailer.get_connection():
-        loop.run_until_complete(asyncio.wait(tasks))
-
+    loop.run_until_complete(asyncio.wait(tasks))
     loop.close()
 
 
