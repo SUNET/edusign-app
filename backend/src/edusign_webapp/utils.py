@@ -30,7 +30,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import asyncio
 import io
 import uuid
 from base64 import b64decode
@@ -40,6 +39,8 @@ from flask import current_app, request, session
 from flask_babel import force_locale, get_locale, gettext
 from flask_mailman import EmailMultiAlternatives
 from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
+
+from edusign_webapp.mail_backend import ParallelEmailBackend
 
 
 def add_attributes_to_session(check_whitelisted=True):
@@ -254,20 +255,15 @@ def sendmail_bulk(msgs_data: list):
 
     :param msgs: a list of arguments for `compose_message`.
     """
-    async def queue_mail(msg):
-        with current_app.mailer.get_connection():
-            result = msg.send()
-        return result
+    conn = current_app.mailer.get_connection(backend=ParallelEmailBackend)
+    msgs = []
 
-    loop = asyncio.new_event_loop()
-    tasks = []
     for args, kwargs in msgs_data:
         msg = compose_message(*args, **kwargs)
-        task = loop.create_task(queue_mail(msg))
-        tasks.append(task)
+        msgs.append(msg)
 
-    loop.run_until_complete(asyncio.wait(tasks))
-    loop.close()
+    conn.send_messages_in_parallel(msgs)
+    conn.close()
 
 
 def get_authn_context(docs: list) -> list:
