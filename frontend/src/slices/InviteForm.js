@@ -10,6 +10,7 @@ const inviteFormSlice = createSlice({
   initialState: {
     show_loa_selection: false,
     make_copy: false,
+    inviting: false,
   },
   reducers: {
     /**
@@ -60,6 +61,22 @@ const inviteFormSlice = createSlice({
     dontMakeCopy(state) {
       state.make_copy = false;
     },
+    /**
+     * @public
+     * @function isInviting
+     * @desc Redux action to indicate that the invite form is submitting
+     */
+    isInviting(state) {
+      state.inviting = true;
+    },
+    /**
+     * @public
+     * @function isNotInviting
+     * @desc Redux action to indicate that the invite form is not submitting
+     */
+    isNotInviting(state) {
+      state.inviting = false;
+    },
   },
 });
 
@@ -70,6 +87,8 @@ export const {
   toggleMakeCopy,
   doMakeCopy,
   dontMakeCopy,
+  isInviting,
+  isNotInviting,
 } = inviteFormSlice.actions;
 
 export default inviteFormSlice.reducer;

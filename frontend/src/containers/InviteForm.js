@@ -16,7 +16,7 @@ import { sendInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { disablePolling, enablePolling } from "slices/Poll";
-import { toggleLoa, toggleMakeCopy, dontMakeCopy } from "slices/InviteForm";
+import { toggleLoa, toggleMakeCopy, dontMakeCopy, isNotInviting, isInviting } from "slices/InviteForm";
 import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {
@@ -31,6 +31,7 @@ const mapStateToProps = (state, props) => {
     loas: state.main.available_loas,
     show_loa: state.inviteform.show_loa_selection,
     make_copy: state.inviteform.make_copy,
+    inviting: state.inviteform.inviting,
     templates: state.template.documents,
     documents: state.documents.documents,
     owned: state.main.owned_multisign,
@@ -39,13 +40,14 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleSubmit: async function (values) {
+    handleSubmit: async function (values, actions) {
       await dispatch(sendInvites({ values: values, intl: this.props.intl }));
       dispatch(unsetSpinning());
       dispatch(enablePolling());
+      dispatch(hideForm());
       dispatch(unsetActiveId());
       dispatch(dontMakeCopy());
-      dispatch(hideForm());
+      dispatch(isNotInviting());
     },
     handleClose: function () {
       dispatch(unsetSpinning());
@@ -53,12 +55,15 @@ const mapDispatchToProps = (dispatch, props) => {
       dispatch(hideForm());
       dispatch(unsetActiveId());
       dispatch(dontMakeCopy());
+      dispatch(isNotInviting());
     },
     handleToggleLoa: function () {
       dispatch(toggleLoa());
+      dispatch(isNotInviting());
     },
     handleMakeCopyToggle: function () {
       dispatch(toggleMakeCopy());
+      dispatch(isNotInviting());
     },
   };
 };

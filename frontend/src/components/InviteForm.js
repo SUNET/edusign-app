@@ -119,7 +119,7 @@ const initialValues = (props) => ({
   sendsignedChoice: true,
   makecopyChoice: false,
   isTemplate: props.isTemplate,
-  newnameInput: nameForCopy(props),
+  newnameInput: props.inviting ? "" : nameForCopy(props),
   loa: "none",
   documentId: props.docId,
   invitees: [
@@ -428,7 +428,7 @@ class InviteForm extends React.Component {
                   type="text"
                   validate={validateNewname(props)}
                   isValid={!fprops.errors.newnameInput}
-                  isInvalid={fprops.errors.newnameInput}
+                  isInvalid={!props.inviting && fprops.errors.newnameInput}
                 />
               </BForm.Group>
             </div>

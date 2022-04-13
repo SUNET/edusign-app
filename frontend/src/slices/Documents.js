@@ -65,6 +65,7 @@ import { unsetSpinning } from "slices/Button";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
 import { b64toBlob, hashCode, nameForCopy } from "components/utils";
+import { isInviting } from "slices/InviteForm";
 
 /**
  * @public
@@ -421,6 +422,7 @@ const addDocumentToDb = async (document, name) => {
 export const createDocument = createAsyncThunk(
   "documents/createDocument",
   async (args, thunkAPI) => {
+    thunkAPI.dispatch(isInviting());
     const state = thunkAPI.getState();
     // First we validate the document
     const doc = await validateDoc(args.doc, args.intl, state);
@@ -1024,7 +1026,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       })
     );
     let message;
-    if (data.message) {
+    if ( data && data.message) {
       message = data.message;
     } else {
       message = intl.formatMessage({
