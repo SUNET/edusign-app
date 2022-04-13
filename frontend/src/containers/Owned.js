@@ -18,6 +18,7 @@ import {
 import { disablePolling, enablePolling } from "slices/Poll";
 import { skipOwnedSignature } from "slices/Documents";
 import { unsetSpinning } from "slices/Button";
+import { setActiveId, unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state) => {
   return {
@@ -52,12 +53,14 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     showConfirm: function (confirmId) {
       return () => {
+        dispatch(setActiveId("dummy-help-id"));
         dispatch(askConfirmation(confirmId));
       };
     },
     handlePreview: (docKey) => {
       return async () => {
         dispatch(disablePolling());
+        dispatch(setActiveId("dummy-help-id"));
         await dispatch(
           getPartiallySignedDoc({
             key: docKey,
@@ -73,6 +76,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(enablePolling());
         dispatch(unsetSpinning());
         dispatch(hideOwnedPreview(docKey));
+        dispatch(unsetActiveId());
       };
     },
   };

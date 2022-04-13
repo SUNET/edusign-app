@@ -71,7 +71,7 @@ class ReInviteForm extends React.Component {
                 <Modal.Footer>
                   <ESTooltip
                     helpId={"button-cancel-resend-" + this.props.doc.name}
-                    className="tooltip-in-modal"
+                    inModal={true}
                     tooltip={
                       <FormattedMessage
                         defaultMessage="Dismiss invitation form"
@@ -94,7 +94,7 @@ class ReInviteForm extends React.Component {
                   </ESTooltip>
                   <ESTooltip
                     helpId={"button-resend-" + this.props.doc.name}
-                    className="tooltip-in-modal"
+                    inModal={true}
                     tooltip={
                       <FormattedMessage
                         defaultMessage="Resend invitations to sign to invitees pending to sign"

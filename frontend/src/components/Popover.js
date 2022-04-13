@@ -19,8 +19,13 @@ class Popover extends Component {
       dispatch,
       handleToggleOverlay,
       helpId,
+      inModal,
       ...props
     } = this.props;
+    let klass = "";
+    if (inModal) {
+      klass = "on-modal";
+    }
     return (
       <BOverlayTrigger
         {...props}
@@ -30,7 +35,7 @@ class Popover extends Component {
         show={showHelp}
         onToggle={handleToggleOverlay(helpId)}
         overlay={
-          <BPopover placement="auto" {...props}>
+          <BPopover placement="auto" className={klass} {...props}>
             <PopoverTitle>{title}</PopoverTitle>
             <PopoverContent>{body}</PopoverContent>
           </BPopover>
@@ -44,6 +49,11 @@ Popover.propTypes = {
   showHelp: PropTypes.bool,
   title: PropTypes.string,
   body: PropTypes.string,
+  inModal: PropTypes.bool,
+};
+
+Popover.defaultProps = {
+  inModal: false,
 };
 
 export default Popover;

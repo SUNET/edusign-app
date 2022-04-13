@@ -16,8 +16,13 @@ class Tooltip extends Component {
       dispatch,
       handleToggleOverlay,
       helpId,
+      inModal,
       ...props
     } = this.props;
+    let klass = "";
+    if (inModal) {
+      klass = "on-modal";
+    }
     return (
       <BOverlayTrigger
         {...props}
@@ -27,7 +32,7 @@ class Tooltip extends Component {
         show={showHelp}
         onToggle={handleToggleOverlay(helpId)}
         overlay={
-          <BTooltip placement="auto" {...props}>
+          <BTooltip placement="auto" className={klass} {...props}>
             {tooltip}
           </BTooltip>
         }
@@ -39,6 +44,11 @@ class Tooltip extends Component {
 Tooltip.propTypes = {
   showHelp: PropTypes.bool,
   tooltip: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  inModal: PropTypes.bool,
+};
+
+Tooltip.defaultProps = {
+  inModal: false,
 };
 
 export default Tooltip;

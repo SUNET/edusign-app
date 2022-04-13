@@ -7,6 +7,11 @@ Front end to use the eduSign document signing service.
 Here I will provide instructions to deploy a development environment to
 hack at the project.
 
+There is a repo at `SUNET/docker-edusign-app` with code and instruction to
+orchestrate an environment to run eduSign; it is more convenient than the
+current one if the aim is simply to run an instance of the app, rather than
+to develop it.
+
 Development and deployment tasks are provided as make commands; type
 :code:`make help` at the root of the repository to find out about them.
 

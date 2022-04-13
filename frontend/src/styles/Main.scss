@@ -30,5 +30,15 @@ div#main-content {
   align-items: center;
 }
 
+.popover,
+.tooltip {
+  z-index: 999 !important;
+}
+
+.popover.on-modal,
+.tooltip.on-modal {
+  z-index: 99999 !important;
+}
+
 @media (max-width: 1200px) {
 }
