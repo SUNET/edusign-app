@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Dict, List
 
 from flask import Flask, current_app
@@ -96,6 +96,7 @@ class RedisStorageBackend:
         self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
         self.transaction.set(f"doc:key:{key}", doc_id)
         self.transaction.sadd(f"doc:owner:{owner}", doc_id)
+        self.transaction.zadd("doc:created", {key: now})
         return doc_id
 
     def query_document_id(self, key):
@@ -140,6 +141,14 @@ class RedisStorageBackend:
             loa=b_doc[b'loa'].decode('utf8'),
         )
         return doc
+
+    def query_documents_old(self, days):
+        now = datetime.now()
+        delta = timedelta(days=days)
+        then = now - delta
+        ts = then.timestamp()
+        keys = self.redis.zrange("doc:created", 0, ts)
+        return [uuid.UUID(b_doc[b'key'].decode('utf8')) for b_doc in keys]
 
     def query_documents_from_owner(self, email):
         docs = []
@@ -195,6 +204,7 @@ class RedisStorageBackend:
         self.transaction.delete(f"doc:{doc_id}")
         self.transaction.delete(f"doc:key:{key}")
         self.transaction.srem(f"doc:owner:{owner}", doc_id)
+        self.transaction.zrem("doc:created", key)
 
     def insert_invite(self, key, doc_id, user_id, owner_id):
         invite_id = self.redis.incr('invite-counter')
@@ -412,6 +422,15 @@ class RedisMD(ABCMetadata):
 
         self.client.commit()
         return updated_invites
+
+    def get_old(self, days: int) -> List[uuid.UUID]:
+        """
+        Get the keys identifying stored documents that are older than the provided number of days.
+
+        :param days: max number of days a document is kept in the db.
+        :return: A list of UUIDs identifying the documents
+        """
+        return self.client.query_documents_old(days)
 
     def get_pending(self, email: str) -> List[Dict[str, Any]]:
         """

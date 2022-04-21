@@ -132,6 +132,11 @@ DOC_LOCK_TIMEOUT_RAW = os.environ.get('DOC_LOCK_TIMEOUT', default='300')
 
 DOC_LOCK_TIMEOUT = datetime.timedelta(seconds=int(DOC_LOCK_TIMEOUT_RAW))
 
+# Max document age as number of days
+MAX_DOCUMENT_AGE_RAW = os.environ.get('MAX_DOCUMENT_AGE', default='30')
+
+MAX_DOCUMENT_AGE = int(MAX_DOCUMENT_AGE_RAW)
+
 TO_TEAR_DOWN_WITH_APP_CONTEXT = os.environ.get(
     'TO_TEAR_DOWN_WITH_APP_CONTEXT', default='edusign_webapp.document.metadata.sqlite.close_connection'
 ).split(',')

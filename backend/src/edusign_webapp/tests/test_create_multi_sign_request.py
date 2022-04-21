@@ -35,7 +35,7 @@ import json
 from edusign_webapp.marshal import ResponseSchema
 
 
-def _test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, doc_data, mock_add_document=None):
+def _test_create_multi_sign_request(app, environ_base, monkeypatch, doc_data, mock_add_document=None):
 
     _, app = app
 
@@ -96,7 +96,7 @@ def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
         },
     }
 
-    response = _test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1, doc_data)
+    response = _test_create_multi_sign_request(app, environ_base, monkeypatch, doc_data)
 
     assert response.status == '200 OK'
 
@@ -124,7 +124,7 @@ def test_create_multi_sign_request_raises(app, environ_base, monkeypatch, sample
         raise Exception()
 
     response = _test_create_multi_sign_request(
-        app, environ_base, monkeypatch, sample_doc_1, doc_data, mock_add_document=mock_add_document
+        app, environ_base, monkeypatch, doc_data, mock_add_document=mock_add_document
     )
 
     assert response.status == '200 OK'
@@ -152,7 +152,7 @@ def test_create_multi_sign_wrong_owner(app, environ_base, monkeypatch, sample_do
         raise Exception()
 
     response = _test_create_multi_sign_request(
-        app, environ_base, monkeypatch, sample_doc_1, doc_data, mock_add_document=mock_add_document
+        app, environ_base, monkeypatch, doc_data, mock_add_document=mock_add_document
     )
 
     assert response.status == '200 OK'
@@ -160,3 +160,33 @@ def test_create_multi_sign_wrong_owner(app, environ_base, monkeypatch, sample_do
     resp_data = json.loads(response.data)
 
     assert "You cannot invite as" in resp_data['message']
+
+
+def test_metrics(app, environ_base, monkeypatch, sample_doc_1):
+
+    doc_data = {
+        'payload': {
+            'document': sample_doc_1,
+            'owner': 'tester@example.org',
+            'text': 'Test text',
+            'sendsigned': True,
+            'loa': '',
+            'invites': [
+                {'name': 'invite0', 'email': 'invite0@example.org'},
+                {'name': 'invite1', 'email': 'invite1@example.org'},
+            ],
+        },
+    }
+
+    _test_create_multi_sign_request(app, environ_base, monkeypatch, doc_data)
+
+    _, app = app
+
+    client = app.test_client()
+    client.environ_base.update(environ_base)
+
+    response = client.get('/sign/metrics')
+
+    assert b"Number of documents: 1" in response.data
+
+    assert b"Total bytes: 1500000" in response.data
