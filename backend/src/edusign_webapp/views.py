@@ -51,6 +51,7 @@ from edusign_webapp.schemata import (
     InvitationsSchema,
     KeyedMultiSignSchema,
     MultiSignSchema,
+    EditMultiSignSchema,
     ReferenceSchema,
     ResendMultiSignSchema,
     ReSignRequestSchema,
@@ -925,6 +926,27 @@ def send_multisign_reminder(data: dict) -> dict:
             return {'error': True, 'message': gettext('Problem sending the email, please try again')}
 
     message = gettext("Success sending reminder email to pending users")
+
+    return {'message': message}
+
+
+@edusign_views.route('/edit-multi-sign', methods=['POST'])
+@UnMarshal(EditMultiSignSchema)
+@Marshal()
+def edit_multi_sign_request(data: dict) -> dict:
+    """
+    View to edit an invitation for collectively signing a document.
+    This view receives a uuid key identifying an invitation,
+    and the new list of invitees, and updates the db with them.
+
+    :param data: The key of the document to remove and the new list of invitees
+    :return: A message about the result of the procedure
+    """
+    key = uuid.UUID(data['key'])
+
+    #  TODO
+
+    message = gettext(f"Success editing invitation to sign {key}")
 
     return {'message': message}
 
