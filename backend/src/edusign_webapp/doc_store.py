@@ -135,6 +135,15 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def get_old(self, days: int) -> List[uuid.UUID]:
+        """
+        Get the keys identifying stored documents that are older than the provided number of days.
+
+        :param days: max number of days a document is kept in the db.
+        :return: A list of UUIDs identifying the documents
+        """
+
+    @abc.abstractmethod
     def get_pending(self, email: str) -> List[Dict[str, str]]:
         """
         Given the email address of some user, return information about the documents
@@ -212,6 +221,8 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         typically because it has already been signed by all requested parties and has been handed to the owner.
 
         :param key: The key identifying the document.
+        :param force: whether to remove the doc even if there are pending signatures
+        :return: whether the document has been removed
         """
 
     @abc.abstractmethod
@@ -371,6 +382,15 @@ class DocStore(object):
         key = uuid.UUID(document['key'])
         self.storage.add(key, document['blob'])
         return self.metadata.add(key, document, owner, invites, sendsigned, loa)
+
+    def get_old_documents(self, days: int) -> List[uuid.UUID]:
+        """
+        Get the keys identifying stored documents that are older than the provided number of days.
+
+        :param days: max number of days a document is kept in the db.
+        :return: A list of UUIDs identifying the documents
+        """
+        return self.metadata.get_old(days)
 
     def get_pending_documents(self, email: str) -> List[Dict[str, Any]]:
         """
@@ -560,6 +580,16 @@ class DocStore(object):
         """
         doc = self.metadata.get_document(key)
         return doc['name']
+
+    def get_document_size(self, key: uuid.UUID) -> int:
+        """
+        Get the size in bytes of the document identified by the provided key.
+
+        :param key: the key identifying the document
+        :return: the document name
+        """
+        doc = self.metadata.get_document(key)
+        return int(doc['size'])
 
     def get_owner_data(self, key: uuid.UUID) -> Dict[str, Any]:
         """

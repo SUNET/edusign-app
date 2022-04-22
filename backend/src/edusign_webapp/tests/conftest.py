@@ -54,7 +54,7 @@ config_dev = {
     'SCOPE_WHITELIST': 'example.org',
     'USER_BLACKLIST': 'blacklisted@example.org',
     'USER_WHITELIST': 'whitelisted@example.org',
-    'MAIL_SUPPRESS_SEND': True,
+    'MAIL_BACKEND': 'dummy',
     'BABEL_DEFAULT_LOCALE': 'en',
     'DOC_LOCK_TIMEOUT': 300,
 }
@@ -66,7 +66,7 @@ config_pro = {
     'SCOPE_WHITELIST': 'example.org',
     'USER_BLACKLIST': 'blacklisted@example.org',
     'USER_WHITELIST': 'whitelisted@example.org',
-    'MAIL_SUPPRESS_SEND': True,
+    'MAIL_BACKEND': 'dummy',
     'BABEL_DEFAULT_LOCALE': 'en',
     'DOC_LOCK_TIMEOUT': 300,
 }

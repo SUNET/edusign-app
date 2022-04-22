@@ -80,9 +80,10 @@ CREATE TABLE [Invites]
 CREATE UNIQUE INDEX IF NOT EXISTS [EmailIX] ON [Users] ([email]);
 CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
 CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([owner]);
+CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
 CREATE INDEX IF NOT EXISTS [InviteeIX] ON [Invites] ([user_id]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-PRAGMA user_version = 3;
+PRAGMA user_version = 4;
 """
 
 
@@ -94,6 +95,7 @@ DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOCK = "SELECT locked, locked_by FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner, prev_signatures, loa FROM Documents WHERE doc_id = ?;"
+DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 DOCUMENT_QUERY_FROM_OWNER = "SELECT d.doc_id, d.key, d.name, d.size, d.type, d.prev_signatures, d.loa FROM Documents as d, Users WHERE Users.email = ? and d.owner = Users.user_id;"
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOA = "SELECT loa FROM Documents WHERE key = ?;"
@@ -157,6 +159,13 @@ def upgrade(db):
     if version == 2:
         cur = db.cursor()
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [loa] VARCHAR(255) DEFAULT \"none\";")
+        cur.execute("PRAGMA user_version = 3;")
+        cur.close()
+        db.commit()
+
+    if version == 3:
+        cur = db.cursor()
+        cur.execute("CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);")
         cur.execute("PRAGMA user_version = 3;")
         cur.close()
         db.commit()
@@ -278,6 +287,22 @@ class SqliteMD(ABCMetadata):
 
         self._db_commit()
         return updated_invites
+
+    def get_old(self, days: int) -> List[uuid.UUID]:
+        """
+        Get the keys identifying stored documents that are older than the provided number of days.
+
+        :param days: max number of days a document is kept in the db.
+        :return: A list of UUIDs identifying the documents
+        """
+        assert isinstance(days, int)
+        query = DOCUMENT_QUERY_OLD % days
+        old_docs = self._db_query(query, ())
+
+        if old_docs is None or isinstance(old_docs, dict):
+            return []
+
+        return [uuid.UUID(doc['key']) for doc in old_docs]
 
     def get_pending(self, email: str) -> List[Dict[str, Any]]:
         """

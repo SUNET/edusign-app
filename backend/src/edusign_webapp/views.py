@@ -38,7 +38,7 @@ from base64 import b64decode
 from typing import Any, Dict, List, Union
 
 import pkg_resources
-from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for, make_response
 from flask_babel import force_locale, get_locale, gettext
 from werkzeug.wrappers import Response
 
@@ -69,9 +69,64 @@ from edusign_webapp.utils import (
     sendmail_bulk,
 )
 
+admin_edusign_views = Blueprint('edusign_admin', __name__, url_prefix='/admin', template_folder='templates')
+
 anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
+
+
+@admin_edusign_views.route('/cleanup', methods=['POST'])
+def cleanup():
+    """
+    Clean up the stored documents being signed,
+    removing those that are older than now - current_app.config.MAX_DOCUMENT_AGE
+
+    :return: the number of documents removed
+    """
+    keys = current_app.doc_store.get_old_documents(current_app.config['MAX_DOCUMENT_AGE'])
+    current_app.logger.info(f'Purging old documents form db with keys: {keys}')
+    total = len(keys)
+    removed = 0
+    for key in keys:
+        try:
+            current_app.doc_store.remove(key, force=True)
+            removed += 1
+        except Exception as e:
+            current_app.logger.error(f'Problem removing old document {key}: {e}')
+            continue
+
+    response = make_response(f"Removed {removed} documents out of {total} scheduled")
+    response.mimetype = "text/plain"
+    return response
+
+
+@edusign_views.route('/metrics', methods=['GET'])
+def metrics():
+    """
+    Clean up the stored documents being signed,
+
+    :return: the number of documents removed
+    """
+    keys = current_app.doc_store.get_old_documents(0)
+    report = f"Number of documents: {len(keys)}\n"
+    weight = 0
+    for key in keys:
+        weight += current_app.doc_store.get_document_size(key)
+
+    report += f"Total bytes: {weight}\n"
+
+    old_keys = current_app.doc_store.get_old_documents(current_app.config['MAX_DOCUMENT_AGE'])
+    report += f"Number of documents to purge: {len(old_keys)}\n"
+    weight = 0
+    for key in old_keys:
+        weight += current_app.doc_store.get_document_size(key)
+
+    report += f"Total bytes to purge: {weight}\n"
+
+    response = make_response(report)
+    response.mimetype = "text/plain"
+    return response
 
 
 @anon_edusign_views.route('/', methods=['GET'])
