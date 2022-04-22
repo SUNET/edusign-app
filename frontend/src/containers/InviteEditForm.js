@@ -12,23 +12,26 @@ import { connect } from "react-redux";
 
 import InviteEditForm from "components/InviteEditForm";
 
-import { editInvites } from "slices/Documents";
+import { editInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { disablePolling, enablePolling } from "slices/Poll";
 
 const mapStateToProps = (state, props) => {
   let show = false;
-  if (state.modals.show_form && state.modals.form_id === props.docId) {
+  if (
+    state.modals.show_form &&
+    state.modals.form_id === props.docKey + "-edit-invitations"
+  ) {
     show = true;
   }
+  const doc = state.main.owned_multisign.filter(
+    (d) => d.key === props.docKey
+  )[0];
   return {
     size: state.main.size,
     show: show,
-    mail: state.main.signer_attributes.mail,
-    templates: state.template.documents,
-    documents: state.documents.documents,
-    owned: state.main.owned_multisign,
+    doc: doc,
   };
 };
 

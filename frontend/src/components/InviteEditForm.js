@@ -9,33 +9,46 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
 import { nameForCopy } from "components/utils";
 
-import "styles/InviteForm.scss";
+import "styles/InviteEditForm.scss";
 
-
-const validate = (mail) => {
-  return (values) => {
-    let errors = {};
-    values.invitees.forEach((val, i) => {
-      const nameError = validateName(val.name);
-      const emailError = validateEmail(mail)(val.email);
-      if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
-      if (emailError !== undefined) errors[`invitees.${i}.email`] = emailError;
-    });
-    return errors;
+const initialValues = (props) => {
+  const vals = {
+    documentKey: props.docKey,
+    invitees: [],
   };
+  props.doc.pending.forEach((invite) => {
+    vals.invitees.push({
+      ...invite,
+    });
+  });
+  return vals;
 };
 
-const initialValues = (props) => ({
-  invitationText: "",
-  sendsignedChoice: true,
-  documentId: props.docId,
-  invitees: [
-    {
-      name: "",
-      email: "",
-    },
-  ],
-});
+const validate = () => {
+  return undefined;
+};
+
+export const validateEmail = (value) => {
+  let error;
+
+  if (!value) {
+    error = <FormattedMessage defaultMessage="Required" key="required-field" />;
+  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
+    error = (
+      <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
+    );
+  }
+  return error;
+};
+
+export const validateName = (value) => {
+  let error;
+
+  if (!value) {
+    error = <FormattedMessage defaultMessage="Required" key="required-field" />;
+  }
+  return error;
+};
 
 class InviteEditForm extends React.Component {
   inviteeControl(fprops) {
@@ -139,7 +152,7 @@ class InviteEditForm extends React.Component {
                           placeholder="jane@example.com"
                           as={BForm.Control}
                           type="email"
-                          validate={validateEmail(this.props.mail)}
+                          validate={validateEmail}
                           isValid={
                             fprops.touched.invitees &&
                             fprops.touched.invitees[index] &&
@@ -188,40 +201,6 @@ class InviteEditForm extends React.Component {
       </FieldArray>
     );
   }
-  sendsignedControl () {
-    return (
-      <div className="sendsigned-choice-holder">
-        <BForm.Group className="sendsigned-choice-group">
-          <ESTooltip
-            tooltip={
-              <FormattedMessage
-                defaultMessage="Send final signed document via email to all who signed it."
-                key="sendsigned-choice-help"
-              />
-            }
-          >
-            <BForm.Label
-              className="sendsigned-choice-label"
-              htmlFor="sendsigned-choice-input"
-            >
-              <FormattedMessage
-                defaultMessage="Send signed document in email"
-                key="sendsigned-choice-field"
-              />
-            </BForm.Label>
-          </ESTooltip>
-          <Field
-            name="sendsignedChoice"
-            id="sendsigned-choice-input"
-            data-testid="sendsigned-choice-input"
-            className="sendsigned-choice"
-            validate={validateSendsigned}
-            type="checkbox"
-          />
-        </BForm.Group>
-      </div>
-    );
-  }
   render() {
     const formId = "invite-form-" + this.props.docName;
     return (
@@ -229,7 +208,7 @@ class InviteEditForm extends React.Component {
         <Formik
           initialValues={initialValues(this.props)}
           onSubmit={this.props.handleSubmit.bind(this)}
-          validate={validate(this.props.mail)}
+          validate={validate}
           enableReinitialize={true}
           validateOnBlur={true}
           validateOnChange={true}
@@ -245,50 +224,25 @@ class InviteEditForm extends React.Component {
               <Form id={formId} data-testid={formId}>
                 <Field
                   type="hidden"
-                  name="documentId"
-                  value={fprops.values.documentId}
+                  name="documentKey"
+                  value={fprops.values.documentKey}
                 />
-                <Field type="hidden" name="isTemplate" />
                 <Modal.Header closeButton>
                   <Modal.Title>
                     <FormattedMessage
-                      defaultMessage={`Invite people to sign: {docName}`}
-                      key="invite-people"
+                      defaultMessage={`Edit invitations for {docName}`}
+                      key="edit-invitation"
                       values={{ docName: this.props.docName }}
                     />
                   </Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
-                  <div className="invitation-text-holder">
-                    <BForm.Group className="invitation-text-group">
-                      <BForm.Label
-                        className="invitation-text-label"
-                        htmlFor="invitation-text-input"
-                      >
-                        <FormattedMessage
-                          defaultMessage="Add a message to send to all invitees"
-                          key="invitation-text-field"
-                        />
-                      </BForm.Label>
-                      <Field
-                        name="invitationText"
-                        id="invitation-text-input"
-                        data-testid="invitation-text-input"
-                        className="invitation-text"
-                        validate={validateBody}
-                        as="textarea"
-                      />
-                    </BForm.Group>
-                  </div>
-                  {sendsignedControl()}
-                  {this.inviteeControl(fprops)}
-                </Modal.Body>
+                <Modal.Body>{this.inviteeControl(fprops)}</Modal.Body>
                 <Modal.Footer>
                   <ESTooltip
                     tooltip={
                       <FormattedMessage
-                        defaultMessage="Dismiss invitation form"
-                        key="cancel-invitation-tootip"
+                        defaultMessage="Dismiss edit form"
+                        key="cancel-invitation-edit-tootip"
                       />
                     }
                   >
@@ -298,29 +252,31 @@ class InviteEditForm extends React.Component {
                     >
                       <FormattedMessage
                         defaultMessage="Cancel"
-                        key="cancel-invite"
+                        key="cancel-edit-invite"
                       />
                     </Button>
                   </ESTooltip>
                   <ESTooltip
                     tooltip={
                       <FormattedMessage
-                        defaultMessage="Send invitations to sign to indicated people"
-                        key="send-invitation-tootip"
+                        defaultMessage="Save changes to invitation"
+                        key="save-edit-invitation-tootip"
                       />
                     }
                   >
                     <Button
                       variant="outline-success"
                       onClick={fprops.submitForm}
-                      id={"button-send-invites-" + this.props.docName}
+                      id={"button-save-edit-invitation-" + this.props.docName}
                       disabling={true}
                       disabled={!fprops.isValid}
-                      data-testid={"button-send-invites-" + this.props.docName}
+                      data-testid={
+                        "button-save-edit-invitation-" + this.props.docName
+                      }
                     >
                       <FormattedMessage
-                        defaultMessage="Invite"
-                        key="send-invite"
+                        defaultMessage="Save"
+                        key="save-edit-invitation"
                       />
                     </Button>
                   </ESTooltip>
@@ -337,11 +293,10 @@ class InviteEditForm extends React.Component {
 InviteEditForm.propTypes = {
   show: PropTypes.bool,
   size: PropTypes.string,
-  docId: PropTypes.number,
+  docKey: PropTypes.string,
   docName: PropTypes.string,
   handleClose: PropTypes.func,
   handleSubmit: PropTypes.func,
 };
 
 export default injectIntl(InviteEditForm);
-

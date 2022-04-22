@@ -257,6 +257,15 @@ class MultiSignSchema(Schema):
     loa = fields.String()
 
 
+class EditMultiSignSchema(Schema):
+    """
+    Schema to unmarshal requests to edit invitations.
+    """
+    key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+    invites = fields.List(fields.Nested(Invitee))
+    owner = fields.Email(required=True)
+
+
 class KeyedMultiSignSchema(Schema):
     """
     Schema to unmarshal requests for removing multi signatures.

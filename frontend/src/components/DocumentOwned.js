@@ -6,6 +6,7 @@ import { ESTooltip } from "containers/Overlay";
 
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
+import InviteEditFormContainer from "containers/InviteEditForm";
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
@@ -74,23 +75,29 @@ class DocumentOwned extends Component {
   render() {
     const doc = this.props.doc;
     const pending = (
-      <div className="doc-container-pending-row">
-        <span className="pending-invites-label">
-          <FormattedMessage
-            defaultMessage="Waiting for signatures by:"
-            key="multisign-owned-waiting"
-          />
-        </span>
-        <span className="pending-invites-items">
-          {doc.pending.map((invite, index) => {
-            return (
-              <span className="pending-invite-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;
-              </span>
-            );
-          })}
-        </span>
-      </div>
+      <>
+        <div
+          className="doc-container-pending-row"
+          onClick={this.props.openEditInvitationForm(doc)}
+        >
+          <span className="pending-invites-label">
+            <FormattedMessage
+              defaultMessage="Waiting for signatures by:"
+              key="multisign-owned-waiting"
+            />
+          </span>
+          <span className="pending-invites-items">
+            {doc.pending.map((invite, index) => {
+              return (
+                <span className="pending-invite-item" key={index}>
+                  {invite.name} &lt;{invite.email}&gt;
+                </span>
+              );
+            })}
+          </span>
+        </div>
+        <InviteEditFormContainer docKey={doc.key} />
+      </>
     );
     const signed = (
       <div className="doc-container-signed-row">
