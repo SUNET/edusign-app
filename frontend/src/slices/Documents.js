@@ -1026,7 +1026,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       })
     );
     let message;
-    if ( data && data.message) {
+    if (data && data.message) {
       message = data.message;
     } else {
       message = intl.formatMessage({

@@ -16,7 +16,13 @@ import { sendInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { disablePolling, enablePolling } from "slices/Poll";
-import { toggleLoa, toggleMakeCopy, dontMakeCopy, isNotInviting, isInviting } from "slices/InviteForm";
+import {
+  toggleLoa,
+  toggleMakeCopy,
+  dontMakeCopy,
+  isNotInviting,
+  isInviting,
+} from "slices/InviteForm";
 import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {
