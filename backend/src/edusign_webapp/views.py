@@ -837,35 +837,44 @@ def create_multi_sign_request(data: dict) -> dict:
 
     recipients = [f"{invite['name']} <{invite['email']}>" for invite in invites]
     if len(recipients) > 0:
+        docname = data['document']['name']
+        custom_text = data['text']
         try:
-            doc_name = data['document']['name']
-            invited_link = url_for('edusign.get_index', _external=True)
-            mail_context = {
-                'document_name': doc_name,
-                'inviter_email': f"{owner['email']}",
-                'inviter_name': f"{owner['name']}",
-                'invited_link': invited_link,
-                'text': data['text'],
-            }
-            with force_locale('en'):
-                subject_en = gettext("You have been invited to sign '%(document_name)s'") % {'document_name': doc_name}
-                body_txt_en = render_template('invitation_email.txt.jinja2', **mail_context)
-                body_html_en = render_template('invitation_email.html.jinja2', **mail_context)
-            with force_locale('sv'):
-                subject_sv = gettext("You have been invited to sign '%(document_name)s'") % {'document_name': doc_name}
-                body_txt_sv = render_template('invitation_email.txt.jinja2', **mail_context)
-                body_html_sv = render_template('invitation_email.html.jinja2', **mail_context)
+            _send_invitation_mail(docname, owner, custom_text, recipients)
 
-            sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
-
-        except Exception as e:
+        except Exception:
             current_app.doc_store.remove_document(uuid.UUID(data['document']['key']), force=True)
-            current_app.logger.error(f'Problem sending invitation email: {e}: {type(e)}')
             return {'error': True, 'message': gettext('There was a problem and the invitation email(s) were not sent')}
 
     message = gettext("Success sending invitations to sign")
 
     return {'message': message}
+
+
+def _send_invitation_mail(docname, owner, custom_text, recipients):
+    invited_link = url_for('edusign.get_index', _external=True)
+    try:
+        mail_context = {
+            'document_name': docname,
+            'inviter_email': f"{owner['email']}",
+            'inviter_name': f"{owner['name']}",
+            'invited_link': invited_link,
+            'text': custom_text,
+        }
+        with force_locale('en'):
+            subject_en = gettext("You have been invited to sign '%(document_name)s'") % {'document_name': docname}
+            body_txt_en = render_template('invitation_email.txt.jinja2', **mail_context)
+            body_html_en = render_template('invitation_email.html.jinja2', **mail_context)
+        with force_locale('sv'):
+            subject_sv = gettext("You have been invited to sign '%(document_name)s'") % {'document_name': docname}
+            body_txt_sv = render_template('invitation_email.txt.jinja2', **mail_context)
+            body_html_sv = render_template('invitation_email.html.jinja2', **mail_context)
+
+        sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem sending invitation email: {e}: {type(e)}')
+        raise
 
 
 @edusign_views.route('/send-multisign-reminder', methods=['POST'])
@@ -943,10 +952,27 @@ def edit_multi_sign_request(data: dict) -> dict:
     :return: A message about the result of the procedure
     """
     key = uuid.UUID(data['key'])
+    try:
+        changed = current_app.doc_store.update_invitations(key, data['invites'])
+    except Exception as e:
+        current_app.logger.error(f"Problem editing the invitations for {key}: {e}")
+        return {'error': True, 'message': gettext('Problem editing the invitations')}
 
-    #  TODO
+    recipients_added = [f"{invite['name']} <{invite['email']}>" for invite in changed['added']]
+    docname = current_app.doc_store.get_document_name(key)
+    owner = {'name': session['displayName'], 'email': session['mail']}
 
-    message = gettext(f"Success editing invitation to sign {key}")
+    message = gettext(f"Success editing invitation to sign {docname}")
+
+    try:
+        _send_invitation_mail(docname, owner, '', recipients_added)
+    except Exception:
+        message = gettext(f"Some users may not have been notified of the changes for {docname}")
+
+    recipients_removed = [f"{invite['name']} <{invite['email']}>" for invite in changed['removed']]
+    sent = _send_cancellation_mail(docname, recipients_removed)
+    if not sent:
+        message = gettext(f"Some users may not have been notified of the changes for {docname}")
 
     return {'message': message}
 
@@ -986,34 +1012,43 @@ def remove_multi_sign_request(data: dict) -> dict:
     recipients = [
         f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
     ]
-    if len(recipients) > 0:
-        try:
-            mail_context = {
-                'document_name': docname,
-                'inviter_email': f"{session['mail']}",
-                'inviter_name': f"{session['displayName']}",
-            }
-            with force_locale('en'):
-                subject_en = gettext("Cancellation of invitation to sign '%(document_name)s'") % {
-                    'document_name': docname
-                }
-                body_txt_en = render_template('cancellation_email.txt.jinja2', **mail_context)
-                body_html_en = render_template('cancellation_email.html.jinja2', **mail_context)
-            with force_locale('sv'):
-                subject_sv = gettext("Cancellation of invitation to sign '%(document_name)s'") % {
-                    'document_name': docname
-                }
-                body_txt_sv = render_template('cancellation_email.txt.jinja2', **mail_context)
-                body_html_sv = render_template('cancellation_email.html.jinja2', **mail_context)
-
-            sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
-
-        except Exception as e:
-            current_app.logger.error(f'Problem sending cancellation email: {e}')
-
     message = gettext("Success removing invitation to sign")
 
+    if len(recipients) > 0:
+        sent = _send_cancellation_mail(docname, recipients)
+        if not sent:
+            message = gettext("Some users may have not been informed of the cancellation")
+
     return {'message': message}
+
+
+def _send_cancellation_mail(docname, recipients):
+    try:
+        mail_context = {
+            'document_name': docname,
+            'inviter_email': f"{session['mail']}",
+            'inviter_name': f"{session['displayName']}",
+        }
+        with force_locale('en'):
+            subject_en = gettext("Cancellation of invitation to sign '%(document_name)s'") % {
+                'document_name': docname
+            }
+            body_txt_en = render_template('cancellation_email.txt.jinja2', **mail_context)
+            body_html_en = render_template('cancellation_email.html.jinja2', **mail_context)
+        with force_locale('sv'):
+            subject_sv = gettext("Cancellation of invitation to sign '%(document_name)s'") % {
+                'document_name': docname
+            }
+            body_txt_sv = render_template('cancellation_email.txt.jinja2', **mail_context)
+            body_html_sv = render_template('cancellation_email.html.jinja2', **mail_context)
+
+        sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem sending cancellation email: {e}')
+        return False
+
+    return True
 
 
 @edusign_views.route('/get-partially-signed', methods=['POST'])
