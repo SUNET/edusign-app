@@ -25,7 +25,7 @@ const initialValues = (props) => {
 };
 
 const validate = () => {
-  return undefined;
+  return {};
 };
 
 export const validateEmail = (value) => {
@@ -53,7 +53,7 @@ export const validateName = (value) => {
 class InviteEditForm extends React.Component {
   inviteeControl(fprops) {
     return (
-      <FieldArray name="invitees" validateOnChange={true}>
+      <FieldArray name="invitees" validateOnChange={false}>
         {(arrayHelpers) => (
           <div>
             {fprops.values.invitees.length > 0 &&
@@ -213,6 +213,7 @@ class InviteEditForm extends React.Component {
           validateOnBlur={true}
           validateOnChange={true}
           validateOnMount={true}
+          isInitialValid={true}
         >
           {(fprops) => (
             <Modal
