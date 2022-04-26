@@ -14,6 +14,7 @@ import "styles/InviteEditForm.scss";
 const initialValues = (props) => {
   const vals = {
     documentKey: props.docKey,
+    invitationText: "",
     invitees: [],
   };
   props.doc.pending.forEach((invite) => {
@@ -59,7 +60,7 @@ class InviteEditForm extends React.Component {
             {fprops.values.invitees.length > 0 &&
               fprops.values.invitees.map((invitee, index) => (
                 <div className="invitation-fields" key={index}>
-                  {index > 0 && (
+                {fprops.values.invitees.length > 1 && (
                     <div className="invitee-form-dismiss">
                       <ESTooltip
                         tooltip={
@@ -237,7 +238,30 @@ class InviteEditForm extends React.Component {
                     />
                   </Modal.Title>
                 </Modal.Header>
-                <Modal.Body>{this.inviteeControl(fprops)}</Modal.Body>
+                <Modal.Body>
+                  <div className="invitation-text-holder">
+                    <BForm.Group className="invitation-text-group">
+                      <BForm.Label
+                        className="invitation-text-label"
+                        htmlFor="invitation-text-input"
+                      >
+                        <FormattedMessage
+                          defaultMessage="Add a message to send to all invitees"
+                          key="invitation-text-field"
+                        />
+                      </BForm.Label>
+                      <Field
+                        name="invitationText"
+                        id="invitation-text-input"
+                        data-testid="invitation-text-input"
+                        className="invitation-text"
+                        validate={validateBody}
+                        as="textarea"
+                      />
+                    </BForm.Group>
+                  </div>
+                  {this.inviteeControl(fprops)}
+                </Modal.Body>
                 <Modal.Footer>
                   <ESTooltip
                     tooltip={
