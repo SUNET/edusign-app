@@ -536,9 +536,7 @@ class DocStore(object):
                  and an `added` key pointing to added invitations
         """
         current = self.metadata.get_invited(document_key)
-        pending = filter(lambda invite: not invite['signed'] and not invite['declined'], current)
-        from flask import current_app
-        current_app.logger.debug(f"Found pending invites: {list(pending)}")
+        pending = list(filter(lambda invite: not invite['signed'] and not invite['declined'], current))
         changed = {'added': [], 'removed': []}
 
         for old in pending:
