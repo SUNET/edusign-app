@@ -29,6 +29,10 @@ const validate = () => {
   return {};
 };
 
+const validateBody = (value) => {
+  return undefined;
+};
+
 export const validateEmail = (value) => {
   let error;
 
