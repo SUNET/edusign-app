@@ -181,11 +181,8 @@ export const editInvites = createAsyncThunk(
 
     let state = thunkAPI.getState();
 
-    const owner = state.main.signer_attributes.mail;
-
     // We send the gathered data to the `edit-multi-sign` endpoint in the backend.
     const dataToSend = {
-      owner: owner,
       key: documentKey,
       invites: invitees,
     };

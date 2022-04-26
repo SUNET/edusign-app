@@ -263,7 +263,6 @@ class EditMultiSignSchema(Schema):
     """
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     invites = fields.List(fields.Nested(Invitee))
-    owner = fields.Email(required=True)
 
 
 class KeyedMultiSignSchema(Schema):
