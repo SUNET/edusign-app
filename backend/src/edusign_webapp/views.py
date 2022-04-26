@@ -961,11 +961,12 @@ def edit_multi_sign_request(data: dict) -> dict:
     recipients_added = [f"{invite['name']} <{invite['email']}>" for invite in changed['added']]
     docname = current_app.doc_store.get_document_name(key)
     owner = {'name': session['displayName'], 'email': session['mail']}
+    text = data['text']
 
     message = gettext(f"Success editing invitation to sign {docname}")
 
     try:
-        _send_invitation_mail(docname, owner, '', recipients_added)
+        _send_invitation_mail(docname, owner, text, recipients_added)
     except Exception:
         message = gettext(f"Some users may not have been notified of the changes for {docname}")
 

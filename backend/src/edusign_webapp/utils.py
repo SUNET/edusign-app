@@ -244,7 +244,7 @@ def sendmail(*args, **kwargs):
     """
     msg = compose_message(*args, **kwargs)
 
-    current_app.logger.debug(f"Email to be sent:\n\n{msg}\n\n")
+    current_app.logger.debug(f"Email to be sent:\n\n{msg.as_string()}\n\n")
 
     msg.send()
 
