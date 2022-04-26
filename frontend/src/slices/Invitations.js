@@ -177,6 +177,7 @@ export const editInvites = createAsyncThunk(
   "main/editInvites",
   async (args, thunkAPI) => {
     const documentKey = args.values.documentKey;
+    const invitationText = args.values.invitationText;
     const invitees = args.values.invitees;
 
     let state = thunkAPI.getState();
@@ -184,6 +185,7 @@ export const editInvites = createAsyncThunk(
     // We send the gathered data to the `edit-multi-sign` endpoint in the backend.
     const dataToSend = {
       key: documentKey,
+      text: invitationText,
       invites: invitees,
     };
     const body = preparePayload(state, dataToSend);
