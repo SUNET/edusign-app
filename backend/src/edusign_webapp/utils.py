@@ -243,9 +243,6 @@ def sendmail(*args, **kwargs):
     The arguments are the same as those for `compose_message`.
     """
     msg = compose_message(*args, **kwargs)
-
-    current_app.logger.debug(f"Email to be sent:\n\n{msg.as_string()}\n\n")
-
     msg.send()
 
 
