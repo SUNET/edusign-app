@@ -47,6 +47,7 @@
   "components.InviteEditForm.cancel-edit-invite": "Cancel",
   "components.InviteEditForm.cancel-invitation-edit-tootip": "Dismiss edit form",
   "components.InviteEditForm.edit-invitation": "Edit invitations for {docName}",
+  "components.InviteEditForm.edit-invitation-text-field": "Add an (optional) message to send to all new invitees",
   "components.InviteEditForm.email-input-field": "Email",
   "components.InviteEditForm.invalid-email": "Invalid email",
   "components.InviteEditForm.name-input-field": "Name",
