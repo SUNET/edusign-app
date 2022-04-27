@@ -30,6 +30,14 @@
     .invitee-form-email {
       flex: 1 0 auto;
       margin-right: 1rem;
+
+      .form-group {
+
+        .form-control.is-invalid,
+        .form-control.is-valid {
+          padding-right: 0 !important;
+        }
+      }
     }
   }
   .field-error {
