@@ -250,8 +250,8 @@ class InviteEditForm extends React.Component {
                         htmlFor="invitation-text-input"
                       >
                         <FormattedMessage
-                          defaultMessage="Add a message to send to all invitees"
-                          key="invitation-text-field"
+                          defaultMessage="Add an (optional) message to send to all new invitees"
+                          key="edit-invitation-text-field"
                         />
                       </BForm.Label>
                       <Field
