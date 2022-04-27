@@ -64,7 +64,7 @@ class InviteEditForm extends React.Component {
             {fprops.values.invitees.length > 0 &&
               fprops.values.invitees.map((invitee, index) => (
                 <div className="invitation-fields" key={index}>
-                {fprops.values.invitees.length > 1 && (
+                  {fprops.values.invitees.length > 1 && (
                     <div className="invitee-form-dismiss">
                       <ESTooltip
                         tooltip={
