@@ -47,6 +47,7 @@
   "components.InviteEditForm.cancel-edit-invite": "",
   "components.InviteEditForm.cancel-invitation-edit-tootip": "",
   "components.InviteEditForm.edit-invitation": "",
+  "components.InviteEditForm.edit-invitation-text-field": "",
   "components.InviteEditForm.email-input-field": "",
   "components.InviteEditForm.invalid-email": "",
   "components.InviteEditForm.name-input-field": "",
