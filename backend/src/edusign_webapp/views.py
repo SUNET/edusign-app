@@ -35,7 +35,7 @@ import json
 import os
 import uuid
 from base64 import b64decode
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Tuple
 
 import pkg_resources
 from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for, make_response
@@ -434,6 +434,111 @@ def create_sign_request(documents: dict) -> dict:
     return {'payload': sign_data}
 
 
+def _gather_invited_docs(docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    This function in used in the `recreate_sign_request` view.
+
+    Here we gather the document contents for invited documents that the user has sent for signing.
+    We check that the concernmed documents are not locked (i.e., being signed by some other user),
+    that they exist, and that the user trying to sign the document has actually been invited to do so.
+
+    :param docs: The documents that the user has been invited to sign, and wants to sign
+    :return: a list with the documents that had some problem (see what problems we check above),
+             and a list of the documents ready to be signed, with contents.
+    """
+    failed: List[Dict[str, Any]] = []
+    invited_docs = []
+    for doc in docs:
+        current_app.logger.debug(f"Re-preparing invited document {doc['name']}")
+        try:
+            stored = current_app.doc_store.get_invitation(doc['invite_key'])
+        except current_app.doc_store.DocumentLocked:
+            current_app.logger.debug(f"Invited document {doc['name']} is locked")
+            failedDoc = {
+                'key': doc['key'],
+                'state': 'failed-signing',
+                'message': gettext("Document is being signed by another user, please try again in a few minutes."),
+            }
+            failed.append(failedDoc)
+            continue
+
+        if not stored:
+            current_app.logger.debug(f"No invitation for user {session['eppn']} to sign {doc['name']}")
+            failedDoc = {
+                'key': doc['key'],
+                'state': 'failed-signing',
+                'message': gettext("There doesn't seem to be an invitation for you to sign \"%(docname)s\".")
+                % {'docname': doc['name']},
+            }
+            failed.append(failedDoc)
+            continue
+
+        if stored['user']['email'] != session['mail']:
+            current_app.logger.error(
+                f"Trying to sign invitation with wrong email {session['mail']} (invited:  {stored['user']['email']})"
+            )
+            failedDoc = {
+                'key': doc['key'],
+                'state': 'failed-signing',
+                'message': gettext("The email %(email)s invited to sign \"%(docname)s\" does not coincide with yours.")
+                % {'email': stored['user']['email'], 'docname': doc['name']},
+            }
+            failed.append(failedDoc)
+            continue
+
+        doc['blob'] = stored['document']['blob']
+        invited_docs.append(doc)
+
+    return failed, invited_docs
+
+
+def _ready_docs(docs_data: List[Dict[str, Any]], all_docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    This function in used in the `recreate_sign_request` view.
+
+    We receive here the results of sending the documents to prepare at the API, in `docs_data`,
+    and the actual documents, in `all_docs`, and we check that there was no problem
+    during the preparation of the document.
+    For the docs that had no problem, we pick the data we need.
+
+    :param docs_data: results of sending the documents to the prepare endpoint of the API.
+    :param all_docs: actual documents that have been sent to prepare.
+    :return: a list with the problematic documents,
+             and a list of successfully prepared documents, ready to be sent to the create endpoint of the API.
+    """
+    new_docs = []
+    failed = []
+    for doc_data, doc in zip(docs_data, all_docs):
+
+        if 'error' in doc_data and doc_data['error']:
+            current_app.logger.error(f"Problem re-preparing document for user {session['eppn']}: {doc['name']}")
+            failedDoc = {
+                'key': doc['key'],
+                'state': 'failed-signing',
+                'message': doc_data.get(
+                    'message',
+                    gettext(
+                        "Problem preparing document for signing. Please try again, or contact the site administrator."
+                    ),
+                ),
+            }
+            failed.append(failedDoc)
+            continue
+
+        current_app.logger.info(f"Re-prepared {doc['name']} for user {session['eppn']}")
+
+        new_docs.append(
+            {
+                'name': doc['name'],
+                'type': doc['type'],
+                'key': doc['key'],
+                'ref': doc_data['updatedPdfDocumentReference'],
+                'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
+            }
+        )
+    return failed, new_docs
+
+
 @edusign_views.route('/recreate-sign-request', methods=['POST'])
 @UnMarshal(ToRestartSigningSchema)
 @Marshal(ReSignRequestSchema)
@@ -477,86 +582,20 @@ def recreate_sign_request(documents: dict) -> dict:
         doc['blob'] = current_app.doc_store.get_document_content(doc['key'])
         tasks.append(loop.create_task(prepare(doc)))
 
-    failed: List[Dict[str, Any]] = []
+    failed, invited_docs = _gather_invited_docs(documents['documents']['invited'])
 
-    invited_docs = []
-    for doc in documents['documents']['invited']:
-        current_app.logger.debug(f"Re-preparing invited document {doc['name']}")
-        try:
-            stored = current_app.doc_store.get_invitation(doc['invite_key'])
-        except current_app.doc_store.DocumentLocked:
-            current_app.logger.debug(f"Invited document {doc['name']} is locked")
-            failedDoc = {
-                'key': doc['key'],
-                'state': 'failed-signing',
-                'message': gettext("Document is being signed by another user, please try again in a few minutes."),
-            }
-            failed.append(failedDoc)
-            continue
-
-        if not stored:
-            current_app.logger.debug(f"No invitation for user {session['eppn']} to sign {doc['name']}")
-            failedDoc = {
-                'key': doc['key'],
-                'state': 'failed-signing',
-                'message': gettext("There doesn't seem to be an invitation for you to sign \"%(docname)s\".")
-                % {'docname': doc.name},
-            }
-            failed.append(failedDoc)
-            continue
-
-        if stored['user']['email'] != session['mail']:
-            current_app.logger.error(
-                f"Trying to sign invitation with wrong email {session['mail']} (invited:  {stored['user']['email']})"
-            )
-            failedDoc = {
-                'key': doc['key'],
-                'state': 'failed-signing',
-                'message': gettext("The email %(email)s invited to sign \"%(docname)s\" does not coincide with yours.")
-                % {'email': stored['user']['email'], 'docname': doc.name},
-            }
-            failed.append(failedDoc)
-            continue
-
-        doc['blob'] = stored['document']['blob']
+    for doc in invited_docs:
         tasks.append(loop.create_task(prepare(doc)))
-        invited_docs.append(doc)
 
     if len(tasks) > 0:
         loop.run_until_complete(asyncio.wait(tasks))
     loop.close()
 
     docs_data = [task.result() for task in tasks]
-    new_docs = []
     all_docs = documents['documents']['local'] + documents['documents']['owned'] + invited_docs
-    for doc_data, doc in zip(docs_data, all_docs):
 
-        if 'error' in doc_data and doc_data['error']:
-            current_app.logger.error(f"Problem re-preparing document for user {session['eppn']}: {doc['name']}")
-            failedDoc = {
-                'key': doc['key'],
-                'state': 'failed-signing',
-                'message': doc_data.get(
-                    'message',
-                    gettext(
-                        "Problem preparing document for signing. Please try again, or contact the site administrator."
-                    ),
-                ),
-            }
-            failed.append(failedDoc)
-            continue
-
-        current_app.logger.info(f"Re-prepared {doc['name']} for user {session['eppn']}")
-
-        new_docs.append(
-            {
-                'name': doc['name'],
-                'type': doc['type'],
-                'key': doc['key'],
-                'ref': doc_data['updatedPdfDocumentReference'],
-                'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
-            }
-        )
+    more_failed, new_docs = _ready_docs(docs_data, all_docs)
+    failed += more_failed
 
     if len(new_docs) > 0:
         try:
@@ -638,6 +677,80 @@ def sign_service_callback() -> Union[str, Response]:
         abort(500)
 
 
+def _prepare_final_email(key, owner):
+    pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
+    pending = [p for p in pending if not p['signed'] and not p['declined']]
+
+    if len(pending) > 0:
+        template = 'signed_by_email'
+    else:
+        template = 'final_signed_by_email'
+
+    mail_context = {
+        'document_name': owner['docname'],
+        'invited_name': session['displayName'],
+        'invited_email': session['mail'],
+    }
+    recipients = [f"{owner['name']} <{owner['email']}>"]
+    with force_locale('en'):
+        subject_en = gettext("%(name)s signed '%(docname)s'") % {
+            'name': session['displayName'],
+            'docname': owner['docname'],
+        }
+        body_txt_en = render_template(f'{template}.txt.jinja2', **mail_context)
+        body_html_en = render_template(f'{template}.html.jinja2', **mail_context)
+    with force_locale('sv'):
+        subject_sv = gettext("%(name)s signed '%(docname)s'") % {
+            'name': session['displayName'],
+            'docname': owner['docname'],
+        }
+        body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
+        body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
+
+    return (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+
+
+def _prepare_all_signed_email(key, owner, sendsigned):
+    recipients = [f"{owner['name']} <{owner['email']}>"]
+    recipients.extend(
+        [
+            f"{invited['name']} <{invited['email']}>"
+            for invited in current_app.doc_store.get_pending_invites(key)
+            if invited['signed']
+        ]
+    )
+    mail_context = {
+        'document_name': owner['docname'],
+    }
+    with force_locale('en'):
+        subject_en = gettext("'%(docname)s' is now signed") % {'docname': owner['docname']}
+        if sendsigned:
+            body_txt_en = render_template('signed_all_email.txt.jinja2', **mail_context)
+            body_html_en = render_template('signed_all_email.html.jinja2', **mail_context)
+        else:
+            body_txt_en = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
+            body_html_en = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
+    with force_locale('sv'):
+        subject_sv = gettext("'%(docname)s' is now signed") % {'docname': owner['docname']}
+        if sendsigned:
+            body_txt_sv = render_template('signed_all_email.txt.jinja2', **mail_context)
+            body_html_sv = render_template('signed_all_email.html.jinja2', **mail_context)
+        else:
+            body_txt_sv = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
+            body_html_sv = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
+
+    email_args = (
+        recipients,
+        subject_en,
+        subject_sv,
+        body_txt_en,
+        body_html_en,
+        body_txt_sv,
+        body_html_sv
+    )
+    return email_args
+
+
 @edusign_views.route('/get-signed', methods=['POST'])
 @UnMarshal(SigningSchema)
 @Marshal(SignedDocumentsSchema)
@@ -682,72 +795,16 @@ def get_signed_documents(sign_data: dict) -> dict:
         sendsigned = current_app.doc_store.get_sendsigned(key)
 
         if 'email' in owner and owner['email'] != session['mail']:
-            pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
-            pending = [p for p in pending if not p['signed'] and not p['declined']]
-
-            if len(pending) > 0:
-                template = 'signed_by_email'
-            else:
-                template = 'final_signed_by_email'
-
             try:
-                mail_context = {
-                    'document_name': owner['docname'],
-                    'invited_name': session['displayName'],
-                    'invited_email': session['mail'],
-                }
-                recipients = [f"{owner['name']} <{owner['email']}>"]
-                with force_locale('en'):
-                    subject_en = gettext("%(name)s signed '%(docname)s'") % {
-                        'name': session['displayName'],
-                        'docname': owner['docname'],
-                    }
-                    body_txt_en = render_template(f'{template}.txt.jinja2', **mail_context)
-                    body_html_en = render_template(f'{template}.html.jinja2', **mail_context)
-                with force_locale('sv'):
-                    subject_sv = gettext("%(name)s signed '%(docname)s'") % {
-                        'name': session['displayName'],
-                        'docname': owner['docname'],
-                    }
-                    body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
-                    body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
-
-                email_args = (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+                email_args = _prepare_final_email(key, owner)
                 emails.append((email_args, {}))
 
             except Exception as e:
                 current_app.logger.error(f"Problem sending signed by {session['email']} email to {owner['email']}: {e}")
 
         elif owner:
-            recipients = [f"{owner['name']} <{owner['email']}>"]
-            recipients.extend(
-                [
-                    f"{invited['name']} <{invited['email']}>"
-                    for invited in current_app.doc_store.get_pending_invites(key)
-                    if invited['signed']
-                ]
-            )
             try:
-                mail_context = {
-                    'document_name': owner['docname'],
-                }
-                with force_locale('en'):
-                    subject_en = gettext("'%(docname)s' is now signed") % {'docname': owner['docname']}
-                    if sendsigned:
-                        body_txt_en = render_template('signed_all_email.txt.jinja2', **mail_context)
-                        body_html_en = render_template('signed_all_email.html.jinja2', **mail_context)
-                    else:
-                        body_txt_en = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
-                        body_html_en = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
-                with force_locale('sv'):
-                    subject_sv = gettext("'%(docname)s' is now signed") % {'docname': owner['docname']}
-                    if sendsigned:
-                        body_txt_sv = render_template('signed_all_email.txt.jinja2', **mail_context)
-                        body_html_sv = render_template('signed_all_email.html.jinja2', **mail_context)
-                    else:
-                        body_txt_sv = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
-                        body_html_sv = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
-
+                email_args = _prepare_all_signed_email(key, owner, sendsigned)
                 # attach PDF
                 if sendsigned:
                     doc_name = current_app.doc_store.get_document_name(key)
@@ -757,15 +814,6 @@ def get_signed_documents(sign_data: dict) -> dict:
                     signed_doc_name = ''
                     pdf_bytes = ''
 
-                email_args = (
-                    recipients,
-                    subject_en,
-                    subject_sv,
-                    body_txt_en,
-                    body_html_en,
-                    body_txt_sv,
-                    body_html_sv
-                )
                 email_kwargs = dict(
                     attachment_name=signed_doc_name,
                     attachment=pdf_bytes,
