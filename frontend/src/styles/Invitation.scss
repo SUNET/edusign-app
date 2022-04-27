@@ -103,6 +103,12 @@
   color: $darker-dark-grey;
   font-size: 0.8rem;
 }
+.pending-invites-label.with-pending-invites {
+  &:hover {
+    cursor: pointer;
+    color: $orange;
+  }
+}
 
 .doc-container-pending-row,
 .doc-container-declined-row,
