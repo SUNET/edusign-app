@@ -80,7 +80,7 @@ class DocumentOwned extends Component {
           className="doc-container-pending-row"
           onClick={this.props.openEditInvitationForm(doc)}
         >
-          <span className="pending-invites-label">
+          <span className="pending-invites-label with-pending-invites">
             <FormattedMessage
               defaultMessage="Waiting for signatures by:"
               key="multisign-owned-waiting"
