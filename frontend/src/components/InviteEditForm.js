@@ -9,7 +9,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
 import { nameForCopy } from "components/utils";
 
-import "styles/InviteEditForm.scss";
+import "styles/InviteForm.scss";
 
 const initialValues = (props) => {
   const vals = {
