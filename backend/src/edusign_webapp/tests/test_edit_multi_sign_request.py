@@ -93,6 +93,7 @@ def _test_edit_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
         'csrf_token': csrf_token,
         'payload': {
             'key': sample_doc_1['key'],
+            'text': "Some invitation text",
             'invites': [
                 {'name': 'invite0', 'email': 'invite0@example.org'},
                 {'name': 'invite2', 'email': 'invite2@example.org'},
