@@ -62,6 +62,43 @@ back to the webapp, where the user can access the newly signed document.
 Backend application
 ...................
 
-The code for the backend app is kept in `this directory <https://github.com/SUNET/edusign-app/tree/master/backend>`_
-as a Flask app.
+The code for the backend app is kept in
+`this directory <https://github.com/SUNET/edusign-app/tree/master/backend>`_
+as a Flask app. This app is meant to be deployed as a WSGI app, using gunicorn
+or some other WSGI server.
 
+The code that interacts with the API is in the
+`api_client <https://github.com/SUNET/edusign-app/blob/master/backend/src/edusign_webapp/api_client.py>`_
+module, check out the comments there for details about these interactions.
+
+The view code, that is called for each request from the frontend, is in the
+`views <https://github.com/SUNET/edusign-app/blob/master/backend/src/edusign_webapp/views.py>`_
+module. This module is also quite extensively documented, and can be used as
+a starting point to explore the code in the rest of the modules.
+
+Frontend application
+....................
+
+The code for the frontend app is kept under
+`this directory <https://github.com/SUNET/edusign-app/tree/master/frontend>`_,
+as a JS project managed with npm. In the root of the project there are various
+configuration files, for npm, webpack, karma, babel, or jsdoc.
+
+The subdirectory
+`components <https://github.com/SUNET/edusign-app/tree/master/frontend/src/components>`_
+contains all the markup that is used to compose the UI, in the form of React components.
+This markup is generally broken up into pieces, that are pieced together according
+to the values of the props of the components.
+
+These props are mainly derived from the Redux state, and they are connected with the store
+keeping the state in the "container" modules, kept within the
+`containers directory <https://github.com/SUNET/edusign-app/tree/master/frontend/src/containers>`_.
+These container modules keep also all the functions that are called from the components
+as a reaction to user interactions, and that need to produce changes in the Redux state,
+and thus need to be connected with the store.
+
+The actual Redux store is configured in this
+`module <https://github.com/SUNET/edusign-app/blob/master/frontend/src/init-app/store.js>`_,
+with so called slices (according to reduxjs/tookit) in
+`this directory <https://github.com/SUNET/edusign-app/blob/master/frontend/src/slices>`_,
+that provide functions that, first, compose the Redux state, and then alter it.
