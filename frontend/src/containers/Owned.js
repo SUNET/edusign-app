@@ -36,14 +36,18 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleRemove: function (doc, props) {
       return async () => {
+        dispatch(disablePolling());
         await dispatch(removeInvites({ doc: doc, intl: props.intl }));
         dispatch(unsetSpinning());
+        dispatch(enablePolling());
       };
     },
     handleSkipSigning: function (doc, props) {
       return async () => {
+        dispatch(disablePolling());
         await dispatch(skipOwnedSignature({ doc: doc, intl: props.intl }));
         dispatch(unsetSpinning());
+        dispatch(enablePolling());
       };
     },
     handleResend: function (doc) {
