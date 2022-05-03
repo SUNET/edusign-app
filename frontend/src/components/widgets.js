@@ -145,6 +145,34 @@ export const previewButton = (props, doc) => {
   );
 };
 
+export const createTemplateButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-create-template-flex-item">
+        <ESTooltip
+          helpId={"button-create-template-" + doc.key}
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Create a template out of this document"
+              key="create-template-button-tootip"
+            />
+          }
+        >
+          <Button
+            variant="outline-dark"
+            id={"button-create-template-" + doc.key}
+            size="sm"
+            disabling={true}
+            onClick={props.handleCreateTemplate(doc.key)}
+          >
+            <FormattedMessage defaultMessage="Create template" key="create-template-button" />
+          </Button>
+        </ESTooltip>
+      </div>
+    </>
+  );
+};
+
 export const previewTemplateButton = (props, doc) => {
   return (
     <>

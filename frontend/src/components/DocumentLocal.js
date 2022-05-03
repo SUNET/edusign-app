@@ -189,6 +189,7 @@ class DocumentLocal extends React.Component {
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
+                      {widgets.createTemplateButton(this.props, doc)}
                       {widgets.multiSignButton(this.props, doc)}
                       {widgets.previewButton(this.props, doc)}
                       {widgets.removeButton(this.props, doc)}

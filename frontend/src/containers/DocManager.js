@@ -29,6 +29,7 @@ import {
 } from "slices/Documents";
 import {
   removeTemplate,
+  createTemplate,
   showTemplatePreview,
   hideTemplatePreview,
 } from "slices/Templates";
@@ -74,6 +75,16 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(setActiveId("dummy-help-id"));
         await dispatch(showTemplatePreview(key));
         dispatch(unsetSpinning());
+      };
+    },
+    handleCreateTemplate: function (key) {
+      return async () => {
+        dispatch(disablePolling());
+        dispatch(setActiveId("dummy-help-id"));
+        await dispatch(createTemplate({documentKey: key}));
+        dispatch(unsetSpinning());
+        dispatch(enablePolling());
+        dispatch(unsetActiveId());
       };
     },
     handleRemove: function (name) {
