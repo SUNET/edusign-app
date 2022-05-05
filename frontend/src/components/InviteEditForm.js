@@ -64,36 +64,34 @@ class InviteEditForm extends React.Component {
             {fprops.values.invitees.length > 0 &&
               fprops.values.invitees.map((invitee, index) => (
                 <div className="invitation-fields" key={index}>
-                  {fprops.values.invitees.length > 1 && (
-                    <div className="invitee-form-dismiss">
-                      <ESTooltip
-                        tooltip={
-                          <FormattedMessage
-                            defaultMessage="Remove this entry from invitation"
-                            key="rm-invitation-tootip"
-                          />
-                        }
+                  <div className="invitee-form-dismiss">
+                    <ESTooltip
+                      tooltip={
+                        <FormattedMessage
+                          defaultMessage="Remove this entry from invitation"
+                          key="rm-invitation-tootip"
+                        />
+                      }
+                    >
+                      <BButton
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          arrayHelpers.remove(index);
+                          window.setTimeout(() => {
+                            document
+                              .getElementById("invitation-text-input")
+                              .focus();
+                            document
+                              .getElementById("invitation-text-input")
+                              .blur();
+                          }, 0);
+                        }}
                       >
-                        <BButton
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            arrayHelpers.remove(index);
-                            window.setTimeout(() => {
-                              document
-                                .getElementById("invitation-text-input")
-                                .focus();
-                              document
-                                .getElementById("invitation-text-input")
-                                .blur();
-                            }, 0);
-                          }}
-                        >
-                          ×
-                        </BButton>
-                      </ESTooltip>
-                    </div>
-                  )}
+                        ×
+                      </BButton>
+                    </ESTooltip>
+                  </div>
                   <div className="invitee-form-row" key={index}>
                     <div className="invitee-form-name">
                       <BForm.Group>

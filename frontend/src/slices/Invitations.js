@@ -177,51 +177,92 @@ export const editInvites = createAsyncThunk(
   "main/editInvites",
   async (args, thunkAPI) => {
     const documentKey = args.values.documentKey;
-    const invitationText = args.values.invitationText;
-    const invitees = args.values.invitees;
+    const invitees = values.invitees;
 
-    let state = thunkAPI.getState();
+    const doc = state.main.owned_multisign.filter((doc) => {
+      return doc.key === documentKey;
+    })[0];
 
-    // We send the gathered data to the `edit-multi-sign` endpoint in the backend.
-    const dataToSend = {
-      key: documentKey,
-      text: invitationText,
-      invites: invitees,
-    };
-    const body = preparePayload(state, dataToSend);
-    let data = null;
-    try {
-      const response = await fetch("/sign/edit-multi-sign", {
-        ...postRequest,
-        body: body,
-      });
-      if (response.status === 502) {
-        // Backend side worker timeout,
-        throw new Error("502 when trying to send invitations");
+    if (invitees.length === 0) {
+      if (doc.signed.length === 0) {
+        await editInvitesPending(args.values, thunkAPI, args.intl);
+      } else {
+        await editInvitesBackToPersonal(args.values, thunkAPI, args.intl);
       }
-      data = await checkStatus(response);
-      extractCsrfToken(thunkAPI.dispatch, data);
-    } catch (err) {
-      // In case of errors, inform the user, update the app state.
-      const message = args.intl.formatMessage({
-        defaultMessage: "Problem editing invitations to sign, please try again",
-        id: "problem-editing-invitations",
-      });
-      thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
-      return thunkAPI.rejectWithValue(null);
+    } else {
+      await editInvitesPending(args.values, thunkAPI, args.intl);
     }
-    if (data.error) {
-      const message = args.intl.formatMessage({
-        defaultMessage: "Problem editing invitation to sign, please try again",
-        id: "problem-editing-multisign",
-      });
-      thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
-      return thunkAPI.rejectWithValue(null);
-    }
-    // If there are no errors, update the pending key in the concerned document
-    thunkAPI.dispatch(updateOwned({ key: documentKey, pending: invitees }));
   }
 );
+
+
+/**
+ * @public
+ * @function editInvitesBackToPersonal
+ * @desc async function to edit an invitation to sign documents if after
+  *      the edition there are no pending invitation left,
+  *      and additionally it has not been yet signed by anyone.
+ *
+ * This is called from the editInvites async thunk
+ */
+const editInvitesBackToPersonal = async (values, thunkAPI, intl) => {
+}
+
+
+/**
+ * @public
+ * @function editInvitesPending
+ * @desc async function to edit an invitation to sign documents if after
+  *      the edition there are pending invitation left.
+ *
+ * This is called from the editInvites async thunk
+ */
+const editInvitesPending = async (values, thunkAPI, intl) => {
+  const documentKey = values.documentKey;
+  const invitationText = values.invitationText;
+  const invitees = values.invitees;
+
+  let state = thunkAPI.getState();
+
+  // We send the gathered data to the `edit-multi-sign` endpoint in the backend.
+  const dataToSend = {
+    key: documentKey,
+    text: invitationText,
+    invites: invitees,
+  };
+  const body = preparePayload(state, dataToSend);
+  let data = null;
+  try {
+    const response = await fetch("/sign/edit-multi-sign", {
+      ...postRequest,
+      body: body,
+    });
+    if (response.status === 502) {
+      // Backend side worker timeout,
+      throw new Error("502 when trying to send invitations");
+    }
+    data = await checkStatus(response);
+    extractCsrfToken(thunkAPI.dispatch, data);
+  } catch (err) {
+    // In case of errors, inform the user, update the app state.
+    const message = intl.formatMessage({
+      defaultMessage: "Problem editing invitations to sign, please try again",
+      id: "problem-editing-invitations",
+    });
+    thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
+    return thunkAPI.rejectWithValue(null);
+  }
+  if (data.error) {
+    const message = intl.formatMessage({
+      defaultMessage: "Problem editing invitation to sign, please try again",
+      id: "problem-editing-multisign",
+    });
+    thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
+    return thunkAPI.rejectWithValue(null);
+  }
+  // If there are no errors, update the pending key in the concerned document
+  thunkAPI.dispatch(updateOwned({ key: documentKey, pending: invitees }));
+}
 
 /**
  * @public
