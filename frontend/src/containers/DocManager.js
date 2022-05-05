@@ -39,6 +39,7 @@ import { askConfirmation } from "slices/ConfirmDialog";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
 import { setActiveId, unsetActiveId } from "slices/Overlay";
+import { isNotInviting } from "slices/InviteForm";
 
 const mapStateToProps = (state) => {
   return {
@@ -85,6 +86,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
         dispatch(enablePolling());
         dispatch(unsetActiveId());
+        dispatch(isNotInviting());
       };
     },
     handleRemove: function (name) {
