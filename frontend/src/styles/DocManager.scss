@@ -53,15 +53,18 @@
         flex: none;
         width: 5rem;
       }
-
       .button-forced-preview-flex-item,
       .button-preview-flex-item,
+      .button-resend-flex-item,
       .button-remove-flex-item,
       .button-retry-flex-item,
       .button-sign-flex-item,
       .button-clear-flex-item,
       .button-dlall-flex-item,
       .button-download-flex-item,
+      .button-create-template-flex-item,
+      .button-decline-flex-item,
+      .button-skip-flex-item,
       .button-multisign-flex-item {
         flex: none;
         button {
@@ -70,6 +73,22 @@
       }
     }
   }
+}
+
+.button-forced-preview-flex-item,
+.button-preview-flex-item,
+.button-resend-flex-item,
+.button-remove-flex-item,
+.button-retry-flex-item,
+.button-sign-flex-item,
+.button-clear-flex-item,
+.button-dlall-flex-item,
+.button-download-flex-item,
+.button-create-template-flex-item,
+.button-decline-flex-item,
+.button-skip-flex-item,
+.button-multisign-flex-item {
+  margin-right: 0.5rem;
 }
 
 .doc-flex-container-sm {
@@ -93,12 +112,16 @@
 
     .button-forced-preview-flex-item,
     .button-preview-flex-item,
+    .button-resend-flex-item,
     .button-remove-flex-item,
     .button-retry-flex-item,
-    .button-dlall-flex-item,
-    .button-clear-flex-item,
     .button-sign-flex-item,
+    .button-clear-flex-item,
+    .button-dlall-flex-item,
     .button-download-flex-item,
+    .button-create-template-flex-item,
+    .button-decline-flex-item,
+    .button-skip-flex-item,
     .button-multisign-flex-item {
       flex: none;
       button {

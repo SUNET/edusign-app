@@ -52,10 +52,6 @@ const validateSendsigned = (value) => {
   return undefined;
 };
 
-const validateMakecopy = (value) => {
-  return undefined;
-};
-
 const validateNewname = (props) => {
   return (value) => {
     let error;
@@ -321,42 +317,7 @@ class InviteForm extends React.Component {
     );
     const makecopyControl = (props) => {
       if (!props.isTemplate) {
-        return (
-          <div className="makecopy-choice-holder">
-            <BForm.Group className="makecopy-choice-group">
-              <ESTooltip
-                helpId="makecopy-choice-field"
-                inModal={true}
-                tooltip={
-                  <FormattedMessage
-                    defaultMessage="Keep your original document as a template and creates a copy to invite others to sign."
-                    key="makecopy-choice-help"
-                  />
-                }
-              >
-                <BForm.Label
-                  className="makecopy-choice-label"
-                  htmlFor="makecopy-choice-input"
-                >
-                  <FormattedMessage
-                    defaultMessage="Create template"
-                    key="makecopy-choice-field"
-                  />
-                </BForm.Label>
-              </ESTooltip>
-              <Field
-                name="makecopyChoice"
-                id="makecopy-choice-input"
-                data-testid="makecopy-choice-input"
-                className="makecopy-choice"
-                validate={validateMakecopy}
-                type="checkbox"
-                checked={props.make_copy}
-                onChange={props.handleMakeCopyToggle}
-              />
-            </BForm.Group>
-          </div>
-        );
+        return <Field name="makecopyChoice" value={false} type="hidden" />;
       } else {
         return <Field name="makecopyChoice" value={true} type="hidden" />;
       }

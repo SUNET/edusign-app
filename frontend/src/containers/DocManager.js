@@ -29,6 +29,7 @@ import {
 } from "slices/Documents";
 import {
   removeTemplate,
+  createTemplate,
   showTemplatePreview,
   hideTemplatePreview,
 } from "slices/Templates";
@@ -38,6 +39,7 @@ import { askConfirmation } from "slices/ConfirmDialog";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
 import { setActiveId, unsetActiveId } from "slices/Overlay";
+import { isNotInviting } from "slices/InviteForm";
 
 const mapStateToProps = (state) => {
   return {
@@ -74,6 +76,17 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(setActiveId("dummy-help-id"));
         await dispatch(showTemplatePreview(key));
         dispatch(unsetSpinning());
+      };
+    },
+    handleCreateTemplate: function (key) {
+      return async () => {
+        dispatch(disablePolling());
+        dispatch(setActiveId("dummy-help-id"));
+        await dispatch(createTemplate({documentKey: key}));
+        dispatch(unsetSpinning());
+        dispatch(enablePolling());
+        dispatch(unsetActiveId());
+        dispatch(isNotInviting());
       };
     },
     handleRemove: function (name) {

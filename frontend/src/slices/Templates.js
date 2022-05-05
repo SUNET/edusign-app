@@ -5,6 +5,10 @@
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { dbRemoveDocument } from "init-app/database";
+import {
+  rmDocument,
+  saveTemplate,
+} from "slices/Documents";
 
 /**
  * @public
@@ -22,6 +26,35 @@ export const removeTemplate = createAsyncThunk(
       await dbRemoveDocument(doc);
     }
     return doc;
+  }
+);
+
+/**
+ * @public
+ * @function createTemplate
+ * @desc Redux async thunk to create a template
+ */
+export const createTemplate = createAsyncThunk(
+  "template/createTemplate",
+  async (args, thunkAPI) => {
+
+    const state = thunkAPI.getState();
+    const documentKey = args.documentKey;
+
+    const doc = state.documents.documents.filter((doc) => {
+      return doc.key === documentKey;
+    })[0];
+
+    thunkAPI.dispatch(rmDocument(doc.name));
+    if (doc.id !== undefined) {
+      await dbRemoveDocument(doc);
+    }
+    const newTemplate = {
+      ...doc,
+      state: "loaded",
+      isTemplate: true,
+    };
+    await saveTemplate(thunkAPI, newTemplate);
   }
 );
 
