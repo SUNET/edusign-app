@@ -78,7 +78,7 @@
   "components.widgets.clear-docs-tootip": "Discard all documents in the \"Personal documents\" list above",
   "components.widgets.clear-session-button": "Clear Personal Documents List",
   "components.widgets.create-template-button": "Create template",
-  "components.widgets.create-template-button-tootip": "Create a template from of this document",
+  "components.widgets.create-template-button-tootip": "Create a template from this document",
   "components.widgets.decline-sign-button": "Decline Signature",
   "components.widgets.delegate-sign-button": "Delegate",
   "components.widgets.dlall-selected-button": "Download All Signed",
