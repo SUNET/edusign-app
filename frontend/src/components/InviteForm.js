@@ -476,7 +476,7 @@ class InviteForm extends React.Component {
                   >
                     <Button
                       variant="outline-secondary"
-                      onClick={this.props.handleClose}
+                      onClick={this.props.handleCloseResetting(fprops.resetForm)}
                     >
                       <FormattedMessage
                         defaultMessage="Cancel"
