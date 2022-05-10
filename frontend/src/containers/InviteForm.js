@@ -44,6 +44,15 @@ const mapStateToProps = (state, props) => {
   };
 };
 
+const _close = (dispatch) => {
+  dispatch(unsetSpinning());
+  dispatch(enablePolling());
+  dispatch(hideForm());
+  dispatch(unsetActiveId());
+  dispatch(dontMakeCopy());
+  dispatch(isNotInviting());
+}
+
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: async function (values, actions) {
@@ -56,12 +65,13 @@ const mapDispatchToProps = (dispatch, props) => {
       dispatch(isNotInviting());
     },
     handleClose: function () {
-      dispatch(unsetSpinning());
-      dispatch(enablePolling());
-      dispatch(hideForm());
-      dispatch(unsetActiveId());
-      dispatch(dontMakeCopy());
-      dispatch(isNotInviting());
+      _close(dispatch);
+    },
+    handleCloseResetting: function (resetForm) {
+      return () => {
+        _close(dispatch);
+        resetForm();
+      }
     },
     handleToggleLoa: function () {
       dispatch(toggleLoa());
