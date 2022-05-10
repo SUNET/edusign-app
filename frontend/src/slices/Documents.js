@@ -1060,7 +1060,15 @@ export const downloadSigned = createAsyncThunk(
     })[0];
     const b64content = doc.signedContent.split(",")[1];
     const blob = b64toBlob(b64content);
-    const newName = doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
+    let newName;
+    if (doc.name.endsWith(".pdf")) {
+      newName = doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
+    } else if (doc.name.includes(".")) {
+      const nameParts = doc.name.split(".");
+      newName = nameParts.slice(0, -1).join(".") + "-signed." + nameParts[nameParts.length - 1];
+    } else {
+      newName = doc.name + '-signed';
+    }
     FileSaver.saveAs(blob, newName);
   }
 );
