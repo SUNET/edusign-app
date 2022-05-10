@@ -74,7 +74,7 @@ class DocumentOwned extends Component {
   }
   render() {
     const doc = this.props.doc;
-    const pending = (
+    const pending = (doc.pending.length > 0) && (
       <>
         <div
           className="doc-container-pending-row"
@@ -98,7 +98,7 @@ class DocumentOwned extends Component {
         </div>
         <InviteEditFormContainer docKey={doc.key} />
       </>
-    );
+    ) || "";
     const signed = (
       <div className="doc-container-signed-row">
         <span className="signed-invites-label">
