@@ -74,13 +74,12 @@ class DocumentOwned extends Component {
   }
   render() {
     const doc = this.props.doc;
-    const pending = (doc.pending.length > 0) && (
+    const pending = (doc.state === "incomplete") && (
       <>
         <div
           className="doc-container-pending-row"
-          onClick={this.props.openEditInvitationForm(doc)}
         >
-          <span className="pending-invites-label with-pending-invites">
+          <span className="pending-invites-label">
             <FormattedMessage
               defaultMessage="Waiting for signatures by:"
               key="multisign-owned-waiting"
@@ -187,6 +186,7 @@ class DocumentOwned extends Component {
                       {widgets.docName(doc)}
                       <div className="owned-container-buttons-lg">
                         <>
+                          {widgets.editInvitationButton(this.props, doc)}
                           {widgets.resendButton(this.props, doc)}
                           {widgets.previewButton(this.props, doc)}
                           {widgets.removeConfirmButton(this.props, doc)}
@@ -248,6 +248,7 @@ class DocumentOwned extends Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
+                    {widgets.editInvitationButton(this.props, doc)}
                     {widgets.resendButton(this.props, doc)}
                     {widgets.previewButton(this.props, doc)}
                     {widgets.removeConfirmButton(this.props, doc)}

@@ -67,6 +67,7 @@
       .button-download-flex-item,
       .button-decline-flex-item,
       .button-dummy-flex-item,
+      .button-edit-invitations-flex-item,
       .button-forced-preview-flex-item {
         flex: none;
       }
@@ -91,12 +92,6 @@
   margin-right: 0.5rem;
   color: $darker-dark-grey;
   font-size: 0.8rem;
-}
-.pending-invites-label.with-pending-invites {
-  &:hover {
-    cursor: pointer;
-    color: $orange;
-  }
 }
 
 .doc-container-pending-row,
