@@ -86,6 +86,37 @@ export const skipSignatureButton = (props, doc) => {
   );
 };
 
+export const editInvitationButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-edit-invitations-flex-item">
+        <ESTooltip
+          helpId={"button-edit-invitations-" + doc.key}
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Click here to edit the invitations"
+              key="owned-edit-invitations-button-help"
+            />
+          }
+        >
+          <Button
+            variant="outline-dark"
+            size="sm"
+            id={"button-edit-invitations-" + doc.key}
+            disabling={true}
+            onClick={props.openEditInvitationForm(doc)}
+          >
+            <FormattedMessage
+              defaultMessage="Edit invitations"
+              key="edit-invitations-button"
+            />
+          </Button>
+        </ESTooltip>
+      </div>
+    </>
+  );
+};
+
 export const resendButton = (props, doc) => {
   return (
     <>

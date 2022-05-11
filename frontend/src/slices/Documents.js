@@ -387,7 +387,7 @@ export const removeDocument = createAsyncThunk(
  * and when an invitation has been signed by all parties, thus being removed from
  * the backend database, and added to the local IndexedDB database.
  */
-const addDocumentToDb = async (document, name) => {
+export const addDocumentToDb = async (document, name) => {
   const db = await getDb(name);
   if (db !== null) {
     const newDoc = await new Promise((resolve, reject) => {
@@ -1458,6 +1458,7 @@ export const {
   setState,
   toggleDocSelection,
   rmDocument,
+  addDocument,
   rmDocumentByKey,
 } = documentsSlice.actions;
 
