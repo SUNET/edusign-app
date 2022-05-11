@@ -203,15 +203,14 @@ export const editInvites = createAsyncThunk(
   }
 );
 
-
 /**
  * @public
  * @function editInvitesBackToPersonal
  * @desc async function to edit an invitation to sign a document if after
-  *      the edition there are no pending invitation left,
-  *      and additionally it has not been yet signed by anyone.
-  *      The document is removed from the backend, and put back
-  *      in the personal documents list.
+ *      the edition there are no pending invitation left,
+ *      and additionally it has not been yet signed by anyone.
+ *      The document is removed from the backend, and put back
+ *      in the personal documents list.
  *
  * This is called from the editInvites async thunk
  */
@@ -261,7 +260,7 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
     // Now we add the document, first to the redux store, then to the IndexedDB database
     let newDoc = {
       ...doc,
-      state: 'loaded',
+      state: "loaded",
       blob: "data:application/pdf;base64," + contentData.payload.blob,
     };
     delete newDoc.pending;
@@ -281,16 +280,15 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
       await dbRemoveDocument(doc);
     }
   }
-}
-
+};
 
 /**
  * @public
  * @function editInvitesPending
  * @desc async function to edit an invitation to sign a document if after
-  *      the edition there are pending invitation left,
-  *      or if it has already been signed by some invitees.
-  *      In both cases the document is kept in the backend.
+ *      the edition there are pending invitation left,
+ *      or if it has already been signed by some invitees.
+ *      In both cases the document is kept in the backend.
  *
  * This is called from the editInvites async thunk
  */
@@ -335,13 +333,13 @@ const editInvitesPending = async (values, thunkAPI, intl) => {
   // If there are no errors, update the pending key in the concerned document
   const newOwned = {
     key: documentKey,
-    pending: invitees
+    pending: invitees,
   };
   if (invitees.length === 0) {
-    newOwned.state = 'loaded';
+    newOwned.state = "loaded";
   }
   thunkAPI.dispatch(updateOwned(newOwned));
-}
+};
 
 /**
  * @public

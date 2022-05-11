@@ -51,7 +51,7 @@ const _close = (dispatch) => {
   dispatch(unsetActiveId());
   dispatch(dontMakeCopy());
   dispatch(isNotInviting());
-}
+};
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
@@ -71,7 +71,7 @@ const mapDispatchToProps = (dispatch, props) => {
       return () => {
         _close(dispatch);
         resetForm();
-      }
+      };
     },
     handleToggleLoa: function () {
       dispatch(toggleLoa());

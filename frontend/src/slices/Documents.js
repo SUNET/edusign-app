@@ -1044,16 +1044,18 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
   }
 };
 
-
 const renameSigned = (name) => {
   let newName;
   if (name.endsWith(".pdf")) {
     newName = name.split(".").slice(0, -1).join(".") + "-signed.pdf";
   } else if (name.includes(".")) {
     const nameParts = name.split(".");
-    newName = nameParts.slice(0, -1).join(".") + "-signed." + nameParts[nameParts.length - 1];
+    newName =
+      nameParts.slice(0, -1).join(".") +
+      "-signed." +
+      nameParts[nameParts.length - 1];
   } else {
-    newName = name + '-signed';
+    newName = name + "-signed";
   }
   return newName;
 };

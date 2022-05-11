@@ -5,10 +5,7 @@
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { dbRemoveDocument } from "init-app/database";
-import {
-  rmDocument,
-  saveTemplate,
-} from "slices/Documents";
+import { rmDocument, saveTemplate } from "slices/Documents";
 
 /**
  * @public
@@ -37,7 +34,6 @@ export const removeTemplate = createAsyncThunk(
 export const createTemplate = createAsyncThunk(
   "template/createTemplate",
   async (args, thunkAPI) => {
-
     const state = thunkAPI.getState();
     const documentKey = args.documentKey;
 
