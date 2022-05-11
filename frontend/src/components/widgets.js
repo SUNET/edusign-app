@@ -196,7 +196,10 @@ export const createTemplateButton = (props, doc) => {
             disabling={true}
             onClick={props.handleCreateTemplate(doc.key)}
           >
-            <FormattedMessage defaultMessage="Create template" key="create-template-button" />
+            <FormattedMessage
+              defaultMessage="Create template"
+              key="create-template-button"
+            />
           </Button>
         </ESTooltip>
       </div>

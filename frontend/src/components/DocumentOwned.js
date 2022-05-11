@@ -74,30 +74,30 @@ class DocumentOwned extends Component {
   }
   render() {
     const doc = this.props.doc;
-    const pending = (doc.state === "incomplete") && (
-      <>
-        <div
-          className="doc-container-pending-row"
-        >
-          <span className="pending-invites-label">
-            <FormattedMessage
-              defaultMessage="Waiting for signatures by:"
-              key="multisign-owned-waiting"
-            />
-          </span>
-          <span className="pending-invites-items">
-            {doc.pending.map((invite, index) => {
-              return (
-                <span className="pending-invite-item" key={index}>
-                  {invite.name} &lt;{invite.email}&gt;
-                </span>
-              );
-            })}
-          </span>
-        </div>
-        <InviteEditFormContainer docKey={doc.key} />
-      </>
-    ) || "";
+    const pending =
+      (doc.state === "incomplete" && (
+        <>
+          <div className="doc-container-pending-row">
+            <span className="pending-invites-label">
+              <FormattedMessage
+                defaultMessage="Waiting for signatures by:"
+                key="multisign-owned-waiting"
+              />
+            </span>
+            <span className="pending-invites-items">
+              {doc.pending.map((invite, index) => {
+                return (
+                  <span className="pending-invite-item" key={index}>
+                    {invite.name} &lt;{invite.email}&gt;
+                  </span>
+                );
+              })}
+            </span>
+          </div>
+          <InviteEditFormContainer docKey={doc.key} />
+        </>
+      )) ||
+      "";
     const signed = (
       <div className="doc-container-signed-row">
         <span className="signed-invites-label">

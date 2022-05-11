@@ -82,7 +82,7 @@ const mapDispatchToProps = (dispatch, props) => {
       return async () => {
         dispatch(disablePolling());
         dispatch(setActiveId("dummy-help-id"));
-        await dispatch(createTemplate({documentKey: key}));
+        await dispatch(createTemplate({ documentKey: key }));
         dispatch(unsetSpinning());
         dispatch(enablePolling());
         dispatch(unsetActiveId());
