@@ -434,7 +434,6 @@ export const createDocument = createAsyncThunk(
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message: "",
           message: args.intl.formatMessage({
             defaultMessage: "A document with that name has already been loaded",
             id: "save-doc-problem-dup",

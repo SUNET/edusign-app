@@ -6,6 +6,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { dbRemoveDocument } from "init-app/database";
 import { rmDocument, saveTemplate } from "slices/Documents";
+import { addNotification } from "slices/Notifications";
 
 /**
  * @public
@@ -22,6 +23,15 @@ export const removeTemplate = createAsyncThunk(
     if (doc.id !== undefined) {
       await dbRemoveDocument(doc);
     }
+    thunkAPI.dispatch(
+      addNotification({
+        level: "success",
+        message: args.intl.formatMessage({
+          defaultMessage: "Template successfully removed",
+          id: "template-removed-globalmsg",
+        }),
+      })
+    );
     return doc;
   }
 );
@@ -51,6 +61,15 @@ export const createTemplate = createAsyncThunk(
       isTemplate: true,
     };
     await saveTemplate(thunkAPI, newTemplate);
+    thunkAPI.dispatch(
+      addNotification({
+        level: "success",
+        message: args.intl.formatMessage({
+          defaultMessage: "Template successfully created",
+          id: "template-created-globalmsg",
+        }),
+      })
+    );
   }
 );
 
