@@ -21,7 +21,7 @@ class DocumentInvited extends Component {
       }),
       loaded: this.props.intl.formatMessage({
         defaultMessage:
-          'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign Selected Documents"',
+          'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign selected documents"',
         id: "docmanager-help-loaded",
       }),
       "unconfirmed-title": this.props.intl.formatMessage({
@@ -39,7 +39,7 @@ class DocumentInvited extends Component {
       }),
       selected: this.props.intl.formatMessage({
         defaultMessage:
-          'Click on the button below labelled "Sign Selected Documents" to sign this document',
+          'Click on the button below labelled "Sign selected documents" to sign this document',
         id: "docmanager-help-selected",
       }),
       "signing-title": this.props.intl.formatMessage({
@@ -56,7 +56,7 @@ class DocumentInvited extends Component {
       }),
       "failed-signing": this.props.intl.formatMessage({
         defaultMessage:
-          'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign Selected Documents"',
+          'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign selected documents"',
         id: "docmanager-help-failed-signing",
       }),
       "signed-title": this.props.intl.formatMessage({

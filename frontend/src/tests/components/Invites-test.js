@@ -1229,7 +1229,7 @@ describe("Multi sign invitations", function () {
       expect(invite2Name.length).to.equal(1);
 
       const signButton = await waitFor(() =>
-        screen.getAllByText(/Sign Selected Documents/)
+        screen.getAllByText(/Sign selected documents/)
       );
       expect(signButton.length).to.equal(1);
     } catch (err) {
@@ -1520,7 +1520,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const signButton = await waitFor(() =>
-        screen.getAllByText(/Sign Selected Documents/)
+        screen.getAllByText(/Sign selected documents/)
       );
       expect(signButton.length).to.equal(1);
 
