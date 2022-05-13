@@ -194,7 +194,7 @@ export const createTemplateButton = (props, doc) => {
             id={"button-create-template-" + doc.key}
             size="sm"
             disabling={true}
-            onClick={props.handleCreateTemplate(doc.key)}
+            onClick={props.handleCreateTemplate(doc.key, props)}
           >
             <FormattedMessage
               defaultMessage="Create template"

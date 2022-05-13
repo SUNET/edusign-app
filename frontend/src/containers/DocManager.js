@@ -78,11 +78,11 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
       };
     },
-    handleCreateTemplate: function (key) {
+    handleCreateTemplate: function (key, props) {
       return async () => {
         dispatch(disablePolling());
         dispatch(setActiveId("dummy-help-id"));
-        await dispatch(createTemplate({ documentKey: key }));
+        await dispatch(createTemplate({ documentKey: key, intl: props.intl }));
         dispatch(unsetSpinning());
         dispatch(enablePolling());
         dispatch(unsetActiveId());
@@ -99,9 +99,9 @@ const mapDispatchToProps = (dispatch, props) => {
         await dispatch(removeDocument({ docName: name }));
       };
     },
-    handleTemplateRemove: function (docid) {
+    handleTemplateRemove: function (docid, props) {
       return async () => {
-        await dispatch(removeTemplate({ docid: docid }));
+        await dispatch(removeTemplate({ docid: docid, intl: props.intl }));
       };
     },
     handleRetry: function (doc, props) {

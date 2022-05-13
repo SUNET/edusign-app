@@ -102,7 +102,7 @@ class DocManager extends React.Component {
                             'Clicking "Confirm" will remove the template',
                           id: "header-confirm-remove-template-text",
                         })}
-                        confirm={this.props.handleTemplateRemove(doc.id)}
+                        confirm={this.props.handleTemplateRemove(doc.id, this.props)}
                       />
                       <DocPreviewContainer
                         doc={doc}
