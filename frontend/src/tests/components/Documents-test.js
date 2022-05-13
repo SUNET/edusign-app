@@ -1124,7 +1124,7 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign Selected Documents")
+      screen.getAllByText("Sign selected documents")
     );
     expect(signButton.length).to.equal(1);
 
@@ -1199,7 +1199,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign Selected Documents")
+      screen.getAllByText("Sign selected documents")
     );
     expect(signButton.length).to.equal(1);
 
@@ -1277,7 +1277,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign Selected Documents")
+      screen.getAllByText("Sign selected documents")
     );
     expect(signButton.length).to.equal(1);
 
@@ -1350,7 +1350,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign Selected Documents")
+      screen.getAllByText("Sign selected documents")
     );
     expect(signButton.length).to.equal(1);
 
@@ -1438,7 +1438,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign Selected Documents")
+      screen.getAllByText("Sign selected documents")
     );
     expect(signButton.length).to.equal(1);
 
@@ -1527,7 +1527,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign Selected Documents")
+      screen.getAllByText("Sign selected documents")
     );
     expect(signButton.length).to.equal(1);
 
@@ -1650,7 +1650,7 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign Selected Documents")
+      screen.getAllByText("Sign selected documents")
     );
     expect(signButton.length).to.equal(1);
 
