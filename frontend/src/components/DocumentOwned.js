@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESPopover } from "containers/Overlay";
 import { ESTooltip } from "containers/Overlay";
+import ESDropdown from "components/Dropdown";
+import * as menu from "components/dropdownItems";
 
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
@@ -192,6 +194,10 @@ class DocumentOwned extends Component {
                           {widgets.resendButton(this.props, doc)}
                           {widgets.previewButton(this.props, doc)}
                           {widgets.removeConfirmButton(this.props, doc)}
+                          <ESDropdown>
+                            {menu.editInvitationMenuItem(this.props, doc)}
+                            {menu.resendMenuItem(this.props, doc)}
+                          </ESDropdown>
                         </>
                       </div>
                     </>

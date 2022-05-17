@@ -1,0 +1,13 @@
+
+.dropdown-3dots-toggle {
+  width: 15px;
+  height: 25px;
+  background-image: radial-gradient(circle, #444 2px, transparent 3px);
+  background-size: 100% 33.33%;
+  margin-top: 2px;
+  cursor: pointer;
+
+  &:hover {
+    background-image: radial-gradient(circle, black 2px, transparent 4px);
+  }
+}
