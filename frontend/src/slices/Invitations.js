@@ -327,6 +327,8 @@ const editInvitesPending = async (values, thunkAPI, intl) => {
   };
   if (invitees.length === 0) {
     newOwned.state = "loaded";
+  } else {
+    newOwned.state = "incomplete";
   }
   thunkAPI.dispatch(updateOwned(newOwned));
 };

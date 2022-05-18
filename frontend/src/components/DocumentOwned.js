@@ -74,28 +74,29 @@ class DocumentOwned extends Component {
   }
   render() {
     const doc = this.props.doc;
+    const editForm =
+      (["loaded", "selected", "failed-signing", "incomplete"].includes(doc.state) && (
+        <InviteEditFormContainer docKey={doc.key} />
+      ) || "");
     const pending =
       (doc.state === "incomplete" && (
-        <>
-          <div className="doc-container-pending-row">
-            <span className="pending-invites-label">
-              <FormattedMessage
-                defaultMessage="Waiting for signatures by:"
-                key="multisign-owned-waiting"
-              />
-            </span>
-            <span className="pending-invites-items">
-              {doc.pending.map((invite, index) => {
-                return (
-                  <span className="pending-invite-item" key={index}>
-                    {invite.name} &lt;{invite.email}&gt;
-                  </span>
-                );
-              })}
-            </span>
-          </div>
-          <InviteEditFormContainer docKey={doc.key} />
-        </>
+        <div className="doc-container-pending-row">
+          <span className="pending-invites-label">
+            <FormattedMessage
+              defaultMessage="Waiting for signatures by:"
+              key="multisign-owned-waiting"
+            />
+          </span>
+          <span className="pending-invites-items">
+            {doc.pending.map((invite, index) => {
+              return (
+                <span className="pending-invite-item" key={index}>
+                  {invite.name} &lt;{invite.email}&gt;
+                </span>
+              );
+            })}
+          </span>
+        </div>
       )) ||
       "";
     const signed = (
@@ -143,6 +144,7 @@ class DocumentOwned extends Component {
         {doc.declined !== undefined && doc.declined.length > 0 && (
           <>{declined}</>
         )}
+        {editForm}
       </>
     );
     let requiredLoa = "";
@@ -204,6 +206,7 @@ class DocumentOwned extends Component {
                       {widgets.showMessage(doc)}
                       <div className="owned-container-buttons-lg">
                         <>
+                          {widgets.editInvitationButton(this.props, doc)}
                           {widgets.skipSignatureButton(this.props, doc)}
                           {widgets.previewButton(this.props, doc)}
                           {widgets.removeConfirmButton(this.props, doc)}
@@ -266,6 +269,7 @@ class DocumentOwned extends Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
+                    {widgets.editInvitationButton(this.props, doc)}
                     {widgets.skipSignatureButton(this.props, doc)}
                     {widgets.previewButton(this.props, doc)}
                     {widgets.removeConfirmButton(this.props, doc)}
