@@ -57,12 +57,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: async function (values, actions) {
       await dispatch(sendInvites({ values: values, intl: this.props.intl }));
-      dispatch(unsetSpinning());
-      dispatch(enablePolling());
-      dispatch(hideForm());
-      dispatch(unsetActiveId());
-      dispatch(dontMakeCopy());
-      dispatch(isNotInviting());
+      _close(dispatch);
     },
     handleClose: function () {
       _close(dispatch);
