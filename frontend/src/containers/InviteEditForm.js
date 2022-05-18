@@ -16,6 +16,7 @@ import { editInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { disablePolling, enablePolling } from "slices/Poll";
+import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -35,18 +36,27 @@ const mapStateToProps = (state, props) => {
   };
 };
 
+const _close = (dispatch) => {
+  dispatch(unsetSpinning());
+  dispatch(enablePolling());
+  dispatch(hideForm());
+  dispatch(unsetActiveId());
+};
+
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: async function (values) {
       await dispatch(editInvites({ values: values, intl: this.props.intl }));
-      dispatch(unsetSpinning());
-      dispatch(enablePolling());
-      dispatch(hideForm());
+      _close(dispatch);
     },
     handleClose: function () {
-      dispatch(unsetSpinning());
-      dispatch(enablePolling());
-      dispatch(hideForm());
+      _close(dispatch);
+    },
+    handleCloseResetting: function (resetForm) {
+      return () => {
+        _close(dispatch);
+        resetForm();
+      }
     },
   };
 };
