@@ -14,6 +14,9 @@ const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
       onClick(e);
     }}
   >
+    <div className="top-circle"/>
+    <div className="middle-circle"/>
+    <div className="bottom-circle"/>
     {children}
   </div>
 ));

@@ -2,12 +2,86 @@
 .dropdown-3dots-toggle {
   width: 15px;
   height: 25px;
-  background-image: radial-gradient(circle, #444 2px, transparent 3px);
-  background-size: 100% 33.33%;
   margin-top: 2px;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
+
+  .top-circle,
+  .middle-circle,
+  .bottom-circle {
+    width: 15px;
+    height: 8px;
+    background-image: radial-gradient(circle, #444 2px, transparent 3px);
+    background-size: 100% 100%;
+  }
 
   &:hover {
-    background-image: radial-gradient(circle, black 2px, transparent 4px);
+    .top-circle,
+    .middle-circle,
+    .bottom-circle {
+      background-image: radial-gradient(circle, #444 3px, transparent 4px);
+    }
+  }
+
+  &.waiting {
+    .top-circle {
+      animation-name: spin-top;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+    }
+    .middle-circle {
+      animation-name: spin-middle;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+    }
+    .bottom-circle {
+      animation-name: spin-bottom;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+    }
+  }
+}
+@keyframes spin-top {
+  from {
+    background-image: radial-gradient(circle, #444 3px, transparent 4px);
+  }
+
+  50% {
+    background-image: radial-gradient(circle, #444 2px, transparent 3px);
+  }
+
+  to {
+    background-image: radial-gradient(circle, #444 2px, transparent 3px);
+  }
+}
+@keyframes spin-middle {
+  from {
+    background-image: radial-gradient(circle, #444 2px, transparent 3px);
+  }
+
+  50% {
+    background-image: radial-gradient(circle, #444 3px, transparent 4px);
+  }
+
+  75% {
+    background-image: radial-gradient(circle, #444 2px, transparent 3px);
+  }
+
+  to {
+    background-image: radial-gradient(circle, #444 2px, transparent 3px);
+  }
+}
+@keyframes spin-bottom {
+  from {
+    background-image: radial-gradient(circle, #444 2px, transparent 3px);
+  }
+
+  75% {
+    background-image: radial-gradient(circle, #444 3px, transparent 4px);
+  }
+
+  to {
+    background-image: radial-gradient(circle, #444 2px, transparent 3px);
   }
 }
