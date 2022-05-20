@@ -308,7 +308,6 @@ async function validateDoc(doc, intl, state) {
   });
 
   if (doc.state === "dup") {
-    console.log("ddddddddddddddddddddddd", doc);
     return doc;
   }
 
