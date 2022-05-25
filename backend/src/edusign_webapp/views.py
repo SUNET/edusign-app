@@ -91,7 +91,7 @@ def cleanup():
     removed = 0
     for key in keys:
         try:
-            current_app.doc_store.remove(key, force=True)
+            current_app.doc_store.remove_document(key, force=True)
             removed += 1
         except Exception as e:
             current_app.logger.error(f'Problem removing old document {key}: {e}')
