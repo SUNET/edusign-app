@@ -5,7 +5,6 @@ import { setSpinning, unsetSpinning } from "slices/Button";
 
 const mapStateToProps = (state) => {
   return {
-    disable: state.button.spinning,
   };
 };
 
@@ -13,7 +12,7 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     doHandleClick: async function () {
       if (this.props.disabling) {
-        dispatch(setSpinning(this.props.id));
+        dispatch(setSpinning(this.props.parentid));
       }
       const promise = this.props.onClick();
       if (promise !== undefined) {

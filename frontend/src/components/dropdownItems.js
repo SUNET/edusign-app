@@ -5,8 +5,9 @@ import ESDropdownItem from "containers/DropdownItem";
 
 export const createTemplateMenuItem = (props, doc) => (
   <ESDropdownItem
+    doc={doc}
     onClick={props.handleCreateTemplate(doc.key, props)}
-    id={"menu-item-skipping-" + doc.key}
+    id={"menu-item-create-template-" + doc.key}
   >
     <FormattedMessage
       defaultMessage="Create template"
@@ -17,6 +18,7 @@ export const createTemplateMenuItem = (props, doc) => (
 
 export const skipSignatureMenuItem = (props, doc) => (
   <ESDropdownItem
+    doc={doc}
     id={"menu-item-skipping-" + doc.key}
     disabling={true}
     onClick={props.handleSkipSigning(doc, props)}
@@ -30,6 +32,7 @@ export const skipSignatureMenuItem = (props, doc) => (
 
 export const editInvitationMenuItem = (props, doc) => (
   <ESDropdownItem
+    doc={doc}
     id={"menu-item-edit-invitations-" + doc.key}
     disabling={true}
     onClick={props.openEditInvitationForm(doc)}
@@ -43,6 +46,7 @@ export const editInvitationMenuItem = (props, doc) => (
 
 export const resendMenuItem = (props, doc) => (
   <ESDropdownItem
+    doc={doc}
     id={"menu-item-open-resend-" + doc.name}
     disabling={true}
     onClick={props.handleResend(doc)}

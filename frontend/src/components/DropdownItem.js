@@ -8,13 +8,12 @@ import Dropdown from "react-bootstrap/Dropdown";
  */
 class ESDropdownItem extends Component {
   render() {
-    const { doHandleClick, disabling, disabled, disable, onClick, ...props } =
+    const { doHandleClick, disabling, onClick, ...props } =
       this.props;
-    const isDisabled = disabled || disable !== "";
     return (
       <Dropdown.Item
         data-testid={props.id}
-        disabled={isDisabled}
+        parentid={"dropdown-" + props.doc.key || props.doc.name}
         onClick={doHandleClick.bind(this)}
         {...props}
       >
@@ -26,15 +25,13 @@ class ESDropdownItem extends Component {
 
 ESDropdownItem.propTypes = {
   id: PropTypes.string,
+  parentId: PropTypes.string,
   disabling: PropTypes.bool,
-  disabled: PropTypes.bool,
-  spinning: PropTypes.string,
   onClick: PropTypes.func,
 };
 
 ESDropdownItem.defaultProps = {
   disabling: false,
-  disabled: false,
   onClick: async () => {},
 };
 
