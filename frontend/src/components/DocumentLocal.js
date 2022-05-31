@@ -195,7 +195,7 @@ class DocumentLocal extends React.Component {
                       {widgets.multiSignButton(this.props, doc)}
                       {widgets.previewButton(this.props, doc)}
                       {widgets.removeButton(this.props, doc)}
-                      <ESDropdown>
+                      <ESDropdown doc={doc}>
                         {menu.createTemplateMenuItem(this.props, doc)}
                       </ESDropdown>
                     </div>

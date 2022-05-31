@@ -1,24 +1,31 @@
 import React from "react";
-import { injectIntl } from "react-intl";
+import { injectIntl, FormattedMessage } from "react-intl";
 import Dropdown from "react-bootstrap/Dropdown";
+import Button from "containers/Button";
+import { ESTooltip } from "containers/Overlay";
 
 import "styles/Dropdown.scss";
 
 
-const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
-  <div
-    className="dropdown-3dots-toggle"
+const CustomToggle = React.forwardRef(({ children, onClick, doc }, ref) => (
+      <Button
+  as="a"
     ref={ref}
-    onClick={(e) => {
-      e.preventDefault();
-      onClick(e);
-    }}
-  >
-    <div className="top-circle"/>
-    <div className="middle-circle"/>
-    <div className="bottom-circle"/>
+        variant="outline-dark"
+        size="sm"
+        id={"button-more-options-" + doc.key}
+        disabling={true}
+        onClick={(e) => {
+          e.preventDefault();
+          onClick(e);
+        }}
+      >
+        <FormattedMessage
+          defaultMessage="More options"
+          key="more-options-button"
+        />
     {children}
-  </div>
+      </Button>
 ));
 
 const CustomMenu = React.forwardRef(
@@ -42,10 +49,20 @@ class ESDropdown extends React.Component {
   render() {
     return (
       <Dropdown>
-        <Dropdown.Toggle as={CustomToggle}>
+        <ESTooltip
+          helpId={"doc-more-options-" + this.props.doc.name}
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Click here for a dropdown with more options"
+              key="more-options-tootip"
+            />
+          }
+        >
+        <Dropdown.Toggle doc={this.props.doc} as={CustomToggle}>
         </Dropdown.Toggle>
+    </ESTooltip>
 
-        <Dropdown.Menu align="right" as={CustomMenu}>
+        <Dropdown.Menu doc={this.props.doc} align="right" as={CustomMenu}>
           {this.props.children}
         </Dropdown.Menu>
       </Dropdown>

@@ -194,7 +194,7 @@ class DocumentOwned extends Component {
                           {widgets.resendButton(this.props, doc)}
                           {widgets.previewButton(this.props, doc)}
                           {widgets.removeConfirmButton(this.props, doc)}
-                          <ESDropdown>
+                          <ESDropdown doc={doc}>
                             {menu.editInvitationMenuItem(this.props, doc)}
                             {menu.resendMenuItem(this.props, doc)}
                           </ESDropdown>
