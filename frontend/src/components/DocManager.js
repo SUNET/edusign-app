@@ -200,7 +200,7 @@ class DocManager extends React.Component {
                           }
                         />
                       )}
-                      {["loaded", "selected", "failed-signing"].includes(
+                      {["loaded", "selected", "failed-signing", "signed"].includes(
                         doc.state
                       ) && (
                         <DocPreviewContainer
