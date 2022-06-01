@@ -20,9 +20,9 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 export const addNotification = createAsyncThunk(
   "main/addNotification",
   async (arg, thunkAPI) => {
-    // window.setTimeout(() => {
-    //   thunkAPI.dispatch(notificationsSlice.actions.rmNotification());
-    // }, 4000);
+    window.setTimeout(() => {
+      thunkAPI.dispatch(notificationsSlice.actions.rmNotification());
+    }, 5000);
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     return arg;
   }
