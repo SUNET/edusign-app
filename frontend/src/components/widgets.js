@@ -55,185 +55,6 @@ export const dummySelectDoc = () => {
   );
 };
 
-export const skipSignatureButton = (props, doc) => {
-  return (
-    <>
-      <div className="button-skip-flex-item">
-        <ESTooltip
-          helpId={"button-skipping-" + doc.key}
-          tooltip={
-            <FormattedMessage
-              defaultMessage="All requested users have answered your invitation to sign the document, click here to skip adding your final signature"
-              key="owned-skip-button-help"
-            />
-          }
-        >
-          <Button
-            variant="outline-dark"
-            size="sm"
-            id={"button-skipping-" + doc.key}
-            disabling={true}
-            onClick={props.handleSkipSigning(doc, props)}
-          >
-            <FormattedMessage
-              defaultMessage="Skip Signature"
-              key="skip-sign-button"
-            />
-          </Button>
-        </ESTooltip>
-      </div>
-    </>
-  );
-};
-
-export const editInvitationButton = (props, doc) => {
-  return (
-    <>
-      <div className="button-edit-invitations-flex-item">
-        <ESTooltip
-          helpId={"button-edit-invitations-" + doc.key}
-          tooltip={
-            <FormattedMessage
-              defaultMessage="Click here to edit the invitations"
-              key="owned-edit-invitations-button-help"
-            />
-          }
-        >
-          <Button
-            variant="outline-dark"
-            size="sm"
-            id={"button-edit-invitations-" + doc.key}
-            disabling={true}
-            onClick={props.openEditInvitationForm(doc)}
-          >
-            <FormattedMessage
-              defaultMessage="Edit invitations"
-              key="edit-invitations-button"
-            />
-          </Button>
-        </ESTooltip>
-      </div>
-    </>
-  );
-};
-
-export const resendButton = (props, doc) => {
-  return (
-    <>
-      <div className="button-resend-flex-item">
-        <ESTooltip
-          helpId={"button-open-resend-" + doc.name}
-          tooltip={
-            <FormattedMessage
-              defaultMessage="Click here to re-send an invitation email to all pending users"
-              key="owned-resend-button-help"
-            />
-          }
-        >
-          <Button
-            variant="outline-dark"
-            size="sm"
-            id={"button-open-resend-" + doc.name}
-            data-testid={"button-open-resend-" + doc.name}
-            onClick={props.handleResend(doc)}
-          >
-            <FormattedMessage
-              defaultMessage="Resend invitations"
-              key="resend-invitations-button"
-            />
-          </Button>
-        </ESTooltip>
-      </div>
-    </>
-  );
-};
-
-export const previewButton = (props, doc) => {
-  return (
-    <>
-      <div className="button-preview-flex-item">
-        <ESTooltip
-          helpId={"button-preview-" + doc.key}
-          tooltip={
-            <FormattedMessage
-              defaultMessage="Display a preview of the document"
-              key="preview-button-tootip"
-            />
-          }
-        >
-          <Button
-            variant="outline-dark"
-            id={"button-preview-" + doc.key}
-            size="sm"
-            disabling={true}
-            onClick={props.handlePreview(doc.key)}
-          >
-            <FormattedMessage defaultMessage="Preview" key="preview-button" />
-          </Button>
-        </ESTooltip>
-      </div>
-    </>
-  );
-};
-
-export const createTemplateButton = (props, doc) => {
-  return (
-    <>
-      <div className="button-create-template-flex-item">
-        <ESTooltip
-          helpId={"button-create-template-" + doc.key}
-          tooltip={
-            <FormattedMessage
-              defaultMessage="Create a template out of this document"
-              key="create-template-button-tootip"
-            />
-          }
-        >
-          <Button
-            variant="outline-dark"
-            id={"button-create-template-" + doc.key}
-            size="sm"
-            disabling={true}
-            onClick={props.handleCreateTemplate(doc.key, props)}
-          >
-            <FormattedMessage
-              defaultMessage="Create template"
-              key="create-template-button"
-            />
-          </Button>
-        </ESTooltip>
-      </div>
-    </>
-  );
-};
-
-export const previewTemplateButton = (props, doc) => {
-  return (
-    <>
-      <div className="button-preview-flex-item">
-        <ESTooltip
-          helpId={"button-preview-" + doc.key}
-          tooltip={
-            <FormattedMessage
-              defaultMessage="Display a preview of the document"
-              key="preview-button-tootip"
-            />
-          }
-        >
-          <Button
-            variant="outline-dark"
-            id={"button-preview-" + doc.key}
-            size="sm"
-            disabling={true}
-            onClick={props.handleTemplatePreview(doc.key)}
-          >
-            <FormattedMessage defaultMessage="Preview" key="preview-button" />
-          </Button>
-        </ESTooltip>
-      </div>
-    </>
-  );
-};
 export const forcedPreviewButton = (props, doc) => {
   return (
     <>
@@ -379,6 +200,37 @@ export const downloadSignedButton = (props, doc) => {
     </>
   );
 };
+
+export const downloadDraftButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-download-flex-item">
+        <ESTooltip
+          helpId={"button-download-draft-" + doc.key}
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Download partially signed document. Be sure to save the original rather than a copy."
+              key="button-download-partial-tootip"
+            />
+          }
+        >
+          <Button
+            variant="outline-success"
+            size="sm"
+            id={"button-download-draft-" + doc.key}
+            disabling={true}
+            onClick={props.handleDlSigned(doc.name)}
+          >
+            <FormattedMessage
+              defaultMessage="Download (draft)"
+              key="dldraft-button"
+            />
+          </Button>
+        </ESTooltip>
+      </div>
+    </>
+  );
+};
 export const retryButton = (props, doc) => {
   return (
     <>
@@ -406,46 +258,43 @@ export const retryButton = (props, doc) => {
     </>
   );
 };
-export const multiSignButton = (props, doc) => {
-  if (
-    !["Yes", "yes", "True", "true", "T", "t"].includes(props.multisign_buttons)
-  ) {
-    return "";
-  }
-  return (
-    <>
-      <div className="button-multisign-flex-item">
-        <ESTooltip
-          helpId={"button-multisign-" + doc.key}
-          tooltip={
-            <FormattedMessage
-              defaultMessage="Invite other users to sign the document. After all invitees sign, you'll be offered the chance to add a final signature."
-              key="button-multisign-tootip"
-            />
-          }
-        >
-          <Button
-            variant="outline-dark"
-            data-testid={"button-multisign-" + doc.name}
-            size="sm"
-            onClick={props.openInviteForm(doc)}
-            data-docid={doc.id}
-          >
-            <FormattedMessage
-              defaultMessage="Invite others to sign"
-              key="multisign-button"
-            />
-          </Button>
-        </ESTooltip>
-      </div>
-    </>
-  );
-};
+
 export const showMessage = (doc) => {
   return (
     <>
       <div className="message-flex-item">
         <span alt={doc.message}>{doc.message}</span>
+      </div>
+    </>
+  );
+};
+
+export const skipSignatureButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-skip-flex-item">
+        <ESTooltip
+          helpId={"button-skipping-" + doc.key}
+          tooltip={
+            <FormattedMessage
+              defaultMessage="All requested users have answered your invitation to sign the document, click here to skip adding your final signature"
+              key="owned-skip-button-help"
+            />
+          }
+        >
+          <Button
+            variant="outline-dark"
+            size="sm"
+            id={"button-skipping-" + doc.key}
+            disabling={true}
+            onClick={props.handleSkipSigning(doc, props)}
+          >
+            <FormattedMessage
+              defaultMessage="Skip Signature"
+              key="skip-sign-button"
+            />
+          </Button>
+        </ESTooltip>
       </div>
     </>
   );

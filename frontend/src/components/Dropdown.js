@@ -11,7 +11,10 @@ class ESDropdown extends React.Component {
   render() {
     return (
       <DropdownButton
-        title="More Options"
+        title={this.props.intl.formatMessage({
+          defaultMessage: "Other options",
+          id: "dropdown-title",
+        })}
         variant="outline-dark"
         size="sm"
         menuAlign="right"

@@ -2,6 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESPopover } from "containers/Overlay";
+import ESDropdown from "components/Dropdown";
+import * as menu from "components/dropdownItems";
 
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
@@ -64,9 +66,11 @@ class DocumentTemplate extends React.Component {
                 {widgets.docSize(doc)}
                 {widgets.docName(doc)}
                 <div className="doc-manager-buttons">
-                  {widgets.multiSignButton(this.props, doc)}
-                  {widgets.previewTemplateButton(this.props, doc)}
                   {widgets.removeTemplate(this.props, doc)}
+                  <ESDropdown doc={doc}>
+                    {menu.multiSignMenuItem(this.props, doc)}
+                    {menu.previewTemplateMenuItem(this.props, doc)}
+                  </ESDropdown>
                 </div>
               </div>
               {signed}
@@ -82,9 +86,11 @@ class DocumentTemplate extends React.Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.multiSignButton(this.props, doc)}
-                    {widgets.previewTemplateButton(this.props, doc)}
                     {widgets.removeButton(this.props, doc)}
+                    <ESDropdown doc={doc}>
+                      {menu.multiSignMenuItem(this.props, doc)}
+                      {menu.previewTemplateMenuItem(this.props, doc)}
+                    </ESDropdown>
                   </div>
                 </>
               )}

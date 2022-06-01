@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESPopover } from "containers/Overlay";
 import { ESTooltip } from "containers/Overlay";
+import ESDropdown from "components/Dropdown";
+import * as menu from "components/dropdownItems";
 
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
@@ -210,8 +212,10 @@ class DocumentInvited extends Component {
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
                       {widgets.showMessage(doc)}
-                      {widgets.previewButton(this.props, doc)}
                       {widgets.declineSignatureButton(this.props, doc)}
+                      <ESDropdown doc={doc}>
+                        {menu.previewMenuItem(this.props, doc)}
+                      </ESDropdown>
                     </>
                   )}
                   {doc.state === "signing" && (
@@ -227,7 +231,7 @@ class DocumentInvited extends Component {
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
-                      {widgets.downloadSignedButton(this.props, doc)}
+                      {widgets.downloadDraftButton(this.props, doc)}
                     </>
                   )}
                   {doc.state === "declined" && (
@@ -271,8 +275,10 @@ class DocumentInvited extends Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.previewButton(this.props, doc)}
                     {widgets.declineSignatureButton(this.props, doc)}
+                    <ESDropdown doc={doc}>
+                      {menu.previewMenuItem(this.props, doc)}
+                    </ESDropdown>
                   </div>
                 </>
               )}
@@ -296,7 +302,7 @@ class DocumentInvited extends Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.downloadSignedButton(this.props, doc)}
+                    {widgets.downloadDraftButton(this.props, doc)}
                   </div>
                 </>
               )}

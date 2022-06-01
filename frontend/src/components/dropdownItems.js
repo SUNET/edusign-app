@@ -16,20 +16,6 @@ export const createTemplateMenuItem = (props, doc) => (
   </ESDropdownItem>
 );
 
-export const skipSignatureMenuItem = (props, doc) => (
-  <ESDropdownItem
-    doc={doc}
-    id={"menu-item-skipping-" + doc.key}
-    disabling={true}
-    onClick={props.handleSkipSigning(doc, props)}
-  >
-    <FormattedMessage
-      defaultMessage="Skip Signature"
-      key="skip-sign-menu-item"
-    />
-  </ESDropdownItem>
-);
-
 export const editInvitationMenuItem = (props, doc) => (
   <ESDropdownItem
     doc={doc}
@@ -54,6 +40,42 @@ export const resendMenuItem = (props, doc) => (
     <FormattedMessage
       defaultMessage="Resend invitations"
       key="resend-invitations-button"
+    />
+  </ESDropdownItem>
+);
+
+export const previewMenuItem = (props, doc) => (
+  <ESDropdownItem
+    doc={doc}
+    id={"menu-item-preview-" + doc.name}
+    disabling={true}
+    onClick={props.handlePreview(doc.key)}
+  >
+    <FormattedMessage defaultMessage="Preview" key="preview-button" />
+  </ESDropdownItem>
+);
+
+export const previewTemplateMenuItem = (props, doc) => (
+  <ESDropdownItem
+    doc={doc}
+    id={"menu-item-preview-" + doc.name}
+    disabling={true}
+    onClick={props.handleTemplatePreview(doc.key)}
+  >
+    <FormattedMessage defaultMessage="Preview" key="preview-button" />
+  </ESDropdownItem>
+);
+
+export const multiSignMenuItem = (props, doc) => (
+  <ESDropdownItem
+    doc={doc}
+    id={"menu-item-multisign-" + doc.name}
+    disabling={true}
+    onClick={props.openInviteForm(doc)}
+  >
+    <FormattedMessage
+      defaultMessage="Invite others to sign"
+      key="multisign-button"
     />
   </ESDropdownItem>
 );

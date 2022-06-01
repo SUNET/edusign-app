@@ -170,6 +170,11 @@ class DocManager extends React.Component {
                             })}
                             confirm={this.props.handleSignedRemove(doc.name)}
                           />
+                          <DocPreviewContainer
+                            doc={doc}
+                            docFile={docFile}
+                            handleClose={this.props.handleClosePreview}
+                          />
                         </>
                       );
                     } else {

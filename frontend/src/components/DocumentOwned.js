@@ -190,13 +190,11 @@ class DocumentOwned extends Component {
                       {widgets.docName(doc)}
                       <div className="owned-container-buttons-lg">
                         <>
-                          {widgets.editInvitationButton(this.props, doc)}
-                          {widgets.resendButton(this.props, doc)}
-                          {widgets.previewButton(this.props, doc)}
                           {widgets.removeConfirmButton(this.props, doc)}
                           <ESDropdown doc={doc}>
                             {menu.editInvitationMenuItem(this.props, doc)}
                             {menu.resendMenuItem(this.props, doc)}
+                            {menu.previewMenuItem(this.props, doc)}
                           </ESDropdown>
                         </>
                       </div>
@@ -212,10 +210,12 @@ class DocumentOwned extends Component {
                       {widgets.showMessage(doc)}
                       <div className="owned-container-buttons-lg">
                         <>
-                          {widgets.editInvitationButton(this.props, doc)}
                           {widgets.skipSignatureButton(this.props, doc)}
-                          {widgets.previewButton(this.props, doc)}
                           {widgets.removeConfirmButton(this.props, doc)}
+                          <ESDropdown doc={doc}>
+                            {menu.editInvitationMenuItem(this.props, doc)}
+                            {menu.previewMenuItem(this.props, doc)}
+                          </ESDropdown>
                         </>
                       </div>
                     </>
@@ -239,6 +239,10 @@ class DocumentOwned extends Component {
                         doc,
                         "confirm-remove-signed-owned-" + doc.name
                       )}
+                      <ESDropdown doc={doc}>
+                        {menu.multiSignMenuItem(this.props, doc)}
+                        {menu.previewMenuItem(this.props, doc)}
+                      </ESDropdown>
                     </>
                   )}
                 </div>
@@ -257,10 +261,12 @@ class DocumentOwned extends Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.editInvitationButton(this.props, doc)}
-                    {widgets.resendButton(this.props, doc)}
-                    {widgets.previewButton(this.props, doc)}
                     {widgets.removeConfirmButton(this.props, doc)}
+                    <ESDropdown doc={doc}>
+                      {menu.editInvitationMenuItem(this.props, doc)}
+                      {menu.resendMenuItem(this.props, doc)}
+                      {menu.previewMenuItem(this.props, doc)}
+                    </ESDropdown>
                   </div>
                 </>
               )}
@@ -275,10 +281,12 @@ class DocumentOwned extends Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.editInvitationButton(this.props, doc)}
                     {widgets.skipSignatureButton(this.props, doc)}
-                    {widgets.previewButton(this.props, doc)}
                     {widgets.removeConfirmButton(this.props, doc)}
+                    <ESDropdown doc={doc}>
+                      {menu.editInvitationMenuItem(this.props, doc)}
+                      {menu.previewMenuItem(this.props, doc)}
+                    </ESDropdown>
                   </div>
                 </>
               )}
