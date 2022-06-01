@@ -76,7 +76,7 @@ export const forcedPreviewButton = (props, doc) => {
             onClick={props.handleForcedPreview(doc.key)}
           >
             <FormattedMessage
-              defaultMessage="Preview and approve for signature"
+              defaultMessage="Preview and approve"
               key="forced-preview-button"
             />
           </Button>

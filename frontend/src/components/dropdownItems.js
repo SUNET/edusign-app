@@ -38,7 +38,7 @@ export const resendMenuItem = (props, doc) => (
     onClick={props.handleResend(doc)}
   >
     <FormattedMessage
-      defaultMessage="Resend invitations"
+      defaultMessage="Send reminder"
       key="resend-invitations-button"
     />
   </ESDropdownItem>
