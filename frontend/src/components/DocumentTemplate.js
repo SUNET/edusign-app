@@ -86,7 +86,7 @@ class DocumentTemplate extends React.Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.removeButton(this.props, doc)}
+                    {widgets.removeTemplate(this.props, doc)}
                     <ESDropdown doc={doc}>
                       {menu.multiSignMenuItem(this.props, doc)}
                       {menu.previewTemplateMenuItem(this.props, doc)}
