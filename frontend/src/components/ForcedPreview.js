@@ -184,7 +184,7 @@ function ForcedPreview(props) {
                 disabled={!readyToConfirm}
                 onClick={props.handleConfirm(props.doc.name)}
                 style={(!readyToConfirm && { pointerEvents: "none" }) || {}}
-                variant="outline-secondary"
+                variant="outline-success"
                 id={"preview-button-confirm-" + props.index}
               >
                 <FormattedMessage
