@@ -188,7 +188,7 @@ export const downloadSignedButton = (props, doc) => {
             size="sm"
             id={"button-download-signed-" + doc.key}
             disabling={true}
-            onClick={props.handleDlSigned(doc.name)}
+            onClick={props.handleDlSigned({docName: doc.name, intl: props.intl})}
           >
             <FormattedMessage
               defaultMessage="Download (signed)"
@@ -219,7 +219,7 @@ export const downloadDraftButton = (props, doc) => {
             size="sm"
             id={"button-download-draft-" + doc.key}
             disabling={true}
-            onClick={props.handleDlSigned(doc.name)}
+            onClick={props.handleDlSigned({docName: doc.name, intl: props.intl})}
           >
             <FormattedMessage
               defaultMessage="Download (draft)"

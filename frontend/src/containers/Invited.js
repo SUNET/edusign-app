@@ -53,6 +53,8 @@ const mapDispatchToProps = (dispatch, props) => {
             key: docKey,
             stateKey: "pending_multisign",
             intl: props.intl,
+            showForced: false,
+            show: true,
           })
         );
         dispatch(unsetSpinning());
@@ -76,6 +78,7 @@ const mapDispatchToProps = (dispatch, props) => {
             stateKey: "pending_multisign",
             intl: props.intl,
             showForced: true,
+            show: false,
           })
         );
         dispatch(unsetSpinning());
@@ -123,9 +126,9 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
       };
     },
-    handleDlSigned: function (name) {
+    handleDlSigned: function (args) {
       return async () => {
-        await dispatch(downloadInvitedSigned(name));
+        await dispatch(downloadInvitedSigned(args));
         dispatch(unsetSpinning());
       };
     },

@@ -79,6 +79,8 @@ const mapDispatchToProps = (dispatch, props) => {
             key: docKey,
             stateKey: "owned_multisign",
             intl: props.intl,
+            show: true,
+            showForced: false,
           })
         );
         dispatch(unsetSpinning());

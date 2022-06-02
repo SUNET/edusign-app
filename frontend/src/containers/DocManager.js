@@ -124,9 +124,9 @@ const mapDispatchToProps = (dispatch, props) => {
     handleDownloadAll: async function () {
       await dispatch(downloadAllSigned({ intl: this.props.intl }));
     },
-    handleDlSigned: function (name) {
+    handleDlSigned: function (args) {
       return async () => {
-        await dispatch(downloadSigned(name));
+        await dispatch(downloadSigned(args.docName));
         dispatch(unsetSpinning());
       };
     },

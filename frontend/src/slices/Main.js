@@ -124,11 +124,8 @@ export const getPartiallySignedDoc = createAsyncThunk(
       }
       data.key = args.key;
       data.stateKey = args.stateKey;
-      if (args.hasOwnProperty("showForced")) {
-        data.payload.showForced = true;
-      } else {
-        data.payload.show = true;
-      }
+      data.payload.showForced = args.showForced;
+      data.payload.show = args.show;
       return data;
     } catch (err) {
       thunkAPI.dispatch(
@@ -193,12 +190,21 @@ export const declineSigning = createAsyncThunk(
  */
 export const downloadInvitedSigned = createAsyncThunk(
   "main/downloadInvitedSigned",
-  async (docname, thunkAPI) => {
+  async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     const doc = state.main.pending_multisign.filter((d) => {
-      return d.name === docname;
+      return d.name === args.docName;
     })[0];
-    const b64content = doc.signedContent.split(",")[1];
+    if (!doc.signedContent) {
+      await thunkAPI.dispatch(getPartiallySignedDoc({
+            key: doc.key,
+            stateKey: "pending_multisign",
+            intl: args.intl,
+            show: false,
+            showForced: false,
+          }));
+    }
+    const b64content = doc.signedContent !== undefined ? doc.signedContent.split(",")[1] : doc.blob.split(",")[1];
     const blob = b64toBlob(b64content);
     const newName = doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
     FileSaver.saveAs(blob, newName);
