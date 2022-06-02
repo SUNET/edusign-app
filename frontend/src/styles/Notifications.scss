@@ -1,15 +1,36 @@
 @import "./variables.scss";
 
+
 .notifications-area {
   display: flex;
   flex-direction: column;
   flex: 1 0 auto;
   color: transparent;
   background-color: transparent;
-  min-height: 3rem;
-  margin-bottom: 0.75rem;
-  margin-left: 3rem;
-  margin-right: 2rem;
+}
+
+section#edusign-banner-lg {
+  .notifications-area {
+    min-height: 3rem;
+    min-width: 80%;
+    margin-bottom: 0.75rem;
+    margin-left: 2rem;
+    margin-right: 2rem;
+
+    .notification.alert.alert-dismissible {
+      max-width: 100%;
+    }
+  }
+}
+
+section#edusign-banner-sm {
+  .notifications-area {
+    min-height: 2rem;
+
+    .notification.alert.alert-dismissible {
+      max-width: 100%;
+    }
+  }
 }
 
 .alert.alert-dismissible {
@@ -67,9 +88,6 @@
 }
 
 @media (max-width: 568px) {
-  .notifications-area {
-    margin-bottom: 1.5rem;
-  }
 
   .alert.alert-dismissible {
     & span {

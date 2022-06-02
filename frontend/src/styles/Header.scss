@@ -2,42 +2,51 @@
 
 section#edusign-banner-lg {
   flex: none;
-  background-color: $white;
   display: flex;
-  margin: 1rem;
+  flex-direction: column;
+  align-items: center;
 
-  #edusign-logo {
-    width: 201px;
-    height: 50px;
-    background-image: url(../../images/eduSign-logo-small.png);
-    background-size: contain;
-    background-repeat: no-repeat;
-    margin: 0;
-    flex: 0 0 auto;
-  }
-
-  #header-right {
-    flex: 0 0 auto;
+  div#logos-and-name {
+    background-color: $white;
     display: flex;
-    flex-direction: row-reverse;
-    align-items: center;
+    align-items: start;
+    justify-content: space-between;
+    width: 100%;
+    margin: 1rem;
 
-    #sunet-logo {
-      width: 50px;
+    #edusign-logo {
+      width: 201px;
       height: 50px;
-      background-image: url(../../images/Sunet_logo_color.png);
+      background-image: url(../../images/eduSign-logo-small.png);
       background-size: contain;
       background-repeat: no-repeat;
       margin: 0;
-      display: inline-block;
+      flex: 0 0 auto;
     }
 
-    #name-in-header {
-      margin-right: 1rem;
-    }
+    #header-right {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: row-reverse;
+      align-items: center;
 
-    #logout-button-container {
-      padding: 1rem;
+      #sunet-logo {
+        width: 50px;
+        height: 50px;
+        background-image: url(../../images/Sunet_logo_color.png);
+        background-size: contain;
+        background-repeat: no-repeat;
+        margin: 0;
+        display: inline-block;
+      }
+
+      #name-in-header {
+        margin-right: 1rem;
+      }
+
+      #logout-button-container {
+        padding: 1rem;
+      }
     }
   }
 }
@@ -78,7 +87,8 @@ section#edusign-banner-sm {
   #name-and-clear-in-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
+    margin-top: .5rem;
 
     #name-in-header {
       display: flex;

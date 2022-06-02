@@ -63,14 +63,16 @@ class Header extends Component {
           className="banner-lg"
           data-testid="edusign-banner-lg"
         >
-          <div id="edusign-logo" data-testid="edusign-logo" />
-          <NotificationsContainer />
-          <div id="header-right" data-testid="header-right">
-            <a href="https://sunet.se">
-              <div id="sunet-logo" data-testid="sunet-logo" />
-            </a>
-            {name}
+          <div id="logos-and-name">
+            <div id="edusign-logo" data-testid="edusign-logo" />
+            <div id="header-right" data-testid="header-right">
+              <a href="https://sunet.se">
+                <div id="sunet-logo" data-testid="sunet-logo" />
+              </a>
+              {name}
+            </div>
           </div>
+          <NotificationsContainer />
         </section>
       );
     } else if (this.props.size === "sm") {
@@ -86,8 +88,8 @@ class Header extends Component {
               <div id="sunet-logo" data-testid="sunet-logo" />
             </a>
           </div>
-          <NotificationsContainer />
           {name}
+          <NotificationsContainer />
         </section>
       );
     }
