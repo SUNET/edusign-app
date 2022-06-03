@@ -57,6 +57,7 @@ const mapStateToProps = (state) => {
     invitedUnauthn: state.main.pending_multisign.length > 0,
     name: state.main.signer_attributes.name,
     mail: state.main.signer_attributes.mail,
+    inviting: state.inviteform.inviting,
   };
 };
 
@@ -86,7 +87,6 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
         dispatch(enablePolling());
         dispatch(unsetActiveId());
-        dispatch(isNotInviting());
       };
     },
     handleRemove: function (name) {
@@ -132,6 +132,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     openInviteForm: function (doc) {
       return () => {
+        dispatch(isNotInviting());
         dispatch(disablePolling());
         dispatch(setActiveId("dummy-help-id"));
         dispatch(showForm(doc.id));

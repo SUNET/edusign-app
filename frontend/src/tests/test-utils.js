@@ -62,7 +62,6 @@ const initialState = {
   poll: { poll: false, disablePoll: false, timerId: null },
   inviteform: {
     show_loa_selection: false,
-    make_copy: false,
   },
   overlay: {
     active: "",

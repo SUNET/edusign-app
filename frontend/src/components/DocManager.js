@@ -34,6 +34,11 @@ import "styles/Invitation.scss";
  * @component
  */
 class DocManager extends React.Component {
+
+  shouldComponentUpdate(nextProps) {
+    return !nextProps.inviting;
+  }
+
   render() {
     let disableSigning = true;
     let disableDlAllButton = true;

@@ -8,6 +8,7 @@ import {
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 import { addOwned, removeOwned, updateOwned } from "slices/Main";
+import { isInviting } from "slices/InviteForm";
 import {
   createDocument,
   addDocument,
@@ -34,6 +35,7 @@ import { dbRemoveDocument } from "init-app/database";
 export const sendInvites = createAsyncThunk(
   "main/sendInvites",
   async (args, thunkAPI) => {
+    thunkAPI.dispatch(isInviting());
     const documentId = args.values.documentId;
     const invitees = args.values.invitees;
     const isTemplate = args.values.isTemplate;
@@ -63,7 +65,7 @@ export const sendInvites = createAsyncThunk(
       })[0];
     }
 
-    if (state.inviteform.make_copy || isTemplate) {
+    if (isTemplate) {
       // If we want to create the invitation on a copy of the document,
       // keeping the original unsigned as a template,
       // we create the copy here.
