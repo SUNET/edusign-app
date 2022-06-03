@@ -85,27 +85,27 @@ class DocumentInvited extends Component {
   render() {
     const doc = this.props.doc;
     const invitedBy = (
-      <div className="doc-container-invitedby-row">
-        <span className="invited-by-label">
+      <div className={"doc-container-info-row-" + this.props.size}>
+        <span className="info-row-label">
           <FormattedMessage defaultMessage="Invited by:" key="invited-by" />
         </span>
-        <span className="owner-item">
+        <span className="info-row-item">
           {doc.owner.name} &lt;{doc.owner.email}&gt;
         </span>
       </div>
     );
     const pending = (
-      <div className="doc-container-pending-row">
-        <span className="pending-invites-label">
+      <div className={"doc-container-info-row-" + this.props.size}>
+        <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Waiting for signatures by:"
             key="multisign-owned-waiting"
           />
         </span>
-        <span className="pending-invites-items">
+        <span className="info-row-items">
           {doc.pending.map((invite, index) => {
             return (
-              <span className="pending-invite-item" key={index}>
+              <span className="info-row-item" key={index}>
                 {invite.name} &lt;{invite.email}&gt;
               </span>
             );
@@ -114,17 +114,17 @@ class DocumentInvited extends Component {
       </div>
     );
     const signed = (
-      <div className="doc-container-signed-row">
-        <span className="signed-invites-label">
+      <div className={"doc-container-info-row-" + this.props.size}>
+        <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Signed by:"
             key="multisign-signed"
           />
         </span>
-        <span className="signed-invites-items">
+        <span className="info-row-items">
           {doc.signed.map((invite, index) => {
             return (
-              <span className="signed-invite-item" key={index}>
+              <span className="info-row-item" key={index}>
                 {invite.name} &lt;{invite.email}&gt;
               </span>
             );
@@ -133,17 +133,17 @@ class DocumentInvited extends Component {
       </div>
     );
     const declined = (
-      <div className="doc-container-declined-row">
-        <span className="declined-invites-label">
+      <div className={"doc-container-info-row-" + this.props.size}>
+        <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Declined to sign by:"
             key="multisign-owned-declined"
           />
         </span>
-        <span className="declined-invites-items">
+        <span className="info-row-items">
           {doc.declined.map((invite, index) => {
             return (
-              <span className="declined-invite-item" key={index}>
+              <span className="info-row-item" key={index}>
                 {invite.name} &lt;{invite.email}&gt;
               </span>
             );
@@ -167,8 +167,8 @@ class DocumentInvited extends Component {
       const loaName = loa[1];
       const loaValue = loa[0];
       requiredLoa = (
-        <div className="doc-container-loa-row">
-          <span className="invite-loa-label">
+        <div className={"doc-container-info-row-" + this.props.size}>
+          <span className="info-row-label">
             <FormattedMessage
               defaultMessage="Required security level:"
               key="multisign-loa"
@@ -176,7 +176,7 @@ class DocumentInvited extends Component {
           </span>
           &nbsp;
           <ESTooltip tooltip={loaValue} helpId={"tooltip-" + loaValue}>
-            <span className="invite-loa-item">{loaName}</span>
+            <span className="info-row-item">{loaName}</span>
           </ESTooltip>
         </div>
       );
@@ -247,7 +247,7 @@ class DocumentInvited extends Component {
                 </div>
                 {requiredLoa}
                 {invites}
-                {preparePrevSigs(doc)}
+                {preparePrevSigs(doc, this.props.size)}
               </div>
             </div>
           )) || (
@@ -325,7 +325,7 @@ class DocumentInvited extends Component {
               )}
               {requiredLoa}
               {invites}
-              {preparePrevSigs(doc)}
+              {preparePrevSigs(doc, this.props.size)}
             </div>
           )}
         </ESPopover>

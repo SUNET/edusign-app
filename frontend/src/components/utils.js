@@ -139,20 +139,20 @@ export const hashCode = function (s) {
  * @desc Prepare previous signature for display
  *
  */
-export const preparePrevSigs = (doc) => {
+export const preparePrevSigs = (doc, size) => {
   if (doc.prev_signatures === undefined || doc.prev_signatures === null)
     return "";
   if (doc.prev_signatures === "pdf read error") {
     return (
-      <div className="doc-container-prevsigs-row" key="-1">
-        <span className="signed-previous-label">
+      <div className={"doc-container-info-row-" + size} key="-1">
+        <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Previously signed by:"
             key="multisign-owned-prev-signed"
           />
         </span>
-        <span className="signed-previous-items">
-          <span className="signed-previous-item">
+        <span className="info-row-items">
+          <span className="info-row-item">
             <FormattedMessage
               defaultMessage="Unable to interpret document metadata"
               key="multisign-owned-prev-signed-pdf-error"
@@ -199,36 +199,36 @@ export const preparePrevSigs = (doc) => {
         })
         .join("; ");
       return (
-        <span className="signed-previous-item" title={alt} key={i}>
+        <span className="info-row-item" title={alt} key={i}>
           {mainVal}
         </span>
       );
     });
     return (
       (doc.prev_signatures && doc.prev_signatures.length > 0 && (
-        <div className="doc-container-prevsigs-row" key="-1">
-          <span className="signed-previous-label">
+        <div className={"doc-container-info-row-" + size} key="-1">
+          <span className="info-row-label">
             <FormattedMessage
               defaultMessage="Previously signed by:"
               key="multisign-owned-prev-signed"
             />
           </span>
-          <span className="signed-previous-items">{sigElems}</span>
+          <span className="info-row-items">{sigElems}</span>
         </div>
       )) ||
       ""
     );
   } catch (err) {
     return (
-      <div className="doc-container-prevsigs-row" key="-1">
-        <span className="signed-previous-label">
+      <div className={"doc-container-info-row-" + size} key="-1">
+        <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Previously signed by:"
             key="multisign-owned-prev-signed"
           />
         </span>
-        <span className="signed-previous-items">
-          <span className="signed-previous-item">
+        <span className="info-row-items">
+          <span className="info-row-item">
             <FormattedMessage
               defaultMessage="Unknown"
               key="multisign-owned-prev-signed-unknown"

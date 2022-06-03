@@ -115,15 +115,15 @@ class DocumentLocal extends React.Component {
     const doc = this.props.doc;
     const signed =
       (doc.state === "signed" && (
-        <div className="doc-container-signed-row" key="-1">
-          <span className="signed-invites-label">
+        <div className={"doc-container-info-row-" + this.props.size} key={doc.name}>
+          <span className="info-row-label">
             <FormattedMessage
               defaultMessage="Signed by:"
               key="multisign-owned-signed"
             />
           </span>
-          <span className="signed-invites-items">
-            <span className="signed-invite-item">
+          <span className="info-row-items">
+            <span className="info-row-item">
               {this.props.name} &lt;{this.props.mail}&gt;
             </span>
           </span>
@@ -241,7 +241,7 @@ class DocumentLocal extends React.Component {
                 )}
               </div>
               {signed}
-              {preparePrevSigs(doc)}
+              {preparePrevSigs(doc, this.props.size)}
             </div>
           )) || (
             <div className={"doc-flex-container-sm " + doc.state} key="0">
@@ -365,7 +365,7 @@ class DocumentLocal extends React.Component {
                 </>
               )}
               {signed}
-              {preparePrevSigs(doc)}
+              {preparePrevSigs(doc, this.props.size)}
             </div>
           )}
         </ESPopover>
