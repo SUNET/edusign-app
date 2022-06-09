@@ -77,9 +77,10 @@ class DocumentOwned extends Component {
   render() {
     const doc = this.props.doc;
     const editForm =
-      (["loaded", "selected", "failed-signing", "incomplete"].includes(doc.state) && (
-        <InviteEditFormContainer docKey={doc.key} />
-      ) || "");
+      (["loaded", "selected", "failed-signing", "incomplete"].includes(
+        doc.state
+      ) && <InviteEditFormContainer docKey={doc.key} />) ||
+      "";
     const pending =
       (doc.state === "incomplete" && (
         <div className={"doc-container-info-row-" + this.props.size}>
@@ -93,7 +94,8 @@ class DocumentOwned extends Component {
             {doc.pending.map((invite, index) => {
               return (
                 <span className="info-row-item" key={index}>
-                  {invite.name} &lt;{invite.email}&gt;
+                  {invite.name} &lt;{invite.email}&gt;{" "}
+                  {index < doc.pending.length - 1 ? "," : "."}
                 </span>
               );
             })}
@@ -113,7 +115,8 @@ class DocumentOwned extends Component {
           {doc.signed.map((invite, index) => {
             return (
               <span className="info-row-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;
+                {invite.name} &lt;{invite.email}&gt;{" "}
+                {index < doc.signed.length - 1 ? "," : "."}
               </span>
             );
           })}
@@ -132,7 +135,8 @@ class DocumentOwned extends Component {
           {doc.declined.map((invite, index) => {
             return (
               <span className="info-row-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;
+                {invite.name} &lt;{invite.email}&gt;{" "}
+                {index < doc.declined.length - 1 ? "," : "."}
               </span>
             );
           })}
@@ -190,12 +194,12 @@ class DocumentOwned extends Component {
                       {widgets.docName(doc)}
                       <div className="owned-container-buttons-lg">
                         <>
-                          {widgets.removeConfirmButton(this.props, doc)}
                           <ESDropdown doc={doc}>
                             {menu.editInvitationMenuItem(this.props, doc)}
                             {menu.resendMenuItem(this.props, doc)}
                             {menu.previewMenuItem(this.props, doc)}
                           </ESDropdown>
+                          {widgets.removeConfirmButton(this.props, doc)}
                         </>
                       </div>
                     </>
@@ -210,12 +214,12 @@ class DocumentOwned extends Component {
                       {widgets.showMessage(doc)}
                       <div className="owned-container-buttons-lg">
                         <>
-                          {widgets.skipSignatureButton(this.props, doc)}
-                          {widgets.removeConfirmButton(this.props, doc)}
                           <ESDropdown doc={doc}>
                             {menu.editInvitationMenuItem(this.props, doc)}
                             {menu.previewMenuItem(this.props, doc)}
                           </ESDropdown>
+                          {widgets.skipSignatureButton(this.props, doc)}
+                          {widgets.removeConfirmButton(this.props, doc)}
                         </>
                       </div>
                     </>
@@ -233,16 +237,16 @@ class DocumentOwned extends Component {
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
+                      <ESDropdown doc={doc}>
+                        {menu.multiSignMenuItem(this.props, doc)}
+                        {menu.previewMenuItem(this.props, doc)}
+                      </ESDropdown>
                       {widgets.downloadSignedButton(this.props, doc)}
                       {widgets.removeConfirmButton(
                         this.props,
                         doc,
                         "confirm-remove-signed-owned-" + doc.name
                       )}
-                      <ESDropdown doc={doc}>
-                        {menu.multiSignMenuItem(this.props, doc)}
-                        {menu.previewMenuItem(this.props, doc)}
-                      </ESDropdown>
                     </>
                   )}
                 </div>
@@ -261,12 +265,12 @@ class DocumentOwned extends Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.removeConfirmButton(this.props, doc)}
                     <ESDropdown doc={doc}>
                       {menu.editInvitationMenuItem(this.props, doc)}
                       {menu.resendMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.removeConfirmButton(this.props, doc)}
                   </div>
                 </>
               )}
@@ -281,12 +285,12 @@ class DocumentOwned extends Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.skipSignatureButton(this.props, doc)}
-                    {widgets.removeConfirmButton(this.props, doc)}
                     <ESDropdown doc={doc}>
                       {menu.editInvitationMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.skipSignatureButton(this.props, doc)}
+                    {widgets.removeConfirmButton(this.props, doc)}
                   </div>
                 </>
               )}

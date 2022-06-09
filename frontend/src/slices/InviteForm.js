@@ -55,12 +55,7 @@ const inviteFormSlice = createSlice({
   },
 });
 
-export const {
-  toggleLoa,
-  showLoa,
-  hideLoa,
-  isInviting,
-  isNotInviting,
-} = inviteFormSlice.actions;
+export const { toggleLoa, showLoa, hideLoa, isInviting, isNotInviting } =
+  inviteFormSlice.actions;
 
 export default inviteFormSlice.reducer;

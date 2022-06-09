@@ -92,8 +92,7 @@ export default Button;
  */
 export class DropdownButton extends Component {
   render() {
-    const { disabling, disabled, spinning, dispatch, ...props } =
-      this.props;
+    const { disabling, disabled, spinning, dispatch, ...props } = this.props;
     const isDisabled = disabled || spinning !== "";
     const isSpinning = spinning === this.props.id;
     return (

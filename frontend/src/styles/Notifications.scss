@@ -1,6 +1,5 @@
 @import "./variables.scss";
 
-
 .notifications-area {
   display: flex;
   flex-direction: column;
@@ -88,7 +87,6 @@ section#edusign-banner-sm {
 }
 
 @media (max-width: 568px) {
-
   .alert.alert-dismissible {
     & span {
       width: calc(100% - 1.25rem);

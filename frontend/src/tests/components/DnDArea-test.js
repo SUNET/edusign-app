@@ -222,9 +222,7 @@ describe("DnDArea Component", function () {
       let filesize = screen.queryByText("1.5 KiB");
       expect(filesize).to.equal(null);
 
-      let previewButton = screen.queryByText(
-        "Preview and approve"
-      );
+      let previewButton = screen.queryByText("Preview and approve");
       expect(previewButton).to.equal(null);
 
       let rmButton = screen.queryByText("Remove");

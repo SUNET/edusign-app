@@ -15,7 +15,7 @@ import {
   hideForcedInvitedPreview,
   confirmForcedInvitedPreview,
   declineSigning,
-  downloadInvitedSigned,
+  downloadInvitedDraft,
   startDelegating,
 } from "slices/Main";
 import { disablePolling, enablePolling } from "slices/Poll";
@@ -126,9 +126,9 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
       };
     },
-    handleDlSigned: function (args) {
+    handleDlDraft: function (args) {
       return async () => {
-        await dispatch(downloadInvitedSigned(args));
+        await dispatch(downloadInvitedDraft(args));
         dispatch(unsetSpinning());
       };
     },

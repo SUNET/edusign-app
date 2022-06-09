@@ -4,8 +4,7 @@ import ESDropdownItem from "components/DropdownItem";
 import { setSpinning, unsetSpinning } from "slices/Button";
 
 const mapStateToProps = (state) => {
-  return {
-  };
+  return {};
 };
 
 const mapDispatchToProps = (dispatch, props) => {

@@ -115,7 +115,10 @@ class DocumentLocal extends React.Component {
     const doc = this.props.doc;
     const signed =
       (doc.state === "signed" && (
-        <div className={"doc-container-info-row-" + this.props.size} key={doc.name}>
+        <div
+          className={"doc-container-info-row-" + this.props.size}
+          key={doc.name}
+        >
           <span className="info-row-label">
             <FormattedMessage
               defaultMessage="Signed by:"
@@ -124,7 +127,7 @@ class DocumentLocal extends React.Component {
           </span>
           <span className="info-row-items">
             <span className="info-row-item">
-              {this.props.name} &lt;{this.props.mail}&gt;
+              {this.props.name} &lt;{this.props.mail}&gt;.
             </span>
           </span>
         </div>
@@ -191,12 +194,12 @@ class DocumentLocal extends React.Component {
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
-                      {widgets.removeButton(this.props, doc)}
                       <ESDropdown doc={doc}>
                         {menu.multiSignMenuItem(this.props, doc)}
                         {menu.createTemplateMenuItem(this.props, doc)}
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
+                      {widgets.removeButton(this.props, doc)}
                     </div>
                   </>
                 )}
@@ -216,12 +219,12 @@ class DocumentLocal extends React.Component {
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
-                      {widgets.downloadSignedButton(this.props, doc)}
-                      {widgets.removeButton(this.props, doc)}
                       <ESDropdown doc={doc}>
                         {menu.multiSignMenuItem(this.props, doc)}
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
+                      {widgets.downloadSignedButton(this.props, doc)}
+                      {widgets.removeButton(this.props, doc)}
                     </div>
                   </>
                 )}
@@ -232,10 +235,10 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                     {widgets.showMessage(doc)}
                     <div className="doc-manager-buttons">
-                      {widgets.removeButton(this.props, doc)}
                       <ESDropdown doc={doc}>
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
+                      {widgets.removeButton(this.props, doc)}
                     </div>
                   </>
                 )}
@@ -308,12 +311,12 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.removeButton(this.props, doc)}
                     <ESDropdown doc={doc}>
                       {menu.multiSignMenuItem(this.props, doc)}
                       {menu.createTemplateMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.removeButton(this.props, doc)}
                   </div>
                 </>
               )}
@@ -337,12 +340,12 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.downloadSignedButton(this.props, doc)}
-                    {widgets.removeButton(this.props, doc)}
                     <ESDropdown doc={doc}>
                       {menu.multiSignMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.downloadSignedButton(this.props, doc)}
+                    {widgets.removeButton(this.props, doc)}
                   </div>
                 </>
               )}
@@ -357,10 +360,10 @@ class DocumentLocal extends React.Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.removeButton(this.props, doc)}
                     <ESDropdown doc={doc}>
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.removeButton(this.props, doc)}
                   </div>
                 </>
               )}

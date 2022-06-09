@@ -8,8 +8,7 @@ import Dropdown from "react-bootstrap/Dropdown";
  */
 class ESDropdownItem extends Component {
   render() {
-    const { doHandleClick, disabling, onClick, ...props } =
-      this.props;
+    const { doHandleClick, disabling, onClick, ...props } = this.props;
     return (
       <Dropdown.Item
         data-testid={props.id}

@@ -44,7 +44,7 @@ class DocumentTemplate extends React.Component {
           </span>
           <span className="info-row-items">
             <span className="info-row-item">
-              {this.props.name} &lt;{this.props.mail}&gt;
+              {this.props.name} &lt;{this.props.mail}&gt;.
             </span>
           </span>
         </div>
@@ -66,11 +66,11 @@ class DocumentTemplate extends React.Component {
                 {widgets.docSize(doc)}
                 {widgets.docName(doc)}
                 <div className="doc-manager-buttons">
-                  {widgets.removeTemplate(this.props, doc)}
                   <ESDropdown doc={doc}>
                     {menu.multiSignMenuItem(this.props, doc)}
                     {menu.previewTemplateMenuItem(this.props, doc)}
                   </ESDropdown>
+                  {widgets.removeTemplate(this.props, doc)}
                 </div>
               </div>
               {signed}
@@ -86,11 +86,11 @@ class DocumentTemplate extends React.Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.removeTemplate(this.props, doc)}
                     <ESDropdown doc={doc}>
                       {menu.multiSignMenuItem(this.props, doc)}
                       {menu.previewTemplateMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.removeTemplate(this.props, doc)}
                   </div>
                 </>
               )}

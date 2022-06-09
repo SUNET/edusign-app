@@ -34,7 +34,6 @@ import "styles/Invitation.scss";
  * @component
  */
 class DocManager extends React.Component {
-
   shouldComponentUpdate(nextProps) {
     return !nextProps.inviting;
   }
@@ -107,7 +106,10 @@ class DocManager extends React.Component {
                             'Clicking "Confirm" will remove the template',
                           id: "header-confirm-remove-template-text",
                         })}
-                        confirm={this.props.handleTemplateRemove(doc.id, this.props)}
+                        confirm={this.props.handleTemplateRemove(
+                          doc.id,
+                          this.props
+                        )}
                       />
                       <DocPreviewContainer
                         doc={doc}
@@ -205,9 +207,12 @@ class DocManager extends React.Component {
                           }
                         />
                       )}
-                      {["loaded", "selected", "failed-signing", "signed"].includes(
-                        doc.state
-                      ) && (
+                      {[
+                        "loaded",
+                        "selected",
+                        "failed-signing",
+                        "signed",
+                      ].includes(doc.state) && (
                         <DocPreviewContainer
                           doc={doc}
                           docFile={docFile}

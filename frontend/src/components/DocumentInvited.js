@@ -67,7 +67,7 @@ class DocumentInvited extends Component {
       }),
       signed: this.props.intl.formatMessage({
         defaultMessage:
-          "You have successfully signed the document. Note that if you reload the app you will not have access to the document any more. The inviter has been notified of your signature, it is up to them to decide if the system should send you the final signed version.",
+          "You have successfully signed the document. Note that if you reload the app you will not have access to the document anymore. The inviter has been notified of your signature, it is up to them to decide if the system should send you the final signed version.",
         id: "docmanager-help-signed-invited",
       }),
       "declined-title": this.props.intl.formatMessage({
@@ -90,7 +90,7 @@ class DocumentInvited extends Component {
           <FormattedMessage defaultMessage="Invited by:" key="invited-by" />
         </span>
         <span className="info-row-item">
-          {doc.owner.name} &lt;{doc.owner.email}&gt;
+          {doc.owner.name} &lt;{doc.owner.email}&gt;.
         </span>
       </div>
     );
@@ -106,7 +106,8 @@ class DocumentInvited extends Component {
           {doc.pending.map((invite, index) => {
             return (
               <span className="info-row-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;
+                {invite.name} &lt;{invite.email}&gt;{" "}
+                {index < doc.pending.length - 1 ? "," : "."}
               </span>
             );
           })}
@@ -125,7 +126,8 @@ class DocumentInvited extends Component {
           {doc.signed.map((invite, index) => {
             return (
               <span className="info-row-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;
+                {invite.name} &lt;{invite.email}&gt;{" "}
+                {index < doc.signed.length - 1 ? "," : "."}
               </span>
             );
           })}
@@ -144,7 +146,8 @@ class DocumentInvited extends Component {
           {doc.declined.map((invite, index) => {
             return (
               <span className="info-row-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;
+                {invite.name} &lt;{invite.email}&gt;{" "}
+                {index < doc.declined.length - 1 ? "," : "."}
               </span>
             );
           })}
@@ -212,11 +215,11 @@ class DocumentInvited extends Component {
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
                       {widgets.showMessage(doc)}
-                      {widgets.downloadDraftButton(this.props, doc)}
-                      {widgets.declineSignatureButton(this.props, doc)}
                       <ESDropdown doc={doc}>
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
+                      {widgets.downloadDraftButton(this.props, doc)}
+                      {widgets.declineSignatureButton(this.props, doc)}
                     </>
                   )}
                   {doc.state === "signing" && (
@@ -276,11 +279,11 @@ class DocumentInvited extends Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.downloadDraftButton(this.props, doc)}
-                    {widgets.declineSignatureButton(this.props, doc)}
                     <ESDropdown doc={doc}>
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.downloadDraftButton(this.props, doc)}
+                    {widgets.declineSignatureButton(this.props, doc)}
                   </div>
                 </>
               )}

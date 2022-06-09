@@ -6,7 +6,6 @@ import { ESTooltip } from "containers/Overlay";
 
 import "styles/Dropdown.scss";
 
-
 class ESDropdown extends React.Component {
   render() {
     return (
@@ -15,6 +14,7 @@ class ESDropdown extends React.Component {
           defaultMessage: "Other options",
           id: "dropdown-title",
         })}
+        className="button-dropdown-flex-item"
         variant="outline-dark"
         size="sm"
         menuAlign="right"
@@ -22,7 +22,7 @@ class ESDropdown extends React.Component {
         id={"dropdown-" + this.props.doc.key || this.props.doc.name}
         {...this.props}
       >
-          {this.props.children}
+        {this.props.children}
       </DropdownButton>
     );
   }

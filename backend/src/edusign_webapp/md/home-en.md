@@ -1,7 +1,7 @@
 
 ## To sign
 
-This service can be used to upload and sign PDF documents or XML documents. This is done easily by performing the following steps:
+This service can be used to upload and sign PDF-documents or XML-documents. This is done easily by performing the following steps:
 
 1. Upload documents to sign
 2. Confirm the uploaded documents are correct

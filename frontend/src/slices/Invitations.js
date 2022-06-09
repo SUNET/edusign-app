@@ -55,10 +55,12 @@ export const sendInvites = createAsyncThunk(
 
     const owner = state.main.signer_attributes.mail;
 
-    if (document.state === 'signed') {
-      document = {...document};
+    if (document.state === "signed") {
+      document = { ...document };
       await thunkAPI.dispatch(removeDocument({ docName: document.name }));
-      await thunkAPI.dispatch(createDocument({ doc: document, intl: args.intl }));
+      await thunkAPI.dispatch(
+        createDocument({ doc: document, intl: args.intl })
+      );
       state = thunkAPI.getState();
       document = state.documents.documents.filter((doc) => {
         return doc.name === document.name;

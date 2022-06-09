@@ -56,7 +56,7 @@ const mapDispatchToProps = (dispatch, props) => {
       return () => {
         _close(dispatch);
         resetForm();
-      }
+      };
     },
   };
 };
