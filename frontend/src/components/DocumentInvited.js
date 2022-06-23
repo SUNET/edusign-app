@@ -217,8 +217,8 @@ class DocumentInvited extends Component {
                       {widgets.showMessage(doc)}
                       <ESDropdown doc={doc}>
                         {menu.previewMenuItem(this.props, doc)}
+                        {menu.downloadDraftMenuItem(this.props, doc)}
                       </ESDropdown>
-                      {widgets.downloadDraftButton(this.props, doc)}
                       {widgets.declineSignatureButton(this.props, doc)}
                     </>
                   )}
@@ -281,8 +281,8 @@ class DocumentInvited extends Component {
                   <div className="doc-container-button-row">
                     <ESDropdown doc={doc}>
                       {menu.previewMenuItem(this.props, doc)}
+                      {menu.downloadDraftMenuItem(this.props, doc)}
                     </ESDropdown>
-                    {widgets.downloadDraftButton(this.props, doc)}
                     {widgets.declineSignatureButton(this.props, doc)}
                   </div>
                 </>

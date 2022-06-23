@@ -78,3 +78,20 @@ export const multiSignMenuItem = (props, doc) => (
     />
   </ESDropdownItem>
 );
+
+export const downloadDraftMenuItem = (props, doc) => (
+  <ESDropdownItem
+    doc={doc}
+    id={"menu-item-dldraft-" + doc.name}
+    disabling={true}
+    onClick={props.handleDlDraft({
+      docName: doc.name,
+      intl: props.intl,
+    })}
+  >
+    <FormattedMessage
+      defaultMessage="Download (draft)"
+      key="dldraft-button"
+    />
+  </ESDropdownItem>
+);
