@@ -67,6 +67,7 @@
       .button-download-flex-item,
       .button-decline-flex-item,
       .button-dummy-flex-item,
+      .button-edit-invitations-flex-item,
       .button-forced-preview-flex-item {
         flex: none;
       }
@@ -80,70 +81,6 @@
       }
     }
   }
-}
-
-.invited-by-label,
-.signed-invites-label,
-.signed-previous-label,
-.declined-invites-label,
-.invite-loa-label,
-.pending-invites-label {
-  margin-right: 0.5rem;
-  color: $darker-dark-grey;
-  font-size: 0.8rem;
-}
-
-.doc-container-pending-row,
-.doc-container-declined-row,
-.doc-container-signedby-row,
-.doc-container-loa-row,
-.doc-container-signed-row {
-  flex: none;
-  margin-top: 0.2rem;
-  margin-bottom: 0.2rem;
-}
-
-.owner-item {
-  margin-left: 0.5rem;
-  font-size: 0.8rem;
-  display: inline-block;
-}
-
-.pending-invites-items {
-  .pending-invite-item {
-    margin-left: 0.5rem;
-    font-size: 0.8rem;
-    display: inline-block;
-  }
-}
-
-.signed-invites-items {
-  .signed-invite-item {
-    margin-left: 0.5rem;
-    font-size: 0.8rem;
-    display: inline-block;
-  }
-}
-
-.signed-previous-items {
-  .signed-previous-item {
-    margin-left: 0.5rem;
-    font-size: 0.8rem;
-    display: inline-block;
-  }
-}
-
-.declined-invites-items {
-  .declined-invite-item {
-    margin-left: 0.5rem;
-    font-size: 0.8rem;
-    display: inline-block;
-  }
-}
-
-.invite-loa-item {
-  font-size: 0.8rem;
-  display: inline-block;
 }
 
 div.failed-signing {

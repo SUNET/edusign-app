@@ -252,7 +252,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
         :param invite_key: The key identifying the signing invitation to remove
         :param document_key: The key identifying the signing invitation to remove
-        :return: success
+        :return: success / failure
         """
 
     @abc.abstractmethod
@@ -485,6 +485,18 @@ class DocStore(object):
 
         return removed
 
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str) -> Dict[str, Any]:
+        """
+        Add new invitation to document identified by key,
+        with the provided name and email.
+
+        :param document_key: The key identifying the document
+        :param name: Name of newly invited person
+        :param email: Email of newly invited person
+        :return: A dict with data on the user and the document
+        """
+        return self.metadata.add_invitation(document_key, name, email)
+
     def get_invitation(self, key: uuid.UUID) -> Dict[str, Any]:
         """
         Get the invited user's name and email and the data on the document she's been invited to sign
@@ -503,6 +515,53 @@ class DocStore(object):
 
         data['document']['blob'] = self.storage.get_content(data['document']['key'])
         return data
+
+    def rm_invitation(self, invite_key: uuid.UUID, document_key: uuid.UUID) -> bool:
+        """
+        Remove invitation identified by invite_key to sign document identified by document_key
+
+        :param invite_key: The key identifying the signing invitation
+        :param document_key: The key identifying the document
+        :return: success / failure
+        """
+        return self.metadata.rm_invitation(invite_key, document_key)
+
+    def update_invitations(self, document_key: uuid.UUID, invitations: List[Dict[str, str]]) -> Dict[str, List[Dict[str, str]]]:
+        """
+        Update the list of pending invitations to sign a document.
+
+        :param document_key: The key identifying the document
+        :param invitations: Updated list of invitations
+        :return: A dict with a `removed` key pointing to a list of removed invitations
+                 and an `added` key pointing to added invitations
+        """
+        current = self.metadata.get_invited(document_key)
+        pending = list(filter(lambda invite: not invite['signed'] and not invite['declined'], current))
+        changed = {'added': [], 'removed': []}
+
+        for old in pending:
+            remove = True
+            for new in invitations:
+                if new['email'] == old['email']:
+                    remove = False
+                    break
+
+            if remove:
+                self.metadata.rm_invitation(uuid.UUID(old['key']), document_key)
+                changed['removed'].append(old)
+
+        for new in invitations:
+            add = True
+            for old in pending:
+                if new['email'] == old['email']:
+                    add = False
+                    break
+
+            if add:
+                self.metadata.add_invitation(document_key, new['name'], new['email'])
+                changed['added'].append(new)
+
+        return changed
 
     def delegate(self, invite_key: uuid.UUID, document_key: uuid.UUID, name: str, email: str) -> bool:
         """

@@ -34,6 +34,10 @@ import "styles/Invitation.scss";
  * @component
  */
 class DocManager extends React.Component {
+  shouldComponentUpdate(nextProps) {
+    return !nextProps.inviting;
+  }
+
   render() {
     let disableSigning = true;
     let disableDlAllButton = true;
@@ -102,7 +106,10 @@ class DocManager extends React.Component {
                             'Clicking "Confirm" will remove the template',
                           id: "header-confirm-remove-template-text",
                         })}
-                        confirm={this.props.handleTemplateRemove(doc.id)}
+                        confirm={this.props.handleTemplateRemove(
+                          doc.id,
+                          this.props
+                        )}
                       />
                       <DocPreviewContainer
                         doc={doc}
@@ -170,6 +177,11 @@ class DocManager extends React.Component {
                             })}
                             confirm={this.props.handleSignedRemove(doc.name)}
                           />
+                          <DocPreviewContainer
+                            doc={doc}
+                            docFile={docFile}
+                            handleClose={this.props.handleClosePreview}
+                          />
                         </>
                       );
                     } else {
@@ -195,9 +207,12 @@ class DocManager extends React.Component {
                           }
                         />
                       )}
-                      {["loaded", "selected", "failed-signing"].includes(
-                        doc.state
-                      ) && (
+                      {[
+                        "loaded",
+                        "selected",
+                        "failed-signing",
+                        "signed",
+                      ].includes(doc.state) && (
                         <DocPreviewContainer
                           doc={doc}
                           docFile={docFile}

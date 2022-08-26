@@ -22,7 +22,7 @@ export const addNotification = createAsyncThunk(
   async (arg, thunkAPI) => {
     window.setTimeout(() => {
       thunkAPI.dispatch(notificationsSlice.actions.rmNotification());
-    }, 4000);
+    }, 5000);
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     return arg;
   }

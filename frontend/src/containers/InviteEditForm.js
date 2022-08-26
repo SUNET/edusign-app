@@ -1,6 +1,6 @@
 /**
- * @module containers/InvitesForm
- * @desc In this module we connect the InvitesForm component with the Redux store.
+ * @module containers/InviteEditForm
+ * @desc In this module we connect the InviteEditForm component with the Redux store.
  *
  * In mapStateToProps we take a few keys from the central store
  * and assign them to the props of the component.
@@ -10,30 +10,29 @@
  */
 import { connect } from "react-redux";
 
-import InviteForm from "components/InviteForm";
+import InviteEditForm from "components/InviteEditForm";
 
-import { sendInvites } from "slices/Invitations";
+import { editInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { disablePolling, enablePolling } from "slices/Poll";
-import { toggleLoa, isNotInviting } from "slices/InviteForm";
 import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {
   let show = false;
-  if (state.modals.show_form && state.modals.form_id === props.docId) {
+  if (
+    state.modals.show_form &&
+    state.modals.form_id === props.docKey + "-edit-invitations"
+  ) {
     show = true;
   }
+  const doc = state.main.owned_multisign.filter(
+    (d) => d.key === props.docKey
+  )[0];
   return {
     size: state.main.size,
     show: show,
-    mail: state.main.signer_attributes.mail,
-    loas: state.main.available_loas,
-    show_loa: state.inviteform.show_loa_selection,
-    inviting: state.inviteform.inviting,
-    templates: state.template.documents,
-    documents: state.documents.documents,
-    owned: state.main.owned_multisign,
+    doc: doc,
   };
 };
 
@@ -42,13 +41,12 @@ const _close = (dispatch) => {
   dispatch(enablePolling());
   dispatch(hideForm());
   dispatch(unsetActiveId());
-  dispatch(isNotInviting());
 };
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleSubmit: async function (values, actions) {
-      await dispatch(sendInvites({ values: values, intl: this.props.intl }));
+    handleSubmit: async function (values) {
+      await dispatch(editInvites({ values: values, intl: this.props.intl }));
       _close(dispatch);
     },
     handleClose: function () {
@@ -60,10 +58,7 @@ const mapDispatchToProps = (dispatch, props) => {
         resetForm();
       };
     },
-    handleToggleLoa: function () {
-      dispatch(toggleLoa());
-    },
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(InviteForm);
+export default connect(mapStateToProps, mapDispatchToProps)(InviteEditForm);

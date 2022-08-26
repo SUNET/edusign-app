@@ -2,6 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESPopover } from "containers/Overlay";
+import ESDropdown from "components/Dropdown";
+import * as menu from "components/dropdownItems";
 
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
@@ -33,16 +35,16 @@ class DocumentTemplate extends React.Component {
     const doc = this.props.doc;
     const signed =
       (doc.state === "signed" && (
-        <div className="doc-container-signed-row" key="-1">
-          <span className="signed-invites-label">
+        <div className={"doc-container-info-row-" + this.props.size} key="-1">
+          <span className="info-row-label">
             <FormattedMessage
               defaultMessage="Signed by:"
               key="multisign-owned-signed"
             />
           </span>
-          <span className="signed-invites-items">
-            <span className="signed-invite-item">
-              {this.props.name} &lt;{this.props.mail}&gt;
+          <span className="info-row-items">
+            <span className="info-row-item">
+              {this.props.name} &lt;{this.props.mail}&gt;.
             </span>
           </span>
         </div>
@@ -64,13 +66,15 @@ class DocumentTemplate extends React.Component {
                 {widgets.docSize(doc)}
                 {widgets.docName(doc)}
                 <div className="doc-manager-buttons">
-                  {widgets.multiSignButton(this.props, doc)}
-                  {widgets.previewTemplateButton(this.props, doc)}
+                  <ESDropdown doc={doc}>
+                    {menu.multiSignMenuItem(this.props, doc)}
+                    {menu.previewTemplateMenuItem(this.props, doc)}
+                  </ESDropdown>
                   {widgets.removeTemplate(this.props, doc)}
                 </div>
               </div>
               {signed}
-              {preparePrevSigs(doc)}
+              {preparePrevSigs(doc, this.props.size)}
             </div>
           )) || (
             <div className={"doc-flex-container-sm " + doc.state} key="0">
@@ -82,14 +86,16 @@ class DocumentTemplate extends React.Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.multiSignButton(this.props, doc)}
-                    {widgets.previewTemplateButton(this.props, doc)}
-                    {widgets.removeButton(this.props, doc)}
+                    <ESDropdown doc={doc}>
+                      {menu.multiSignMenuItem(this.props, doc)}
+                      {menu.previewTemplateMenuItem(this.props, doc)}
+                    </ESDropdown>
+                    {widgets.removeTemplate(this.props, doc)}
                   </div>
                 </>
               )}
               {signed}
-              {preparePrevSigs(doc)}
+              {preparePrevSigs(doc, this.props.size)}
             </div>
           )}
         </ESPopover>

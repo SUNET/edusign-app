@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { injectIntl } from "react-intl";
+import { FormattedMessage, injectIntl } from "react-intl";
 
 import HeaderContainer from "containers/Header";
 import SplashContainer from "containers/Splash";
@@ -30,6 +30,12 @@ class Main extends Component {
           <HeaderContainer />
           <div id="main-content">
             {!this.props.unauthn && <DnDAreaContainer />}
+            <div id="contact-local-it-msg">
+              <FormattedMessage
+                defaultMessage="If you experience problems with eduSign contact your local IT-support"
+                key="contact-local-it-msg"
+              />
+            </div>
             <DocManagerContainer />
           </div>
           <FooterContainer />

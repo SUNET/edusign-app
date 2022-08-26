@@ -244,7 +244,7 @@ def sendmail(*args, **kwargs):
     """
     msg = compose_message(*args, **kwargs)
 
-    current_app.logger.debug(f"Email to be sent:\n\n{msg}\n\n")
+    current_app.logger.debug(f"Email to be sent:\n\n{msg.message().as_string()}\n\n")
 
     msg.send()
 
@@ -255,14 +255,21 @@ def sendmail_bulk(msgs_data: list):
 
     :param msgs: a list of arguments for `compose_message`.
     """
-    conn = current_app.mailer.get_connection(backend=ParallelEmailBackend)
+    if current_app.config['MAIL_BACKEND'] == 'dummy':
+        backend = 'dummy'
+    else:
+        backend = ParallelEmailBackend
+    conn = current_app.mailer.get_connection(backend=backend)
     msgs = []
 
     for args, kwargs in msgs_data:
         msg = compose_message(*args, **kwargs)
         msgs.append(msg)
 
-    conn.send_messages_in_parallel(msgs)
+    if backend == 'dummy':
+        conn.send_messages(msgs)
+    else:
+        conn.send_messages_in_parallel(msgs)
     conn.close()
 
 

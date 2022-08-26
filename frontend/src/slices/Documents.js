@@ -65,7 +65,6 @@ import { unsetSpinning } from "slices/Button";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
 import { b64toBlob, hashCode, nameForCopy } from "components/utils";
-import { isInviting } from "slices/InviteForm";
 
 /**
  * @public
@@ -387,7 +386,7 @@ export const removeDocument = createAsyncThunk(
  * and when an invitation has been signed by all parties, thus being removed from
  * the backend database, and added to the local IndexedDB database.
  */
-const addDocumentToDb = async (document, name) => {
+export const addDocumentToDb = async (document, name) => {
   const db = await getDb(name);
   if (db !== null) {
     const newDoc = await new Promise((resolve, reject) => {
@@ -422,7 +421,6 @@ const addDocumentToDb = async (document, name) => {
 export const createDocument = createAsyncThunk(
   "documents/createDocument",
   async (args, thunkAPI) => {
-    thunkAPI.dispatch(isInviting());
     const state = thunkAPI.getState();
     // First we validate the document
     const doc = await validateDoc(args.doc, args.intl, state);
@@ -434,7 +432,6 @@ export const createDocument = createAsyncThunk(
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message: "",
           message: args.intl.formatMessage({
             defaultMessage: "A document with that name has already been loaded",
             id: "save-doc-problem-dup",
@@ -1026,7 +1023,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       })
     );
     let message;
-    if ( data && data.message) {
+    if (data && data.message) {
       message = data.message;
     } else {
       message = intl.formatMessage({
@@ -1042,6 +1039,22 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       });
     }
   }
+};
+
+const renameSigned = (name) => {
+  let newName;
+  if (name.endsWith(".pdf")) {
+    newName = name.split(".").slice(0, -1).join(".") + "-signed.pdf";
+  } else if (name.includes(".")) {
+    const nameParts = name.split(".");
+    newName =
+      nameParts.slice(0, -1).join(".") +
+      "-signed." +
+      nameParts[nameParts.length - 1];
+  } else {
+    newName = name + "-signed";
+  }
+  return newName;
 };
 
 /**
@@ -1060,7 +1073,7 @@ export const downloadSigned = createAsyncThunk(
     })[0];
     const b64content = doc.signedContent.split(",")[1];
     const blob = b64toBlob(b64content);
-    const newName = doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
+    const newName = renameSigned(doc.name);
     FileSaver.saveAs(blob, newName);
   }
 );
@@ -1091,8 +1104,7 @@ export const downloadAllSigned = createAsyncThunk(
     docs.forEach((doc) => {
       const b64content = doc.signedContent.split(",")[1];
       const blob = b64toBlob(b64content);
-      const newName =
-        doc.name.split(".").slice(0, -1).join(".") + "-signed.pdf";
+      const newName = renameSigned(doc.name);
       folder.file(newName, blob);
     });
     zip.generateAsync({ type: "blob" }).then(function (content) {
@@ -1445,6 +1457,7 @@ export const {
   setState,
   toggleDocSelection,
   rmDocument,
+  addDocument,
   rmDocumentByKey,
 } = documentsSlice.actions;
 

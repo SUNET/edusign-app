@@ -15,7 +15,7 @@ import {
   hideForcedInvitedPreview,
   confirmForcedInvitedPreview,
   declineSigning,
-  downloadInvitedSigned,
+  downloadInvitedDraft,
   startDelegating,
 } from "slices/Main";
 import { disablePolling, enablePolling } from "slices/Poll";
@@ -53,6 +53,8 @@ const mapDispatchToProps = (dispatch, props) => {
             key: docKey,
             stateKey: "pending_multisign",
             intl: props.intl,
+            showForced: false,
+            show: true,
           })
         );
         dispatch(unsetSpinning());
@@ -76,6 +78,7 @@ const mapDispatchToProps = (dispatch, props) => {
             stateKey: "pending_multisign",
             intl: props.intl,
             showForced: true,
+            show: false,
           })
         );
         dispatch(unsetSpinning());
@@ -123,9 +126,9 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
       };
     },
-    handleDlSigned: function (name) {
+    handleDlDraft: function (args) {
       return async () => {
-        await dispatch(downloadInvitedSigned(name));
+        await dispatch(downloadInvitedDraft(args));
         dispatch(unsetSpinning());
       };
     },

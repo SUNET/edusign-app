@@ -3,9 +3,12 @@ import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESPopover } from "containers/Overlay";
 import { ESTooltip } from "containers/Overlay";
+import ESDropdown from "components/Dropdown";
+import * as menu from "components/dropdownItems";
 
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
+import InviteEditFormContainer from "containers/InviteEditForm";
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
@@ -21,7 +24,7 @@ class DocumentOwned extends Component {
       }),
       loaded: this.props.intl.formatMessage({
         defaultMessage:
-          'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign Selected Documents"',
+          'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign selected documents"',
         id: "docmanager-help-loaded",
       }),
       "incomplete-title": this.props.intl.formatMessage({
@@ -39,7 +42,7 @@ class DocumentOwned extends Component {
       }),
       selected: this.props.intl.formatMessage({
         defaultMessage:
-          'Click on the button below labelled "Sign Selected Documents" to sign this document',
+          'Click on the button below labelled "Sign selected documents" to sign this document',
         id: "docmanager-help-selected",
       }),
       "signing-title": this.props.intl.formatMessage({
@@ -56,7 +59,7 @@ class DocumentOwned extends Component {
       }),
       "failed-signing": this.props.intl.formatMessage({
         defaultMessage:
-          'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign Selected Documents"',
+          'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign selected documents"',
         id: "docmanager-help-failed-signing",
       }),
       "signed-title": this.props.intl.formatMessage({
@@ -73,38 +76,47 @@ class DocumentOwned extends Component {
   }
   render() {
     const doc = this.props.doc;
-    const pending = (
-      <div className="doc-container-pending-row">
-        <span className="pending-invites-label">
-          <FormattedMessage
-            defaultMessage="Waiting for signatures by:"
-            key="multisign-owned-waiting"
-          />
-        </span>
-        <span className="pending-invites-items">
-          {doc.pending.map((invite, index) => {
-            return (
-              <span className="pending-invite-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;
-              </span>
-            );
-          })}
-        </span>
-      </div>
-    );
+    const editForm =
+      (["loaded", "selected", "failed-signing", "incomplete"].includes(
+        doc.state
+      ) && <InviteEditFormContainer docKey={doc.key} />) ||
+      "";
+    const pending =
+      (doc.state === "incomplete" && (
+        <div className={"doc-container-info-row-" + this.props.size}>
+          <span className="info-row-label">
+            <FormattedMessage
+              defaultMessage="Waiting for signatures by:"
+              key="multisign-owned-waiting"
+            />
+          </span>
+          <span className="info-row-items">
+            {doc.pending.map((invite, index) => {
+              return (
+                <span className="info-row-item" key={index}>
+                  {invite.name} &lt;{invite.email}&gt;{" "}
+                  {index < doc.pending.length - 1 ? "," : "."}
+                </span>
+              );
+            })}
+          </span>
+        </div>
+      )) ||
+      "";
     const signed = (
-      <div className="doc-container-signed-row">
-        <span className="signed-invites-label">
+      <div className={"doc-container-info-row-" + this.props.size}>
+        <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Signed by:"
             key="multisign-owned-signed"
           />
         </span>
-        <span className="signed-invites-items">
+        <span className="info-row-items">
           {doc.signed.map((invite, index) => {
             return (
-              <span className="signed-invite-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;
+              <span className="info-row-item" key={index}>
+                {invite.name} &lt;{invite.email}&gt;{" "}
+                {index < doc.signed.length - 1 ? "," : "."}
               </span>
             );
           })}
@@ -112,18 +124,19 @@ class DocumentOwned extends Component {
       </div>
     );
     const declined = (
-      <div className="doc-container-declined-row">
-        <span className="declined-invites-label">
+      <div className={"doc-container-info-row-" + this.props.size}>
+        <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Declined to sign by:"
             key="multisign-owned-declined"
           />
         </span>
-        <span className="declined-invites-items">
+        <span className="info-row-items">
           {doc.declined.map((invite, index) => {
             return (
-              <span className="declined-invite-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;
+              <span className="info-row-item" key={index}>
+                {invite.name} &lt;{invite.email}&gt;{" "}
+                {index < doc.declined.length - 1 ? "," : "."}
               </span>
             );
           })}
@@ -137,6 +150,7 @@ class DocumentOwned extends Component {
         {doc.declined !== undefined && doc.declined.length > 0 && (
           <>{declined}</>
         )}
+        {editForm}
       </>
     );
     let requiredLoa = "";
@@ -145,8 +159,8 @@ class DocumentOwned extends Component {
       const loaName = loa[1];
       const loaValue = loa[0];
       requiredLoa = (
-        <div className="doc-container-loa-row">
-          <span className="invite-loa-label">
+        <div className={"doc-container-info-row-" + this.props.size}>
+          <span className="info-row-label">
             <FormattedMessage
               defaultMessage="Required security level:"
               key="multisign-loa"
@@ -154,7 +168,7 @@ class DocumentOwned extends Component {
           </span>
           &nbsp;
           <ESTooltip tooltip={loaValue} helpId={"invited-" + loaValue}>
-            <span className="invite-loa-item">{loaName}</span>
+            <span className="info-row-item">{loaName}</span>
           </ESTooltip>
         </div>
       );
@@ -180,8 +194,11 @@ class DocumentOwned extends Component {
                       {widgets.docName(doc)}
                       <div className="owned-container-buttons-lg">
                         <>
-                          {widgets.resendButton(this.props, doc)}
-                          {widgets.previewButton(this.props, doc)}
+                          <ESDropdown doc={doc}>
+                            {menu.editInvitationMenuItem(this.props, doc)}
+                            {menu.resendMenuItem(this.props, doc)}
+                            {menu.previewMenuItem(this.props, doc)}
+                          </ESDropdown>
                           {widgets.removeConfirmButton(this.props, doc)}
                         </>
                       </div>
@@ -197,8 +214,11 @@ class DocumentOwned extends Component {
                       {widgets.showMessage(doc)}
                       <div className="owned-container-buttons-lg">
                         <>
+                          <ESDropdown doc={doc}>
+                            {menu.editInvitationMenuItem(this.props, doc)}
+                            {menu.previewMenuItem(this.props, doc)}
+                          </ESDropdown>
                           {widgets.skipSignatureButton(this.props, doc)}
-                          {widgets.previewButton(this.props, doc)}
                           {widgets.removeConfirmButton(this.props, doc)}
                         </>
                       </div>
@@ -217,6 +237,10 @@ class DocumentOwned extends Component {
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
+                      <ESDropdown doc={doc}>
+                        {menu.multiSignMenuItem(this.props, doc)}
+                        {menu.previewMenuItem(this.props, doc)}
+                      </ESDropdown>
                       {widgets.downloadSignedButton(this.props, doc)}
                       {widgets.removeConfirmButton(
                         this.props,
@@ -228,7 +252,7 @@ class DocumentOwned extends Component {
                 </div>
                 {requiredLoa}
                 {invites}
-                {preparePrevSigs(doc)}
+                {preparePrevSigs(doc, this.props.size)}
               </div>
             </div>
           )) || (
@@ -241,8 +265,11 @@ class DocumentOwned extends Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.resendButton(this.props, doc)}
-                    {widgets.previewButton(this.props, doc)}
+                    <ESDropdown doc={doc}>
+                      {menu.editInvitationMenuItem(this.props, doc)}
+                      {menu.resendMenuItem(this.props, doc)}
+                      {menu.previewMenuItem(this.props, doc)}
+                    </ESDropdown>
                     {widgets.removeConfirmButton(this.props, doc)}
                   </div>
                 </>
@@ -258,8 +285,11 @@ class DocumentOwned extends Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
+                    <ESDropdown doc={doc}>
+                      {menu.editInvitationMenuItem(this.props, doc)}
+                      {menu.previewMenuItem(this.props, doc)}
+                    </ESDropdown>
                     {widgets.skipSignatureButton(this.props, doc)}
-                    {widgets.previewButton(this.props, doc)}
                     {widgets.removeConfirmButton(this.props, doc)}
                   </div>
                 </>
@@ -295,7 +325,7 @@ class DocumentOwned extends Component {
               )}
               {requiredLoa}
               {invites}
-              {preparePrevSigs(doc)}
+              {preparePrevSigs(doc, this.props.size)}
             </div>
           )}
         </ESPopover>

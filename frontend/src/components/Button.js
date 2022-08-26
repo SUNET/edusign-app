@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import BButton from "react-bootstrap/Button";
+import BDropdownButton from "react-bootstrap/DropdownButton";
+import BDropdownItem from "react-bootstrap/DropdownItem";
 import { Spinner } from "spin.js";
 
 import "../../node_modules/spin.js/spin.css";
@@ -83,3 +85,39 @@ Button.defaultProps = {
 };
 
 export default Button;
+
+/**
+ * @desc Override react-bootstrap's DropdownButton to add a spinner on top
+ * @component
+ */
+export class DropdownButton extends Component {
+  render() {
+    const { disabling, disabled, spinning, dispatch, ...props } = this.props;
+    const isDisabled = disabled || spinning !== "";
+    const isSpinning = spinning === this.props.id;
+    return (
+      <BDropdownButton
+        className={isSpinning ? "button-with-spinner" : ""}
+        data-testid={props.id}
+        disabled={isDisabled}
+        {...props}
+      >
+        {isSpinning && <Spin id={"spinner-" + props.id} />}
+        {props.children}
+      </BDropdownButton>
+    );
+  }
+}
+
+DropdownButton.propTypes = {
+  id: PropTypes.string,
+  disabling: PropTypes.bool,
+  disabled: PropTypes.bool,
+  spinning: PropTypes.string,
+};
+
+DropdownButton.defaultProps = {
+  disabling: false,
+  disabled: false,
+  spinning: "",
+};

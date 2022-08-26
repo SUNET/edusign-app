@@ -57,6 +57,7 @@ const mapStateToProps = (state) => {
     invitedUnauthn: state.main.pending_multisign.length > 0,
     name: state.main.signer_attributes.name,
     mail: state.main.signer_attributes.mail,
+    inviting: state.inviteform.inviting,
   };
 };
 
@@ -78,15 +79,14 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
       };
     },
-    handleCreateTemplate: function (key) {
+    handleCreateTemplate: function (key, props) {
       return async () => {
         dispatch(disablePolling());
         dispatch(setActiveId("dummy-help-id"));
-        await dispatch(createTemplate({documentKey: key}));
+        await dispatch(createTemplate({ documentKey: key, intl: props.intl }));
         dispatch(unsetSpinning());
         dispatch(enablePolling());
         dispatch(unsetActiveId());
-        dispatch(isNotInviting());
       };
     },
     handleRemove: function (name) {
@@ -99,9 +99,9 @@ const mapDispatchToProps = (dispatch, props) => {
         await dispatch(removeDocument({ docName: name }));
       };
     },
-    handleTemplateRemove: function (docid) {
+    handleTemplateRemove: function (docid, props) {
       return async () => {
-        await dispatch(removeTemplate({ docid: docid }));
+        await dispatch(removeTemplate({ docid: docid, intl: props.intl }));
       };
     },
     handleRetry: function (doc, props) {
@@ -124,14 +124,15 @@ const mapDispatchToProps = (dispatch, props) => {
     handleDownloadAll: async function () {
       await dispatch(downloadAllSigned({ intl: this.props.intl }));
     },
-    handleDlSigned: function (name) {
+    handleDlSigned: function (args) {
       return async () => {
-        await dispatch(downloadSigned(name));
+        await dispatch(downloadSigned(args.docName));
         dispatch(unsetSpinning());
       };
     },
     openInviteForm: function (doc) {
       return () => {
+        dispatch(isNotInviting());
         dispatch(disablePolling());
         dispatch(setActiveId("dummy-help-id"));
         dispatch(showForm(doc.id));

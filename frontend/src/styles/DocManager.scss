@@ -65,6 +65,7 @@
       .button-create-template-flex-item,
       .button-decline-flex-item,
       .button-skip-flex-item,
+      .button-edit-invitations-flex-item,
       .button-multisign-flex-item {
         flex: none;
         button {
@@ -87,6 +88,7 @@
 .button-create-template-flex-item,
 .button-decline-flex-item,
 .button-skip-flex-item,
+.button-edit-invitations-flex-item,
 .button-multisign-flex-item {
   margin-right: 0.5rem;
 }
@@ -122,6 +124,7 @@
     .button-create-template-flex-item,
     .button-decline-flex-item,
     .button-skip-flex-item,
+    .button-edit-invitations-flex-item,
     .button-multisign-flex-item {
       flex: none;
       button {
@@ -131,12 +134,7 @@
   }
 
   .doc-container-md-row,
-  .doc-container-msg-row,
-  .doc-container-pending-row,
-  .doc-container-signed-row,
-  .doc-container-signedby-row,
-  .doc-container-declined-row,
-  .doc-container-loa-row {
+  .doc-container-msg-row {
     line-height: 1.4rem;
   }
 
@@ -172,6 +170,37 @@
       flex: none;
       width: 5rem;
     }
+  }
+}
+
+.doc-container-info-row-sm {
+  line-height: 1.4rem;
+}
+
+.doc-container-info-row-lg,
+.doc-container-info-row-sm {
+  flex: none;
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+  line-height: 1.2rem;
+
+  .info-row-label {
+    margin-right: 0.2rem;
+    color: $darker-dark-grey;
+    font-size: 0.8rem;
+  }
+
+  .info-row-items {
+    .info-row-item {
+      margin-left: 0.3rem;
+      font-size: 0.8rem;
+      display: inline-block;
+    }
+  }
+  .info-row-item {
+    margin-left: 0.3rem;
+    font-size: 0.8rem;
+    display: inline-block;
   }
 }
 

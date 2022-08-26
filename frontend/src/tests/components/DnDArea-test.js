@@ -222,9 +222,7 @@ describe("DnDArea Component", function () {
       let filesize = screen.queryByText("1.5 KiB");
       expect(filesize).to.equal(null);
 
-      let previewButton = screen.queryByText(
-        "Preview and approve for signature"
-      );
+      let previewButton = screen.queryByText("Preview and approve");
       expect(previewButton).to.equal(null);
 
       let rmButton = screen.queryByText("Remove");
@@ -255,7 +253,7 @@ describe("DnDArea Component", function () {
       expect(filesize.length).to.equal(1);
 
       previewButton = await waitFor(() =>
-        screen.getAllByText("Preview and approve for signature")
+        screen.getAllByText("Preview and approve")
       );
       expect(previewButton.length).to.equal(1);
 

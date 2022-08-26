@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESPopover } from "containers/Overlay";
 import { ESTooltip } from "containers/Overlay";
+import ESDropdown from "components/Dropdown";
+import * as menu from "components/dropdownItems";
 
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
@@ -41,7 +43,7 @@ class DocumentLocal extends React.Component {
       }),
       loaded: this.props.intl.formatMessage({
         defaultMessage:
-          'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign Selected Documents"',
+          'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign selected documents"',
         id: "docmanager-help-loaded",
       }),
       "failed-loading-title": this.props.intl.formatMessage({
@@ -58,7 +60,7 @@ class DocumentLocal extends React.Component {
       }),
       unconfirmed: this.props.intl.formatMessage({
         defaultMessage:
-          'Click on the button labeled "Preview and approve for signature" to review the document and confirm that you approve it for signature',
+          'Click on the button labeled "Preview and approve" to review the document and confirm that you approve it for signature',
         id: "docmanager-help-unconfirmed",
       }),
       "selected-title": this.props.intl.formatMessage({
@@ -67,7 +69,7 @@ class DocumentLocal extends React.Component {
       }),
       selected: this.props.intl.formatMessage({
         defaultMessage:
-          'Click on the button below labelled "Sign Selected Documents" to sign this document',
+          'Click on the button below labelled "Sign selected documents" to sign this document',
         id: "docmanager-help-selected",
       }),
       "failed-preparing-title": this.props.intl.formatMessage({
@@ -93,7 +95,7 @@ class DocumentLocal extends React.Component {
       }),
       "failed-signing": this.props.intl.formatMessage({
         defaultMessage:
-          'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign Selected Documents"',
+          'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign selected documents"',
         id: "docmanager-help-failed-signing",
       }),
       "signed-title": this.props.intl.formatMessage({
@@ -113,16 +115,19 @@ class DocumentLocal extends React.Component {
     const doc = this.props.doc;
     const signed =
       (doc.state === "signed" && (
-        <div className="doc-container-signed-row" key="-1">
-          <span className="signed-invites-label">
+        <div
+          className={"doc-container-info-row-" + this.props.size}
+          key={doc.name}
+        >
+          <span className="info-row-label">
             <FormattedMessage
               defaultMessage="Signed by:"
               key="multisign-owned-signed"
             />
           </span>
-          <span className="signed-invites-items">
-            <span className="signed-invite-item">
-              {this.props.name} &lt;{this.props.mail}&gt;
+          <span className="info-row-items">
+            <span className="info-row-item">
+              {this.props.name} &lt;{this.props.mail}&gt;.
             </span>
           </span>
         </div>
@@ -189,9 +194,11 @@ class DocumentLocal extends React.Component {
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
-                      {widgets.createTemplateButton(this.props, doc)}
-                      {widgets.multiSignButton(this.props, doc)}
-                      {widgets.previewButton(this.props, doc)}
+                      <ESDropdown doc={doc}>
+                        {menu.multiSignMenuItem(this.props, doc)}
+                        {menu.createTemplateMenuItem(this.props, doc)}
+                        {menu.previewMenuItem(this.props, doc)}
+                      </ESDropdown>
                       {widgets.removeButton(this.props, doc)}
                     </div>
                   </>
@@ -212,7 +219,10 @@ class DocumentLocal extends React.Component {
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
-                      {widgets.multiSignButton(this.props, doc)}
+                      <ESDropdown doc={doc}>
+                        {menu.multiSignMenuItem(this.props, doc)}
+                        {menu.previewMenuItem(this.props, doc)}
+                      </ESDropdown>
                       {widgets.downloadSignedButton(this.props, doc)}
                       {widgets.removeButton(this.props, doc)}
                     </div>
@@ -225,14 +235,16 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                     {widgets.showMessage(doc)}
                     <div className="doc-manager-buttons">
-                      {widgets.previewButton(this.props, doc)}
+                      <ESDropdown doc={doc}>
+                        {menu.previewMenuItem(this.props, doc)}
+                      </ESDropdown>
                       {widgets.removeButton(this.props, doc)}
                     </div>
                   </>
                 )}
               </div>
               {signed}
-              {preparePrevSigs(doc)}
+              {preparePrevSigs(doc, this.props.size)}
             </div>
           )) || (
             <div className={"doc-flex-container-sm " + doc.state} key="0">
@@ -299,9 +311,11 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.createTemplateButton(this.props, doc)}
-                    {widgets.multiSignButton(this.props, doc)}
-                    {widgets.previewButton(this.props, doc)}
+                    <ESDropdown doc={doc}>
+                      {menu.multiSignMenuItem(this.props, doc)}
+                      {menu.createTemplateMenuItem(this.props, doc)}
+                      {menu.previewMenuItem(this.props, doc)}
+                    </ESDropdown>
                     {widgets.removeButton(this.props, doc)}
                   </div>
                 </>
@@ -326,8 +340,11 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
+                    <ESDropdown doc={doc}>
+                      {menu.multiSignMenuItem(this.props, doc)}
+                      {menu.previewMenuItem(this.props, doc)}
+                    </ESDropdown>
                     {widgets.downloadSignedButton(this.props, doc)}
-                    {widgets.multiSignButton(this.props, doc)}
                     {widgets.removeButton(this.props, doc)}
                   </div>
                 </>
@@ -343,13 +360,15 @@ class DocumentLocal extends React.Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.previewButton(this.props, doc)}
+                    <ESDropdown doc={doc}>
+                      {menu.previewMenuItem(this.props, doc)}
+                    </ESDropdown>
                     {widgets.removeButton(this.props, doc)}
                   </div>
                 </>
               )}
               {signed}
-              {preparePrevSigs(doc)}
+              {preparePrevSigs(doc, this.props.size)}
             </div>
           )}
         </ESPopover>

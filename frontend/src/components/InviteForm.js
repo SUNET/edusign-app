@@ -89,10 +89,6 @@ const validateNewname = (props) => {
   };
 };
 
-const validateLoa = (value) => {
-  return undefined;
-};
-
 const validate = (props) => {
   return (values) => {
     let errors = {};
@@ -115,7 +111,7 @@ const initialValues = (props) => ({
   sendsignedChoice: true,
   makecopyChoice: false,
   isTemplate: props.isTemplate,
-  newnameInput: props.inviting ? "" : nameForCopy(props),
+  newnameInput: nameForCopy(props),
   loa: "none",
   documentId: props.docId,
   invitees: [
@@ -280,6 +276,11 @@ class InviteForm extends React.Component {
       </FieldArray>
     );
   }
+
+  shouldComponentUpdate(nextProps) {
+    return !nextProps.inviting;
+  }
+
   render() {
     const sendsignedControl = (
       <div className="sendsigned-choice-holder">
@@ -363,7 +364,7 @@ class InviteForm extends React.Component {
       </>
     );
     const newNameControl = (props, fprops) => {
-      if (props.make_copy || props.isTemplate) {
+      if (props.isTemplate) {
         return (
           <>
             <div className="newname-text-holder">
@@ -476,7 +477,9 @@ class InviteForm extends React.Component {
                   >
                     <Button
                       variant="outline-secondary"
-                      onClick={this.props.handleClose}
+                      onClick={this.props.handleCloseResetting(
+                        fprops.resetForm
+                      )}
                     >
                       <FormattedMessage
                         defaultMessage="Cancel"

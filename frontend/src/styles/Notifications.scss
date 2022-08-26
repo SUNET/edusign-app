@@ -6,17 +6,42 @@
   flex: 1 0 auto;
   color: transparent;
   background-color: transparent;
-  min-height: 3rem;
-  margin-bottom: 0.75rem;
+}
+
+section#edusign-banner-lg {
+  .notifications-area {
+    min-height: 3rem;
+    min-width: 80%;
+    margin-bottom: 0.75rem;
+    margin-left: 2rem;
+    margin-right: 2rem;
+
+    .notification.alert.alert-dismissible {
+      max-width: 100%;
+    }
+  }
+}
+
+section#edusign-banner-sm {
+  .notifications-area {
+    min-height: 2rem;
+
+    .notification.alert.alert-dismissible {
+      max-width: 100%;
+    }
+  }
 }
 
 .alert.alert-dismissible {
   position: inherit;
-  padding: 0.75rem 1rem;
-  margin-left: 10%;
+  padding: 0 1rem;
+  min-height: 2rem;
   max-width: 75%;
-  border-radius: 2;
-  align-items: baseline;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
   &.alert-danger {
     color: $white;
     background-color: $error-red;
@@ -62,10 +87,6 @@
 }
 
 @media (max-width: 568px) {
-  .notifications-area {
-    margin-bottom: 1.5rem;
-  }
-
   .alert.alert-dismissible {
     & span {
       width: calc(100% - 1.25rem);
