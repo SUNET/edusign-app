@@ -89,9 +89,6 @@ export const downloadDraftMenuItem = (props, doc) => (
       intl: props.intl,
     })}
   >
-    <FormattedMessage
-      defaultMessage="Download (draft)"
-      key="dldraft-button"
-    />
+    <FormattedMessage defaultMessage="Download (draft)" key="dldraft-button" />
   </ESDropdownItem>
 );
