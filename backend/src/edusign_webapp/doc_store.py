@@ -312,6 +312,24 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def get_user_name(self, email: str) -> str:
+        """
+        Return the display name of some user.
+
+        :param email: the email for the user in the users table
+        :return: Display name of the user
+        """
+
+    @abc.abstractmethod
+    def update_user(self, email: str, name: str):
+        """
+        Update a user's display name.
+
+        :param email: email address of the user to update
+        :param name: display name of the user to update
+        """
+
+    @abc.abstractmethod
     def get_sendsigned(self, key: uuid.UUID) -> bool:
         """
         Whether the final signed document should be sent by email to all signataries
@@ -562,6 +580,17 @@ class DocStore(object):
                 changed['added'].append(new)
 
         return changed
+
+    def update_user(self, email: str, name: str):
+        """
+        Update a user's display name if different than the provided one.
+
+        :param email: email address of the user to update
+        :param name: display name of the user to update
+        """
+        old_name = self.metadata.get_user_name(email)
+        if old_name not in (name, ''):
+            self.metadata.update_user(email, name)
 
     def delegate(self, invite_key: uuid.UUID, document_key: uuid.UUID, name: str, email: str) -> bool:
         """

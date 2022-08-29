@@ -90,6 +90,8 @@ PRAGMA user_version = 4;
 USER_INSERT = "INSERT INTO Users (name, email) VALUES (?, ?);"
 USER_QUERY_ID = "SELECT user_id FROM Users WHERE email = ?;"
 USER_QUERY = "SELECT name, email FROM Users WHERE user_id = ?;"
+USER_NAME_QUERY = "SELECT name FROM Users WHERE email = ?;"
+USER_NAME_UPDATE = "UPDATE Users SET name = ? WHERE email = ?;"
 DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner FROM Documents WHERE key = ?;"
@@ -782,6 +784,34 @@ class SqliteMD(ABCMetadata):
             return {}
 
         return user_info
+
+    def get_user_name(self, email: str) -> str:
+        """
+        Return the display name of some user.
+
+        :param email: the email for the user in the users table
+        :return: Display name of the user
+        """
+        user_result = self._db_query(USER_NAME_QUERY, (str(email),), one=True)
+
+        if isinstance(
+            user_result, list
+        ):  # This should never happen, it's just to please mypy
+            self._db_commit()
+            return ''
+        if user_result is None:
+            return ''
+        return user_result['name']
+
+    def update_user(self, email: str, name: str):
+        """
+        Update a user's display name.
+
+        :param email: email address of the user to update
+        :param name: display name of the user to update
+        """
+        self._db_execute(USER_NAME_UPDATE, (name, email))
+        self._db_commit()
 
     def get_sendsigned(self, key: uuid.UUID) -> bool:
         """

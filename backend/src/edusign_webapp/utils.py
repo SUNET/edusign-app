@@ -131,6 +131,12 @@ def get_invitations():
       polling the backend (this is, only when there are users pending to sign
       any of the invitations).
     """
+    if 'displayName' in session:
+        name = session['displayName']
+    else:
+        name = f"{session['givenName']} {session['sn']}"
+    current_app.doc_store.update_user(session['mail'], name)
+
     owned = current_app.doc_store.get_owned_documents(session['mail'])
     invited = current_app.doc_store.get_pending_documents(session['mail'])
     poll = False
