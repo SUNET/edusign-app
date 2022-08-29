@@ -318,6 +318,7 @@ def get_config() -> dict:
     payload['available_loas'] = []
     for uri, name in current_app.config['AVAILABLE_LOAS'].items():
         payload['available_loas'].append({'uri': uri, 'name': name})
+    payload['max_file_size'] = current_app.config['MAX_FILE_SIZE']
 
     return {
         'payload': payload,

@@ -82,6 +82,7 @@
   "components.ReInviteForm.resend-invitation-tootip": "Resend invitations to sign to invitees pending to sign",
   "components.ReInviteForm.resend-invite": "Resend",
   "components.dropdownItems.create-template-menu-item": "Create template",
+  "components.dropdownItems.dldraft-button": "Download (draft)",
   "components.dropdownItems.edit-invitations-menu-item": "Edit invitations",
   "components.dropdownItems.multisign-button": "Invite others to sign",
   "components.dropdownItems.preview-button": "Preview",
@@ -185,5 +186,6 @@
   "template-removed-globalmsg": "Template successfully removed",
   "validate-problem-corrupted": "Document seems corrupted",
   "validate-problem-password": "Please do not supply a password protected document",
-  "validate-problem-unreadable": "Document is unreadable"
+  "validate-problem-unreadable": "Document is unreadable",
+  "validate-too-big": "Document is too big (max size: {size})"
 }

@@ -64,7 +64,7 @@ import { setTemplates, addTemplate } from "slices/Templates";
 import { unsetSpinning } from "slices/Button";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
-import { b64toBlob, hashCode, nameForCopy } from "components/utils";
+import { b64toBlob, hashCode, nameForCopy, humanFileSize } from "components/utils";
 
 /**
  * @public
@@ -308,6 +308,15 @@ async function validateDoc(doc, intl, state) {
 
   if (doc.state === "dup") {
     return doc;
+  }
+
+  if (doc.size > state.main.max_file_size) {
+    doc.state = "failed-loading";
+    doc.message = intl.formatMessage({
+      defaultMessage: `Document is too big (max size: {size})`,
+      id: "validate-too-big",
+      values: {size: humanFileSize(state.main.max_file_size)},
+    });
   }
 
   return await pdfjs

@@ -82,6 +82,7 @@
   "components.ReInviteForm.resend-invitation-tootip": "Skicka meddelande till alla som inte signerat",
   "components.ReInviteForm.resend-invite": "Skicka",
   "components.dropdownItems.create-template-menu-item": "Skapa mall",
+  "components.dropdownItems.dldraft-button": "",
   "components.dropdownItems.edit-invitations-menu-item": "Uppdatera inbjudan",
   "components.dropdownItems.multisign-button": "Bjud in andra att signera",
   "components.dropdownItems.preview-button": "Förhandsvisa",
@@ -185,5 +186,6 @@
   "template-removed-globalmsg": "Mall borttagen",
   "validate-problem-corrupted": "Dokumentet verkar vara skadat",
   "validate-problem-password": "Använd inte lösenordsskyddat dokument",
-  "validate-problem-unreadable": "Dokumentet är oläsligt"
+  "validate-problem-unreadable": "Dokumentet är oläsligt",
+  "validate-too-big": ""
 }
