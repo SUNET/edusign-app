@@ -39,6 +39,12 @@
       color: $darker-dark-grey;
     }
 
+    .date-flex-item {
+      flex: none;
+      margin-right: 1rem;
+      color: $darker-dark-grey;
+    }
+
     .doc-manager-buttons {
       flex: 3 1 auto;
       display: flex;
@@ -156,6 +162,12 @@
     }
 
     .size-flex-item {
+      flex: none;
+      margin-right: 1rem;
+      color: $darker-dark-grey;
+    }
+
+    .date-flex-item {
       flex: none;
       margin-right: 1rem;
       color: $darker-dark-grey;

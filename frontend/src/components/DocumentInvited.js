@@ -202,6 +202,7 @@ class DocumentInvited extends Component {
                     <>
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
+                      {widgets.docCreated(doc)}
                       {widgets.docName(doc)}
                       {widgets.forcedPreviewButton(this.props, doc)}
                       {widgets.declineSignatureButton(this.props, doc)}
@@ -213,6 +214,7 @@ class DocumentInvited extends Component {
                     <>
                       {widgets.selectDoc(this.props, doc)}
                       {widgets.docSize(doc)}
+                      {widgets.docCreated(doc)}
                       {widgets.docName(doc)}
                       {widgets.showMessage(doc)}
                       <ESDropdown doc={doc}>
@@ -226,6 +228,7 @@ class DocumentInvited extends Component {
                     <>
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
+                      {widgets.docCreated(doc)}
                       {widgets.docName(doc)}
                       {widgets.namedSpinner(doc.name, "signing")}
                     </>
@@ -234,6 +237,7 @@ class DocumentInvited extends Component {
                     <>
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
+                      {widgets.docCreated(doc)}
                       {widgets.docName(doc)}
                       {widgets.downloadDraftButton(this.props, doc)}
                     </>
@@ -242,6 +246,7 @@ class DocumentInvited extends Component {
                     <>
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
+                      {widgets.docCreated(doc)}
                       {widgets.docName(doc)}
                       {widgets.showMessage(doc)}
                       {widgets.dummyButton()}
@@ -260,6 +265,7 @@ class DocumentInvited extends Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
+                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
@@ -273,6 +279,7 @@ class DocumentInvited extends Component {
                   <div className="doc-container-md-row">
                     {widgets.selectDoc(this.props, doc)}
                     {widgets.docSize(doc)}
+                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-msg-row">
@@ -292,6 +299,7 @@ class DocumentInvited extends Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
+                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-msg-row">
@@ -304,6 +312,7 @@ class DocumentInvited extends Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
+                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
@@ -316,6 +325,7 @@ class DocumentInvited extends Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
+                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-msg-row">

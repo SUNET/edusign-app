@@ -162,6 +162,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
         """
 
     @abc.abstractmethod
@@ -198,6 +199,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
         """
 
     @abc.abstractmethod
@@ -428,6 +430,7 @@ class DocStore(object):
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
         """
         return self.metadata.get_pending(email)
 
@@ -485,6 +488,7 @@ class DocStore(object):
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
         """
         return self.metadata.get_owned(email)
 

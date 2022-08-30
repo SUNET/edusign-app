@@ -13,6 +13,14 @@ export const docName = (doc) => {
 export const docSize = (doc) => {
   return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
 };
+export const docCreated = (doc) => {
+  let ts = Number(doc.created);
+  if (isNaN(ts)) {
+    ts = Date.parse(doc.created);
+  }
+  const date = new Date(ts);
+  return <div className="date-flex-item">{date.toLocaleDateString()}</div>;
+};
 
 export const namedSpinner = (index, name) => {
   return (

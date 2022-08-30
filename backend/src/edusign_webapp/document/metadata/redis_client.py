@@ -466,6 +466,7 @@ class RedisMD(ABCMetadata):
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
         """
         invites = self.client.query_invites_from_email(email)
         if invites is None or isinstance(invites, dict):
@@ -588,6 +589,7 @@ class RedisMD(ABCMetadata):
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
         """
         documents = self.client.query_documents_from_owner(email)
         if documents is None or isinstance(documents, dict):
