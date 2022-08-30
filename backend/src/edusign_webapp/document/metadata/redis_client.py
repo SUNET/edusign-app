@@ -78,6 +78,21 @@ class RedisStorageBackend:
         }
         return user
 
+    def query_user_name(self, email):
+        user_id = self.query_user_id(email)
+        if user_id is not None:
+            user = self.query_user(user_id)
+            if user is not None:
+                return user['name']
+
+    def update_user_name(self, email, name):
+        user_id = self.query_user_id(email)
+        updated = {
+            'name': name,
+            'email': email
+        }
+        self.transaction.hset(f"user:{user_id}", mapping=updated)
+
     def insert_document(self, key, name, size, type, owner, prev_signatures, sendsigned, loa):
         doc_id = self.redis.incr('doc-counter')
         now = datetime.now().timestamp()
@@ -942,6 +957,27 @@ class RedisMD(ABCMetadata):
             return {}
 
         return user_info
+
+    def get_user_name(self, email: str) -> str:
+        """
+        Return the display name of some user.
+
+        :param email: the email for the user in the users table
+        :return: Display name of the user
+        """
+        name = self.client.query_user_name(email)
+        if name is not None:
+            return name
+        return ''
+
+    def update_user(self, email: str, name: str):
+        """
+        Update a user's display name.
+
+        :param email: email address of the user to update
+        :param name: display name of the user to update
+        """
+        self.client.update_user_name(email, name)
 
     def get_sendsigned(self, key: uuid.UUID) -> bool:
         """
