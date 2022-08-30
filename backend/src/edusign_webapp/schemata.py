@@ -99,6 +99,7 @@ class ConfigSchema(InvitationsSchema):
     multisign_buttons = fields.String(required=True)
     available_loas = fields.List(fields.Nested(AvailableLoa))
     unauthn = fields.Boolean(default=True)
+    max_file_size = fields.String(required=True)
 
 
 class DocumentSchema(_DocumentSchema):
