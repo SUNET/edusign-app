@@ -76,6 +76,18 @@ to [SWAMID Release check](https://release-check.swamid.se/). It is important
 that your mail value match the email used to invite you to sign a document with
 eduSign.
 
+## What do I do if I have problems with the service?
+
+If you have issues using eduSign please contact the local IT-support at the
+organisation that you have a user account with. If your organisation do not
+have a contract with Sunet to use eduSign and you have been invited to sign a
+document please turn to the person who invited you to sign the document for
+help.
+
+Before contacting support you can also verify on [Sunet
+statuspage](https://status.sunet.se/) that there are no ongoing issues or
+planned maintenance. 
+
 ## What is eduSign?
 
 eduSign is Sunet's service for e-signatures. The service can be found at

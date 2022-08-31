@@ -73,6 +73,18 @@ Release check](https://release-check.swamid.se/). Det är viktigt att det mail
 värde du ser där är samma e-post som du blivit inbjuden att signera dokument
 med
 
+## Vad gör jag om jag har problem med tjänsten?
+
+Om du har problem att använda eduSign så ska du vända dig till den lokala
+IT-supporten hos den organisation där du har ditt användarkonto. Har den
+organisationen inte ett avtal med Sunet att använda tjänsten eduSign och du
+blivit inbjuden att signera ett dokument så bör du vända dig till den person
+som bjöd in dig att signera dokumentet för att få hjälp.
+
+Innan du kontaktar support så kontrollera gärna på [Sunets
+statussida](https://status.sunet.se/) att det inte pågår planerade arbeten
+eller finns andra kända problem med tjänsten.
+
 ## Vad är eduSign?
 
 eduSign är Sunets tjänst för e-signaturer. Tjänsten finns på edusign.sunet.se
