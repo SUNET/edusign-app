@@ -176,4 +176,4 @@ AVAILABLE_LOAS = {
     loa.split(",")[0].strip(): loa.split(",")[1].strip() for loa in RAW_AVAILABLE_LOAS.strip().strip(';').split(';')
 }
 
-MAX_CONTENT_LENGTH = os.environ.get('MAX_FILE_SIZE', default=False)
+MAX_CONTENT_LENGTH = int(os.environ.get('MAX_FILE_SIZE', default=20971520))
