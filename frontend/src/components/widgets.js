@@ -18,8 +18,12 @@ export const docCreated = (doc) => {
   if (isNaN(ts)) {
     ts = Date.parse(doc.created);
   }
-  const date = new Date(ts);
-  return <div className="date-flex-item">{date.toLocaleDateString()}</div>;
+  if (isNaN(ts)) {
+    return <div className="date-flex-item"></div>;
+  } else {
+    const date = new Date(ts);
+    return <div className="date-flex-item">{date.toLocaleDateString()}</div>;
+  }
 };
 
 export const namedSpinner = (index, name) => {
