@@ -292,3 +292,22 @@ class DelegationSchema(Invitee):
 
     invite_key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     document_key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+
+
+class FormSchema(Schema):
+    """
+    Schema to marshall PDF forms.
+    """
+
+    class Field(Schema):
+
+        class Choice(Schema):
+            value = fields.String(required=True)
+
+        name = fields.String(required=True, validate=[validate_nonempty])
+        type = fields.String(required=True, validate=[validate_nonempty])
+        label = fields.String(required=False)
+        value = fields.String(required=False)
+        choices = fields.List(fields.Nested(Choice))
+
+    fields = fields.List(fields.Nested(Field))
