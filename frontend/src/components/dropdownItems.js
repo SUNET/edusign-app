@@ -92,3 +92,17 @@ export const downloadDraftMenuItem = (props, doc) => (
     <FormattedMessage defaultMessage="Download (draft)" key="dldraft-button" />
   </ESDropdownItem>
 );
+
+export const fillFormMenuItem = (props, doc) => (
+  <ESDropdownItem
+    doc={doc}
+    id={"menu-item-fillform-" + doc.name}
+    disabling={true}
+    onClick={props.handleFillForm({
+      doc: doc,
+      intl: props.intl,
+    })}
+  >
+    <FormattedMessage defaultMessage="Fill form" key="fillform-button" />
+  </ESDropdownItem>
+);

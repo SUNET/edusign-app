@@ -1409,8 +1409,15 @@ def delegate_invitation(data):
 @Marshal()
 def get_form(data):
     pdf = data['document']
-    fields = get_pdf_form(pdf)
-    return {'message': 'Success', 'payload': {'form': fields}}
+    try:
+        fields = get_pdf_form(pdf)
+    except Exception as e:
+        current_app.logger.error(
+            f"Problem getting form from PDF: {e}"
+        )
+        return {'error': True, 'message': gettext('Problem getting form from PDF, please try again')}
+
+    return {'message': 'Success', 'payload': {'schema': fields}}
 
 
 @edusign_views.route('/update-form', methods=['POST'])
@@ -1419,5 +1426,12 @@ def get_form(data):
 def update_form(data):
     pdf = data['document']
     fields = data['fields']
-    updated = update_pdf_form(pdf, fields)
+    try:
+        updated = update_pdf_form(pdf, fields)
+    except Exception as e:
+        current_app.logger.error(
+            f"Problem filling in form in PDF: {e}"
+        )
+        return {'error': True, 'message': gettext('Problem filling in form in PDF, please try again')}
+
     return {'message': 'Success', 'payload': {'document': updated}}
