@@ -12,6 +12,7 @@ import poll from "slices/Poll";
 import inviteform from "slices/InviteForm";
 import template from "slices/Templates";
 import overlay from "slices/Overlay";
+import pdfform from "slices/PDFForms";
 
 /**
  * @public
@@ -30,5 +31,6 @@ export default combineReducers({
   poll,
   inviteform,
   overlay,
+  pdfform,
   intl: intlReducer,
 });

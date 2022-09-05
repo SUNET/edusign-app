@@ -1,0 +1,14 @@
+@import "./variables.scss";
+
+.pdfform-text-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 10%;
+  margin-left: 10%;
+
+  .pdfform-text-label {
+    align-self: flex-start;
+  }
+}
+
