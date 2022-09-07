@@ -14,6 +14,7 @@ import DocumentLocal from "components/DocumentLocal";
 import DocumentTemplate from "components/DocumentTemplate";
 import DocumentOwned from "components/DocumentOwned";
 import * as widgets from "components/widgets";
+import PDFFormContainer from "containers/PDFForm";
 
 import "styles/DocManager.scss";
 import "styles/Invitation.scss";
@@ -337,6 +338,7 @@ class DocManager extends React.Component {
             />
           </div>
         )}
+        <PDFFormContainer />
       </>
     );
   }

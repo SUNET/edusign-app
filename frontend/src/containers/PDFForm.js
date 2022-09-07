@@ -16,15 +16,14 @@ import { unsetSpinning } from "slices/Button";
 import { hidePDFForm, sendPDFForm } from "slices/PDFForms";
 
 const mapStateToProps = (state, props) => {
-  let show = false;
-  if (state.pdfform.form_schema) {
-    show = true;
-  }
   return {
     size: state.main.size,
-    show: show,
+    show: state.pdfform.show,
     doc: state.pdfform.document,
     form: state.pdfform.form_schema,
+    templates: state.template.documents,
+    documents: state.documents.documents,
+    owned: state.main.owned_multisign,
   };
 };
 
@@ -43,4 +42,3 @@ const mapDispatchToProps = (dispatch, props) => {
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(PDFForm);
-

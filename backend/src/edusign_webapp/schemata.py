@@ -311,3 +311,16 @@ class FormSchema(Schema):
         choices = fields.List(fields.Nested(Choice))
 
     fields = fields.List(fields.Nested(Field))
+
+
+class DocSchema(Schema):
+    """
+    Schema to unmarshal a document's contents
+    sent to extract a PDF form
+    """
+    document = fields.String(required=True, validate=[validate_nonempty])
+
+
+class FillFormSchema(Schema):
+    document = fields.Nested(DocSchema, many=False)
+    fields = fields.Nested(FormSchema, many=False)

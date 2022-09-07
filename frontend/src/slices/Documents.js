@@ -317,11 +317,12 @@ async function validateDoc(doc, intl, state) {
 
   if (doc.size > Number(state.main.max_file_size)) {
     doc.state = "failed-loading";
-    doc.message = intl.formatMessage({
-      defaultMessage: `Document is too big (max size: {size})`,
-      id: "validate-too-big",
+    doc.message = intl.formatMessage(
+      {
+        defaultMessage: `Document is too big (max size: {size})`,
+        id: "validate-too-big",
       },
-      { size: humanFileSize(state.main.max_file_size) },
+      { size: humanFileSize(state.main.max_file_size) }
     );
     return doc;
   }

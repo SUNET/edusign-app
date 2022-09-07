@@ -18,5 +18,12 @@ def get_pdf_form(pdf):
     return fields
 
 
-def update_pdf_form(pdf):
-    return pdf
+def update_pdf_form(pdf, fields):
+    doc = fitz.open(stream=pdf)
+    for page in doc:
+        for field in page.widgets:
+            value = fields[field.field_name]
+            field.field_value = value
+
+    newpdf = doc.stream()
+    return newpdf

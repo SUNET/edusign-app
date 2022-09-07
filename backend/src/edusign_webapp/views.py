@@ -61,6 +61,9 @@ from edusign_webapp.schemata import (
     SignRequestSchema,
     ToRestartSigningSchema,
     ToSignSchema,
+    DocSchema,
+    FormSchema,
+    FillFormSchema,
 )
 from edusign_webapp.utils import (
     add_attributes_to_session,
@@ -1405,8 +1408,8 @@ def delegate_invitation(data):
 
 
 @edusign_views.route('/get-form', methods=['POST'])
-@UnMarshal()
-@Marshal()
+@UnMarshal(DocSchema)
+@Marshal(FormSchema)
 def get_form(data):
     pdf = data['document']
     try:
@@ -1421,8 +1424,8 @@ def get_form(data):
 
 
 @edusign_views.route('/update-form', methods=['POST'])
-@UnMarshal()
-@Marshal()
+@UnMarshal(FillFormSchema)
+@Marshal(DocSchema)
 def update_form(data):
     pdf = data['document']
     fields = data['fields']

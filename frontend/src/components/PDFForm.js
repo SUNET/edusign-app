@@ -6,15 +6,16 @@ import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
+import { validateNewname } from "components/InviteForm";
 
 import "styles/PDFForm.scss";
 
 const initialValues = (form) => {
   return form.map((field) => {
     f = {};
-    let value = '';
+    let value = "";
     if (field.value !== undefined) {
-      value = field.value
+      value = field.value;
     }
     f[field.name] = value;
     return f;
@@ -23,9 +24,12 @@ const initialValues = (form) => {
 
 class PDFForm extends React.Component {
   render() {
+    if (this.props.show === false) {
+      return "";
+    }
 
     const fields = this.props.form.map((field) => {
-      if (field.type === 'string') {
+      if (field.type === "string") {
         return (
           <BForm.Group className="pdfform-text-group">
             <BForm.Label
@@ -74,6 +78,30 @@ class PDFForm extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                   <>
+                    <BForm.Group className="newname-text-group">
+                      <BForm.Label
+                        className="newname-text-label"
+                        htmlFor="newname"
+                      >
+                        <FormattedMessage
+                          defaultMessage="New name for document to send for signatures:"
+                          key="newname-text-field"
+                        />
+                      </BForm.Label>
+                      <ErrorMessage
+                        name="newname"
+                        component="div"
+                        className="field-error"
+                      />
+                      <Field
+                        name="newname"
+                        data-testid="newname"
+                        as={BForm.Control}
+                        type="text"
+                        validate={validateNewname(props)}
+                        isValid={!fprops.errors.newname}
+                      />
+                    </BForm.Group>
                     {fields}
                   </>
                 </Modal.Body>
@@ -144,4 +172,3 @@ PDFForm.propTypes = {
 };
 
 export default injectIntl(PDFForm);
-
