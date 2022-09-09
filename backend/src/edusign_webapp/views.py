@@ -1420,7 +1420,7 @@ def get_form(data):
         )
         return {'error': True, 'message': gettext('Problem getting form from PDF, please try again')}
 
-    return {'message': 'Success', 'payload': {'schema': fields}}
+    return {'message': 'Success', 'payload': {'fields': fields}}
 
 
 @edusign_views.route('/update-form', methods=['POST'])

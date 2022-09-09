@@ -4,12 +4,19 @@
  * and the actions and reducers to manipulate it.
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  postRequest,
+  checkStatus,
+  extractCsrfToken,
+  preparePayload,
+} from "slices/fetch-utils";
 import { setState } from "slices/Documents";
 import { showForm } from "slices/Modals";
 import { disablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
 import { setActiveId } from "slices/Overlay";
 import { isNotInviting } from "slices/InviteForm";
+import { addNotification } from "slices/Notifications";
 
 /**
  * @public
@@ -29,7 +36,7 @@ export const getPDFForm = createAsyncThunk(
     const docToSend = {
       document: doc.blob,
     };
-    const body = JSON.stringify({ payload: docToSend });
+    const body = preparePayload(state, docToSend);
     let data = null;
     try {
       const response = await fetch("/sign/get-form", {
@@ -48,13 +55,13 @@ export const getPDFForm = createAsyncThunk(
           }),
         })
       );
-      return thunkAPI.rejectWithValue(doc);
+      return thunkAPI.rejectWithValue(err);
     }
     // If the response from the backend indicates no errors (by having a `payload` key)
     // update its data in the redux store,
     // and if there are errors, also update its data with the error.
     if ("payload" in data) {
-      thunkAPI.dispatch(pdfFormSlice.actions.addSchema(data.payload.schema));
+      thunkAPI.dispatch(pdfFormSlice.actions.addSchema(data.payload.fields));
       thunkAPI.dispatch(pdfFormSlice.actions.showPDFForm());
       return;
     }
@@ -155,7 +162,7 @@ export const sendPDFForm = createAsyncThunk(
   }
 );
 
-const pdfformsSlice = createSlice({
+const pdfFormSlice = createSlice({
   name: "pdfforms",
   initialState: {
     document: {},
@@ -186,7 +193,7 @@ const pdfformsSlice = createSlice({
      * @desc Redux action to forget about a process of filling in a pdf form
      */
     clearPDFForm(state, action) {
-      state.document = "";
+      state.document = {};
       state.form_schema = {};
     },
     /**
@@ -208,7 +215,7 @@ const pdfformsSlice = createSlice({
   },
   extraReducers: {
     [getPDFForm.rejected]: (state, action) => {
-      state.document = "";
+      state.document = {};
       state.form_schema = {};
     },
   },
@@ -220,6 +227,6 @@ export const {
   addSchema,
   hidePDFForm,
   showPDFForm,
-} = pdfformsSlice.actions;
+} = pdfFormSlice.actions;
 
-export default pdfformsSlice.reducer;
+export default pdfFormSlice.reducer;

@@ -11,8 +11,8 @@ import { validateNewname } from "components/InviteForm";
 import "styles/PDFForm.scss";
 
 const initialValues = (form) => {
-  return form.map((field) => {
-    f = {};
+  const fields = form.map((field) => {
+    const f = {};
     let value = "";
     if (field.value !== undefined) {
       value = field.value;
@@ -20,6 +20,7 @@ const initialValues = (form) => {
     f[field.name] = value;
     return f;
   });
+  return {fields: fields};
 };
 
 class PDFForm extends React.Component {
@@ -28,27 +29,35 @@ class PDFForm extends React.Component {
       return "";
     }
 
-    const fields = this.props.form.map((field) => {
-      if (field.type === "string") {
-        return (
-          <BForm.Group className="pdfform-text-group">
-            <BForm.Label
-              className="pdfform-text-label"
-              htmlFor={field.name + "-pdfform-text-input"}
-            >
-              {field.label}
-            </BForm.Label>
-            <Field
-              name={field.name + "-pdfform-text-input"}
-              id={field.name + "-pdfform-text-input"}
-              data-testid={field.name + "-pdfform-text-input"}
-              className="pdfform-text-nput"
-              as="textarea"
-            />
-          </BForm.Group>
-        );
-      }
-    });
+    const fields = (fprops) => {
+      return (
+        <FieldArray name="fields" validateOnChange={false}>
+          <>
+          {this.props.form.map((field, i) => {
+              if (field.type === "7") {
+                return (
+                  <BForm.Group className="pdfform-text-group">
+                    <BForm.Label
+                      className="pdfform-text-label"
+                      htmlFor={field.name + "-pdfform-text-input"}
+                    >
+                      {field.label}
+                    </BForm.Label>
+                    <Field
+                      name={field.name + "-pdfform-text-input"}
+                      id={field.name + "-pdfform-text-input"}
+                      value={fprops.values.fields[i].value}
+                      data-testid={field.name + "-pdfform-text-input"}
+                      className="pdfform-text-nput"
+                      as="textarea"
+                    />
+                  </BForm.Group>
+                );
+              }
+            })}
+          </>
+        </FieldArray>);
+    };
 
     return (
       <>
@@ -98,11 +107,11 @@ class PDFForm extends React.Component {
                         data-testid="newname"
                         as={BForm.Control}
                         type="text"
-                        validate={validateNewname(props)}
+                        validate={validateNewname(this.props)}
                         isValid={!fprops.errors.newname}
                       />
                     </BForm.Group>
-                    {fields}
+                    {fields(fprops)}
                   </>
                 </Modal.Body>
                 <Modal.Footer>
