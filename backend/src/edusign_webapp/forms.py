@@ -1,6 +1,18 @@
-from base64 import b64decode
+from base64 import b64decode, b64encode
 
 import fitz
+
+
+def _load_b64_pdf(b64_pdf):
+    """
+    Load to PyMuPDF a base64 encoding of a PDF document
+    """
+    if ',' in b64_pdf:
+        b64_pdf = b64_pdf.split(',')[1]
+
+    b64_bytes = b64_pdf.encode('ascii')
+    pdf_bytes = b64decode(b64_bytes)
+    return fitz.open(stream=pdf_bytes, filetype='application/pdf')
 
 
 def get_pdf_form(b64_pdf):
@@ -8,12 +20,7 @@ def get_pdf_form(b64_pdf):
     Check that the provided PDF contains a form,
     and if so, inspect it and extract the schema.
     """
-    if ',' in b64_pdf:
-        b64_pdf = b64_pdf.split(',')[1]
-
-    b64_bytes = b64_pdf.encode('ascii')
-    pdf_bytes = b64decode(b64_bytes)
-    doc = fitz.open(stream=pdf_bytes, filetype='application/pdf')
+    doc = _load_b64_pdf(b64_pdf)
     nfields = doc.is_form_pdf
     fields = []
     if nfields:
@@ -29,16 +36,18 @@ def get_pdf_form(b64_pdf):
     return fields
 
 
-def update_pdf_form(pdf, fields):
+def update_pdf_form(b64_pdf, fields):
     """
     Fill in the PDF form in the provided PDF
     with the values given in the fields param.
     """
-    doc = fitz.open(stream=pdf)
+    doc = _load_b64_pdf(b64_pdf)
     for page in doc:
-        for field in page.widgets:
-            value = fields[field.field_name]
-            field.field_value = value
+        for field in page.widgets():
+            for f in fields:
+                if field.field_name == f['name']:
+                    field.field_value = f['value']
+                    break
 
-    newpdf = doc.stream()
+    newpdf = b64encode(doc.stream)
     return newpdf

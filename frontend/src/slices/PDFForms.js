@@ -10,7 +10,7 @@ import {
   extractCsrfToken,
   preparePayload,
 } from "slices/fetch-utils";
-import { setState } from "slices/Documents";
+import { setState, createDocument } from "slices/Documents";
 import { showForm } from "slices/Modals";
 import { disablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
@@ -93,16 +93,28 @@ export const getPDFForm = createAsyncThunk(
 export const sendPDFForm = createAsyncThunk(
   "documents/sendPDFForm",
   async (args, thunkAPI) => {
-    const fields = args.values.fields;
+    const field_values = args.values.fields;
     const state = thunkAPI.getState();
     const doc = state.pdfform.document;
     const newName = args.values.newname;
+
+    const fields = field_values.map((field) => {
+      for (let key in field) {
+        if (field.hasOwnProperty(key)) {
+          // return on 1st iteration
+          return {
+            name: key,
+            value: field[key],
+          }
+        }
+      }
+    });
 
     const dataToSend = {
       document: doc.blob,
       fields: fields,
     };
-    const body = JSON.stringify({ payload: dataToSend });
+    const body = preparePayload(state, dataToSend);
     let data = null;
     try {
       const response = await fetch("/sign/update-form", {
@@ -143,7 +155,7 @@ export const sendPDFForm = createAsyncThunk(
     const newDoc = {
       ...doc,
       name: newName,
-      blob: data.payload.document,
+      blob: "data:application/pdf;base64," + data.payload.document,
     };
     await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
     thunkAPI.dispatch(setState({ name: newName, state: "loaded" }));

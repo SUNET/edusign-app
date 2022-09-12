@@ -36,22 +36,24 @@ class PDFForm extends React.Component {
           {this.props.form.map((field, i) => {
               if (field.type === "7") {
                 return (
-                  <BForm.Group className="pdfform-text-group">
-                    <BForm.Label
-                      className="pdfform-text-label"
-                      htmlFor={field.name + "-pdfform-text-input"}
-                    >
-                      {field.label}
-                    </BForm.Label>
-                    <Field
-                      name={field.name + "-pdfform-text-input"}
-                      id={field.name + "-pdfform-text-input"}
-                      value={fprops.values.fields[i].value}
-                      data-testid={field.name + "-pdfform-text-input"}
-                      className="pdfform-text-nput"
-                      as="textarea"
-                    />
-                  </BForm.Group>
+                  <div key={i} className="pdfform-field">
+                    <BForm.Group className="pdfform-text-group">
+                      <BForm.Label
+                        className="pdfform-text-label"
+                        htmlFor={field.name + "-pdfform-text-input"}
+                      >
+                        {field.label}
+                      </BForm.Label>
+                      <Field
+                        name={field.name + "-pdfform-text-input"}
+                        id={field.name + "-pdfform-text-input"}
+                        value={fprops.values.fields[i].value}
+                        data-testid={field.name + "-pdfform-text-input"}
+                        className="pdfform-text-nput"
+                        as="textarea"
+                      />
+                    </BForm.Group>
+                  </div>
                 );
               }
             })}
@@ -109,6 +111,7 @@ class PDFForm extends React.Component {
                         type="text"
                         validate={validateNewname(this.props)}
                         isValid={!fprops.errors.newname}
+                        value={fprops.values.newname}
                       />
                     </BForm.Group>
                     {fields(fprops)}
