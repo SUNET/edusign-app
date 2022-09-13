@@ -10,8 +10,8 @@ import { validateNewname } from "components/InviteForm";
 
 import "styles/PDFForm.scss";
 
-const initialValues = (form) => {
-  const fields = form.map((field) => {
+const initialValues = (props) => {
+  const fields = props.form.map((field) => {
     const f = {};
     let value = "";
     if (field.value !== undefined) {
@@ -20,7 +20,10 @@ const initialValues = (form) => {
     f[field.name] = value;
     return f;
   });
-  return {fields: fields};
+  return {
+    fields: fields,
+    newname: '',
+  };
 };
 
 class PDFForm extends React.Component {
@@ -29,43 +32,41 @@ class PDFForm extends React.Component {
       return "";
     }
 
-    const fields = (fprops) => {
+    const add_fields = (fprops) => {
       return (
-        <FieldArray name="fields" validateOnChange={false}>
-          <>
-          {this.props.form.map((field, i) => {
-              if (field.type === "7") {
-                return (
-                  <div key={i} className="pdfform-field">
-                    <BForm.Group className="pdfform-text-group">
-                      <BForm.Label
-                        className="pdfform-text-label"
-                        htmlFor={field.name + "-pdfform-text-input"}
-                      >
-                        {field.label}
-                      </BForm.Label>
-                      <Field
-                        name={field.name + "-pdfform-text-input"}
-                        id={field.name + "-pdfform-text-input"}
-                        value={fprops.values.fields[i].value}
-                        data-testid={field.name + "-pdfform-text-input"}
-                        className="pdfform-text-nput"
-                        as="textarea"
-                      />
-                    </BForm.Group>
-                  </div>
-                );
-              }
-            })}
-          </>
-        </FieldArray>);
+        <>
+          {fprops.values.fields.map((field, i) => {
+            const spec = this.props.form[i];
+            if (spec.type === "7") {
+              return (
+                <div key={i} className="pdfform-field">
+                  <BForm.Group className="pdfform-text-group">
+                    <BForm.Label
+                      className="pdfform-text-label"
+                      htmlFor={spec.name}
+                    >
+                      {spec.label}
+                    </BForm.Label>
+                    <Field
+                      name={`fields.${i}.${spec.name}`}
+                      data-testid={`fields.${i}.${spec.name}`}
+                      as={BForm.Control}
+                      type="text"
+                      value={field[spec.name]}
+                      className="pdfform-text-nput"
+                    />
+                  </BForm.Group>
+                </div>
+              );
+            }
+          })}
+        </>);
     };
 
     return (
       <>
         <Formik
-          initialValues={initialValues(this.props.form)}
-          enableReinitialize={true}
+          initialValues={initialValues(this.props)}
           onSubmit={async (values) => {
             await this.props.handleSubmit(values, this.props);
             this.props.handleClose();
@@ -77,7 +78,7 @@ class PDFForm extends React.Component {
               onHide={this.props.handleClose}
               size={this.props.size}
             >
-              <Form data-testid={"pdfform-" + this.props.doc.name}>
+              <Form data-testid={"pdfform-" + this.props.doc.name} id={"pdfform-" + this.props.doc.name}>
                 <Modal.Header closeButton>
                   <Modal.Title>
                     <FormattedMessage
@@ -114,7 +115,7 @@ class PDFForm extends React.Component {
                         value={fprops.values.newname}
                       />
                     </BForm.Group>
-                    {fields(fprops)}
+                    {add_fields(fprops)}
                   </>
                 </Modal.Body>
                 <Modal.Footer>

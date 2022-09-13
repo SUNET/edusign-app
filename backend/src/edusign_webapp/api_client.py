@@ -202,11 +202,9 @@ class APIClient(object):
         current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
 
         doc_data = document['blob']
-        current_app.logger.debug(f"Document to send to the prepare endpoint: {doc_data}")
         if ',' in doc_data:
             doc_data = doc_data.split(',')[1]
 
-        current_app.logger.debug(f"Document sent to the prepare endpoint: {doc_data}")
         request_data = {
             "pdfDocument": doc_data,
             "signaturePagePreferences": {

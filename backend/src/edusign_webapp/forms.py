@@ -1,6 +1,7 @@
 from base64 import b64decode, b64encode
 
 import fitz
+from flask import current_app
 
 
 def _load_b64_pdf(b64_pdf):
@@ -44,10 +45,15 @@ def update_pdf_form(b64_pdf, fields):
     doc = _load_b64_pdf(b64_pdf)
     for page in doc:
         for field in page.widgets():
+            current_app.logger.debug(f"Trying to fill field {field.field_name}")
             for f in fields:
+                current_app.logger.debug(f"    Checking with {f}")
                 if field.field_name == f['name']:
                     field.field_value = f['value']
+                    current_app.logger.debug(f"     Filled field {field.field_name} with {f['value']}")
                     break
 
-    newpdf = b64encode(doc.stream)
+    doc_bytes = doc.tobytes()
+    newpdf = b64encode(doc_bytes)
+    doc.save('/tmp/filled.pdf')
     return newpdf

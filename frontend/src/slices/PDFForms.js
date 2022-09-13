@@ -94,7 +94,8 @@ export const sendPDFForm = createAsyncThunk(
   "documents/sendPDFForm",
   async (args, thunkAPI) => {
     const field_values = args.values.fields;
-    const state = thunkAPI.getState();
+    console.log(field_values);
+    let state = thunkAPI.getState();
     const doc = state.pdfform.document;
     const newName = args.values.newname;
 
@@ -102,8 +103,9 @@ export const sendPDFForm = createAsyncThunk(
       for (let key in field) {
         if (field.hasOwnProperty(key)) {
           // return on 1st iteration
+          name = key.split('.')[-1];
           return {
-            name: key,
+            name: name,
             value: field[key],
           }
         }
@@ -153,9 +155,12 @@ export const sendPDFForm = createAsyncThunk(
     }
 
     const newDoc = {
-      ...doc,
       name: newName,
+      size: doc.size,
+      type: doc.type,
       blob: "data:application/pdf;base64," + data.payload.document,
+      created: Date.now(),
+      state: 'loading',
     };
     await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
     thunkAPI.dispatch(setState({ name: newName, state: "loaded" }));

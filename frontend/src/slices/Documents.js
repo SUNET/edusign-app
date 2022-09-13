@@ -418,7 +418,7 @@ export const addDocumentToDb = async (document, name) => {
           id: event.target.result,
         });
       };
-      docRequest.onerror = () => {
+      docRequest.onerror = (event) => {
         reject("Problem saving document");
       };
     });
