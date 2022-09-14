@@ -103,7 +103,7 @@ export const sendPDFForm = createAsyncThunk(
       for (let key in field) {
         if (field.hasOwnProperty(key)) {
           // return on 1st iteration
-          name = key.split('.')[-1];
+          name = key.split('.').reverse()[0];
           return {
             name: name,
             value: field[key],

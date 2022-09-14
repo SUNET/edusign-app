@@ -42,7 +42,7 @@ from flask import Blueprint, abort, current_app, redirect, render_template, requ
 from flask_babel import force_locale, get_locale, gettext
 from werkzeug.wrappers import Response
 
-from edusign_webapp.forms import get_pdf_form, update_pdf_form
+from edusign_webapp.forms import has_pdf_form, get_pdf_form, update_pdf_form
 from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
     BlobSchema,
@@ -377,8 +377,9 @@ def add_document(document: dict) -> dict:
     key = str(uuid.uuid4())
 
     prev_signatures = get_previous_signatures(document)
+    has_form = has_pdf_form(document['blob'])
 
-    return {'payload': {'key': key, 'ref': doc_ref, 'sign_requirement': sign_req, 'prev_signatures': prev_signatures}}
+    return {'payload': {'key': key, 'ref': doc_ref, 'sign_requirement': sign_req, 'prev_signatures': prev_signatures, 'has_form': has_form}}
 
 
 @edusign_views.route('/create-sign-request', methods=['POST'])

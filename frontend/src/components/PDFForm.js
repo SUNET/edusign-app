@@ -13,9 +13,17 @@ import "styles/PDFForm.scss";
 const initialValues = (props) => {
   const fields = props.form.map((field) => {
     const f = {};
-    let value = "";
-    if (field.value !== undefined) {
-      value = field.value;
+    let value;
+    if (field.type === "CheckBox") {
+      value = false;
+      if ([true, 'true', 'True', 't', 'T', 'yes', 'Yes', 'On', 'on'].includes(field.value)) {
+        value = true;
+      }
+    } else {
+      value = "";
+      if (field.value !== undefined) {
+        value = field.value;
+      }
     }
     f[field.name] = value;
     return f;
@@ -37,7 +45,7 @@ class PDFForm extends React.Component {
         <>
           {fprops.values.fields.map((field, i) => {
             const spec = this.props.form[i];
-            if (spec.type === "7") {
+            if (spec.type === "Text") {
               return (
                 <div key={i} className="pdfform-field">
                   <BForm.Group className="pdfform-text-group">
@@ -45,16 +53,61 @@ class PDFForm extends React.Component {
                       className="pdfform-text-label"
                       htmlFor={spec.name}
                     >
-                      {spec.label}
+                      {spec.label || spec.name}
                     </BForm.Label>
                     <Field
                       name={`fields.${i}.${spec.name}`}
                       data-testid={`fields.${i}.${spec.name}`}
                       as={BForm.Control}
                       type="text"
-                      value={field[spec.name]}
                       className="pdfform-text-nput"
                     />
+                  </BForm.Group>
+                </div>
+              );
+            } else if (spec.type === 'CheckBox') {
+              return (
+                <div key={i} className="pdfform-field">
+                  <BForm.Group className="pdfform-checkbox-group">
+                    <BForm.Label
+                      className="pdfform-checkbox-label"
+                      htmlFor={spec.name}
+                    >
+                      {spec.label || spec.name}
+                    </BForm.Label>
+                    <Field
+                      name={`fields.${i}.${spec.name}`}
+                      data-testid={`fields.${i}.${spec.name}`}
+                      as={BForm.Check}
+                      type="checkbox"
+                      className="pdfform-checkbox-nput"
+                    />
+                  </BForm.Group>
+                </div>
+              );
+            } else if (spec.type === 'ListBox' || spec.type === 'ComboBox') {
+              return (
+                <div key={i} className="pdfform-field">
+                  <BForm.Group className="pdfform-select-group">
+                    <BForm.Label
+                      className="pdfform-select-label"
+                      htmlFor={spec.name}
+                    >
+                      {spec.label || spec.name}
+                    </BForm.Label>
+                    <Field
+                      name={`fields.${i}.${spec.name}`}
+                      data-testid={`fields.${i}.${spec.name}`}
+                      component={BForm.Select}
+                      as="select"
+                      className="pdfform-select-nput"
+                      children={spec.choices.map((choice, i) => {
+                        return (
+                          <option key={i} value={choice}>{choice}</option>
+                        );
+                      })}
+                    >
+                    </Field>
                   </BForm.Group>
                 </div>
               );

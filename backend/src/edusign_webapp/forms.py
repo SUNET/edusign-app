@@ -16,6 +16,14 @@ def _load_b64_pdf(b64_pdf):
     return fitz.open(stream=pdf_bytes, filetype='application/pdf')
 
 
+def has_pdf_form(b64_pdf):
+    """
+    Check that the provided PDF contains a form.
+    """
+    doc = _load_b64_pdf(b64_pdf)
+    return doc.is_form_pdf
+
+
 def get_pdf_form(b64_pdf):
     """
     Check that the provided PDF contains a form,
@@ -31,7 +39,7 @@ def get_pdf_form(b64_pdf):
                     'name': field.field_name,
                     'label': field.field_label,
                     'value': field.field_value,
-                    'type': field.field_type,
+                    'type': field.field_type_string,
                     'choices': field.choice_values,
                 })
     return fields
@@ -45,12 +53,10 @@ def update_pdf_form(b64_pdf, fields):
     doc = _load_b64_pdf(b64_pdf)
     for page in doc:
         for field in page.widgets():
-            current_app.logger.debug(f"Trying to fill field {field.field_name}")
             for f in fields:
-                current_app.logger.debug(f"    Checking with {f}")
                 if field.field_name == f['name']:
                     field.field_value = f['value']
-                    current_app.logger.debug(f"     Filled field {field.field_name} with {f['value']}")
+                    field.update()
                     break
 
     doc_bytes = doc.tobytes()

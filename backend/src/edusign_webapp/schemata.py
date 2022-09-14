@@ -169,6 +169,7 @@ class ReferenceSchema(_ReferenceSchema):
     """
 
     prev_signatures = fields.String(default="")
+    has_form = fields.Boolean(default=False)
 
 
 class ToSignSchema(Schema):
@@ -296,14 +297,11 @@ class DelegationSchema(Invitee):
 
 class Field(Schema):
 
-    class Choice(Schema):
-        value = fields.String(required=True)
-
     name = fields.String(required=True, validate=[validate_nonempty])
     type = fields.String(required=False, validate=[validate_nonempty])
     label = fields.String(required=False)
-    value = fields.String(required=False)
-    choices = fields.List(fields.Nested(Choice))
+    value = fields.Raw(required=False)
+    choices = fields.List(fields.String)
 
 
 class FormSchema(Schema):
