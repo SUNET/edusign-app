@@ -11,6 +11,7 @@ import {
   preparePayload,
 } from "slices/fetch-utils";
 import { setState, createDocument } from "slices/Documents";
+import { setTemplateFormSchema } from "slices/Templates";
 import { showForm } from "slices/Modals";
 import { disablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
@@ -33,52 +34,59 @@ export const getPDFForm = createAsyncThunk(
     const doc = args.doc;
     thunkAPI.dispatch(pdfFormSlice.actions.addDocument(doc));
 
-    const docToSend = {
-      document: doc.blob,
-    };
-    const body = preparePayload(state, docToSend);
-    let data = null;
-    try {
-      const response = await fetch("/sign/get-form", {
-        ...postRequest,
-        body: body,
+    if (doc.schema !== undefined) {
+      thunkAPI.dispatch(pdfFormSlice.actions.addSchema(doc.schema));
+      thunkAPI.dispatch(pdfFormSlice.actions.showPDFForm());
+      return;
+    } else {
+      const docToSend = {
+        document: doc.blob,
+      };
+      const body = preparePayload(state, docToSend);
+      let data = null;
+      try {
+        const response = await fetch("/sign/get-form", {
+          ...postRequest,
+          body: body,
+        });
+        data = await checkStatus(response);
+        extractCsrfToken(thunkAPI.dispatch, data);
+      } catch (err) {
+        thunkAPI.dispatch(
+          addNotification({
+            level: "danger",
+            message: args.intl.formatMessage({
+              defaultMessage: "Problem getting PDF form, please try again",
+              id: "problem-getting-pdf-form",
+            }),
+          })
+        );
+        return thunkAPI.rejectWithValue(err);
+      }
+      // If the response from the backend indicates no errors (by having a `payload` key)
+      // update its data in the redux store,
+      // and if there are errors, also update its data with the error.
+      if ("payload" in data) {
+        thunkAPI.dispatch(setTemplateFormSchema({key: doc.key, schema: data.payload.fields}));
+        thunkAPI.dispatch(pdfFormSlice.actions.addSchema(data.payload.fields));
+        thunkAPI.dispatch(pdfFormSlice.actions.showPDFForm());
+        return;
+      }
+      let msg = args.intl.formatMessage({
+        defaultMessage: "Problem getting PDF form, please try again",
+        id: "problem-getting-pdf-form",
       });
-      data = await checkStatus(response);
-      extractCsrfToken(thunkAPI.dispatch, data);
-    } catch (err) {
+      if ("message" in data) {
+        msg = data.message;
+      }
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message: args.intl.formatMessage({
-            defaultMessage: "Problem getting PDF form, please try again",
-            id: "problem-getting-pdf-form",
-          }),
+          message: msg,
         })
       );
-      return thunkAPI.rejectWithValue(err);
+      return thunkAPI.rejectWithValue(doc);
     }
-    // If the response from the backend indicates no errors (by having a `payload` key)
-    // update its data in the redux store,
-    // and if there are errors, also update its data with the error.
-    if ("payload" in data) {
-      thunkAPI.dispatch(pdfFormSlice.actions.addSchema(data.payload.fields));
-      thunkAPI.dispatch(pdfFormSlice.actions.showPDFForm());
-      return;
-    }
-    let msg = args.intl.formatMessage({
-      defaultMessage: "Problem getting PDF form, please try again",
-      id: "problem-getting-pdf-form",
-    });
-    if ("message" in data) {
-      msg = data.message;
-    }
-    thunkAPI.dispatch(
-      addNotification({
-        level: "danger",
-        message: msg,
-      })
-    );
-    return thunkAPI.rejectWithValue(doc);
   }
 );
 
@@ -103,11 +111,11 @@ export const sendPDFForm = createAsyncThunk(
       for (let key in field) {
         if (field.hasOwnProperty(key)) {
           // return on 1st iteration
-          name = key.split('.').reverse()[0];
+          name = key.split(".").reverse()[0];
           return {
             name: name,
             value: field[key],
-          }
+          };
         }
       }
     });
@@ -160,7 +168,7 @@ export const sendPDFForm = createAsyncThunk(
       type: doc.type,
       blob: "data:application/pdf;base64," + data.payload.document,
       created: Date.now(),
-      state: 'loading',
+      state: "loading",
     };
     await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
     thunkAPI.dispatch(setState({ name: newName, state: "loaded" }));

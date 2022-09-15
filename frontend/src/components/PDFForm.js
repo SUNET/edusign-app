@@ -16,7 +16,11 @@ const initialValues = (props) => {
     let value;
     if (field.type === "CheckBox") {
       value = false;
-      if ([true, 'true', 'True', 't', 'T', 'yes', 'Yes', 'On', 'on'].includes(field.value)) {
+      if (
+        [true, "true", "True", "t", "T", "yes", "Yes", "On", "on"].includes(
+          field.value
+        )
+      ) {
         value = true;
       }
     } else {
@@ -30,7 +34,7 @@ const initialValues = (props) => {
   });
   return {
     fields: fields,
-    newname: '',
+    newname: "",
   };
 };
 
@@ -60,12 +64,31 @@ class PDFForm extends React.Component {
                       data-testid={`fields.${i}.${spec.name}`}
                       as={BForm.Control}
                       type="text"
-                      className="pdfform-text-nput"
+                      className="pdfform-text-input"
                     />
                   </BForm.Group>
                 </div>
               );
-            } else if (spec.type === 'CheckBox') {
+            } else if (spec.type === "TextArea") {
+              return (
+                <div key={i} className="pdfform-field">
+                  <BForm.Group className="pdfform-textarea-group">
+                    <BForm.Label
+                      className="pdfform-textarea-label"
+                      htmlFor={spec.name}
+                    >
+                      {spec.label || spec.name}
+                    </BForm.Label>
+                    <Field
+                      name={`fields.${i}.${spec.name}`}
+                      data-testid={`fields.${i}.${spec.name}`}
+                      as="textarea"
+                      className="pdfform-checkbox-input form-control"
+                    />
+                  </BForm.Group>
+                </div>
+              );
+            } else if (spec.type === "CheckBox") {
               return (
                 <div key={i} className="pdfform-field">
                   <BForm.Group className="pdfform-checkbox-group">
@@ -80,12 +103,12 @@ class PDFForm extends React.Component {
                       data-testid={`fields.${i}.${spec.name}`}
                       as={BForm.Check}
                       type="checkbox"
-                      className="pdfform-checkbox-nput"
+                      className="pdfform-checkbox-input"
                     />
                   </BForm.Group>
                 </div>
               );
-            } else if (spec.type === 'ListBox' || spec.type === 'ComboBox') {
+            } else if (spec.type === "ListBox" || spec.type === "ComboBox") {
               return (
                 <div key={i} className="pdfform-field">
                   <BForm.Group className="pdfform-select-group">
@@ -100,20 +123,22 @@ class PDFForm extends React.Component {
                       data-testid={`fields.${i}.${spec.name}`}
                       component={BForm.Select}
                       as="select"
-                      className="pdfform-select-nput"
+                      className="pdfform-select-input form-control"
                       children={spec.choices.map((choice, i) => {
                         return (
-                          <option key={i} value={choice}>{choice}</option>
+                          <option key={i} value={choice}>
+                            {choice}
+                          </option>
                         );
                       })}
-                    >
-                    </Field>
+                    ></Field>
                   </BForm.Group>
                 </div>
               );
             }
           })}
-        </>);
+        </>
+      );
     };
 
     return (
@@ -131,7 +156,10 @@ class PDFForm extends React.Component {
               onHide={this.props.handleClose}
               size={this.props.size}
             >
-              <Form data-testid={"pdfform-" + this.props.doc.name} id={"pdfform-" + this.props.doc.name}>
+              <Form
+                data-testid={"pdfform-" + this.props.doc.name}
+                id={"pdfform-" + this.props.doc.name}
+              >
                 <Modal.Header closeButton>
                   <Modal.Title>
                     <FormattedMessage
@@ -178,7 +206,7 @@ class PDFForm extends React.Component {
                     tooltip={
                       <FormattedMessage
                         defaultMessage="Dismiss PDF form"
-                        key="cancel-pdfform"
+                        key="cancel-pdfform-help"
                       />
                     }
                   >

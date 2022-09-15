@@ -229,12 +229,7 @@ def compose_message(
     text_body = f"{mail[first_lang]['body_txt']} \n\n {mail[second_lang]['body_txt']}"
     html_body = f"{mail[first_lang]['body_html']} <br/><br/> {mail[second_lang]['body_html']}"
 
-    msg = EmailMultiAlternatives(
-        subject,
-        text_body,
-        current_app.config['MAIL_DEFAULT_SENDER'],
-        recipients
-    )
+    msg = EmailMultiAlternatives(subject, text_body, current_app.config['MAIL_DEFAULT_SENDER'], recipients)
     msg.attach_alternative(html_body, 'text/html')
 
     if attachment and attachment_name:

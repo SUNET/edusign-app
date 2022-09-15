@@ -35,13 +35,19 @@ def get_pdf_form(b64_pdf):
     if nfields:
         for page in doc:
             for field in page.widgets():
-                fields.append({
-                    'name': field.field_name,
-                    'label': field.field_label,
-                    'value': field.field_value,
-                    'type': field.field_type_string,
-                    'choices': field.choice_values,
-                })
+                type = field.field_type_string
+                if type == "Text" and field.rect:
+                    if field.rect.height > 30:
+                        type = "TextArea"
+                fields.append(
+                    {
+                        'name': field.field_name,
+                        'label': field.field_label,
+                        'value': field.field_value,
+                        'type': type,
+                        'choices': field.choice_values,
+                    }
+                )
     return fields
 
 

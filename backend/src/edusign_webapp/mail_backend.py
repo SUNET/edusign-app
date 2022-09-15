@@ -1,4 +1,3 @@
-
 import asyncio
 
 from flask import current_app
@@ -6,7 +5,6 @@ from flask_mailman.backends.smtp import EmailBackend
 
 
 class ParallelEmailBackend(EmailBackend):
-
     def send_messages_in_parallel(self, email_messages):
         """
         Send one or more EmailMessage objects in parallel

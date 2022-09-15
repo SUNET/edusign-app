@@ -796,9 +796,7 @@ class SqliteMD(ABCMetadata):
         """
         user_result = self._db_query(USER_NAME_QUERY, (str(email),), one=True)
 
-        if isinstance(
-            user_result, list
-        ):  # This should never happen, it's just to please mypy
+        if isinstance(user_result, list):  # This should never happen, it's just to please mypy
             self._db_commit()
             return ''
         if user_result is None:

@@ -87,10 +87,7 @@ class RedisStorageBackend:
 
     def update_user_name(self, email, name):
         user_id = self.query_user_id(email)
-        updated = {
-            'name': name,
-            'email': email
-        }
+        updated = {'name': name, 'email': email}
         self.transaction.hset(f"user:{user_id}", mapping=updated)
 
     def insert_document(self, key, name, size, type, owner, prev_signatures, sendsigned, loa):

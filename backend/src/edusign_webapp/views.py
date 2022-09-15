@@ -35,24 +35,27 @@ import json
 import os
 import uuid
 from base64 import b64decode
-from typing import Any, Dict, List, Union, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 import pkg_resources
-from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for, make_response
+from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for
 from flask_babel import force_locale, get_locale, gettext
 from werkzeug.wrappers import Response
 
-from edusign_webapp.forms import has_pdf_form, get_pdf_form, update_pdf_form
+from edusign_webapp.forms import get_pdf_form, has_pdf_form, update_pdf_form
 from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
     BlobSchema,
     ConfigSchema,
     DelegationSchema,
+    DocSchema,
     DocumentSchema,
+    EditMultiSignSchema,
+    FillFormSchema,
+    FormSchema,
     InvitationsSchema,
     KeyedMultiSignSchema,
     MultiSignSchema,
-    EditMultiSignSchema,
     ReferenceSchema,
     ResendMultiSignSchema,
     ReSignRequestSchema,
@@ -61,9 +64,6 @@ from edusign_webapp.schemata import (
     SignRequestSchema,
     ToRestartSigningSchema,
     ToSignSchema,
-    DocSchema,
-    FormSchema,
-    FillFormSchema,
 )
 from edusign_webapp.utils import (
     add_attributes_to_session,
@@ -379,7 +379,15 @@ def add_document(document: dict) -> dict:
     prev_signatures = get_previous_signatures(document)
     has_form = has_pdf_form(document['blob'])
 
-    return {'payload': {'key': key, 'ref': doc_ref, 'sign_requirement': sign_req, 'prev_signatures': prev_signatures, 'has_form': has_form}}
+    return {
+        'payload': {
+            'key': key,
+            'ref': doc_ref,
+            'sign_requirement': sign_req,
+            'prev_signatures': prev_signatures,
+            'has_form': has_form,
+        }
+    }
 
 
 @edusign_views.route('/create-sign-request', methods=['POST'])
@@ -498,7 +506,9 @@ def _gather_invited_docs(docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any
     return failed, invited_docs
 
 
-def _ready_docs(docs_data: List[Dict[str, Any]], all_docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def _ready_docs(
+    docs_data: List[Dict[str, Any]], all_docs: List[Dict[str, Any]]
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     This function in used in the `recreate_sign_request` view.
 
@@ -755,15 +765,7 @@ def _prepare_all_signed_email(key, owner, doc, sendsigned):
             body_txt_sv = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
             body_html_sv = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
 
-    email_args = (
-        recipients,
-        subject_en,
-        subject_sv,
-        body_txt_en,
-        body_html_en,
-        body_txt_sv,
-        body_html_sv
-    )
+    email_args = (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
     # attach PDF
     if sendsigned:
         doc_name = current_app.doc_store.get_document_name(key)
@@ -1107,15 +1109,11 @@ def _send_cancellation_mail(docname, recipients):
             'inviter_name': f"{session['displayName']}",
         }
         with force_locale('en'):
-            subject_en = gettext("Cancellation of invitation to sign '%(document_name)s'") % {
-                'document_name': docname
-            }
+            subject_en = gettext("Cancellation of invitation to sign '%(document_name)s'") % {'document_name': docname}
             body_txt_en = render_template('cancellation_email.txt.jinja2', **mail_context)
             body_html_en = render_template('cancellation_email.html.jinja2', **mail_context)
         with force_locale('sv'):
-            subject_sv = gettext("Cancellation of invitation to sign '%(document_name)s'") % {
-                'document_name': docname
-            }
+            subject_sv = gettext("Cancellation of invitation to sign '%(document_name)s'") % {'document_name': docname}
             body_txt_sv = render_template('cancellation_email.txt.jinja2', **mail_context)
             body_html_sv = render_template('cancellation_email.html.jinja2', **mail_context)
 
@@ -1195,14 +1193,7 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
         signed_doc_name = ''
         pdf_bytes = ''
 
-    args = (
-        recipients,
-        subject_en,
-        subject_sv,
-        body_txt_en,
-        body_html_en,
-        body_txt_sv,
-        body_html_sv)
+    args = (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
     kwargs = dict(
         attachment_name=signed_doc_name,
@@ -1291,8 +1282,6 @@ def _prepare_declined_email(key, owner_data):
         body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
 
     return (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
-
-
 
 
 @edusign_views.route('/decline-invitation', methods=['POST'])
@@ -1416,9 +1405,7 @@ def get_form(data):
     try:
         fields = get_pdf_form(pdf)
     except Exception as e:
-        current_app.logger.error(
-            f"Problem getting form from PDF: {e}"
-        )
+        current_app.logger.error(f"Problem getting form from PDF: {e}")
         return {'error': True, 'message': gettext('Problem getting form from PDF, please try again')}
 
     return {'message': 'Success', 'payload': {'fields': fields}}
@@ -1433,9 +1420,7 @@ def update_form(data):
     try:
         updated = update_pdf_form(pdf, fields)
     except Exception as e:
-        current_app.logger.error(
-            f"Problem filling in form in PDF: {e}"
-        )
+        current_app.logger.error(f"Problem filling in form in PDF: {e}")
         return {'error': True, 'message': gettext('Problem filling in form in PDF, please try again')}
 
     return {'message': 'Success', 'payload': {'document': updated}}

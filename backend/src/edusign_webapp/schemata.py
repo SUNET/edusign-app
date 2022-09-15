@@ -265,6 +265,7 @@ class EditMultiSignSchema(Schema):
     """
     Schema to unmarshal requests to edit invitations.
     """
+
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     text = fields.String(default="")
     invites = fields.List(fields.Nested(Invitee))
@@ -317,6 +318,7 @@ class DocSchema(Schema):
     Schema to unmarshal a document's contents
     sent to extract a PDF form
     """
+
     document = fields.String(required=True, validate=[validate_nonempty])
 
 

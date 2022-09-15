@@ -548,7 +548,9 @@ class DocStore(object):
         """
         return self.metadata.rm_invitation(invite_key, document_key)
 
-    def update_invitations(self, document_key: uuid.UUID, invitations: List[Dict[str, str]]) -> Dict[str, List[Dict[str, str]]]:
+    def update_invitations(
+        self, document_key: uuid.UUID, invitations: List[Dict[str, str]]
+    ) -> Dict[str, List[Dict[str, str]]]:
         """
         Update the list of pending invitations to sign a document.
 

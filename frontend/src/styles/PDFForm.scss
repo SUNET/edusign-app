@@ -1,13 +1,19 @@
 @import "./variables.scss";
 
-.pdfform-text-group {
+.pdfform-text-group,
+.pdfform-textarea-group,
+.pdfform-select-group,
+.pdfform-checkbox-group {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-right: 10%;
   margin-left: 10%;
 
-  .pdfform-text-label {
+  .pdfform-text-label,
+  .pdfform-textarea-label,
+  .pdfform-select-label,
+  .pdfform-checkbox-label {
     align-self: flex-start;
   }
 }

@@ -137,6 +137,38 @@ const templateSlice = createSlice({
         } else return doc;
       });
     },
+    /**
+     * @public
+     * @function setTemplateFormSchema
+     * @desc Redux action to update a document template that contains a PDF form,
+     * setting an attribute with the form schema.
+     */
+    setTemplateFormSchema(state, action) {
+      state.documents = state.documents.map((doc) => {
+        if (doc.key === action.payload.key) {
+          return {
+            ...doc,
+            schema: action.payload.schema,
+          };
+        } else return doc;
+      });
+    },
+    /**
+     * @public
+     * @function unsetTemplateFormSchema
+     * @desc Redux action to update a document template that contains a PDF form,
+     * unsetting the attribute with the form schema.
+     */
+    unsetTemplateFormSchema(state, action) {
+      state.documents = state.documents.map((doc) => {
+        if (doc.key === action.payload) {
+          return {
+            ...doc,
+            schema: undefined,
+          };
+        } else return doc;
+      });
+    },
   },
   extraReducers: {
     [removeTemplate.fulfilled]: (state, action) => {
@@ -153,6 +185,8 @@ export const {
   rmTemplate,
   showTemplatePreview,
   hideTemplatePreview,
+  setTemplateFormSchema,
+  unsetTemplateFormSchema,
 } = templateSlice.actions;
 
 export default templateSlice.reducer;
