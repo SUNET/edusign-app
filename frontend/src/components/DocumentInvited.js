@@ -336,6 +336,7 @@ class DocumentInvited extends Component {
                   </div>
                 </>
               )}
+              {widgets.docCreated(this.props)}
               {requiredLoa}
               {invites}
               {preparePrevSigs(doc, this.props.size)}

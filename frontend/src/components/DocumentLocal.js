@@ -381,6 +381,7 @@ class DocumentLocal extends React.Component {
                   </div>
                 </>
               )}
+              {widgets.docCreated(this.props)}
               {signed}
               {preparePrevSigs(doc, this.props.size)}
             </div>

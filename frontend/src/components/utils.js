@@ -274,3 +274,24 @@ export const nameForCopy = (props) => {
   }
   return newName;
 };
+
+
+
+/**
+ * @public
+ * @function getCreationDate
+ * @desc Creation name for provided document
+ *
+ */
+
+export const getCreationDate = (doc) => {
+  let ts = Number(doc.created);
+  if (isNaN(ts)) {
+    ts = Date.parse(doc.created);
+  }
+  let creationDate = null;
+  if (!isNaN(ts)) {
+    creationDate = new Date(ts);
+  }
+  return creationDate;
+}
