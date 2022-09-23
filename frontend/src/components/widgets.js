@@ -20,7 +20,7 @@ export const docCreated = (props) => {
       <div className={"doc-container-info-row-" + props.size}>
         <span className="info-row-label">
           <FormattedMessage
-            defaultMessage="Creation date:"
+            defaultMessage="Created:"
             key="creation-date-label"
           />
         </span>

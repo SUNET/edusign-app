@@ -104,6 +104,7 @@
   "components.widgets.button-sign-tootip": "Select documents above and click here to send them for signing.",
   "components.widgets.clear-docs-tootip": "Discard all documents in the \"Personal documents\" list above",
   "components.widgets.clear-session-button": "Clear personal documents list",
+  "components.widgets.creation-date-label": "Created:",
   "components.widgets.decline-sign-button": "Decline Signature",
   "components.widgets.delegate-sign-button": "Delegate",
   "components.widgets.dlall-selected-button": "Download all signed",
