@@ -200,7 +200,7 @@ export const preparePrevSigs = (doc, size) => {
         .join("; ");
       return (
         <span className="info-row-item" title={alt} key={i}>
-          {mainVal} {i < sigStrs.length - 1 ? "," : "."}
+          {mainVal}{i < sigStrs.length - 1 ? "," : "."}
         </span>
       );
     });
