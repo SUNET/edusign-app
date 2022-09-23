@@ -64,7 +64,6 @@ class DocumentTemplate extends React.Component {
               <div className="doc-flex-container">
                 {widgets.dummySelectDoc()}
                 {widgets.docSize(doc)}
-                {widgets.docCreated(doc)}
                 {widgets.docName(doc)}
                 <div className="doc-manager-buttons">
                   <ESDropdown doc={doc}>
@@ -76,6 +75,7 @@ class DocumentTemplate extends React.Component {
                   {widgets.removeTemplate(this.props, doc)}
                 </div>
               </div>
+              {widgets.docCreated(this.props)}
               {signed}
               {preparePrevSigs(doc, this.props.size)}
             </div>
@@ -86,7 +86,6 @@ class DocumentTemplate extends React.Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">

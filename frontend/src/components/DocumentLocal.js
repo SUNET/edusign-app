@@ -149,7 +149,6 @@ class DocumentLocal extends React.Component {
                   <>
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
                       {widgets.namedSpinner(doc.name, "loading")}
@@ -170,7 +169,6 @@ class DocumentLocal extends React.Component {
                   <>
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                     {widgets.showMessage(doc)}
                     <div className="doc-manager-buttons">
@@ -183,7 +181,6 @@ class DocumentLocal extends React.Component {
                   <>
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
                       {widgets.forcedPreviewButton(this.props, doc)}
@@ -195,7 +192,6 @@ class DocumentLocal extends React.Component {
                   <>
                     {widgets.selectDoc(this.props, doc)}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
                       <ESDropdown doc={doc}>
@@ -211,7 +207,6 @@ class DocumentLocal extends React.Component {
                   <>
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
                       {widgets.namedSpinner(doc.name, "signing")}
@@ -222,7 +217,6 @@ class DocumentLocal extends React.Component {
                   <>
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
                       <ESDropdown doc={doc}>
@@ -238,7 +232,6 @@ class DocumentLocal extends React.Component {
                   <>
                     {widgets.selectDoc(this.props, doc)}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                     {widgets.showMessage(doc)}
                     <div className="doc-manager-buttons">
@@ -250,6 +243,7 @@ class DocumentLocal extends React.Component {
                   </>
                 )}
               </div>
+              {widgets.docCreated(this.props)}
               {signed}
               {preparePrevSigs(doc, this.props.size)}
             </div>
@@ -260,7 +254,6 @@ class DocumentLocal extends React.Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-msg-row">
@@ -287,7 +280,6 @@ class DocumentLocal extends React.Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-msg-row">
@@ -304,7 +296,6 @@ class DocumentLocal extends React.Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
@@ -318,7 +309,6 @@ class DocumentLocal extends React.Component {
                   <div className="doc-container-md-row">
                     {widgets.selectDoc(this.props, doc)}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
@@ -336,7 +326,6 @@ class DocumentLocal extends React.Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-msg-row">
@@ -349,7 +338,6 @@ class DocumentLocal extends React.Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
@@ -367,7 +355,6 @@ class DocumentLocal extends React.Component {
                   <div className="doc-container-md-row">
                     {widgets.selectDoc(this.props, doc)}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-msg-row">

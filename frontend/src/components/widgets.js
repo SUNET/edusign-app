@@ -17,7 +17,7 @@ export const docCreated = (props) => {
   const creationDate = getCreationDate(props.doc);
   if (creationDate !== null) {
     return (
-      <div className={"doc-container-info-row-" + this.props.size}>
+      <div className={"doc-container-info-row-" + props.size}>
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Creation date:"

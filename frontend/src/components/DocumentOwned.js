@@ -191,7 +191,6 @@ class DocumentOwned extends Component {
                     <>
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
-                      {widgets.docCreated(doc)}
                       {widgets.docName(doc)}
                       <div className="owned-container-buttons-lg">
                         <>
@@ -211,7 +210,6 @@ class DocumentOwned extends Component {
                     <>
                       {widgets.selectDoc(this.props, doc)}
                       {widgets.docSize(doc)}
-                      {widgets.docCreated(doc)}
                       {widgets.docName(doc)}
                       {widgets.showMessage(doc)}
                       <div className="owned-container-buttons-lg">
@@ -230,7 +228,6 @@ class DocumentOwned extends Component {
                     <>
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
-                      {widgets.docCreated(doc)}
                       {widgets.docName(doc)}
                       {widgets.namedSpinner(doc.name, "signing")}
                     </>
@@ -239,7 +236,6 @@ class DocumentOwned extends Component {
                     <>
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
-                      {widgets.docCreated(doc)}
                       {widgets.docName(doc)}
                       <ESDropdown doc={doc}>
                         {menu.multiSignMenuItem(this.props, doc)}
@@ -254,6 +250,7 @@ class DocumentOwned extends Component {
                     </>
                   )}
                 </div>
+                {widgets.docCreated(this.props)}
                 {requiredLoa}
                 {invites}
                 {preparePrevSigs(doc, this.props.size)}
@@ -266,7 +263,6 @@ class DocumentOwned extends Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
@@ -284,7 +280,6 @@ class DocumentOwned extends Component {
                   <div className="doc-container-md-row">
                     {widgets.selectDoc(this.props, doc)}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-msg-row">
@@ -305,7 +300,6 @@ class DocumentOwned extends Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-msg-row">
@@ -318,7 +312,6 @@ class DocumentOwned extends Component {
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
-                    {widgets.docCreated(doc)}
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
