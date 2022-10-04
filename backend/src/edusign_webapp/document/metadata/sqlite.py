@@ -40,6 +40,9 @@ from flask import Flask, current_app, g
 
 from edusign_webapp.doc_store import ABCMetadata
 
+
+# emailLocalAddress
+
 DB_SCHEMA = """
 CREATE TABLE [Users]
 (      [user_id] INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -355,6 +358,7 @@ class SqliteMD(ABCMetadata):
             document['signed'] = []
             document['declined'] = []
             document['state'] = "unconfirmed"
+            document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
 
             subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
 
@@ -473,6 +477,7 @@ class SqliteMD(ABCMetadata):
             document['pending'] = []
             document['signed'] = []
             document['declined'] = []
+            document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
             state = 'loaded'
             document_id = document['doc_id']
             invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
