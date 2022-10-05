@@ -269,6 +269,8 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
+                 + owner_email: Email of owner
+                 + owner_name: Display name of owner
         """
 
     @abc.abstractmethod
@@ -424,7 +426,8 @@ class DocStore(object):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + owner: Email and name of the user requesting the signature
+                 + owner_email: Email of the user requesting the signature
+                 + owner_name: Display name of the user requesting the signature
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
