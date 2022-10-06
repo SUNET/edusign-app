@@ -64,6 +64,7 @@ def add_attributes_to_session(check_whitelisted=True):
     if 'eppn' not in session:
         eppn = request.headers.get('Edupersonprincipalname')
         current_app.logger.info(f'User {eppn} started a session')
+        current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
 
         attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SESSION_ATTRIBUTES'].values()]
         more_attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
@@ -71,23 +72,37 @@ def add_attributes_to_session(check_whitelisted=True):
             if attr not in attrs:
                 attrs.append(attr)
 
+        def get_attr_values(attr_in_header):
+            """
+            To be able to pass utf8 through wsgi headers,
+            we tell shibboleth to add them as b64 encoded XML elements.
+            """
+            attrs = []
+            b64 = request.headers[attr_in_header]
+            attrs_b64 = b64.split(';')
+            for attr_b64 in attrs_b64:
+                attr_xml = b64decode(attr_b64)
+                attr_val = ET.fromstring(attr_xml)
+                attrs.append(attr_val.text)
+            return attrs
+
         for attr_in_session, attr_in_header in attrs:
             current_app.logger.debug(
                 f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
             )
-            attr_b64 = request.headers[attr_in_header]
-            attr_xml = b64decode(attr_b64)
-            attr_val = ET.fromstring(attr_xml)
-            attr_text = attr_val.text
-            current_app.logger.debug(
-                f'    xml: {attr_xml}'
-                f'    val: {attr_val}'
-                f'    val: {attr_text}'
-            )
-            session[attr_in_session] = attr_text
+            attr_values = get_attr_values(attr_in_header)
+            session[attr_in_session] = attr_values[0]
             if attr_in_session == 'mail':
-                assert attr_text is not None
-                session[attr_in_session] = attr_text.lower()
+
+                session[attr_in_session] = session[attr_in_session].lower()
+                session['mail_aliases'] = [m.lower() for m in attr_values[1:]]
+
+        if 'Maillocaladress' in request.headers:
+            addresses = get_attr_values('Maillocaladress')
+            if 'mail_aliases' not in session:
+                session['mail_aliases'] = []
+
+            session['mail_aliases'] += [m.lower() for m in addresses]
 
         session['eppn'] = eppn
         session['idp'] = request.headers.get('Shib-Identity-Provider')
