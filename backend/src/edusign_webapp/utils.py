@@ -75,9 +75,19 @@ def add_attributes_to_session(check_whitelisted=True):
             current_app.logger.debug(
                 f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
             )
-            session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
+            attr_b64 = request.headers[attr_in_header]
+            attr_xml = b64decode(attr_b64)
+            attr_val = ET.fromstring(attr_xml)
+            attr_text = attr_val.text
+            current_app.logger.debug(
+                f'    xml: {attr_xml}'
+                f'    val: {attr_val}'
+                f'    val: {attr_text}'
+            )
+            session[attr_in_session] = attr_text
             if attr_in_session == 'mail':
-                session[attr_in_session] = session[attr_in_session].lower()
+                assert attr_text is not None
+                session[attr_in_session] = attr_text.lower()
 
         session['eppn'] = eppn
         session['idp'] = request.headers.get('Shib-Identity-Provider')
@@ -131,12 +141,6 @@ def get_invitations():
       polling the backend (this is, only when there are users pending to sign
       any of the invitations).
     """
-    if 'displayName' in session:
-        name = session['displayName']
-    else:
-        name = f"{session['givenName']} {session['sn']}"
-    current_app.doc_store.update_user(session['mail'], name)
-
     owned = current_app.doc_store.get_owned_documents(session['mail'])
     invited = current_app.doc_store.get_pending_documents(session['mail'])
     poll = False

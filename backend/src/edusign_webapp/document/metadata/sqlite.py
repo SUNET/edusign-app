@@ -41,14 +41,10 @@ from flask import Flask, current_app, g
 from edusign_webapp.doc_store import ABCMetadata
 
 
-# emailLocalAddress
+NOT_YET = -1
+
 
 DB_SCHEMA = """
-CREATE TABLE [Users]
-(      [user_id] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [email] VARCHAR(255) NOT NULL,
-       [name] VARCHAR(255) NOT NULL
-);
 CREATE TABLE [Documents]
 (      [doc_id] INTEGER PRIMARY KEY AUTOINCREMENT,
        [key] VARCHAR(255) NOT NULL,
@@ -78,7 +74,6 @@ CREATE TABLE [Invites]
             FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
-CREATE UNIQUE INDEX IF NOT EXISTS [EmailIX] ON [Users] ([email]);
 CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
 CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([owner]);
 CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);
@@ -90,9 +85,6 @@ PRAGMA user_version = 5;
 """
 
 
-USER_QUERY = "SELECT name, email FROM Users WHERE user_id = ?;"
-USER_NAME_QUERY = "SELECT name FROM Users WHERE email = ?;"
-USER_NAME_UPDATE = "UPDATE Users SET name = ? WHERE email = ?;"
 DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner_email, owner_name FROM Documents WHERE key = ?;"
@@ -194,12 +186,13 @@ def upgrade(db):
         cur.close()
         db.commit()
 
+    if version == NOT_YET:
+        cur = db.cursor()
 
-def cleanup_version_5(cur):
-    # XXX drop foreign keys to users?
-    cur.execute("ALTER TABLE [Documents] DROP COLUMN [owner];")
-    cur.execute("ALTER TABLE [Invites] DROP COLUMN [user_id];")
-    cur.execute("DROP TABLE [Users];")
+        # XXX drop foreign keys to users?
+        cur.execute("ALTER TABLE [Documents] DROP COLUMN [owner];")
+        cur.execute("ALTER TABLE [Invites] DROP COLUMN [user_id];")
+        cur.execute("DROP TABLE [Users];")
 
 
 def close_connection(exception):
@@ -716,46 +709,6 @@ class SqliteMD(ABCMetadata):
 
         self.logger.debug(f"Checking lock for {doc_id} by {lock_info['locked_by']} for {locked_by}")
         return locked_by == lock_info['locked_by']
-
-    def get_user(self, user_id: int) -> Dict[str, Any]:
-        """
-        Return information on some user.
-
-        :param user_id: the pk for the user in the users table
-        :return: Name and email of the user
-        """
-        user_info = self._db_query(USER_QUERY, (user_id,), one=True)
-        if user_info is None or isinstance(user_info, list):
-            self.logger.error(f"Trying to find with a non-existing user with id {user_id}")
-            return {}
-
-        return user_info
-
-    def get_user_name(self, email: str) -> str:
-        """
-        Return the display name of some user.
-
-        :param email: the email for the user in the users table
-        :return: Display name of the user
-        """
-        user_result = self._db_query(USER_NAME_QUERY, (str(email),), one=True)
-
-        if isinstance(user_result, list):  # This should never happen, it's just to please mypy
-            self._db_commit()
-            return ''
-        if user_result is None:
-            return ''
-        return user_result['name']
-
-    def update_user(self, email: str, name: str):
-        """
-        Update a user's display name.
-
-        :param email: email address of the user to update
-        :param name: display name of the user to update
-        """
-        self._db_execute(USER_NAME_UPDATE, (name, email))
-        self._db_commit()
 
     def get_sendsigned(self, key: uuid.UUID) -> bool:
         """

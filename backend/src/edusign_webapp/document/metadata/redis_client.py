@@ -85,11 +85,6 @@ class RedisStorageBackend:
             if user is not None:
                 return user['name']
 
-    def update_user_name(self, email, name):
-        user_id = self.query_user_id(email)
-        updated = {'name': name, 'email': email}
-        self.transaction.hset(f"user:{user_id}", mapping=updated)
-
     def insert_document(self, key, name, size, type, owner, prev_signatures, sendsigned, loa):
         doc_id = self.redis.incr('doc-counter')
         now = datetime.now().timestamp()
@@ -942,41 +937,6 @@ class RedisMD(ABCMetadata):
         self.logger.debug(f"Checking lock for {doc_id} by {user_id} for {locked_by}")
         locker_id = self.client.query_user_id(locked_by)
         return locker_id == user_id
-
-    def get_user(self, user_id: int) -> Dict[str, Any]:
-        """
-        Return information on some user.
-
-        :param user_id: the pk for the user in the users table
-        :return: Name and email of the user
-        """
-        user_info = self.client.query_user(user_id)
-        if not user_info:
-            self.logger.error(f"Trying to find with a non-existing user with id {user_id}")
-            return {}
-
-        return user_info
-
-    def get_user_name(self, email: str) -> str:
-        """
-        Return the display name of some user.
-
-        :param email: the email for the user in the users table
-        :return: Display name of the user
-        """
-        name = self.client.query_user_name(email)
-        if name is not None:
-            return name
-        return ''
-
-    def update_user(self, email: str, name: str):
-        """
-        Update a user's display name.
-
-        :param email: email address of the user to update
-        :param name: display name of the user to update
-        """
-        self.client.update_user_name(email, name)
 
     def get_sendsigned(self, key: uuid.UUID) -> bool:
         """
