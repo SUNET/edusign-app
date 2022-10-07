@@ -487,9 +487,9 @@ def _gather_invited_docs(docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any
             failed.append(failedDoc)
             continue
 
-        if stored['user']['email'] != session['mail']:
+        if stored['user']['email'] not in session['mail_aliases']:
             current_app.logger.error(
-                f"Trying to sign invitation with wrong email {session['mail']} (invited:  {stored['user']['email']})"
+                f"Trying to sign invitation with wrong emails {session['mail_aliases']} (invited:  {stored['user']['email']})"
             )
             failedDoc = {
                 'key': doc['key'],
@@ -699,7 +699,7 @@ def _prepare_signed_by_email(key, owner):
     that one invited user (perhaps the last remaining one)
     has signed the document.
     """
-    pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
+    pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail_aliases'])
     pending = [p for p in pending if not p['signed'] and not p['declined']]
 
     if len(pending) > 0:
@@ -792,9 +792,9 @@ def _prepare_signed_documents_data(process_data):
         owner = current_app.doc_store.get_owner_data(key)
         current_app.logger.debug(f"Post-processing {key} for {owner}")
 
-        if 'email' in owner and owner['email'] != session['mail']:
-            current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
-            current_app.doc_store.unlock_document(key, session['mail'])
+        if 'email' in owner and owner['email'] not in session['mail_aliases']:
+            current_app.doc_store.update_document(key, doc['signedContent'], session['mail_aliases'])
+            current_app.doc_store.unlock_document(key, session['mail_aliases'])
 
         elif owner:
             current_app.doc_store.remove_document(key)
@@ -848,13 +848,13 @@ def get_signed_documents(sign_data: dict) -> dict:
         sendsigned = current_app.doc_store.get_sendsigned(key)
 
         # this is an invitation to the current user
-        if 'email' in owner and owner['email'] != session['mail']:
+        if 'email' in owner and owner['email'] not in session['mail_aliases']:
             try:
                 email_args = _prepare_signed_by_email(key, owner)
                 emails.append((email_args, {}))
 
             except Exception as e:
-                current_app.logger.error(f"Problem sending signed by {session['email']} email to {owner['email']}: {e}")
+                current_app.logger.error(f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}")
 
         # this is an invitation from the current user
         elif owner:
@@ -894,7 +894,7 @@ def create_multi_sign_request(data: dict) -> dict:
     if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
         return {'error': True, 'message': gettext('Unauthorized')}
 
-    if session['mail'] != data['owner']:
+    if data['owner'] not in session['mail_aliases']:
         current_app.logger.error(f"User {session['mail']} is trying to create an invitation as {data['owner']}")
         return {'error': True, 'message': gettext("You cannot invite as %(owner)s") % {'owner': data['owner']}}
 
@@ -971,6 +971,7 @@ def send_multisign_reminder(data: dict) -> dict:
     try:
         pending = current_app.doc_store.get_pending_invites(uuid.UUID(data['key']))
         docname = current_app.doc_store.get_document_name(uuid.UUID(data['key']))
+        owner_email = current_app.doc_store.get_document_email(uuid.UUID(data['key']))
 
     except Exception as e:
         current_app.logger.error(f'Problem finding users pending to multi sign: {e}')
@@ -992,7 +993,7 @@ def send_multisign_reminder(data: dict) -> dict:
             invited_link = url_for('edusign.get_index', _external=True)
             mail_context = {
                 'document_name': docname,
-                'inviter_email': f"{session['mail']}",
+                'inviter_email': owner_email,
                 'inviter_name': f"{session['displayName']}",
                 'invited_link': invited_link,
                 'text': 'text' in data and data['text'] or "",
@@ -1038,7 +1039,8 @@ def edit_multi_sign_request(data: dict) -> dict:
 
     recipients_added = [f"{invite['name']} <{invite['email']}>" for invite in changed['added']]
     docname = current_app.doc_store.get_document_name(key)
-    owner = {'name': session['displayName'], 'email': session['mail']}
+    owner_email = current_app.doc_store.get_document_email(key)
+    owner = {'name': session['displayName'], 'email': owner_email}
     text = data['text']
 
     message = gettext(f"Success editing invitation to sign {docname}")
@@ -1049,7 +1051,7 @@ def edit_multi_sign_request(data: dict) -> dict:
         message = gettext(f"Some users may not have been notified of the changes for {docname}")
 
     recipients_removed = [f"{invite['name']} <{invite['email']}>" for invite in changed['removed']]
-    sent = _send_cancellation_mail(docname, recipients_removed)
+    sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
     if not sent:
         message = gettext(f"Some users may not have been notified of the changes for {docname}")
 
@@ -1072,10 +1074,12 @@ def remove_multi_sign_request(data: dict) -> dict:
     try:
         pending = current_app.doc_store.get_pending_invites(key)
         docname = current_app.doc_store.get_document_name(key)
+        owner_email = current_app.doc_store.get_document_email(key)
     except Exception as e:
         current_app.logger.error(f'Problem getting info about document {key}: {e}')
         pending = []
         docname = ''
+        owner_email = session['mail']
 
     try:
         removed = current_app.doc_store.remove_document(key, force=True)
@@ -1094,18 +1098,18 @@ def remove_multi_sign_request(data: dict) -> dict:
     message = gettext("Success removing invitation to sign")
 
     if len(recipients) > 0:
-        sent = _send_cancellation_mail(docname, recipients)
+        sent = _send_cancellation_mail(docname, owner_email, recipients)
         if not sent:
             message = gettext("Some users may have not been informed of the cancellation")
 
     return {'message': message}
 
 
-def _send_cancellation_mail(docname, recipients):
+def _send_cancellation_mail(docname, owner_email, recipients):
     try:
         mail_context = {
             'document_name': docname,
-            'inviter_email': f"{session['mail']}",
+            'inviter_email': owner_email,
             'inviter_name': f"{session['displayName']}",
         }
         with force_locale('en'):
@@ -1253,7 +1257,7 @@ def _prepare_declined_email(key, owner_data):
     Prepare email to inviter user informing about an invited user
     that has declined to sign the document.
     """
-    pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
+    pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail_aliases'])
     pending = [p for p in pending if not p['signed'] and not p['declined']]
     if len(pending) > 0:
         template = 'declined_by_email'
@@ -1297,10 +1301,10 @@ def decline_invitation(data):
     """
 
     key = uuid.UUID(data['key'])
-    email = session['mail']
+    emails = session['mail_aliases']
 
     try:
-        current_app.doc_store.decline_document(key, email)
+        current_app.doc_store.decline_document(key, emails)
     except Exception as e:
         current_app.logger.error(f'Problem declining signature of document: {e}')
         return {'error': True, 'message': gettext('Problem declining signature, please try again')}

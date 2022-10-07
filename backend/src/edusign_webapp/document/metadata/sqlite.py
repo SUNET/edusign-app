@@ -53,21 +53,19 @@ CREATE TABLE [Documents]
        [type] VARCHAR(50) NOT NULL,
        [created] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
        [updated] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-       [owner] INTEGER NOT NULL,
        [owner_email] VARCHAR(255) NOT NULL,
-       [owner_name] VARCHAR(255) NOT NULL
+       [owner_name] VARCHAR(255) NOT NULL,
        [prev_signatures] TEXT,
        [sendsigned] INTEGER DEFAULT 1,
        [loa] VARCHAR(255) DEFAULT "none",
        [locked] TIMESTAMP DEFAULT NULL,
-       [locked_by] VARCHAR(255) NOT NULL,
+       [locked_by] VARCHAR(255) DEFAULT NULL
 );
 CREATE TABLE [Invites]
 (      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
        [key] VARCHAR(255) NOT NULL,
-       [user_id] INTEGER NOT NULL,
        [user_email] VARCHAR(255) NOT NULL,
-       [user_name] VARCHAR(255) NOT NULL
+       [user_name] VARCHAR(255) NOT NULL,
        [doc_id] INTEGER NOT NULL,
        [signed] INTEGER DEFAULT 0,
        [declined] INTEGER DEFAULT 0,
@@ -75,10 +73,8 @@ CREATE TABLE [Invites]
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
-CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([owner]);
 CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);
 CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
-CREATE INDEX IF NOT EXISTS [InviteeIX] ON [Invites] ([user_id]);
 CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
 PRAGMA user_version = 5;
@@ -98,13 +94,13 @@ DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locked_by = NULL WHERE doc_id = ?;"
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locked_by = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
-INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name) VALUES (?, ?, ?)"
+INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name) VALUES (?, ?, ?, ?)"
 INVITE_QUERY_FROM_EMAIL = "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0;"
 INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, signed, declined, key FROM Invites WHERE doc_id = ?;"
 INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT inviteID FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0;"
 INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, doc_id FROM Invites WHERE key = ?;"
-INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_email = ? and doc_id = ?;"
-INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_email = ? and doc_id = ?;"
+INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_email IN (%s) and doc_id = ?;"
+INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_email IN (%s) and doc_id = ?;"
 INVITE_DELETE = "DELETE FROM Invites WHERE user_id = ? and doc_id = ?;"
 INVITE_DELETE_FROM_KEY = "DELETE FROM Invites WHERE key = ?;"
 INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
@@ -178,6 +174,7 @@ def upgrade(db):
         cur.execute("CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);")
 
         # XXX change document. locked_by, update data
+        # XXX remove indexes
 
         cur.execute("UPDATE D SET D.owner_email=U.email, D.owner_name=U.name FROM Documents D INNER JOIN Users U ON D.owner=U.user_id;")
         cur.execute("UPDATE I SET I.user_email=U.email, D.user_name=U.name FROM Invites I INNER JOIN Users U ON I.user_id=U.user_id;")
@@ -189,6 +186,7 @@ def upgrade(db):
     if version == NOT_YET:
         cur = db.cursor()
 
+        # XXX drop documents.owner, invites.user_id, indexes
         # XXX drop foreign keys to users?
         cur.execute("ALTER TABLE [Documents] DROP COLUMN [owner];")
         cur.execute("ALTER TABLE [Invites] DROP COLUMN [user_id];")
@@ -369,23 +367,24 @@ class SqliteMD(ABCMetadata):
 
         return pending
 
-    def update(self, key: uuid.UUID, email: str):
+    def update(self, key: uuid.UUID, emails: List[str]):
         """
         Update the metadata of a document to which a new signature has been added.
         This is, remove corresponding entry in the Invites table.
 
         :param key: The key identifying the document in the `storage`.
-        :param email: email address of the user that has just signed the document.
+        :param emails: email addresses of the user that has just signed the document.
         """
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
-            self.logger.error(f"Trying to update a non-existing document with the signature of {email}")
+            self.logger.error(f"Trying to update a non-existing document with the signature of {emails}")
             return
 
         document_id = document_result['doc_id']
 
-        self.logger.info(f"Removing invite for {email} to sign {key}")
-        self._db_execute(INVITE_UPDATE, (email, document_id))
+        self.logger.info(f"Removing invite for {emails} to sign {key}")
+        invite_update = INVITE_UPDATE % " ,".join(["?"] * len(emails))
+        self._db_execute(invite_update, (*emails, document_id))
         self._db_execute(
             DOCUMENT_UPDATE,
             (
@@ -395,22 +394,23 @@ class SqliteMD(ABCMetadata):
         )
         self._db_commit()
 
-    def decline(self, key: uuid.UUID, email: str):
+    def decline(self, key: uuid.UUID, emails: List[str]):
         """
         Update the metadata of a document which an invited user has declined to sign.
 
         :param key: The key identifying the document in the `storage`.
-        :param email: email address of the user that has just signed the document.
+        :param emails: email addresses of the user that has just signed the document.
         """
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
-            self.logger.error(f"Trying to decline a non-existing document by {email}")
+            self.logger.error(f"Trying to decline a non-existing document by {emails}")
             return
 
         document_id = document_result['doc_id']
 
-        self.logger.info(f"Declining invite for {email} to sign {key}")
-        self._db_execute(INVITE_DECLINE, (email, document_id))
+        self.logger.info(f"Declining invite for {emails} to sign {key}")
+        invite_decline = INVITE_DECLINE % " ,".join(["?"] * len(emails))
+        self._db_execute(invite_decline, (*emails, document_id))
         self._db_execute(
             DOCUMENT_UPDATE,
             (
@@ -645,13 +645,13 @@ class SqliteMD(ABCMetadata):
 
         return False
 
-    def rm_lock(self, doc_id: int, unlocked_by: str) -> bool:
+    def rm_lock(self, doc_id: int, unlocked_by: List[str]) -> bool:
         """
         Remove lock from document. If the document is not locked, do nothing.
         The user unlocking must be that same user that locked it.
 
         :param doc_id: the pk for the document in the documents table
-        :param unlocked_by: Email of the user unlocking the document
+        :param unlocked_by: Emails of the user unlocking the document
         :return: Whether the document has been unlocked.
         """
         lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
@@ -669,14 +669,14 @@ class SqliteMD(ABCMetadata):
         else:
             locked = lock_info['locked']
 
-        if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['locked_by'] == unlocked_by:
+        if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['locked_by'] in unlocked_by:
             self._db_execute(DOCUMENT_RM_LOCK, (doc_id,))
             self._db_commit()
             return True
 
         return False
 
-    def check_lock(self, doc_id: int, locked_by: str) -> bool:
+    def check_lock(self, doc_id: int, locked_by: List[str]) -> bool:
         """
         Check whether the document identified by doc_id is locked.
         This will remove stale locks (older than the configured timeout).
@@ -708,7 +708,7 @@ class SqliteMD(ABCMetadata):
             return False
 
         self.logger.debug(f"Checking lock for {doc_id} by {lock_info['locked_by']} for {locked_by}")
-        return locked_by == lock_info['locked_by']
+        return lock_info['locked_by'] in locked_by
 
     def get_sendsigned(self, key: uuid.UUID) -> bool:
         """

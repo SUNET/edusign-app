@@ -62,7 +62,13 @@ def add_attributes_to_session(check_whitelisted=True):
     :type check_whitelisted: bool
     """
     if 'eppn' not in session:
-        eppn = request.headers.get('Edupersonprincipalname')
+        try:
+            eppn = request.headers.get('Edupersonprincipalname')
+        except KeyError:
+            current_app.logger.error(
+                'Missing eduPersonPrincipalName from request'
+            )
+            raise
         current_app.logger.info(f'User {eppn} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
 
@@ -87,27 +93,51 @@ def add_attributes_to_session(check_whitelisted=True):
             return attrs
 
         for attr_in_session, attr_in_header in attrs:
-            current_app.logger.debug(
-                f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
-            )
-            attr_values = get_attr_values(attr_in_header)
-            session[attr_in_session] = attr_values[0]
-            if attr_in_session == 'mail':
+            try:
+                current_app.logger.debug(
+                    f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
+                )
+                attr_values = get_attr_values(attr_in_header)
+                session[attr_in_session] = attr_values[0]
+                if attr_in_session == 'mail':
 
-                session[attr_in_session] = session[attr_in_session].lower()
-                session['mail_aliases'] = [m.lower() for m in attr_values[1:]]
+                    session[attr_in_session] = session[attr_in_session].lower()
+                    session['mail_aliases'] = [m.lower() for m in attr_values]
+            except (KeyError, IndexError):
+                current_app.logger.error(
+                    f'Missing attribute {attr_in_header} from request'
+                )
+                raise
 
-        if 'Maillocaladress' in request.headers:
-            addresses = get_attr_values('Maillocaladress')
+        if 'Maillocaladdress' in request.headers:
+            addresses = get_attr_values('Maillocaladdress')
             if 'mail_aliases' not in session:
                 session['mail_aliases'] = []
 
             session['mail_aliases'] += [m.lower() for m in addresses]
 
         session['eppn'] = eppn
-        session['idp'] = request.headers.get('Shib-Identity-Provider')
-        session['authn_method'] = request.headers.get('Shib-Authentication-Method')
-        session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
+        try:
+            session['idp'] = request.headers.get('Shib-Identity-Provider')
+        except KeyError:
+            current_app.logger.error(
+                'Missing Identity Provider from request'
+            )
+            raise
+        try:
+            session['authn_method'] = request.headers.get('Shib-Authentication-Method')
+        except KeyError:
+            current_app.logger.error(
+                'Missing Authentication Method from request'
+            )
+            raise
+        try:
+            session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
+        except KeyError:
+            current_app.logger.error(
+                'Missing AuthnContext Class from request'
+            )
+            raise
 
         session['organizationName'] = None
         orgName = request.headers.get('Md-Organizationname', None)
@@ -156,8 +186,8 @@ def get_invitations():
       polling the backend (this is, only when there are users pending to sign
       any of the invitations).
     """
-    owned = current_app.doc_store.get_owned_documents(session['mail'])
-    invited = current_app.doc_store.get_pending_documents(session['mail'])
+    owned = current_app.doc_store.get_owned_documents(session['mail_aliases'])
+    invited = current_app.doc_store.get_pending_documents(session['mail_aliases'])
     poll = False
     for docs in (owned, invited):
         for doc in docs:
