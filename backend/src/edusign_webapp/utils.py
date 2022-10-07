@@ -65,9 +65,7 @@ def add_attributes_to_session(check_whitelisted=True):
         try:
             eppn = request.headers.get('Edupersonprincipalname')
         except KeyError:
-            current_app.logger.error(
-                'Missing eduPersonPrincipalName from request'
-            )
+            current_app.logger.error('Missing eduPersonPrincipalName from request')
             raise
         current_app.logger.info(f'User {eppn} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
@@ -104,9 +102,7 @@ def add_attributes_to_session(check_whitelisted=True):
                     session[attr_in_session] = session[attr_in_session].lower()
                     session['mail_aliases'] = [m.lower() for m in attr_values]
             except (KeyError, IndexError):
-                current_app.logger.error(
-                    f'Missing attribute {attr_in_header} from request'
-                )
+                current_app.logger.error(f'Missing attribute {attr_in_header} from request')
                 raise
 
         if 'Maillocaladdress' in request.headers:
@@ -120,23 +116,17 @@ def add_attributes_to_session(check_whitelisted=True):
         try:
             session['idp'] = request.headers.get('Shib-Identity-Provider')
         except KeyError:
-            current_app.logger.error(
-                'Missing Identity Provider from request'
-            )
+            current_app.logger.error('Missing Identity Provider from request')
             raise
         try:
             session['authn_method'] = request.headers.get('Shib-Authentication-Method')
         except KeyError:
-            current_app.logger.error(
-                'Missing Authentication Method from request'
-            )
+            current_app.logger.error('Missing Authentication Method from request')
             raise
         try:
             session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
         except KeyError:
-            current_app.logger.error(
-                'Missing AuthnContext Class from request'
-            )
+            current_app.logger.error('Missing AuthnContext Class from request')
             raise
 
         session['organizationName'] = None

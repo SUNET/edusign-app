@@ -44,7 +44,7 @@ from edusign_webapp.doc_store import DocStore
 from edusign_webapp.document.metadata.redis_client import RedisMD
 from edusign_webapp.document.metadata.sqlite import SqliteMD
 from edusign_webapp.document.storage.local import LocalStorage
-from edusign_webapp.tests.sample_pdfs import pdf_simple_1, pdf_simple_2, pdf_form_1, pdf_form_2
+from edusign_webapp.tests.sample_pdfs import pdf_form_1, pdf_form_2, pdf_simple_1, pdf_simple_2
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -306,10 +306,101 @@ _sample_metadata_1 = {'name': 'test1.pdf', 'size': 1500000, 'type': 'application
 _sample_metadata_2 = {'name': 'test2.pdf', 'size': 1500000, 'type': 'application/pdf', 'key': str(uuid.uuid4())}
 
 
-_form_1_schema = [{'type': 'Text', 'value': '', 'label': 'First name', 'name': 'Given Name Text Box', 'choices': None}, {'type': 'Text', 'value': '', 'label': 'Last name', 'name': 'Family Name Text Box', 'choices': None}, {'type': 'Text', 'value': '', 'label': '', 'name': 'Address 1 Text Box', 'choices': None}, {'type': 'Text', 'value': '', 'label': 'House and floor', 'name': 'House nr Text Box', 'choices': None}, {'type': 'Text', 'value': '', 'label': '', 'name': 'Address 2 Text Box', 'choices': None}, {'type': 'Text', 'value': '', 'label': '', 'name': 'Postcode Text Box', 'choices': None}, {'type': 'Text', 'value': '', 'label': '', 'name': 'City Text Box', 'choices': None}, {'type': 'ComboBox', 'value': '', 'label': 'Use selection or write country name', 'name': 'Country Combo Box', 'choices': ['Austria', 'Belgium', 'Britain', 'Bulgaria', 'Croatia', 'Cyprus', 'Czech-Republic', 'Denmark', 'Estonia', 'Finland', 'France', 'Germany', 'Greece', 'Hungary', 'Ireland', 'Italy', 'Latvia', 'Lithuania', 'Luxembourg', 'Malta', 'Netherlands', 'Poland', 'Portugal', 'Romania', 'Slovakia', 'Slovenia', 'Spain', 'Sweden']}, {'type': 'ComboBox', 'value': 'Man', 'label': 'Select from list', 'name': 'Gender List Box', 'choices': ['Man', 'Woman']}, {'type': 'Text', 'value': '150', 'label': 'Value from 40 to 250 cm', 'name': 'Height Formatted Field', 'choices': None}, {'type': 'CheckBox', 'value': 'Off', 'label': 'Car driving license', 'name': 'Driving License Check Box', 'choices': None}, {'type': 'CheckBox', 'value': 'Off', 'label': '', 'name': 'Language 1 Check Box', 'choices': None}, {'type': 'CheckBox', 'value': 'Yes', 'label': '', 'name': 'Language 2 Check Box', 'choices': None}, {'type': 'CheckBox', 'value': 'Off', 'label': '', 'name': 'Language 3 Check Box', 'choices': None}, {'type': 'CheckBox', 'value': 'Off', 'label': '', 'name': 'Language 4 Check Box', 'choices': None}, {'type': 'CheckBox', 'value': 'Off', 'label': '', 'name': 'Language 5 Check Box', 'choices': None}, {'type': 'ComboBox', 'value': 'Red', 'label': 'Select from colour spectrum', 'name': 'Favourite Colour List Box', 'choices': ['Black', 'Brown', 'Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Violet', 'Grey', 'White']}]
+_form_1_schema = [
+    {'type': 'Text', 'value': '', 'label': 'First name', 'name': 'Given Name Text Box', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': 'Last name', 'name': 'Family Name Text Box', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': '', 'name': 'Address 1 Text Box', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': 'House and floor', 'name': 'House nr Text Box', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': '', 'name': 'Address 2 Text Box', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': '', 'name': 'Postcode Text Box', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': '', 'name': 'City Text Box', 'choices': None},
+    {
+        'type': 'ComboBox',
+        'value': '',
+        'label': 'Use selection or write country name',
+        'name': 'Country Combo Box',
+        'choices': [
+            'Austria',
+            'Belgium',
+            'Britain',
+            'Bulgaria',
+            'Croatia',
+            'Cyprus',
+            'Czech-Republic',
+            'Denmark',
+            'Estonia',
+            'Finland',
+            'France',
+            'Germany',
+            'Greece',
+            'Hungary',
+            'Ireland',
+            'Italy',
+            'Latvia',
+            'Lithuania',
+            'Luxembourg',
+            'Malta',
+            'Netherlands',
+            'Poland',
+            'Portugal',
+            'Romania',
+            'Slovakia',
+            'Slovenia',
+            'Spain',
+            'Sweden',
+        ],
+    },
+    {
+        'type': 'ComboBox',
+        'value': 'Man',
+        'label': 'Select from list',
+        'name': 'Gender List Box',
+        'choices': ['Man', 'Woman'],
+    },
+    {
+        'type': 'Text',
+        'value': '150',
+        'label': 'Value from 40 to 250 cm',
+        'name': 'Height Formatted Field',
+        'choices': None,
+    },
+    {
+        'type': 'CheckBox',
+        'value': 'Off',
+        'label': 'Car driving license',
+        'name': 'Driving License Check Box',
+        'choices': None,
+    },
+    {'type': 'CheckBox', 'value': 'Off', 'label': '', 'name': 'Language 1 Check Box', 'choices': None},
+    {'type': 'CheckBox', 'value': 'Yes', 'label': '', 'name': 'Language 2 Check Box', 'choices': None},
+    {'type': 'CheckBox', 'value': 'Off', 'label': '', 'name': 'Language 3 Check Box', 'choices': None},
+    {'type': 'CheckBox', 'value': 'Off', 'label': '', 'name': 'Language 4 Check Box', 'choices': None},
+    {'type': 'CheckBox', 'value': 'Off', 'label': '', 'name': 'Language 5 Check Box', 'choices': None},
+    {
+        'type': 'ComboBox',
+        'value': 'Red',
+        'label': 'Select from colour spectrum',
+        'name': 'Favourite Colour List Box',
+        'choices': ['Black', 'Brown', 'Red', 'Orange', 'Yellow', 'Green', 'Blue', 'Violet', 'Grey', 'White'],
+    },
+]
 
 
-_form_2_schema = [{'type': 'Text', 'value': '', 'label': 'Name', 'name': 'Name', 'choices': None}, {'type': 'Text', 'value': '', 'label': 'Surname', 'name': 'Surname', 'choices': None}, {'type': 'Text', 'value': '', 'label': 'e-Mail Address (required)', 'name': 'email', 'choices': None}, {'type': 'Text', 'value': '', 'label': 'Phone Number', 'name': 'phone', 'choices': None}, {'type': 'Text', 'value': '', 'label': 'Mobile Number', 'name': 'Mobile', 'choices': None}, {'type': 'Text', 'value': '', 'label': 'Street', 'name': 'Street', 'choices': None}, {'type': 'Text', 'value': '', 'label': 'House Name', 'name': 'House', 'choices': None}, {'type': 'Text', 'value': '', 'label': 'Town Name', 'name': 'Town', 'choices': None}, {'type': 'Text', 'value': '', 'label': 'Postcode', 'name': 'Postcode', 'choices': None}, {'type': 'Text', 'value': '', 'label': 'Country', 'name': 'Country', 'choices': None}, {'type': 'TextArea', 'value': '', 'label': 'Comments', 'name': 'Comments', 'choices': None}, {'type': 'Button', 'value': '', 'label': '', 'name': 'AloahaFormSaveButton', 'choices': None}, {'type': 'Button', 'value': '', 'label': '', 'name': 'AloahaFormSubmitButton', 'choices': None}]
+_form_2_schema = [
+    {'type': 'Text', 'value': '', 'label': 'Name', 'name': 'Name', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': 'Surname', 'name': 'Surname', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': 'e-Mail Address (required)', 'name': 'email', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': 'Phone Number', 'name': 'phone', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': 'Mobile Number', 'name': 'Mobile', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': 'Street', 'name': 'Street', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': 'House Name', 'name': 'House', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': 'Town Name', 'name': 'Town', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': 'Postcode', 'name': 'Postcode', 'choices': None},
+    {'type': 'Text', 'value': '', 'label': 'Country', 'name': 'Country', 'choices': None},
+    {'type': 'TextArea', 'value': '', 'label': 'Comments', 'name': 'Comments', 'choices': None},
+    {'type': 'Button', 'value': '', 'label': '', 'name': 'AloahaFormSaveButton', 'choices': None},
+    {'type': 'Button', 'value': '', 'label': '', 'name': 'AloahaFormSubmitButton', 'choices': None},
+]
 
 
 @pytest.fixture

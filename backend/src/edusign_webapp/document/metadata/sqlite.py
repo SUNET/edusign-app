@@ -87,7 +87,9 @@ DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner_email, owner_n
 DOCUMENT_QUERY_LOCK = "SELECT locked, locked_by FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_email = ?;"
+DOCUMENT_QUERY_FROM_OWNER = (
+    "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_email = ?;"
+)
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOA = "SELECT loa FROM Documents WHERE key = ?;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
@@ -176,8 +178,12 @@ def upgrade(db):
         # XXX change document. locked_by, update data
         # XXX remove indexes
 
-        cur.execute("UPDATE D SET D.owner_email=U.email, D.owner_name=U.name FROM Documents D INNER JOIN Users U ON D.owner=U.user_id;")
-        cur.execute("UPDATE I SET I.user_email=U.email, D.user_name=U.name FROM Invites I INNER JOIN Users U ON I.user_id=U.user_id;")
+        cur.execute(
+            "UPDATE D SET D.owner_email=U.email, D.owner_name=U.name FROM Documents D INNER JOIN Users U ON D.owner=U.user_id;"
+        )
+        cur.execute(
+            "UPDATE I SET I.user_email=U.email, D.user_name=U.name FROM Invites I INNER JOIN Users U ON I.user_id=U.user_id;"
+        )
 
         cur.execute("PRAGMA user_version = 5;")
         cur.close()
@@ -262,7 +268,17 @@ class SqliteMD(ABCMetadata):
 
         self._db_execute(
             DOCUMENT_INSERT,
-            (str(key), document['name'], document['size'], document['type'], owner['email'], owner['name'], prev_sigs, sendsigned, loa),
+            (
+                str(key),
+                document['name'],
+                document['size'],
+                document['type'],
+                owner['email'],
+                owner['name'],
+                prev_sigs,
+                sendsigned,
+                loa,
+            ),
         )
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
 
