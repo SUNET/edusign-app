@@ -59,7 +59,10 @@ CREATE TABLE [Documents]
        [sendsigned] INTEGER DEFAULT 1,
        [loa] VARCHAR(255) DEFAULT "none",
        [locked] TIMESTAMP DEFAULT NULL,
-       [locked_by] VARCHAR(255) DEFAULT NULL
+       [locking_email] VARCHAR(255) DEFAULT NULL,
+       [locked_by] INTEGER DEFAULT NULL,
+            FOREIGN KEY ([locked_by]) REFERENCES [Users] ([user_id])
+              ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 CREATE TABLE [Invites]
 (      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
