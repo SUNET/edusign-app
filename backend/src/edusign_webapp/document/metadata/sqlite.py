@@ -63,7 +63,7 @@ CREATE TABLE [Documents]
        [locking_email] VARCHAR(255) DEFAULT NULL,
        [locked_by] INTEGER DEFAULT NULL,
             FOREIGN KEY ([owner]) REFERENCES [Users] ([user_id])
-              ON DELETE NO ACTION ON UPDATE NO ACTION
+              ON DELETE NO ACTION ON UPDATE NO ACTION,
             FOREIGN KEY ([locked_by]) REFERENCES [Users] ([user_id])
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
