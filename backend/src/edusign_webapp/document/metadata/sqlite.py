@@ -45,6 +45,11 @@ NOT_YET = -1
 
 
 DB_SCHEMA = """
+CREATE TABLE [Users]
+(      [user_id] INTEGER PRIMARY KEY AUTOINCREMENT,
+       [email] VARCHAR(255) NOT NULL,
+       [name] VARCHAR(255) NOT NULL
+);
 CREATE TABLE [Documents]
 (      [doc_id] INTEGER PRIMARY KEY AUTOINCREMENT,
        [key] VARCHAR(255) NOT NULL,
