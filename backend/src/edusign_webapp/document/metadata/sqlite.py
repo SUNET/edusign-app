@@ -86,6 +86,10 @@ CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);
 CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
 CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
+
+CREATE UNIQUE INDEX IF NOT EXISTS [EmailIX] ON [Users] ([email]);
+CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([owner]);
+CREATE INDEX IF NOT EXISTS [InviteeIX] ON [Invites] ([user_id]);
 PRAGMA user_version = 5;
 """
 
@@ -178,20 +182,21 @@ def upgrade(db):
 
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [owner_email] VARCHAR(255) DEFAULT \"\";")
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [owner_name] VARCHAR(255) DEFAULT \"\";")
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [locking_email] VARCHAR(255) DEFAULT \"\";")
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_email] VARCHAR(255) DEFAULT \"\";")
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_name] VARCHAR(255) DEFAULT \"\";")
 
         cur.execute("CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);")
         cur.execute("CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);")
 
-        # XXX change document. locked_by, update data
-        # XXX remove indexes
-
         cur.execute(
             "UPDATE D SET D.owner_email=U.email, D.owner_name=U.name FROM Documents D INNER JOIN Users U ON D.owner=U.user_id;"
         )
         cur.execute(
             "UPDATE I SET I.user_email=U.email, D.user_name=U.name FROM Invites I INNER JOIN Users U ON I.user_id=U.user_id;"
+        )
+        cur.execute(
+            "UPDATE D SET D.locking_email=U.email FROM Documents D INNER JOIN Users U ON D.locked_by=U.user_id;"
         )
 
         cur.execute("PRAGMA user_version = 5;")
@@ -201,11 +206,18 @@ def upgrade(db):
     if version == NOT_YET:
         cur = db.cursor()
 
-        # XXX drop documents.owner, invites.user_id, indexes
-        # XXX drop foreign keys to users?
+        cur.execute("DROP INDEX IF EXISTS [EmailIX];")
+        cur.execute("DROP INDEX IF EXISTS [OwnerIX];")
+        cur.execute("DROP INDEX IF EXISTS [InviteeIX];")
+
         cur.execute("ALTER TABLE [Documents] DROP COLUMN [owner];")
+        cur.execute("ALTER TABLE [Documents] DROP COLUMN [locked_by];")
         cur.execute("ALTER TABLE [Invites] DROP COLUMN [user_id];")
         cur.execute("DROP TABLE [Users];")
+
+        cur.execute("PRAGMA user_version = 6;")
+        cur.close()
+        db.commit()
 
 
 def close_connection(exception):
