@@ -41,15 +41,7 @@ from flask import Flask, current_app, g
 from edusign_webapp.doc_store import ABCMetadata
 
 
-NOT_YET = -1
-
-
 DB_SCHEMA = """
-CREATE TABLE [Users]
-(      [user_id] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [email] VARCHAR(255) NOT NULL,
-       [name] VARCHAR(255) NOT NULL
-);
 CREATE TABLE [Documents]
 (      [doc_id] INTEGER PRIMARY KEY AUTOINCREMENT,
        [key] VARCHAR(255) NOT NULL,
@@ -58,31 +50,22 @@ CREATE TABLE [Documents]
        [type] VARCHAR(50) NOT NULL,
        [created] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
        [updated] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-       [owner] INTEGER NOT NULL,
        [owner_email] VARCHAR(255) NOT NULL,
        [owner_name] VARCHAR(255) NOT NULL,
        [prev_signatures] TEXT,
        [sendsigned] INTEGER DEFAULT 1,
        [loa] VARCHAR(255) DEFAULT "none",
        [locked] TIMESTAMP DEFAULT NULL,
-       [locking_email] VARCHAR(255) DEFAULT NULL,
-       [locked_by] INTEGER DEFAULT NULL,
-            FOREIGN KEY ([owner]) REFERENCES [Users] ([user_id])
-              ON DELETE NO ACTION ON UPDATE NO ACTION,
-            FOREIGN KEY ([locked_by]) REFERENCES [Users] ([user_id])
-              ON DELETE NO ACTION ON UPDATE NO ACTION
+       [locking_email] VARCHAR(255) DEFAULT NULL
 );
 CREATE TABLE [Invites]
 (      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
        [key] VARCHAR(255) NOT NULL,
        [user_email] VARCHAR(255) NOT NULL,
        [user_name] VARCHAR(255) NOT NULL,
-       [user_id] INTEGER NOT NULL,
        [doc_id] INTEGER NOT NULL,
        [signed] INTEGER DEFAULT 0,
        [declined] INTEGER DEFAULT 0,
-            FOREIGN KEY ([user_id]) REFERENCES [Users] ([user_id])
-              ON DELETE NO ACTION ON UPDATE NO ACTION,
             FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -91,10 +74,6 @@ CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);
 CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
 CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-
-CREATE UNIQUE INDEX IF NOT EXISTS [EmailIX] ON [Users] ([email]);
-CREATE INDEX IF NOT EXISTS [OwnerIX] ON [Documents] ([owner]);
-CREATE INDEX IF NOT EXISTS [InviteeIX] ON [Invites] ([user_id]);
 PRAGMA user_version = 5;
 """
 
@@ -191,38 +170,87 @@ def upgrade(db):
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_email] VARCHAR(255) DEFAULT \"\";")
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_name] VARCHAR(255) DEFAULT \"\";")
 
-        cur.execute("CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);")
-        cur.execute("CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);")
-
         cur.execute(
             "UPDATE D SET D.owner_email=U.email, D.owner_name=U.name FROM Documents D INNER JOIN Users U ON D.owner=U.user_id;"
         )
         cur.execute(
-            "UPDATE I SET I.user_email=U.email, D.user_name=U.name FROM Invites I INNER JOIN Users U ON I.user_id=U.user_id;"
+            "UPDATE I SET I.user_email=U.email, I.user_name=U.name FROM Invites I INNER JOIN Users U ON I.user_id=U.user_id;"
         )
         cur.execute(
             "UPDATE D SET D.locking_email=U.email FROM Documents D INNER JOIN Users U ON D.locked_by=U.user_id;"
         )
 
+        cur.execute("DROP INDEX IF NOT EXISTS [EmailIX];")
+        cur.execute("DROP INDEX IF EXISTS [KeyIX];")
+        cur.execute("DROP INDEX IF EXISTS [OwnerIX];")
+        cur.execute("DROP INDEX IF EXISTS [CreatedIX];")
+        cur.execute("DROP INDEX IF EXISTS [InviteeIX];")
+        cur.execute("DROP INDEX IF EXISTS [InvitedIX];")
+
+        drop_owner_and_locked_by_in_documents(cur)
+        drop_user_id_in_invites(cur)
+        cur.execute("DROP TABLE [Users];")
+
+        cur.execute("CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);")
+        cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);")
+        cur.execute("CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);")
+        cur.execute("CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);")
+        cur.execute("CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);")
+
         cur.execute("PRAGMA user_version = 5;")
         cur.close()
         db.commit()
 
-    if version == NOT_YET:
-        cur = db.cursor()
 
-        cur.execute("DROP INDEX IF EXISTS [EmailIX];")
-        cur.execute("DROP INDEX IF EXISTS [OwnerIX];")
-        cur.execute("DROP INDEX IF EXISTS [InviteeIX];")
+def drop_owner_and_locked_by_in_documents(cur):
+    cur.execute("""
+        CREATE TABLE [DocumentsNew]
+        (      [doc_id] INTEGER PRIMARY KEY AUTOINCREMENT,
+               [key] VARCHAR(255) NOT NULL,
+               [name] VARCHAR(255) NOT NULL,
+               [size] INTEGER NOT NULL,
+               [type] VARCHAR(50) NOT NULL,
+               [created] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+               [updated] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+               [owner_email] VARCHAR(255) NOT NULL,
+               [owner_name] VARCHAR(255) NOT NULL,
+               [prev_signatures] TEXT,
+               [sendsigned] INTEGER DEFAULT 1,
+               [loa] VARCHAR(255) DEFAULT "none",
+               [locked] TIMESTAMP DEFAULT NULL,
+               [locking_email] VARCHAR(255) DEFAULT NULL
+        );
+    """)
+    cur.execute("""INSERT INTO DocumentsNew
+                    (doc_id, key, name, size, type, created, updated, owner_email, owner_name, prev_signatures, sendsigned, loa, locked, locked_email)
+                    SELECT doc_id, name, size, type, created, updated, owner_email, owner_name, prev_signatures, sendsigned, loa, locked, email
+                FROM Documents;
+    """)
+    cur.execute("DROP TABLE [Documents];")
+    cur.execute("ALTER TABLE [DocumentsNew] RENAME TO [Documents];")
 
-        cur.execute("ALTER TABLE [Documents] DROP COLUMN [owner];")
-        cur.execute("ALTER TABLE [Documents] DROP COLUMN [locked_by];")
-        cur.execute("ALTER TABLE [Invites] DROP COLUMN [user_id];")
-        cur.execute("DROP TABLE [Users];")
 
-        cur.execute("PRAGMA user_version = 6;")
-        cur.close()
-        db.commit()
+def drop_user_id_in_invites(cur):
+    cur.execute("""
+        CREATE TABLE [InvitesNew]
+        (      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
+               [key] VARCHAR(255) NOT NULL,
+               [user_email] VARCHAR(255) NOT NULL,
+               [user_name] VARCHAR(255) NOT NULL,
+               [doc_id] INTEGER NOT NULL,
+               [signed] INTEGER DEFAULT 0,
+               [declined] INTEGER DEFAULT 0,
+                    FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
+                      ON DELETE NO ACTION ON UPDATE NO ACTION
+        );
+    """)
+    cur.execute("""INSERT INTO InvitesNew
+                    (inviteId, key, user_email, user_name, doc_id, signed, declined)
+                    SELECT inviteID, key, user_email, user_name, doc_id, signed, declined
+                FROM Invites;
+    """)
+    cur.execute("DROP TABLE [Invites];")
+    cur.execute("ALTER TABLE [InvitesNew] RENAME TO [Invites];")
 
 
 def close_connection(exception):
