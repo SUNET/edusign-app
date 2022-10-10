@@ -572,13 +572,14 @@ class SqliteMD(ABCMetadata):
 
         return {'document': doc, 'user': user}
 
-    def add_invitation(self, document_key: uuid.UUID, name: str, email: str) -> Dict[str, Any]:
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, invite_key: str = '') -> Dict[str, Any]:
         """
         Create a new invitation to sign
 
         :param document_key: The key identifying the document to sign
         :param name: The name for the new invitation
         :param email: The email for the new invitation
+        :param invite_key: The invite key for the new invitation
         :return: data on the new invitation
         """
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(document_key),), one=True)
@@ -588,7 +589,9 @@ class SqliteMD(ABCMetadata):
             return {}
 
         document_id = document_result['doc_id']
-        invite_key = str(uuid.uuid4())
+        if invite_key == '':
+            invite_key = str(uuid.uuid4())
+
         self._db_execute(INVITE_INSERT, (invite_key, document_id, email, name))
         self._db_commit()
 

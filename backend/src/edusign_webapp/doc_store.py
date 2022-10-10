@@ -237,13 +237,14 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add_invitation(self, document_key: uuid.UUID, name: str, email: str) -> Dict[str, Any]:
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, invite_key: str = '') -> Dict[str, Any]:
         """
         Create a new invitation to sign
 
         :param document_key: The key identifying the document to sign
         :param name: The name for the new invitation
         :param email: The email for the new invitation
+        :param invite_key: The invite key for the new invitation
         :return: data on the new invitation
         """
 
@@ -558,13 +559,16 @@ class DocStore(object):
 
         for new in invitations:
             add = True
+            invite_key = ''
             for old in pending:
                 if new['email'] == old['email'] and new['name'] == old['name']:
                     add = False
                     break
+                elif new['email'] == old['email']:
+                    invite_key = old["key"]
 
             if add:
-                self.metadata.add_invitation(document_key, new['name'], new['email'])
+                self.metadata.add_invitation(document_key, new['name'], new['email'], invite_key=invite_key)
                 changed['added'].append(new)
 
         return changed
