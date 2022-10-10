@@ -81,7 +81,7 @@ PRAGMA user_version = 5;
 DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner_email, owner_name FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_LOCK = "SELECT locked, locked_by FROM Documents WHERE doc_id = ?;"
+DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 DOCUMENT_QUERY_FROM_OWNER = (
@@ -90,8 +90,8 @@ DOCUMENT_QUERY_FROM_OWNER = (
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOA = "SELECT loa FROM Documents WHERE key = ?;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
-DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locked_by = NULL WHERE doc_id = ?;"
-DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locked_by = ? WHERE doc_id = ?;"
+DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locking_email = '' WHERE doc_id = ?;"
+DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name) VALUES (?, ?, ?, ?)"
 INVITE_QUERY_FROM_EMAIL = "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0;"
@@ -222,8 +222,8 @@ def drop_owner_and_locked_by_in_documents(cur):
         );
     """)
     cur.execute("""INSERT INTO DocumentsNew
-                    (doc_id, key, name, size, type, created, updated, owner_email, owner_name, prev_signatures, sendsigned, loa, locked, locked_email)
-                    SELECT doc_id, name, size, type, created, updated, owner_email, owner_name, prev_signatures, sendsigned, loa, locked, email
+                    (doc_id, key, name, size, type, created, updated, owner_email, owner_name, prev_signatures, sendsigned, loa, locked, locking_email)
+                    SELECT doc_id, key, name, size, type, created, updated, owner_email, owner_name, prev_signatures, sendsigned, loa, locked, locking_email
                 FROM Documents;
     """)
     cur.execute("DROP TABLE [Documents];")
@@ -684,17 +684,17 @@ class SqliteMD(ABCMetadata):
 
         return document_result
 
-    def add_lock(self, doc_id: int, locked_by: str) -> bool:
+    def add_lock(self, doc_id: int, locking_email: str) -> bool:
         """
         Lock document to avoid it being signed by more than one invitee in parallel.
         This will first check that the doc is not already locked.
 
         :param doc_id: the pk for the document in the documents table
-        :param locked_by: Email of the user locking the document
+        :param locking_email: Email of the user locking the document
         :return: Whether the document has been locked.
         """
         lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
-        self.logger.debug(f"Checking lock for {locked_by} in document with id {doc_id}: {lock_info}")
+        self.logger.debug(f"Checking lock for {locking_email} in document with id {doc_id}: {lock_info}")
         if lock_info is None or isinstance(lock_info, list):
             self.logger.error(f"Trying to lock a non-existing document with id {doc_id}")
             return False
@@ -709,22 +709,22 @@ class SqliteMD(ABCMetadata):
         if (
             locked is None
             or (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']
-            or lock_info['locked_by'] == locked_by
+            or lock_info['locking_email'] == locking_email
         ):
-            self.logger.debug(f"Adding lock for {locked_by} in document with id {doc_id}: {lock_info}")
-            self._db_execute(DOCUMENT_ADD_LOCK, (now, locked_by, doc_id))
+            self.logger.debug(f"Adding lock for {locking_email} in document with id {doc_id}: {lock_info}")
+            self._db_execute(DOCUMENT_ADD_LOCK, (now, locking_email, doc_id))
             self._db_commit()
             return True
 
         return False
 
-    def rm_lock(self, doc_id: int, unlocked_by: List[str]) -> bool:
+    def rm_lock(self, doc_id: int, unlocking_email: List[str]) -> bool:
         """
         Remove lock from document. If the document is not locked, do nothing.
         The user unlocking must be that same user that locked it.
 
         :param doc_id: the pk for the document in the documents table
-        :param unlocked_by: Emails of the user unlocking the document
+        :param unlocking_email: Emails of the user unlocking the document
         :return: Whether the document has been unlocked.
         """
         lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
@@ -742,21 +742,21 @@ class SqliteMD(ABCMetadata):
         else:
             locked = lock_info['locked']
 
-        if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['locked_by'] in unlocked_by:
+        if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['locking_email'] in unlocking_email:
             self._db_execute(DOCUMENT_RM_LOCK, (doc_id,))
             self._db_commit()
             return True
 
         return False
 
-    def check_lock(self, doc_id: int, locked_by: List[str]) -> bool:
+    def check_lock(self, doc_id: int, locking_email: List[str]) -> bool:
         """
         Check whether the document identified by doc_id is locked.
         This will remove stale locks (older than the configured timeout).
 
         :param doc_id: the pk for the document in the documents table
-        :param locked_by: Email of the user locking the document
-        :return: Whether the document is locked by the user with `locked_by` email
+        :param locking_email: Email of the user locking the document
+        :return: Whether the document is locked by the user with `locking_email` email
         """
         lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
         if lock_info is None or isinstance(lock_info, list):
@@ -780,8 +780,8 @@ class SqliteMD(ABCMetadata):
             self._db_commit()
             return False
 
-        self.logger.debug(f"Checking lock for {doc_id} by {lock_info['locked_by']} for {locked_by}")
-        return lock_info['locked_by'] in locked_by
+        self.logger.debug(f"Checking lock for {doc_id} by {lock_info['locking_email']} for {locking_email}")
+        return lock_info['locking_email'] in locking_email
 
     def get_sendsigned(self, key: uuid.UUID) -> bool:
         """
