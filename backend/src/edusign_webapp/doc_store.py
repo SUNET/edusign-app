@@ -548,7 +548,7 @@ class DocStore(object):
         for old in pending:
             remove = True
             for new in invitations:
-                if new['email'] == old['email']:
+                if new['email'] == old['email'] and new['name'] == old['name']:
                     remove = False
                     break
 
@@ -559,7 +559,7 @@ class DocStore(object):
         for new in invitations:
             add = True
             for old in pending:
-                if new['email'] == old['email']:
+                if new['email'] == old['email'] and new['name'] == old['name']:
                     add = False
                     break
 
