@@ -72,9 +72,12 @@ CREATE TABLE [Invites]
        [key] VARCHAR(255) NOT NULL,
        [user_email] VARCHAR(255) NOT NULL,
        [user_name] VARCHAR(255) NOT NULL,
+       [user_id] INTEGER NOT NULL,
        [doc_id] INTEGER NOT NULL,
        [signed] INTEGER DEFAULT 0,
        [declined] INTEGER DEFAULT 0,
+            FOREIGN KEY ([user_id]) REFERENCES [Users] ([user_id])
+              ON DELETE NO ACTION ON UPDATE NO ACTION,
             FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
