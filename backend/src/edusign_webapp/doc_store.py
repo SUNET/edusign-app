@@ -127,7 +127,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                          + type: Content type of the doc
                          + size: Size of the doc
                          + prev_signatures: previous signatures
-        :param owner: Email address and name of the user that has uploaded the document.
+        :param owner: Email address and name and eppn of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
@@ -184,7 +184,26 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def get_owned(self, email: str) -> List[Dict[str, Any]]:
+    def get_owned(self, eppn: str) -> List[Dict[str, Any]]:
+        """
+        Get information about the documents that have been added by some user to be signed by other users.
+
+        :param eppn: The eppn of the user
+        :return: A list of dictionaries with information about the documents, each of them with keys:
+                 + key: Key of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + pending: List of emails of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails of the users invited to sign the document who have already done so.
+                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
+        """
+
+    @abc.abstractmethod
+    def get_owned_by_email(self, email: str) -> List[Dict[str, Any]]:
         """
         Get information about the documents that have been added by some user to be signed by other users.
 
@@ -369,7 +388,7 @@ class DocStore(object):
                          + size: Size of the doc
                          + blob: Contents of the document, as a base64 string.
                          + prev_signatures: previous signatures
-        :param owner: Email address and name of the user that has uploaded the document.
+        :param owner: Email address and name and eppn of the user that has uploaded the document.
         :param invites: List of names and email addresses of the users that should sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
@@ -451,7 +470,7 @@ class DocStore(object):
         """
         self.metadata.decline(key, emails)
 
-    def get_owned_documents(self, emails: List[str]) -> List[Dict[str, Any]]:
+    def get_owned_documents(self, eppn: str, emails: List[str]) -> List[Dict[str, Any]]:
         """
         Get the documents added by the user to be signed by other users,
         together with information about which of the other users have signed them.
@@ -472,7 +491,14 @@ class DocStore(object):
         """
         invites = []
         for email in emails:
-            invites.extend(self.metadata.get_owned(email))
+            invites.extend(self.metadata.get_owned_by_email(email))
+
+        keys = [i['key'] for i in invites]
+        more_invites = self.metadata.get_owned(eppn)
+        for more in more_invites:
+            if more['key'] not in keys:
+                invites.append(more)
+
         return invites
 
     def remove_document(self, key: uuid.UUID, force: bool = False) -> bool:

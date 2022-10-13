@@ -176,7 +176,7 @@ def get_invitations():
       polling the backend (this is, only when there are users pending to sign
       any of the invitations).
     """
-    owned = current_app.doc_store.get_owned_documents(session['mail_aliases'])
+    owned = current_app.doc_store.get_owned_documents(session['eppn'], session['mail_aliases'])
     invited = current_app.doc_store.get_pending_documents(session['mail_aliases'])
     poll = False
     for docs in (owned, invited):

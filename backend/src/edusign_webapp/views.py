@@ -903,7 +903,7 @@ def create_multi_sign_request(data: dict) -> dict:
 
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
-        owner = {'name': session['displayName'], 'email': data['owner']}
+        owner = {'name': session['displayName'], 'email': data['owner'], 'eppn': session['eppn']}
         current_app.logger.debug(f"Adding document with required loa {data['loa']}")
         invites = current_app.doc_store.add_document(
             data['document'], owner, data['invites'], data['sendsigned'], data['loa']

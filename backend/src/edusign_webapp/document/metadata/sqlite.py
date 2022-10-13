@@ -50,6 +50,7 @@ CREATE TABLE [Documents]
        [type] VARCHAR(50) NOT NULL,
        [created] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
        [updated] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       [owner_eppn] VARCHAR(255) NOT NULL,
        [owner_email] VARCHAR(255) NOT NULL,
        [owner_name] VARCHAR(255) NOT NULL,
        [prev_signatures] TEXT,
@@ -71,6 +72,7 @@ CREATE TABLE [Invites]
 );
 CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
 CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);
+CREATE INDEX IF NOT EXISTS [OwnerEppnIX] ON [Documents] ([owner_eppn]);
 CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
 CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
@@ -78,13 +80,16 @@ PRAGMA user_version = 5;
 """
 
 
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner_email, owner_name FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 DOCUMENT_QUERY_FROM_OWNER = (
+    "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_eppn = ?;"
+)
+DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = (
     "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_email = ?;"
 )
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
@@ -166,6 +171,7 @@ def upgrade(db):
 
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [owner_email] VARCHAR(255) DEFAULT \"\";")
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [owner_name] VARCHAR(255) DEFAULT \"\";")
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [owner_eppn] VARCHAR(255) DEFAULT \"\";")
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [locking_email] VARCHAR(255) DEFAULT \"\";")
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_email] VARCHAR(255) DEFAULT \"\";")
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_name] VARCHAR(255) DEFAULT \"\";")
@@ -192,6 +198,7 @@ def upgrade(db):
         cur.execute("DROP TABLE [Users];")
 
         cur.execute("CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);")
+        cur.execute("CREATE INDEX IF NOT EXISTS [OwnerEppnIX] ON [Documents] ([owner_eppn]);")
         cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);")
         cur.execute("CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);")
         cur.execute("CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);")
@@ -312,7 +319,7 @@ class SqliteMD(ABCMetadata):
                          + size: Size of the doc
                          + type: Content type of the doc
                          + prev_signatures: previous signatures
-        :param owner: Name and email address of the user that has uploaded the document.
+        :param owner: Name and email address and eppn of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
@@ -329,6 +336,7 @@ class SqliteMD(ABCMetadata):
                 document['type'],
                 owner['email'],
                 owner['name'],
+                owner['eppn'],
                 prev_sigs,
                 sendsigned,
                 loa,
@@ -490,11 +498,11 @@ class SqliteMD(ABCMetadata):
         )
         self._db_commit()
 
-    def get_owned(self, email: str) -> List[Dict[str, Any]]:
+    def get_owned(self, eppn: str) -> List[Dict[str, Any]]:
         """
         Get information about the documents that have been added by some user to be signed by other users.
 
-        :param email: The email of the user
+        :param eppn: The eppn of the user
         :return: A list of dictionaries with information about the documents, each of them with keys:
                  + key: Key of the doc in the storage.
                  + name: The name of the document
@@ -508,10 +516,36 @@ class SqliteMD(ABCMetadata):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
         """
-        documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (email,))
+        documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (eppn,))
         if documents is None or isinstance(documents, dict):
             return []
 
+        return self._get_owned(documents)
+
+    def get_owned_by_email(self, email: str) -> List[Dict[str, Any]]:
+        """
+        Get information about the documents that have been added by some user to be signed by other users.
+
+        :param email: The email of the user
+        :return: A list of dictionaries with information about the documents, each of them with keys:
+                 + key: Key of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + pending: List of emails of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails of the users invited to sign the document who have already done so.
+                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
+        """
+        documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL, (email,))
+        if documents is None or isinstance(documents, dict):
+            return []
+
+        return self._get_owned(documents)
+
+    def _get_owned(self, documents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         for document in documents:
             document['key'] = uuid.UUID(document['key'])
             document['pending'] = []
