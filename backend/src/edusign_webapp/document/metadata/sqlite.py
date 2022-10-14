@@ -210,7 +210,8 @@ def upgrade(db):
 
 
 def drop_owner_and_locked_by_in_documents(cur):
-    cur.execute("""
+    cur.execute(
+        """
         CREATE TABLE [DocumentsNew]
         (      [doc_id] INTEGER PRIMARY KEY AUTOINCREMENT,
                [key] VARCHAR(255) NOT NULL,
@@ -227,18 +228,22 @@ def drop_owner_and_locked_by_in_documents(cur):
                [locked] TIMESTAMP DEFAULT NULL,
                [locking_email] VARCHAR(255) DEFAULT NULL
         );
-    """)
-    cur.execute("""INSERT INTO DocumentsNew
+    """
+    )
+    cur.execute(
+        """INSERT INTO DocumentsNew
                     (doc_id, key, name, size, type, created, updated, owner_email, owner_name, prev_signatures, sendsigned, loa, locked, locking_email)
                     SELECT doc_id, key, name, size, type, created, updated, owner_email, owner_name, prev_signatures, sendsigned, loa, locked, locking_email
                 FROM Documents;
-    """)
+    """
+    )
     cur.execute("DROP TABLE [Documents];")
     cur.execute("ALTER TABLE [DocumentsNew] RENAME TO [Documents];")
 
 
 def drop_user_id_in_invites(cur):
-    cur.execute("""
+    cur.execute(
+        """
         CREATE TABLE [InvitesNew]
         (      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
                [key] VARCHAR(255) NOT NULL,
@@ -250,12 +255,15 @@ def drop_user_id_in_invites(cur):
                     FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
                       ON DELETE NO ACTION ON UPDATE NO ACTION
         );
-    """)
-    cur.execute("""INSERT INTO InvitesNew
+    """
+    )
+    cur.execute(
+        """INSERT INTO InvitesNew
                     (inviteId, key, user_email, user_name, doc_id, signed, declined)
                     SELECT inviteID, key, user_email, user_name, doc_id, signed, declined
                 FROM Invites;
-    """)
+    """
+    )
     cur.execute("DROP TABLE [Invites];")
     cur.execute("ALTER TABLE [InvitesNew] RENAME TO [Invites];")
 
