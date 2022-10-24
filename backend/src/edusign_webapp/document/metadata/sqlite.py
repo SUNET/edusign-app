@@ -177,13 +177,21 @@ def upgrade(db):
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_name] VARCHAR(255) DEFAULT \"\";")
 
         cur.execute(
-            "UPDATE D SET D.owner_email=U.email, D.owner_name=U.name FROM Documents D INNER JOIN Users U ON D.owner=U.user_id;"
+            "UPDATE Documents SET owner_email = (SELECT email FROM Users WHERE user_id = Documents.owner);"
         )
         cur.execute(
-            "UPDATE I SET I.user_email=U.email, I.user_name=U.name FROM Invites I INNER JOIN Users U ON I.user_id=U.user_id;"
+            "UPDATE Documents SET owner_name = (SELECT name FROM Users WHERE user_id = Documents.owner);"
+        )
+
+        cur.execute(
+            "UPDATE Invites SET user_email = (SELECT email FROM Users WHERE user_id = Invites.user_id);"
         )
         cur.execute(
-            "UPDATE D SET D.locking_email=U.email FROM Documents D INNER JOIN Users U ON D.locked_by=U.user_id;"
+            "UPDATE Invites SET user_name = (SELECT name FROM Users WHERE user_id = Invites.user_id);"
+        )
+
+        cur.execute(
+            "UPDATE Documents SET locking_email = (SELECT email FROM Users WHERE user_id = Documents.locked_by);"
         )
 
         cur.execute("DROP INDEX IF NOT EXISTS [EmailIX];")
