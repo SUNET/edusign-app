@@ -228,6 +228,7 @@ def drop_owner_and_locked_by_in_documents(cur):
                [type] VARCHAR(50) NOT NULL,
                [created] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                [updated] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+               [owner_eppn] VARCHAR(255) NOT NULL,
                [owner_email] VARCHAR(255) NOT NULL,
                [owner_name] VARCHAR(255) NOT NULL,
                [prev_signatures] TEXT,
@@ -240,8 +241,8 @@ def drop_owner_and_locked_by_in_documents(cur):
     )
     cur.execute(
         """INSERT INTO DocumentsNew
-                    (doc_id, key, name, size, type, created, updated, owner_email, owner_name, prev_signatures, sendsigned, loa, locked, locking_email)
-                    SELECT doc_id, key, name, size, type, created, updated, owner_email, owner_name, prev_signatures, sendsigned, loa, locked, locking_email
+                    (doc_id, key, name, size, type, created, updated, owner_eppn, owner_email, owner_name, prev_signatures, sendsigned, loa, locked, locking_email)
+                    SELECT doc_id, key, name, size, type, created, updated, owner_eppn, owner_email, owner_name, prev_signatures, sendsigned, loa, locked, locking_email
                 FROM Documents;
     """
     )
