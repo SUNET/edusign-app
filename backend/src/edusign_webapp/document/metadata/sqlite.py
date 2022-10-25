@@ -194,7 +194,7 @@ def upgrade(db):
             "UPDATE Documents SET locking_email = (SELECT email FROM Users WHERE user_id = Documents.locked_by);"
         )
 
-        cur.execute("DROP INDEX IF NOT EXISTS [EmailIX];")
+        cur.execute("DROP INDEX IF EXISTS [EmailIX];")
         cur.execute("DROP INDEX IF EXISTS [KeyIX];")
         cur.execute("DROP INDEX IF EXISTS [OwnerIX];")
         cur.execute("DROP INDEX IF EXISTS [CreatedIX];")
