@@ -62,6 +62,7 @@ def update_pdf_form(b64_pdf, fields):
             for f in fields:
                 if field.field_name == f['name']:
                     field.field_value = f['value']
+                    field.field_flags = fitz.PDF_FIELD_IS_READ_ONLY
                     field.update()
                     break
 
