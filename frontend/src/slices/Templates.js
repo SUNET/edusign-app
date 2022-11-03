@@ -139,32 +139,32 @@ const templateSlice = createSlice({
     },
     /**
      * @public
-     * @function setTemplateFormSchema
-     * @desc Redux action to update a document template that contains a PDF form,
-     * setting an attribute with the form schema.
+     * @function showPDFForm
+     * @desc Redux action to update a template with form in the templates state key,
+     * setting the show form key to true (so that the UI will show the form ready to be filled).
      */
-    setTemplateFormSchema(state, action) {
+    showPDFForm(state, action) {
       state.documents = state.documents.map((doc) => {
-        if (doc.key === action.payload.key) {
+        if (doc.key === action.payload) {
           return {
             ...doc,
-            schema: action.payload.schema,
+            showForm: true,
           };
         } else return doc;
       });
     },
     /**
      * @public
-     * @function unsetTemplateFormSchema
-     * @desc Redux action to update a document template that contains a PDF form,
-     * unsetting the attribute with the form schema.
+     * @function hidePDFForm
+     * @desc Redux action to update a template with form in the templates state key,
+     * setting the show form key to false (so that the UI will hide the form).
      */
-    unsetTemplateFormSchema(state, action) {
+    hidePDFForm(state, action) {
       state.documents = state.documents.map((doc) => {
         if (doc.key === action.payload) {
           return {
             ...doc,
-            schema: undefined,
+            showForm: false,
           };
         } else return doc;
       });
@@ -185,6 +185,8 @@ export const {
   rmTemplate,
   showTemplatePreview,
   hideTemplatePreview,
+  showPDFForm,
+  hidePDFForm,
   setTemplateFormSchema,
   unsetTemplateFormSchema,
 } = templateSlice.actions;

@@ -117,6 +117,11 @@ class DocManager extends React.Component {
                         docFile={docFile}
                         handleClose={this.props.handleCloseTemplatePreview}
                       />
+                      <PDFFormContainer
+                        doc={doc}
+                        docFile={docFile}
+                        handleClose={this.props.handleClosePDFForm}
+                      />
                       <InviteFormContainer
                         docId={doc.id}
                         docName={doc.name}
@@ -338,7 +343,6 @@ class DocManager extends React.Component {
             />
           </div>
         )}
-        <PDFFormContainer />
       </>
     );
   }

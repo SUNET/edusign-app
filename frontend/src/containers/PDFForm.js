@@ -13,14 +13,12 @@ import { connect } from "react-redux";
 import PDFForm from "components/PDFForm";
 
 import { unsetSpinning } from "slices/Button";
-import { hidePDFForm, sendPDFForm } from "slices/PDFForms";
+import { hidePDFForm } from "slices/Templates";
+import { sendPDFForm } from "slices/PDFForms";
 
 const mapStateToProps = (state, props) => {
   return {
     size: state.main.size,
-    show: state.pdfform.show,
-    doc: state.pdfform.document,
-    form: state.pdfform.form_schema,
     templates: state.template.documents,
     documents: state.documents.documents,
     owned: state.main.owned_multisign,
@@ -34,9 +32,11 @@ const mapDispatchToProps = (dispatch, props) => {
       dispatch(unsetSpinning());
       dispatch(hidePDFForm());
     },
-    handleClose: function () {
-      dispatch(unsetSpinning());
-      dispatch(hidePDFForm());
+    handleClose: function (key) {
+      return () => {
+        dispatch(unsetSpinning());
+        dispatch(hidePDFForm(key));
+      }
     },
   };
 };

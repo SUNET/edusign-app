@@ -1,268 +1,206 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { FormattedMessage } from "react-intl";
+import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import Button from "containers/Button";
-import BForm from "react-bootstrap/Form";
-import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
-import { FormattedMessage, injectIntl } from "react-intl";
-import { ESTooltip } from "containers/Overlay";
-import { validateNewname } from "components/InviteForm";
+import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
 
-import "styles/PDFForm.scss";
+import "styles/DocPreview.scss";
+import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 
-const initialValues = (props) => {
-  const fields = props.form.map((field) => {
-    const f = {};
-    let value;
-    if (field.type === "CheckBox") {
-      value = false;
-      if (
-        [true, "true", "True", "t", "T", "yes", "Yes", "On", "on"].includes(
-          field.value
-        )
-      ) {
-        value = true;
-      }
-    } else {
-      value = "";
-      if (field.value !== undefined) {
-        value = field.value;
-      }
-    }
-    f[field.name] = value;
-    return f;
-  });
-  return {
-    fields: fields,
-    newname: "",
-  };
-};
-
+/**
+ * @desc To show a modal dialog with a paginated view of a PDF, using PDF.js.
+ * @component
+ */
 class PDFForm extends React.Component {
-  render() {
-    if (this.props.show === false) {
-      return "";
-    }
 
-    const add_fields = (fprops) => {
-      return (
-        <>
-          {fprops.values.fields.map((field, i) => {
-            const spec = this.props.form[i];
-            if (spec.type === "Text") {
-              return (
-                <div key={i} className="pdfform-field">
-                  <BForm.Group className="pdfform-text-group">
-                    <BForm.Label
-                      className="pdfform-text-label"
-                      htmlFor={spec.name}
-                    >
-                      {spec.label || spec.name}
-                    </BForm.Label>
-                    <Field
-                      name={`fields.${i}.${spec.name}`}
-                      data-testid={`fields.${i}.${spec.name}`}
-                      as={BForm.Control}
-                      type="text"
-                      className="pdfform-text-input"
-                    />
-                  </BForm.Group>
-                </div>
-              );
-            } else if (spec.type === "TextArea") {
-              return (
-                <div key={i} className="pdfform-field">
-                  <BForm.Group className="pdfform-textarea-group">
-                    <BForm.Label
-                      className="pdfform-textarea-label"
-                      htmlFor={spec.name}
-                    >
-                      {spec.label || spec.name}
-                    </BForm.Label>
-                    <Field
-                      name={`fields.${i}.${spec.name}`}
-                      data-testid={`fields.${i}.${spec.name}`}
-                      as="textarea"
-                      className="pdfform-checkbox-input form-control"
-                    />
-                  </BForm.Group>
-                </div>
-              );
-            } else if (spec.type === "CheckBox") {
-              return (
-                <div key={i} className="pdfform-field">
-                  <BForm.Group className="pdfform-checkbox-group">
-                    <BForm.Label
-                      className="pdfform-checkbox-label"
-                      htmlFor={spec.name}
-                    >
-                      {spec.label || spec.name}
-                    </BForm.Label>
-                    <Field
-                      name={`fields.${i}.${spec.name}`}
-                      data-testid={`fields.${i}.${spec.name}`}
-                      as={BForm.Check}
-                      type="checkbox"
-                      className="pdfform-checkbox-input"
-                    />
-                  </BForm.Group>
-                </div>
-              );
-            } else if (spec.type === "ListBox" || spec.type === "ComboBox") {
-              return (
-                <div key={i} className="pdfform-field">
-                  <BForm.Group className="pdfform-select-group">
-                    <BForm.Label
-                      className="pdfform-select-label"
-                      htmlFor={spec.name}
-                    >
-                      {spec.label || spec.name}
-                    </BForm.Label>
-                    <Field
-                      name={`fields.${i}.${spec.name}`}
-                      data-testid={`fields.${i}.${spec.name}`}
-                      component={BForm.Select}
-                      as="select"
-                      className="pdfform-select-input form-control"
-                      children={spec.choices.map((choice, i) => {
-                        return (
-                          <option key={i} value={choice}>
-                            {choice}
-                          </option>
-                        );
-                      })}
-                    ></Field>
-                  </BForm.Group>
-                </div>
-              );
-            }
-          })}
-        </>
-      );
+  constructor(props) {
+    super(props);
+    this.state = {
+      docRef: React.createRef(),
+      numPages: null,
+      pageNumber: 1,
+      values: {}
     };
+  }
 
+  onDocumentLoadSuccess({ numPages }) {
+    this.setState({numPages});
+  }
+
+  changePage(offset) {
+    this.setState({pageNumber: this.state.pageNumber + offset});
+  }
+
+  async firstPage() {
+    await collectValues();
+    this.setState({pageNumber: 1});
+    this.restoreValues();
+  }
+
+  async previousPage() {
+    await this.collectValues();
+    this.changePage(-1);
+    this.restoreValues();
+  }
+
+  async nextPage() {
+    await this.collectValues();
+    this.changePage(1);
+    this.restoreValues();
+  }
+
+  async lastPage() {
+    await this.collectValues();
+    this.setState({pageNumber: this.state.numPages});
+    this.restoreValues();
+  }
+
+  async collectValues() {
+    const pdf = this.state.docRef.current.state.pdf;
+    const page = await pdf.getPage(this.state.pageNumber);
+    const annotations = await page.getAnnotations();
+    const values = {};
+    annotations.forEach((ann) => {
+      if (ann.subtype === 'Widget') {
+        const elem = document.getElementById(ann.id);
+        if (elem) {
+          const val = elem.value;
+          if (val) {
+            values[ann.id] = val;
+          }
+        }
+      }
+    })
+    this.setState({values: {...this.state.values, ...values}})
+  }
+
+  restoreValues() {
+    for (const key in this.state.values) {
+      const elem = document.getElementById(key);
+      if (elem) {
+        if (elem.type === 'checkbox') {
+          elem.checked = this.state.values[key] === 'on';
+        } else {
+          elem.value = this.state.values[key];
+        }
+      }
+    }
+  }
+
+  render() {
     return (
       <>
-        <Formik
-          initialValues={initialValues(this.props)}
-          onSubmit={async (values) => {
-            await this.props.handleSubmit(values, this.props);
-            this.props.handleClose();
-          }}
+        <Modal
+          show={this.props.doc.showForm}
+          onHide={this.props.handleClose(this.props.doc.key)}
+          size="lg"
+          centered
         >
-          {(fprops) => (
-            <Modal
-              show={this.props.show}
-              onHide={this.props.handleClose}
-              size={this.props.size}
+          <Modal.Header closeButton>
+            <Modal.Title>{this.props.doc.name}</Modal.Title>
+          </Modal.Header>
+
+          <Modal.Body>
+            <Document
+              ref={this.state.docRef}
+              file={this.props.docFile}
+              onLoadSuccess={this.onDocumentLoadSuccess.bind(this)}
+              onPassword={(c) => {
+                throw new Error("Never password");
+              }}
+              options={{
+                cMapUrl: "/js/cmaps/",
+                cMapPacked: true,
+                enableXfa: true,
+              }}
             >
-              <Form
-                data-testid={"pdfform-" + this.props.doc.name}
-                id={"pdfform-" + this.props.doc.name}
+              {(this.props.width < 550 && (
+                <Page
+                  pageNumber={this.state.pageNumber}
+                  width={this.props.width - 20}
+                  renderInteractiveForms={true}
+                  renderAnnotationLayer={true}
+                  onRenderSuccess={this.restoreValues.bind(this)}
+                />
+              )) || (
+                <Page
+                  pageNumber={this.state.pageNumber}
+                  renderInteractiveForms={true}
+                  renderAnnotationLayer={true}
+                  onRenderSuccess={this.restoreValues.bind(this)}
+                />
+              )}
+            </Document>
+          </Modal.Body>
+
+          <Modal.Footer>
+            <div className="pdf-navigation">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={Number(this.state.pageNumber) <= 1}
+                onClick={this.firstPage.bind(this)}
+                data-testid={"preview-button-first-" + this.props.doc.name}
               >
-                <Modal.Header closeButton>
-                  <Modal.Title>
-                    <FormattedMessage
-                      defaultMessage={`Fill in PDF form for "{docName}"`}
-                      key="pdfform-title"
-                      values={{ docName: this.props.doc.name }}
-                    />
-                  </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  <>
-                    <BForm.Group className="newname-text-group">
-                      <BForm.Label
-                        className="newname-text-label"
-                        htmlFor="newname"
-                      >
-                        <FormattedMessage
-                          defaultMessage="New name for document to send for signatures:"
-                          key="newname-text-field"
-                        />
-                      </BForm.Label>
-                      <ErrorMessage
-                        name="newname"
-                        component="div"
-                        className="field-error"
-                      />
-                      <Field
-                        name="newname"
-                        data-testid="newname"
-                        as={BForm.Control}
-                        type="text"
-                        validate={validateNewname(this.props)}
-                        isValid={!fprops.errors.newname}
-                        value={fprops.values.newname}
-                      />
-                    </BForm.Group>
-                    {add_fields(fprops)}
-                  </>
-                </Modal.Body>
-                <Modal.Footer>
-                  <ESTooltip
-                    helpId={"button-cancel-pdfform-" + this.props.doc.name}
-                    inModal={true}
-                    tooltip={
-                      <FormattedMessage
-                        defaultMessage="Dismiss PDF form"
-                        key="cancel-pdfform-help"
-                      />
-                    }
-                  >
-                    <Button
-                      variant="outline-secondary"
-                      onClick={this.props.handleClose}
-                      data-testid={
-                        "button-cancel-pdfform-" + this.props.doc.name
-                      }
-                    >
-                      <FormattedMessage
-                        defaultMessage="Cancel"
-                        key="cancel-pdfform"
-                      />
-                    </Button>
-                  </ESTooltip>
-                  <ESTooltip
-                    helpId={"button-pdfform-" + this.props.doc.name}
-                    inModal={true}
-                    tooltip={
-                      <FormattedMessage
-                        defaultMessage="Submit PDF form"
-                        key="submit-pdfform-tootip"
-                      />
-                    }
-                  >
-                    <Button
-                      variant="outline-success"
-                      onClick={fprops.submitForm}
-                      id={"button-pdfform-" + this.props.doc.name}
-                      disabling={true}
-                      disabled={!fprops.isValid}
-                      data-testid={"button-pdfform-" + this.props.doc.name}
-                    >
-                      <FormattedMessage
-                        defaultMessage="Submit"
-                        key="submit-pdfform-button"
-                      />
-                    </Button>
-                  </ESTooltip>
-                </Modal.Footer>
-              </Form>
-            </Modal>
-          )}
-        </Formik>
+                &#x23EA;
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={Number(this.state.pageNumber) <= 1}
+                onClick={this.previousPage.bind(this)}
+                data-testid={"preview-button-prev-" + this.props.doc.name}
+              >
+                &#x25C4;
+              </Button>
+              <span>
+                &nbsp;
+                {(this.state.pageNumber || (this.state.numPages ? 1 : "--")) +
+                  " / " +
+                  (this.state.numPages || "--")}
+                &nbsp;
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={Number(this.state.pageNumber) >= Number(this.state.numPages)}
+                onClick={this.nextPage.bind(this)}
+                data-testid={"preview-button-next-" + this.props.doc.name}
+              >
+                &#x25BA;
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={Number(this.state.pageNumber) >= Number(this.state.numPages)}
+                onClick={this.lastPage.bind(this)}
+                data-testid={"preview-button-last-" + this.props.doc.name}
+              >
+                &#x23E9;
+              </Button>
+            </div>
+            <Button
+              variant="outline-secondary"
+              onClick={this.props.handleClose(this.props.doc.key)}
+              data-testid={"preview-button-close-" + this.props.doc.name}
+            >
+              <FormattedMessage defaultMessage="Close" key="button-close" />
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </>
     );
   }
 }
 
 PDFForm.propTypes = {
-  show: PropTypes.bool,
-  size: PropTypes.string,
-  doc: PropTypes.object,
+  /**
+   * The document to preview.
+   */
   handleClose: PropTypes.func,
-  handleSubmit: PropTypes.func,
+  doc: PropTypes.object,
+  docFile: PropTypes.object,
 };
 
-export default injectIntl(PDFForm);
+export default PDFForm;

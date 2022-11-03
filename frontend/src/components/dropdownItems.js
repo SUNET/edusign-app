@@ -98,10 +98,7 @@ export const fillFormMenuItem = (props, doc) => (
     doc={doc}
     id={"menu-item-fillform-" + doc.name}
     disabling={true}
-    onClick={props.handleFillForm({
-      doc: doc,
-      intl: props.intl,
-    })}
+    onClick={props.handleFillForm(doc.key)}
   >
     <FormattedMessage defaultMessage="Fill form" key="fillform-button" />
   </ESDropdownItem>

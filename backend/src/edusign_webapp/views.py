@@ -42,7 +42,7 @@ from flask import Blueprint, abort, current_app, make_response, redirect, render
 from flask_babel import force_locale, get_locale, gettext
 from werkzeug.wrappers import Response
 
-from edusign_webapp.forms import get_pdf_form, has_pdf_form, update_pdf_form
+from edusign_webapp.forms import has_pdf_form, update_pdf_form
 from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
     BlobSchema,
@@ -1399,20 +1399,6 @@ def delegate_invitation(data):
     message = gettext("Success delegating signature")
 
     return {'message': message}
-
-
-@edusign_views.route('/get-form', methods=['POST'])
-@UnMarshal(DocSchema)
-@Marshal(FormSchema)
-def get_form(data):
-    pdf = data['document']
-    try:
-        fields = get_pdf_form(pdf)
-    except Exception as e:
-        current_app.logger.error(f"Problem getting form from PDF: {e}")
-        return {'error': True, 'message': gettext('Problem getting form from PDF, please try again')}
-
-    return {'message': 'Success', 'payload': {'fields': fields}}
 
 
 @edusign_views.route('/update-form', methods=['POST'])

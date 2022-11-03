@@ -24,33 +24,6 @@ def has_pdf_form(b64_pdf):
     return doc.is_form_pdf
 
 
-def get_pdf_form(b64_pdf):
-    """
-    Check that the provided PDF contains a form,
-    and if so, inspect it and extract the schema.
-    """
-    doc = _load_b64_pdf(b64_pdf)
-    nfields = doc.is_form_pdf
-    fields = []
-    if nfields:
-        for page in doc:
-            for field in page.widgets():
-                type = field.field_type_string
-                if type == "Text" and field.rect:
-                    if field.rect.height > 30:
-                        type = "TextArea"
-                fields.append(
-                    {
-                        'name': field.field_name,
-                        'label': field.field_label,
-                        'value': field.field_value,
-                        'type': type,
-                        'choices': field.choice_values,
-                    }
-                )
-    return fields
-
-
 def update_pdf_form(b64_pdf, fields):
     """
     Fill in the PDF form in the provided PDF
