@@ -91,7 +91,6 @@ class PDFForm extends React.Component {
           }
         }
         if (val) {
-          console.log(`${ann.id}, ${ann.fieldName}, ${val}`, ann);
           values[ann.id] = {value: val, name: ann.fieldName};
         }
       }
