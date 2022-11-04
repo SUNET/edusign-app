@@ -13,14 +13,28 @@ import { connect } from "react-redux";
 import PDFForm from "components/PDFForm";
 
 import { unsetSpinning } from "slices/Button";
-import { hidePDFForm } from "slices/Templates";
 import { sendPDFForm } from "slices/PDFForms";
-import { disablePolling } from "slices/Poll";
+import { disablePolling, enablePolling } from "slices/Poll";
+import { hidePDFForm } from "slices/PDFForms";
 import { setActiveId } from "slices/Overlay";
 import { isNotInviting } from "slices/InviteForm";
+import { preparePDF } from "components/utils";
 
 const mapStateToProps = (state, props) => {
+  const doc = state.pdfform.document;
+  let docFile = null,
+      docName = '',
+      show = false;
+  if (doc !== null) {
+    docFile = preparePDF(doc);
+    docName = doc.name;
+    show = true;
+  }
   return {
+    show: show,
+    doc: doc,
+    docName: docName,
+    docFile: docFile,
     size: state.main.size,
     templates: state.template.documents,
     documents: state.documents.documents,
@@ -30,21 +44,23 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleSendPDFForm: function (props) {
-      return async function (e) {
-        await this.collectValues();
-        dispatch(isNotInviting());
-        dispatch(disablePolling());
-        dispatch(setActiveId("dummy-help-id"));
-        await dispatch(sendPDFForm({ doc: props.doc, values: this.state.values, intl: props.intl }));
-        dispatch(unsetSpinning());
+    handleSendPDFForm: async function () {
+      await this.collectValues();
+      const form = this.state.formRef.current;
+      if (!form.isValid) {
+        document.querySelector("#pdf-form-modal > .modal-content > .modal-header").scrollIntoView({behaviour: 'smooth'});
+        return;
       }
+      const newname = form.values.newfname;
+      dispatch(isNotInviting());
+      dispatch(disablePolling());
+      await dispatch(sendPDFForm({ doc: this.props.doc, values: this.state.values, newname: newname, intl: this.props.intl }));
+      dispatch(unsetSpinning());
     },
-    handleClose: function (key) {
-      return () => {
-        dispatch(unsetSpinning());
-        dispatch(hidePDFForm(key));
-      }
+    handleClose: function () {
+      dispatch(hidePDFForm());
+      dispatch(unsetSpinning());
+      dispatch(enablePolling());
     },
   };
 };

@@ -11,7 +11,7 @@ import {
   preparePayload,
 } from "slices/fetch-utils";
 import { setState, createDocument } from "slices/Documents";
-import { setTemplateFormSchema, hidePDFForm } from "slices/Templates";
+import { setTemplateFormSchema } from "slices/Templates";
 import { showForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { addNotification } from "slices/Notifications";
@@ -28,10 +28,10 @@ export const sendPDFForm = createAsyncThunk(
   "documents/sendPDFForm",
   async (args, thunkAPI) => {
     const field_values = args.values;
-    console.log(field_values);
+    thunkAPI.dispatch(pdfFormSlice.actions.hidePDFForm());
     let state = thunkAPI.getState();
     const doc = args.doc;
-    const newName = 'new.pdf';
+    const newName = args.newname;
 
     const fields = [];
     for (const key in field_values) {
@@ -99,7 +99,6 @@ export const sendPDFForm = createAsyncThunk(
       return doc.name === newName;
     })[0];
 
-    thunkAPI.dispatch(hidePDFForm(doc.key));
     thunkAPI.dispatch(showForm(newDocument.id));
     thunkAPI.dispatch(unsetSpinning());
   }
@@ -108,14 +107,33 @@ export const sendPDFForm = createAsyncThunk(
 const pdfFormSlice = createSlice({
   name: "pdfforms",
   initialState: {
+    document: null,
   },
   reducers: {
+    /**
+     * @public
+     * @function showPDFForm
+     * @desc Redux action to trigger opening the form of a PDF document
+     */
+    showPDFForm(state, action) {
+      state.document = action.payload;
+    },
+    /**
+     * @public
+     * @function hidePDFForm
+     * @desc Redux action to trigger closing the form of a PDF document
+     */
+    hidePDFForm(state, action) {
+      state.document = null;
+    },
   },
   extraReducers: {
   },
 });
 
 export const {
+  showPDFForm,
+  hidePDFForm,
 } = pdfFormSlice.actions;
 
 export default pdfFormSlice.reducer;

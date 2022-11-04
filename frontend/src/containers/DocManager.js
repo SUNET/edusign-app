@@ -32,8 +32,6 @@ import {
   createTemplate,
   showTemplatePreview,
   hideTemplatePreview,
-  showPDFForm,
-  hidePDFForm,
 } from "slices/Templates";
 import { showForm } from "slices/Modals";
 import { clearDocStore } from "init-app/database";
@@ -42,6 +40,7 @@ import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
 import { setActiveId, unsetActiveId } from "slices/Overlay";
 import { isNotInviting } from "slices/InviteForm";
+import { showPDFForm } from "slices/PDFForms";
 
 const mapStateToProps = (state) => {
   return {
@@ -202,20 +201,12 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetActiveId());
       };
     },
-    handleFillForm: function (key) {
+    handleFillForm: function (doc) {
       return () => {
         dispatch(disablePolling());
         dispatch(setActiveId("dummy-help-id"));
-        dispatch(showPDFForm(key));
+        dispatch(showPDFForm(doc));
         dispatch(unsetSpinning());
-      };
-    },
-    handleClosePDFForm: function (name) {
-      return () => {
-        dispatch(hidePDFForm(name));
-        dispatch(unsetSpinning());
-        dispatch(enablePolling());
-        dispatch(unsetActiveId());
       };
     },
   };

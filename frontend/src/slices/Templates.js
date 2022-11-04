@@ -137,38 +137,6 @@ const templateSlice = createSlice({
         } else return doc;
       });
     },
-    /**
-     * @public
-     * @function showPDFForm
-     * @desc Redux action to update a template with form in the templates state key,
-     * setting the show form key to true (so that the UI will show the form ready to be filled).
-     */
-    showPDFForm(state, action) {
-      state.documents = state.documents.map((doc) => {
-        if (doc.key === action.payload) {
-          return {
-            ...doc,
-            showForm: true,
-          };
-        } else return doc;
-      });
-    },
-    /**
-     * @public
-     * @function hidePDFForm
-     * @desc Redux action to update a template with form in the templates state key,
-     * setting the show form key to false (so that the UI will hide the form).
-     */
-    hidePDFForm(state, action) {
-      state.documents = state.documents.map((doc) => {
-        if (doc.key === action.payload) {
-          return {
-            ...doc,
-            showForm: false,
-          };
-        } else return doc;
-      });
-    },
   },
   extraReducers: {
     [removeTemplate.fulfilled]: (state, action) => {
@@ -185,8 +153,6 @@ export const {
   rmTemplate,
   showTemplatePreview,
   hideTemplatePreview,
-  showPDFForm,
-  hidePDFForm,
   setTemplateFormSchema,
   unsetTemplateFormSchema,
 } = templateSlice.actions;

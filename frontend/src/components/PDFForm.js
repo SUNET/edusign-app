@@ -3,10 +3,27 @@ import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import BForm from "react-bootstrap/Form";
+import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
+import { nameForCopy } from "components/utils";
+import { validateNewname } from "components/InviteForm";
 
 import "styles/DocPreview.scss";
+import "styles/PDFForm.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+
+
+const initValues = (props) => ({ newfname: nameForCopy(props) });
+
+const validate = (props) => {
+  return (values) => {
+    const errors = {};
+    const newNameError = validateNewname(props)(values.newfname);
+    if (newNameError !== undefined) errors.newfname = newNameError;
+    return errors;
+  };
+};
 
 /**
  * @desc To show a modal dialog with a paginated view of a PDF, using PDF.js.
@@ -17,6 +34,7 @@ class PDFForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      formRef: React.createRef(),
       docRef: React.createRef(),
       numPages: null,
       pageNumber: 1,
@@ -63,12 +81,18 @@ class PDFForm extends React.Component {
     const values = {};
     annotations.forEach((ann) => {
       if (ann.subtype === 'Widget') {
+        let val;
         const elem = document.getElementById(ann.id);
         if (elem) {
-          const val = elem.value;
-          if (val) {
-            values[ann.id] = {value: val, name: ann.fieldName};
+          if (ann.checkBox) {
+            val = elem.checked ? 'on' : 'off';
+          } else {
+            val = elem.value;
           }
+        }
+        if (val) {
+          console.log(`${ann.id}, ${ann.fieldName}, ${val}`, ann);
+          values[ann.id] = {value: val, name: ann.fieldName};
         }
       }
     })
@@ -89,16 +113,62 @@ class PDFForm extends React.Component {
   }
 
   render() {
+    if (!this.props.show) return '';
     return (
       <>
         <Modal
-          show={this.props.doc.showForm}
-          onHide={this.props.handleClose(this.props.doc.key)}
+          id="pdf-form-modal"
+          show={this.props.show}
+          onHide={this.props.handleClose}
           size="lg"
           centered
         >
           <Modal.Header closeButton>
-            <Modal.Title>{this.props.doc.name}</Modal.Title>
+            <Formik
+              innerRef={this.state.formRef}
+              initialValues={initValues(this.props)}
+              validate={validate(this.props)}
+              enableReinitialize={true}
+              validateOnBlur={true}
+              validateOnChange={true}
+              validateOnMount={true}
+            >
+              {(fprops) => (
+                <Form
+                  data-testid={"newfname-form-" + this.props.doc.name}
+                >
+                  <div className="newfname-text-holder">
+                    <BForm.Group className="newfname-text-group">
+                      <BForm.Label
+                        className="newfname-text-label"
+                        htmlFor="newfname"
+                      >
+                        <FormattedMessage
+                          defaultMessage="Set name for new document"
+                          key="newfname-text-field"
+                        />
+                      </BForm.Label>
+                      <Field
+                        name="newfname"
+                        id="newfname"
+                        data-testid="newfname-text-input"
+                        className="newfname-text"
+                        as={BForm.Control}
+                        type="text"
+                        validate={validateNewname(this.props)}
+                        isValid={!fprops.errors.newfname}
+                        isInvalid={fprops.errors.newfname}
+                      />
+                      <ErrorMessage
+                        name="newfname"
+                        component="div"
+                        className="field-error"
+                      />
+                    </BForm.Group>
+                  </div>
+                </Form>
+              )}
+            </Formik>
           </Modal.Header>
 
           <Modal.Body>
@@ -182,14 +252,15 @@ class PDFForm extends React.Component {
             </div>
             <Button
               variant="outline-primary"
-              onClick={this.props.handleSendPDFForm(this.props).bind(this)}
+              onClick={this.props.handleSendPDFForm.bind(this)}
               data-testid={"pdfform-button-send-" + this.props.doc.name}
+              disabled={this.state.formRef.current && !this.state.formRef.current.isValid}
             >
               <FormattedMessage defaultMessage="Done" key="button-sendform" />
             </Button>
             <Button
               variant="outline-secondary"
-              onClick={this.props.handleClose(this.props.doc.key)}
+              onClick={this.props.handleClose}
               data-testid={"preview-button-close-" + this.props.doc.name}
             >
               <FormattedMessage defaultMessage="Close" key="button-close" />
