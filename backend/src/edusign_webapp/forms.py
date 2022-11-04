@@ -33,6 +33,7 @@ def update_pdf_form(b64_pdf, fields):
     for page in doc:
         for field in page.widgets():
             for f in fields:
+                current_app.logger.warn(f"Field name: {field.field_name}")
                 if field.field_name == f['name']:
                     field.field_value = f['value']
                     field.field_flags = fitz.PDF_FIELD_IS_READ_ONLY

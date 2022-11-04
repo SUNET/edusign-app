@@ -11,12 +11,9 @@ import {
   preparePayload,
 } from "slices/fetch-utils";
 import { setState, createDocument } from "slices/Documents";
-import { setTemplateFormSchema } from "slices/Templates";
+import { setTemplateFormSchema, hidePDFForm } from "slices/Templates";
 import { showForm } from "slices/Modals";
-import { disablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
-import { setActiveId } from "slices/Overlay";
-import { isNotInviting } from "slices/InviteForm";
 import { addNotification } from "slices/Notifications";
 
 /**
@@ -30,25 +27,19 @@ import { addNotification } from "slices/Notifications";
 export const sendPDFForm = createAsyncThunk(
   "documents/sendPDFForm",
   async (args, thunkAPI) => {
-    const field_values = args.values.fields;
+    const field_values = args.values;
     console.log(field_values);
     let state = thunkAPI.getState();
-    const doc = state.pdfform.document;
-    const newName = args.values.newname;
+    const doc = args.doc;
+    const newName = 'new.pdf';
 
-    const fields = field_values.map((field) => {
-      for (let key in field) {
-        if (field.hasOwnProperty(key)) {
-          // return on 1st iteration
-          name = key.split(".").reverse()[0];
-          return {
-            name: name,
-            value: field[key],
-          };
-        }
-      }
-    });
-
+    const fields = [];
+    for (const key in field_values) {
+      fields.push( {
+        name: field_values[key].name,
+        value: field_values[key].value,
+      });
+    }
     const dataToSend = {
       document: doc.blob,
       fields: fields,
@@ -108,9 +99,7 @@ export const sendPDFForm = createAsyncThunk(
       return doc.name === newName;
     })[0];
 
-    thunkAPI.dispatch(isNotInviting());
-    thunkAPI.dispatch(disablePolling());
-    thunkAPI.dispatch(setActiveId("dummy-help-id"));
+    thunkAPI.dispatch(hidePDFForm(doc.key));
     thunkAPI.dispatch(showForm(newDocument.id));
     thunkAPI.dispatch(unsetSpinning());
   }

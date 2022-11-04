@@ -67,7 +67,7 @@ class PDFForm extends React.Component {
         if (elem) {
           const val = elem.value;
           if (val) {
-            values[ann.id] = val;
+            values[ann.id] = {value: val, name: ann.fieldName};
           }
         }
       }
@@ -80,9 +80,9 @@ class PDFForm extends React.Component {
       const elem = document.getElementById(key);
       if (elem) {
         if (elem.type === 'checkbox') {
-          elem.checked = this.state.values[key] === 'on';
+          elem.checked = this.state.values[key].value === 'on';
         } else {
-          elem.value = this.state.values[key];
+          elem.value = this.state.values[key].value;
         }
       }
     }
@@ -180,6 +180,13 @@ class PDFForm extends React.Component {
                 &#x23E9;
               </Button>
             </div>
+            <Button
+              variant="outline-primary"
+              onClick={this.props.handleSendPDFForm(this.props).bind(this)}
+              data-testid={"pdfform-button-send-" + this.props.doc.name}
+            >
+              <FormattedMessage defaultMessage="Done" key="button-sendform" />
+            </Button>
             <Button
               variant="outline-secondary"
               onClick={this.props.handleClose(this.props.doc.key)}

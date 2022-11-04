@@ -15,6 +15,9 @@ import PDFForm from "components/PDFForm";
 import { unsetSpinning } from "slices/Button";
 import { hidePDFForm } from "slices/Templates";
 import { sendPDFForm } from "slices/PDFForms";
+import { disablePolling } from "slices/Poll";
+import { setActiveId } from "slices/Overlay";
+import { isNotInviting } from "slices/InviteForm";
 
 const mapStateToProps = (state, props) => {
   return {
@@ -27,10 +30,15 @@ const mapStateToProps = (state, props) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleSubmit: async function (values, props) {
-      await dispatch(sendPDFForm({ values: values, intl: props.intl }));
-      dispatch(unsetSpinning());
-      dispatch(hidePDFForm());
+    handleSendPDFForm: function (props) {
+      return async function (e) {
+        await this.collectValues();
+        dispatch(isNotInviting());
+        dispatch(disablePolling());
+        dispatch(setActiveId("dummy-help-id"));
+        await dispatch(sendPDFForm({ doc: props.doc, values: this.state.values, intl: props.intl }));
+        dispatch(unsetSpinning());
+      }
     },
     handleClose: function (key) {
       return () => {
