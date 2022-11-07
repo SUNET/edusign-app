@@ -31,16 +31,26 @@ def update_pdf_form(b64_pdf, fields):
     """
     doc = _load_b64_pdf(b64_pdf)
     for page in doc:
+        radio = {}
         for field in page.widgets():
             for f in fields:
-                current_app.logger.warn(f"Field name: {field.field_name}")
                 if field.field_name == f['name']:
-                    field.field_value = f['value']
+                    if field.field_type == 2:  # checkbox
+                        field.field_value = True if f['value'] == 'on' else False
+                    elif field.field_type == 5:  # radio button
+                        if field.field_name in radio:
+                            radio[field.field_name] += 1
+                        else:
+                            radio[field.field_name] = 1
+                        if radio[field.field_name] == f['value']:
+                            field.field_value = True
+                    else:
+                        field.field_value = f['value']
+
                     field.field_flags = fitz.PDF_FIELD_IS_READ_ONLY
                     field.update()
                     break
 
     doc_bytes = doc.tobytes()
     newpdf = b64encode(doc_bytes)
-    doc.save('/tmp/filled.pdf')
     return newpdf

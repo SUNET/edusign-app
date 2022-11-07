@@ -79,6 +79,7 @@ class PDFForm extends React.Component {
     const page = await pdf.getPage(this.state.pageNumber);
     const annotations = await page.getAnnotations();
     const values = {};
+    const radio = {};
     annotations.forEach((ann) => {
       if (ann.subtype === 'Widget') {
         let val;
@@ -86,6 +87,16 @@ class PDFForm extends React.Component {
         if (elem) {
           if (ann.checkBox) {
             val = elem.checked ? 'on' : 'off';
+          } else if (ann.radioButton) {
+            const key = ann.fieldName;
+            if (radio.hasOwnProperty(key)) {
+              radio[key] += 1;
+            } else  {
+              radio[key] = 1;
+            }
+            if (elem.checked) {
+              val = radio[key];
+            }
           } else {
             val = elem.value;
           }
@@ -101,9 +112,12 @@ class PDFForm extends React.Component {
   restoreValues() {
     for (const key in this.state.values) {
       const elem = document.getElementById(key);
+
       if (elem) {
         if (elem.type === 'checkbox') {
           elem.checked = this.state.values[key].value === 'on';
+        } else if (elem.type === 'radio') {
+          elem.checked = true;
         } else {
           elem.value = this.state.values[key].value;
         }
