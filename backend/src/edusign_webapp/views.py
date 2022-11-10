@@ -1043,17 +1043,17 @@ def edit_multi_sign_request(data: dict) -> dict:
     owner = {'name': session['displayName'], 'email': owner_email}
     text = data['text']
 
-    message = gettext(f"Success editing invitation to sign {docname}")
+    message = gettext("Success editing invitation to sign '%(docname)s'") % {'docname': docname}
 
     try:
         _send_invitation_mail(docname, owner, text, recipients_added)
     except Exception:
-        message = gettext(f"Some users may not have been notified of the changes for {docname}")
+        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {'docname': docname}
 
     recipients_removed = [f"{invite['name']} <{invite['email']}>" for invite in changed['removed']]
     sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
     if not sent:
-        message = gettext(f"Some users may not have been notified of the changes for {docname}")
+        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {'docname': docname}
 
     return {'message': message}
 
