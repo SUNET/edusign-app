@@ -25,9 +25,7 @@ export const docCreated = (props) => {
           />
         </span>
         <span className="info-row-items">
-          <span className="info-row-item">
-            {creationDate.toLocaleString()}
-          </span>
+          <span className="info-row-item">{creationDate.toLocaleString()}</span>
         </span>
       </div>
     );

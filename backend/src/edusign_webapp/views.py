@@ -1048,12 +1048,16 @@ def edit_multi_sign_request(data: dict) -> dict:
     try:
         _send_invitation_mail(docname, owner, text, recipients_added)
     except Exception:
-        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {'docname': docname}
+        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+            'docname': docname
+        }
 
     recipients_removed = [f"{invite['name']} <{invite['email']}>" for invite in changed['removed']]
     sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
     if not sent:
-        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {'docname': docname}
+        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+            'docname': docname
+        }
 
     return {'message': message}
 

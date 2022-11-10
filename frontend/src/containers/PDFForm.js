@@ -23,8 +23,8 @@ import { preparePDF } from "components/utils";
 const mapStateToProps = (state, props) => {
   const doc = state.pdfform.document;
   let docFile = null,
-      docName = '',
-      show = false;
+    docName = "",
+    show = false;
   if (doc !== null) {
     docFile = preparePDF(doc);
     docName = doc.name;
@@ -48,13 +48,22 @@ const mapDispatchToProps = (dispatch, props) => {
       await this.collectValues();
       const form = this.state.formRef.current;
       if (!form.isValid) {
-        document.querySelector("#pdf-form-modal > .modal-content > .modal-header").scrollIntoView({behavior: 'smooth'});
+        document
+          .querySelector("#pdf-form-modal > .modal-content > .modal-header")
+          .scrollIntoView({ behavior: "smooth" });
         return;
       }
       const newname = form.values.newfname;
       dispatch(isNotInviting());
       dispatch(disablePolling());
-      await dispatch(sendPDFForm({ doc: this.props.doc, values: this.state.values, newname: newname, intl: this.props.intl }));
+      await dispatch(
+        sendPDFForm({
+          doc: this.props.doc,
+          values: this.state.values,
+          newname: newname,
+          intl: this.props.intl,
+        })
+      );
       dispatch(unsetSpinning());
     },
     handleClose: function () {

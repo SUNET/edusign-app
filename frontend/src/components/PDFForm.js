@@ -13,7 +13,6 @@ import "styles/DocPreview.scss";
 import "styles/PDFForm.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 
-
 const initValues = (props) => ({ newfname: nameForCopy(props) });
 
 const validate = (props) => {
@@ -30,7 +29,6 @@ const validate = (props) => {
  * @component
  */
 class PDFForm extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -38,21 +36,21 @@ class PDFForm extends React.Component {
       docRef: React.createRef(),
       numPages: null,
       pageNumber: 1,
-      values: {}
+      values: {},
     };
   }
 
   onDocumentLoadSuccess({ numPages }) {
-    this.setState({numPages});
+    this.setState({ numPages });
   }
 
   changePage(offset) {
-    this.setState({pageNumber: this.state.pageNumber + offset});
+    this.setState({ pageNumber: this.state.pageNumber + offset });
   }
 
   async firstPage() {
     await collectValues();
-    this.setState({pageNumber: 1});
+    this.setState({ pageNumber: 1 });
     this.restoreValues();
   }
 
@@ -70,7 +68,7 @@ class PDFForm extends React.Component {
 
   async lastPage() {
     await this.collectValues();
-    this.setState({pageNumber: this.state.numPages});
+    this.setState({ pageNumber: this.state.numPages });
     this.restoreValues();
   }
 
@@ -81,17 +79,17 @@ class PDFForm extends React.Component {
     const values = {};
     const radio = {};
     annotations.forEach((ann) => {
-      if (ann.subtype === 'Widget') {
+      if (ann.subtype === "Widget") {
         let val;
         const elem = document.getElementById(ann.id);
         if (elem) {
           if (ann.checkBox) {
-            val = elem.checked ? 'on' : 'off';
+            val = elem.checked ? "on" : "off";
           } else if (ann.radioButton) {
             const key = ann.fieldName;
             if (radio.hasOwnProperty(key)) {
               radio[key] += 1;
-            } else  {
+            } else {
               radio[key] = 1;
             }
             if (elem.checked) {
@@ -102,11 +100,11 @@ class PDFForm extends React.Component {
           }
         }
         if (val) {
-          values[ann.id] = {value: val, name: ann.fieldName};
+          values[ann.id] = { value: val, name: ann.fieldName };
         }
       }
-    })
-    this.setState({values: {...this.state.values, ...values}})
+    });
+    this.setState({ values: { ...this.state.values, ...values } });
   }
 
   restoreValues() {
@@ -114,9 +112,9 @@ class PDFForm extends React.Component {
       const elem = document.getElementById(key);
 
       if (elem) {
-        if (elem.type === 'checkbox') {
-          elem.checked = this.state.values[key].value === 'on';
-        } else if (elem.type === 'radio') {
+        if (elem.type === "checkbox") {
+          elem.checked = this.state.values[key].value === "on";
+        } else if (elem.type === "radio") {
           elem.checked = true;
         } else {
           elem.value = this.state.values[key].value;
@@ -126,7 +124,7 @@ class PDFForm extends React.Component {
   }
 
   render() {
-    if (!this.props.show) return '';
+    if (!this.props.show) return "";
     return (
       <>
         <Modal
@@ -147,9 +145,7 @@ class PDFForm extends React.Component {
               validateOnMount={true}
             >
               {(fprops) => (
-                <Form
-                  data-testid={"newfname-form-" + this.props.doc.name}
-                >
+                <Form data-testid={"newfname-form-" + this.props.doc.name}>
                   <div className="newfname-text-holder">
                     <BForm.Group className="newfname-text-group">
                       <BForm.Label
@@ -247,7 +243,9 @@ class PDFForm extends React.Component {
               <Button
                 variant="outline"
                 size="sm"
-                disabled={Number(this.state.pageNumber) >= Number(this.state.numPages)}
+                disabled={
+                  Number(this.state.pageNumber) >= Number(this.state.numPages)
+                }
                 onClick={this.nextPage.bind(this)}
                 data-testid={"preview-button-next-" + this.props.doc.name}
               >
@@ -256,7 +254,9 @@ class PDFForm extends React.Component {
               <Button
                 variant="outline"
                 size="sm"
-                disabled={Number(this.state.pageNumber) >= Number(this.state.numPages)}
+                disabled={
+                  Number(this.state.pageNumber) >= Number(this.state.numPages)
+                }
                 onClick={this.lastPage.bind(this)}
                 data-testid={"preview-button-last-" + this.props.doc.name}
               >

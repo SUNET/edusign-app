@@ -176,19 +176,11 @@ def upgrade(db):
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_email] VARCHAR(255) DEFAULT \"\";")
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_name] VARCHAR(255) DEFAULT \"\";")
 
-        cur.execute(
-            "UPDATE Documents SET owner_email = (SELECT email FROM Users WHERE user_id = Documents.owner);"
-        )
-        cur.execute(
-            "UPDATE Documents SET owner_name = (SELECT name FROM Users WHERE user_id = Documents.owner);"
-        )
+        cur.execute("UPDATE Documents SET owner_email = (SELECT email FROM Users WHERE user_id = Documents.owner);")
+        cur.execute("UPDATE Documents SET owner_name = (SELECT name FROM Users WHERE user_id = Documents.owner);")
 
-        cur.execute(
-            "UPDATE Invites SET user_email = (SELECT email FROM Users WHERE user_id = Invites.user_id);"
-        )
-        cur.execute(
-            "UPDATE Invites SET user_name = (SELECT name FROM Users WHERE user_id = Invites.user_id);"
-        )
+        cur.execute("UPDATE Invites SET user_email = (SELECT email FROM Users WHERE user_id = Invites.user_id);")
+        cur.execute("UPDATE Invites SET user_name = (SELECT name FROM Users WHERE user_id = Invites.user_id);")
 
         cur.execute(
             "UPDATE Documents SET locking_email = (SELECT email FROM Users WHERE user_id = Documents.locked_by);"

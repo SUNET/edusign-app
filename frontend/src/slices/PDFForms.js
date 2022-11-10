@@ -35,7 +35,7 @@ export const sendPDFForm = createAsyncThunk(
 
     const fields = [];
     for (const key in field_values) {
-      fields.push( {
+      fields.push({
         name: field_values[key].name,
         value: field_values[key].value,
       });
@@ -100,10 +100,12 @@ export const sendPDFForm = createAsyncThunk(
     const newDocument = state.documents.documents.filter((doc) => {
       return doc.name === newName;
     })[0];
-    document.getElementById(`local-doc-${newDocument.key}`).scrollIntoView({behavior: 'smooth', block: 'center'});
+    document
+      .getElementById(`local-doc-${newDocument.key}`)
+      .scrollIntoView({ behavior: "smooth", block: "center" });
     window.setTimeout(() => {
       thunkAPI.dispatch(setState({ name: newName, state: "unconfirmed" }));
-    }, 1000)
+    }, 1000);
   }
 );
 
@@ -130,13 +132,9 @@ const pdfFormSlice = createSlice({
       state.document = null;
     },
   },
-  extraReducers: {
-  },
+  extraReducers: {},
 });
 
-export const {
-  showPDFForm,
-  hidePDFForm,
-} = pdfFormSlice.actions;
+export const { showPDFForm, hidePDFForm } = pdfFormSlice.actions;
 
 export default pdfFormSlice.reducer;
