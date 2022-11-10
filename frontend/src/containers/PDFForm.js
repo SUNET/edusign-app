@@ -48,7 +48,7 @@ const mapDispatchToProps = (dispatch, props) => {
       await this.collectValues();
       const form = this.state.formRef.current;
       if (!form.isValid) {
-        document.querySelector("#pdf-form-modal > .modal-content > .modal-header").scrollIntoView({behaviour: 'smooth'});
+        document.querySelector("#pdf-form-modal > .modal-content > .modal-header").scrollIntoView({behavior: 'smooth'});
         return;
       }
       const newname = form.values.newfname;

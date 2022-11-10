@@ -143,7 +143,7 @@ class DocumentLocal extends React.Component {
           body={this.getHelp(doc.state)}
         >
           {(this.props.size === "lg" && (
-            <div className={"doc-flex-container-local " + doc.state} key="0">
+            <div className={"doc-flex-container-local " + doc.state} id={"local-doc-" + doc.key} key="0">
               <div className="doc-flex-container">
                 {doc.state === "loading" && (
                   <>

@@ -267,7 +267,6 @@ class PDFForm extends React.Component {
               variant="outline-primary"
               onClick={this.props.handleSendPDFForm.bind(this)}
               data-testid={"pdfform-button-send-" + this.props.doc.name}
-              disabled={this.state.formRef.current && !this.state.formRef.current.isValid}
             >
               <FormattedMessage defaultMessage="Done" key="button-sendform" />
             </Button>

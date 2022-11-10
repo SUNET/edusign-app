@@ -91,16 +91,19 @@ export const sendPDFForm = createAsyncThunk(
       state: "loading",
     };
     await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
-    thunkAPI.dispatch(setState({ name: newName, state: "loaded" }));
+
+    // All the below code is to make the newly created document apparent to the user
+    thunkAPI.dispatch(setState({ name: newName, state: "loading" }));
 
     // The previously gotten state is out of date by now
     state = thunkAPI.getState();
     const newDocument = state.documents.documents.filter((doc) => {
       return doc.name === newName;
     })[0];
-
-    thunkAPI.dispatch(showForm(newDocument.id));
-    thunkAPI.dispatch(unsetSpinning());
+    document.getElementById(`local-doc-${newDocument.key}`).scrollIntoView({behavior: 'smooth', block: 'center'});
+    window.setTimeout(() => {
+      thunkAPI.dispatch(setState({ name: newName, state: "unconfirmed" }));
+    }, 1000)
   }
 );
 
