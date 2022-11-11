@@ -143,7 +143,11 @@ class DocumentLocal extends React.Component {
           body={this.getHelp(doc.state)}
         >
           {(this.props.size === "lg" && (
-            <div className={"doc-flex-container-local " + doc.state} key="0">
+            <div
+              className={"doc-flex-container-local " + doc.state}
+              id={"local-doc-" + doc.key}
+              key="0"
+            >
               <div className="doc-flex-container">
                 {doc.state === "loading" && (
                   <>
@@ -243,6 +247,7 @@ class DocumentLocal extends React.Component {
                   </>
                 )}
               </div>
+              {widgets.docCreated(this.props)}
               {signed}
               {preparePrevSigs(doc, this.props.size)}
             </div>
@@ -367,6 +372,7 @@ class DocumentLocal extends React.Component {
                   </div>
                 </>
               )}
+              {widgets.docCreated(this.props)}
               {signed}
               {preparePrevSigs(doc, this.props.size)}
             </div>

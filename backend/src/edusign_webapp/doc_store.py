@@ -127,7 +127,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                          + type: Content type of the doc
                          + size: Size of the doc
                          + prev_signatures: previous signatures
-        :param owner: Email address and name of the user that has uploaded the document.
+        :param owner: Email address and name and eppn of the user that has uploaded the document.
         :param invites: List of the names and emails of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
@@ -162,28 +162,48 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
         """
 
     @abc.abstractmethod
-    def update(self, key: uuid.UUID, email: str):
+    def update(self, key: uuid.UUID, emails: List[str]):
         """
         Update the metadata of a document to which a new signature has been added.
 
         :param key: The key identifying the document in the `storage`.
-        :param email: email address of the user that has just signed the document.
+        :param emails: email addresses of the user that has just signed the document.
         """
 
     @abc.abstractmethod
-    def decline(self, key: uuid.UUID, email: str):
+    def decline(self, key: uuid.UUID, emails: List[str]):
         """
         Update the metadata of a document which an invited user has declined to sign.
 
         :param key: The key identifying the document in the `storage`.
-        :param email: email address of the user that has just signed the document.
+        :param emails: email addresses of the user that has just signed the document.
         """
 
     @abc.abstractmethod
-    def get_owned(self, email: str) -> List[Dict[str, Any]]:
+    def get_owned(self, eppn: str) -> List[Dict[str, Any]]:
+        """
+        Get information about the documents that have been added by some user to be signed by other users.
+
+        :param eppn: The eppn of the user
+        :return: A list of dictionaries with information about the documents, each of them with keys:
+                 + key: Key of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + pending: List of emails of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails of the users invited to sign the document who have already done so.
+                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
+        """
+
+    @abc.abstractmethod
+    def get_owned_by_email(self, email: str) -> List[Dict[str, Any]]:
         """
         Get information about the documents that have been added by some user to be signed by other users.
 
@@ -198,6 +218,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
         """
 
     @abc.abstractmethod
@@ -235,13 +256,14 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add_invitation(self, document_key: uuid.UUID, name: str, email: str) -> Dict[str, Any]:
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, invite_key: str = '') -> Dict[str, Any]:
         """
         Create a new invitation to sign
 
         :param document_key: The key identifying the document to sign
         :param name: The name for the new invitation
         :param email: The email for the new invitation
+        :param invite_key: The invite key for the new invitation
         :return: data on the new invitation
         """
 
@@ -267,6 +289,8 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
+                 + owner_email: Email of owner
+                 + owner_name: Display name of owner
         """
 
     @abc.abstractmethod
@@ -281,34 +305,25 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def rm_lock(self, doc_id: int, unlocked_by: str) -> bool:
+    def rm_lock(self, doc_id: int, unlocked_by: List[str]) -> bool:
         """
         Remove lock from document. If the document is not locked, do nothing.
         The user unlocking must be that same user that locked it.
 
         :param doc_id: the pk for the document in the documents table
-        :param unlocked_by: Email of the user unlocking the document
+        :param unlocked_by: Emails of the user unlocking the document
         :return: Whether the document has been unlocked.
         """
 
     @abc.abstractmethod
-    def check_lock(self, doc_id: int, locked_by: str) -> bool:
+    def check_lock(self, doc_id: int, locked_by: List[str]) -> bool:
         """
         Check whether the document identified by `doc_id` is locked by user with email `locked_by`.
         This will remove (or update) stale locks (older than the configured timeout).
 
         :param doc_id: the pk for the document in the documents table
-        :param locked_by: Email of the user locking the document
+        :param locked_by: Emails of the user locking the document
         :return: Whether the document is locked by the user with `locked_by` email
-        """
-
-    @abc.abstractmethod
-    def get_user(self, user_id: int) -> Dict[str, Any]:
-        """
-        Return information on some user.
-
-        :param user_id: the pk for the user in the users table
-        :return: Name and email of the user
         """
 
     @abc.abstractmethod
@@ -373,7 +388,7 @@ class DocStore(object):
                          + size: Size of the doc
                          + blob: Contents of the document, as a base64 string.
                          + prev_signatures: previous signatures
-        :param owner: Email address and name of the user that has uploaded the document.
+        :param owner: Email address and name and eppn of the user that has uploaded the document.
         :param invites: List of names and email addresses of the users that should sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
@@ -392,7 +407,7 @@ class DocStore(object):
         """
         return self.metadata.get_old(days)
 
-    def get_pending_documents(self, email: str) -> List[Dict[str, Any]]:
+    def get_pending_documents(self, emails: List[str]) -> List[Dict[str, Any]]:
         """
         Given the email address of some user, return information about the documents
         she has been invited to sign, and has not yet signed.
@@ -404,14 +419,19 @@ class DocStore(object):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + owner: Email and name of the user requesting the signature
+                 + owner_email: Email of the user requesting the signature
+                 + owner_name: Display name of the user requesting the signature
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
                  + signed: List of emails of the users invited to sign the document who have already done so.
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
         """
-        return self.metadata.get_pending(email)
+        invites = []
+        for email in emails:
+            invites.extend(self.metadata.get_pending(email))
+        return invites
 
     def get_document_content(self, key: uuid.UUID) -> Optional[str]:
         """
@@ -430,27 +450,27 @@ class DocStore(object):
         """
         return self.storage.get_content(key)
 
-    def update_document(self, key: uuid.UUID, content: str, email: str):
+    def update_document(self, key: uuid.UUID, content: str, emails: List[str]):
         """
         Update a document to which a new signature has been added.
 
         :param key: The key identifying the document in the `storage`.
         :param content: base64 string with the contents of the document, with a newly added signature.
-        :param email: email address of the user that has just signed the document.
+        :param emails: email addresses of the user that has just signed the document.
         """
         self.storage.update(key, content)
-        self.metadata.update(key, email)
+        self.metadata.update(key, emails)
 
-    def decline_document(self, key: uuid.UUID, email: str):
+    def decline_document(self, key: uuid.UUID, emails: List[str]):
         """
         Update a document that a user has declined to sign.
 
         :param key: The key identifying the document in the `storage`.
-        :param email: email address of the user that has just signed the document.
+        :param emails: email addresses of the user that has just signed the document.
         """
-        self.metadata.decline(key, email)
+        self.metadata.decline(key, emails)
 
-    def get_owned_documents(self, email: str) -> List[Dict[str, Any]]:
+    def get_owned_documents(self, eppn: str, emails: List[str]) -> List[Dict[str, Any]]:
         """
         Get the documents added by the user to be signed by other users,
         together with information about which of the other users have signed them.
@@ -467,8 +487,19 @@ class DocStore(object):
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
         """
-        return self.metadata.get_owned(email)
+        invites = []
+        for email in emails:
+            invites.extend(self.metadata.get_owned_by_email(email))
+
+        keys = [i['key'] for i in invites]
+        more_invites = self.metadata.get_owned(eppn)
+        for more in more_invites:
+            if more['key'] not in keys:
+                invites.append(more)
+
+        return invites
 
     def remove_document(self, key: uuid.UUID, force: bool = False) -> bool:
         """
@@ -526,7 +557,9 @@ class DocStore(object):
         """
         return self.metadata.rm_invitation(invite_key, document_key)
 
-    def update_invitations(self, document_key: uuid.UUID, invitations: List[Dict[str, str]]) -> Dict[str, List[Dict[str, str]]]:
+    def update_invitations(
+        self, document_key: uuid.UUID, invitations: List[Dict[str, str]]
+    ) -> Dict[str, List[Dict[str, str]]]:
         """
         Update the list of pending invitations to sign a document.
 
@@ -542,7 +575,7 @@ class DocStore(object):
         for old in pending:
             remove = True
             for new in invitations:
-                if new['email'] == old['email']:
+                if new['email'] == old['email'] and new['name'] == old['name']:
                     remove = False
                     break
 
@@ -552,13 +585,16 @@ class DocStore(object):
 
         for new in invitations:
             add = True
+            invite_key = ''
             for old in pending:
-                if new['email'] == old['email']:
+                if new['email'] == old['email'] and new['name'] == old['name']:
                     add = False
                     break
+                elif new['email'] == old['email']:
+                    invite_key = old["key"]
 
             if add:
-                self.metadata.add_invitation(document_key, new['name'], new['email'])
+                self.metadata.add_invitation(document_key, new['name'], new['email'], invite_key=invite_key)
                 changed['added'].append(new)
 
         return changed
@@ -584,12 +620,12 @@ class DocStore(object):
 
         return False
 
-    def unlock_document(self, key: uuid.UUID, unlocked_by: str) -> bool:
+    def unlock_document(self, key: uuid.UUID, unlocked_by: List[str]) -> bool:
         """
         Unlock document on behalf of the user identified by `unlocked_by`.
 
         :param key: The key identifying the document to unlock
-        :param locked_by: Email of the user unlocking the document
+        :param unlocked_by: Emails of the user unlocking the document
         :return: Whether the document is unlocked
         """
         doc = self.metadata.get_document(key)
@@ -598,12 +634,12 @@ class DocStore(object):
 
         return self.metadata.rm_lock(doc['doc_id'], unlocked_by)
 
-    def check_document_locked(self, key: uuid.UUID, locked_by: str) -> bool:
+    def check_document_locked(self, key: uuid.UUID, locked_by: List[str]) -> bool:
         """
         Check that the document is locked by the user with email `locked_by`
 
         :param key: the key identifying the document to unlock
-        :param locked_by: Email of the user locking the document
+        :param locked_by: Emails of the user locking the document
         :return: Whether the document is unlocked
         """
         doc = self.metadata.get_document(key)
@@ -640,6 +676,16 @@ class DocStore(object):
         doc = self.metadata.get_document(key)
         return doc['name']
 
+    def get_document_email(self, key: uuid.UUID) -> str:
+        """
+        Get the email of the owner of the document identified by the provided key.
+
+        :param key: the key identifying the document
+        :return: the owner's email
+        """
+        doc = self.metadata.get_document(key)
+        return doc['owner_email']
+
     def get_document_size(self, key: uuid.UUID) -> int:
         """
         Get the size in bytes of the document identified by the provided key.
@@ -664,19 +710,18 @@ class DocStore(object):
         if not doc:
             return {}
 
-        user = self.metadata.get_user(doc['owner'])
-
         return {
-            'name': user['name'],
-            'email': user['email'],
+            'name': doc['owner_name'],
+            'email': doc['owner_email'],
             'docname': doc['name'],
         }
 
-    def get_pending_invites(self, key: uuid.UUID, exclude: str = '') -> List[Dict[str, Any]]:
+    def get_pending_invites(self, key: uuid.UUID, exclude: List[str] = []) -> List[Dict[str, Any]]:
         """
         Get information about the users that have been invited to sign the document identified by `key`
 
         :param key: The key of the document
+        :param exclude: A list of emails to exclude as invitees
         :return: A list of dictionaries with information about the users, each of them with keys:
                  + name: The name of the user
                  + email: The email of the user
@@ -686,7 +731,7 @@ class DocStore(object):
         """
         invites = self.metadata.get_invited(key)
         if exclude:
-            invites = [i for i in invites if i['email'] != exclude]
+            invites = [i for i in invites if i['email'] not in exclude]
         return invites
 
     def get_sendsigned(self, key: uuid.UUID) -> bool:

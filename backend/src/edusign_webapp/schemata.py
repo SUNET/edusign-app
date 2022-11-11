@@ -66,6 +66,7 @@ class InvitationsSchema(Schema):
         state = fields.String(required=True, validate=[validate_nonempty])
         prev_signatures = fields.String(default="")
         loa = fields.String(default="")
+        created = fields.String(default="")
 
     class OwnedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
@@ -75,6 +76,7 @@ class InvitationsSchema(Schema):
         state = fields.String(required=True, validate=[validate_nonempty])
         prev_signatures = fields.String(default="")
         loa = fields.String(default="")
+        created = fields.String(default="")
 
     pending_multisign = fields.List(fields.Nested(PendingDocument))
     owned_multisign = fields.List(fields.Nested(OwnedDocument))
@@ -99,6 +101,7 @@ class ConfigSchema(InvitationsSchema):
     multisign_buttons = fields.String(required=True)
     available_loas = fields.List(fields.Nested(AvailableLoa))
     unauthn = fields.Boolean(default=True)
+    max_file_size = fields.String(required=True)
 
 
 class DocumentSchema(_DocumentSchema):
@@ -166,6 +169,7 @@ class ReferenceSchema(_ReferenceSchema):
     """
 
     prev_signatures = fields.String(default="")
+    has_form = fields.Boolean(default=False)
 
 
 class ToSignSchema(Schema):
@@ -261,6 +265,7 @@ class EditMultiSignSchema(Schema):
     """
     Schema to unmarshal requests to edit invitations.
     """
+
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     text = fields.String(default="")
     invites = fields.List(fields.Nested(Invitee))
@@ -289,3 +294,34 @@ class DelegationSchema(Invitee):
 
     invite_key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     document_key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+
+
+class Field(Schema):
+
+    name = fields.String(required=True, validate=[validate_nonempty])
+    type = fields.String(required=False, validate=[validate_nonempty])
+    label = fields.String(required=False)
+    value = fields.Raw(required=False)
+    choices = fields.List(fields.String)
+
+
+class FormSchema(Schema):
+    """
+    Schema to marshall PDF forms.
+    """
+
+    fields = fields.List(fields.Nested(Field))
+
+
+class DocSchema(Schema):
+    """
+    Schema to unmarshal a document's contents
+    sent to extract a PDF form
+    """
+
+    document = fields.String(required=True, validate=[validate_nonempty])
+
+
+class FillFormSchema(Schema):
+    document = fields.String(required=True, validate=[validate_nonempty])
+    fields = fields.List(fields.Nested(Field))

@@ -40,6 +40,7 @@ import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
 import { setActiveId, unsetActiveId } from "slices/Overlay";
 import { isNotInviting } from "slices/InviteForm";
+import { showPDFForm } from "slices/PDFForms";
 
 const mapStateToProps = (state) => {
   return {
@@ -198,6 +199,14 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
         dispatch(enablePolling());
         dispatch(unsetActiveId());
+      };
+    },
+    handleFillForm: function (doc) {
+      return () => {
+        dispatch(disablePolling());
+        dispatch(setActiveId("dummy-help-id"));
+        dispatch(showPDFForm(doc));
+        dispatch(unsetSpinning());
       };
     },
   };

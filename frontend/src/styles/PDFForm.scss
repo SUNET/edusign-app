@@ -1,0 +1,12 @@
+@import "./variables.scss";
+
+form {
+  width: 100%;
+  .newfname-text-holder {
+    width: 100%;
+  }
+  .field-error {
+    font-size: 0.8rem;
+    color: $orange-highlight;
+  }
+}

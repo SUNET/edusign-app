@@ -75,6 +75,9 @@
   "components.InviteForm.sendsigned-choice-field": "Skicka signerat dokument via e-post",
   "components.InviteForm.sendsigned-choice-help": "Skicka slutgiltigt signerat dokument via e-post till alla som signerat",
   "components.Main.contact-local-it-msg": "Om du upplever problem med eduSign kontakta din lokala IT-support",
+  "components.PDFForm.button-close": "Stäng",
+  "components.PDFForm.button-sendform": "Klart",
+  "components.PDFForm.newfname-text-field": "Ange namn för nytt dokument",
   "components.ReInviteForm.cancel-invitation-tootip": "Stäng inbjudningsformulär",
   "components.ReInviteForm.cancel-invite": "Avbryt",
   "components.ReInviteForm.re-invitation-text-field": "Meddelande att skicka till alla som inte signerat",
@@ -82,7 +85,9 @@
   "components.ReInviteForm.resend-invitation-tootip": "Skicka meddelande till alla som inte signerat",
   "components.ReInviteForm.resend-invite": "Skicka",
   "components.dropdownItems.create-template-menu-item": "Skapa mall",
+  "components.dropdownItems.dldraft-button": "",
   "components.dropdownItems.edit-invitations-menu-item": "Uppdatera inbjudan",
+  "components.dropdownItems.fillform-button": "Fyll i formulär",
   "components.dropdownItems.multisign-button": "Bjud in andra att signera",
   "components.dropdownItems.preview-button": "Förhandsvisa",
   "components.dropdownItems.resend-invitations-button": "Skicka påminnelse",
@@ -96,6 +101,7 @@
   "components.widgets.button-sign-tootip": "Välj dokument ovan och klicka här för att signera dem.",
   "components.widgets.clear-docs-tootip": "Ta bort alla dokument i \"Personliga dokument\" listan",
   "components.widgets.clear-session-button": "Rensa personlig dokument lista",
+  "components.widgets.creation-date-label": "Skapad",
   "components.widgets.decline-sign-button": "Neka signering",
   "components.widgets.delegate-sign-button": "",
   "components.widgets.dlall-selected-button": "Ladda ner alla signerade",
@@ -171,6 +177,7 @@
   "problem-sending-invitations": "Ett problem uppstod att skicka inbjudan, var god försök igen",
   "problem-signing": "Problem vid signering av dokument",
   "problem-skipping-signature": "Ett problem uppstod att hoppa över slutgiltiga signeringen, var god försök igen",
+  "problem-updating-pdf-form": "Problem med att fylla i PDF-formuläret, försök igen",
   "save-doc-problem-db": "Ett problem uppstod att ladda dokumentet lokalt, var god försök igen",
   "save-doc-problem-dup": "Ett dokument med det namnet har redan laddats",
   "save-doc-problem-preparing": "Ett problem uppstod att förbereda dokumentet för signering, var god försök igen",
@@ -185,5 +192,6 @@
   "template-removed-globalmsg": "Mall borttagen",
   "validate-problem-corrupted": "Dokumentet verkar vara skadat",
   "validate-problem-password": "Använd inte lösenordsskyddat dokument",
-  "validate-problem-unreadable": "Dokumentet är oläsligt"
+  "validate-problem-unreadable": "Dokumentet är oläsligt",
+  "validate-too-big": ""
 }

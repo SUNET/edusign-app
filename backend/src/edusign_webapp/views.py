@@ -35,23 +35,27 @@ import json
 import os
 import uuid
 from base64 import b64decode
-from typing import Any, Dict, List, Union, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 import pkg_resources
-from flask import Blueprint, abort, current_app, redirect, render_template, request, session, url_for, make_response
+from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for
 from flask_babel import force_locale, get_locale, gettext
 from werkzeug.wrappers import Response
 
+from edusign_webapp.forms import has_pdf_form, update_pdf_form
 from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
     BlobSchema,
     ConfigSchema,
     DelegationSchema,
+    DocSchema,
     DocumentSchema,
+    EditMultiSignSchema,
+    FillFormSchema,
+    FormSchema,
     InvitationsSchema,
     KeyedMultiSignSchema,
     MultiSignSchema,
-    EditMultiSignSchema,
     ReferenceSchema,
     ResendMultiSignSchema,
     ReSignRequestSchema,
@@ -318,6 +322,7 @@ def get_config() -> dict:
     payload['available_loas'] = []
     for uri, name in current_app.config['AVAILABLE_LOAS'].items():
         payload['available_loas'].append({'uri': uri, 'name': name})
+    payload['max_file_size'] = current_app.config['MAX_CONTENT_LENGTH']
 
     return {
         'payload': payload,
@@ -372,8 +377,17 @@ def add_document(document: dict) -> dict:
     key = str(uuid.uuid4())
 
     prev_signatures = get_previous_signatures(document)
+    has_form = has_pdf_form(document['blob'])
 
-    return {'payload': {'key': key, 'ref': doc_ref, 'sign_requirement': sign_req, 'prev_signatures': prev_signatures}}
+    return {
+        'payload': {
+            'key': key,
+            'ref': doc_ref,
+            'sign_requirement': sign_req,
+            'prev_signatures': prev_signatures,
+            'has_form': has_form,
+        }
+    }
 
 
 @edusign_views.route('/create-sign-request', methods=['POST'])
@@ -473,9 +487,9 @@ def _gather_invited_docs(docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any
             failed.append(failedDoc)
             continue
 
-        if stored['user']['email'] != session['mail']:
+        if stored['user']['email'] not in session['mail_aliases']:
             current_app.logger.error(
-                f"Trying to sign invitation with wrong email {session['mail']} (invited:  {stored['user']['email']})"
+                f"Trying to sign invitation with wrong emails {session['mail_aliases']} (invited:  {stored['user']['email']})"
             )
             failedDoc = {
                 'key': doc['key'],
@@ -492,7 +506,9 @@ def _gather_invited_docs(docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any
     return failed, invited_docs
 
 
-def _ready_docs(docs_data: List[Dict[str, Any]], all_docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def _ready_docs(
+    docs_data: List[Dict[str, Any]], all_docs: List[Dict[str, Any]]
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     This function in used in the `recreate_sign_request` view.
 
@@ -683,7 +699,7 @@ def _prepare_signed_by_email(key, owner):
     that one invited user (perhaps the last remaining one)
     has signed the document.
     """
-    pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
+    pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail_aliases'])
     pending = [p for p in pending if not p['signed'] and not p['declined']]
 
     if len(pending) > 0:
@@ -749,15 +765,7 @@ def _prepare_all_signed_email(key, owner, doc, sendsigned):
             body_txt_sv = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
             body_html_sv = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
 
-    email_args = (
-        recipients,
-        subject_en,
-        subject_sv,
-        body_txt_en,
-        body_html_en,
-        body_txt_sv,
-        body_html_sv
-    )
+    email_args = (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
     # attach PDF
     if sendsigned:
         doc_name = current_app.doc_store.get_document_name(key)
@@ -784,9 +792,9 @@ def _prepare_signed_documents_data(process_data):
         owner = current_app.doc_store.get_owner_data(key)
         current_app.logger.debug(f"Post-processing {key} for {owner}")
 
-        if 'email' in owner and owner['email'] != session['mail']:
-            current_app.doc_store.update_document(key, doc['signedContent'], session['mail'])
-            current_app.doc_store.unlock_document(key, session['mail'])
+        if 'email' in owner and owner['email'] not in session['mail_aliases']:
+            current_app.doc_store.update_document(key, doc['signedContent'], session['mail_aliases'])
+            current_app.doc_store.unlock_document(key, session['mail_aliases'])
 
         elif owner:
             current_app.doc_store.remove_document(key)
@@ -840,13 +848,13 @@ def get_signed_documents(sign_data: dict) -> dict:
         sendsigned = current_app.doc_store.get_sendsigned(key)
 
         # this is an invitation to the current user
-        if 'email' in owner and owner['email'] != session['mail']:
+        if 'email' in owner and owner['email'] not in session['mail_aliases']:
             try:
                 email_args = _prepare_signed_by_email(key, owner)
                 emails.append((email_args, {}))
 
             except Exception as e:
-                current_app.logger.error(f"Problem sending signed by {session['email']} email to {owner['email']}: {e}")
+                current_app.logger.error(f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}")
 
         # this is an invitation from the current user
         elif owner:
@@ -886,7 +894,7 @@ def create_multi_sign_request(data: dict) -> dict:
     if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
         return {'error': True, 'message': gettext('Unauthorized')}
 
-    if session['mail'] != data['owner']:
+    if data['owner'] not in session['mail_aliases']:
         current_app.logger.error(f"User {session['mail']} is trying to create an invitation as {data['owner']}")
         return {'error': True, 'message': gettext("You cannot invite as %(owner)s") % {'owner': data['owner']}}
 
@@ -895,7 +903,7 @@ def create_multi_sign_request(data: dict) -> dict:
 
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
-        owner = {'name': session['displayName'], 'email': data['owner']}
+        owner = {'name': session['displayName'], 'email': data['owner'], 'eppn': session['eppn']}
         current_app.logger.debug(f"Adding document with required loa {data['loa']}")
         invites = current_app.doc_store.add_document(
             data['document'], owner, data['invites'], data['sendsigned'], data['loa']
@@ -963,6 +971,7 @@ def send_multisign_reminder(data: dict) -> dict:
     try:
         pending = current_app.doc_store.get_pending_invites(uuid.UUID(data['key']))
         docname = current_app.doc_store.get_document_name(uuid.UUID(data['key']))
+        owner_email = current_app.doc_store.get_document_email(uuid.UUID(data['key']))
 
     except Exception as e:
         current_app.logger.error(f'Problem finding users pending to multi sign: {e}')
@@ -984,7 +993,7 @@ def send_multisign_reminder(data: dict) -> dict:
             invited_link = url_for('edusign.get_index', _external=True)
             mail_context = {
                 'document_name': docname,
-                'inviter_email': f"{session['mail']}",
+                'inviter_email': owner_email,
                 'inviter_name': f"{session['displayName']}",
                 'invited_link': invited_link,
                 'text': 'text' in data and data['text'] or "",
@@ -1030,20 +1039,25 @@ def edit_multi_sign_request(data: dict) -> dict:
 
     recipients_added = [f"{invite['name']} <{invite['email']}>" for invite in changed['added']]
     docname = current_app.doc_store.get_document_name(key)
-    owner = {'name': session['displayName'], 'email': session['mail']}
+    owner_email = current_app.doc_store.get_document_email(key)
+    owner = {'name': session['displayName'], 'email': owner_email}
     text = data['text']
 
-    message = gettext(f"Success editing invitation to sign {docname}")
+    message = gettext("Success editing invitation to sign '%(docname)s'") % {'docname': docname}
 
     try:
         _send_invitation_mail(docname, owner, text, recipients_added)
     except Exception:
-        message = gettext(f"Some users may not have been notified of the changes for {docname}")
+        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+            'docname': docname
+        }
 
     recipients_removed = [f"{invite['name']} <{invite['email']}>" for invite in changed['removed']]
-    sent = _send_cancellation_mail(docname, recipients_removed)
+    sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
     if not sent:
-        message = gettext(f"Some users may not have been notified of the changes for {docname}")
+        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+            'docname': docname
+        }
 
     return {'message': message}
 
@@ -1064,10 +1078,12 @@ def remove_multi_sign_request(data: dict) -> dict:
     try:
         pending = current_app.doc_store.get_pending_invites(key)
         docname = current_app.doc_store.get_document_name(key)
+        owner_email = current_app.doc_store.get_document_email(key)
     except Exception as e:
         current_app.logger.error(f'Problem getting info about document {key}: {e}')
         pending = []
         docname = ''
+        owner_email = session['mail']
 
     try:
         removed = current_app.doc_store.remove_document(key, force=True)
@@ -1086,30 +1102,26 @@ def remove_multi_sign_request(data: dict) -> dict:
     message = gettext("Success removing invitation to sign")
 
     if len(recipients) > 0:
-        sent = _send_cancellation_mail(docname, recipients)
+        sent = _send_cancellation_mail(docname, owner_email, recipients)
         if not sent:
             message = gettext("Some users may have not been informed of the cancellation")
 
     return {'message': message}
 
 
-def _send_cancellation_mail(docname, recipients):
+def _send_cancellation_mail(docname, owner_email, recipients):
     try:
         mail_context = {
             'document_name': docname,
-            'inviter_email': f"{session['mail']}",
+            'inviter_email': owner_email,
             'inviter_name': f"{session['displayName']}",
         }
         with force_locale('en'):
-            subject_en = gettext("Cancellation of invitation to sign '%(document_name)s'") % {
-                'document_name': docname
-            }
+            subject_en = gettext("Cancellation of invitation to sign '%(document_name)s'") % {'document_name': docname}
             body_txt_en = render_template('cancellation_email.txt.jinja2', **mail_context)
             body_html_en = render_template('cancellation_email.html.jinja2', **mail_context)
         with force_locale('sv'):
-            subject_sv = gettext("Cancellation of invitation to sign '%(document_name)s'") % {
-                'document_name': docname
-            }
+            subject_sv = gettext("Cancellation of invitation to sign '%(document_name)s'") % {'document_name': docname}
             body_txt_sv = render_template('cancellation_email.txt.jinja2', **mail_context)
             body_html_sv = render_template('cancellation_email.html.jinja2', **mail_context)
 
@@ -1189,14 +1201,7 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
         signed_doc_name = ''
         pdf_bytes = ''
 
-    args = (
-        recipients,
-        subject_en,
-        subject_sv,
-        body_txt_en,
-        body_html_en,
-        body_txt_sv,
-        body_html_sv)
+    args = (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
     kwargs = dict(
         attachment_name=signed_doc_name,
@@ -1256,7 +1261,7 @@ def _prepare_declined_email(key, owner_data):
     Prepare email to inviter user informing about an invited user
     that has declined to sign the document.
     """
-    pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail'])
+    pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail_aliases'])
     pending = [p for p in pending if not p['signed'] and not p['declined']]
     if len(pending) > 0:
         template = 'declined_by_email'
@@ -1287,8 +1292,6 @@ def _prepare_declined_email(key, owner_data):
     return (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
 
 
-
-
 @edusign_views.route('/decline-invitation', methods=['POST'])
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal()
@@ -1302,10 +1305,10 @@ def decline_invitation(data):
     """
 
     key = uuid.UUID(data['key'])
-    email = session['mail']
+    emails = session['mail_aliases']
 
     try:
-        current_app.doc_store.decline_document(key, email)
+        current_app.doc_store.decline_document(key, emails)
     except Exception as e:
         current_app.logger.error(f'Problem declining signature of document: {e}')
         return {'error': True, 'message': gettext('Problem declining signature, please try again')}
@@ -1400,3 +1403,18 @@ def delegate_invitation(data):
     message = gettext("Success delegating signature")
 
     return {'message': message}
+
+
+@edusign_views.route('/update-form', methods=['POST'])
+@UnMarshal(FillFormSchema)
+@Marshal(DocSchema)
+def update_form(data):
+    pdf = data['document']
+    fields = data['fields']
+    try:
+        updated = update_pdf_form(pdf, fields)
+    except Exception as e:
+        current_app.logger.error(f"Problem filling in form in PDF: {e}")
+        return {'error': True, 'message': gettext('Problem filling in form in PDF, please try again')}
+
+    return {'message': 'Success', 'payload': {'document': updated}}

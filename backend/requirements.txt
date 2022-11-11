@@ -10,3 +10,5 @@ fakeredis==1.5.0
 flask-cors==3.0.10
 flask-misaka==1.0.0
 pyHanko==0.9.0
+PyMuPDF==1.20.2
+pytz==2022.2.1

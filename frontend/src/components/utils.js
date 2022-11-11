@@ -200,7 +200,8 @@ export const preparePrevSigs = (doc, size) => {
         .join("; ");
       return (
         <span className="info-row-item" title={alt} key={i}>
-          {mainVal} {i < sigStrs.length - 1 ? "," : "."}
+          {mainVal}
+          {i < sigStrs.length - 1 ? "," : "."}
         </span>
       );
     });
@@ -273,4 +274,23 @@ export const nameForCopy = (props) => {
     });
   }
   return newName;
+};
+
+/**
+ * @public
+ * @function getCreationDate
+ * @desc Creation name for provided document
+ *
+ */
+
+export const getCreationDate = (doc) => {
+  let ts = Number(doc.created);
+  if (isNaN(ts)) {
+    ts = Date.parse(doc.created);
+  }
+  let creationDate = null;
+  if (!isNaN(ts)) {
+    creationDate = new Date(ts);
+  }
+  return creationDate;
 };

@@ -62,8 +62,13 @@ def add_attributes_to_session(check_whitelisted=True):
     :type check_whitelisted: bool
     """
     if 'eppn' not in session:
-        eppn = request.headers.get('Edupersonprincipalname')
+        try:
+            eppn = request.headers.get('Edupersonprincipalname')
+        except KeyError:
+            current_app.logger.error('Missing eduPersonPrincipalName from request')
+            raise
         current_app.logger.info(f'User {eppn} started a session')
+        current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
 
         attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SESSION_ATTRIBUTES'].values()]
         more_attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
@@ -71,18 +76,58 @@ def add_attributes_to_session(check_whitelisted=True):
             if attr not in attrs:
                 attrs.append(attr)
 
+        def get_attr_values(attr_in_header):
+            """
+            To be able to pass utf8 through wsgi headers,
+            we tell shibboleth to add them as b64 encoded XML elements.
+            """
+            attrs = []
+            b64 = request.headers[attr_in_header]
+            attrs_b64 = b64.split(';')
+            for attr_b64 in attrs_b64:
+                attr_xml = b64decode(attr_b64)
+                attr_val = ET.fromstring(attr_xml)
+                attrs.append(attr_val.text)
+            return attrs
+
         for attr_in_session, attr_in_header in attrs:
-            current_app.logger.debug(
-                f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
-            )
-            session[attr_in_session] = ET.fromstring(b64decode(request.headers[attr_in_header])).text
-            if attr_in_session == 'mail':
-                session[attr_in_session] = session[attr_in_session].lower()
+            try:
+                current_app.logger.debug(
+                    f'Getting attribute {attr_in_header} from request: {request.headers[attr_in_header]}'
+                )
+                attr_values = get_attr_values(attr_in_header)
+                session[attr_in_session] = attr_values[0]
+                if attr_in_session == 'mail':
+
+                    session[attr_in_session] = session[attr_in_session].lower()
+                    session['mail_aliases'] = [m.lower() for m in attr_values]
+            except (KeyError, IndexError):
+                current_app.logger.error(f'Missing attribute {attr_in_header} from request')
+                raise
+
+        if 'Maillocaladdress' in request.headers:
+            addresses = get_attr_values('Maillocaladdress')
+            if 'mail_aliases' not in session:
+                session['mail_aliases'] = []
+
+            session['mail_aliases'] += [m.lower() for m in addresses]
 
         session['eppn'] = eppn
-        session['idp'] = request.headers.get('Shib-Identity-Provider')
-        session['authn_method'] = request.headers.get('Shib-Authentication-Method')
-        session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
+        try:
+            session['idp'] = request.headers.get('Shib-Identity-Provider')
+        except KeyError:
+            current_app.logger.error('Missing Identity Provider from request')
+            raise
+        try:
+            session['authn_method'] = request.headers.get('Shib-Authentication-Method')
+        except KeyError:
+            current_app.logger.error('Missing Authentication Method from request')
+            raise
+        try:
+            session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
+        except KeyError:
+            current_app.logger.error('Missing AuthnContext Class from request')
+            raise
 
         session['organizationName'] = None
         orgName = request.headers.get('Md-Organizationname', None)
@@ -131,8 +176,11 @@ def get_invitations():
       polling the backend (this is, only when there are users pending to sign
       any of the invitations).
     """
-    owned = current_app.doc_store.get_owned_documents(session['mail'])
-    invited = current_app.doc_store.get_pending_documents(session['mail'])
+    mail_addresses = session.get('mail_aliases')
+    if mail_addresses is None:
+        mail_addresses = [session['mail']]
+    owned = current_app.doc_store.get_owned_documents(session['eppn'], mail_addresses)
+    invited = current_app.doc_store.get_pending_documents(mail_addresses)
     poll = False
     for docs in (owned, invited):
         for doc in docs:
@@ -223,12 +271,7 @@ def compose_message(
     text_body = f"{mail[first_lang]['body_txt']} \n\n {mail[second_lang]['body_txt']}"
     html_body = f"{mail[first_lang]['body_html']} <br/><br/> {mail[second_lang]['body_html']}"
 
-    msg = EmailMultiAlternatives(
-        subject,
-        text_body,
-        current_app.config['MAIL_DEFAULT_SENDER'],
-        recipients
-    )
+    msg = EmailMultiAlternatives(subject, text_body, current_app.config['MAIL_DEFAULT_SENDER'], recipients)
     msg.attach_alternative(html_body, 'text/html')
 
     if attachment and attachment_name:

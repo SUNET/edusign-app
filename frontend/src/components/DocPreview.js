@@ -69,13 +69,13 @@ function DocPreview(props) {
               <Page
                 pageNumber={pageNumber}
                 width={props.width - 20}
-                renderInteractiveForms={true}
+                renderInteractiveForms={false}
                 renderAnnotationLayer={true}
               />
             )) || (
               <Page
                 pageNumber={pageNumber}
-                renderInteractiveForms={true}
+                renderInteractiveForms={false}
                 renderAnnotationLayer={true}
               />
             )}

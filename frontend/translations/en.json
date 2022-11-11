@@ -75,6 +75,9 @@
   "components.InviteForm.sendsigned-choice-field": "Send signed document in email",
   "components.InviteForm.sendsigned-choice-help": "Send final signed document via email to all who signed it.",
   "components.Main.contact-local-it-msg": "If you experience problems with eduSign contact your local IT-support",
+  "components.PDFForm.button-close": "Close",
+  "components.PDFForm.button-sendform": "Done",
+  "components.PDFForm.newfname-text-field": "Set name for new document",
   "components.ReInviteForm.cancel-invitation-tootip": "Dismiss invitation form",
   "components.ReInviteForm.cancel-invite": "Cancel",
   "components.ReInviteForm.re-invitation-text-field": "Add a message to send to all invitees pending to sign",
@@ -82,7 +85,9 @@
   "components.ReInviteForm.resend-invitation-tootip": "Resend invitations to sign to invitees pending to sign",
   "components.ReInviteForm.resend-invite": "Resend",
   "components.dropdownItems.create-template-menu-item": "Create template",
+  "components.dropdownItems.dldraft-button": "Download (draft)",
   "components.dropdownItems.edit-invitations-menu-item": "Edit invitations",
+  "components.dropdownItems.fillform-button": "Fill form",
   "components.dropdownItems.multisign-button": "Invite others to sign",
   "components.dropdownItems.preview-button": "Preview",
   "components.dropdownItems.resend-invitations-button": "Send reminder",
@@ -96,6 +101,7 @@
   "components.widgets.button-sign-tootip": "Select documents above and click here to send them for signing.",
   "components.widgets.clear-docs-tootip": "Discard all documents in the \"Personal documents\" list above",
   "components.widgets.clear-session-button": "Clear personal documents list",
+  "components.widgets.creation-date-label": "Created:",
   "components.widgets.decline-sign-button": "Decline Signature",
   "components.widgets.delegate-sign-button": "Delegate",
   "components.widgets.dlall-selected-button": "Download all signed",
@@ -171,6 +177,7 @@
   "problem-sending-invitations": "Problem sending invitations to sign, please try again",
   "problem-signing": "Problem signing the document",
   "problem-skipping-signature": "Problem skipping final signature, please try again",
+  "problem-updating-pdf-form": "Problem filling in PDF form, please try again",
   "save-doc-problem-db": "Problem adding document, please try again",
   "save-doc-problem-dup": "A document with that name has already been loaded",
   "save-doc-problem-preparing": "Problem preparing document for signing",
@@ -185,5 +192,6 @@
   "template-removed-globalmsg": "Template successfully removed",
   "validate-problem-corrupted": "Document seems corrupted",
   "validate-problem-password": "Please do not supply a password protected document",
-  "validate-problem-unreadable": "Document is unreadable"
+  "validate-problem-unreadable": "Document is unreadable",
+  "validate-too-big": "Document is too big (max size: {size})"
 }

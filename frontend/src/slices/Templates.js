@@ -153,6 +153,8 @@ export const {
   rmTemplate,
   showTemplatePreview,
   hideTemplatePreview,
+  setTemplateFormSchema,
+  unsetTemplateFormSchema,
 } = templateSlice.actions;
 
 export default templateSlice.reducer;

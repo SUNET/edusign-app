@@ -52,7 +52,7 @@ const validateSendsigned = (value) => {
   return undefined;
 };
 
-const validateNewname = (props) => {
+export const validateNewname = (props) => {
   return (value) => {
     let error;
 

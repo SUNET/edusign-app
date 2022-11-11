@@ -3,7 +3,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
 
 import Button from "containers/Button";
-import { humanFileSize } from "components/utils";
+import { humanFileSize, getCreationDate } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 
@@ -12,6 +12,24 @@ export const docName = (doc) => {
 };
 export const docSize = (doc) => {
   return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
+};
+export const docCreated = (props) => {
+  const creationDate = getCreationDate(props.doc);
+  if (creationDate !== null) {
+    return (
+      <div className={"doc-container-info-row-" + props.size}>
+        <span className="info-row-label">
+          <FormattedMessage
+            defaultMessage="Created:"
+            key="creation-date-label"
+          />
+        </span>
+        <span className="info-row-items">
+          <span className="info-row-item">{creationDate.toLocaleString()}</span>
+        </span>
+      </div>
+    );
+  } else return "";
 };
 
 export const namedSpinner = (index, name) => {

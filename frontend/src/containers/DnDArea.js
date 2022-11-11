@@ -40,6 +40,7 @@ const mapDispatchToProps = (dispatch) => {
             size: fileObj.size,
             type: fileObj.type,
             blob: null,
+            created: Date.now(),
           };
           const reader = new FileReader();
           reader.onload = async () => {

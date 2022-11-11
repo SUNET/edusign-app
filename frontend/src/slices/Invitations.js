@@ -77,6 +77,7 @@ export const sendInvites = createAsyncThunk(
         blob: document.blob,
         size: document.size,
         type: document.type,
+        created: Date.now(),
       };
       await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
 
@@ -167,6 +168,7 @@ export const sendInvites = createAsyncThunk(
       pending: invitees,
       signed: [],
       declined: [],
+      created: Date.now(),
     };
     await thunkAPI.dispatch(removeDocument({ docName: document.name }));
     thunkAPI.dispatch(addOwned(owned));

@@ -64,7 +64,12 @@ import { setTemplates, addTemplate } from "slices/Templates";
 import { unsetSpinning } from "slices/Button";
 import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
 import { getDb } from "init-app/database";
-import { b64toBlob, hashCode, nameForCopy } from "components/utils";
+import {
+  b64toBlob,
+  hashCode,
+  nameForCopy,
+  humanFileSize,
+} from "components/utils";
 
 /**
  * @public
@@ -310,6 +315,18 @@ async function validateDoc(doc, intl, state) {
     return doc;
   }
 
+  if (doc.size > Number(state.main.max_file_size)) {
+    doc.state = "failed-loading";
+    doc.message = intl.formatMessage(
+      {
+        defaultMessage: `Document is too big (max size: {size})`,
+        id: "validate-too-big",
+      },
+      { size: humanFileSize(state.main.max_file_size) }
+    );
+    return doc;
+  }
+
   return await pdfjs
     .getDocument({ url: doc.blob, password: "", stopAtErrors: true })
     .promise.then(() => {
@@ -318,7 +335,6 @@ async function validateDoc(doc, intl, state) {
       return doc;
     })
     .catch((err) => {
-      console.log("Error reading PDF doc", err);
       return dealWithPDFError(doc, err, intl);
     });
 }
@@ -402,7 +418,7 @@ export const addDocumentToDb = async (document, name) => {
           id: event.target.result,
         });
       };
-      docRequest.onerror = () => {
+      docRequest.onerror = (event) => {
         reject("Problem saving document");
       };
     });

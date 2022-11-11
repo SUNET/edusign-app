@@ -78,6 +78,13 @@ class RedisStorageBackend:
         }
         return user
 
+    def query_user_name(self, email):
+        user_id = self.query_user_id(email)
+        if user_id is not None:
+            user = self.query_user(user_id)
+            if user is not None:
+                return user['name']
+
     def insert_document(self, key, name, size, type, owner, prev_signatures, sendsigned, loa):
         doc_id = self.redis.incr('doc-counter')
         now = datetime.now().timestamp()
@@ -451,6 +458,7 @@ class RedisMD(ABCMetadata):
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
         """
         invites = self.client.query_invites_from_email(email)
         if invites is None or isinstance(invites, dict):
@@ -573,6 +581,7 @@ class RedisMD(ABCMetadata):
                  + declined: List of emails of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
         """
         documents = self.client.query_documents_from_owner(email)
         if documents is None or isinstance(documents, dict):
@@ -928,20 +937,6 @@ class RedisMD(ABCMetadata):
         self.logger.debug(f"Checking lock for {doc_id} by {user_id} for {locked_by}")
         locker_id = self.client.query_user_id(locked_by)
         return locker_id == user_id
-
-    def get_user(self, user_id: int) -> Dict[str, Any]:
-        """
-        Return information on some user.
-
-        :param user_id: the pk for the user in the users table
-        :return: Name and email of the user
-        """
-        user_info = self.client.query_user(user_id)
-        if not user_info:
-            self.logger.error(f"Trying to find with a non-existing user with id {user_id}")
-            return {}
-
-        return user_info
 
     def get_sendsigned(self, key: uuid.UUID) -> bool:
         """

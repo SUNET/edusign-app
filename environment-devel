@@ -44,3 +44,5 @@ SQLITE_MD_DB_PATH=/tmp/test.db
 REDIS_URL=redis://localhost:6379/0
 
 MAIL_BACKEND=dummy
+
+MAX_FILE_SIZE=20971520

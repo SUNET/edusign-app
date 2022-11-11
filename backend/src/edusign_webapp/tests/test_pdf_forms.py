@@ -31,11 +31,12 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import json
+from unittest import TestCase
 
 from edusign_webapp.marshal import ResponseSchema
 
 
-def _test_edit_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
+def _test_get_form(app, environ_base, monkeypatch, form_data):
 
     _, app = app
 
@@ -45,6 +46,8 @@ def _test_edit_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
+
+    doc_data = {'payload': {'document': form_data['pdf']}}
 
     with app.test_request_context():
         with client.session_transaction() as sess:
@@ -62,23 +65,10 @@ def _test_edit_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
 
     monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'document': sample_doc_1,
-            'owner': 'tester@example.org',
-            'text': 'Dummy invitation text',
-            'sendsigned': True,
-            'loa': '',
-            'invites': [
-                {'name': 'invite0', 'email': 'invite0@example.org'},
-                {'name': 'invite1', 'email': 'invite1@example.org'},
-            ],
-        },
-    }
+    doc_data['csrf_token'] = csrf_token
 
     response = client.post(
-        '/sign/create-multi-sign',
+        '/sign/get-form',
         headers={
             'X-Requested-With': 'XMLHttpRequest',
             'Origin': 'https://test.localhost',
@@ -89,52 +79,19 @@ def _test_edit_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
 
     assert response.status == '200 OK'
 
-    edit_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'key': sample_doc_1['key'],
-            'text': "Some invitation text",
-            'invites': [
-                {'name': 'invite0', 'email': 'invite0@example.org'},
-                {'name': 'invite2', 'email': 'invite2@example.org'},
-                {'name': 'invite3', 'email': 'invite3@example.org'},
-            ],
-        },
-    }
+    resp_data = json.loads(response.data)
 
-    response = client.post(
-        '/sign/edit-multi-sign',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=edit_data,
-    )
+    d1 = {'fields': resp_data['payload']['fields']}
+    d2 = {'fields': form_data['schema']}
 
-    return json.loads(response.data)
+    tc = TestCase()
+    tc.maxDiff = None
+    tc.assertEqual(d1, d2)
 
 
-def test_edit_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
-
-    resp_data = _test_edit_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
-
-    assert resp_data['message'] == f"Success editing invitation to sign {sample_doc_1['name']}"
+def test_get_form_1(app, environ_base, monkeypatch, sample_form_1):
+    _test_get_form(app, environ_base, monkeypatch, sample_form_1)
 
 
-def _test_edit_multi_sign_request_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_edit):
-
-    from edusign_webapp.doc_store import DocStore
-
-    monkeypatch.setattr(DocStore, 'update_invitations', mock_edit)
-
-    return _test_edit_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
-
-
-def test_edit_multi_sign_request_raises(app, environ_base, monkeypatch, sample_doc_1):
-    def mock_edit(*args, **kwargs):
-        raise Exception()
-
-    resp_data = _test_edit_multi_sign_request_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_edit)
-
-    assert resp_data['message'] == 'Problem editing the invitations'
+def test_get_form_2(app, environ_base, monkeypatch, sample_form_2):
+    _test_get_form(app, environ_base, monkeypatch, sample_form_2)
