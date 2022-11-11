@@ -33,6 +33,8 @@
 import json
 from unittest import TestCase
 
+import pytest
+
 from edusign_webapp.marshal import ResponseSchema
 
 
@@ -89,9 +91,11 @@ def _test_get_form(app, environ_base, monkeypatch, form_data):
     tc.assertEqual(d1, d2)
 
 
+@pytest.mark.skip(reason="We do not do this any more. Transform these to test filling in a PDF form")
 def test_get_form_1(app, environ_base, monkeypatch, sample_form_1):
     _test_get_form(app, environ_base, monkeypatch, sample_form_1)
 
 
+@pytest.mark.skip(reason="We do not do this any more. Transform these to test filling in a PDF form")
 def test_get_form_2(app, environ_base, monkeypatch, sample_form_2):
     _test_get_form(app, environ_base, monkeypatch, sample_form_2)

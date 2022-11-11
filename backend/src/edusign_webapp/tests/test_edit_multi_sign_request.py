@@ -119,7 +119,7 @@ def test_edit_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
 
     resp_data = _test_edit_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
 
-    assert resp_data['message'] == f"Success editing invitation to sign {sample_doc_1['name']}"
+    assert resp_data['message'] == f"Success editing invitation to sign '{sample_doc_1['name']}'"
 
 
 def _test_edit_multi_sign_request_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_edit):
