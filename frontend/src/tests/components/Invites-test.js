@@ -79,8 +79,16 @@ describe("Multi sign invitations", function () {
       store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
       await flushPromises(rerender, wrapped);
 
+      const dropdownButton = await waitFor(() =>
+        screen.getAllByText(/Other options/)
+      );
+      expect(dropdownButton.length).to.equal(1);
+
+      fireEvent.click(dropdownButton[0]);
+      await flushPromises(rerender, wrapped);
+
       const button = await waitFor(() =>
-        screen.getAllByTestId("button-multisign-test.pdf")
+        screen.getAllByText(/Invite others to sign/)
       );
       expect(button.length).to.equal(1);
 
@@ -154,8 +162,16 @@ describe("Multi sign invitations", function () {
       store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
       await flushPromises(rerender, wrapped);
 
+      const dropdownButton = await waitFor(() =>
+        screen.getAllByText(/Other options/)
+      );
+      expect(dropdownButton.length).to.equal(1);
+
+      fireEvent.click(dropdownButton[0]);
+      await flushPromises(rerender, wrapped);
+
       const button = await waitFor(() =>
-        screen.getAllByTestId("button-multisign-test.pdf")
+        screen.getAllByText(/Invite others to sign/)
       );
       expect(button.length).to.equal(1);
 
@@ -260,8 +276,16 @@ describe("Multi sign invitations", function () {
       const filename = await waitFor(() => screen.getAllByText("testost.pdf"));
       expect(filename.length).to.equal(1);
 
+      const dropdownButton = await waitFor(() =>
+        screen.getAllByText(/Other options/)
+      );
+      expect(dropdownButton.length).to.equal(1);
+
+      fireEvent.click(dropdownButton[0]);
+      await flushPromises(rerender, wrapped);
+
       const button = await waitFor(() =>
-        screen.getAllByTestId("button-multisign-testost.pdf")
+        screen.getAllByText(/Invite others to sign/)
       );
       expect(button.length).to.equal(1);
 
@@ -309,7 +333,7 @@ describe("Multi sign invitations", function () {
     unmount();
   });
 
-  it("It shows a template after selecting to make a copy & clicking the send button", async () => {
+  it("It shows a template after clicking on Create template", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
@@ -372,66 +396,27 @@ describe("Multi sign invitations", function () {
       let filename = await waitFor(() => screen.getAllByText("testost.pdf"));
       expect(filename.length).to.equal(1);
 
+      const dropdownButton = await waitFor(() =>
+        screen.getAllByText(/Other options/)
+      );
+      expect(dropdownButton.length).to.equal(1);
+
+      fireEvent.click(dropdownButton[0]);
+      await flushPromises(rerender, wrapped);
+
       const button = await waitFor(() =>
-        screen.getAllByTestId("button-multisign-testost.pdf")
+        screen.getAllByText(/Create template/)
       );
       expect(button.length).to.equal(1);
 
       fireEvent.click(button[0]);
       await flushPromises(rerender, wrapped);
 
-      let emailInput = await waitFor(() =>
-        screen.getAllByTestId("invitees.0.email")
-      );
-      expect(emailInput.length).to.equal(1);
-
-      fireEvent.change(emailInput[0], {
-        target: { value: "dummy@example.com" },
-      });
-
-      let nameInput = await waitFor(() =>
-        screen.getAllByTestId("invitees.0.name")
-      );
-      expect(nameInput.length).to.equal(1);
-
-      fireEvent.change(nameInput[0], { target: { value: "Dummy Doe" } });
-
-      await flushPromises(rerender, wrapped);
-
-      let makecopyInput = await waitFor(() =>
-        screen.getAllByTestId("makecopy-choice-input")
-      );
-      expect(makecopyInput.length).to.equal(1);
-
-      fireEvent.click(makecopyInput[0]);
-      await flushPromises(rerender, wrapped);
-
-      const buttonSend = await waitFor(() =>
-        screen.getAllByTestId("button-send-invites-testost.pdf")
-      );
-      expect(buttonSend.length).to.equal(1);
-
-      fireEvent.click(buttonSend[0]);
-      await flushPromises(rerender, wrapped);
-
-      const inviteWaiting = await waitFor(() =>
-        screen.getAllByText("Waiting for signatures by:")
-      );
-      expect(inviteWaiting.length).to.equal(1);
-
       const templates = await waitFor(() => screen.getAllByText("Templates"));
       expect(templates.length).to.equal(1);
 
       filename = await waitFor(() => screen.getAllByText("testost.pdf"));
       expect(filename.length).to.equal(1);
-
-      const filenameCopy = await waitFor(() =>
-        screen.getAllByText("testost-1.pdf")
-      );
-      expect(filenameCopy.length).to.equal(1);
-
-      const inviteName = await waitFor(() => screen.getAllByText(/Dummy Doe/));
-      expect(inviteName.length).to.equal(1);
     } catch (err) {
       unmount();
       throw err;
@@ -440,144 +425,6 @@ describe("Multi sign invitations", function () {
     unmount();
   });
 
-  it("It shows a template after selecting to make a copy and changes the name of the copy", async () => {
-    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
-
-    try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-            },
-            owned_multisign: [],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .post("/sign/add-doc", {
-          message: "document added",
-          payload: {
-            key: "dummy key",
-            ref: "dummy ref",
-            sign_requirement: "dummy sign requirement",
-          },
-        })
-        .post("/sign/create-multi-sign", {
-          message: "Success creating multi signature request",
-          error: false,
-        })
-        .get("/sign/poll", {});
-      store.dispatch(
-        fetchConfig({
-          intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-        })
-      );
-      await flushPromises(rerender, wrapped);
-
-      const fileObj = new File([samplePDFData], "testost.pdf", {
-        type: "application/pdf",
-      });
-      const file = {
-        name: fileObj.name,
-        size: fileObj.size,
-        type: fileObj.type,
-        blob: "data:application/pdf;base64," + b64SamplePDFData,
-      };
-      await store.dispatch(
-        createDocument({
-          doc: file,
-          intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-        })
-      );
-      await flushPromises(rerender, wrapped);
-
-      store.dispatch(setState({ name: "testost.pdf", state: "loaded" }));
-      await flushPromises(rerender, wrapped);
-
-      let filename = await waitFor(() => screen.getAllByText("testost.pdf"));
-      expect(filename.length).to.equal(1);
-
-      const button = await waitFor(() =>
-        screen.getAllByTestId("button-multisign-testost.pdf")
-      );
-      expect(button.length).to.equal(1);
-
-      fireEvent.click(button[0]);
-      await flushPromises(rerender, wrapped);
-
-      let emailInput = await waitFor(() =>
-        screen.getAllByTestId("invitees.0.email")
-      );
-      expect(emailInput.length).to.equal(1);
-
-      fireEvent.change(emailInput[0], {
-        target: { value: "dummy@example.com" },
-      });
-
-      let nameInput = await waitFor(() =>
-        screen.getAllByTestId("invitees.0.name")
-      );
-      expect(nameInput.length).to.equal(1);
-
-      fireEvent.change(nameInput[0], { target: { value: "Dummy Doe" } });
-
-      await flushPromises(rerender, wrapped);
-
-      let makecopyInput = await waitFor(() =>
-        screen.getAllByTestId("makecopy-choice-input")
-      );
-      expect(makecopyInput.length).to.equal(1);
-
-      fireEvent.click(makecopyInput[0]);
-      await flushPromises(rerender, wrapped);
-
-      let newnameInput = await waitFor(() =>
-        screen.getAllByTestId("newnameInput")
-      );
-      expect(newnameInput.length).to.equal(1);
-
-      fireEvent.change(newnameInput[0], { target: { value: "testost-3.pdf" } });
-      await flushPromises(rerender, wrapped);
-
-      const buttonSend = await waitFor(() =>
-        screen.getAllByTestId("button-send-invites-testost.pdf")
-      );
-      expect(buttonSend.length).to.equal(1);
-
-      fireEvent.click(buttonSend[0]);
-      await flushPromises(rerender, wrapped);
-
-      const inviteWaiting = await waitFor(() =>
-        screen.getAllByText("Waiting for signatures by:")
-      );
-      expect(inviteWaiting.length).to.equal(1);
-
-      const templates = await waitFor(() => screen.getAllByText("Templates"));
-      expect(templates.length).to.equal(1);
-
-      filename = await waitFor(() => screen.getAllByText("testost.pdf"));
-      expect(filename.length).to.equal(1);
-
-      const filenameCopy = await waitFor(() =>
-        screen.getAllByText("testost-3.pdf")
-      );
-      expect(filenameCopy.length).to.equal(1);
-
-      const inviteName = await waitFor(() => screen.getAllByText(/Dummy Doe/));
-      expect(inviteName.length).to.equal(1);
-    } catch (err) {
-      unmount();
-      throw err;
-    }
-    // if we don't unmount here, mounted components (DocPreview) leak to other tests
-    unmount();
-  });
 
   it("From template make a copy and check the name of the copy", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
@@ -642,52 +489,21 @@ describe("Multi sign invitations", function () {
       let filename = await waitFor(() => screen.getAllByText("testost.pdf"));
       expect(filename.length).to.equal(1);
 
+      let dropdownButton = await waitFor(() =>
+        screen.getAllByText(/Other options/)
+      );
+      expect(dropdownButton.length).to.equal(1);
+
+      fireEvent.click(dropdownButton[0]);
+      await flushPromises(rerender, wrapped);
+
       let button = await waitFor(() =>
-        screen.getAllByTestId("button-multisign-testost.pdf")
+        screen.getAllByText(/Create template/)
       );
       expect(button.length).to.equal(1);
 
       fireEvent.click(button[0]);
       await flushPromises(rerender, wrapped);
-
-      let emailInput = await waitFor(() =>
-        screen.getAllByTestId("invitees.0.email")
-      );
-      expect(emailInput.length).to.equal(1);
-
-      fireEvent.change(emailInput[0], {
-        target: { value: "dummy@example.com" },
-      });
-
-      let nameInput = await waitFor(() =>
-        screen.getAllByTestId("invitees.0.name")
-      );
-      expect(nameInput.length).to.equal(1);
-
-      fireEvent.change(nameInput[0], { target: { value: "Dummy Doe" } });
-
-      await flushPromises(rerender, wrapped);
-
-      let makecopyInput = await waitFor(() =>
-        screen.getAllByTestId("makecopy-choice-input")
-      );
-      expect(makecopyInput.length).to.equal(1);
-
-      fireEvent.click(makecopyInput[0]);
-      await flushPromises(rerender, wrapped);
-
-      let buttonSend = await waitFor(() =>
-        screen.getAllByTestId("button-send-invites-testost.pdf")
-      );
-      expect(buttonSend.length).to.equal(1);
-
-      fireEvent.click(buttonSend[0]);
-      await flushPromises(rerender, wrapped);
-
-      const inviteWaiting = await waitFor(() =>
-        screen.getAllByText("Waiting for signatures by:")
-      );
-      expect(inviteWaiting.length).to.equal(1);
 
       const templates = await waitFor(() => screen.getAllByText("Templates"));
       expect(templates.length).to.equal(1);
@@ -695,20 +511,23 @@ describe("Multi sign invitations", function () {
       filename = await waitFor(() => screen.getAllByText("testost.pdf"));
       expect(filename.length).to.equal(1);
 
-      let filenameCopy = await waitFor(() =>
-        screen.getAllByText("testost-1.pdf")
+      dropdownButton = await waitFor(() =>
+        screen.getAllByText(/Other options/)
       );
-      expect(filenameCopy.length).to.equal(1);
+      expect(dropdownButton.length).to.equal(1);
+
+      fireEvent.click(dropdownButton[0]);
+      await flushPromises(rerender, wrapped);
 
       button = await waitFor(() =>
-        screen.getAllByTestId("button-multisign-testost.pdf")
+        screen.getAllByText(/Invite others to sign/)
       );
       expect(button.length).to.equal(1);
 
       fireEvent.click(button[0]);
       await flushPromises(rerender, wrapped);
 
-      emailInput = await waitFor(() =>
+      const emailInput = await waitFor(() =>
         screen.getAllByTestId("invitees.0.email")
       );
       expect(emailInput.length).to.equal(1);
@@ -717,14 +536,14 @@ describe("Multi sign invitations", function () {
         target: { value: "dummy-2@example.com" },
       });
 
-      nameInput = await waitFor(() => screen.getAllByTestId("invitees.0.name"));
+      const nameInput = await waitFor(() => screen.getAllByTestId("invitees.0.name"));
       expect(nameInput.length).to.equal(1);
 
       fireEvent.change(nameInput[0], { target: { value: "Dummy-2 Doe" } });
 
       await flushPromises(rerender, wrapped);
 
-      buttonSend = await waitFor(() =>
+      const buttonSend = await waitFor(() =>
         screen.getAllByTestId("button-send-invites-testost.pdf")
       );
       expect(buttonSend.length).to.equal(1);
@@ -732,7 +551,7 @@ describe("Multi sign invitations", function () {
       fireEvent.click(buttonSend[0]);
       await flushPromises(rerender, wrapped);
 
-      filenameCopy = await waitFor(() => screen.getAllByText("testost-2.pdf"));
+      const filenameCopy = await waitFor(() => screen.getAllByText("testost-1.pdf"));
       expect(filenameCopy.length).to.equal(1);
 
       const inviteName = await waitFor(() =>
@@ -869,12 +688,20 @@ describe("Multi sign invitations", function () {
       expect(inviteName.length).to.equal(1);
 
       let resendLabel = await waitFor(() =>
-        screen.queryAllByText(/Resend invitation to people pending to sign/)
+        screen.queryAllByText(/Send reminders to people pending to sign/)
       );
       expect(resendLabel.length).to.equal(0);
 
+      const dropdownButton = await waitFor(() =>
+        screen.getAllByText(/Other options/)
+      );
+      expect(dropdownButton.length).to.equal(1);
+
+      fireEvent.click(dropdownButton[0]);
+      await flushPromises(rerender, wrapped);
+
       const openResendButton = await waitFor(() =>
-        screen.getAllByTestId("button-open-resend-test1.pdf")
+        screen.getAllByTestId("menu-item-open-resend-test1.pdf")
       );
       expect(openResendButton.length).to.equal(1);
 
@@ -882,7 +709,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       resendLabel = await waitFor(() =>
-        screen.getAllByText(/Resend invitation to people pending to sign/)
+        screen.queryAllByText(/Send reminders to people pending to sign/)
       );
       expect(resendLabel.length).to.equal(1);
 
@@ -967,12 +794,20 @@ describe("Multi sign invitations", function () {
       expect(inviteName.length).to.equal(1);
 
       let resendLabel = await waitFor(() =>
-        screen.queryAllByText(/Resend invitation to people pending to sign/)
+        screen.queryAllByText(/Send reminders to people pending to sign/)
       );
       expect(resendLabel.length).to.equal(0);
 
+      const dropdownButton = await waitFor(() =>
+        screen.getAllByText(/Other options/)
+      );
+      expect(dropdownButton.length).to.equal(1);
+
+      fireEvent.click(dropdownButton[0]);
+      await flushPromises(rerender, wrapped);
+
       const openResendButton = await waitFor(() =>
-        screen.getAllByTestId("button-open-resend-test1.pdf")
+        screen.getAllByTestId("menu-item-open-resend-test1.pdf")
       );
       expect(openResendButton.length).to.equal(1);
 
@@ -980,7 +815,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       resendLabel = await waitFor(() =>
-        screen.getAllByText(/Resend invitation to people pending to sign/)
+        screen.queryAllByText(/Send reminders to people pending to sign/)
       );
       expect(resendLabel.length).to.equal(1);
 
@@ -998,7 +833,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       // resendLabel = await waitFor(() =>
-      //   screen.getAllByText(/Resend invitation to people pending to sign/)
+      //  screen.queryAllByText(/Send reminders to people pending to sign/)
       // );
       // expect(resendLabel.length).to.equal(0);
     } catch (err) {

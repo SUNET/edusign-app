@@ -14,16 +14,6 @@ webpackKarma.devtool = "inline-source-map";
 webpackKarma.module.rules = [
   {
     test: /\.js$/,
-    use: [{
-      loader: "istanbul-instrumenter-loader",
-      options: {
-        esModules: true,
-      },
-    }],
-    include: path.resolve("src/"),
-  },
-  {
-    test: /\.js$/,
     use: [{ loader: "babel-loader" }],
     exclude: /node_modules/,
   },

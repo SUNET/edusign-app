@@ -846,8 +846,16 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
     await flushPromises(rerender, wrapped);
 
+    const dropdownButton = await waitFor(() =>
+      screen.getAllByText(/Other options/)
+    );
+    expect(dropdownButton.length).to.equal(1);
+
+    fireEvent.click(dropdownButton[0]);
+    await flushPromises(rerender, wrapped);
+
     const previewButton = await waitFor(() =>
-      screen.getAllByTestId("button-preview-dummy-ref")
+      screen.getAllByTestId("menu-item-preview-test.pdf")
     );
     expect(previewButton.length).to.equal(1);
 
@@ -932,8 +940,16 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
     await flushPromises(rerender, wrapped);
 
+    const dropdownButton = await waitFor(() =>
+      screen.getAllByText(/Other options/)
+    );
+    expect(dropdownButton.length).to.equal(1);
+
+    fireEvent.click(dropdownButton[0]);
+    await flushPromises(rerender, wrapped);
+
     const previewButton = await waitFor(() =>
-      screen.getAllByTestId("button-preview-dummy-ref")
+      screen.getAllByTestId("menu-item-preview-test.pdf")
     );
     expect(previewButton.length).to.equal(1);
 
@@ -1034,8 +1050,16 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
     await flushPromises(rerender, wrapped);
 
+    const dropdownButton = await waitFor(() =>
+      screen.getAllByText(/Other options/)
+    );
+    expect(dropdownButton.length).to.equal(1);
+
+    fireEvent.click(dropdownButton[0]);
+    await flushPromises(rerender, wrapped);
+
     const previewButton = await waitFor(() =>
-      screen.getAllByTestId("button-preview-dummy-ref")
+      screen.getAllByTestId("menu-item-preview-test.pdf")
     );
     expect(previewButton.length).to.equal(1);
 
@@ -1547,10 +1571,10 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
       })
     );
 
-    const buttonPreview = await waitFor(() =>
-      screen.getAllByTestId("button-preview-dummy-ref")
+    const buttonDropdown = await waitFor(() =>
+      screen.getAllByText(/Other options/)
     );
-    expect(buttonPreview.length).to.equal(1);
+    expect(buttonDropdown.length).to.equal(1);
 
     const buttonRemove = await waitFor(() =>
       screen.getAllByTestId("rm-button-test.pdf")

@@ -8,6 +8,7 @@ import "styles/Dropdown.scss";
 
 class ESDropdown extends React.Component {
   render() {
+    const buttonId = "dropdown-" + this.props.doc.key || this.props.doc.name;
     return (
       <DropdownButton
         title={this.props.intl.formatMessage({
@@ -19,7 +20,8 @@ class ESDropdown extends React.Component {
         size="sm"
         menuAlign="right"
         disabling={true}
-        id={"dropdown-" + this.props.doc.key || this.props.doc.name}
+        id={buttonId}
+        data-testid={buttonId}
         {...this.props}
       >
         {this.props.children}

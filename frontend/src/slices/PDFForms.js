@@ -110,7 +110,7 @@ export const sendPDFForm = createAsyncThunk(
 );
 
 const pdfFormSlice = createSlice({
-  name: "pdfforms",
+  name: "pdfform",
   initialState: {
     document: null,
   },
