@@ -10,7 +10,6 @@ module.exports = function(api) {
     ],
     "@babel/plugin-proposal-object-rest-spread",
     "@babel/plugin-transform-flow-strip-types",
-    "react-hot-loader/babel",
     "transform-class-properties",
     [
       "react-intl-auto",
