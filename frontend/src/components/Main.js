@@ -8,6 +8,7 @@ import FooterContainer from "containers/Footer";
 import DnDAreaContainer from "containers/DnDArea";
 import DocManagerContainer from "containers/DocManager";
 import PollContainer from "containers/Poll";
+import { appIsRendered } from "init-app/init-app";
 
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "styles/reset.scss";
@@ -21,6 +22,11 @@ import "styles/Main.scss";
  * @component
  */
 class Main extends Component {
+
+  componentDidMount() {
+    appIsRendered();
+  }
+
   render() {
     const panelId = "panel-" + this.props.size;
     return (
