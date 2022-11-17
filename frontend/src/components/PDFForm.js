@@ -224,7 +224,7 @@ class PDFForm extends React.Component {
                 throw new Error("Never password");
               }}
               options={{
-                cMapUrl: "/js/cmaps/",
+                cMapUrl: "cmaps/",
                 cMapPacked: true,
                 enableXfa: true,
               }}
