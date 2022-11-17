@@ -102,11 +102,8 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'node_modules/pdfjs-dist/cmaps/',
+          from: path.join(path.dirname(require.resolve('pdfjs-dist/package.json')), 'cmaps'),
           to: 'cmaps/'
-        },
-        {
-          from: 'node_modules/pdfjs-dist/build/',
         },
       ]
     }),
