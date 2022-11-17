@@ -123,6 +123,10 @@ class PDFForm extends React.Component {
     }
   }
 
+  resetValues() {
+    this.setState({ values: {} });
+  }
+
   render() {
     if (!this.props.show) return "";
     return (

@@ -460,6 +460,9 @@ export const createDocument = createAsyncThunk(
     try {
       // Now we add the document, first to the redux store, then to the IndexedDB database
       thunkAPI.dispatch(documentsSlice.actions.addDocument(doc));
+      document
+        .getElementById(`local-doc-${doc.name}`)
+        .scrollIntoView({ behavior: "smooth", block: "center" });
       newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn);
     } catch (err) {
       // If there was an error saving the document, we mark it as so,
