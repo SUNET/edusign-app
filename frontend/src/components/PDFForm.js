@@ -12,6 +12,7 @@ import { validateNewname } from "components/InviteForm";
 import "styles/DocPreview.scss";
 import "styles/PDFForm.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+import 'react-pdf/dist/esm/Page/TextLayer.css';
 
 const initValues = (props) => ({ newfname: nameForCopy(props) });
 
@@ -72,6 +73,26 @@ class PDFForm extends React.Component {
     this.restoreValues();
   }
 
+  async componentDidMount() {
+    const pdf = this.state.docRef.current.state.pdf;
+    const page = await pdf.getPage(this.state.pageNumber);
+    const annotations = await page.getAnnotations();
+    annotations.forEach((ann) => {
+      if (ann.subtype === "Widget") {
+        const elem = document.getElementById(`pdfjs_internal_id_${ann.id}`);
+        if (elem && ann.checkBox) {
+          elem.addEventListener('click', (e) => {
+            const checked = e.target.checked;
+            setTimeout(() => {
+              e.target.checked = !checked;
+            }, 50);
+          });
+        }
+      }
+    });
+    this.setState({ values: { ...this.state.values, ...values } });
+  }
+
   async collectValues() {
     const pdf = this.state.docRef.current.state.pdf;
     const page = await pdf.getPage(this.state.pageNumber);
@@ -81,7 +102,7 @@ class PDFForm extends React.Component {
     annotations.forEach((ann) => {
       if (ann.subtype === "Widget") {
         let val;
-        const elem = document.getElementById(ann.id);
+        const elem = document.getElementById(`pdfjs_internal_id_${ann.id}`);
         if (elem) {
           if (ann.checkBox) {
             val = elem.checked ? "on" : "off";
@@ -109,7 +130,7 @@ class PDFForm extends React.Component {
 
   restoreValues() {
     for (const key in this.state.values) {
-      const elem = document.getElementById(key);
+      const elem = document.getElementById(`pdfjs_internal_id_${key}`);
 
       if (elem) {
         if (elem.type === "checkbox") {
@@ -193,7 +214,7 @@ class PDFForm extends React.Component {
                 throw new Error("Never password");
               }}
               options={{
-                cMapUrl: "/js/cmaps/",
+                cMapUrl: "cmaps/",
                 cMapPacked: true,
                 enableXfa: true,
               }}
@@ -202,14 +223,14 @@ class PDFForm extends React.Component {
                 <Page
                   pageNumber={this.state.pageNumber}
                   width={this.props.width - 20}
-                  renderInteractiveForms={true}
+                  renderForms={true}
                   renderAnnotationLayer={true}
                   onRenderSuccess={this.restoreValues.bind(this)}
                 />
               )) || (
                 <Page
                   pageNumber={this.state.pageNumber}
-                  renderInteractiveForms={true}
+                  renderForms={true}
                   renderAnnotationLayer={true}
                   onRenderSuccess={this.restoreValues.bind(this)}
                 />
