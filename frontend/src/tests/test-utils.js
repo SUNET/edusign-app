@@ -134,7 +134,7 @@ export function mockFileData(files) {
  * @desc rerender component in tests after dispatching a Redux action or firing an event.
  */
 export async function flushPromises(rerender, ui) {
-  await act(() => waitFor(() => rerender(ui)));
+  await waitFor(() => rerender(ui));
 }
 
 /**

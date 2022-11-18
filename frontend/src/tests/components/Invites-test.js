@@ -1,11 +1,10 @@
 import React from "react";
-import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
+import { act, screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { expect } from "chai";
 import fetchMock from "fetch-mock";
 
 import {
   setupReduxComponent,
-  flushPromises,
   b64SamplePDFData,
   samplePDFData,
 } from "tests/test-utils";
@@ -13,6 +12,10 @@ import Main from "components/Main";
 import { createDocument, saveTemplate, setState } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
 import { resetDb } from "init-app/database";
+
+async function flushPromises(rerender, ui) {
+  await act(() => waitFor(() => rerender(ui)));
+}
 
 describe("Multi sign invitations", function () {
   beforeEach(async () => {
@@ -1323,10 +1326,13 @@ describe("Multi sign invitations", function () {
             owned_multisign: [
               {
                 name: "test1.pdf",
+                created: "1668768051000.0",
                 type: "application/pdf",
                 state: "selected",
                 size: 1500,
                 key: "11111111-1111-1111-1111-111111111111",
+                loa: "none",
+                prev_signatures: "",
                 signed: [
                   {
                     name: "Tester Invited1",
@@ -1367,6 +1373,9 @@ describe("Multi sign invitations", function () {
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
         })
       );
+      await flushPromises(rerender, wrapped);
+
+      store.dispatch(setState({ name: "test1.pdf", state: "selected" }));
       await flushPromises(rerender, wrapped);
 
       const signButton = await waitFor(() =>

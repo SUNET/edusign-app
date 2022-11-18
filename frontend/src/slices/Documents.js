@@ -1128,16 +1128,16 @@ export const downloadAllSigned = createAsyncThunk(
         return doc.state === "signed";
       })
     );
-    let zip = new JSZip();
-    let folder = zip.folder("signed");
-    docs.forEach((doc) => {
+    const zip = await new JSZip();
+    const folder = await zip.folder("signed");
+    await docs.forEach(async (doc) => {
       const b64content = doc.signedContent.split(",")[1];
       const blob = b64toBlob(b64content);
       const newName = nameForDownload(doc.name, 'signed');
-      folder.file(newName, blob);
+      await folder.file(newName, blob);
     });
-    zip.generateAsync({ type: "blob" }).then(function (content) {
-      FileSaver.saveAs(content, "signed.zip");
+    await zip.generateAsync({ type: "blob" }).then(async function (content) {
+      await FileSaver.saveAs(content, "signed.zip");
     });
   }
 );
