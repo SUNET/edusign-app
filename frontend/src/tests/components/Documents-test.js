@@ -504,6 +504,7 @@ describe("Document representations", function () {
     await downloadsZIPAfterGettingTheSignedDocs({
       payload: {
         available_loas: [],
+        unauthn: false,
         signer_attributes: {
           name: "Tester Testig",
           eppn: "tester@example.org",
@@ -519,6 +520,7 @@ describe("Document representations", function () {
       payload: {
         size: "sm",
         available_loas: [],
+        unauthn: false,
         signer_attributes: {
           name: "Tester Testig",
           eppn: "tester@example.org",
@@ -1710,34 +1712,8 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
     );
     await flushPromises(rerender, wrapped);
 
-    store.dispatch(setState({ name: "test.pdf", state: "selected" }));
+    store.dispatch(setState({ name: "test.pdf", state: "signed" }));
     await flushPromises(rerender, wrapped);
-
-    const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf")
-    );
-    expect(selector.length).to.equal(1);
-
-    const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents")
-    );
-    expect(signButton.length).to.equal(1);
-
-    fireEvent.click(signButton[0]);
-    await flushPromises(rerender, wrapped);
-
-    const signHolder = window.document.createElement("div");
-    signHolder.setAttribute("id", "sign-response-holder");
-    signHolder.setAttribute("data-signresponse", "dummy sign response");
-    signHolder.setAttribute("data-relaystate", "dummy relay state");
-    const body = window.document.getElementsByTagName("body")[0];
-    body.appendChild(signHolder);
-
-    await store.dispatch(
-      loadDocuments({
-        intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
-    );
 
     const buttonDlAll = await waitFor(() =>
       screen.getAllByTestId("button-dlall")
