@@ -794,6 +794,7 @@ export const startSigningDocuments = createAsyncThunk(
       thunkAPI.dispatch(updateSigningForm(formData));
       // Catch errors and inform the user, and update the state with that information.
     } catch (err) {
+      console.log('Error starting signing', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -963,6 +964,7 @@ export const restartSigningDocuments = createAsyncThunk(
         await thunkAPI.dispatch(checkStoredDocuments());
       }
     } catch (err) {
+      console.log('Error restarting signing', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -1071,6 +1073,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
     });
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
+      console.log('Error fetching signed docs', err);
     // In case of errors, notify the user, and update the state.
     thunkAPI.dispatch(
       addNotification({
