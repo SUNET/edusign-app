@@ -16,7 +16,7 @@ class ESDropdown extends React.Component {
         className="button-dropdown-flex-item"
         variant="outline-dark"
         size="sm"
-        align="end"
+        align="right"
         disabling={true}
         id={buttonId}
         data-testid={buttonId}
