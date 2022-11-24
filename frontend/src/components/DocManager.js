@@ -39,6 +39,18 @@ class DocManager extends React.Component {
     return !nextProps.inviting;
   }
 
+  componentDidUpdate() {
+    const form = document.getElementById("signing-form");
+    if (form) {
+      if (form.requestSubmit) {
+        form.requestSubmit();
+      } else {
+        // Safari does not implement the requestSubmit API
+        form.submit();
+      }
+    }
+  }
+
   render() {
     let disableSigning = true;
     let disableDlAllButton = true;

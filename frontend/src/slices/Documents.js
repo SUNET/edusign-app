@@ -772,19 +772,16 @@ export const startSigningDocuments = createAsyncThunk(
 
         throw new Error(data.message);
       }
-      delete data.payload.documents;
+      const formData = {
+        ...data.payload,
+      };
+      delete formData.documents;
 
-      // Update the form for the sign service, and submit it
-      thunkAPI.dispatch(updateSigningForm(data.payload));
-      const form = document.getElementById("signing-form");
-      if (form.requestSubmit) {
-        form.requestSubmit();
-      } else {
-        // Safari does not implement the requestSubmit API
-        form.submit();
-      }
+      // Update the form for the sign service
+      thunkAPI.dispatch(updateSigningForm(formData));
       // Catch errors and inform the user, and update the state with that information.
     } catch (err) {
+      console.log('Error starting signing', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -799,9 +796,12 @@ export const startSigningDocuments = createAsyncThunk(
         id: "problem-signing",
       });
       thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
-      await data.payload.documents.forEach(async (doc) => {
-        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
-      });
+      if (data.payload.documents !== undefined) {
+        await data.payload.documents.forEach(async (doc) => {
+          await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+        });
+      }
+      return thunkAPI.rejectWithValue(err.toString());
     }
   }
 );
@@ -937,18 +937,14 @@ export const restartSigningDocuments = createAsyncThunk(
       // since it is not going to be needed - it is only needed after coming back from the
       // sign service / IdP.
       if (data.payload.documents.length > 0) {
-        delete data.payload.documents;
-        thunkAPI.dispatch(updateSigningForm(data.payload));
-        const form = document.getElementById("signing-form");
-        if (form.requestSubmit) {
-          form.requestSubmit();
-        } else {
-          form.submit();
-        }
+        const formData = { ...data.payload };
+        delete formData.documents;
+        thunkAPI.dispatch(updateSigningForm(formData));
       } else {
         await thunkAPI.dispatch(checkStoredDocuments());
       }
     } catch (err) {
+      console.log('Error restarting signing', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -1057,6 +1053,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
     });
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
+      console.log('Error fetching signed docs', err);
     // In case of errors, notify the user, and update the state.
     thunkAPI.dispatch(
       addNotification({
