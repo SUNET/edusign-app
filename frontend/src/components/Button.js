@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import BButton from "react-bootstrap/Button";
 import BDropdownButton from "react-bootstrap/DropdownButton";
-import BDropdownItem from "react-bootstrap/DropdownItem";
 import { Spinner } from "spin.js";
 
 import "../../node_modules/spin.js/spin.css";

@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
-import Check from "react-bootstrap/FormCheck";
 
 import "styles/Footer.scss";
 
