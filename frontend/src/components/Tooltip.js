@@ -17,6 +17,7 @@ class Tooltip extends Component {
       handleToggleOverlay,
       helpId,
       inModal,
+      children,
       ...props
     } = this.props;
     let klass = "";
@@ -36,7 +37,9 @@ class Tooltip extends Component {
             {tooltip}
           </BTooltip>
         }
-      />
+      >
+        {children}
+      </BOverlayTrigger>
     );
   }
 }
