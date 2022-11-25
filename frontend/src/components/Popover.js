@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import BOverlayTrigger from "react-bootstrap/OverlayTrigger";
 import BPopover from "react-bootstrap/Popover";
-import PopoverContent from "react-bootstrap/PopoverContent";
-import PopoverTitle from "react-bootstrap/PopoverTitle";
+import PopoverBody from "react-bootstrap/PopoverBody";
+import PopoverHeader from "react-bootstrap/PopoverHeader";
 
 /**
  * @desc Overlay trigger with popover
@@ -36,8 +36,8 @@ class Popover extends Component {
         onToggle={handleToggleOverlay(helpId)}
         overlay={
           <BPopover placement="auto" className={klass} {...props}>
-            <PopoverTitle>{title}</PopoverTitle>
-            <PopoverContent>{body}</PopoverContent>
+            <PopoverHeader>{title}</PopoverHeader>
+            <PopoverBody>{body}</PopoverBody>
           </BPopover>
         }
       />

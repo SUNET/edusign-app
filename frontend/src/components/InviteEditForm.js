@@ -204,7 +204,7 @@ class InviteEditForm extends React.Component {
           validateOnBlur={true}
           validateOnChange={true}
           validateOnMount={true}
-          isInitialValid={true}
+          initialErrors={{}}
         >
           {(fprops) => (
             <Modal
