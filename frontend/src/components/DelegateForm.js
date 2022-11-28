@@ -60,7 +60,7 @@ class DelegateForm extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                   <div className="delegation-form-name">
-                    <BForm.Group>
+                    <BForm.Group className="form-group">
                       <BForm.Label htmlFor="delegation-name-input">
                         <FormattedMessage
                           defaultMessage="Name"
@@ -92,7 +92,7 @@ class DelegateForm extends React.Component {
                     </BForm.Group>
                   </div>
                   <div className="delegation-form-email">
-                    <BForm.Group>
+                    <BForm.Group className="form-group">
                       <BForm.Label htmlFor="delegation-email-input">
                         <FormattedMessage
                           defaultMessage="Email"
