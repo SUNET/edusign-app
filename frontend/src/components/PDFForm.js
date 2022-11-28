@@ -182,7 +182,7 @@ class PDFForm extends React.Component {
               {(fprops) => (
                 <Form data-testid={"newfname-form-" + this.props.doc.name}>
                   <div className="newfname-text-holder">
-                    <BForm.Group className="newfname-text-group">
+                    <BForm.Group className="newfname-text-group form-group">
                       <BForm.Label
                         className="newfname-text-label"
                         htmlFor="newfname"

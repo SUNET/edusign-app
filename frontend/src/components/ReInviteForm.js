@@ -49,7 +49,7 @@ class ReInviteForm extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                   <div className="re-invitation-text-holder">
-                    <BForm.Group className="re-invitation-text-group">
+                    <BForm.Group className="re-invitation-text-group form-group">
                       <BForm.Label
                         className="re-invitation-text-label"
                         htmlFor="re-invitation-text-input"
