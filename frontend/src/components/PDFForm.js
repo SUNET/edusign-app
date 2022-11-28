@@ -169,7 +169,7 @@ class PDFForm extends React.Component {
           size="lg"
           centered
         >
-          <Modal.Header closeButton>
+          <Modal.Header closeButton className="pdf-form-header">
             <Formik
               innerRef={this.state.formRef}
               initialValues={initValues(this.props)}
