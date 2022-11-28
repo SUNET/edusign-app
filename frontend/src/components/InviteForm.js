@@ -164,7 +164,7 @@ class InviteForm extends React.Component {
                   )}
                   <div className="invitee-form-row" key={index}>
                     <div className="invitee-form-name">
-                      <BForm.Group>
+                      <BForm.Group className="form-group">
                         <BForm.Label htmlFor={`invitees.${index}.name`}>
                           <FormattedMessage
                             defaultMessage="Name"
@@ -206,7 +206,7 @@ class InviteForm extends React.Component {
                       </BForm.Group>
                     </div>
                     <div className="invitee-form-email">
-                      <BForm.Group>
+                      <BForm.Group className="form-group">
                         <BForm.Label htmlFor={`invitees.${index}.email`}>
                           <FormattedMessage
                             defaultMessage="Email"
@@ -284,7 +284,7 @@ class InviteForm extends React.Component {
   render() {
     const sendsignedControl = (
       <div className="sendsigned-choice-holder">
-        <BForm.Group className="sendsigned-choice-group">
+        <BForm.Group className="sendsigned-choice-group form-group">
           <ESTooltip
             helpId="sendsigned-choice-input"
             inModal={true}
@@ -326,7 +326,7 @@ class InviteForm extends React.Component {
     const loaControl = (
       <>
         <div className="loa-select-holder">
-          <BForm.Group className="loa-select-group">
+          <BForm.Group className="loa-select-group form-group">
             <BForm.Label
               className="loa-select-label"
               htmlFor="loa-select-input"
@@ -368,7 +368,7 @@ class InviteForm extends React.Component {
         return (
           <>
             <div className="newname-text-holder">
-              <BForm.Group className="newname-text-group">
+              <BForm.Group className="newname-text-group form-group">
                 <BForm.Label
                   className="newname-text-label"
                   htmlFor="newnameInput"
@@ -438,7 +438,7 @@ class InviteForm extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                   <div className="invitation-text-holder">
-                    <BForm.Group className="invitation-text-group">
+                    <BForm.Group className="invitation-text-group form-group">
                       <BForm.Label
                         className="invitation-text-label"
                         htmlFor="invitation-text-input"

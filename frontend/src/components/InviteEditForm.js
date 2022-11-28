@@ -82,7 +82,7 @@ class InviteEditForm extends React.Component {
                   </div>
                   <div className="invitee-form-row" key={index}>
                     <div className="invitee-form-name">
-                      <BForm.Group>
+                      <BForm.Group className="form-group">
                         <BForm.Label htmlFor={`invitees.${index}.name`}>
                           <FormattedMessage
                             defaultMessage="Name"
@@ -124,7 +124,7 @@ class InviteEditForm extends React.Component {
                       </BForm.Group>
                     </div>
                     <div className="invitee-form-email">
-                      <BForm.Group>
+                      <BForm.Group className="form-group">
                         <BForm.Label htmlFor={`invitees.${index}.email`}>
                           <FormattedMessage
                             defaultMessage="Email"
@@ -230,7 +230,7 @@ class InviteEditForm extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                   <div className="invitation-text-holder">
-                    <BForm.Group className="invitation-text-group">
+                    <BForm.Group className="invitation-text-group form-group">
                       <BForm.Label
                         className="invitation-text-label"
                         htmlFor="invitation-text-input"
