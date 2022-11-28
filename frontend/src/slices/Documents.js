@@ -781,7 +781,6 @@ export const startSigningDocuments = createAsyncThunk(
       thunkAPI.dispatch(updateSigningForm(formData));
       // Catch errors and inform the user, and update the state with that information.
     } catch (err) {
-      console.log('Error starting signing', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -889,8 +888,15 @@ export const restartSigningDocuments = createAsyncThunk(
       // and message (reason for failure).
       // Update the document data with this info, and then store it in local storage.
       // The document data that we keep in local storage is that regarding invitations
-      // (both form the usert and to the user), since the data regarding non-invitation
+      // (both from the user and to the user), since the data regarding non-invitation
       // documents is already kept locally, in IndexedDB.
+      docsToSign.local.forEach((doc) => {
+        data.payload.failed.forEach((failed) => {
+          if (doc.key === failed.key) {
+            thunkAPI.dispatch(documentsSlice.actions.setState({name: doc.name, ...failed}));
+          }
+        });
+      });
       docsToSign.owned = docsToSign.owned.map((doc) => {
         let isFailed = false;
         data.payload.failed.forEach((failed) => {
@@ -944,7 +950,6 @@ export const restartSigningDocuments = createAsyncThunk(
         await thunkAPI.dispatch(checkStoredDocuments());
       }
     } catch (err) {
-      console.log('Error restarting signing', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -1053,7 +1058,6 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
     });
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
-      console.log('Error fetching signed docs', err);
     // In case of errors, notify the user, and update the state.
     thunkAPI.dispatch(
       addNotification({
