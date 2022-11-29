@@ -10,7 +10,7 @@ import {
   extractCsrfToken,
   preparePayload,
 } from "slices/fetch-utils";
-import { setState, createDocument } from "slices/Documents";
+import { setState, createDocument, addDocument } from "slices/Documents";
 import { setTemplateFormSchema } from "slices/Templates";
 import { showForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
@@ -90,6 +90,7 @@ export const sendPDFForm = createAsyncThunk(
       created: Date.now(),
       state: "loading",
     };
+    thunkAPI.dispatch(addDocument(newDoc));
     await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
   }
 );

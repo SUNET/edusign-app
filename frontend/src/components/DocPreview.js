@@ -4,6 +4,7 @@ import { FormattedMessage } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
+import { preparePDF } from "components/utils";
 
 import "styles/DocPreview.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -13,6 +14,10 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
  * @component
  */
 function DocPreview(props) {
+  if (!props.doc.blob) return '';
+
+  const docFile = preparePDF(props.doc);
+
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
 
@@ -54,7 +59,7 @@ function DocPreview(props) {
 
         <Modal.Body>
           <Document
-            file={props.docFile}
+            file={docFile}
             onLoadSuccess={onDocumentLoadSuccess}
             onPassword={(c) => {
               throw new Error("Never password");
@@ -147,7 +152,6 @@ DocPreview.propTypes = {
    */
   handleClose: PropTypes.func,
   doc: PropTypes.object,
-  docFile: PropTypes.object,
 };
 
 export default DocPreview;

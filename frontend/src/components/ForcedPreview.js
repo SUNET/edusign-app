@@ -6,6 +6,7 @@ import Button from "containers/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
 import { ESTooltip } from "containers/Overlay";
+import { preparePDF } from "components/utils";
 
 import "styles/DocPreview.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -15,6 +16,10 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
  * @component
  */
 function ForcedPreview(props) {
+  if (!props.doc.blob) return '';
+
+  const docFile = preparePDF(props.doc);
+
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [readyToConfirm, setReady] = useState(false);
@@ -63,7 +68,7 @@ function ForcedPreview(props) {
 
         <Modal.Body>
           <Document
-            file={props.docFile}
+            file={docFile}
             onLoadSuccess={onDocumentLoadSuccess}
             onPassword={(c) => {
               throw new Error("Never password");
@@ -208,7 +213,6 @@ ForcedPreview.propTypes = {
   handleConfirm: PropTypes.func,
   handleUnConfirm: PropTypes.func,
   doc: PropTypes.object,
-  docFile: PropTypes.object,
   index: PropTypes.string,
 };
 

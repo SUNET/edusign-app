@@ -8,7 +8,6 @@ import DocPreviewContainer from "containers/DocPreview";
 import InviteFormContainer from "containers/InviteForm";
 import OwnedContainer from "containers/Owned";
 import InvitedContainer from "containers/Invited";
-import { preparePDF } from "components/utils";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 import DocumentLocal from "components/DocumentLocal";
 import DocumentTemplate from "components/DocumentTemplate";
@@ -92,7 +91,6 @@ class DocManager extends React.Component {
                   />
                 </legend>
                 {this.props.templates.map((doc, index) => {
-                  const docFile = preparePDF(doc);
                   return (
                     <React.Fragment key={index}>
                       <DocumentTemplate key={index} doc={doc} {...this.props} />
@@ -114,7 +112,6 @@ class DocManager extends React.Component {
                       />
                       <DocPreviewContainer
                         doc={doc}
-                        docFile={docFile}
                         handleClose={this.props.handleCloseTemplatePreview}
                       />
                       <InviteFormContainer
@@ -139,17 +136,6 @@ class DocManager extends React.Component {
                   disableClearButton = false;
                   if (doc.state === "signed") {
                     disableDlAllButton = false;
-                  }
-                  const docFile = preparePDF(doc);
-                  if (docFile === null) {
-                    doc = {
-                      ...doc,
-                      state: "failed-loading",
-                      message: this.props.intl.formatMessage({
-                        defaultMessage: "Malformed PDF",
-                        id: "malformed-pdf",
-                      }),
-                    };
                   }
                   if (doc.state === "selected") disableSigning = false;
 
@@ -180,7 +166,6 @@ class DocManager extends React.Component {
                           />
                           <DocPreviewContainer
                             doc={doc}
-                            docFile={docFile}
                             handleClose={this.props.handleClosePreview}
                           />
                         </>
@@ -199,7 +184,6 @@ class DocManager extends React.Component {
                       {doc.state === "unconfirmed" && (
                         <ForcedPreviewContainer
                           doc={doc}
-                          docFile={docFile}
                           index={doc.name}
                           handleClose={this.props.handleCloseForcedPreview}
                           handleConfirm={this.props.handleConfirmForcedPreview}
@@ -216,7 +200,6 @@ class DocManager extends React.Component {
                       ].includes(doc.state) && (
                         <DocPreviewContainer
                           doc={doc}
-                          docFile={docFile}
                           handleClose={this.props.handleClosePreview}
                         />
                       )}

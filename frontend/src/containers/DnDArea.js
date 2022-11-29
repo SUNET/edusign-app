@@ -11,7 +11,7 @@
 import { connect } from "react-redux";
 
 import DnDArea from "components/DnDArea";
-import { createDocument } from "slices/Documents";
+import { createDocument, addDocument } from "slices/Documents";
 import { setWaiting, setLoading, setReceiving } from "slices/DnDArea";
 import { addNotification } from "slices/Notifications";
 
@@ -39,9 +39,10 @@ const mapDispatchToProps = (dispatch) => {
             name: fileObj.name,
             size: fileObj.size,
             type: fileObj.type,
-            blob: null,
             created: Date.now(),
+            state: 'loading',
           };
+          dispatch(addDocument(file));
           const reader = new FileReader();
           reader.onload = async () => {
             const updatedFile = {
@@ -63,10 +64,12 @@ const mapDispatchToProps = (dispatch) => {
             );
             dispatch(addNotification({ level: "danger", message: errorMsg }));
             file.state = "failed-loading";
+            file.blob = null;
             file.message = intl.formatMessage({
               defaultMessage: "Document could not be loaded",
               id: "dnd-doc-not-loaded",
             });
+            dispatch(addDocument(file));
             await dispatch(createDocument({ doc: file, intl: intl }));
             dispatch(setWaiting());
           };
@@ -86,7 +89,6 @@ const mapDispatchToProps = (dispatch) => {
             { name: rejected.file.name, type: rejected.file.type }
           );
           dispatch(addNotification({ level: "danger", message: errorMsg }));
-          dispatch(updateDocumentFail({ name: rejected.file.name }));
         });
       };
     },
