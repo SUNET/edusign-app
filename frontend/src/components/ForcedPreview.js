@@ -6,7 +6,6 @@ import Button from "containers/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
 import { ESTooltip } from "containers/Overlay";
-import { preparePDF } from "components/utils";
 
 import "styles/DocPreview.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
@@ -16,29 +15,27 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
  * @component
  */
 function ForcedPreview(props) {
-  if (!props.doc.blob) return '';
-
-  const docFile = preparePDF(props.doc);
-
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [readyToConfirm, setReady] = useState(false);
 
+  if (props.docFile === null) return '';
+
   function onDocumentLoadSuccess({ numPages }) {
     if (numPages === 1) setReady(true);
+    console.log('load success', readyToConfirm, numPages);
     setNumPages(numPages);
   }
 
   function changePage(offset) {
-    setPageNumber((prevPageNumber) => {
-      const newPage = prevPageNumber + offset;
-      if (newPage === numPages) setReady(true);
-      return newPage;
-    });
+    const newPage = pageNumber + offset;
+    setPageNumber(newPage);
+    if (newPage === numPages) setReady(true);
+    console.log('page changed', readyToConfirm, newPage, numPages);
   }
 
   function firstPage() {
-    setPageNumber((prevPageNumber) => 1);
+    setPageNumber(1);
   }
 
   function previousPage() {
@@ -51,7 +48,7 @@ function ForcedPreview(props) {
 
   function lastPage() {
     setReady(true);
-    setPageNumber((prevPageNumber) => numPages);
+    setPageNumber(numPages);
   }
 
   return (
@@ -68,7 +65,7 @@ function ForcedPreview(props) {
 
         <Modal.Body>
           <Document
-            file={docFile}
+            file={props.docFile}
             onLoadSuccess={onDocumentLoadSuccess}
             onPassword={(c) => {
               throw new Error("Never password");
@@ -213,6 +210,7 @@ ForcedPreview.propTypes = {
   handleConfirm: PropTypes.func,
   handleUnConfirm: PropTypes.func,
   doc: PropTypes.object,
+  docFile: PropTypes.object,
   index: PropTypes.string,
 };
 

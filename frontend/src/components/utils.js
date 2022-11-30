@@ -40,32 +40,6 @@ export const b64toBlob = (
 
 /**
  * @public
- * @function preparePDF
- * @desc Prepare PDF data for react-pdf's Document
- *
- */
-export const preparePDF = (doc) => {
-  return docToFile(doc);
-};
-export const preparePDF1 = (doc) => {
-  return { url: doc.blob };
-};
-export const preparePDF2 = (doc) => {
-  const byteCharacters = atob(doc.blob.split(",")[1]);
-  const byteNumbers = new Array(byteCharacters.length);
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
-  }
-
-  return { data: new Uint8Array(byteNumbers) };
-};
-export const preparePDF3 = (doc) => {
-  return { data: atob(doc.blob.split(",")[1]) };
-};
-
-//
-/**
- * @public
  * @function humanFileSize
  * @desc Convert file size from number of bytes (int) to human readable string
  *
@@ -102,6 +76,9 @@ export function humanFileSize(bytes, si = false, dp = 1) {
  *
  */
 export function docToFile(doc) {
+  if (doc.blob === undefined) {
+    return undefined;
+  }
   let newFile = null;
   try {
     const fileContents = b64toBlob(doc.blob.split(",")[1], doc.type);
@@ -110,7 +87,7 @@ export function docToFile(doc) {
     });
     return newFile;
   } catch (err) {
-    return null;
+    return newFile;
   }
 }
 
