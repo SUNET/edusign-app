@@ -154,8 +154,8 @@ const mapDispatchToProps = (dispatch, props) => {
       return () => {
         dispatch(disablePolling());
         dispatch(setActiveId("dummy-help-id"));
-        dispatch(unsetActiveId());
         dispatch(showForcedPreview(key));
+        dispatch(unsetSpinning());
       };
     },
     handleCloseForcedPreview: function (name) {
