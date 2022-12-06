@@ -355,6 +355,9 @@ msgid ""
 "%(invited_name)s &lt;%(invited_email)s&gt; has signed the document "
 "\"%(document_name)s\".\n"
 msgstr ""
+"\n"
+"%(invited_name)s &lt;%(invited_email)s&gt; ha firmado el documento "
+"\"%(document_name)s\".\n"
 
 #: src/edusign_webapp/templates/final_signed_by_email.txt.jinja2:3
 #: src/edusign_webapp/templates/signed_by_email.txt.jinja2:3
@@ -364,10 +367,13 @@ msgid ""
 "%(invited_name)s <%(invited_email)s> has signed the document "
 "\"%(document_name)s\".\n"
 msgstr ""
+"\n"
+"%(invited_name)s <%(invited_email)s> ha firmado el documento "
+"\"%(document_name)s\".\n"
 
 #: src/edusign_webapp/templates/home.jinja2:8
 msgid "eduSign - Secure digital signature"
-msgstr ""
+msgstr "eduSign - Firma digital segura"
 
 #: src/edusign_webapp/templates/invitation_email.html.jinja2:11
 #, python-format
@@ -376,6 +382,9 @@ msgid ""
 "You have been invited by %(inviter_name)s &lt;%(inviter_email)s&gt;,\n"
 "to digitally sign a document named \"%(document_name)s\".\n"
 msgstr ""
+"\n"
+"%(inviter_name)s &lt;%(inviter_email)s&gt; te ha invitado \n"
+"a firmar digitalmente el documento \"%(document_name)s\".\n"
 
 #: src/edusign_webapp/templates/invitation_email.html.jinja2:20
 #: src/edusign_webapp/templates/invitation_email.txt.jinja2:8
@@ -386,6 +395,8 @@ msgid ""
 "\n"
 "Message from %(inviter_name)s:\n"
 msgstr ""
+"\n"
+"Mensaje de %(inviter_name)s:\n"
 
 #: src/edusign_webapp/templates/invitation_email.html.jinja2:32
 #: src/edusign_webapp/templates/invitation_email.txt.jinja2:15
@@ -395,6 +406,8 @@ msgid ""
 "\n"
 "Follow this link to preview and sign the document:\n"
 msgstr ""
+"\n"
+"Sigue este enlace para revisar y firmar el documento:\n"
 
 #: src/edusign_webapp/templates/invitation_email.html.jinja2:42
 #: src/edusign_webapp/templates/invitation_email.txt.jinja2:21
@@ -404,6 +417,10 @@ msgid ""
 "department at the organisation that invited you to sign. If you are "
 "unsure how to do that please reach out to the person who invited you.\n"
 msgstr ""
+"\n"
+"Si experimentas problemas con este servicio ponte en contacto con el "
+"departamento de TI de la organización desde la que se te invitó a firmar. "
+"Si no estás seguro ponte en contacto con la persona que te invitó.\n"
 
 #: src/edusign_webapp/templates/invitation_email.txt.jinja2:3
 #, python-format
@@ -412,6 +429,9 @@ msgid ""
 "You have been invited by %(inviter_name)s <%(inviter_email)s>,\n"
 "to digitally sign a document named \"%(document_name)s\".\n"
 msgstr ""
+"\n"
+"%(inviter_name)s <%(inviter_email)s> te ha invitado \n"
+"a firmar digitalmente el documento \"%(document_name)s\".\n"
 
 #: src/edusign_webapp/templates/reminder_email.html.jinja2:11
 #, python-format
@@ -421,6 +441,10 @@ msgid ""
 "&lt;%(inviter_email)s&gt;,\n"
 "to digitally sign a document named \"%(document_name)s\".\n"
 msgstr ""
+"\n"
+"Esto es un recordatorio de que %(inviter_name)s "
+"&lt;%(inviter_email)s&gt; te ha invitado \n"
+"a firmar digitalmente el documento \"%(document_name)s\".\n"
 
 #: src/edusign_webapp/templates/reminder_email.txt.jinja2:3
 #, python-format
@@ -430,6 +454,10 @@ msgid ""
 "<%(inviter_email)s>,\n"
 "to digitally sign a document named \"%(document_name)s\".\n"
 msgstr ""
+"\n"
+"Esto es un recordatorio de que %(inviter_name)s "
+"<%(inviter_email)s> te ha invitado \n"
+"a firmar digitalmente el documento \"%(document_name)s\".\n"
 
 #: src/edusign_webapp/templates/signed_all_email.html.jinja2:11
 #: src/edusign_webapp/templates/signed_all_email.txt.jinja2:3
@@ -439,6 +467,9 @@ msgid ""
 "The document \"%(document_name)s\" is now signed by all parties and "
 "attached to this email.\n"
 msgstr ""
+"\n"
+"El documento \"%(document_name)s\" ha sido firmado por todas las partes "
+"y va adjunto a este correo.\n"
 
 #: src/edusign_webapp/templates/signed_all_email_no_pdf.html.jinja2:11
 #: src/edusign_webapp/templates/signed_all_email_no_pdf.txt.jinja2:3
@@ -447,6 +478,8 @@ msgid ""
 "\n"
 "The document \"%(document_name)s\" is now signed by all parties.\n"
 msgstr ""
+"\n"
+"El documento \"%(document_name)s\" ha sido firmado por todas las partes.\n"
 
 #: src/edusign_webapp/templates/signed_all_email_no_pdf.html.jinja2:17
 #: src/edusign_webapp/templates/signed_all_email_no_pdf.txt.jinja2:7
@@ -455,6 +488,9 @@ msgid ""
 "The person who invited you chose not to send out the signed document "
 "automatically from eduSign.\n"
 msgstr ""
+"\n"
+"The person who invitd you decidión no enviar el documento final firmado "
+"automaticamente desde eduSign.\n"
 
 #~ msgid ""
 #~ "Someone else is signing the document "
