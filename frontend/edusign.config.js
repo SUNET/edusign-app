@@ -2,6 +2,7 @@
 const langs = [
   ["en", "English"],
   ["sv", "Svenska"],
+  ["es", "Español"],
 ];
 
 const messages = {};

@@ -11,7 +11,7 @@
     "debug": "karma start --single-run=false --debug --browser Chrome",
     "coverage": "nyc",
     "serve": "webpack-dev-server --open",
-    "extract-msgs": "extract-messages -l=en,sv -o translations -d en --flat true 'src/**/!(*-test).js'",
+    "extract-msgs": "extract-messages -l=en,sv,es -o translations -d en --flat true 'src/**/!(*-test).js'",
     "prettier": "npx prettier --write src/",
     "build-docs": "jsdoc -c jsdoc.config.json src/"
   },

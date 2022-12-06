@@ -8,6 +8,7 @@ import { edusignStore } from "init-app/init-app";
 const messages = {
   en: require("../../translations/en.json"),
   sv: require("../../translations/sv.json"),
+  es: require("../../translations/es.json"),
 };
 
 const middlewares = [];
