@@ -111,6 +111,7 @@ def add_attributes_to_session(check_whitelisted=True):
                 session['mail_aliases'] = []
 
             session['mail_aliases'] += [m.lower() for m in addresses]
+            session['mail_aliases'] = list(set(session['mail_aliases']))
 
         session['eppn'] = eppn
         try:
