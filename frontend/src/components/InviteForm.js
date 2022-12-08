@@ -11,7 +11,7 @@ import { nameForCopy } from "components/utils";
 
 import "styles/InviteForm.scss";
 
-export const validateEmail = (mail) => {
+export const validateEmail = (mail, mail_aliases) => {
   return (value) => {
     let error;
 
@@ -23,7 +23,7 @@ export const validateEmail = (mail) => {
       error = (
         <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
       );
-    } else if (value === mail) {
+    } else if (value === mail || (mail_aliases !== undefined && mail_aliases.includes(value))) {
       error = (
         <FormattedMessage
           defaultMessage="Do not invite yourself"
@@ -94,7 +94,7 @@ const validate = (props) => {
     let errors = {};
     values.invitees.forEach((val, i) => {
       const nameError = validateName(val.name);
-      const emailError = validateEmail(props.mail)(val.email);
+      const emailError = validateEmail(props.mail, props.mail_aliases)(val.email);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
       if (emailError !== undefined) errors[`invitees.${i}.email`] = emailError;
     });
@@ -225,7 +225,7 @@ class InviteForm extends React.Component {
                           placeholder="jane@example.com"
                           as={BForm.Control}
                           type="email"
-                          validate={validateEmail(this.props.mail)}
+                          validate={validateEmail(this.props.mail, this.props.mail_aliases)}
                           isValid={
                             fprops.touched.invitees &&
                             fprops.touched.invitees[index] &&

@@ -25,6 +25,7 @@ const initialState = {
       eppn: "dummy@example.org",
       mail: "dummy@example.org",
       name: "Dummy name",
+      mail_aliases: ["dummy@example.org"],
     },
     available_loas: [],
   },

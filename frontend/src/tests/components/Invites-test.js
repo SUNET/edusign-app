@@ -37,6 +37,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [],
             pending_multisign: [],
@@ -121,6 +122,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [],
             pending_multisign: [],
@@ -227,6 +229,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [],
             pending_multisign: [],
@@ -347,6 +350,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [],
             pending_multisign: [],
@@ -440,6 +444,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [],
             pending_multisign: [],
@@ -580,6 +585,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [
               {
@@ -646,6 +652,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [
               {
@@ -753,6 +760,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [
               {
@@ -858,6 +866,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [
               {
@@ -933,6 +942,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [
               {
@@ -1009,6 +1019,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [
               {
@@ -1089,6 +1100,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [
               {
@@ -1166,6 +1178,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [
               {
@@ -1243,6 +1256,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [],
             available_loas: [],
@@ -1304,6 +1318,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [
               {
@@ -1388,6 +1403,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [
               {
@@ -1472,6 +1488,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [],
             available_loas: [],
@@ -1543,6 +1560,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [],
             available_loas: [],
@@ -1614,6 +1632,7 @@ describe("Multi sign invitations", function () {
               name: "Tester Testig",
               eppn: "tester@example.org",
               mail: "tester@example.org",
+              mail_aliases: ["tester@example.org"],
             },
             owned_multisign: [],
             available_loas: [],

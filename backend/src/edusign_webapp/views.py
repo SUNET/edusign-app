@@ -311,7 +311,7 @@ def get_config() -> dict:
     else:
         payload['unauthn'] = True
 
-    attrs = {'eppn': session['eppn'], "mail": session["mail"]}
+    attrs = {'eppn': session['eppn'], "mail": session["mail"], "mail_aliases": session["mail_aliases"]}
     if 'displayName' in session:
         attrs['name'] = session['displayName']
     else:

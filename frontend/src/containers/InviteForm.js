@@ -28,6 +28,7 @@ const mapStateToProps = (state, props) => {
     size: state.main.size,
     show: show,
     mail: state.main.signer_attributes.mail,
+    mail_aliases: state.main.signer_attributes.mail_aliases,
     loas: state.main.available_loas,
     show_loa: state.inviteform.show_loa_selection,
     inviting: state.inviteform.inviting,

@@ -273,6 +273,7 @@ const mainSlice = createSlice({
     signer_attributes: {
       eppn: "",
       name: "",
+      mail_aliases: [],
     },
     owned_multisign: [],
     pending_multisign: [],
