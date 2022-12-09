@@ -417,8 +417,15 @@ class SqliteMD(ABCMetadata):
             return []
 
         pending = []
+        doc_ids = []
         for invite in invites:
             document_id = invite['doc_id']
+            if document_id in doc_ids:
+                self.rm_invitation(uuid.UUID(invite['key']), uuid.UUID(document_id))
+                continue
+            else:
+                doc_ids.append(document_id)
+
             document = self._db_query(DOCUMENT_QUERY, (document_id,), one=True)
             if document is None or isinstance(document, list):
                 self.logger.error(
