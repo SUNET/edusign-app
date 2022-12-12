@@ -88,7 +88,6 @@ describe("Document representations", function () {
   it("It shows a warning after createDocument action with a password protected document - sm", async () => {
     await showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument({
       payload: {
-        size: "sm",
         available_loas: [],
         signer_attributes: {
           name: "Tester Testig",
@@ -103,7 +102,6 @@ describe("Document representations", function () {
   it("It shows the failed document after wrong createDocument action", async () => {
     await showsTheFailedDocumentAfterWrongCreateDocumentAction({
       payload: {
-        size: "lg",
         available_loas: [],
         signer_attributes: {
           name: "Tester Testig",
@@ -115,7 +113,7 @@ describe("Document representations", function () {
     });
   });
 
-  it("It shows the failed document after wrong createDocument action", async () => {
+  it("It shows the failed document after wrong createDocument action - sm", async () => {
     await showsTheFailedDocumentAfterWrongCreateDocumentAction({
       payload: {
         size: "sm",
@@ -133,6 +131,7 @@ describe("Document representations", function () {
   it("It shows failed loading after createDocument with bad pdf", async () => {
     await showsFailedLoadingAfterCreateDocumentWithBadPdf({
       payload: {
+        size: "lg",
         available_loas: [],
         signer_attributes: {
           name: "Tester Testig",
@@ -147,7 +146,6 @@ describe("Document representations", function () {
   it("It shows failed loading after createDocument with bad pdf - sm", async () => {
     await showsFailedLoadingAfterCreateDocumentWithBadPdf({
       payload: {
-        size: "sm",
         available_loas: [],
         signer_attributes: {
           name: "Tester Testig",
