@@ -69,11 +69,11 @@ const mapDispatchToProps = (dispatch) => {
               defaultMessage: "Document could not be loaded",
               id: "dnd-doc-not-loaded",
             });
-            dispatch(addDocument(file));
+            dispatch(setState(file));
             await dispatch(createDocument({ doc: file, intl: intl }));
             dispatch(setWaiting());
           };
-          reader.readAsDataURL(fileObj);
+          await reader.readAsDataURL(fileObj);
           dispatch(setWaiting());
         });
       };

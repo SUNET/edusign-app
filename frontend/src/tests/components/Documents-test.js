@@ -17,7 +17,7 @@ import {
   sample2pPDFData,
 } from "tests/test-utils";
 import Main from "components/Main";
-import { createDocument, loadDocuments, setState } from "slices/Documents";
+import { createDocument, addDocument, loadDocuments, setState } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
 import { resetDb } from "init-app/database";
 
@@ -73,6 +73,7 @@ describe("Document representations", function () {
   it("It shows a warning after createDocument action with a password protected document", async () => {
     await showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument({
       payload: {
+        size: "lg",
         available_loas: [],
         signer_attributes: {
           name: "Tester Testig",
@@ -102,6 +103,7 @@ describe("Document representations", function () {
   it("It shows the failed document after wrong createDocument action", async () => {
     await showsTheFailedDocumentAfterWrongCreateDocumentAction({
       payload: {
+        size: "lg",
         available_loas: [],
         signer_attributes: {
           name: "Tester Testig",
@@ -608,10 +610,16 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
       const fileObj = new File([samplePasswordPDFData], "test.pdf", {
         type: "application/pdf",
       });
-      const file = {
+      let file = {
         name: fileObj.name,
         size: fileObj.size,
         type: fileObj.type,
+        created: Date.now(),
+        state: 'loading',
+      };
+      store.dispatch(addDocument(file));
+      file = {
+        ...file,
         blob: "data:application/pdf;base64," + b64SamplePasswordPDFData,
         key: "dummy-ref",
       };
@@ -719,10 +727,17 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     let buttonRemove = screen.queryByTestId("rm-button-test.pdf");
     expect(buttonRemove).to.equal(null);
 
-    const file = {
+    let file = {
       name: "test.pdf",
       size: 1500,
       type: "application/pdf",
+      created: Date.now(),
+      state: 'loading',
+    };
+    store.dispatch(addDocument(file));
+
+    file = {
+      ...file,
       blob: "Bad PDF document",
       key: "dummy-ref",
     };
