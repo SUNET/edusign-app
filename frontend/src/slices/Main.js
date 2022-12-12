@@ -37,7 +37,7 @@ import {
 import { addNotification } from "slices/Notifications";
 import { loadDocuments } from "slices/Documents";
 import { setPolling } from "slices/Poll";
-import { b64toBlob } from "components/utils";
+import { b64toBlob, nameForDownload } from "components/utils";
 
 /**
  * @public
@@ -211,7 +211,7 @@ export const downloadInvitedDraft = createAsyncThunk(
         ? doc.signedContent.split(",")[1]
         : doc.blob.split(",")[1];
     const blob = b64toBlob(b64content);
-    const newName = doc.name.split(".").slice(0, -1).join(".") + "-draft.pdf";
+    const newName = nameForDownload(doc.name, 'draft');
     FileSaver.saveAs(blob, newName);
   }
 );

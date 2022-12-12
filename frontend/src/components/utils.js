@@ -252,6 +252,25 @@ export const nameForCopy = (props) => {
   }
   return newName;
 };
+/**
+ * @public
+ * @function nameForDownload
+ * @desc Create name for signed document download
+ *
+ */
+export const nameForDownload = (name, suffix) => {
+  let tmpName = name;
+  let ext = "";
+  if (tmpName.includes(".")) {
+    const split = tmpName.split(".");
+    tmpName = split.slice(0, -1).join(".");
+    ext = split[split.length - 1];
+  }
+  if (ext !== "") {
+    return `${tmpName}-${suffix}.${ext}`;
+  }
+  return `${tmpName}-${suffix}`
+}
 
 /**
  * @public

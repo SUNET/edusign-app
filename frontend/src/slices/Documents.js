@@ -69,6 +69,7 @@ import {
   hashCode,
   nameForCopy,
   humanFileSize,
+  nameForDownload,
 } from "components/utils";
 
 /**
@@ -1089,22 +1090,6 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
   }
 };
 
-const renameSigned = (name) => {
-  let newName;
-  if (name.endsWith(".pdf")) {
-    newName = name.split(".").slice(0, -1).join(".") + "-signed.pdf";
-  } else if (name.includes(".")) {
-    const nameParts = name.split(".");
-    newName =
-      nameParts.slice(0, -1).join(".") +
-      "-signed." +
-      nameParts[nameParts.length - 1];
-  } else {
-    newName = name + "-signed";
-  }
-  return newName;
-};
-
 /**
  * @public
  * @function downloadSigned
@@ -1121,7 +1106,7 @@ export const downloadSigned = createAsyncThunk(
     })[0];
     const b64content = doc.signedContent.split(",")[1];
     const blob = b64toBlob(b64content);
-    const newName = renameSigned(doc.name);
+    const newName = nameForDownload(doc.name, 'signed');
     FileSaver.saveAs(blob, newName);
   }
 );
@@ -1152,7 +1137,7 @@ export const downloadAllSigned = createAsyncThunk(
     docs.forEach((doc) => {
       const b64content = doc.signedContent.split(",")[1];
       const blob = b64toBlob(b64content);
-      const newName = renameSigned(doc.name);
+      const newName = nameForDownload(doc.name, 'signed');
       folder.file(newName, blob);
     });
     zip.generateAsync({ type: "blob" }).then(function (content) {
