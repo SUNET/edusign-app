@@ -297,24 +297,42 @@ const dealWithPDFError = (doc, err, intl) => {
  * Reject documents with the same name as an already loaded document,
  * and then try to read the document with PDF.js to see if it produces any errors.
  */
-async function validateDoc(doc, intl, state) {
+export const validateDoc = async (doc, intl, state) => {
+  let newDoc = null;
   state.template.documents.forEach((document) => {
     if (document.name === doc.name) {
-      doc.state = "dup";
+      newDoc = {
+        ...doc,
+        state: 'dup',
+      };
     }
   });
 
-  state.documents.documents.forEach((document) => {
-    if (document.name === doc.name && document.created !== doc.created) {
-      doc.state = "dup";
-    }
-  });
+  if (newDoc === null) {
+    state.documents.documents.forEach((document) => {
+      if (document.name === doc.name && document.created !== doc.created) {
+        newDoc = {
+          ...doc,
+          state: 'dup',
+        };
+      }
+    });
+  }
 
-  state.main.owned_multisign.forEach((document) => {
-    if (document.name === doc.name) {
-      doc.state = "dup";
-    }
-  });
+  if (newDoc === null) {
+    state.main.owned_multisign.forEach((document) => {
+      if (document.name === doc.name) {
+        newDoc = {
+          ...doc,
+          state: 'dup',
+        };
+      }
+    });
+  }
+
+  if (newDoc !== null) {
+    return newDoc;
+  }
 
   if (doc.state === "dup") {
     return doc;
@@ -489,7 +507,6 @@ export const createDocument = createAsyncThunk(
       // If there was an error saving the document, we mark it as so,
       // and still try to save it to the redux store, so it can be displayed
       // as failed in the UI.
-      console.log('1st', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -515,7 +532,6 @@ export const createDocument = createAsyncThunk(
         prepareDocument({ doc: newDoc, intl: args.intl })
       );
     } catch (err) {
-      console.log('2st', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -539,7 +555,6 @@ export const createDocument = createAsyncThunk(
     try {
       await thunkAPI.dispatch(saveDocument({ docName: newDoc.name }));
     } catch (err) {
-      console.log('3st', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -654,7 +669,6 @@ export const startSigning = createAsyncThunk(
      *     requiredLoa = doc.loa;
      *   } else {
      *     if (requiredLoa !== doc.loa) {
-     *       console.log(requiredLoa, doc.loa);
      *       loaOk = false;
      *     }
      *   }
@@ -664,7 +678,6 @@ export const startSigning = createAsyncThunk(
      *     requiredLoa = doc.loa;
      *   } else {
      *     if (requiredLoa !== doc.loa) {
-     *       console.log(requiredLoa, doc.loa);
      *       loaOk = false;
      *     }
      *   }
