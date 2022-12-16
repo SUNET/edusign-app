@@ -305,7 +305,7 @@ async function validateDoc(doc, intl, state) {
   });
 
   state.documents.documents.forEach((document) => {
-    if (document.name === doc.name) {
+    if (document.name === doc.name && document.created !== doc.created) {
       doc.state = "dup";
     }
   });
@@ -344,6 +344,7 @@ async function validateDoc(doc, intl, state) {
       };
     })
     .catch((err) => {
+      console.log('failed', err);
       return dealWithPDFError(doc, err, intl);
     });
 }
