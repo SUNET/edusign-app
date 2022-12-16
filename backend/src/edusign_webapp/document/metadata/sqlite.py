@@ -53,6 +53,7 @@ CREATE TABLE [Documents]
        [owner_eppn] VARCHAR(255) NOT NULL,
        [owner_email] VARCHAR(255) NOT NULL,
        [owner_name] VARCHAR(255) NOT NULL,
+       [owner_lang] VARCHAR(2) NOT NULL,
        [prev_signatures] TEXT,
        [sendsigned] INTEGER DEFAULT 1,
        [loa] VARCHAR(255) DEFAULT "none",
@@ -64,6 +65,7 @@ CREATE TABLE [Invites]
        [key] VARCHAR(255) NOT NULL,
        [user_email] VARCHAR(255) NOT NULL,
        [user_name] VARCHAR(255) NOT NULL,
+       [user_lang] VARCHAR(2) NOT NULL,
        [doc_id] INTEGER NOT NULL,
        [signed] INTEGER DEFAULT 0,
        [declined] INTEGER DEFAULT 0,
@@ -76,16 +78,16 @@ CREATE INDEX IF NOT EXISTS [OwnerEppnIX] ON [Documents] ([owner_eppn]);
 CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
 CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-PRAGMA user_version = 5;
+PRAGMA user_version = 6;
 """
 
 
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner_email, owner_name FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
+DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa, updated, created FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 DOCUMENT_QUERY_FROM_OWNER = (
@@ -100,14 +102,14 @@ DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locking_email = '' WHERE doc_id = ?;"
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
-INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name) VALUES (?, ?, ?, ?)"
+INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang) VALUES (?, ?, ?, ?, ?)"
 INVITE_INSERT_RAW = (
     "INSERT INTO Invites (key, doc_id, user_email, user_name, signed, declined) VALUES (?, ?, ?, ?, ?, ?)"
 )
 INVITE_QUERY_FROM_EMAIL = "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0;"
-INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, signed, declined, key FROM Invites WHERE doc_id = ?;"
+INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, user_lang, signed, declined, key FROM Invites WHERE doc_id = ?;"
 INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT inviteID FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0;"
-INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, doc_id FROM Invites WHERE key = ?;"
+INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, user_lang, doc_id FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_email IN (%s) and doc_id = ?;"
 INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_email IN (%s) and doc_id = ?;"
 INVITE_DELETE = "DELETE FROM Invites WHERE user_id = ? and doc_id = ?;"
@@ -210,6 +212,14 @@ def upgrade(db):
         cur.execute("CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);")
 
         cur.execute("PRAGMA user_version = 5;")
+        cur.close()
+        db.commit()
+
+    if version == 5:
+        cur = db.cursor()
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [owner_lang] VARCHAR(2) DEFAULT \"sv\";")
+        cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_lang] VARCHAR(2) DEFAULT \"sv\";")
+        cur.execute("PRAGMA user_version = 6;")
         cur.close()
         db.commit()
 
@@ -333,8 +343,8 @@ class SqliteMD(ABCMetadata):
                          + size: Size of the doc
                          + type: Content type of the doc
                          + prev_signatures: previous signatures
-        :param owner: Name and email address and eppn of the user that has uploaded the document.
-        :param invites: List of the names and emails of the users that have been invited to sign the document.
+        :param owner: Name and email address and language and eppn of the user that has uploaded the document.
+        :param invites: List of the names and emails and languages of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -350,6 +360,7 @@ class SqliteMD(ABCMetadata):
                 document['type'],
                 owner['email'],
                 owner['name'],
+                owner['lang'],
                 owner['eppn'],
                 prev_sigs,
                 sendsigned,
@@ -370,7 +381,7 @@ class SqliteMD(ABCMetadata):
 
         for user in invites:
             invite_key = str(uuid.uuid4())
-            self._db_execute(INVITE_INSERT, (invite_key, document_id, user['email'], user['name']))
+            self._db_execute(INVITE_INSERT, (invite_key, document_id, user['email'], user['name'], user['lang']))
 
             updated_invite = {'key': invite_key}
             updated_invite.update(user)
@@ -476,6 +487,7 @@ class SqliteMD(ABCMetadata):
                  + type: Content type of the doc
                  + owner_email: Email of the user requesting the signature
                  + owner_name: Display name of the user requesting the signature
+                 + owner_lang: Language of the user requesting the signature
                  + state: the state of the invitation
                  + pending: List of emails of the users invited to sign the document who have not yet done so.
                  + signed: List of emails of the users invited to sign the document who have already done so.
@@ -510,6 +522,7 @@ class SqliteMD(ABCMetadata):
                 document['owner'] = {
                     'email': document['owner_email'],
                     'name': document['owner_name'],
+                    'lang': document['owner_lang'],
                     'eppn': document['owner_eppn'],
                 }
                 document['key'] = uuid.UUID(document['key'])
@@ -524,7 +537,7 @@ class SqliteMD(ABCMetadata):
 
                 if subinvites is not None and not isinstance(subinvites, dict):
                     for subinvite in subinvites:
-                        subemail_result = {'email': subinvite['user_email'], 'name': subinvite['user_name']}
+                        subemail_result = {'email': subinvite['user_email'], 'name': subinvite['user_name'], 'lang': subinvite['user_lang']}
                         if subemail_result['email'] == email:
                             continue
                         if subinvite['declined'] == 1:
@@ -653,7 +666,7 @@ class SqliteMD(ABCMetadata):
                 document['state'] = state
                 continue
             for invite in invites:
-                email_result = {'email': invite['user_email'], 'name': invite['user_name']}
+                email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'lang': invite['user_lang']}
                 if invite['declined'] == 1:
                     document['declined'].append(email_result)
                 elif invite['signed'] == 1:
@@ -711,6 +724,7 @@ class SqliteMD(ABCMetadata):
         :return: A list of dictionaries with information about the users, each of them with keys:
                  + name: The name of the user
                  + email: The email of the user
+                 + lang: The language of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
@@ -728,7 +742,7 @@ class SqliteMD(ABCMetadata):
             return invitees
 
         for invite in invites:
-            email_result = {'email': invite['user_email'], 'name': invite['user_name']}
+            email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'lang': invite['user_lang']}
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
@@ -786,17 +800,18 @@ class SqliteMD(ABCMetadata):
             return {}
 
         doc['doc_id'] = invite['doc_id']
-        user = {'name': invite['user_name'], 'email': invite['user_email']}
+        user = {'name': invite['user_name'], 'email': invite['user_email'], 'lang': invite['user_lang']}
 
         return {'document': doc, 'user': user}
 
-    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, invite_key: str = '') -> Dict[str, Any]:
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = '') -> Dict[str, Any]:
         """
         Create a new invitation to sign
 
         :param document_key: The key identifying the document to sign
         :param name: The name for the new invitation
         :param email: The email for the new invitation
+        :param lang: The language for the new invitation
         :param invite_key: The invite key for the new invitation
         :return: data on the new invitation
         """
@@ -810,7 +825,7 @@ class SqliteMD(ABCMetadata):
         if invite_key == '':
             invite_key = str(uuid.uuid4())
 
-        self._db_execute(INVITE_INSERT, (invite_key, document_id, email, name))
+        self._db_execute(INVITE_INSERT, (invite_key, document_id, email, name, lang))
         self._db_commit()
 
         return {'key': invite_key, 'name': name, 'email': email}
@@ -867,6 +882,7 @@ class SqliteMD(ABCMetadata):
                  + size: Size of the doc
                  + owner_email: Email of owner
                  + owner_name: Display name of owner
+                 + owner_lang: Language of owner
         """
         document_result = self._db_query(DOCUMENT_QUERY_ALL, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
