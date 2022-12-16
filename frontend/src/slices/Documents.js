@@ -300,30 +300,25 @@ const dealWithPDFError = (doc, err, intl) => {
 async function validateDoc(doc, intl, state) {
   state.template.documents.forEach((document) => {
     if (document.name === doc.name) {
-      return {
-        ...doc,
-        state: 'dup',
-      };
+      doc.state = "dup";
     }
   });
 
   state.documents.documents.forEach((document) => {
-    if (document.name === doc.name && document.created !== doc.created) {
-      return {
-        ...doc,
-        state: 'dup',
-      };
+    if (document.name === doc.name) {
+      doc.state = "dup";
     }
   });
 
   state.main.owned_multisign.forEach((document) => {
     if (document.name === doc.name) {
-      return {
-        ...doc,
-        state: 'dup',
-      };
+      doc.state = "dup";
     }
   });
+
+  if (doc.state === "dup") {
+    return doc;
+  }
 
   if (doc.size > Number(state.main.max_file_size)) {
     return {
