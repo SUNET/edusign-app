@@ -413,13 +413,11 @@ class SqliteMD(ABCMetadata):
                  + name: The name of the document
                  + size: Size of the doc
                  + type: Content type of the doc
-                 + owner_email: Email of the user requesting the signature
-                 + owner_name: Display name of the user requesting the signature
-                 + owner_lang: Language of the user requesting the signature
+                 + owner: Dict with name, email, eppn and language of the user requesting the signature
                  + state: the state of the invitation
-                 + pending: List of emails of the users invited to sign the document who have not yet done so.
-                 + signed: List of emails of the users invited to sign the document who have already done so.
-                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + pending: List of emails, names, and languages of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails, names, and languages of the users invited to sign the document who have already done so.
+                 + declined: List of emails, names, and languages of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
@@ -536,10 +534,10 @@ class SqliteMD(ABCMetadata):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + pending: List of emails of the users invited to sign the document who have not yet done so.
-                 + signed: List of emails of the users invited to sign the document who have already done so.
                  + state: the state of the invitation
-                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + pending: List of emails, names and languages of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails, names and languages of the users invited to sign the document who have already done so.
+                 + declined: List of emails, names and languages of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
@@ -560,9 +558,10 @@ class SqliteMD(ABCMetadata):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + pending: List of emails of the users invited to sign the document who have not yet done so.
-                 + signed: List of emails of the users invited to sign the document who have already done so.
-                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + state: the state of the invitation
+                 + pending: List of emails, names and languages of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails, names and languages of the users invited to sign the document who have already done so.
+                 + declined: List of emails, names and languages of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
