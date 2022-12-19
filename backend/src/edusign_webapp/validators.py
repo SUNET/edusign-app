@@ -101,3 +101,14 @@ def validate_sign_requirement(value):
     if 'signerName' not in val:
         current_app.logger.debug(f'Validate sign request: missing signerName {value}')
         raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+
+
+def validate_language(value):
+    """
+    Validate that the concerned value is a language code present in the SUPPORTED_LANGUAGES config setting.
+
+    :raises ValidationError: in case the value doesn't conform to the above.
+    """
+    if value not in current_app.config['SUPPORTED_LANGUAGES']:
+        current_app.logger.debug(f'Validate language: unknown language {value}')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))

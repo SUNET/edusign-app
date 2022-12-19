@@ -127,8 +127,8 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                          + type: Content type of the doc
                          + size: Size of the doc
                          + prev_signatures: previous signatures
-        :param owner: Email address and name and eppn of the user that has uploaded the document.
-        :param invites: List of the names and emails of the users that have been invited to sign the document.
+        :param owner: Name and email address and language and eppn of the user that has uploaded the document.
+        :param invites: List of the names and emails and languages of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -195,10 +195,11 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + owner: Email of the user requesting the signature
-                 + pending: List of emails of the users invited to sign the document who have not yet done so.
-                 + signed: List of emails of the users invited to sign the document who have already done so.
-                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + owner: Dict with name, email, eppn and language of the user requesting the signature
+                 + state: the state of the invitation
+                 + pending: List of emails, names, and languages of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails, names, and languages of the users invited to sign the document who have already done so.
+                 + declined: List of emails, names, and languages of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
@@ -233,9 +234,10 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + pending: List of emails of the users invited to sign the document who have not yet done so.
-                 + signed: List of emails of the users invited to sign the document who have already done so.
-                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + state: the state of the invitation
+                 + pending: List of emails, names and languages of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails, names and languages of the users invited to sign the document who have already done so.
+                 + declined: List of emails, names and languages of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
@@ -252,9 +254,10 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + pending: List of emails of the users invited to sign the document who have not yet done so.
-                 + signed: List of emails of the users invited to sign the document who have already done so.
-                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + state: the state of the invitation
+                 + pending: List of emails, names and languages of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails, names and languages of the users invited to sign the document who have already done so.
+                 + declined: List of emails, names and languages of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
@@ -284,6 +287,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :return: A list of dictionaries with information about the users, each of them with keys:
                  + name: The name of the user
                  + email: The email of the user
+                 + lang: The language of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
@@ -310,13 +314,14 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, invite_key: str = '') -> Dict[str, Any]:
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = '') -> Dict[str, Any]:
         """
         Create a new invitation to sign
 
         :param document_key: The key identifying the document to sign
         :param name: The name for the new invitation
         :param email: The email for the new invitation
+        :param lang: The lang for the new invitation
         :param invite_key: The invite key for the new invitation
         :return: data on the new invitation
         """
@@ -367,6 +372,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + size: Size of the doc
                  + owner_email: Email of owner
                  + owner_name: Display name of owner
+                 + owner_lang: Language of owner
         """
 
     @abc.abstractmethod
@@ -471,8 +477,8 @@ class DocStore(object):
                          + size: Size of the doc
                          + blob: Contents of the document, as a base64 string.
                          + prev_signatures: previous signatures
-        :param owner: Email address and name and eppn of the user that has uploaded the document.
-        :param invites: List of names and email addresses of the users that should sign the document.
+        :param owner: Email address and name and language and eppn of the user that has uploaded the document.
+        :param invites: List of names and email addresses and languages of the users that should sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -530,11 +536,11 @@ class DocStore(object):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + owner_email: Email of the user requesting the signature
-                 + owner_name: Display name of the user requesting the signature
-                 + pending: List of emails of the users invited to sign the document who have not yet done so.
-                 + signed: List of emails of the users invited to sign the document who have already done so.
-                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + owner: Email, name, language and eppn of the user requesting the signature
+                 + state: the state of the invitation
+                 + pending: List of emails, names, and languages of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails, names, and languages of the users invited to sign the document who have already done so.
+                 + declined: List of emails, names, and languages of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
@@ -590,9 +596,10 @@ class DocStore(object):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + pending: List of emails of the users invited to sign the document who have not yet done so.
-                 + signed: List of emails of the users invited to sign the document who have already done so.
-                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + state: the state of the invitation
+                 + pending: List of emails, names and languages of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails, names and languages of the users invited to sign the document who have already done so.
+                 + declined: List of emails, names and languages of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
@@ -639,7 +646,7 @@ class DocStore(object):
         """
         return self.metadata.add_invite_raw(invite)
 
-    def add_invitation(self, document_key: uuid.UUID, name: str, email: str) -> Dict[str, Any]:
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, lang: str) -> Dict[str, Any]:
         """
         Add new invitation to document identified by key,
         with the provided name and email.
@@ -647,9 +654,10 @@ class DocStore(object):
         :param document_key: The key identifying the document
         :param name: Name of newly invited person
         :param email: Email of newly invited person
+        :param lang: Language of newly invited person
         :return: A dict with data on the user and the document
         """
-        return self.metadata.add_invitation(document_key, name, email)
+        return self.metadata.add_invitation(document_key, name, email, lang)
 
     def get_invitation(self, key: uuid.UUID) -> Dict[str, Any]:
         """
@@ -717,25 +725,26 @@ class DocStore(object):
                     invite_key = old["key"]
 
             if add:
-                self.metadata.add_invitation(document_key, new['name'], new['email'], invite_key=invite_key)
+                self.metadata.add_invitation(document_key, new['name'], new['email'], new['lang'], invite_key=invite_key)
                 changed['added'].append(new)
 
         return changed
 
-    def delegate(self, invite_key: uuid.UUID, document_key: uuid.UUID, name: str, email: str) -> bool:
+    def delegate(self, invite_key: uuid.UUID, document_key: uuid.UUID, name: str, email: str, lang: str) -> bool:
         """
         Delegate an invitation: remove old invitation and create a new one with the provided name and email.
 
         :param key: The key identifying the old signing invitation
         :param name: The name for the new invitation
         :param email: The email for the new invitation
+        :param lang: The lang for the new invitation
         :return: success
         """
         invitation = self.metadata.get_invitation(invite_key)
         if not invitation:
             return False
 
-        created = self.metadata.add_invitation(document_key, name, email)
+        created = self.metadata.add_invitation(document_key, name, email, lang)
 
         if created:
             self.metadata.rm_invitation(invite_key, document_key)
@@ -806,6 +815,9 @@ class DocStore(object):
                  + type: Content type of the doc
                  + size: Size of the doc
                  + blob: Contents of the document, as a base64 string.
+                 + owner_email: Email of owner
+                 + owner_name: Display name of owner
+                 + owner_lang: Language of owner
         """
         doc = self.metadata.get_document(key)
         doc['blob'] = self.storage.get_content(key)
@@ -849,6 +861,7 @@ class DocStore(object):
         :return: A dict with owner data, with keys:
                  + name: The name of the owner
                  + email: The email of the owner
+                 + lang: The language of the owner
                  + docname: The name of the document
         """
         doc = self.metadata.get_document(key)
@@ -858,6 +871,7 @@ class DocStore(object):
         return {
             'name': doc['owner_name'],
             'email': doc['owner_email'],
+            'lang': doc['owner_lang'],
             'docname': doc['name'],
         }
 
@@ -886,6 +900,7 @@ class DocStore(object):
         :return: A list of dictionaries with information about the users, each of them with keys:
                  + name: The name of the user
                  + email: The email of the user
+                 + lang: The language of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite

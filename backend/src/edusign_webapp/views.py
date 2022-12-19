@@ -35,6 +35,7 @@ import json
 import os
 import uuid
 from base64 import b64decode
+from collections import defaultdict
 from typing import Any, Dict, List, Tuple, Union
 
 import pkg_resources
@@ -53,7 +54,6 @@ from edusign_webapp.schemata import (
     DocumentSchema,
     EditMultiSignSchema,
     FillFormSchema,
-    FormSchema,
     InvitationsSchema,
     KeyedMultiSignSchema,
     MultiSignSchema,
@@ -782,23 +782,18 @@ def _prepare_signed_by_email(key, owner):
         'invited_name': session['displayName'],
         'invited_email': session['mail'],
     }
-    recipients = [f"{owner['name']} <{owner['email']}>"]
-    with force_locale('en'):
-        subject_en = gettext("%(name)s signed '%(docname)s'") % {
+    lang = owner['lang']
+    recipients = defaultdict(list)
+    recipients[lang].append(f"{owner['name']} <{owner['email']}>")
+    with force_locale(lang):
+        subject = gettext("%(name)s signed '%(docname)s'") % {
             'name': session['displayName'],
             'docname': owner['docname'],
         }
-        body_txt_en = render_template(f'{template}.txt.jinja2', **mail_context)
-        body_html_en = render_template(f'{template}.html.jinja2', **mail_context)
-    with force_locale('sv'):
-        subject_sv = gettext("%(name)s signed '%(docname)s'") % {
-            'name': session['displayName'],
-            'docname': owner['docname'],
-        }
-        body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
-        body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
+        body_txt = render_template(f'{template}.txt.jinja2', **mail_context)
+        body_html = render_template(f'{template}.html.jinja2', **mail_context)
 
-    return (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+    return (recipients, subject, body_txt, body_html)
 
 
 def _prepare_all_signed_email(key, owner, doc, sendsigned):
@@ -807,35 +802,18 @@ def _prepare_all_signed_email(key, owner, doc, sendsigned):
     possibly with the final signed PDF attached.
     This is sent when the inviter user adds the final signature.
     """
-    recipients = [f"{owner['name']} <{owner['email']}>"]
-    recipients.extend(
-        [
-            f"{invited['name']} <{invited['email']}>"
-            for invited in current_app.doc_store.get_pending_invites(key)
-            if invited['signed']
-        ]
-    )
+    recipients = []
+    recipients = defaultdict(list)
+    recipients[owner['lang']].append(f"{owner['name']} <{owner['email']}>")
+    for invited in current_app.doc_store.get_pending_invites(key):
+        if not invited['signed']:
+            continue
+        lang = invited['lang']
+        recipients[lang].append(f"{invited['name']} <{invited['email']}>")
+
     mail_context = {
         'document_name': owner['docname'],
     }
-    with force_locale('en'):
-        subject_en = gettext("'%(docname)s' is now signed") % {'docname': owner['docname']}
-        if sendsigned:
-            body_txt_en = render_template('signed_all_email.txt.jinja2', **mail_context)
-            body_html_en = render_template('signed_all_email.html.jinja2', **mail_context)
-        else:
-            body_txt_en = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
-            body_html_en = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
-    with force_locale('sv'):
-        subject_sv = gettext("'%(docname)s' is now signed") % {'docname': owner['docname']}
-        if sendsigned:
-            body_txt_sv = render_template('signed_all_email.txt.jinja2', **mail_context)
-            body_html_sv = render_template('signed_all_email.html.jinja2', **mail_context)
-        else:
-            body_txt_sv = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
-            body_html_sv = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
-
-    email_args = (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
     # attach PDF
     if sendsigned:
         doc_name = current_app.doc_store.get_document_name(key)
@@ -847,15 +825,27 @@ def _prepare_all_signed_email(key, owner, doc, sendsigned):
         else:
             signed_doc_name = doc_name + '-signed'
         pdf_bytes = b64decode(doc['signedContent'], validate=True)
+        email_kwargs = dict(
+            attachment_name=signed_doc_name,
+            attachment=pdf_bytes,
+        )
     else:
-        signed_doc_name = ''
-        pdf_bytes = ''
+        email_kwargs = {}
 
-    email_kwargs = dict(
-        attachment_name=signed_doc_name,
-        attachment=pdf_bytes,
-    )
-    return email_args, email_kwargs
+    messages = []
+    for lang in recipients:
+        with force_locale(lang):
+            subject = gettext("'%(docname)s' is now signed") % {'docname': owner['docname']}
+            if sendsigned:
+                body_txt = render_template('signed_all_email.txt.jinja2', **mail_context)
+                body_html = render_template('signed_all_email.html.jinja2', **mail_context)
+            else:
+                body_txt = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
+                body_html = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
+
+        messages.append(((recipients, subject, body_txt, body_html), email_kwargs))
+
+    return messages
 
 
 def _prepare_signed_documents_data(process_data):
@@ -941,8 +931,8 @@ def get_signed_documents(sign_data: dict) -> dict:
         # this is an invitation from the current user
         elif owner:
             try:
-                email_args, email_kwargs = _prepare_all_signed_email(key, owner, doc, sendsigned)
-                emails.append((email_args, email_kwargs))
+                messages = _prepare_all_signed_email(key, owner, doc, sendsigned)
+                emails.extend(messages)
 
             except Exception as e:
                 current_app.logger.error(f"Problem sending signed by {owner['email']} email to all invited: {e}")
@@ -988,7 +978,7 @@ def create_multi_sign_request(data: dict) -> dict:
 
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
-        owner = {'name': session['displayName'], 'email': data['owner'], 'eppn': session['eppn']}
+        owner = {'name': session['displayName'], 'email': data['owner'], 'eppn': session['eppn'], 'lang': str(get_locale())}
         current_app.logger.debug(f"Adding document with required loa {data['loa']}")
         invites = current_app.doc_store.add_document(
             data['document'], owner, data['invites'], data['sendsigned'], data['loa']
@@ -998,8 +988,12 @@ def create_multi_sign_request(data: dict) -> dict:
         current_app.logger.error(f'Problem processing multi sign request: {e}')
         return {'error': True, 'message': gettext('Problem creating invitation to sign, please try again')}
 
-    recipients = [f"{invite['name']} <{invite['email']}>" for invite in invites]
-    if len(recipients) > 0:
+    if len(invites) > 0:
+        recipients = defaultdict(list)
+        for invite in invites:
+            lang = invite['lang']
+            recipients[lang].append(f"{invite['name']} <{invite['email']}>")
+
         docname = data['document']['name']
         custom_text = data['text']
         try:
@@ -1024,16 +1018,16 @@ def _send_invitation_mail(docname, owner, custom_text, recipients):
             'invited_link': invited_link,
             'text': custom_text,
         }
-        with force_locale('en'):
-            subject_en = gettext("You have been invited to sign '%(document_name)s'") % {'document_name': docname}
-            body_txt_en = render_template('invitation_email.txt.jinja2', **mail_context)
-            body_html_en = render_template('invitation_email.html.jinja2', **mail_context)
-        with force_locale('sv'):
-            subject_sv = gettext("You have been invited to sign '%(document_name)s'") % {'document_name': docname}
-            body_txt_sv = render_template('invitation_email.txt.jinja2', **mail_context)
-            body_html_sv = render_template('invitation_email.html.jinja2', **mail_context)
+        messages = []
+        for lang in recipients:
+            with force_locale(lang):
+                subject = gettext('You have been invited to sign "%(document_name)s"') % {'document_name': docname}
+                body_txt = render_template('invitation_email.txt.jinja2', **mail_context)
+                body_html = render_template('invitation_email.html.jinja2', **mail_context)
 
-        sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+                messages.append(((recipients[lang], subject, body_txt, body_html), {}))
+
+        sendmail_bulk(messages)
 
     except Exception as e:
         current_app.logger.error(f'Problem sending invitation email: {e}: {type(e)}')
@@ -1070,9 +1064,15 @@ def send_multisign_reminder(data: dict) -> dict:
         current_app.logger.error(f"Could not find document {data['key']} pending signing the multi sign request")
         return {'error': True, 'message': gettext('Could not find the document')}
 
-    recipients = [
-        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
-    ]
+    recipients = defaultdict(list)
+    for invite in pending:
+        if invite['signed'] or invite['declined']:
+            continue
+
+        lang = invite['lang']
+        recipient = f"{invite['name']} <{invite['email']}>"
+        recipients[lang].append(recipient)
+
     if len(recipients) > 0:
         try:
             invited_link = url_for('edusign.get_index', _external=True)
@@ -1083,16 +1083,16 @@ def send_multisign_reminder(data: dict) -> dict:
                 'invited_link': invited_link,
                 'text': 'text' in data and data['text'] or "",
             }
-            with force_locale('en'):
-                subject_en = gettext("A reminder to sign '%(document_name)s'") % {'document_name': docname}
-                body_txt_en = render_template('reminder_email.txt.jinja2', **mail_context)
-                body_html_en = render_template('reminder_email.html.jinja2', **mail_context)
-            with force_locale('sv'):
-                subject_sv = gettext("A reminder to sign '%(document_name)s'") % {'document_name': docname}
-                body_txt_sv = render_template('reminder_email.txt.jinja2', **mail_context)
-                body_html_sv = render_template('reminder_email.html.jinja2', **mail_context)
+            messages = []
+            for lang in recipients:
+                with force_locale(lang):
+                    subject = gettext("A reminder to sign '%(document_name)s'") % {'document_name': docname}
+                    body_txt = render_template('reminder_email.txt.jinja2', **mail_context)
+                    body_html = render_template('reminder_email.html.jinja2', **mail_context)
 
-            sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+                    messages.append(((recipients[lang], subject, body_txt, body_html), {}))
+
+            sendmail_bulk(messages)
 
         except Exception as e:
             current_app.logger.error(f'Problem sending reminder email: {e}')
@@ -1122,9 +1122,14 @@ def edit_multi_sign_request(data: dict) -> dict:
         current_app.logger.error(f"Problem editing the invitations for {key}: {e}")
         return {'error': True, 'message': gettext('Problem editing the invitations')}
 
-    recipients_added = [f"{invite['name']} <{invite['email']}>" for invite in changed['added']]
+    recipients_added = defaultdict(list)
+    for invite in changed['added']:
+        lang = invite['lang']
+        recipient = f"{invite['name']} <{invite['email']}>"
+        recipients_added[lang].append(recipient)
+
     docname = current_app.doc_store.get_document_name(key)
-    owner_email = current_app.doc_store.get_document_email(key)
+    owner_email = session['mail']
     owner = {'name': session['displayName'], 'email': owner_email}
     text = data['text']
 
@@ -1137,12 +1142,18 @@ def edit_multi_sign_request(data: dict) -> dict:
             'docname': docname
         }
 
-    recipients_removed = [f"{invite['name']} <{invite['email']}>" for invite in changed['removed']]
-    sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
-    if not sent:
-        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
-            'docname': docname
-        }
+    recipients_removed = defaultdict(list)
+    for invite in changed['removed']:
+        lang = invite['lang']
+        recipient = f"{invite['name']} <{invite['email']}>"
+        recipients_removed[lang].append(recipient)
+
+    if len(recipients_removed) > 0:
+        sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
+        if not sent:
+            message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+                'docname': docname
+            }
 
     return {'message': message}
 
@@ -1181,9 +1192,13 @@ def remove_multi_sign_request(data: dict) -> dict:
         current_app.logger.error(f'Could not remove the multi sign request corresponding to data: {data}')
         return {'error': True, 'message': gettext('Document has not been removed, please try again')}
 
-    recipients = [
-        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
-    ]
+    recipients = defaultdict(list)
+    for invite in pending:
+        if invite['signed'] or invite['declined']:
+            continue
+        lang = invite['lang']
+        recipients[lang].append(f"{invite['name']} <{invite['email']}>")
+
     message = gettext("Success removing invitation to sign")
 
     if len(recipients) > 0:
@@ -1201,16 +1216,16 @@ def _send_cancellation_mail(docname, owner_email, recipients):
             'inviter_email': owner_email,
             'inviter_name': f"{session['displayName']}",
         }
-        with force_locale('en'):
-            subject_en = gettext("Cancellation of invitation to sign '%(document_name)s'") % {'document_name': docname}
-            body_txt_en = render_template('cancellation_email.txt.jinja2', **mail_context)
-            body_html_en = render_template('cancellation_email.html.jinja2', **mail_context)
-        with force_locale('sv'):
-            subject_sv = gettext("Cancellation of invitation to sign '%(document_name)s'") % {'document_name': docname}
-            body_txt_sv = render_template('cancellation_email.txt.jinja2', **mail_context)
-            body_html_sv = render_template('cancellation_email.html.jinja2', **mail_context)
+        messages = []
+        for lang in recipients:
+            with force_locale(lang):
+                subject = gettext("Cancellation of invitation to sign '%(document_name)s'") % {'document_name': docname}
+                body_txt = render_template('cancellation_email.txt.jinja2', **mail_context)
+                body_html = render_template('cancellation_email.html.jinja2', **mail_context)
 
-        sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+                messages.append(((recipients, subject, body_txt, body_html), {}))
+
+        sendmail_bulk(messages)
 
     except Exception as e:
         current_app.logger.error(f'Problem sending cancellation email: {e}')
@@ -1248,35 +1263,17 @@ def get_partially_signed_doc(data: dict) -> dict:
 
 def _prepare_final_email_skipped(doc, key, sendsigned):
     owner = current_app.doc_store.get_owner_data(key)
-    recipients = [f"{owner['name']} <{owner['email']}>"]
-    recipients.extend(
-        [
-            f"{invited['name']} <{invited['email']}>"
-            for invited in current_app.doc_store.get_pending_invites(key)
-            if invited['signed']
-        ]
-    )
+    recipients = defaultdict(list)
+    recipients[owner['lang']].append(f"{owner['name']} <{owner['email']}>")
+    for invited in current_app.doc_store.get_pending_invites(key):
+        if not invited['signed']:
+            continue
+        lang = invited['lang']
+        recipients[lang].append(f"{invited['name']} <{invited['email']}>")
 
     mail_context = {
         'document_name': doc['name'],
     }
-    with force_locale('en'):
-        subject_en = gettext("'%(docname)s' is now signed") % {'docname': doc['name']}
-        if sendsigned:
-            body_txt_en = render_template('signed_all_email.txt.jinja2', **mail_context)
-            body_html_en = render_template('signed_all_email.html.jinja2', **mail_context)
-        else:
-            body_txt_en = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
-            body_html_en = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
-    with force_locale('sv'):
-        subject_sv = gettext("'%(docname)s' is now signed") % {'docname': doc['name']}
-        if sendsigned:
-            body_txt_sv = render_template('signed_all_email.txt.jinja2', **mail_context)
-            body_html_sv = render_template('signed_all_email.html.jinja2', **mail_context)
-        else:
-            body_txt_sv = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
-            body_html_sv = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
-
     # attach PDF
     if sendsigned:
         doc_name = current_app.doc_store.get_document_name(key)
@@ -1288,17 +1285,28 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
         else:
             signed_doc_name = doc_name + '-signed'
         pdf_bytes = b64decode(doc['blob'], validate=True)
+
+        kwargs = dict(
+            attachment_name=signed_doc_name,
+            attachment=pdf_bytes,
+        )
     else:
-        signed_doc_name = ''
-        pdf_bytes = ''
+        kwargs = {}
 
-    args = (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+    messages = []
+    for lang in recipients:
+        with force_locale(lang):
+            subject = gettext('"%(docname)s" is now signed') % {'docname': doc['name']}
+            if sendsigned:
+                body_txt = render_template('signed_all_email.txt.jinja2', **mail_context)
+                body_html = render_template('signed_all_email.html.jinja2', **mail_context)
+            else:
+                body_txt = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
+                body_html = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
 
-    kwargs = dict(
-        attachment_name=signed_doc_name,
-        attachment=pdf_bytes,
-    )
-    return args, kwargs
+        messages.append(((recipients[lang], subject, body_txt, body_html), kwargs))
+
+    return messages
 
 
 @edusign_views.route('/skip-final-signature', methods=['POST'])
@@ -1329,8 +1337,8 @@ def skip_final_signature(data: dict) -> dict:
         return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
     try:
-        args, kwargs = _prepare_final_email_skipped(doc, key, sendsigned)
-        sendmail(*args, **kwargs)
+        messages = _prepare_final_email_skipped(doc, key, sendsigned)
+        sendmail_bulk(messages)
 
     except Exception as e:
         current_app.logger.error(f'Problem sending signed document to invited users: {e}')
@@ -1368,22 +1376,15 @@ def _prepare_declined_email(key, owner_data):
         'invited_name': session['displayName'],
         'invited_email': session['mail'],
     }
-    with force_locale('en'):
-        subject_en = gettext("%(name)s declined to sign '%(docname)s'") % {
+    with force_locale(owner_data['lang']):
+        subject = gettext("%(name)s declined to sign '%(docname)s'") % {
             'name': session['displayName'],
             'docname': owner_data['docname'],
         }
-        body_txt_en = render_template(f'{template}.txt.jinja2', **mail_context)
-        body_html_en = render_template(f'{template}.html.jinja2', **mail_context)
-    with force_locale('sv'):
-        subject_sv = gettext("%(name)s declined to sign '%(docname)s'") % {
-            'name': session['displayName'],
-            'docname': owner_data['docname'],
-        }
-        body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
-        body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
+        body_txt = render_template(f'{template}.txt.jinja2', **mail_context)
+        body_html = render_template(f'{template}.html.jinja2', **mail_context)
 
-    return (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+    return (recipients, subject, body_txt, body_html)
 
 
 @edusign_views.route('/decline-invitation', methods=['POST'])
@@ -1427,7 +1428,7 @@ def decline_invitation(data):
     return {'message': message}
 
 
-def _prepare_delegation_email(owner_data, name, email):
+def _prepare_delegation_email(owner_data, name, email, lang):
     """
     Prepare email to inform some user that a user invited to sign a document
     has delegeted the responsibility to them.
@@ -1440,22 +1441,15 @@ def _prepare_delegation_email(owner_data, name, email):
         'owner_name': owner_data['name'],
         'owner_email': owner_data['email'],
     }
-    with force_locale('en'):
-        subject_en = gettext("%(name)s has delegated signature of '%(docname)s' to you") % {
+    with force_locale(lang):
+        subject = gettext('%(name)s has delegated signature of "%(docname)s" to you') % {
             'name': owner_data['name'],
             'docname': owner_data['docname'],
         }
-        body_txt_en = render_template('delegation_email.txt.jinja2', **mail_context)
-        body_html_en = render_template('delegation_email.html.jinja2', **mail_context)
-    with force_locale('sv'):
-        subject_sv = gettext("%(name)s has delegated signature of '%(docname)s' to you") % {
-            'name': owner_data['name'],
-            'docname': owner_data['docname'],
-        }
-        body_txt_sv = render_template('delegation_email.txt.jinja2', **mail_context)
-        body_html_sv = render_template('delegation_email.html.jinja2', **mail_context)
+        body_txt = render_template('delegation_email.txt.jinja2', **mail_context)
+        body_html = render_template('delegation_email.html.jinja2', **mail_context)
 
-    return (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+    return (recipients, subject, body_txt, body_html)
 
 
 @edusign_views.route('/delegate-invitation', methods=['POST'])
@@ -1475,8 +1469,9 @@ def delegate_invitation(data):
     document_key = uuid.UUID(data['document_key'])
     name = data['name']
     email = data['email']
+    lang = data['lang']
     try:
-        current_app.doc_store.delegate(invite_key, document_key, name, email)
+        current_app.doc_store.delegate(invite_key, document_key, name, email, lang)
 
     except Exception as e:
         current_app.logger.error(f'Problem delegating invitation: {e}')
@@ -1489,7 +1484,7 @@ def delegate_invitation(data):
             )
 
         else:
-            args = _prepare_delegation_email(owner_data, name, email)
+            args = _prepare_delegation_email(owner_data, name, email, lang)
             sendmail(*args)
 
     except Exception as e:

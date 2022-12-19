@@ -237,12 +237,9 @@ def get_previous_signatures(document: dict) -> str:
 
 def compose_message(
     recipients: list,
-    subject_en: str,
-    subject_sv: str,
-    body_txt_en: str,
-    body_html_en: str,
-    body_txt_sv: str,
-    body_html_sv: str,
+    subject: str,
+    body_txt: str,
+    body_html: str,
     attachment_name: str = '',
     attachment: str = '',
 ):
@@ -251,36 +248,14 @@ def compose_message(
     and with the body in both plain text and html.
 
     :param recipients: list of recipients of the email
-    :param subject_en: subject in English
-    :param subject_sv: subject in Swedish
-    :param body_txt_en: plain text body in English
-    :param body_html_en: html body in English
-    :param body_txt_sv: plain text body in Swedish
-    :param body_html_sv: html body in Swedish
+    :param subject: subject in English
+    :param body_txt: plain text body in English
+    :param body_html: html body in English
     :param attachment_name: the file name of the PDF to attach
     :param attachment: the contents of the PDF to attach to the message
     """
-    mail = {
-        'en': {
-            'subject': subject_en,
-            'body_txt': body_txt_en,
-            'body_html': body_html_en,
-        },
-        'sv': {
-            'subject': subject_sv,
-            'body_txt': body_txt_sv,
-            'body_html': body_html_sv,
-        },
-    }
-    first_lang = str(get_locale())
-    second_lang = first_lang == 'sv' and 'en' or 'sv'
-
-    subject = f"{mail[first_lang]['subject']} | {mail[second_lang]['subject']}"
-    text_body = f"{mail[first_lang]['body_txt']} \n\n {mail[second_lang]['body_txt']}"
-    html_body = f"{mail[first_lang]['body_html']} <br/><br/> {mail[second_lang]['body_html']}"
-
-    msg = EmailMultiAlternatives(subject, text_body, current_app.config['MAIL_DEFAULT_SENDER'], recipients)
-    msg.attach_alternative(html_body, 'text/html')
+    msg = EmailMultiAlternatives(subject, body_txt, current_app.config['MAIL_DEFAULT_SENDER'], recipients)
+    msg.attach_alternative(body_html, 'text/html')
 
     if attachment and attachment_name:
         mail_file = MIMEBase('application', 'pdf')
