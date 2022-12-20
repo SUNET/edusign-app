@@ -772,7 +772,14 @@ def _prepare_all_signed_email(key, owner, doc, sendsigned):
     # attach PDF
     if sendsigned:
         doc_name = current_app.doc_store.get_document_name(key)
-        signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
+        doc_name = doc_name.replace(' ', '-')
+        if '.' in doc_name:
+            splitted = doc_name.split('.')
+            ext = splitted[-1]
+            prename = '.'.join(splitted[:-1])
+            signed_doc_name = f"{prename}-signed.{ext}"
+        else:
+            signed_doc_name = doc_name + '-signed'
         pdf_bytes = b64decode(doc['signedContent'], validate=True)
     else:
         signed_doc_name = ''
@@ -1207,6 +1214,7 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
     # attach PDF
     if sendsigned:
         doc_name = current_app.doc_store.get_document_name(key)
+        doc_name = doc_name.replace(' ', '-')
         if '.' in doc_name:
             splitted = doc_name.split('.')
             ext = splitted[-1]
