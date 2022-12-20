@@ -282,22 +282,22 @@ def sample_doc_2():
 
 @pytest.fixture
 def sample_invites_1():
-    yield [{'name': 'invite0', 'email': 'invite0@example.org'}, {'name': 'invite1', 'email': 'invite1@example.org'}]
+    yield [{'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'}, {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'}]
 
 
 @pytest.fixture
 def sample_invites_2():
-    yield [{'name': 'invite0', 'email': 'invite0@example.org'}, {'name': 'invite2', 'email': 'invite2@example.org'}]
+    yield [{'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'}, {'name': 'invite2', 'email': 'invite2@example.org', 'lang': 'en'}]
 
 
 @pytest.fixture
 def sample_owner_1():
-    yield {'name': 'owner', 'email': 'owner@example.org', 'eppn': 'owner-eppn@example.org'}
+    yield {'name': 'owner', 'email': 'owner@example.org', 'eppn': 'owner-eppn@example.org', 'lang': 'en'}
 
 
 @pytest.fixture
 def sample_owner_2():
-    yield {'name': 'owner2', 'email': 'owner2@example.org', 'eppn': 'owner2-eppn@example.org'}
+    yield {'name': 'owner2', 'email': 'owner2@example.org', 'eppn': 'owner2-eppn@example.org', 'lang': 'en'}
 
 
 _sample_metadata_1 = {'name': 'test1.pdf', 'size': 1500000, 'type': 'application/pdf', 'key': str(uuid.uuid4())}
