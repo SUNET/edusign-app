@@ -772,7 +772,6 @@ def _prepare_all_signed_email(key, owner, doc, sendsigned):
     # attach PDF
     if sendsigned:
         doc_name = current_app.doc_store.get_document_name(key)
-        doc_name = doc_name.replace(' ', '-')
         if '.' in doc_name:
             splitted = doc_name.split('.')
             ext = splitted[-1]
@@ -1214,7 +1213,6 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
     # attach PDF
     if sendsigned:
         doc_name = current_app.doc_store.get_document_name(key)
-        doc_name = doc_name.replace(' ', '-')
         if '.' in doc_name:
             splitted = doc_name.split('.')
             ext = splitted[-1]
