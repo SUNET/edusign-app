@@ -248,9 +248,9 @@ def compose_message(
     and with the body in both plain text and html.
 
     :param recipients: list of recipients of the email
-    :param subject: subject in English
-    :param body_txt: plain text body in English
-    :param body_html: html body in English
+    :param subject: subject
+    :param body_txt: plain text body
+    :param body_html: html body
     :param attachment_name: the file name of the PDF to attach
     :param attachment: the contents of the PDF to attach to the message
     """
