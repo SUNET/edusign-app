@@ -47,9 +47,10 @@ def update_pdf_form(b64_pdf, fields):
                     else:
                         field.field_value = f['value']
 
-                    field.field_flags = fitz.PDF_FIELD_IS_READ_ONLY
-                    field.update()
                     break
+
+            field.field_flags = fitz.PDF_FIELD_IS_READ_ONLY
+            field.update()
 
     doc_bytes = doc.tobytes()
     newpdf = b64encode(doc_bytes)
