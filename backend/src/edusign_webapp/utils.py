@@ -33,6 +33,8 @@
 import io
 import uuid
 from base64 import b64decode
+from email.mime.base import MIMEBase
+from email.encoders import encode_base64
 from xml.etree import cElementTree as ET
 
 from flask import current_app, request, session
@@ -111,6 +113,7 @@ def add_attributes_to_session(check_whitelisted=True):
                 session['mail_aliases'] = []
 
             session['mail_aliases'] += [m.lower() for m in addresses]
+            session['mail_aliases'] = list(set(session['mail_aliases']))
 
         session['eppn'] = eppn
         try:
@@ -275,7 +278,11 @@ def compose_message(
     msg.attach_alternative(html_body, 'text/html')
 
     if attachment and attachment_name:
-        msg.attach(attachment_name, attachment, 'application/pdf')
+        mail_file = MIMEBase('application', 'pdf')
+        mail_file.set_payload(attachment)
+        mail_file.add_header('Content-Disposition', 'attachment', filename=attachment_name)
+        encode_base64(mail_file)
+        msg.attach(mail_file)
 
     return msg
 

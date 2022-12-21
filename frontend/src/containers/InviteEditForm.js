@@ -33,6 +33,8 @@ const mapStateToProps = (state, props) => {
     size: state.main.size,
     show: show,
     doc: doc,
+    mail: state.main.signer_attributes.mail,
+    mail_aliases: state.main.signer_attributes.mail_aliases,
   };
 };
 

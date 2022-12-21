@@ -10,7 +10,7 @@ import {
   extractCsrfToken,
   preparePayload,
 } from "slices/fetch-utils";
-import { setState, createDocument } from "slices/Documents";
+import { setState, createDocument, addDocument } from "slices/Documents";
 import { setTemplateFormSchema } from "slices/Templates";
 import { showForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
@@ -90,27 +90,13 @@ export const sendPDFForm = createAsyncThunk(
       created: Date.now(),
       state: "loading",
     };
+    thunkAPI.dispatch(addDocument(newDoc));
     await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
-
-    // All the below code is to make the newly created document apparent to the user
-    thunkAPI.dispatch(setState({ name: newName, state: "loading" }));
-
-    // The previously gotten state is out of date by now
-    state = thunkAPI.getState();
-    const newDocument = state.documents.documents.filter((doc) => {
-      return doc.name === newName;
-    })[0];
-    document
-      .getElementById(`local-doc-${newDocument.key}`)
-      .scrollIntoView({ behavior: "smooth", block: "center" });
-    window.setTimeout(() => {
-      thunkAPI.dispatch(setState({ name: newName, state: "unconfirmed" }));
-    }, 1000);
   }
 );
 
 const pdfFormSlice = createSlice({
-  name: "pdfforms",
+  name: "pdfform",
   initialState: {
     document: null,
   },

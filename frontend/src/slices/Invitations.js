@@ -58,6 +58,7 @@ export const sendInvites = createAsyncThunk(
     if (document.state === "signed") {
       document = { ...document };
       await thunkAPI.dispatch(removeDocument({ docName: document.name }));
+      thunkAPI.dispatch(addDocument(document));
       await thunkAPI.dispatch(
         createDocument({ doc: document, intl: args.intl })
       );
@@ -79,6 +80,7 @@ export const sendInvites = createAsyncThunk(
         type: document.type,
         created: Date.now(),
       };
+      thunkAPI.dispatch(addDocument(newDoc));
       await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
 
       // The previously gotten state is out of date by now

@@ -92,6 +92,7 @@ class ConfigSchema(InvitationsSchema):
         eppn = fields.String(required=True, validate=[validate_nonempty])
         name = fields.String(required=True, validate=[validate_nonempty])
         mail = fields.String(required=True, validate=[validate_nonempty])
+        mail_aliases = fields.List(fields.String())
 
     class AvailableLoa(Schema):
         name = fields.String(required=True, validate=[validate_nonempty])

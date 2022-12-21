@@ -1,6 +1,5 @@
 const autoprefixer = require("autoprefixer");
 const path = require("path");
-const precss = require("precss");
 const webpack = require("webpack");
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -91,7 +90,7 @@ module.exports = {
       // test: /\.xxx$/, // may apply this only for some modules
       options: {
         postcss: function() {
-          return [autoprefixer, precss];
+          return [autoprefixer];
         }
       }
     }),

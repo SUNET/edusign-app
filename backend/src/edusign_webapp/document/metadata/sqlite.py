@@ -84,7 +84,7 @@ DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, ow
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner_email, owner_name FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
+DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 DOCUMENT_QUERY_FROM_OWNER = (
     "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_eppn = ?;"
@@ -417,8 +417,15 @@ class SqliteMD(ABCMetadata):
             return []
 
         pending = []
+        doc_ids = []
         for invite in invites:
             document_id = invite['doc_id']
+            if document_id in doc_ids:
+                self.rm_invitation(uuid.UUID(invite['key']), uuid.UUID(document_id))
+                continue
+            else:
+                doc_ids.append(document_id)
+
             document = self._db_query(DOCUMENT_QUERY, (document_id,), one=True)
             if document is None or isinstance(document, list):
                 self.logger.error(
@@ -427,7 +434,7 @@ class SqliteMD(ABCMetadata):
                 )
                 continue
 
-            document['owner'] = {'email': document['owner_email'], 'name': document['owner_name']}
+            document['owner'] = {'email': document['owner_email'], 'name': document['owner_name'], 'eppn': document['owner_eppn']}
             document['key'] = uuid.UUID(document['key'])
             document['invite_key'] = uuid.UUID(invite['key'])
             document['pending'] = []

@@ -17,7 +17,7 @@ import {
   sample2pPDFData,
 } from "tests/test-utils";
 import Main from "components/Main";
-import { createDocument, loadDocuments, setState } from "slices/Documents";
+import { createDocument, addDocument, loadDocuments, setState } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
 import { resetDb } from "init-app/database";
 
@@ -49,6 +49,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -63,6 +64,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -71,11 +73,13 @@ describe("Document representations", function () {
   it("It shows a warning after createDocument action with a password protected document", async () => {
     await showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument({
       payload: {
+        size: "lg",
         available_loas: [],
         signer_attributes: {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -84,12 +88,12 @@ describe("Document representations", function () {
   it("It shows a warning after createDocument action with a password protected document - sm", async () => {
     await showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument({
       payload: {
-        size: "sm",
         available_loas: [],
         signer_attributes: {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -103,12 +107,13 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
   });
 
-  it("It shows the failed document after wrong createDocument action", async () => {
+  it("It shows the failed document after wrong createDocument action - sm", async () => {
     await showsTheFailedDocumentAfterWrongCreateDocumentAction({
       payload: {
         size: "sm",
@@ -117,6 +122,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -125,11 +131,13 @@ describe("Document representations", function () {
   it("It shows failed loading after createDocument with bad pdf", async () => {
     await showsFailedLoadingAfterCreateDocumentWithBadPdf({
       payload: {
+        size: "lg",
         available_loas: [],
         signer_attributes: {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -138,12 +146,12 @@ describe("Document representations", function () {
   it("It shows failed loading after createDocument with bad pdf - sm", async () => {
     await showsFailedLoadingAfterCreateDocumentWithBadPdf({
       payload: {
-        size: "sm",
         available_loas: [],
         signer_attributes: {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -157,6 +165,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -171,6 +180,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -184,6 +194,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
         owned_multisign: [],
         pending_multisign: [],
@@ -200,6 +211,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
         owned_multisign: [],
         pending_multisign: [],
@@ -215,6 +227,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
         owned_multisign: [],
         pending_multisign: [],
@@ -231,6 +244,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
         owned_multisign: [],
         pending_multisign: [],
@@ -247,6 +261,7 @@ describe("Document representations", function () {
             name: "Tester Testig",
             eppn: "tester@example.org",
             mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
           },
           owned_multisign: [],
           pending_multisign: [],
@@ -267,6 +282,7 @@ describe("Document representations", function () {
             name: "Tester Testig",
             eppn: "tester@example.org",
             mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
           },
           owned_multisign: [],
           pending_multisign: [],
@@ -285,6 +301,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
         owned_multisign: [],
         pending_multisign: [],
@@ -301,6 +318,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
         owned_multisign: [],
         pending_multisign: [],
@@ -316,6 +334,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -330,6 +349,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -343,6 +363,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -357,6 +378,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -370,6 +392,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -384,6 +407,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -397,6 +421,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -411,6 +436,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -424,6 +450,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -438,6 +465,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -451,6 +479,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -465,6 +494,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -478,6 +508,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -492,6 +523,7 @@ describe("Document representations", function () {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
+          mail_aliases: ["tester@example.org"],
         },
       },
     });
@@ -576,10 +608,16 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
       const fileObj = new File([samplePasswordPDFData], "test.pdf", {
         type: "application/pdf",
       });
-      const file = {
+      let file = {
         name: fileObj.name,
         size: fileObj.size,
         type: fileObj.type,
+        created: Date.now(),
+        state: 'loading',
+      };
+      store.dispatch(addDocument(file));
+      file = {
+        ...file,
         blob: "data:application/pdf;base64," + b64SamplePasswordPDFData,
         key: "dummy-ref",
       };
@@ -687,10 +725,17 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     let buttonRemove = screen.queryByTestId("rm-button-test.pdf");
     expect(buttonRemove).to.equal(null);
 
-    const file = {
+    let file = {
       name: "test.pdf",
       size: 1500,
       type: "application/pdf",
+      created: Date.now(),
+      state: 'loading',
+    };
+    store.dispatch(addDocument(file));
+
+    file = {
+      ...file,
       blob: "Bad PDF document",
       key: "dummy-ref",
     };
@@ -846,8 +891,16 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
     await flushPromises(rerender, wrapped);
 
+    const dropdownButton = await waitFor(() =>
+      screen.getAllByText(/Other options/)
+    );
+    expect(dropdownButton.length).to.equal(1);
+
+    fireEvent.click(dropdownButton[0]);
+    await flushPromises(rerender, wrapped);
+
     const previewButton = await waitFor(() =>
-      screen.getAllByTestId("button-preview-dummy-ref")
+      screen.getAllByTestId("menu-item-preview-test.pdf")
     );
     expect(previewButton.length).to.equal(1);
 
@@ -932,8 +985,16 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
     await flushPromises(rerender, wrapped);
 
+    const dropdownButton = await waitFor(() =>
+      screen.getAllByText(/Other options/)
+    );
+    expect(dropdownButton.length).to.equal(1);
+
+    fireEvent.click(dropdownButton[0]);
+    await flushPromises(rerender, wrapped);
+
     const previewButton = await waitFor(() =>
-      screen.getAllByTestId("button-preview-dummy-ref")
+      screen.getAllByTestId("menu-item-preview-test.pdf")
     );
     expect(previewButton.length).to.equal(1);
 
@@ -1034,8 +1095,16 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
     await flushPromises(rerender, wrapped);
 
+    const dropdownButton = await waitFor(() =>
+      screen.getAllByText(/Other options/)
+    );
+    expect(dropdownButton.length).to.equal(1);
+
+    fireEvent.click(dropdownButton[0]);
+    await flushPromises(rerender, wrapped);
+
     const previewButton = await waitFor(() =>
-      screen.getAllByTestId("button-preview-dummy-ref")
+      screen.getAllByTestId("menu-item-preview-test.pdf")
     );
     expect(previewButton.length).to.equal(1);
 
@@ -1547,10 +1616,10 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
       })
     );
 
-    const buttonPreview = await waitFor(() =>
-      screen.getAllByTestId("button-preview-dummy-ref")
+    const buttonDropdown = await waitFor(() =>
+      screen.getAllByText(/Other options/)
     );
-    expect(buttonPreview.length).to.equal(1);
+    expect(buttonDropdown.length).to.equal(1);
 
     const buttonRemove = await waitFor(() =>
       screen.getAllByTestId("rm-button-test.pdf")

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import BForm from "react-bootstrap/Form";
@@ -121,6 +121,10 @@ class PDFForm extends React.Component {
         }
       }
     }
+  }
+
+  resetValues() {
+    this.setState({ values: {} });
   }
 
   render() {
@@ -293,4 +297,4 @@ PDFForm.propTypes = {
   docFile: PropTypes.object,
 };
 
-export default PDFForm;
+export default injectIntl(PDFForm);

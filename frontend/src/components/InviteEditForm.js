@@ -8,6 +8,7 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
 import { nameForCopy } from "components/utils";
+import { validateEmail } from "components/InviteForm";
 
 import "styles/InviteForm.scss";
 
@@ -31,19 +32,6 @@ const validate = () => {
 
 const validateBody = (value) => {
   return undefined;
-};
-
-export const validateEmail = (value) => {
-  let error;
-
-  if (!value) {
-    error = <FormattedMessage defaultMessage="Required" key="required-field" />;
-  } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
-    error = (
-      <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
-    );
-  }
-  return error;
 };
 
 export const validateName = (value) => {
@@ -155,7 +143,7 @@ class InviteEditForm extends React.Component {
                           placeholder="jane@example.com"
                           as={BForm.Control}
                           type="email"
-                          validate={validateEmail}
+                          validate={validateEmail(this.props.mail, this.props.mail_aliases)}
                           isValid={
                             fprops.touched.invitees &&
                             fprops.touched.invitees[index] &&

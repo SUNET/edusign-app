@@ -67,7 +67,7 @@ def test_add_and_get_pending(doc_store_local_sqlite, sample_doc_1, sample_owner_
 
     with run.app.app_context():
         doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
+        pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
 
     assert len(pending) == 1
     assert pending[0]['name'] == sample_doc_1['name']
@@ -84,7 +84,7 @@ def test_add_two_and_get_pending(doc_store_local_sqlite, sample_doc_1, sample_do
     with run.app.app_context():
         doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
         doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, sendsigned, loa)
-        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
+        pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
 
     assert len(pending) == 2
     assert pending[0]['name'] == sample_doc_1['name']
@@ -104,7 +104,7 @@ def test_add_and_get_content(doc_store_local_sqlite, sample_doc_1, sample_owner_
 
     with run.app.app_context():
         doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
+        pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
         content = doc_store.get_document_content(pending[0]['key'])
 
     assert content == sample_doc_1['blob']
@@ -119,11 +119,11 @@ def test_add_and_update_and_get_content(
 
     with run.app.app_context():
         doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
-        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], sample_invites_1[1]['email'])
+        pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
+        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], [sample_invites_1[1]['email']])
         content = doc_store.get_document_content(pending[0]['key'])
-        pending0 = doc_store.get_pending_documents(sample_invites_1[0]['email'])
-        pending1 = doc_store.get_pending_documents(sample_invites_1[1]['email'])
+        pending0 = doc_store.get_pending_documents([sample_invites_1[0]['email']])
+        pending1 = doc_store.get_pending_documents([sample_invites_1[1]['email']])
 
     assert content != sample_doc_1['blob']
     assert content == sample_doc_2['blob']
@@ -146,10 +146,10 @@ def test_add_and_update_and_get_owned(
 
     with run.app.app_context():
         doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
-        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], sample_invites_1[1]['email'])
+        pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
+        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], [sample_invites_1[1]['email']])
         content = doc_store.get_document_content(pending[0]['key'])
-        owned = doc_store.get_owned_documents(sample_owner_1['email'])
+        owned = doc_store.get_owned_documents(sample_owner_1['eppn'], [sample_owner_1['email']])
 
     assert content != sample_doc_1['blob']
     assert content == sample_doc_2['blob']
@@ -173,10 +173,10 @@ def test_add_two_and_update_and_get_owned(
     with run.app.app_context():
         doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
         doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, sendsigned, loa)
-        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
-        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], sample_invites_1[1]['email'])
+        pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
+        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], [sample_invites_1[1]['email']])
         content = doc_store.get_document_content(pending[0]['key'])
-        owned = doc_store.get_owned_documents(sample_owner_1['email'])
+        owned = doc_store.get_owned_documents(sample_owner_1['eppn'], [sample_owner_1['email']])
 
     assert content != sample_doc_1['blob']
     assert content == sample_doc_2['blob']
@@ -210,9 +210,9 @@ def test_add_two_and_remove_not_one_and_get_owned(
     with run.app.app_context():
         doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
         doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, sendsigned, loa)
-        owned = doc_store.get_owned_documents(sample_owner_1['email'])
+        owned = doc_store.get_owned_documents(sample_owner_1['eppn'], [sample_owner_1['email']])
         doc_store.remove_document(owned[0]['key'])
-        reowned = doc_store.get_owned_documents(sample_owner_1['email'])
+        reowned = doc_store.get_owned_documents(sample_owner_1['eppn'], [sample_owner_1['email']])
 
     assert len(reowned) == 2
     assert reowned[0]['name'] == sample_doc_1['name']
@@ -236,9 +236,9 @@ def test_add_two_and_remove_force_one_and_get_owned(
     with run.app.app_context():
         doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
         doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, sendsigned, loa)
-        owned = doc_store.get_owned_documents(sample_owner_1['email'])
+        owned = doc_store.get_owned_documents(sample_owner_1['eppn'], [sample_owner_1['email']])
         doc_store.remove_document(owned[0]['key'], force=True)
-        reowned = doc_store.get_owned_documents(sample_owner_1['email'])
+        reowned = doc_store.get_owned_documents(sample_owner_1['eppn'], [sample_owner_1['email']])
 
     assert len(reowned) == 1
     assert reowned[0]['name'] == sample_doc_2['name']
@@ -256,11 +256,11 @@ def test_add_two_and_remove_one_and_get_owned(
     with run.app.app_context():
         doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
         doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, sendsigned, loa)
-        pending = doc_store.get_pending_documents(sample_invites_1[1]['email'])
-        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], sample_invites_1[0]['email'])
-        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], sample_invites_1[1]['email'])
+        pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
+        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], [sample_invites_1[0]['email']])
+        doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], [sample_invites_1[1]['email']])
         doc_store.remove_document(pending[0]['key'])
-        owned = doc_store.get_owned_documents(sample_owner_1['email'])
+        owned = doc_store.get_owned_documents(sample_owner_1['eppn'], [sample_owner_1['email']])
 
         content = doc_store.get_document_content(pending[0]['key'])
 
@@ -369,8 +369,8 @@ def test_add_and_sign_and_get_signed(doc_store_local_sqlite, sample_doc_1, sampl
 
         content_1 = base64.b64encode(b"dummy content 1").decode('utf8')
         content_2 = base64.b64encode(b"dummy content 2").decode('utf8')
-        doc_store.update_document(sample_doc_1['key'], content_1, invites[0]['email'])
-        doc_store.update_document(sample_doc_1['key'], content_2, invites[1]['email'])
+        doc_store.update_document(sample_doc_1['key'], content_1, [invites[0]['email']])
+        doc_store.update_document(sample_doc_1['key'], content_2, [invites[1]['email']])
 
         signed = doc_store.get_signed_document(sample_doc_1['key'])
 

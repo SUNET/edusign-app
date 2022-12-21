@@ -13,6 +13,9 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
  * @component
  */
 function DocPreview(props) {
+
+  if (props.docFile === null) return '';
+
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
 

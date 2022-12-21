@@ -8,7 +8,7 @@ import DocPreviewContainer from "containers/DocPreview";
 import InviteFormContainer from "containers/InviteForm";
 import OwnedContainer from "containers/Owned";
 import InvitedContainer from "containers/Invited";
-import { preparePDF } from "components/utils";
+import { docToFile } from "components/utils";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 import DocumentLocal from "components/DocumentLocal";
 import DocumentTemplate from "components/DocumentTemplate";
@@ -92,7 +92,7 @@ class DocManager extends React.Component {
                   />
                 </legend>
                 {this.props.templates.map((doc, index) => {
-                  const docFile = preparePDF(doc);
+                  const docFile = docToFile(doc);
                   return (
                     <React.Fragment key={index}>
                       <DocumentTemplate key={index} doc={doc} {...this.props} />
@@ -140,7 +140,7 @@ class DocManager extends React.Component {
                   if (doc.state === "signed") {
                     disableDlAllButton = false;
                   }
-                  const docFile = preparePDF(doc);
+                  const docFile = docToFile(doc);
                   if (docFile === null) {
                     doc = {
                       ...doc,

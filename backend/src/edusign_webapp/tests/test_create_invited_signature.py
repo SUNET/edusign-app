@@ -57,7 +57,6 @@ def _test_create_invited_signature(
     assert response1.status == "200 OK"
 
     new_doc = deepcopy(sample_doc_1)
-    del new_doc['owner']
 
     with app.test_request_context():
         with client.session_transaction() as sess:

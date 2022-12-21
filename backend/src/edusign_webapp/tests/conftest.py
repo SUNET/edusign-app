@@ -251,7 +251,7 @@ def sample_new_doc_1():
 
 @pytest.fixture
 def sample_owned_doc_1():
-    doc = {'blob': pdf_simple_1, 'owner': 'owner@example.org'}
+    doc = {'blob': pdf_simple_1}
     doc.update(_sample_metadata_1)
     yield doc
 
@@ -292,12 +292,12 @@ def sample_invites_2():
 
 @pytest.fixture
 def sample_owner_1():
-    yield {'name': 'owner', 'email': 'owner@example.org'}
+    yield {'name': 'owner', 'email': 'owner@example.org', 'eppn': 'owner-eppn@example.org'}
 
 
 @pytest.fixture
 def sample_owner_2():
-    yield {'name': 'owner2', 'email': 'owner2@example.org'}
+    yield {'name': 'owner2', 'email': 'owner2@example.org', 'eppn': 'owner2-eppn@example.org'}
 
 
 _sample_metadata_1 = {'name': 'test1.pdf', 'size': 1500000, 'type': 'application/pdf', 'key': str(uuid.uuid4())}

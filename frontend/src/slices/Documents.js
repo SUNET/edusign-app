@@ -69,6 +69,7 @@ import {
   hashCode,
   nameForCopy,
   humanFileSize,
+  nameForDownload,
 } from "components/utils";
 
 /**
@@ -264,24 +265,28 @@ export const checkStoredDocuments = createAsyncThunk(
  * while reading PDFs and translates them to our needs.
  */
 const dealWithPDFError = (doc, err, intl) => {
+  let message;
   if (err !== undefined && err.message.startsWith("Invalid")) {
-    doc.message = intl.formatMessage({
+    message = intl.formatMessage({
       defaultMessage: "Document seems corrupted",
       id: "validate-problem-corrupted",
     });
   } else if (err !== undefined && err.message === "No password given") {
-    doc.message = intl.formatMessage({
+    message = intl.formatMessage({
       defaultMessage: "Please do not supply a password protected document",
       id: "validate-problem-password",
     });
   } else {
-    doc.message = intl.formatMessage({
+    message = intl.formatMessage({
       defaultMessage: "Document is unreadable",
       id: "validate-problem-unreadable",
     });
   }
-  doc.state = "failed-loading";
-  return doc;
+  return {
+    ...doc,
+    message: message,
+    state: "failed-loading",
+  };
 };
 
 /**
@@ -300,7 +305,7 @@ async function validateDoc(doc, intl, state) {
   });
 
   state.documents.documents.forEach((document) => {
-    if (document.name === doc.name) {
+    if (document.name === doc.name && document.created !== doc.created) {
       doc.state = "dup";
     }
   });
@@ -316,25 +321,30 @@ async function validateDoc(doc, intl, state) {
   }
 
   if (doc.size > Number(state.main.max_file_size)) {
-    doc.state = "failed-loading";
-    doc.message = intl.formatMessage(
-      {
-        defaultMessage: `Document is too big (max size: {size})`,
-        id: "validate-too-big",
-      },
-      { size: humanFileSize(state.main.max_file_size) }
-    );
-    return doc;
+    return {
+      ...doc,
+      state: "failed-loading",
+      message: intl.formatMessage(
+        {
+          defaultMessage: `Document is too big (max size: ${size})`,
+          id: "validate-too-big",
+        },
+        { size: humanFileSize(state.main.max_file_size) }
+      ),
+    };
   }
 
   return await pdfjs
     .getDocument({ url: doc.blob, password: "", stopAtErrors: true })
     .promise.then(() => {
-      doc.show = false;
-      doc.state = "loading";
-      return doc;
+      return {
+        ...doc,
+        show: false,
+        state: "loading",
+      };
     })
     .catch((err) => {
+      console.log('failed', err);
       return dealWithPDFError(doc, err, intl);
     });
 }
@@ -429,6 +439,20 @@ export const addDocumentToDb = async (document, name) => {
 };
 
 /**
+ * @function setChangedDocument
+ * @desc Update the redux store with changed doc and add it to the IndexedDB database
+ */
+const setChangedDocument = async (thunkAPI, state, doc) => {
+  const docElem = document.getElementById(`local-doc-${doc.name}`);
+  if (docElem !== null) {
+    docElem.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
+  const newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn);
+  thunkAPI.dispatch(documentsSlice.actions.setState(newDoc));
+  return newDoc;
+}
+
+/**
  * @public
  * @function createDocument
  * @desc Redux async thunk to add a new document to IndexedDB
@@ -441,7 +465,8 @@ export const createDocument = createAsyncThunk(
     // First we validate the document
     const doc = await validateDoc(args.doc, args.intl, state);
     if (doc.state === "failed-loading") {
-      return thunkAPI.rejectWithValue(doc);
+      await setChangedDocument(thunkAPI, state, doc);
+      return;
     }
 
     if (doc.state === "dup") {
@@ -454,17 +479,17 @@ export const createDocument = createAsyncThunk(
           }),
         })
       );
-      return thunkAPI.rejectWithValue(doc);
+      thunkAPI.dispatch(documentsSlice.actions.rmDup(doc));
+      return;
     }
     let newDoc = null;
     try {
-      // Now we add the document, first to the redux store, then to the IndexedDB database
-      thunkAPI.dispatch(documentsSlice.actions.addDocument(doc));
-      newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn);
+      newDoc = await setChangedDocument(thunkAPI, state, doc);
     } catch (err) {
       // If there was an error saving the document, we mark it as so,
       // and still try to save it to the redux store, so it can be displayed
       // as failed in the UI.
+      console.log('1st', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -474,12 +499,13 @@ export const createDocument = createAsyncThunk(
           }),
         })
       );
-      doc.state = "failed-loading";
+      doc.state = 'failed-loading';
       doc.message = args.intl.formatMessage({
         defaultMessage: "Problem adding document, please try again",
         id: "save-doc-problem-db",
       });
-      return thunkAPI.rejectWithValue(doc);
+      await setChangedDocument(thunkAPI, state, doc);
+      return;
     }
     // After loading the document locally in the browser, we send it to the backend
     // to be prepared for signing.
@@ -489,6 +515,7 @@ export const createDocument = createAsyncThunk(
         prepareDocument({ doc: newDoc, intl: args.intl })
       );
     } catch (err) {
+      console.log('2st', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -499,18 +526,20 @@ export const createDocument = createAsyncThunk(
           }),
         })
       );
-      doc.state = "failed-preparing";
+      doc.state = 'failed-loading';
       doc.message = args.intl.formatMessage({
         defaultMessage: "Problem preparing document for signing",
         id: "save-doc-problem-preparing",
       });
-      return thunkAPI.rejectWithValue(doc);
+      await setChangedDocument(thunkAPI, state, doc);
+      return;
     }
     // Finally we try to update the document persisted in the IndexedDB database
     // with whatever info it has been updated with after being prepared in the backend.
     try {
       await thunkAPI.dispatch(saveDocument({ docName: newDoc.name }));
     } catch (err) {
+      console.log('3st', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -521,12 +550,12 @@ export const createDocument = createAsyncThunk(
           }),
         })
       );
-      doc.state = "failed-preparing";
+      doc.state = 'failed-loading';
       doc.message = args.intl.formatMessage({
         defaultMessage: "Problem saving document in session",
         id: "save-doc-problem-session",
       });
-      return thunkAPI.rejectWithValue(doc);
+      await setChangedDocument(thunkAPI, state, doc);
     }
   }
 );
@@ -1057,22 +1086,6 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
   }
 };
 
-const renameSigned = (name) => {
-  let newName;
-  if (name.endsWith(".pdf")) {
-    newName = name.split(".").slice(0, -1).join(".") + "-signed.pdf";
-  } else if (name.includes(".")) {
-    const nameParts = name.split(".");
-    newName =
-      nameParts.slice(0, -1).join(".") +
-      "-signed." +
-      nameParts[nameParts.length - 1];
-  } else {
-    newName = name + "-signed";
-  }
-  return newName;
-};
-
 /**
  * @public
  * @function downloadSigned
@@ -1089,7 +1102,7 @@ export const downloadSigned = createAsyncThunk(
     })[0];
     const b64content = doc.signedContent.split(",")[1];
     const blob = b64toBlob(b64content);
-    const newName = renameSigned(doc.name);
+    const newName = nameForDownload(doc.name, 'signed');
     FileSaver.saveAs(blob, newName);
   }
 );
@@ -1120,7 +1133,7 @@ export const downloadAllSigned = createAsyncThunk(
     docs.forEach((doc) => {
       const b64content = doc.signedContent.split(",")[1];
       const blob = b64toBlob(b64content);
-      const newName = renameSigned(doc.name);
+      const newName = nameForDownload(doc.name, 'signed');
       folder.file(newName, blob);
     });
     zip.generateAsync({ type: "blob" }).then(function (content) {
@@ -1311,6 +1324,16 @@ const documentsSlice = createSlice({
     },
     /**
      * @public
+     * @function rmDup
+     * @desc Redux action to remove a duplicate document from the store
+     */
+    rmDup(state, action) {
+      state.documents = state.documents.filter((doc) => {
+        return doc.name !== action.payload.name || doc.created !== action.payload.created;
+      });
+    },
+    /**
+     * @public
      * @function rmDocumentByKey
      * @desc Redux action to remove a document from the store
      */
@@ -1425,11 +1448,6 @@ const documentsSlice = createSlice({
     },
   },
   extraReducers: {
-    [createDocument.rejected]: (state, action) => {
-      if (action.payload !== undefined && action.payload.state !== "dup") {
-        state.documents.push(action.payload);
-      }
-    },
     [loadDocuments.rejected]: (state, action) => {
       if (action.hasOwnProperty("payload") && action.payload !== undefined) {
         state.documents = action.payload.documents;

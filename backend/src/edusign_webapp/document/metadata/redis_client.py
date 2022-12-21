@@ -587,6 +587,32 @@ class RedisMD(ABCMetadata):
         if documents is None or isinstance(documents, dict):
             return []
 
+        return self._get_owned(documents)
+
+    def get_owned_by_email(self, email: str) -> List[Dict[str, Any]]:
+        """
+        Get information about the documents that have been added by some user to be signed by other users.
+
+        :param email: The email of the user
+        :return: A list of dictionaries with information about the documents, each of them with keys:
+                 + key: Key of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + pending: List of emails of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails of the users invited to sign the document who have already done so.
+                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + prev_signatures: previous signatures
+                 + loa: required LoA for the signature
+                 + created: creation timestamp for the invitation
+        """
+        documents = self.client.query_documents_from_owner(email)
+        if documents is None or isinstance(documents, dict):
+            return []
+
+        return self._get_owned(documents)
+
+    def _get_owned(self, documents: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         for document in documents:
             document['key'] = document['key']
             document['pending'] = []

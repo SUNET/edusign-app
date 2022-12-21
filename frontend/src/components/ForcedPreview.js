@@ -14,190 +14,198 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
  * @desc To show a modal dialog with a paginated view of a PDF, using PDF.js.
  * @component
  */
-function ForcedPreview(props) {
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [readyToConfirm, setReady] = useState(false);
+class ForcedPreview extends React.Component {
 
-  function onDocumentLoadSuccess({ numPages }) {
-    if (numPages === 1) setReady(true);
-    setNumPages(numPages);
+  constructor(props) {
+    super(props);
+    this.state = {
+      numPages: null,
+      pageNumber: 1,
+      readyToConfirm: false,
+    };
   }
 
-  function changePage(offset) {
-    setPageNumber((prevPageNumber) => {
-      const newPage = prevPageNumber + offset;
-      if (newPage === numPages) setReady(true);
-      return newPage;
-    });
+  onDocumentLoadSuccess({ numPages }) {
+    if (numPages === 1) this.setState({readyToConfirm: true});
+    this.setState({numPages: numPages});
   }
 
-  function firstPage() {
-    setPageNumber((prevPageNumber) => 1);
+  changePage(offset) {
+    const newPage = this.state.pageNumber + offset;
+    this.setState({pageNumber: newPage});
+    if (newPage === this.state.numPages) this.setState({readyToConfirm: true});
   }
 
-  function previousPage() {
-    changePage(-1);
+  firstPage() {
+    this.setState({pageNumber: 1});
   }
 
-  function nextPage() {
-    changePage(1);
+  previousPage() {
+    this.changePage(-1);
   }
 
-  function lastPage() {
-    setReady(true);
-    setPageNumber((prevPageNumber) => numPages);
+  nextPage() {
+    this.changePage(1);
   }
 
-  return (
-    <>
-      <Modal
-        show={props.doc.showForced}
-        onHide={props.handleClose(props.doc.name)}
-        size="lg"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{props.doc.name}</Modal.Title>
-        </Modal.Header>
+  lastPage() {
+    this.setState({readyToConfirm: true});
+    this.setState({pageNumber: this.state.numPages});
+  }
 
-        <Modal.Body>
-          <Document
-            file={props.docFile}
-            onLoadSuccess={onDocumentLoadSuccess}
-            onPassword={(c) => {
-              throw new Error("Never password");
-            }}
-            options={{
-              cMapUrl: "/js/cmaps/",
-              cMapPacked: true,
-              enableXfa: true,
-            }}
-          >
-            {(props.width < 550 && (
-              <Page
-                pageNumber={pageNumber}
-                width={props.width - 20}
-                renderInteractiveForms={false}
-                renderAnnotationLayer={true}
-              />
-            )) || (
-              <Page
-                pageNumber={pageNumber}
-                renderInteractiveForms={false}
-                renderAnnotationLayer={true}
-              />
-            )}
-          </Document>
-        </Modal.Body>
+  render () {
+    if (this.props.docFile === null) return '';
 
-        <Modal.Footer>
-          <div className="pdf-navigation">
-            <BButton
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) <= 1}
-              onClick={firstPage}
-              data-testid={"preview-button-first-" + props.index}
+    return (
+      <>
+        <Modal
+          show={this.props.doc.showForced}
+          onHide={this.props.handleClose(this.props.doc.name)}
+          size="lg"
+          centered
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>{this.props.doc.name}</Modal.Title>
+          </Modal.Header>
+
+          <Modal.Body>
+            <Document
+              file={this.props.docFile}
+              onLoadSuccess={this.onDocumentLoadSuccess.bind(this)}
+              onPassword={(c) => {
+                throw new Error("Never password");
+              }}
+              options={{
+                cMapUrl: "/js/cmaps/",
+                cMapPacked: true,
+                enableXfa: true,
+              }}
             >
-              &#x23EA;
-            </BButton>
-            <BButton
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) <= 1}
-              onClick={previousPage}
-              data-testid={"preview-button-prev-" + props.index}
-            >
-              &#x25C4;
-            </BButton>
-            <span>
-              &nbsp;
-              {(pageNumber || (numPages ? 1 : "--")) +
-                " / " +
-                (numPages || "--")}
-              &nbsp;
-            </span>
-            <BButton
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) >= Number(numPages)}
-              onClick={nextPage}
-              data-testid={"preview-button-next-" + props.index}
-            >
-              &#x25BA;
-            </BButton>
-            <BButton
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) >= Number(numPages)}
-              onClick={lastPage}
-              data-testid={"preview-button-last-" + props.index}
-            >
-              &#x23E9;
-            </BButton>
-          </div>
-          <ESTooltip
-            helpId={"preview-button-dissaprove-" + props.index}
-            inModal={true}
-            tooltip={
-              <FormattedMessage
-                defaultMessage="Click here to reject/remove the document"
-                key="dissaprove-doc-tootip"
-              />
-            }
-          >
-            <Button
-              variant="outline-danger"
-              disabling={true}
-              onClick={props.handleUnConfirm({
-                doc: props.doc,
-                intl: props.intl,
-              })}
-              id={"preview-button-dissaprove-" + props.index}
-            >
-              <FormattedMessage
-                defaultMessage="Reject"
-                key="button-dissaprove"
-              />
-            </Button>
-          </ESTooltip>
-          <ESTooltip
-            helpId={"preview-button-confirm-" + props.index}
-            inModal={true}
-            tooltip={
-              (readyToConfirm && (
-                <FormattedMessage
-                  defaultMessage="Click here to approve the document for signing"
-                  key="confirm-doc-tootip"
+              {(this.props.width < 550 && (
+                <Page
+                  pageNumber={this.state.pageNumber}
+                  width={this.props.width - 20}
+                  renderInteractiveForms={false}
+                  renderAnnotationLayer={true}
                 />
               )) || (
-                <FormattedMessage
-                  defaultMessage="Once you have scrolled to the end of the document you will be able to approve the document for signing"
-                  key="disabled-confirm-doc-tootip"
+                <Page
+                  pageNumber={this.state.pageNumber}
+                  renderInteractiveForms={false}
+                  renderAnnotationLayer={true}
                 />
-              )
-            }
-          >
-            <span className="d-inline-block">
+              )}
+            </Document>
+          </Modal.Body>
+
+          <Modal.Footer>
+            <div className="pdf-navigation">
+              <BButton
+                variant="outline"
+                size="sm"
+                disabled={Number(this.state.pageNumber) <= 1}
+                onClick={this.firstPage.bind(this)}
+                data-testid={"preview-button-first-" + this.props.index}
+              >
+                &#x23EA;
+              </BButton>
+              <BButton
+                variant="outline"
+                size="sm"
+                disabled={Number(this.state.pageNumber) <= 1}
+                onClick={this.previousPage.bind(this)}
+                data-testid={"preview-button-prev-" + this.props.index}
+              >
+                &#x25C4;
+              </BButton>
+              <span>
+                &nbsp;
+                {(this.state.pageNumber || (this.state.numPages ? 1 : "--")) +
+                  " / " +
+                  (this.state.numPages || "--")}
+                &nbsp;
+              </span>
+              <BButton
+                variant="outline"
+                size="sm"
+                disabled={Number(this.state.pageNumber) >= Number(this.state.numPages)}
+                onClick={this.nextPage.bind(this)}
+                data-testid={"preview-button-next-" + this.props.index}
+              >
+                &#x25BA;
+              </BButton>
+              <BButton
+                variant="outline"
+                size="sm"
+                disabled={Number(this.state.pageNumber) >= Number(this.state.numPages)}
+                onClick={this.lastPage.bind(this)}
+                data-testid={"preview-button-last-" + this.props.index}
+              >
+                &#x23E9;
+              </BButton>
+            </div>
+            <ESTooltip
+              helpId={"preview-button-dissaprove-" + this.props.index}
+              inModal={true}
+              tooltip={
+                <FormattedMessage
+                  defaultMessage="Click here to reject/remove the document"
+                  key="dissaprove-doc-tootip"
+                />
+              }
+            >
               <Button
-                disabled={!readyToConfirm}
-                onClick={props.handleConfirm(props.doc.name)}
-                style={(!readyToConfirm && { pointerEvents: "none" }) || {}}
-                variant="outline-success"
-                id={"preview-button-confirm-" + props.index}
+                variant="outline-danger"
+                disabling={true}
+                onClick={this.props.handleUnConfirm({
+                  doc: this.props.doc,
+                  intl: this.props.intl,
+                })}
+                id={"preview-button-dissaprove-" + this.props.index}
               >
                 <FormattedMessage
-                  defaultMessage="Approve"
-                  key="button-confirm"
+                  defaultMessage="Reject"
+                  key="button-dissaprove"
                 />
               </Button>
-            </span>
-          </ESTooltip>
-        </Modal.Footer>
-      </Modal>
-    </>
-  );
+            </ESTooltip>
+            <ESTooltip
+              helpId={"preview-button-confirm-" + this.props.index}
+              inModal={true}
+              tooltip={
+                (this.state.readyToConfirm && (
+                  <FormattedMessage
+                    defaultMessage="Click here to approve the document for signing"
+                    key="confirm-doc-tootip"
+                  />
+                )) || (
+                  <FormattedMessage
+                    defaultMessage="Once you have scrolled to the end of the document you will be able to approve the document for signing"
+                    key="disabled-confirm-doc-tootip"
+                  />
+                )
+              }
+            >
+              <span className="d-inline-block">
+                <Button
+                  disabled={!this.state.readyToConfirm}
+                  onClick={this.props.handleConfirm(this.props.doc.name)}
+                  style={(!this.state.readyToConfirm && { pointerEvents: "none" }) || {}}
+                  variant="outline-success"
+                  id={"preview-button-confirm-" + this.props.index}
+                >
+                  <FormattedMessage
+                    defaultMessage="Approve"
+                    key="button-confirm"
+                  />
+                </Button>
+              </span>
+            </ESTooltip>
+          </Modal.Footer>
+        </Modal>
+      </>
+    );
+  }
 }
 
 ForcedPreview.propTypes = {

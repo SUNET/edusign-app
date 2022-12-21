@@ -18,7 +18,7 @@ import { disablePolling, enablePolling } from "slices/Poll";
 import { hidePDFForm } from "slices/PDFForms";
 import { setActiveId } from "slices/Overlay";
 import { isNotInviting } from "slices/InviteForm";
-import { preparePDF } from "components/utils";
+import { docToFile } from "components/utils";
 
 const mapStateToProps = (state, props) => {
   const doc = state.pdfform.document;
@@ -26,7 +26,7 @@ const mapStateToProps = (state, props) => {
     docName = "",
     show = false;
   if (doc !== null) {
-    docFile = preparePDF(doc);
+    docFile = docToFile(doc);
     docName = doc.name;
     show = true;
   }
@@ -65,6 +65,7 @@ const mapDispatchToProps = (dispatch, props) => {
         })
       );
       dispatch(unsetSpinning());
+      this.resetValues();
     },
     handleClose: function () {
       dispatch(hidePDFForm());

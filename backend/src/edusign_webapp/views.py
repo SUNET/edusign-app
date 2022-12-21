@@ -311,7 +311,7 @@ def get_config() -> dict:
     else:
         payload['unauthn'] = True
 
-    attrs = {'eppn': session['eppn'], "mail": session["mail"]}
+    attrs = {'eppn': session['eppn'], "mail": session["mail"], "mail_aliases": session.get("mail_aliases", [session["mail"]])}
     if 'displayName' in session:
         attrs['name'] = session['displayName']
     else:
@@ -487,9 +487,12 @@ def _gather_invited_docs(docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any
             failed.append(failedDoc)
             continue
 
-        if stored['user']['email'] not in session['mail_aliases']:
+        # migration to mail_aliases
+        mail_aliases = session.get('mail_aliases', [session['mail']])
+
+        if stored['user']['email'] not in mail_aliases:
             current_app.logger.error(
-                f"Trying to sign invitation with wrong emails {session['mail_aliases']} (invited:  {stored['user']['email']})"
+                f"Trying to sign invitation with wrong emails {mail_aliases} (invited:  {stored['user']['email']})"
             )
             failedDoc = {
                 'key': doc['key'],
@@ -699,7 +702,7 @@ def _prepare_signed_by_email(key, owner):
     that one invited user (perhaps the last remaining one)
     has signed the document.
     """
-    pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail_aliases'])
+    pending = current_app.doc_store.get_pending_invites(key, exclude=session.get('mail_aliases', [session['mail']]))
     pending = [p for p in pending if not p['signed'] and not p['declined']]
 
     if len(pending) > 0:
@@ -769,7 +772,13 @@ def _prepare_all_signed_email(key, owner, doc, sendsigned):
     # attach PDF
     if sendsigned:
         doc_name = current_app.doc_store.get_document_name(key)
-        signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
+        if '.' in doc_name:
+            splitted = doc_name.split('.')
+            ext = splitted[-1]
+            prename = '.'.join(splitted[:-1])
+            signed_doc_name = f"{prename}-signed.{ext}"
+        else:
+            signed_doc_name = doc_name + '-signed'
         pdf_bytes = b64decode(doc['signedContent'], validate=True)
     else:
         signed_doc_name = ''
@@ -792,9 +801,12 @@ def _prepare_signed_documents_data(process_data):
         owner = current_app.doc_store.get_owner_data(key)
         current_app.logger.debug(f"Post-processing {key} for {owner}")
 
-        if 'email' in owner and owner['email'] not in session['mail_aliases']:
-            current_app.doc_store.update_document(key, doc['signedContent'], session['mail_aliases'])
-            current_app.doc_store.unlock_document(key, session['mail_aliases'])
+        # migration to mail_aliases
+        mail_aliases = session.get('mail_aliases', [session['mail']])
+
+        if 'email' in owner and owner['email'] not in mail_aliases:
+            current_app.doc_store.update_document(key, doc['signedContent'], mail_aliases)
+            current_app.doc_store.unlock_document(key, mail_aliases)
 
         elif owner:
             current_app.doc_store.remove_document(key)
@@ -847,8 +859,11 @@ def get_signed_documents(sign_data: dict) -> dict:
         owner = current_app.doc_store.get_owner_data(key)
         sendsigned = current_app.doc_store.get_sendsigned(key)
 
+        # migration to mail_aliases
+        mail_aliases = session.get('mail_aliases', [session['mail']])
+
         # this is an invitation to the current user
-        if 'email' in owner and owner['email'] not in session['mail_aliases']:
+        if 'email' in owner and owner['email'] not in mail_aliases:
             try:
                 email_args = _prepare_signed_by_email(key, owner)
                 emails.append((email_args, {}))
@@ -894,7 +909,10 @@ def create_multi_sign_request(data: dict) -> dict:
     if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
         return {'error': True, 'message': gettext('Unauthorized')}
 
-    if data['owner'] not in session['mail_aliases']:
+    # migration to mail_aliases
+    mail_aliases = session.get('mail_aliases', [session['mail']])
+
+    if data['owner'] not in mail_aliases:
         current_app.logger.error(f"User {session['mail']} is trying to create an invitation as {data['owner']}")
         return {'error': True, 'message': gettext("You cannot invite as %(owner)s") % {'owner': data['owner']}}
 
@@ -1195,7 +1213,13 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
     # attach PDF
     if sendsigned:
         doc_name = current_app.doc_store.get_document_name(key)
-        signed_doc_name = '.'.join(doc_name.split('.')[:-1]) + '-signed.pdf'
+        if '.' in doc_name:
+            splitted = doc_name.split('.')
+            ext = splitted[-1]
+            prename = '.'.join(splitted[:-1])
+            signed_doc_name = f"{prename}-signed.{ext}"
+        else:
+            signed_doc_name = doc_name + '-signed'
         pdf_bytes = b64decode(doc['blob'], validate=True)
     else:
         signed_doc_name = ''
@@ -1261,7 +1285,10 @@ def _prepare_declined_email(key, owner_data):
     Prepare email to inviter user informing about an invited user
     that has declined to sign the document.
     """
-    pending = current_app.doc_store.get_pending_invites(key, exclude=session['mail_aliases'])
+    # migration to mail_aliases
+    mail_aliases = session.get('mail_aliases', [session['mail']])
+
+    pending = current_app.doc_store.get_pending_invites(key, exclude=mail_aliases)
     pending = [p for p in pending if not p['signed'] and not p['declined']]
     if len(pending) > 0:
         template = 'declined_by_email'
@@ -1305,10 +1332,11 @@ def decline_invitation(data):
     """
 
     key = uuid.UUID(data['key'])
-    emails = session['mail_aliases']
+    # migration to mail_aliases
+    mail_aliases = session.get('mail_aliases', [session['mail']])
 
     try:
-        current_app.doc_store.decline_document(key, emails)
+        current_app.doc_store.decline_document(key, mail_aliases)
     except Exception as e:
         current_app.logger.error(f'Problem declining signature of document: {e}')
         return {'error': True, 'message': gettext('Problem declining signature, please try again')}

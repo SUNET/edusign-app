@@ -166,7 +166,7 @@ def test_add_update_and_get_pending_invites(sqlite_md, sample_metadata_1, sample
     with run.app.app_context():
         test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
 
-        test_md.update(dummy_key_1, sample_invites_1[0]['email'])
+        test_md.update(dummy_key_1, [sample_invites_1[0]['email']])
         pending = test_md.get_invited(dummy_key_1)
 
     assert len(pending) == 2
@@ -189,7 +189,7 @@ def test_update_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sa
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
 
-        test_md.update(dummy_key, sample_invites_1[0]['email'])
+        test_md.update(dummy_key, [sample_invites_1[0]['email']])
 
         pending1 = test_md.get_pending('invite0@example.org')
         pending2 = test_md.get_pending('invite1@example.org')
@@ -227,7 +227,7 @@ def test_updated_timestamp(sqlite_md, sample_metadata_1, sample_owner_1, sample_
     assert datetime.fromisoformat(result[5]) == datetime.fromisoformat(result[6])
 
     with run.app.app_context():
-        test_md.update(dummy_key, 'invite1@example.org')
+        test_md.update(dummy_key, ['invite1@example.org'])
 
     result = get_doc()
 
@@ -243,7 +243,7 @@ def test_add_and_get_owned(sqlite_md, sample_metadata_1, sample_owner_1, sample_
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
 
-        owned = test_md.get_owned('owner@example.org')
+        owned = test_md.get_owned('owner-eppn@example.org')
 
     assert len(owned) == 1
     assert owned[0]['key'] == dummy_key
@@ -261,11 +261,11 @@ def test_add_and_remove(sqlite_md, sample_metadata_1, sample_owner_1, sample_inv
 
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        test_md.update(dummy_key, sample_invites_1[0]['email'])
-        test_md.update(dummy_key, sample_invites_1[1]['email'])
+        test_md.update(dummy_key, [sample_invites_1[0]['email']])
+        test_md.update(dummy_key, [sample_invites_1[1]['email']])
         test_md.remove(dummy_key)
 
-        owned = test_md.get_owned('owner@example.org')
+        owned = test_md.get_owned('owner-eppn@example.org')
 
     assert len(owned) == 0
 
@@ -278,11 +278,11 @@ def test_add_and_remove_wrong_key(sqlite_md, sample_metadata_1, sample_owner_1, 
 
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        test_md.update(dummy_key, sample_invites_1[0]['email'])
-        test_md.update(dummy_key, sample_invites_1[1]['email'])
+        test_md.update(dummy_key, [sample_invites_1[0]['email']])
+        test_md.update(dummy_key, [sample_invites_1[1]['email']])
         test_md.remove(uuid.uuid4())
 
-        owned = test_md.get_owned('owner@example.org')
+        owned = test_md.get_owned('owner-eppn@example.org')
 
     assert len(owned) == 1
 
@@ -297,7 +297,7 @@ def test_add_and_remove_not(sqlite_md, sample_metadata_1, sample_owner_1, sample
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
         test_md.remove(dummy_key)
 
-        owned = test_md.get_owned('owner@example.org')
+        owned = test_md.get_owned('owner-eppn@example.org')
 
     assert len(owned) == 1
 
@@ -312,7 +312,7 @@ def test_add_and_remove_force(sqlite_md, sample_metadata_1, sample_owner_1, samp
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
         test_md.remove(dummy_key, force=True)
 
-        owned = test_md.get_owned('owner@example.org')
+        owned = test_md.get_owned('owner-eppn@example.org')
 
     assert len(owned) == 0
 
@@ -482,21 +482,4 @@ def test_add_and_get_user(sqlite_md, sample_metadata_1, sample_owner_1, sample_i
     with run.app.app_context():
         invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
 
-        user_id = int(invites[0]['id'])
-        user = test_md.get_user(user_id)
-
-    assert user['email'] == sample_invites_1[0]['email']
-
-
-def test_add_and_get_no_user(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = sqlite_md
-    dummy_key = uuid.uuid4()
-    sendsigned = True
-    loa = ''
-
-    with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-
-        user = test_md.get_user(1000000)
-
-    assert user == {}
+    assert invites[0]['email'] == sample_invites_1[0]['email']
