@@ -1,4 +1,10 @@
 
+In version 1.2.1:
+-----------------
+
+* Update Python dependencies
+* Update JS dependencies
+
 In version 1.1.1:
 -----------------
 
