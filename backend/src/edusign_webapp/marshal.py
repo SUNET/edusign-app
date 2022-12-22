@@ -34,7 +34,7 @@
 import json
 import os
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional, Type
+from typing import Any, Callable, Dict, Optional, Type
 from urllib.parse import urlsplit
 
 from flask import current_app, request, session
@@ -52,24 +52,20 @@ def csrf_check_headers() -> None:
     """
     custom_header = request.headers.get('X-Requested-With', '')
     if custom_header != 'XMLHttpRequest':
-        current_app.logger.error('CSRF missing custom X-Requested-With header')
-        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+        raise ValidationError('CSRF missing custom X-Requested-With header')
     origin = request.headers.get('Origin', None)
     if origin is None:
         origin = request.headers.get('Referer', None)
     if origin is None:
-        current_app.logger.error('CSRF cannot check origin')
-        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+        raise ValidationError('CSRF cannot check origin')
     origin = origin.split()[0]
     origin = urlsplit(origin).hostname
     target = request.headers.get('X-Forwarded-Host', None)
     if target is None:
-        current_app.logger.error('The X-Forwarded-Host header is missing!!')
-        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+        raise ValidationError('The X-Forwarded-Host header is missing!!')
     target = target.split(':')[0]
     if origin != target:
-        current_app.logger.error(f'CSRF cross origin request, origin: {origin}, target: {target}')
-        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+        raise ValidationError(f'CSRF cross origin request, origin: {origin}, target: {target}')
 
 
 class ResponseSchema(Schema):
@@ -118,7 +114,7 @@ class Marshal(object):
     and marshall them into Flask response objects via marshmallow schemata.
     """
 
-    def __init__(self, schema: Type[Schema] = None):
+    def __init__(self, schema: Optional[Type[Schema]] = None):
         """
         Instantiate `Marshall` with a Schema class,
         which will give form to the payload of the actual response schema
@@ -156,16 +152,11 @@ class Marshal(object):
 
             if resp_data.get('error', False):
                 processed = ResponseSchema().dump(resp_data)
-                current_app.logger.debug(f"Processed data: {processed}")
                 response = current_app.response_class(json.dumps(processed), mimetype='application/json')
-                current_app.logger.debug(f"And response: {response}")
                 return response
 
             processed = self.schema().dump(resp_data)
-            current_app.logger.debug(f"Processed data: {processed}")
             response = current_app.response_class(json.dumps(processed), mimetype='application/json')
-            current_app.logger.debug(f"And response: {response}")
-            current_app.logger.debug(f"With Headers: {response.headers}")
             return response
 
         return marshal_decorator
@@ -201,8 +192,7 @@ class RequestSchema(Schema):
         key = session['user_key'] + secret
 
         if not check_password_hash(token, key):
-            current_app.logger.error('CSRF token failed to validate')
-            raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+            raise ValidationError('CSRF token failed to validate')
 
     @post_load
     def post_processing(self, in_data: dict, **kwargs) -> dict:
@@ -248,22 +238,8 @@ class _UnMarshal(object):
                 return f(unmarshal_result['payload'])
             except ValidationError as e:
                 error = e.normalized_messages()
-                current_app.logger.debug(f"Errors Unmarshaling: {error}")
-                if isinstance(error, dict):
-                    if 'payload' in error:
-                        error_msgs = []
-                        for field, msgs in error['payload'].items():
-                            if field == 'documents':
-                                error_msgs = [gettext('Document data seems corrupted')]
-                            else:
-                                field_msgs = _i18n_marshmallow_validation_errors(msgs)
-                                error_msgs.append("{}: {}".format(field, "; ".join(field_msgs)))
-                        error_msg = '. '.join(error_msgs)
-                    elif 'csrf_token' in error:
-                        msgs = _i18n_marshmallow_validation_errors(error['csrf_token'])
-                        error_msg = 'csrf_token: {}'.format('; '.join(msgs))
-                else:
-                    error_msg = error
+                current_app.logger.error(f"Errors Unmarshaling data for {session['eppn']}: {error}")
+                error_msg = gettext("There were problems with the data you sent, please try again or contact your IT support")
                 data = {'error': True, 'message': error_msg}
                 return ResponseSchema().dump(data)
 
@@ -280,7 +256,7 @@ class UnMarshal(_UnMarshal):
     a ValidationError in case there is no such token.
     """
 
-    def __init__(self, schema: Type[Schema] = None):
+    def __init__(self, schema: Optional[Type[Schema]] = None):
         """
         Instantiate the class with a view specific schema,
         that will parse and validate the request data that is specific to the decorated view,
@@ -308,7 +284,7 @@ class UnMarshalNoCSRF(_UnMarshal):
     The unmarshalling will not check for a valid CSRF token in the request.
     """
 
-    def __init__(self, schema: Type[Schema] = None):
+    def __init__(self, schema: Type[Schema]):
         """
         Instantiate the class with a view specific schema,
         that will parse and validate the request data that is specific to the decorated view,
@@ -316,27 +292,7 @@ class UnMarshalNoCSRF(_UnMarshal):
 
         :param schema: The schema detailing the expected structure and type of the received data.
         """
-
         class UnMarshallingSchema(Schema):
             payload = fields.Nested(schema)  # type: ignore
 
         self.schema = UnMarshallingSchema
-
-
-def _i18n_marshmallow_validation_errors(msgs: List[str]) -> List[str]:
-    """
-    This is for internationalizing validation errors in English
-    straight out of Marshmallow.
-
-    :param msgs: List of messages to localize
-    :return: List of localized messages.
-    """
-    field_msgs = []
-    for msg in msgs:
-        msg = msg.strip('.')
-        if msg == "Missing data for required field":
-            msg = gettext("Required")
-        elif msg == "Not a valid integer":
-            msg = gettext("Not a valid integer")
-        field_msgs.append(msg)
-    return field_msgs
