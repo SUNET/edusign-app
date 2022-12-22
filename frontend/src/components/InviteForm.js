@@ -6,6 +6,7 @@ import BButton from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
+import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
 import { nameForCopy } from "components/utils";
 
@@ -42,6 +43,20 @@ export const validateName = (value) => {
     error = <FormattedMessage defaultMessage="Required" key="required-field" />;
   }
   return error;
+};
+
+export const validateLang = (value) => {
+  let found = false;
+
+  AVAILABLE_LANGUAGES.forEach((lang) => {
+    if (lang[0] === value) {
+      found = true;
+    }
+  });
+  if (!found) {
+    return (<FormattedMessage defaultMessage="Unknown language" key="unknown-language" />);
+  }
+  return undefined;
 };
 
 const validateBody = (value) => {
@@ -95,8 +110,10 @@ const validate = (props) => {
     values.invitees.forEach((val, i) => {
       const nameError = validateName(val.name);
       const emailError = validateEmail(props.mail, props.mail_aliases)(val.email);
+      const langError = validateName(val.language);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
       if (emailError !== undefined) errors[`invitees.${i}.email`] = emailError;
+      if (langError !== undefined) errors[`invitees.${i}.language`] = langError;
     });
     if (values.makecopyChoice) {
       const newNameError = validateNewname(props)(values.newnameInput);
@@ -118,6 +135,7 @@ const initialValues = (props) => ({
     {
       name: "",
       email: "",
+      language: Cookies.get("lang"),
     },
   ],
 });
@@ -247,6 +265,51 @@ class InviteForm extends React.Component {
                         />
                       </BForm.Group>
                     </div>
+                    <div className="invitee-form-language">
+                      <BForm.Group className="form-group">
+                        <BForm.Label htmlFor={`invitees.${index}.language`}>
+                          <FormattedMessage
+                            defaultMessage="Language"
+                            key="language-input-field"
+                          />
+                        </BForm.Label>
+                        <ErrorMessage
+                          name={`invitees.${index}.language`}
+                          component="div"
+                          className="field-error"
+                        />
+                        <Field
+                          name={`invitees.${index}.language`}
+                          data-testid={`invitees.${index}.language`}
+                          value={invitee.language}
+                          as={BForm.Select}
+                          validate={validateLang}
+                          isValid={
+                            fprops.touched.invitees &&
+                            fprops.touched.invitees[index] &&
+                            fprops.touched.invitees[index].language &&
+                            (!fprops.errors.invitees ||
+                              (fprops.errors.invitees &&
+                                (!fprops.errors.invitees[index] ||
+                                  (fprops.errors.invitees[index] &&
+                                    !fprops.errors.invitees[index].language))))
+                          }
+                          isInvalid={
+                            fprops.touched.invitees &&
+                            fprops.touched.invitees[index] &&
+                            fprops.touched.invitees[index].language &&
+                            fprops.errors.invitees &&
+                            fprops.errors.invitees[index] &&
+                            fprops.errors.invitees[index].language
+                          }
+                        >
+                          {(AVAILABLE_LANGUAGES.map((lang, i) => (
+                            <option key={i} value={lang[0]}>{lang[1]}</option>
+                          ))
+                          )}
+                        </Field>
+                      </BForm.Group>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -263,7 +326,7 @@ class InviteForm extends React.Component {
               <Button
                 variant="outline-secondary"
                 data-testid={"button-add-invitation-" + this.props.docName}
-                onClick={() => arrayHelpers.push({ name: "", email: "" })}
+                onClick={() => arrayHelpers.push({ name: "", email: "", language: Cookies.get('lang') })}
               >
                 <FormattedMessage
                   defaultMessage="Invite more people"
