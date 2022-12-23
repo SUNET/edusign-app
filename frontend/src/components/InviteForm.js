@@ -134,7 +134,7 @@ const validate = (props) => {
         values.invitees,
         i
       )(val.email);
-      const langError = validateName(val.language);
+      const langError = validateName(val.lang);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
       if (emailError !== undefined) {
         errors[`invitees.${i}.email`] = emailError;
@@ -151,7 +151,7 @@ const validate = (props) => {
           emails.push(val.email);
         }
       }
-      if (langError !== undefined) errors[`invitees.${i}.language`] = langError;
+      if (langError !== undefined) errors[`invitees.${i}.lang`] = langError;
     });
     if (values.makecopyChoice) {
       const newNameError = validateNewname(props)(values.newnameInput);
@@ -173,7 +173,7 @@ const initialValues = (props) => ({
     {
       name: "",
       email: "",
-      language: Cookies.get("lang"),
+      lang: Cookies.get("lang"),
     },
   ],
 });
@@ -310,40 +310,40 @@ class InviteForm extends React.Component {
                     </div>
                     <div className="invitee-form-language">
                       <BForm.Group className="form-group">
-                        <BForm.Label htmlFor={`invitees.${index}.language`}>
+                        <BForm.Label htmlFor={`invitees.${index}.lang`}>
                           <FormattedMessage
                             defaultMessage="Language"
                             key="language-input-field"
                           />
                         </BForm.Label>
                         <ErrorMessage
-                          name={`invitees.${index}.language`}
+                          name={`invitees.${index}.lang`}
                           component="div"
                           className="field-error"
                         />
                         <Field
-                          name={`invitees.${index}.language`}
-                          data-testid={`invitees.${index}.language`}
-                          value={invitee.language}
+                          name={`invitees.${index}.lang`}
+                          data-testid={`invitees.${index}.lang`}
+                          value={invitee.lang}
                           as={BForm.Select}
                           validate={validateLang}
                           isValid={
                             fprops.touched.invitees &&
                             fprops.touched.invitees[index] &&
-                            fprops.touched.invitees[index].language &&
+                            fprops.touched.invitees[index].lang &&
                             (!fprops.errors.invitees ||
                               (fprops.errors.invitees &&
                                 (!fprops.errors.invitees[index] ||
                                   (fprops.errors.invitees[index] &&
-                                    !fprops.errors.invitees[index].language))))
+                                    !fprops.errors.invitees[index].lang))))
                           }
                           isInvalid={
                             fprops.touched.invitees &&
                             fprops.touched.invitees[index] &&
-                            fprops.touched.invitees[index].language &&
+                            fprops.touched.invitees[index].lang &&
                             fprops.errors.invitees &&
                             fprops.errors.invitees[index] &&
-                            fprops.errors.invitees[index].language
+                            fprops.errors.invitees[index].lang
                           }
                         >
                           {(AVAILABLE_LANGUAGES.map((lang, i) => (
@@ -369,7 +369,7 @@ class InviteForm extends React.Component {
               <Button
                 variant="outline-secondary"
                 data-testid={"button-add-invitation-" + this.props.docName}
-                onClick={() => arrayHelpers.push({ name: "", email: "", language: Cookies.get('lang') })}
+                onClick={() => arrayHelpers.push({ name: "", email: "", lang: Cookies.get('lang') })}
               >
                 <FormattedMessage
                   defaultMessage="Invite more people"
