@@ -76,6 +76,7 @@ const init_app = function (target, component) {
   if (supported.includes(language)) {
     lang = language;
   }
+  Cookies.set("lang", lang);
   const msgs = messages[lang];
 
   store.dispatch(
