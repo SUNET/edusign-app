@@ -15,6 +15,9 @@ var webpackProd = {
 delete webpackProd.entry.server;
 delete webpackProd.entry.hot;
 
+// remove react-refresh plugin from babel-laoder
+webpackProd.module.rules[0].use.options = {};
+
 webpackProd.devtool = 'nosources-source-map';
 
 webpackProd.output = {
