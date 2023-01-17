@@ -806,7 +806,7 @@ class SqliteMD(ABCMetadata):
 
         :param doc_id: the pk for the document in the documents table
         :param locking_email: Email of the user locking the document
-        :return: Whether the document is locked by the user with `locking_email` email
+        :return: Whether the document is locked by the user with `locking_email` emails
         """
         lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
         if lock_info is None or isinstance(lock_info, list):
