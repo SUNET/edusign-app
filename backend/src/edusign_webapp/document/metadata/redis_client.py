@@ -43,18 +43,25 @@ from edusign_webapp.doc_store import ABCMetadata
 class RedisStorageBackend:
     def __init__(self, redis_client):
         self.redis = redis_client
-        self.transaction = None
+        self._transaction = None
 
     def pipeline(self):
-        self.transaction = self.redis.pipeline()
+        self._transaction = self.redis.pipeline()
 
     def commit(self):
-        self.transaction.execute()
-        self.transaction = None
+        assert self._transaction is not None
+        self._transaction.execute()
+        self._transaction = None
 
     def abort(self):
-        self.transaction.reset()
-        self.transaction = None
+        assert self._transaction is not None
+        self._transaction.reset()
+        self._transaction = None
+
+    @property
+    def transaction(self):
+        assert self._transaction is not None
+        return self._transaction
 
     def insert_document(self, key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa):
         doc_id = self.redis.incr('doc-counter')
@@ -219,7 +226,7 @@ class RedisStorageBackend:
         invite_ids = self.redis.sunion(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}")
         for b_invite_id in invite_ids:
             invite_id = int(b_invite_id)
-            email = int(self.client.redis.hget(f"invite:{invite_id}", 'user_email'))
+            email = int(self.redis.hget(f"invite:{invite_id}", 'user_email'))
             self.transaction.delete(f"invite:{invite_id}")
             self.transaction.delete(f"invites:unsigned:document:{doc_id}")
             self.transaction.delete(f"invites:signed:document:{doc_id}")
