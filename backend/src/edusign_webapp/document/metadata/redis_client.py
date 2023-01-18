@@ -226,7 +226,7 @@ class RedisStorageBackend:
             self.transaction.delete(f"invites:declined:document:{doc_id}")
             self.transaction.srem(f"invites:unsigned:email:{email}", invite_id)
             self.transaction.srem(f"invites:signed:email:{email}", invite_id)
-            self.transaction.srem(f"invites:decclined:email:{email}", invite_id)
+            self.transaction.srem(f"invites:declined:email:{email}", invite_id)
 
     def query_invites_from_email(self, email):
         invites = []
