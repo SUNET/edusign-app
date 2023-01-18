@@ -254,10 +254,11 @@ class RedisStorageBackend:
             b_invite = self.redis.hgetall(f"invite:{int(invite_id)}")
             invites.append(
                 {
-                    'user_id': int(b_invite[b'user_id']),
                     'key': b_invite[b'key'].decode('utf8'),
                     'signed': int(b_invite[b'signed']),
                     'declined': int(b_invite[b'declined']),
+                    'user_name': b_invite[b'user_name'].decode('utf8'),
+                    'user_email': b_invite[b'user_email'].decode('utf8'),
                 }
             )
         return invites
@@ -265,15 +266,7 @@ class RedisStorageBackend:
     def query_unsigned_invites_from_doc(self, doc_id):
         """"""
         invite_ids = self.redis.smembers(f'invites:unsigned:document:{doc_id}')
-        invites = []
-        for invite_id in invite_ids:
-            b_invite = self.redis.hgetall(f"invite:{int(invite_id)}")
-            invites.append(
-                {
-                    'user_id': int(b_invite[b'user_id']),
-                    'key': b_invite[b'key'].decode('utf8'),
-                }
-            )
+        invites = [int(invite_id) for invite_id in invite_ids]
         return invites
 
     def query_invite_id(self, key):
@@ -287,8 +280,9 @@ class RedisStorageBackend:
         if invite_id is not None:
             b_invite = self.redis.hgetall(f"invite:{invite_id}")
             invite = dict(
-                user_id=int(b_invite[b'user_id']),
                 doc_id=int(b_invite[b'doc_id']),
+                user_name=b_invite[b'user_name'].decode('utf8'),
+                user_email=b_invite[b'user_email'].decode('utf8'),
             )
             return invite
 
