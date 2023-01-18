@@ -120,10 +120,7 @@ class RedisStorageBackend:
     def query_document(self, doc_id):
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
 
-        if isinstance(b_doc[b'created'], bytes):
-            created = datetime.fromisoformat(b_doc[b'created'].decode('utf8'))
-        else:
-            created = b_doc[b'created']
+        created = datetime.fromtimestamp(b_doc[b'created'])
 
         doc = dict(
             key=uuid.UUID(b_doc[b'key'].decode('utf8')),
@@ -154,10 +151,7 @@ class RedisStorageBackend:
             doc_id = int(b_doc_id)
             b_doc = self.redis.hgetall(f"doc:{doc_id}")
 
-            if isinstance(b_doc[b'created'], bytes):
-                created = datetime.fromisoformat(b_doc[b'created'].decode('utf8'))
-            else:
-                created = b_doc[b'created']
+            created = datetime.fromtimestamp(b_doc[b'created'])
 
             doc = dict(
                 doc_id=doc_id,
@@ -203,7 +197,7 @@ class RedisStorageBackend:
         self.transaction.delete(f"doc:{doc_id}")
         self.transaction.delete(f"doc:key:{key}")
         self.transaction.zrem("doc:created", key)
-        email = document[b'owner_email'].decode('utf8')
+        email = document['owner_email']
         self.transaction.srem(f"doc:email:{email}", doc_id)
 
     def insert_invite(self, key, doc_id, user_email, user_name):
@@ -447,7 +441,6 @@ class RedisMD(ABCMetadata):
             document['signed'] = []
             document['declined'] = []
             document['state'] = "unconfirmed"
-            document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
 
             subinvites = self.client.query_invites_from_doc(doc_id)
 
@@ -764,10 +757,7 @@ class RedisMD(ABCMetadata):
 
         now = datetime.now()
 
-        if isinstance(lock_info['locked'], str):
-            locked = datetime.fromisoformat(lock_info['locked'])
-        else:
-            locked = lock_info['locked']
+        locked = lock_info['locked']
 
         now_ts = now.timestamp()
 
@@ -806,10 +796,7 @@ class RedisMD(ABCMetadata):
 
         now = datetime.now()
 
-        if isinstance(lock_info['locked'], str):
-            locked = datetime.fromisoformat(lock_info['locked'])
-        else:
-            locked = lock_info['locked']
+        locked = lock_info['locked']
 
         if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['locking_email'] in unlocking_email:
             self.client.rm_document_lock(doc_id)
@@ -837,10 +824,7 @@ class RedisMD(ABCMetadata):
             self.logger.debug(f"Check a non-locked document with id {doc_id}")
             return False
 
-        if isinstance(lock_info['locked'], str):
-            locked = datetime.fromisoformat(lock_info['locked'])
-        else:
-            locked = lock_info['locked']
+        locked = lock_info['locked']
 
         now = datetime.now()
 
