@@ -56,7 +56,7 @@ class RedisStorageBackend:
         self.transaction.reset()
         self.transaction = None
 
-    def insert_document(self, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa):
+    def insert_document(self, key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa):
         doc_id = self.redis.incr('doc-counter')
         now = datetime.now().timestamp()
         mapping = dict(
@@ -67,7 +67,6 @@ class RedisStorageBackend:
             owner_email=owner_email,
             owner_name=owner_name,
             owner_eppn=owner_eppn,
-            owner_lang=owner_lang,
             created=now,
             updated=now,
             prev_signatures=prev_signatures,
@@ -98,7 +97,6 @@ class RedisStorageBackend:
             doc_id=doc_id,
             owner_email=b_doc[b'owner_email'].decode('utf8'),
             owner_name=b_doc[b'owner_name'].decode('utf8'),
-            owner_lang=b_doc[b'owner_lang'].decode('utf8'),
         )
         return doc
 
@@ -127,7 +125,6 @@ class RedisStorageBackend:
             type=b_doc[b'type'].decode('utf8'),
             owner_email=b_doc[b'owner_email'].decode('utf8'),
             owner_name=b_doc[b'owner_name'].decode('utf8'),
-            owner_lang=b_doc[b'owner_lang'].decode('utf8'),
             owner_eppn=b_doc[b'owner_eppn'].decode('utf8'),
             prev_signatures=b_doc[b'prev_signatures'].decode('utf8'),
             loa=b_doc[b'loa'].decode('utf8'),
@@ -202,14 +199,13 @@ class RedisStorageBackend:
         email = document[b'owner_email'].decode('utf8')
         self.transaction.srem(f"doc:email:{email}", doc_id)
 
-    def insert_invite(self, key, doc_id, user_email, user_name, user_lang):
+    def insert_invite(self, key, doc_id, user_email, user_name):
         invite_id = self.redis.incr('invite-counter')
         mapping = dict(
             key=key,
             doc_id=doc_id,
             user_name=user_name,
             user_email=user_email,
-            user_lang=user_lang,
             signed=0,
             declined=0,
         )
@@ -356,8 +352,8 @@ class RedisMD(ABCMetadata):
                          + size: Size of the doc
                          + type: Content type of the doc
                          + prev_signatures: previous signatures
-        :param owner: Name and email address and eppn and language of the user that has uploaded the document.
-        :param invites: List of the names and emails and languages of the users that have been invited to sign the document.
+        :param owner: Name and email address and eppn of the user that has uploaded the document.
+        :param invites: List of the names and emails of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
@@ -371,7 +367,6 @@ class RedisMD(ABCMetadata):
             document['type'],
             owner['email'],
             owner['name'],
-            owner['lang'],
             owner['eppn'],
             document.get('prev_signatures', ''),
             sendsigned,
@@ -386,7 +381,7 @@ class RedisMD(ABCMetadata):
 
         for user in invites:
             invite_key = str(uuid.uuid4())
-            self.client.insert_invite(invite_key, document_id, user['email'], user['name'], user['lang'])
+            self.client.insert_invite(invite_key, document_id, user['email'], user['name'])
 
             updated_invite = {'key': invite_key}
             updated_invite.update(user)
@@ -439,7 +434,7 @@ class RedisMD(ABCMetadata):
                 )
                 continue
 
-            document['owner'] = {'email': document['owner_email'], 'name': document['owner_name'], 'lang': document['owner_lang'], 'eppn': document['owner_eppn']}
+            document['owner'] = {'email': document['owner_email'], 'name': document['owner_name'], 'eppn': document['owner_eppn']}
             document['invite_key'] = invite['key']
             document['pending'] = []
             document['signed'] = []
@@ -451,7 +446,7 @@ class RedisMD(ABCMetadata):
 
             if subinvites is not None and not isinstance(subinvites, dict):
                 for subinvite in subinvites:
-                    subemail_result = {'email': subinvite['user_email'], 'name': subinvite['user_name'], 'lang': subinvite['user_lang']}
+                    subemail_result = {'email': subinvite['user_email'], 'name': subinvite['user_name']}
                     if subemail_result['email'] == email:
                         continue
                     if subinvite['signed'] == 1:
@@ -569,7 +564,7 @@ class RedisMD(ABCMetadata):
                 document['state'] = state
                 continue
             for invite in invites:
-                email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'lang': invite['user_lang']}
+                email_result = {'email': invite['user_email'], 'name': invite['user_name']}
                 if invite['signed'] == 1:
                     document['signed'].append(email_result)
                 elif invite['declined'] == 1:
@@ -590,7 +585,6 @@ class RedisMD(ABCMetadata):
         :return: A list of dictionaries with information about the users, each of them with keys:
                  + name: The name of the user
                  + email: The email of the user
-                 + lang: The language of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
@@ -608,7 +602,7 @@ class RedisMD(ABCMetadata):
             return invitees
 
         for invite in invites:
-            email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'lang': invite['user_lang']}
+            email_result = {'email': invite['user_email'], 'name': invite['user_name']}
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['signed'])
             email_result['key'] = invite['key']
@@ -668,18 +662,17 @@ class RedisMD(ABCMetadata):
             return {}
 
         doc['doc_id'] = invite['doc_id']
-        user = {'name': invite['user_name'], 'email': invite['user_email'], 'lang': invite['user_lang']}
+        user = {'name': invite['user_name'], 'email': invite['user_email']}
 
         return {'document': doc, 'user': user}
 
-    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = '') -> Dict[str, Any]:
+    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, invite_key: str = '') -> Dict[str, Any]:
         """
         Create a new invitation to sign
 
         :param document_key: The key identifying the document to sign
         :param name: The name for the new invitation
         :param email: The email for the new invitation
-        :param lang: The language for the new invitation
         :param invite_key: The invite key for the new invitation
         :return: data on the new invitation
         """
@@ -694,7 +687,7 @@ class RedisMD(ABCMetadata):
         if invite_key == '':
             invite_key = str(uuid.uuid4())
 
-        self.client.insert_invite(invite_key, document_id, email, name, lang)
+        self.client.insert_invite(invite_key, document_id, email, name)
 
         self.client.commit()
 
@@ -737,7 +730,6 @@ class RedisMD(ABCMetadata):
                  + size: Size of the doc
                  + owner_email: Email of owner
                  + owner_name: Display name of owner
-                 + owner_lang: Language of owner
         """
         document_result = self.client.query_document_all(key)
         if document_result is None:
