@@ -120,7 +120,7 @@ class RedisStorageBackend:
     def query_document(self, doc_id):
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
 
-        created = datetime.fromtimestamp(b_doc[b'created'])
+        created = datetime.fromtimestamp(float(b_doc[b'created']))
 
         doc = dict(
             key=uuid.UUID(b_doc[b'key'].decode('utf8')),
@@ -151,7 +151,7 @@ class RedisStorageBackend:
             doc_id = int(b_doc_id)
             b_doc = self.redis.hgetall(f"doc:{doc_id}")
 
-            created = datetime.fromtimestamp(b_doc[b'created'])
+            created = datetime.fromtimestamp(float(b_doc[b'created']))
 
             doc = dict(
                 doc_id=doc_id,
