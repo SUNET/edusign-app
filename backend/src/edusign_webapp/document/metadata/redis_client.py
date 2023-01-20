@@ -225,7 +225,7 @@ class RedisStorageBackend:
         invite_ids = self.redis.sunion(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}")
         for b_invite_id in invite_ids:
             invite_id = int(b_invite_id)
-            email = int(self.redis.hget(f"invite:{invite_id}", 'user_email'))
+            email = self.redis.hget(f"invite:{invite_id}", 'user_email').decode('utf8')
             self.transaction.delete(f"invite:{invite_id}")
             self.transaction.delete(f"invites:unsigned:document:{doc_id}")
             self.transaction.delete(f"invites:signed:document:{doc_id}")
@@ -295,7 +295,7 @@ class RedisStorageBackend:
         invite_ids = set()
         actual_email = ''
         for email in emails:
-            invite_ids.union(self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}"))
+            invite_ids = invite_ids.union(self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}"))
             if len(invite_ids) == 1:
                 actual_email = email
         assert len(invite_ids) == 1
@@ -308,7 +308,7 @@ class RedisStorageBackend:
         invite_ids = set()
         actual_email = ''
         for email in emails:
-            invite_ids.union(self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}"))
+            invite_ids = invite_ids.union(self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}"))
             if len(invite_ids) == 1:
                 actual_email = email
         assert len(invite_ids) == 1
@@ -717,7 +717,7 @@ class RedisMD(ABCMetadata):
         # XXX this belongs in the client class
         self.client.pipeline()
         invite_id = self.client.query_invite_id(invite_key)
-        email = int(self.client.redis.hget(f"invite:{invite_id}", 'user_email'))
+        email = self.client.redis.hget(f"invite:{invite_id}", 'user_email').decode('utf8')
         doc_id = self.client.query_document_id(str(document_key))
         self.client.transaction.delete(f"invite:{invite_id}")
         self.client.transaction.delete(f"invites:unsigned:document:{doc_id}")
