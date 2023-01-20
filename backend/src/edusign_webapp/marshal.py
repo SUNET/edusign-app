@@ -239,7 +239,9 @@ class _UnMarshal(object):
             except ValidationError as e:
                 error = e.normalized_messages()
                 current_app.logger.error(f"Errors Unmarshaling data for {session['eppn']}: {error}")
-                error_msg = gettext("There were problems with the data you sent, please try again or contact your IT support")
+                error_msg = gettext(
+                    "There were problems with the data you sent, please try again or contact your IT support"
+                )
                 data = {'error': True, 'message': error_msg}
                 return ResponseSchema().dump(data)
 
@@ -292,6 +294,7 @@ class UnMarshalNoCSRF(_UnMarshal):
 
         :param schema: The schema detailing the expected structure and type of the received data.
         """
+
         class UnMarshallingSchema(Schema):
             payload = fields.Nested(schema)  # type: ignore
 

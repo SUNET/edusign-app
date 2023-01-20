@@ -33,8 +33,8 @@
 import io
 import uuid
 from base64 import b64decode
-from email.mime.base import MIMEBase
 from email.encoders import encode_base64
+from email.mime.base import MIMEBase
 from xml.etree import cElementTree as ET
 
 from flask import current_app, request, session
