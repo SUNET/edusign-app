@@ -63,7 +63,9 @@ class RedisStorageBackend:
         assert self._transaction is not None
         return self._transaction
 
-    def insert_document(self, key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa):
+    def insert_document(
+        self, key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa
+    ):
         doc_id = self.redis.incr('doc-counter')
         now = datetime.now().timestamp()
         mapping = dict(
@@ -113,7 +115,9 @@ class RedisStorageBackend:
             locked=None
             if b'locked' not in b_doc or b_doc[b'locked'] is None
             else datetime.fromtimestamp(float(b_doc[b'locked'])),
-            locking_email=None if b'locking_email' not in b_doc or b_doc[b'locking_email'] is None else b_doc[b'locking_email'].decode('utf8'),
+            locking_email=None
+            if b'locking_email' not in b_doc or b_doc[b'locking_email'] is None
+            else b_doc[b'locking_email'].decode('utf8'),
         )
         return doc
 
@@ -178,7 +182,8 @@ class RedisStorageBackend:
         if doc_id is None:
             return "none"
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
-        return str(b_doc.get(b'loa', "none"))
+        loa = b_doc.get(b"loa", b"none")
+        return loa.decode('utf8')
 
     def update_document(self, key, updated):
         doc_id = int(self.redis.get(f"doc:key:{key}"))
@@ -286,20 +291,30 @@ class RedisStorageBackend:
             )
             return invite
 
-    def update_invite(self, email, doc_id):
-        invite_ids = self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}")
+    def update_invite(self, emails, doc_id):
+        invite_ids = set()
+        actual_email = ''
+        for email in emails:
+            invite_ids.union(self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}"))
+            if len(invite_ids) == 1:
+                actual_email = email
         assert len(invite_ids) == 1
         invite_id = int(list(invite_ids)[0])
         self.transaction.hset(f"invite:{invite_id}", mapping={'signed': 1})
-        self.transaction.smove(f"invites:unsigned:email:{email}", f"invites:signed:email:{email}", invite_id)
+        self.transaction.smove(f"invites:unsigned:email:{actual_email}", f"invites:signed:email:{actual_email}", invite_id)
         self.transaction.smove(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}", invite_id)
 
-    def decline_invite(self, email, doc_id):
-        invite_ids = self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}")
+    def decline_invite(self, emails, doc_id):
+        invite_ids = set()
+        actual_email = ''
+        for email in emails:
+            invite_ids.union(self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}"))
+            if len(invite_ids) == 1:
+                actual_email = email
         assert len(invite_ids) == 1
         invite_id = int(list(invite_ids)[0])
         self.transaction.hset(f"invite:{invite_id}", mapping={'declined': 1})
-        self.transaction.smove(f"invites:unsigned:email:{email}", f"invites:declined:email:{email}", invite_id)
+        self.transaction.smove(f"invites:unsigned:email:{actual_email}", f"invites:declined:email:{actual_email}", invite_id)
         self.transaction.smove(f"invites:unsigned:document:{doc_id}", f"invites:declined:document:{doc_id}", invite_id)
 
 
@@ -429,7 +444,11 @@ class RedisMD(ABCMetadata):
                 )
                 continue
 
-            document['owner'] = {'email': document['owner_email'], 'name': document['owner_name'], 'eppn': document['owner_eppn']}
+            document['owner'] = {
+                'email': document['owner_email'],
+                'name': document['owner_name'],
+                'eppn': document['owner_eppn'],
+            }
             document['invite_key'] = invite['key']
             document['pending'] = []
             document['signed'] = []
@@ -454,45 +473,45 @@ class RedisMD(ABCMetadata):
 
         return pending
 
-    def update(self, key: uuid.UUID, email: str):
+    def update(self, key: uuid.UUID, emails: List[str]):
         """
         Update the metadata of a document to which a new signature has been added.
         This is, remove corresponding entry in the Invites table.
 
         :param key: The key identifying the document in the `storage`.
-        :param email: email address of the user that has just signed the document.
+        :param emails: email addresses of the user that has just signed the document.
         """
         self.client.pipeline()
 
         document_id = self.client.query_document_id(str(key))
         if document_id is None:
-            self.logger.error(f"Trying to update a non-existing document with the signature of {email}")
+            self.logger.error(f"Trying to update a non-existing document with the signature of {emails}")
             self.client.abort()
             return
 
-        self.logger.info(f"Removing invite for {email} to sign {key}")
-        self.client.update_invite(email, document_id)
+        self.logger.info(f"Removing invite for {emails} to sign {key}")
+        self.client.update_invite(emails, document_id)
 
         self.client.update_document(str(key), datetime.now().timestamp())
         self.client.commit()
 
-    def decline(self, key: uuid.UUID, email: str):
+    def decline(self, key: uuid.UUID, emails: List[str]):
         """
         Update the metadata of a document which an invited user has declined to sign.
 
         :param key: The key identifying the document in the `storage`.
-        :param email: email address of the user that has just signed the document.
+        :param emails: email addresses of the user that has just signed the document.
         """
         self.client.pipeline()
 
         document_id = self.client.query_document_id(str(key))
         if document_id is None:
-            self.logger.error(f"Trying to decline a non-existing document by {email}")
+            self.logger.error(f"Trying to decline a non-existing document by {emails}")
             self.client.abort()
             return
 
-        self.logger.info(f"Declining invite for {email} to sign {key}")
-        self.client.decline_invite(email, document_id)
+        self.logger.info(f"Declining invite for {emails} to sign {key}")
+        self.client.decline_invite(emails, document_id)
 
         self.client.update_document(str(key), datetime.now().timestamp())
         self.client.commit()
