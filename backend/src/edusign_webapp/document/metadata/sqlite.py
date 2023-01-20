@@ -434,7 +434,11 @@ class SqliteMD(ABCMetadata):
                 )
                 continue
 
-            document['owner'] = {'email': document['owner_email'], 'name': document['owner_name'], 'eppn': document['owner_eppn']}
+            document['owner'] = {
+                'email': document['owner_email'],
+                'name': document['owner_name'],
+                'eppn': document['owner_eppn'],
+            }
             document['key'] = uuid.UUID(document['key'])
             document['invite_key'] = uuid.UUID(invite['key'])
             document['pending'] = []
