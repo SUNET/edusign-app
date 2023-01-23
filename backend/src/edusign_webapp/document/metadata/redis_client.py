@@ -93,6 +93,26 @@ class RedisStorageBackend:
         if doc_id is not None:
             return int(doc_id)
 
+    def query_document_full(self, key):
+        doc_id = self.query_document_id(str(key))
+        b_doc = self.redis.hgetall(f"doc:{doc_id}")
+        created = datetime.fromtimestamp(float(b_doc[b'created']))
+
+        doc = dict(
+            doc_id=doc_id,
+            name=b_doc[b'name'].decode('utf8'),
+            size=int(b_doc[b'size']),
+            type=b_doc[b'type'].decode('utf8'),
+            owner_email=b_doc[b'owner_email'].decode('utf8'),
+            owner_name=b_doc[b'owner_name'].decode('utf8'),
+            owner_eppn=b_doc[b'owner_eppn'].decode('utf8'),
+            prev_signatures=b_doc[b'prev_signatures'].decode('utf8'),
+            sendsigned=bool(b_doc[b'sendsigned']),
+            loa=b_doc[b'loa'].decode('utf8'),
+            created=created,
+        )
+        return doc
+
     def query_document_all(self, key):
         doc_id = self.query_document_id(str(key))
         if doc_id is None:
@@ -399,6 +419,45 @@ class RedisMD(ABCMetadata):
 
         self.client.commit()
         return updated_invites
+
+    def add_document_raw(
+        self,
+        document: Dict[str, str],
+        invites: List[Dict[str, Any]],
+    ) -> List[Dict[str, str]]:
+        """
+        Store metadata for a new document.
+
+        :param document: Content and metadata of the document. Dictionary containing keys:
+                 + key: Key of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + owner_email: Email of owner
+                 + owner_name: Display name of owner
+                 + owner_eppn: eppn of owner
+                 + loa: required loa
+                 + sendsigned: whether to send the signed document by mail
+                 + prev_signatures: previous signatures
+                 + created: creation timestamp
+        :param invites: List of the names and emails of the users that have been invited to sign the document.
+        :return:
+        """
+        self.client.pipeline()
+
+        self.client.insert_document(
+            str(document['key']),
+            document['name'],
+            document['size'],
+            document['type'],
+            document['email'],
+            document['name'],
+            document['eppn'],
+            document['prev_signatures'],
+            document['sendsigned'],
+            document['loa'],
+        )
+        self.client.commit()
 
     def get_old(self, days: int) -> List[uuid.UUID]:
         """
@@ -729,6 +788,31 @@ class RedisMD(ABCMetadata):
 
         self.client.commit()
         return True
+
+    def get_full_document(self, key: uuid.UUID) -> Dict[str, Any]:
+        """
+        Get full information about some document
+
+        :param key: The key identifying the document
+        :return: A dictionary with information about the document, with keys:
+                 + doc_id: pk of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + owner_email: Email of owner
+                 + owner_name: Display name of owner
+                 + owner_eppn: eppn of owner
+                 + loa: required loa
+                 + sendsigned: whether to send the signed document by mail
+                 + prev_signatures: previous signatures
+                 + created: creation timestamp
+        """
+        document_result = self.client.query_document_full(key)
+        if document_result is None:
+            self.logger.error(f"Trying to find a non-existing document with key {key}")
+            return {}
+
+        return document_result
 
     def get_document(self, key: uuid.UUID) -> Dict[str, Any]:
         """
