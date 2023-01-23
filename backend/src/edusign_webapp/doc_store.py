@@ -135,6 +135,31 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def add_document_raw(
+        self,
+        document: Dict[str, str],
+        invites: List[Dict[str, Any]],
+    ) -> List[Dict[str, str]]:
+        """
+        Store metadata for a new document.
+
+        :param document: Content and metadata of the document. Dictionary containing keys:
+                 + key: Key of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + owner_email: Email of owner
+                 + owner_name: Display name of owner
+                 + owner_eppn: eppn of owner
+                 + loa: required loa
+                 + sendsigned: whether to send the signed document by mail
+                 + prev_signatures: previous signatures
+                 + created: creation timestamp
+        :param invites: List of the names and emails of the users that have been invited to sign the document.
+        :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
+        """
+
+    @abc.abstractmethod
     def get_old(self, days: int) -> List[uuid.UUID]:
         """
         Get the keys identifying stored documents that are older than the provided number of days.
@@ -278,6 +303,26 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def get_full_document(self, key: uuid.UUID) -> Dict[str, Any]:
+        """
+        Get full information about some document
+
+        :param key: The key identifying the document
+        :return: A dictionary with information about the document, with keys:
+                 + doc_id: pk of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + owner_email: Email of owner
+                 + owner_name: Display name of owner
+                 + owner_eppn: eppn of owner
+                 + loa: required loa
+                 + sendsigned: whether to send the signed document by mail
+                 + prev_signatures: previous signatures
+                 + created: creation timestamp
+        """
+
+    @abc.abstractmethod
     def get_document(self, key: uuid.UUID) -> Dict[str, Any]:
         """
         Get information about some document
@@ -374,6 +419,13 @@ class DocStore(object):
         docmd_class = getattr(import_module(docmd_module_path), docmd_class_name)
 
         self.metadata = docmd_class(app)
+
+    @classmethod
+    def custom(cls, app, storage, metadata):
+        store = cls(app)
+        store.storage = storage
+        store.metadata = metadata
+        return store
 
     def add_document(
         self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, Any]], sendsigned: bool, loa: str
@@ -648,6 +700,26 @@ class DocStore(object):
         self.logger.debug(f"Checked doc {doc['name']} for {locked_by}")
 
         return self.metadata.check_lock(doc['doc_id'], locked_by)
+
+    def get_document(self, key: uuid.UUID) -> List[Dict[str, Any]]:
+        """
+        Get document with key `key`
+
+        :param key: the key identifying the document
+        :return: A dict with document data, with keys:
+                 + doc_id: pk of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + owner_email: Email of inviter user
+                 + owner_name: Name of inviter user
+                 + owner_eppn: Eppn of inviter user
+                 + loa: required loa
+                 + sendsigned: whether to send the signed document by mail
+                 + created: creation timestamp
+        """
+        doc = self.metadata.get_full_document(key)
+        return doc
 
     def get_signed_document(self, key: uuid.UUID) -> List[Dict[str, Any]]:
         """

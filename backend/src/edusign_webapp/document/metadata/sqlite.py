@@ -85,6 +85,7 @@ DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner_email, owner_name FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
+DOCUMENT_QUERY_FULL = "SELECT doc_id, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa, created FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 DOCUMENT_QUERY_FROM_OWNER = (
     "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_eppn = ?;"
@@ -373,6 +374,45 @@ class SqliteMD(ABCMetadata):
 
         self._db_commit()
         return updated_invites
+
+    def add_document_raw(
+        self,
+        document: Dict[str, str],
+        invites: List[Dict[str, Any]],
+    ) -> List[Dict[str, str]]:
+        """
+        Store metadata for a new document.
+
+        :param document: Content and metadata of the document. Dictionary containing keys:
+                 + key: Key of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + owner_email: Email of owner
+                 + owner_name: Display name of owner
+                 + owner_eppn: eppn of owner
+                 + loa: required loa
+                 + sendsigned: whether to send the signed document by mail
+                 + prev_signatures: previous signatures
+                 + created: creation timestamp
+        :param invites: List of the names and emails of the users that have been invited to sign the document.
+        :return:
+        """
+        self._db_execute(
+            DOCUMENT_INSERT,
+            (
+                str(document['key']),
+                document['name'],
+                document['size'],
+                document['type'],
+                document['email'],
+                document['name'],
+                document['eppn'],
+                document['prev_signatures'],
+                document['sendsigned'],
+                document['loa'],
+            ),
+        )
 
     def get_old(self, days: int) -> List[uuid.UUID]:
         """
@@ -716,6 +756,31 @@ class SqliteMD(ABCMetadata):
         self._db_execute(INVITE_DELETE_FROM_KEY, (str(invite_key),))
         self._db_commit()
         return True
+
+    def get_full_document(self, key: uuid.UUID) -> Dict[str, Any]:
+        """
+        Get full information about some document
+
+        :param key: The key identifying the document
+        :return: A dictionary with information about the document, with keys:
+                 + doc_id: pk of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + owner_email: Email of owner
+                 + owner_name: Display name of owner
+                 + owner_eppn: eppn of owner
+                 + loa: required loa
+                 + sendsigned: whether to send the signed document by mail
+                 + prev_signatures: previous signatures
+                 + created: creation timestamp
+        """
+        document_result = self._db_query(DOCUMENT_QUERY_FULL, (str(key),), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.debug(f"Trying to find a non-existing document with key {key}")
+            return {}
+
+        return document_result
 
     def get_document(self, key: uuid.UUID) -> Dict[str, Any]:
         """
