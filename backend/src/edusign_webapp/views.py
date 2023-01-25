@@ -129,18 +129,30 @@ def migrate_to_redis_and_s3():
 
     old_doc_store = DocStore.custom(current_app, local_storage, sqlite_md)
 
+    current_app.logger.info("STARTING MIGRATION TO REDIS AND S3")
+
     keys = old_doc_store.get_old_documents(0)
+    current_app.logger.info(f"Going to migrate {len(keys)} documents")
 
     for doc_key in keys:
-        old_document = old_doc_store.get_document(doc_key)
+        current_app.logger.info(f"Migrating document with key {doc_key}")
+        old_document = old_doc_store.get_full_document(doc_key)
         if not old_document:
+            current_app.logger.info(f"    Document with key {doc_key} not found, skipping")
             continue
 
         content = old_doc_store.get_document_content(doc_key)
-        old_invites = old_doc_store.get_pending_invites(doc_key)
+        old_invites = old_doc_store.get_full_invites(doc_key)
+        if len(old_invites) == 0:
+            current_app.logger.info(f"    Document with key {doc_key} has no invitations, skipping")
+            continue
 
-        current_app.doc_store.add_document_raw(old_document)
+        current_app.doc_store.add_document_raw(old_document, content)
+        current_app.logger.info(f"    Document with key {doc_key} added to db and storage")
 
+        current_app.logger.info(f"Going to migrate {len(old_invites)} invites for document with key {doc_key}")
+        for invite in old_invites:
+            current_app.doc_store.add_invite_raw(invite)
 
 
 @edusign_views.route('/metrics', methods=['GET'])
