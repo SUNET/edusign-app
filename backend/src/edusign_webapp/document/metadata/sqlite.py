@@ -81,11 +81,12 @@ PRAGMA user_version = 5;
 
 
 DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner_email, owner_name FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY_FULL = "SELECT doc_id, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa, created FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa, updated, created FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 DOCUMENT_QUERY_FROM_OWNER = (
     "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_eppn = ?;"
@@ -100,6 +101,9 @@ DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locking_email = '' WHERE
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name) VALUES (?, ?, ?, ?)"
+INVITE_INSERT_RAW = (
+    "INSERT INTO Invites (key, doc_id, user_email, user_name, signed, declined) VALUES (?, ?, ?, ?, ?, ?)"
+)
 INVITE_QUERY_FROM_EMAIL = "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0;"
 INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, signed, declined, key FROM Invites WHERE doc_id = ?;"
 INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT inviteID FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0;"
@@ -378,13 +382,13 @@ class SqliteMD(ABCMetadata):
     def add_document_raw(
         self,
         document: Dict[str, str],
-        invites: List[Dict[str, Any]],
-    ) -> List[Dict[str, str]]:
+    ):
         """
         Store metadata for a new document.
 
         :param document: Content and metadata of the document. Dictionary containing keys:
                  + key: Key of the doc in the storage.
+                 + doc_id: id of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
@@ -394,23 +398,51 @@ class SqliteMD(ABCMetadata):
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
                  + prev_signatures: previous signatures
+                 + updated: modification timestamp
                  + created: creation timestamp
-        :param invites: List of the names and emails of the users that have been invited to sign the document.
         :return:
         """
         self._db_execute(
-            DOCUMENT_INSERT,
+            DOCUMENT_INSERT_RAW,
             (
+                document['doc_id'],
                 str(document['key']),
                 document['name'],
                 document['size'],
                 document['type'],
-                document['email'],
-                document['name'],
-                document['eppn'],
+                document['created'],
+                document['updated'],
+                document['owner_email'],
+                document['owner_name'],
+                document['owner_eppn'],
                 document['prev_signatures'],
                 document['sendsigned'],
                 document['loa'],
+            ),
+        )
+
+    def add_invite_raw(self, invite: Dict[str, Any]):
+        """
+        Add invitation.
+
+        :param invite: invitation data, with keys:
+                 + user_name: The name of the user
+                 + user_email: The email of the user
+                 + signed: Whether the user has already signed the document
+                 + declined: Whether the user has declined signing the document
+                 + key: the key identifying the invite
+                 + doc_id: the id of the document.
+        :return:
+        """
+        self._db_execute(
+            INVITE_INSERT_RAW,
+            (
+                str(invite['key']),
+                invite['doc_id'],
+                invite['user_email'],
+                invite['user_name'],
+                invite['signed'],
+                invite['declined'],
             ),
         )
 
@@ -633,6 +665,43 @@ class SqliteMD(ABCMetadata):
 
         return documents
 
+    def get_full_invites(self, key: uuid.UUID) -> List[Dict[str, Any]]:
+        """
+        Get information about the users that have been invited to sign the document identified by `key`
+
+        :param key: The key of the document
+        :return: A list of dictionaries with information about the users, each of them with keys:
+                 + name: The name of the user
+                 + email: The email of the user
+                 + signed: Whether the user has already signed the document
+                 + declined: Whether the user has declined signing the document
+                 + key: the key identifying the invite
+                 + doc_id: the id of the invited document
+        """
+        invitees: List[Dict[str, Any]] = []
+
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.error(f"Trying to retrieve invitees for non-existing document with key {key}")
+            return invitees
+
+        doc_id = document_result['doc_id']
+
+        invites = self._db_query(INVITE_QUERY_FROM_DOC, (doc_id,))
+        if invites is None or isinstance(invites, dict):
+            self.logger.error(f"Trying to retrieve non-existing invitees to sign document with key {key}")
+            return invitees
+
+        for invite in invites:
+            email_result = {'email': invite['user_email'], 'name': invite['user_name']}
+            email_result['signed'] = bool(invite['signed'])
+            email_result['declined'] = bool(invite['declined'])
+            email_result['key'] = invite['key']
+            email_result['doc_id'] = doc_id
+            invitees.append(email_result)
+
+        return invitees
+
     def get_invited(self, key: uuid.UUID) -> List[Dict[str, Any]]:
         """
         Get information about the users that have been invited to sign the document identified by `key`
@@ -764,15 +833,17 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the document
         :return: A dictionary with information about the document, with keys:
                  + doc_id: pk of the doc in the storage.
+                 + key: Key of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + owner_email: Email of owner
-                 + owner_name: Display name of owner
-                 + owner_eppn: eppn of owner
+                 + owner_email: Email of inviter user
+                 + owner_name: Name of inviter user
+                 + owner_eppn: Eppn of inviter user
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
                  + prev_signatures: previous signatures
+                 + updated: modification timestamp
                  + created: creation timestamp
         """
         document_result = self._db_query(DOCUMENT_QUERY_FULL, (str(key),), one=True)
