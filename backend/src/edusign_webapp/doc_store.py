@@ -138,13 +138,13 @@ class ABCMetadata(metaclass=abc.ABCMeta):
     def add_document_raw(
         self,
         document: Dict[str, str],
-        invites: List[Dict[str, Any]],
-    ) -> List[Dict[str, str]]:
+    ):
         """
         Store metadata for a new document.
 
         :param document: Content and metadata of the document. Dictionary containing keys:
                  + key: Key of the doc in the storage.
+                 + doc_id: id of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
@@ -154,9 +154,24 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
                  + prev_signatures: previous signatures
+                 + updated: modification timestamp
                  + created: creation timestamp
-        :param invites: List of the names and emails of the users that have been invited to sign the document.
-        :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
+        :return:
+        """
+
+    @abc.abstractmethod
+    def add_invite_raw(self, invite: Dict[str, Any]):
+        """
+        Add invitation.
+
+        :param invite: invitation data, with keys:
+                 + user_name: The name of the user
+                 + user_email: The email of the user
+                 + signed: Whether the user has already signed the document
+                 + declined: Whether the user has declined signing the document
+                 + key: the key identifying the invite
+                 + doc_id: the id of the document.
+        :return:
         """
 
     @abc.abstractmethod
@@ -247,6 +262,21 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def get_full_invites(self, key: uuid.UUID) -> List[Dict[str, Any]]:
+        """
+        Get information about the users that have been invited to sign the document identified by `key`
+
+        :param key: The key of the document
+        :return: A list of dictionaries with information about the users, each of them with keys:
+                 + name: The name of the user
+                 + email: The email of the user
+                 + signed: Whether the user has already signed the document
+                 + declined: Whether the user has declined signing the document
+                 + key: the key identifying the invite
+                 + doc_id: the id of the invited document
+        """
+
+    @abc.abstractmethod
     def get_invited(self, key: uuid.UUID) -> List[Dict[str, Any]]:
         """
         Get information about the users that have been invited to sign the document identified by `key`
@@ -310,15 +340,17 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :param key: The key identifying the document
         :return: A dictionary with information about the document, with keys:
                  + doc_id: pk of the doc in the storage.
+                 + key: Key of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + owner_email: Email of owner
-                 + owner_name: Display name of owner
-                 + owner_eppn: eppn of owner
+                 + owner_email: Email of inviter user
+                 + owner_name: Name of inviter user
+                 + owner_eppn: Eppn of inviter user
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
                  + prev_signatures: previous signatures
+                 + updated: modification timestamp
                  + created: creation timestamp
         """
 
@@ -450,6 +482,34 @@ class DocStore(object):
         self.storage.add(key, document['blob'])
         return self.metadata.add(key, document, owner, invites, sendsigned, loa)
 
+    def add_document_raw(
+        self,
+        document: Dict[str, str],
+        content: str,
+    ):
+        """
+        Store metadata for a new document.
+
+        :param document: Content and metadata of the document. Dictionary containing keys:
+                 + key: Key of the doc in the storage.
+                 + doc_id: id of the doc in the storage.
+                 + name: The name of the document
+                 + type: Content type of the doc
+                 + size: Size of the doc
+                 + owner_email: Email of owner
+                 + owner_name: Display name of owner
+                 + owner_eppn: eppn of owner
+                 + loa: required loa
+                 + sendsigned: whether to send the signed document by mail
+                 + prev_signatures: previous signatures
+                 + updated: modification timestamp
+                 + created: creation timestamp
+        :param content: base64 string with the contents of the document, with a newly added signature.
+        :return:
+        """
+        self.metadata.add_document_raw(document)
+        self.storage.add(document['key'], content)
+
     def get_old_documents(self, days: int) -> List[uuid.UUID]:
         """
         Get the keys identifying stored documents that are older than the provided number of days.
@@ -567,6 +627,21 @@ class DocStore(object):
             self.storage.remove(key)
 
         return removed
+
+    def add_invite_raw(self, invite: Dict[str, Any]):
+        """
+        Add invitation.
+
+        :param invite: invitation data, with keys:
+                 + user_name: The name of the user
+                 + user_email: The email of the user
+                 + signed: Whether the user has already signed the document
+                 + declined: Whether the user has declined signing the document
+                 + key: the key identifying the invite
+                 + doc_id: the id of the document.
+        :return:
+        """
+        return self.metadata.add_invite_raw(invite)
 
     def add_invitation(self, document_key: uuid.UUID, name: str, email: str) -> Dict[str, Any]:
         """
@@ -701,7 +776,7 @@ class DocStore(object):
 
         return self.metadata.check_lock(doc['doc_id'], locked_by)
 
-    def get_document(self, key: uuid.UUID) -> List[Dict[str, Any]]:
+    def get_full_document(self, key: uuid.UUID) -> List[Dict[str, Any]]:
         """
         Get document with key `key`
 
@@ -716,6 +791,8 @@ class DocStore(object):
                  + owner_eppn: Eppn of inviter user
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
+                 + prev_signatures: previous signatures
+                 + updated: modification timestamp
                  + created: creation timestamp
         """
         doc = self.metadata.get_full_document(key)
@@ -787,6 +864,22 @@ class DocStore(object):
             'email': doc['owner_email'],
             'docname': doc['name'],
         }
+
+    def get_full_invites(self, key: uuid.UUID) -> List[Dict[str, Any]]:
+        """
+        Get information about the users that have been invited to sign the document identified by `key`
+
+        :param key: The key of the document
+        :return: A list of dictionaries with information about the users, each of them with keys:
+                 + name: The name of the user
+                 + email: The email of the user
+                 + signed: Whether the user has already signed the document
+                 + declined: Whether the user has declined signing the document
+                 + key: the key identifying the invite
+                 + doc_id: the id of the invited document
+        """
+        invites = self.metadata.get_full_invites(key)
+        return invites
 
     def get_pending_invites(self, key: uuid.UUID, exclude: List[str] = []) -> List[Dict[str, Any]]:
         """

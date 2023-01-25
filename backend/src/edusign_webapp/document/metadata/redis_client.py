@@ -88,18 +88,56 @@ class RedisStorageBackend:
         self.transaction.sadd(f"doc:email:{owner_email}", doc_id)
         return doc_id
 
+    def insert_document_raw(
+        self,
+        key,
+        doc_id,
+        name,
+        size,
+        type,
+        created,
+        updated,
+        owner_email,
+        owner_name,
+        owner_eppn,
+        prev_signatures,
+        sendsigned,
+        loa,
+    ):
+        mapping = dict(
+            key=key,
+            name=name,
+            size=size,
+            type=type,
+            owner_email=owner_email,
+            owner_name=owner_name,
+            owner_eppn=owner_eppn,
+            created=created,
+            updated=updated,
+            prev_signatures=prev_signatures,
+            sendsigned=int(sendsigned),
+            loa=loa,
+        )
+        self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
+        self.transaction.set(f"doc:key:{key}", doc_id)
+        self.transaction.zadd("doc:created", {key: created})
+        self.transaction.sadd(f"doc:email:{owner_email}", doc_id)
+        return doc_id
+
     def query_document_id(self, key):
         doc_id = self.redis.get(f"doc:key:{key}")
         if doc_id is not None:
             return int(doc_id)
 
     def query_document_full(self, key):
-        doc_id = self.query_document_id(str(key))
+        doc_id = self.query_document_id(key)
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         created = datetime.fromtimestamp(float(b_doc[b'created']))
+        updated = datetime.fromtimestamp(float(b_doc[b'updated']))
 
         doc = dict(
             doc_id=doc_id,
+            key=key,
             name=b_doc[b'name'].decode('utf8'),
             size=int(b_doc[b'size']),
             type=b_doc[b'type'].decode('utf8'),
@@ -109,6 +147,7 @@ class RedisStorageBackend:
             prev_signatures=b_doc[b'prev_signatures'].decode('utf8'),
             sendsigned=bool(b_doc[b'sendsigned']),
             loa=b_doc[b'loa'].decode('utf8'),
+            updated=updated,
             created=created,
         )
         return doc
@@ -241,6 +280,27 @@ class RedisStorageBackend:
         self.transaction.sadd(f"invites:unsigned:email:{user_email}", invite_id)
         return invite_id
 
+    def insert_invite_raw(self, key, doc_id, user_email, user_name, signed, declined):
+        invite_id = self.redis.incr('invite-counter')
+        mapping = dict(
+            key=key,
+            doc_id=doc_id,
+            user_name=user_name,
+            user_email=user_email,
+            signed=signed,
+            declined=declined,
+        )
+        self.transaction.hset(f"invite:{invite_id}", mapping=mapping)
+        self.transaction.set(f"invite:key:{key}", invite_id)
+        subkey = 'unsigned'
+        if signed:
+            subkey = 'signed'
+        elif declined:
+            subkey = 'declined'
+        self.transaction.sadd(f"invites:{subkey}:document:{doc_id}", invite_id)
+        self.transaction.sadd(f"invites:{subkey}:email:{user_email}", invite_id)
+        return invite_id
+
     def delete_invites_all(self, doc_id):
         invite_ids = self.redis.sunion(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}")
         for b_invite_id in invite_ids:
@@ -315,26 +375,34 @@ class RedisStorageBackend:
         invite_ids = set()
         actual_email = ''
         for email in emails:
-            invite_ids = invite_ids.union(self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}"))
+            invite_ids = invite_ids.union(
+                self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}")
+            )
             if len(invite_ids) == 1:
                 actual_email = email
         assert len(invite_ids) == 1
         invite_id = int(list(invite_ids)[0])
         self.transaction.hset(f"invite:{invite_id}", mapping={'signed': 1})
-        self.transaction.smove(f"invites:unsigned:email:{actual_email}", f"invites:signed:email:{actual_email}", invite_id)
+        self.transaction.smove(
+            f"invites:unsigned:email:{actual_email}", f"invites:signed:email:{actual_email}", invite_id
+        )
         self.transaction.smove(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}", invite_id)
 
     def decline_invite(self, emails, doc_id):
         invite_ids = set()
         actual_email = ''
         for email in emails:
-            invite_ids = invite_ids.union(self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}"))
+            invite_ids = invite_ids.union(
+                self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}")
+            )
             if len(invite_ids) == 1:
                 actual_email = email
         assert len(invite_ids) == 1
         invite_id = int(list(invite_ids)[0])
         self.transaction.hset(f"invite:{invite_id}", mapping={'declined': 1})
-        self.transaction.smove(f"invites:unsigned:email:{actual_email}", f"invites:declined:email:{actual_email}", invite_id)
+        self.transaction.smove(
+            f"invites:unsigned:email:{actual_email}", f"invites:declined:email:{actual_email}", invite_id
+        )
         self.transaction.smove(f"invites:unsigned:document:{doc_id}", f"invites:declined:document:{doc_id}", invite_id)
 
 
@@ -423,13 +491,13 @@ class RedisMD(ABCMetadata):
     def add_document_raw(
         self,
         document: Dict[str, str],
-        invites: List[Dict[str, Any]],
-    ) -> List[Dict[str, str]]:
+    ):
         """
         Store metadata for a new document.
 
         :param document: Content and metadata of the document. Dictionary containing keys:
                  + key: Key of the doc in the storage.
+                 + doc_id: id of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
@@ -439,25 +507,50 @@ class RedisMD(ABCMetadata):
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
                  + prev_signatures: previous signatures
+                 + updated: modification timestamp
                  + created: creation timestamp
-        :param invites: List of the names and emails of the users that have been invited to sign the document.
         :return:
         """
         self.client.pipeline()
 
-        self.client.insert_document(
+        self.client.insert_document_raw(
             str(document['key']),
+            document['doc_id'],
             document['name'],
             document['size'],
             document['type'],
-            document['email'],
-            document['name'],
-            document['eppn'],
+            document['created'],
+            document['updated'],
+            document['owner_email'],
+            document['owner_name'],
+            document['owner_eppn'],
             document['prev_signatures'],
             document['sendsigned'],
             document['loa'],
         )
         self.client.commit()
+
+    def add_invite_raw(self, invite: Dict[str, Any]):
+        """
+        Add invitation.
+
+        :param invite: invitation data, with keys:
+                 + user_name: The name of the user
+                 + user_email: The email of the user
+                 + signed: Whether the user has already signed the document
+                 + declined: Whether the user has declined signing the document
+                 + key: the key identifying the invite
+                 + doc_id: the id of the document.
+        :return:
+        """
+        self.client.insert_invite_raw(
+            invite['key'],
+            invite['doc_id'],
+            invite['user_email'],
+            invite['user_name'],
+            invite['signed'],
+            invite['declined'],
+        )
 
     def get_old(self, days: int) -> List[uuid.UUID]:
         """
@@ -649,6 +742,41 @@ class RedisMD(ABCMetadata):
 
         return documents
 
+    def get_full_invites(self, key: uuid.UUID) -> List[Dict[str, Any]]:
+        """
+        Get information about the users that have been invited to sign the document identified by `key`
+
+        :param key: The key of the document
+        :return: A list of dictionaries with information about the users, each of them with keys:
+                 + name: The name of the user
+                 + email: The email of the user
+                 + signed: Whether the user has already signed the document
+                 + declined: Whether the user has declined signing the document
+                 + key: the key identifying the invite
+                 + doc_id: the id of the invited document
+        """
+        invitees: List[Dict[str, Any]] = []
+
+        document_id = self.client.query_document_id(str(key))
+        if document_id is None:
+            self.logger.error(f"Trying to retrieve invitees for non-existing document with key {key}")
+            return invitees
+
+        invites = self.client.query_invites_from_doc(document_id)
+        if invites is None or isinstance(invites, dict):
+            self.logger.error(f"Trying to retrieve non-existing invitees for document with key {key}")
+            return invitees
+
+        for invite in invites:
+            email_result = {'email': invite['user_email'], 'name': invite['user_name']}
+            email_result['signed'] = bool(invite['signed'])
+            email_result['declined'] = bool(invite['signed'])
+            email_result['key'] = invite['key']
+            email_result['doc_id'] = document_id
+            invitees.append(email_result)
+
+        return invitees
+
     def get_invited(self, key: uuid.UUID) -> List[Dict[str, Any]]:
         """
         Get information about the users that have been invited to sign the document identified by `key`
@@ -796,18 +924,20 @@ class RedisMD(ABCMetadata):
         :param key: The key identifying the document
         :return: A dictionary with information about the document, with keys:
                  + doc_id: pk of the doc in the storage.
+                 + key: Key of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + owner_email: Email of owner
-                 + owner_name: Display name of owner
-                 + owner_eppn: eppn of owner
+                 + owner_email: Email of inviter user
+                 + owner_name: Name of inviter user
+                 + owner_eppn: Eppn of inviter user
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
                  + prev_signatures: previous signatures
+                 + updated: modification timestamp
                  + created: creation timestamp
         """
-        document_result = self.client.query_document_full(key)
+        document_result = self.client.query_document_full(str(key))
         if document_result is None:
             self.logger.error(f"Trying to find a non-existing document with key {key}")
             return {}
