@@ -420,12 +420,6 @@ class SqliteMD(ABCMetadata):
         doc_ids = []
         for invite in invites:
             document_id = invite['doc_id']
-            if document_id in doc_ids:
-                self.rm_invitation(uuid.UUID(invite['key']), uuid.UUID(document_id))
-                continue
-            else:
-                doc_ids.append(document_id)
-
             document = self._db_query(DOCUMENT_QUERY, (document_id,), one=True)
             if document is None or isinstance(document, list):
                 self.logger.error(
@@ -433,6 +427,12 @@ class SqliteMD(ABCMetadata):
                     f" references a non existing document with id {document_id}"
                 )
                 continue
+
+            if document_id in doc_ids:
+                self.rm_invitation(uuid.UUID(invite['key']), uuid.UUID(document['key']))
+                continue
+            else:
+                doc_ids.append(document_id)
 
             document['owner'] = {'email': document['owner_email'], 'name': document['owner_name'], 'eppn': document['owner_eppn']}
             document['key'] = uuid.UUID(document['key'])
