@@ -6,7 +6,7 @@ regex = '''
   (?P<minor>\d+)
   \.
   (?P<patch>\d+)
-  ((rc|b)
+  ((rc|b|r)
   (?P<release_candidate>\d+))?
 '''
 
