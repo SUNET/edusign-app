@@ -515,17 +515,17 @@ class RedisMD(ABCMetadata):
 
         self.client.insert_document_raw(
             str(document['key']),
-            document['doc_id'],
+            int(document['doc_id']),
             document['name'],
             document['size'],
             document['type'],
-            document['created'],
-            document['updated'],
+            float(datetime.fromisoformat(document['created']).timestamp()),
+            float(datetime.fromisoformat(document['updated']).timestamp()),
             document['owner_email'],
             document['owner_name'],
             document['owner_eppn'],
             document['prev_signatures'],
-            document['sendsigned'],
+            int(document['sendsigned']),
             document['loa'],
         )
         self.client.commit()
@@ -543,14 +543,17 @@ class RedisMD(ABCMetadata):
                  + doc_id: the id of the document.
         :return:
         """
+        self.client.pipeline()
+
         self.client.insert_invite_raw(
             invite['key'],
-            invite['doc_id'],
-            invite['user_email'],
-            invite['user_name'],
-            invite['signed'],
-            invite['declined'],
+            int(invite['doc_id']),
+            invite['email'],
+            invite['name'],
+            int(invite['signed']),
+            int(invite['declined']),
         )
+        self.client.commit()
 
     def get_old(self, days: int) -> List[uuid.UUID]:
         """
