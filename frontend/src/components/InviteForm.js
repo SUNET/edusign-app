@@ -134,7 +134,7 @@ const validate = (props) => {
         values.invitees,
         i
       )(val.email);
-      const langError = validateName(val.lang);
+      const langError = validateLang(val.lang);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
       if (emailError !== undefined) {
         errors[`invitees.${i}.email`] = emailError;
