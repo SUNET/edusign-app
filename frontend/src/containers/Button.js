@@ -23,4 +23,6 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps, null, {forwardRef: true})(Button);
+export default connect(mapStateToProps, mapDispatchToProps, null, {
+  forwardRef: true,
+})(Button);

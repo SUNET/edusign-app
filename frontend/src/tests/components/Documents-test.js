@@ -17,7 +17,13 @@ import {
   sample2pPDFData,
 } from "tests/test-utils";
 import Main from "components/Main";
-import { createDocument, addDocument, loadDocuments, setState, validateDoc } from "slices/Documents";
+import {
+  createDocument,
+  addDocument,
+  loadDocuments,
+  setState,
+  validateDoc,
+} from "slices/Documents";
 import { fetchConfig } from "slices/Main";
 import { resetDb } from "init-app/database";
 
@@ -609,23 +615,33 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
       );
       expect(warning).to.equal(null);
 
-      const fileObj = await new File([samplePasswordPDFData], "test-password.pdf", {
-        type: "application/pdf",
-      });
+      const fileObj = await new File(
+        [samplePasswordPDFData],
+        "test-password.pdf",
+        {
+          type: "application/pdf",
+        }
+      );
       const file = {
         name: fileObj.name,
         size: fileObj.size,
         type: fileObj.type,
         created: Date.now(),
-        state: 'loading',
+        state: "loading",
         blob: "data:application/pdf;base64," + b64SamplePasswordPDFData,
         key: "dummy-ref",
       };
 
-      const doc = await validateDoc(file, { formatMessage: ({ defaultMessage, id }) => defaultMessage }, store.getState());
+      const doc = await validateDoc(
+        file,
+        { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+        store.getState()
+      );
 
-      expect(doc.state).to.equal('failed-loading');
-      expect(doc.message).to.equal('Please do not supply a password protected document');
+      expect(doc.state).to.equal("failed-loading");
+      expect(doc.message).to.equal(
+        "Please do not supply a password protected document"
+      );
 
       // there is a bug in the stesting framework where Promise.catch clears the redux store
       // uncomment the test below when fixed
@@ -657,7 +673,7 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
       //   })
       // );
       // await flushPromises(rerender, wrapped);
-      // 
+      //
       // warning = await waitFor(() =>
       //   screen.getAllByText(
       //     /Please do not supply a password protected document/i
@@ -694,15 +710,19 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
       size: 1500,
       type: "application/pdf",
       created: Date.now(),
-      state: 'loading',
+      state: "loading",
       blob: "Bad PDF document",
       key: "dummy-ref",
     };
 
-    const doc = await validateDoc(file, { formatMessage: ({ defaultMessage, id }) => defaultMessage }, store.getState());
+    const doc = await validateDoc(
+      file,
+      { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+      store.getState()
+    );
 
-    expect(doc.state).to.equal('failed-loading');
-    expect(doc.message).to.equal('Document is unreadable');
+    expect(doc.state).to.equal("failed-loading");
+    expect(doc.message).to.equal("Document is unreadable");
 
     // there is a bug in the stesting framework where Promise.catch clears the redux store
     // uncomment the test below when fixed
@@ -715,7 +735,7 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     //   state: 'loading',
     // };
     // store.dispatch(addDocument(file));
-    // 
+    //
     // file = {
     //   ...file,
     //   blob: "Bad PDF document",
@@ -735,12 +755,12 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     //   })
     // );
     // await flushPromises(rerender, wrapped);
-    // 
+    //
     // buttonRemove = await waitFor(() =>
     //   screen.getAllByTestId("rm-button-test.pdf")
     // );
     // expect(buttonRemove.length).to.equal(1);
-    // 
+    //
     // buttonRemove = await waitFor(() => screen.getAllByText(/Malformed PDF/i));
     // expect(buttonRemove.length).to.equal(1);
   } catch (err) {

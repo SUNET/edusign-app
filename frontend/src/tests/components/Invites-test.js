@@ -1,5 +1,11 @@
 import React from "react";
-import { act, screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
+import {
+  act,
+  screen,
+  waitFor,
+  fireEvent,
+  cleanup,
+} from "@testing-library/react";
 import { expect } from "chai";
 import fetchMock from "fetch-mock";
 
@@ -432,7 +438,6 @@ describe("Multi sign invitations", function () {
     unmount();
   });
 
-
   it("From template make a copy and check the name of the copy", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
@@ -505,9 +510,7 @@ describe("Multi sign invitations", function () {
       fireEvent.click(dropdownButton[0]);
       await flushPromises(rerender, wrapped);
 
-      let button = await waitFor(() =>
-        screen.getAllByText(/Create template/)
-      );
+      let button = await waitFor(() => screen.getAllByText(/Create template/));
       expect(button.length).to.equal(1);
 
       fireEvent.click(button[0]);
@@ -544,7 +547,9 @@ describe("Multi sign invitations", function () {
         target: { value: "dummy-2@example.com" },
       });
 
-      const nameInput = await waitFor(() => screen.getAllByTestId("invitees.0.name"));
+      const nameInput = await waitFor(() =>
+        screen.getAllByTestId("invitees.0.name")
+      );
       expect(nameInput.length).to.equal(1);
 
       fireEvent.change(nameInput[0], { target: { value: "Dummy-2 Doe" } });
@@ -559,7 +564,9 @@ describe("Multi sign invitations", function () {
       fireEvent.click(buttonSend[0]);
       await flushPromises(rerender, wrapped);
 
-      const filenameCopy = await waitFor(() => screen.getAllByText("testost-1.pdf"));
+      const filenameCopy = await waitFor(() =>
+        screen.getAllByText("testost-1.pdf")
+      );
       expect(filenameCopy.length).to.equal(1);
 
       const inviteName = await waitFor(() =>

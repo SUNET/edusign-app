@@ -327,7 +327,7 @@ describe("Main Component", function () {
       let notification2 = await waitFor(() => screen.getAllByText("hi hi hi"));
       expect(notification2.length).to.equal(1);
 
-      const closeLink = screen.getAllByRole('button', {name: /close alert/i});
+      const closeLink = screen.getAllByRole("button", { name: /close alert/i });
       expect(closeLink.length).to.equal(1);
 
       fireEvent.click(closeLink[0]);

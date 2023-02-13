@@ -12,7 +12,7 @@ import { validateNewname } from "components/InviteForm";
 import "styles/DocPreview.scss";
 import "styles/PDFForm.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import 'react-pdf/dist/esm/Page/TextLayer.css';
+import "react-pdf/dist/esm/Page/TextLayer.css";
 
 const initValues = (props) => ({ newfname: nameForCopy(props) });
 
@@ -86,7 +86,7 @@ class PDFForm extends React.Component {
         window.setTimeout(() => {
           const elem = document.getElementById(elemId);
           if (elem) {
-            elem.addEventListener('click', (e) => {
+            elem.addEventListener("click", (e) => {
               const checked = e.target.checked;
               setTimeout(() => {
                 e.target.checked = checked;

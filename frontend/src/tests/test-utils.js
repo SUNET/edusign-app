@@ -71,7 +71,7 @@ const initialState = {
     previous: "",
   },
   pdfform: {
-    document: null
+    document: null,
   },
 };
 

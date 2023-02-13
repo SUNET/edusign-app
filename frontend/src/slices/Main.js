@@ -211,7 +211,7 @@ export const downloadInvitedDraft = createAsyncThunk(
         ? doc.signedContent.split(",")[1]
         : doc.blob.split(",")[1];
     const blob = b64toBlob(b64content);
-    const newName = nameForDownload(doc.name, 'draft');
+    const newName = nameForDownload(doc.name, "draft");
     FileSaver.saveAs(blob, newName);
   }
 );

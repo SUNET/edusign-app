@@ -143,7 +143,12 @@ class InviteEditForm extends React.Component {
                           placeholder="jane@example.com"
                           as={BForm.Control}
                           type="email"
-                          validate={validateEmail(this.props.mail, this.props.mail_aliases)}
+                          validate={validateEmail(
+                            this.props.mail,
+                            this.props.mail_aliases,
+                            fprops.values.invitees,
+                            index
+                          )}
                           isValid={
                             fprops.touched.invitees &&
                             fprops.touched.invitees[index] &&

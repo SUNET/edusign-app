@@ -22,7 +22,6 @@ import "styles/Main.scss";
  * @component
  */
 class Main extends Component {
-
   componentDidMount() {
     appIsRendered();
   }

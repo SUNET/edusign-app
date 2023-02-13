@@ -9,7 +9,7 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
-import { createRoot } from 'react-dom/client';
+import { createRoot } from "react-dom/client";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import Cookies from "js-cookie";

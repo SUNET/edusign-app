@@ -11,7 +11,7 @@ import { nameForCopy } from "components/utils";
 
 import "styles/InviteForm.scss";
 
-export const validateEmail = (mail, mail_aliases) => {
+export const validateEmail = (mail, mail_aliases, allValues, idx) => {
   return (value) => {
     let error;
 
@@ -23,13 +23,31 @@ export const validateEmail = (mail, mail_aliases) => {
       error = (
         <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
       );
-    } else if (value === mail || (mail_aliases !== undefined && mail_aliases.includes(value))) {
+    } else if (
+      value === mail ||
+      (mail_aliases !== undefined && mail_aliases.includes(value))
+    ) {
       error = (
         <FormattedMessage
           defaultMessage="Do not invite yourself"
           key="do-no-invite-yourself"
         />
       );
+    } else {
+      let count = 0;
+      allValues.forEach((val, i) => {
+        if (idx > i && val.email === value) {
+          count += 1;
+        }
+      });
+      if (count > 0) {
+        error = (
+          <FormattedMessage
+            defaultMessage="That email has already been invited"
+            key="email-problem-dup"
+          />
+        );
+      }
     }
     return error;
   };
@@ -92,11 +110,31 @@ export const validateNewname = (props) => {
 const validate = (props) => {
   return (values) => {
     let errors = {};
+    const emails = [];
     values.invitees.forEach((val, i) => {
       const nameError = validateName(val.name);
-      const emailError = validateEmail(props.mail, props.mail_aliases)(val.email);
+      const emailError = validateEmail(
+        props.mail,
+        props.mail_aliases,
+        values.invitees,
+        i
+      )(val.email);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
-      if (emailError !== undefined) errors[`invitees.${i}.email`] = emailError;
+      if (emailError !== undefined) {
+        errors[`invitees.${i}.email`] = emailError;
+      } else {
+        if (emails.includes(val.email)) {
+          const dupError = (
+            <FormattedMessage
+              defaultMessage="That email has already been invited"
+              key="email-problem-dup"
+            />
+          );
+          errors[`invitees.${i}.email`] = dupError;
+        } else {
+          emails.push(val.email);
+        }
+      }
     });
     if (values.makecopyChoice) {
       const newNameError = validateNewname(props)(values.newnameInput);
@@ -225,7 +263,12 @@ class InviteForm extends React.Component {
                           placeholder="jane@example.com"
                           as={BForm.Control}
                           type="email"
-                          validate={validateEmail(this.props.mail, this.props.mail_aliases)}
+                          validate={validateEmail(
+                            this.props.mail,
+                            this.props.mail_aliases,
+                            fprops.values.invitees,
+                            index
+                          )}
                           isValid={
                             fprops.touched.invitees &&
                             fprops.touched.invitees[index] &&

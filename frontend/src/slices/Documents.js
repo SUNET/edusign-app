@@ -303,7 +303,7 @@ export const validateDoc = async (doc, intl, state) => {
     if (document.name === doc.name) {
       newDoc = {
         ...doc,
-        state: 'dup',
+        state: "dup",
       };
     }
   });
@@ -313,7 +313,7 @@ export const validateDoc = async (doc, intl, state) => {
       if (document.name === doc.name && document.created !== doc.created) {
         newDoc = {
           ...doc,
-          state: 'dup',
+          state: "dup",
         };
       }
     });
@@ -324,7 +324,7 @@ export const validateDoc = async (doc, intl, state) => {
       if (document.name === doc.name) {
         newDoc = {
           ...doc,
-          state: 'dup',
+          state: "dup",
         };
       }
     });
@@ -344,7 +344,7 @@ export const validateDoc = async (doc, intl, state) => {
       state: "failed-loading",
       message: intl.formatMessage(
         {
-          defaultMessage: `Document is too big (max size: ${size})`,
+          defaultMessage: "Document is too big (max size: {size})",
           id: "validate-too-big",
         },
         { size: humanFileSize(state.main.max_file_size) }
@@ -362,10 +362,10 @@ export const validateDoc = async (doc, intl, state) => {
       };
     })
     .catch((err) => {
-      console.log('failed', err);
+      console.log("failed", err);
       return dealWithPDFError(doc, err, intl);
     });
-}
+};
 
 /**
  * @public
@@ -468,7 +468,7 @@ const setChangedDocument = async (thunkAPI, state, doc) => {
   const newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn);
   thunkAPI.dispatch(documentsSlice.actions.setState(newDoc));
   return newDoc;
-}
+};
 
 /**
  * @public
@@ -516,7 +516,7 @@ export const createDocument = createAsyncThunk(
           }),
         })
       );
-      doc.state = 'failed-loading';
+      doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
         defaultMessage: "Problem adding document, please try again",
         id: "save-doc-problem-db",
@@ -542,7 +542,7 @@ export const createDocument = createAsyncThunk(
           }),
         })
       );
-      doc.state = 'failed-loading';
+      doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
         defaultMessage: "Problem preparing document for signing",
         id: "save-doc-problem-preparing",
@@ -565,7 +565,7 @@ export const createDocument = createAsyncThunk(
           }),
         })
       );
-      doc.state = 'failed-loading';
+      doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
         defaultMessage: "Problem saving document in session",
         id: "save-doc-problem-session",
@@ -794,7 +794,7 @@ export const startSigningDocuments = createAsyncThunk(
       thunkAPI.dispatch(updateSigningForm(formData));
       // Catch errors and inform the user, and update the state with that information.
     } catch (err) {
-      console.log('Error starting signing', err);
+      console.log("Error starting signing", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -907,7 +907,9 @@ export const restartSigningDocuments = createAsyncThunk(
       docsToSign.local.forEach((doc) => {
         data.payload.failed.forEach((failed) => {
           if (doc.key === failed.key) {
-            thunkAPI.dispatch(documentsSlice.actions.setState({name: doc.name, ...failed}));
+            thunkAPI.dispatch(
+              documentsSlice.actions.setState({ name: doc.name, ...failed })
+            );
           }
         });
       });
@@ -964,7 +966,7 @@ export const restartSigningDocuments = createAsyncThunk(
         await thunkAPI.dispatch(checkStoredDocuments());
       }
     } catch (err) {
-      console.log('Error restarting signing', err);
+      console.log("Error restarting signing", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -1073,7 +1075,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
     });
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
-      console.log('Error fetching signed docs', err);
+    console.log("Error fetching signed docs", err);
     // In case of errors, notify the user, and update the state.
     thunkAPI.dispatch(
       addNotification({
@@ -1119,7 +1121,7 @@ export const downloadSigned = createAsyncThunk(
     })[0];
     const b64content = doc.signedContent.split(",")[1];
     const blob = b64toBlob(b64content);
-    const newName = nameForDownload(doc.name, 'signed');
+    const newName = nameForDownload(doc.name, "signed");
     FileSaver.saveAs(blob, newName);
   }
 );
@@ -1150,7 +1152,7 @@ export const downloadAllSigned = createAsyncThunk(
     await docs.forEach(async (doc) => {
       const b64content = doc.signedContent.split(",")[1];
       const blob = b64toBlob(b64content);
-      const newName = nameForDownload(doc.name, 'signed');
+      const newName = nameForDownload(doc.name, "signed");
       await folder.file(newName, blob);
     });
     await zip.generateAsync({ type: "blob" }).then(async function (content) {
@@ -1346,7 +1348,10 @@ const documentsSlice = createSlice({
      */
     rmDup(state, action) {
       state.documents = state.documents.filter((doc) => {
-        return doc.name !== action.payload.name || doc.created !== action.payload.created;
+        return (
+          doc.name !== action.payload.name ||
+          doc.created !== action.payload.created
+        );
       });
     },
     /**
