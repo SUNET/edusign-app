@@ -116,6 +116,10 @@ USER_WHITELIST = [eppn.strip() for eppn in RAW_USER_WHITELIST.split(',')]
 STORAGE_CLASS_PATH = os.environ.get('STORAGE_CLASS_PATH', default='edusign_webapp.document.storage.local.LocalStorage')
 LOCAL_STORAGE_BASE_DIR = os.environ.get('LOCAL_STORAGE_BASE_DIR', default='/tmp')
 
+# Do not set AWS_ENDPOINT_URL if you use AWS
+AWS_ENDPOINT_URL = os.environ.get('AWS_ENDPOINT_URL', default=None)
+if AWS_ENDPOINT_URL == 'none':
+    AWS_ENDPOINT_URL = None
 AWS_ACCESS_KEY = os.environ.get('AWS_ACCESS_KEY', default='dummy')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY', default='dummy')
 AWS_REGION_NAME = os.environ.get('AWS_REGION_NAME', default='eu-north-1')

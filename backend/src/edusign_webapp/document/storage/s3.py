@@ -57,6 +57,7 @@ class S3Storage(ABCStorage):
         self.s3_session = boto3.session.Session()
         self.s3 = self.s3_session.resource(
             's3',
+            endpoint_url=config['AWS_ENDPOINT_URL'],
             region_name=config['AWS_REGION_NAME'],
             aws_access_key_id=config['AWS_ACCESS_KEY'],
             aws_secret_access_key=config['AWS_SECRET_ACCESS_KEY'],
