@@ -111,6 +111,6 @@ class S3Storage(ABCStorage):
 
         :param key: The key identifying the document.
         """
-        self.s3_bucket.delete_objects(Delete={'Objects': [{'Key': str(key)}]})
+        self.s3_bucket.delete_object(Key=str(key))
 
         self.logger.info(f"Removed document contents with key {key}")
