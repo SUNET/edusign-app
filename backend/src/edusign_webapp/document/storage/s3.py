@@ -62,6 +62,7 @@ class S3Storage(ABCStorage):
             aws_access_key_id=config['AWS_ACCESS_KEY'],
             aws_secret_access_key=config['AWS_SECRET_ACCESS_KEY'],
         )
+        self.s3_bucket_name = config['AWS_BUCKET_NAME']
         self.s3_bucket = self.s3.Bucket(config['AWS_BUCKET_NAME'])
 
     def add(self, key: uuid.UUID, content: str):
@@ -111,6 +112,7 @@ class S3Storage(ABCStorage):
 
         :param key: The key identifying the document.
         """
-        self.s3_bucket.delete_object(Key=str(key))
+        doc = self.s3.Object(self.s3_bucket_name, str(key))
+        doc.delete()
 
         self.logger.info(f"Removed document contents with key {key}")
