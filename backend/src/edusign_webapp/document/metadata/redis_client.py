@@ -315,7 +315,9 @@ class RedisStorageBackend:
         for b_invite_id in invite_ids:
             invite_id = int(b_invite_id)
             email = self.redis.hget(f"invite:{invite_id}", 'user_email').decode('utf8')
+            key = self.redis.hget(f"invite:{invite_id}", 'key').decode('utf8')
             self.transaction.delete(f"invite:{invite_id}")
+            self.transaction.delete(f"invite:key:{key}")
             self.transaction.delete(f"invites:unsigned:document:{doc_id}")
             self.transaction.delete(f"invites:signed:document:{doc_id}")
             self.transaction.delete(f"invites:declined:document:{doc_id}")
@@ -326,13 +328,14 @@ class RedisStorageBackend:
 
         current_app.logger.debug(f"Removed all invites for document with id {doc_id}: {emails}")
 
-    def remove_invite(self, doc_id, invite_id, email):
+    def remove_invite(self, doc_id, invite_id, invite_key, email):
         self.transaction.delete(f"invite:{invite_id}")
-        self.transaction.delete(f"invites:unsigned:document:{doc_id}")
+        self.transaction.delete(f"invite:key:{invite_key}")
+        self.transaction.srem(f"invites:unsigned:document:{doc_id}", invite_id)
         self.transaction.srem(f"invites:unsigned:email:{email}", invite_id)
-        self.transaction.delete(f"invites:signed:document:{doc_id}")
+        self.transaction.srem(f"invites:signed:document:{doc_id}", invite_id)
         self.transaction.srem(f"invites:signed:email:{email}", invite_id)
-        self.transaction.delete(f"invites:declined:document:{doc_id}")
+        self.transaction.srem(f"invites:declined:document:{doc_id}", invite_id)
         self.transaction.srem(f"invites:declined:email:{email}", invite_id)
         current_app.logger.debug(f"Removed invite {invite_id} on document {doc_id} for {email}")
 
@@ -927,12 +930,11 @@ class RedisMD(ABCMetadata):
         :param document_key: The key identifying the signing invitation to remove
         :return: success
         """
-        # XXX this belongs in the client class
         self.client.pipeline()
         invite_id = self.client.query_invite_id(invite_key)
         email = self.client.redis.hget(f"invite:{invite_id}", 'user_email').decode('utf8')
         doc_id = self.client.query_document_id(str(document_key))
-        self.client.remove_invite(doc_id, invite_id, email)
+        self.client.remove_invite(doc_id, invite_id, invite_key, email)
 
         self.client.commit()
         return True
