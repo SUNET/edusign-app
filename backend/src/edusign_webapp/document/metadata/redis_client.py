@@ -126,6 +126,16 @@ class RedisStorageBackend:
         current_app.logger.debug(f"Added raw document {name} with key{key}")
         return int(doc_id)
 
+    def delete_document(self, key):
+        doc_id = int(self.redis.get(f"doc:key:{key}"))
+        document = self.query_document(doc_id)
+        email = document['owner_email']
+        self.transaction.delete(f"doc:{doc_id}")
+        self.transaction.delete(f"doc:key:{key}")
+        self.transaction.zrem("doc:created", key)
+        self.transaction.srem(f"doc:email:{email}", doc_id)
+        current_app.logger.debug(f"Removed document {document}")
+
     def query_document_id(self, key):
         doc_id = self.redis.get(f"doc:key:{key}")
         if doc_id is not None:
@@ -259,16 +269,6 @@ class RedisStorageBackend:
     def add_document_lock(self, doc_id, locked, locking_email):
         self.transaction.hset(f"doc:{doc_id}", mapping=dict(locked=locked, locking_email=locking_email))
         current_app.logger.debug(f"Added lock to document with id {doc_id} for {locking_email}")
-
-    def delete_document(self, key):
-        doc_id = int(self.redis.get(f"doc:key:{key}"))
-        document = self.query_document(doc_id)
-        self.transaction.delete(f"doc:{doc_id}")
-        self.transaction.delete(f"doc:key:{key}")
-        self.transaction.zrem("doc:created", key)
-        email = document['owner_email']
-        self.transaction.srem(f"doc:email:{email}", doc_id)
-        current_app.logger.debug(f"Removed document {document}")
 
     def insert_invite(self, key, doc_id, user_email, user_name):
         invite_id = self.redis.incr('invite-counter')
