@@ -138,13 +138,12 @@ class ABCMetadata(metaclass=abc.ABCMeta):
     def add_document_raw(
         self,
         document: Dict[str, str],
-    ):
+    ) -> int:
         """
         Store metadata for a new document.
 
         :param document: Content and metadata of the document. Dictionary containing keys:
                  + key: Key of the doc in the storage.
-                 + doc_id: id of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
@@ -156,7 +155,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
-        :return:
+        :return: new document id
         """
 
     @abc.abstractmethod
@@ -486,13 +485,12 @@ class DocStore(object):
         self,
         document: Dict[str, str],
         content: str,
-    ):
+    ) -> int:
         """
         Store metadata for a new document.
 
         :param document: Content and metadata of the document. Dictionary containing keys:
                  + key: Key of the doc in the storage.
-                 + doc_id: id of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
@@ -505,10 +503,11 @@ class DocStore(object):
                  + updated: modification timestamp
                  + created: creation timestamp
         :param content: base64 string with the contents of the document, with a newly added signature.
-        :return:
+        :return: new document id
         """
-        self.metadata.add_document_raw(document)
+        doc_id = self.metadata.add_document_raw(document)
         self.storage.add(document['key'], content)
+        return doc_id
 
     def get_old_documents(self, days: int) -> List[uuid.UUID]:
         """

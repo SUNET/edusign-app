@@ -149,12 +149,13 @@ def migrate_to_redis_and_s3():
             current_app.logger.info(f"    Document with key {doc_key} has no invitations, skipping")
             continue
 
-        current_app.doc_store.add_document_raw(old_document, content)
+        doc_id = current_app.doc_store.add_document_raw(old_document, content)
         migrated_docs += 1
         current_app.logger.info(f"    Document with key {doc_key} added to db and storage")
 
         current_app.logger.info(f"Going to migrate {len(old_invites)} invites for document with key {doc_key}")
         for invite in old_invites:
+            invite['doc_id'] = doc_id
             current_app.doc_store.add_invite_raw(invite)
             migrated_invites += 1
 

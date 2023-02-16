@@ -91,7 +91,6 @@ class RedisStorageBackend:
     def insert_document_raw(
         self,
         key,
-        doc_id,
         name,
         size,
         type,
@@ -118,11 +117,12 @@ class RedisStorageBackend:
             sendsigned=int(sendsigned),
             loa=loa,
         )
+        doc_id = self.redis.incr('doc-counter')
         self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
         self.transaction.set(f"doc:key:{key}", doc_id)
         self.transaction.zadd("doc:created", {key: created})
         self.transaction.sadd(f"doc:email:{owner_email}", doc_id)
-        return doc_id
+        return int(doc_id)
 
     def query_document_id(self, key):
         doc_id = self.redis.get(f"doc:key:{key}")
@@ -491,13 +491,12 @@ class RedisMD(ABCMetadata):
     def add_document_raw(
         self,
         document: Dict[str, str],
-    ):
+    ) -> int:
         """
         Store metadata for a new document.
 
         :param document: Content and metadata of the document. Dictionary containing keys:
                  + key: Key of the doc in the storage.
-                 + doc_id: id of the doc in the storage.
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
@@ -509,13 +508,12 @@ class RedisMD(ABCMetadata):
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
-        :return:
+        :return: new document id
         """
         self.client.pipeline()
 
-        self.client.insert_document_raw(
+        doc_id = self.client.insert_document_raw(
             str(document['key']),
-            int(document['doc_id']),
             document['name'],
             document['size'],
             document['type'],
@@ -529,6 +527,7 @@ class RedisMD(ABCMetadata):
             document['loa'],
         )
         self.client.commit()
+        return doc_id
 
     def add_invite_raw(self, invite: Dict[str, Any]):
         """
