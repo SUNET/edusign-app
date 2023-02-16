@@ -326,6 +326,16 @@ class RedisStorageBackend:
 
         current_app.logger.debug(f"Removed all invites for document with id {doc_id}: {emails}")
 
+    def remove_invite(self, doc_id, invite_id, email):
+        self.transaction.delete(f"invite:{invite_id}")
+        self.transaction.delete(f"invites:unsigned:document:{doc_id}")
+        self.transaction.srem(f"invites:unsigned:email:{email}", invite_id)
+        self.transaction.delete(f"invites:signed:document:{doc_id}")
+        self.transaction.srem(f"invites:signed:email:{email}", invite_id)
+        self.transaction.delete(f"invites:declined:document:{doc_id}")
+        self.transaction.srem(f"invites:declined:email:{email}", invite_id)
+        current_app.logger.debug(f"Removed invite {invite_id} on document {doc_id} for {email}")
+
     def query_invites_from_email(self, email):
         invites = []
         invite_ids = self.redis.smembers(f'invites:unsigned:email:{email}')
@@ -922,13 +932,7 @@ class RedisMD(ABCMetadata):
         invite_id = self.client.query_invite_id(invite_key)
         email = self.client.redis.hget(f"invite:{invite_id}", 'user_email').decode('utf8')
         doc_id = self.client.query_document_id(str(document_key))
-        self.client.transaction.delete(f"invite:{invite_id}")
-        self.client.transaction.delete(f"invites:unsigned:document:{doc_id}")
-        self.client.transaction.srem(f"invites:unsigned:email:{email}", invite_id)
-        self.client.transaction.delete(f"invites:signed:document:{doc_id}")
-        self.client.transaction.srem(f"invites:signed:email:{email}", invite_id)
-        self.client.transaction.delete(f"invites:declined:document:{doc_id}")
-        self.client.transaction.srem(f"invites:declined:email:{email}", invite_id)
+        self.client.remove_invite(doc_id, invite_id, email)
 
         self.client.commit()
         return True
