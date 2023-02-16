@@ -231,7 +231,7 @@ class _UnMarshal(object):
         def unmarshal_decorator():
             try:
                 json_data = request.get_json()
-                current_app.logger.debug(f'Data received: {json_data}')
+                current_app.logger.debug(f'Data received: {str(json_data)[:100]}')
                 if json_data is None:
                     json_data = {}
                 unmarshal_result = self.schema().load(json_data)

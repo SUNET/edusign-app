@@ -891,7 +891,7 @@ def get_signed_documents(sign_data: dict) -> dict:
     :return: A dict with the signed documents, or with error information if some error has ocurred.
     """
     try:
-        current_app.logger.info(f"Processing signature for {sign_data['sign_response']} for user {session['eppn']}")
+        current_app.logger.info(f"Processing signature for {sign_data['sign_response'][:50]} for user {session['eppn']}")
         process_data = current_app.api_client.process_sign_request(sign_data['sign_response'], sign_data['relay_state'])
 
     except Exception as e:
