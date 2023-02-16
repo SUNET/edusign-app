@@ -126,6 +126,15 @@ class RedisStorageBackend:
         current_app.logger.debug(f"Added raw document {name} with key{key}")
         return int(doc_id)
 
+    def add_document_lock(self, doc_id, locked, locking_email):
+        self.transaction.hset(f"doc:{doc_id}", mapping=dict(locked=locked, locking_email=locking_email))
+        current_app.logger.debug(f"Added lock to document with id {doc_id} for {locking_email}")
+
+    def rm_document_lock(self, doc_id):
+        self.transaction.hdel(f"doc:{doc_id}", 'locked')
+        self.transaction.hdel(f"doc:{doc_id}", 'locking_email')
+        current_app.logger.debug(f"Removed lock from document with id {doc_id}")
+
     def delete_document(self, key):
         doc_id = int(self.redis.get(f"doc:key:{key}"))
         document = self.query_document(doc_id)
@@ -135,6 +144,11 @@ class RedisStorageBackend:
         self.transaction.zrem("doc:created", key)
         self.transaction.srem(f"doc:email:{email}", doc_id)
         current_app.logger.debug(f"Removed document {document}")
+
+    def update_document(self, key, updated):
+        doc_id = int(self.redis.get(f"doc:key:{key}"))
+        self.transaction.hset(f"doc:{doc_id}", mapping=dict(updated=updated))
+        current_app.logger.debug(f"Updated document with key {key} to {updated}")
 
     def query_document_id(self, key):
         doc_id = self.redis.get(f"doc:key:{key}")
@@ -256,20 +270,6 @@ class RedisStorageBackend:
         loa = b_doc.get(b"loa", b"none")
         return loa.decode('utf8')
 
-    def update_document(self, key, updated):
-        doc_id = int(self.redis.get(f"doc:key:{key}"))
-        self.transaction.hset(f"doc:{doc_id}", mapping=dict(updated=updated))
-        current_app.logger.debug(f"Updated document with key {key} to {updated}")
-
-    def rm_document_lock(self, doc_id):
-        self.transaction.hdel(f"doc:{doc_id}", 'locked')
-        self.transaction.hdel(f"doc:{doc_id}", 'locking_email')
-        current_app.logger.debug(f"Removed lock from document with id {doc_id}")
-
-    def add_document_lock(self, doc_id, locked, locking_email):
-        self.transaction.hset(f"doc:{doc_id}", mapping=dict(locked=locked, locking_email=locking_email))
-        current_app.logger.debug(f"Added lock to document with id {doc_id} for {locking_email}")
-
     def insert_invite(self, key, doc_id, user_email, user_name):
         invite_id = self.redis.incr('invite-counter')
         mapping = dict(
@@ -339,6 +339,42 @@ class RedisStorageBackend:
         self.transaction.srem(f"invites:declined:email:{email}", invite_id)
         current_app.logger.debug(f"Removed invite {invite_id} on document {doc_id} for {email}")
 
+    def update_invite(self, emails, doc_id):
+        invite_ids = set()
+        actual_email = ''
+        for email in emails:
+            invite_ids = invite_ids.union(
+                self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}")
+            )
+            if len(invite_ids) == 1:
+                actual_email = email
+        assert len(invite_ids) == 1
+        invite_id = int(list(invite_ids)[0])
+        self.transaction.hset(f"invite:{invite_id}", mapping={'signed': 1})
+        self.transaction.smove(
+            f"invites:unsigned:email:{actual_email}", f"invites:signed:email:{actual_email}", invite_id
+        )
+        self.transaction.smove(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}", invite_id)
+        current_app.logger.debug(f"Updated invite for document with id {doc_id} for {actual_email}")
+
+    def decline_invite(self, emails, doc_id):
+        invite_ids = set()
+        actual_email = ''
+        for email in emails:
+            invite_ids = invite_ids.union(
+                self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}")
+            )
+            if len(invite_ids) == 1:
+                actual_email = email
+        assert len(invite_ids) == 1
+        invite_id = int(list(invite_ids)[0])
+        self.transaction.hset(f"invite:{invite_id}", mapping={'declined': 1})
+        self.transaction.smove(
+            f"invites:unsigned:email:{actual_email}", f"invites:declined:email:{actual_email}", invite_id
+        )
+        self.transaction.smove(f"invites:unsigned:document:{doc_id}", f"invites:declined:document:{doc_id}", invite_id)
+        current_app.logger.debug(f"Declined invite for document with id {doc_id} for {actual_email}")
+
     def query_invites_from_email(self, email):
         invites = []
         invite_ids = self.redis.smembers(f'invites:unsigned:email:{email}')
@@ -395,42 +431,6 @@ class RedisStorageBackend:
                 user_email=b_invite[b'user_email'].decode('utf8'),
             )
             return invite
-
-    def update_invite(self, emails, doc_id):
-        invite_ids = set()
-        actual_email = ''
-        for email in emails:
-            invite_ids = invite_ids.union(
-                self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}")
-            )
-            if len(invite_ids) == 1:
-                actual_email = email
-        assert len(invite_ids) == 1
-        invite_id = int(list(invite_ids)[0])
-        self.transaction.hset(f"invite:{invite_id}", mapping={'signed': 1})
-        self.transaction.smove(
-            f"invites:unsigned:email:{actual_email}", f"invites:signed:email:{actual_email}", invite_id
-        )
-        self.transaction.smove(f"invites:unsigned:document:{doc_id}", f"invites:signed:document:{doc_id}", invite_id)
-        current_app.logger.debug(f"Updated invite for document with id {doc_id} for {actual_email}")
-
-    def decline_invite(self, emails, doc_id):
-        invite_ids = set()
-        actual_email = ''
-        for email in emails:
-            invite_ids = invite_ids.union(
-                self.redis.sinter(f"invites:unsigned:document:{doc_id}", f"invites:unsigned:email:{email}")
-            )
-            if len(invite_ids) == 1:
-                actual_email = email
-        assert len(invite_ids) == 1
-        invite_id = int(list(invite_ids)[0])
-        self.transaction.hset(f"invite:{invite_id}", mapping={'declined': 1})
-        self.transaction.smove(
-            f"invites:unsigned:email:{actual_email}", f"invites:declined:email:{actual_email}", invite_id
-        )
-        self.transaction.smove(f"invites:unsigned:document:{doc_id}", f"invites:declined:document:{doc_id}", invite_id)
-        current_app.logger.debug(f"Declined invite for document with id {doc_id} for {actual_email}")
 
 
 class RedisMD(ABCMetadata):
