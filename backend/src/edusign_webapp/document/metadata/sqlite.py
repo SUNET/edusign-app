@@ -462,12 +462,12 @@ class SqliteMD(ABCMetadata):
 
         return [uuid.UUID(doc['key']) for doc in old_docs]
 
-    def get_pending(self, email: str) -> List[Dict[str, Any]]:
+    def get_pending(self, emails: List[str]) -> List[Dict[str, Any]]:
         """
         Given the email address of some user, return information about the documents
         she has been invited to sign, and has not yet signed.
 
-        :param email: The email of the user
+        :param emails: The emails of the user
         :return: A list of dictionaries with information about the documents pending to be signed,
                  each of them with keys:
                  + key: Key of the doc in the storage.
@@ -484,56 +484,57 @@ class SqliteMD(ABCMetadata):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
         """
-        invites = self._db_query(INVITE_QUERY_FROM_EMAIL, (email,))
-        if invites is None or isinstance(invites, dict):
-            return []
-
         pending = []
         doc_ids = []
-        for invite in invites:
-            document_id = invite['doc_id']
-            document = self._db_query(DOCUMENT_QUERY, (document_id,), one=True)
-            if document is None or isinstance(document, list):
-                self.logger.error(
-                    f"Db seems corrupted, an invite for {email}"
-                    f" references a non existing document with id {document_id}"
-                )
-                continue
+        for email in emails:
+            invites = self._db_query(INVITE_QUERY_FROM_EMAIL, (email,))
+            if invites is None or isinstance(invites, dict):
+                return []
 
-            if document_id in doc_ids:
-                self.rm_invitation(uuid.UUID(invite['key']), uuid.UUID(document['key']))
-                continue
-            else:
-                doc_ids.append(document_id)
+            for invite in invites:
+                document_id = invite['doc_id']
+                document = self._db_query(DOCUMENT_QUERY, (document_id,), one=True)
+                if document is None or isinstance(document, list):
+                    self.logger.error(
+                        f"Db seems corrupted, an invite for {email}"
+                        f" references a non existing document with id {document_id}"
+                    )
+                    continue
 
-            document['owner'] = {
-                'email': document['owner_email'],
-                'name': document['owner_name'],
-                'eppn': document['owner_eppn'],
-            }
-            document['key'] = uuid.UUID(document['key'])
-            document['invite_key'] = uuid.UUID(invite['key'])
-            document['pending'] = []
-            document['signed'] = []
-            document['declined'] = []
-            document['state'] = "unconfirmed"
-            document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
+                if document_id in doc_ids:
+                    self.rm_invitation(uuid.UUID(invite['key']), uuid.UUID(document['key']))
+                    continue
+                else:
+                    doc_ids.append(document_id)
 
-            subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
+                document['owner'] = {
+                    'email': document['owner_email'],
+                    'name': document['owner_name'],
+                    'eppn': document['owner_eppn'],
+                }
+                document['key'] = uuid.UUID(document['key'])
+                document['invite_key'] = uuid.UUID(invite['key'])
+                document['pending'] = []
+                document['signed'] = []
+                document['declined'] = []
+                document['state'] = "unconfirmed"
+                document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
 
-            if subinvites is not None and not isinstance(subinvites, dict):
-                for subinvite in subinvites:
-                    subemail_result = {'email': subinvite['user_email'], 'name': subinvite['user_name']}
-                    if subemail_result['email'] == email:
-                        continue
-                    if subinvite['declined'] == 1:
-                        document['declined'].append(subemail_result)
-                    elif subinvite['signed'] == 1:
-                        document['signed'].append(subemail_result)
-                    else:
-                        document['pending'].append(subemail_result)
+                subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
 
-            pending.append(document)
+                if subinvites is not None and not isinstance(subinvites, dict):
+                    for subinvite in subinvites:
+                        subemail_result = {'email': subinvite['user_email'], 'name': subinvite['user_name']}
+                        if subemail_result['email'] == email:
+                            continue
+                        if subinvite['declined'] == 1:
+                            document['declined'].append(subemail_result)
+                        elif subinvite['signed'] == 1:
+                            document['signed'].append(subemail_result)
+                        else:
+                            document['pending'].append(subemail_result)
+
+                pending.append(document)
 
         return pending
 

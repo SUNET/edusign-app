@@ -590,12 +590,12 @@ class RedisMD(ABCMetadata):
         """
         return self.client.query_documents_old(days)
 
-    def get_pending(self, email: str) -> List[Dict[str, Any]]:
+    def get_pending(self, emails: List[str]) -> List[Dict[str, Any]]:
         """
         Given the email address of some user, return information about the documents
         she has been invited to sign, and has not yet signed.
 
-        :param email: The email of the user
+        :param emails: The emails of the user
         :return: A list of dictionaries with information about the documents pending to be signed,
                  each of them with keys:
                  + key: Key of the doc in the storage.
@@ -611,46 +611,54 @@ class RedisMD(ABCMetadata):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
         """
-        invites = self.client.query_invites_from_email(email)
-        if invites is None or isinstance(invites, dict):
-            return []
-
         pending = []
-        for invite in invites:
-            doc_id = invite['doc_id']
-            document = self.client.query_document(doc_id)
-            if document is None or isinstance(document, list):
-                self.logger.error(
-                    f"Db seems corrupted, an invite for {email}" f" references a non existing document with id {doc_id}"
-                )
-                continue
+        doc_ids = []
+        for email in emails:
+            invites = self.client.query_invites_from_email(email)
+            if invites is None or isinstance(invites, dict):
+                return []
 
-            document['owner'] = {
-                'email': document['owner_email'],
-                'name': document['owner_name'],
-                'eppn': document['owner_eppn'],
-            }
-            document['invite_key'] = invite['key']
-            document['pending'] = []
-            document['signed'] = []
-            document['declined'] = []
-            document['state'] = "unconfirmed"
+            for invite in invites:
+                doc_id = invite['doc_id']
+                document = self.client.query_document(doc_id)
+                if document is None or isinstance(document, list):
+                    self.logger.error(
+                        f"Db seems corrupted, an invite for {email}" f" references a non existing document with id {doc_id}"
+                    )
+                    continue
 
-            subinvites = self.client.query_invites_from_doc(doc_id)
+                if doc_id in doc_ids:
+                    self.rm_invitation(uuid.UUID(invite['key']), uuid.UUID(document['key']))
+                    continue
+                else:
+                    doc_ids.append(doc_id)
 
-            if subinvites is not None and not isinstance(subinvites, dict):
-                for subinvite in subinvites:
-                    subemail_result = {'email': subinvite['user_email'], 'name': subinvite['user_name']}
-                    if subemail_result['email'] == email:
-                        continue
-                    if subinvite['signed'] == 1:
-                        document['signed'].append(subemail_result)
-                    elif subinvite['declined'] == 1:
-                        document['declined'].append(subemail_result)
-                    else:
-                        document['pending'].append(subemail_result)
+                document['owner'] = {
+                    'email': document['owner_email'],
+                    'name': document['owner_name'],
+                    'eppn': document['owner_eppn'],
+                }
+                document['invite_key'] = invite['key']
+                document['pending'] = []
+                document['signed'] = []
+                document['declined'] = []
+                document['state'] = "unconfirmed"
 
-            pending.append(document)
+                subinvites = self.client.query_invites_from_doc(doc_id)
+
+                if subinvites is not None and not isinstance(subinvites, dict):
+                    for subinvite in subinvites:
+                        subemail_result = {'email': subinvite['user_email'], 'name': subinvite['user_name']}
+                        if subemail_result['email'] == email:
+                            continue
+                        if subinvite['signed'] == 1:
+                            document['signed'].append(subemail_result)
+                        elif subinvite['declined'] == 1:
+                            document['declined'].append(subemail_result)
+                        else:
+                            document['pending'].append(subemail_result)
+
+                pending.append(document)
 
         return pending
 

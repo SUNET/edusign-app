@@ -183,12 +183,12 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def get_pending(self, email: str) -> List[Dict[str, str]]:
+    def get_pending(self, emails: List[str]) -> List[Dict[str, str]]:
         """
         Given the email address of some user, return information about the documents
         they have been invited to sign, and have not yet signed.
 
-        :param email: The email of the user
+        :param emails: The emails of the user
         :return: A list of dictionaries with information about the documents pending to be signed,
                  each of them with keys:
                  + key: Key of the doc in the storage.
@@ -539,10 +539,7 @@ class DocStore(object):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
         """
-        invites = []
-        for email in emails:
-            invites.extend(self.metadata.get_pending(email))
-        return invites
+        return self.metadata.get_pending(emails)
 
     def get_document_content(self, key: uuid.UUID) -> Optional[str]:
         """
