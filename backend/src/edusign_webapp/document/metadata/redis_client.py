@@ -841,7 +841,7 @@ class RedisMD(ABCMetadata):
         for invite in invites:
             email_result = {'email': invite['user_email'], 'name': invite['user_name']}
             email_result['signed'] = bool(invite['signed'])
-            email_result['declined'] = bool(invite['signed'])
+            email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
             invitees.append(email_result)
 
