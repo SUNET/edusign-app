@@ -348,6 +348,7 @@ class RedisStorageBackend:
             )
             if len(invite_ids) == 1:
                 actual_email = email
+                break
         assert len(invite_ids) == 1
         invite_id = int(list(invite_ids)[0])
         self.transaction.hset(f"invite:{invite_id}", mapping={'signed': 1})
@@ -366,6 +367,7 @@ class RedisStorageBackend:
             )
             if len(invite_ids) == 1:
                 actual_email = email
+                break
         assert len(invite_ids) == 1
         invite_id = int(list(invite_ids)[0])
         self.transaction.hset(f"invite:{invite_id}", mapping={'declined': 1})
