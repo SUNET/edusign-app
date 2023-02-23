@@ -85,21 +85,12 @@ MULTISIGN_BUTTONS = os.environ.get('MULTISIGN_BUTTONS', default="yes")
 DEBUG_IDP = os.environ.get('DEBUG_IDP', default='https://login.idp.eduid.se/idp.xml')
 DEBUG_AUTHN_CONTEXT = os.environ.get('DEBUG_AUTHN_CONTEXT', default='https://refeds.org/profile/mfa')
 
-RAW_SESSION_ATTRIBUTES = os.environ.get(
-    'SESSION_ATTRIBUTES',
-    default='urn:oid:2.5.4.42,givenName;urn:oid:2.5.4.4,sn;urn:oid:0.9.2342.19200300.100.1.3,mail;urn:oid:2.16.840.1.113730.3.1.241,displayName',
-)
-
-SESSION_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SESSION_ATTRIBUTES.split(';')}
-
 RAW_SIGNER_ATTRIBUTES = os.environ.get(
     'SIGNER_ATTRIBUTES',
     default='urn:oid:2.16.840.1.113730.3.1.241,displayName',
 )
 
 SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}
-
-SESSION_ATTRIBUTES.update(SIGNER_ATTRIBUTES)
 
 RAW_SCOPE_WHITELIST = os.environ.get('SCOPE_WHITELIST', default='eduid.se, sunet.se')
 

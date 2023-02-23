@@ -45,14 +45,17 @@ from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
 from edusign_webapp.mail_backend import ParallelEmailBackend
 
 
+class MissingDisplayName(Exception):
+    pass
+
+
 def add_attributes_to_session(check_whitelisted=True):
     """
     If the Flask session does not contain information identifying the user,
     this function will grab it from the HTTP headers, where it has been put by the
     Shibboleth SP app, and add them to the session.
-    The particular info that is grabbed from the headers can be configured in 2 variables:
-    * SESSION_ATTRIBUTES: this is a list of attributes that will just be added to the session
-    * SIGNER_ATTRIBUTES: attributes that will be added to the session, and will be used for signing.
+    The particular info that is grabbed from the headers can be configured in a variable:
+    * SIGNER_ATTRIBUTES: attributes that will be added to the session, and will be used in the signature.
     Shibboleth is configured to pass the attributes in the headers as XML snippets (to avoid encoding issues),
     so here we extract the value with ElementTree.
     Shibboleth also has to be configured to pass the organization name (corresponding to the IdP
@@ -72,7 +75,7 @@ def add_attributes_to_session(check_whitelisted=True):
         current_app.logger.info(f'User {eppn} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
 
-        attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SESSION_ATTRIBUTES'].values()]
+        attrs = [('mail', 'Mail'), ('displayName', 'Displayname')]
         more_attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
         for attr in more_attrs:
             if attr not in attrs:
@@ -105,6 +108,8 @@ def add_attributes_to_session(check_whitelisted=True):
                     session['mail_aliases'] = [m.lower() for m in attr_values]
             except (KeyError, IndexError):
                 current_app.logger.error(f'Missing attribute {attr_in_header} from request')
+                if attr_in_session == 'displayName':
+                    raise MissingDisplayName()
                 raise
 
         if 'Maillocaladdress' in request.headers:

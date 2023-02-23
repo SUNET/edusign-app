@@ -67,6 +67,7 @@ from edusign_webapp.schemata import (
     ToSignSchema,
 )
 from edusign_webapp.utils import (
+    MissingDisplayName,
     add_attributes_to_session,
     get_invitations,
     get_previous_signatures,
@@ -321,6 +322,15 @@ def get_index() -> str:
             'Your organization did not provide the correct information during login. Please contact your IT-support for assistance.'
         )
         return render_template('error-generic.jinja2', **context)
+    except MissingDisplayName:
+        current_app.logger.error(
+            'There is some misconfiguration and the IdP does not seem to provide the displayName.'
+        )
+        context['title'] = gettext("Missing displayName")
+        context['message'] = gettext(
+            'Your should add your name to your account at your organization. Please contact your IT-support for assistance.'
+        )
+        return render_template('error-generic.jinja2', **context)
     except ValueError:
         current_app.logger.debug("Authorizing non-whitelisted user")
         unauthn = True
@@ -371,11 +381,8 @@ def get_config() -> dict:
         'eppn': session['eppn'],
         "mail": session["mail"],
         "mail_aliases": session.get("mail_aliases", [session["mail"]]),
+        'name': session['displayName'],
     }
-    if 'displayName' in session:
-        attrs['name'] = session['displayName']
-    else:
-        attrs['name'] = f"{session['givenName']} {session['sn']}"
 
     payload['signer_attributes'] = attrs
     payload['multisign_buttons'] = current_app.config['MULTISIGN_BUTTONS']
