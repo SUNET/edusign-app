@@ -628,7 +628,7 @@ class RedisMD(ABCMetadata):
                     continue
 
                 if doc_id in doc_ids:
-                    self.rm_invitation(uuid.UUID(invite['key']), uuid.UUID(document['key']))
+                    self.rm_invitation(uuid.UUID(str(invite['key'])), uuid.UUID(str(document['key'])))
                     continue
                 else:
                     doc_ids.append(doc_id)
