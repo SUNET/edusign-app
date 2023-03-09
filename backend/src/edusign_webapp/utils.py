@@ -41,6 +41,7 @@ from flask import current_app, request, session
 from flask_babel import force_locale, get_locale, gettext
 from flask_mailman import EmailMultiAlternatives
 from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
+from zlib import error as zliberror
 
 from edusign_webapp.mail_backend import ParallelEmailBackend
 
@@ -223,7 +224,8 @@ def get_previous_signatures(document: dict) -> str:
     pdf = io.BytesIO(bytes)
     try:
         reader = PdfFileReader(pdf)
-    except PdfReadError:
+    except (PdfReadError, zliberror) as e:
+        current_app.logger.info(f"Error reading previous signatures for {document['name']}: {e}")
         return "pdf read error"
     sigs = []
     try:
