@@ -2,8 +2,15 @@
 In version 1.2.1:
 -----------------
 
+* i18n: allow more than 2 languages, add spanish
+* do not require givenName or sn in saml authn assertions, and provide clear error message when displayName is missing
+* do not allow invitations on the same doument to the same user
+* script to migrate metadata from sqlite & local fs to redis and s3
+* allow google cloud buckets for the s3 storage backend
+* redis backend thoroughly tested and updated
 * Update Python dependencies
 * Update JS dependencies
+* fix bug removing dupolicate invitations
 
 In version 1.1.1:
 -----------------
