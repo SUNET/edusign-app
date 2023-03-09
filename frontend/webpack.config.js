@@ -3,6 +3,7 @@ const path = require("path");
 const webpack = require("webpack");
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 module.exports = {
   mode: "development",
@@ -11,7 +12,7 @@ module.exports = {
   },
   devServer: {
     contentBase: path.join(__dirname, "public"),
-    compress: true,
+    hot: true,
     port: 9000
   },
   entry: {
@@ -36,7 +37,10 @@ module.exports = {
     rules: [
       {
         test: /\.js$/,
-        use: { loader: "babel-loader" },
+        use: {
+          loader: "babel-loader",
+          options: { plugins: ['react-refresh/babel'] },
+        },
         exclude: /node_modules/
       },
       {
@@ -85,6 +89,7 @@ module.exports = {
       }
     }),
     new webpack.HotModuleReplacementPlugin(),
+    new ReactRefreshWebpackPlugin(),
     // new BundleAnalyzerPlugin(),
     new webpack.LoaderOptionsPlugin({
       // test: /\.xxx$/, // may apply this only for some modules
@@ -97,11 +102,8 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: 'node_modules/pdfjs-dist/cmaps/',
+          from: path.join(path.dirname(require.resolve('pdfjs-dist/package.json')), 'cmaps'),
           to: 'cmaps/'
-        },
-        {
-          from: 'node_modules/pdfjs-dist/build/',
         },
       ]
     }),

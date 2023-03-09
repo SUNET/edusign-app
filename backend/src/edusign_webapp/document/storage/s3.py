@@ -57,10 +57,12 @@ class S3Storage(ABCStorage):
         self.s3_session = boto3.session.Session()
         self.s3 = self.s3_session.resource(
             's3',
+            endpoint_url=config['AWS_ENDPOINT_URL'],
             region_name=config['AWS_REGION_NAME'],
             aws_access_key_id=config['AWS_ACCESS_KEY'],
             aws_secret_access_key=config['AWS_SECRET_ACCESS_KEY'],
         )
+        self.s3_bucket_name = config['AWS_BUCKET_NAME']
         self.s3_bucket = self.s3.Bucket(config['AWS_BUCKET_NAME'])
 
     def add(self, key: uuid.UUID, content: str):
@@ -110,6 +112,7 @@ class S3Storage(ABCStorage):
 
         :param key: The key identifying the document.
         """
-        self.s3_bucket.delete_objects(Delete={'Objects': [{'Key': str(key)}]})
+        doc = self.s3.Object(self.s3_bucket_name, str(key))
+        doc.delete()
 
         self.logger.info(f"Removed document contents with key {key}")

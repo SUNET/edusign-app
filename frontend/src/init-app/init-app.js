@@ -9,6 +9,7 @@
 
 import React from "react";
 import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import Cookies from "js-cookie";
@@ -44,7 +45,7 @@ const store = edusignStore();
  * <br />&nbsp;
  * It will trigger retrieving configuration parameters from the backend and loading documents from the IndeedBD db.
  */
-const appIsRendered = function () {
+export const appIsRendered = function () {
   store.dispatch(fetchConfig());
 };
 
@@ -96,7 +97,9 @@ const init_app = function (target, component) {
 
   const wrappedComponent = <Provider store={store}>{component}</Provider>;
 
-  ReactDOM.render(wrappedComponent, target, appIsRendered);
+  const root = createRoot(target);
+
+  root.render(wrappedComponent);
 };
 
 export default init_app;

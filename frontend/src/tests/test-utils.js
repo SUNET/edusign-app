@@ -28,6 +28,7 @@ const initialState = {
       mail_aliases: ["dummy@example.org"],
     },
     available_loas: [],
+    max_file_size: 20000000,
   },
   notifications: {
     message: null,
@@ -63,13 +64,14 @@ const initialState = {
   poll: { poll: false, disablePoll: false, timerId: null },
   inviteform: {
     show_loa_selection: false,
+    inviting: false,
   },
   overlay: {
     active: "",
     previous: "",
   },
   pdfform: {
-    document: null
+    document: null,
   },
 };
 
@@ -134,7 +136,7 @@ export function mockFileData(files) {
  * @desc rerender component in tests after dispatching a Redux action or firing an event.
  */
 export async function flushPromises(rerender, ui) {
-  await act(() => waitFor(() => rerender(ui)));
+  await waitFor(() => rerender(ui));
 }
 
 /**

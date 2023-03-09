@@ -40,7 +40,7 @@ const mapDispatchToProps = (dispatch) => {
             size: fileObj.size,
             type: fileObj.type,
             created: Date.now(),
-            state: 'loading',
+            state: "loading",
           };
           dispatch(addDocument(file));
           const reader = new FileReader();

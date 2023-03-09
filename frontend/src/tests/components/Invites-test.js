@@ -1,11 +1,16 @@
 import React from "react";
-import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
+import {
+  act,
+  screen,
+  waitFor,
+  fireEvent,
+  cleanup,
+} from "@testing-library/react";
 import { expect } from "chai";
 import fetchMock from "fetch-mock";
 
 import {
   setupReduxComponent,
-  flushPromises,
   b64SamplePDFData,
   samplePDFData,
 } from "tests/test-utils";
@@ -13,6 +18,10 @@ import Main from "components/Main";
 import { createDocument, saveTemplate, setState } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
 import { resetDb } from "init-app/database";
+
+async function flushPromises(rerender, ui) {
+  await act(() => waitFor(() => rerender(ui)));
+}
 
 describe("Multi sign invitations", function () {
   beforeEach(async () => {
@@ -429,7 +438,6 @@ describe("Multi sign invitations", function () {
     unmount();
   });
 
-
   it("From template make a copy and check the name of the copy", async () => {
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
@@ -502,9 +510,7 @@ describe("Multi sign invitations", function () {
       fireEvent.click(dropdownButton[0]);
       await flushPromises(rerender, wrapped);
 
-      let button = await waitFor(() =>
-        screen.getAllByText(/Create template/)
-      );
+      let button = await waitFor(() => screen.getAllByText(/Create template/));
       expect(button.length).to.equal(1);
 
       fireEvent.click(button[0]);
@@ -541,7 +547,9 @@ describe("Multi sign invitations", function () {
         target: { value: "dummy-2@example.com" },
       });
 
-      const nameInput = await waitFor(() => screen.getAllByTestId("invitees.0.name"));
+      const nameInput = await waitFor(() =>
+        screen.getAllByTestId("invitees.0.name")
+      );
       expect(nameInput.length).to.equal(1);
 
       fireEvent.change(nameInput[0], { target: { value: "Dummy-2 Doe" } });
@@ -556,7 +564,9 @@ describe("Multi sign invitations", function () {
       fireEvent.click(buttonSend[0]);
       await flushPromises(rerender, wrapped);
 
-      const filenameCopy = await waitFor(() => screen.getAllByText("testost-1.pdf"));
+      const filenameCopy = await waitFor(() =>
+        screen.getAllByText("testost-1.pdf")
+      );
       expect(filenameCopy.length).to.equal(1);
 
       const inviteName = await waitFor(() =>
@@ -1323,10 +1333,13 @@ describe("Multi sign invitations", function () {
             owned_multisign: [
               {
                 name: "test1.pdf",
+                created: "1668768051000.0",
                 type: "application/pdf",
                 state: "selected",
                 size: 1500,
                 key: "11111111-1111-1111-1111-111111111111",
+                loa: "none",
+                prev_signatures: "",
                 signed: [
                   {
                     name: "Tester Invited1",
@@ -1367,6 +1380,9 @@ describe("Multi sign invitations", function () {
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
         })
       );
+      await flushPromises(rerender, wrapped);
+
+      store.dispatch(setState({ name: "test1.pdf", state: "selected" }));
       await flushPromises(rerender, wrapped);
 
       const signButton = await waitFor(() =>

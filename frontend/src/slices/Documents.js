@@ -297,24 +297,42 @@ const dealWithPDFError = (doc, err, intl) => {
  * Reject documents with the same name as an already loaded document,
  * and then try to read the document with PDF.js to see if it produces any errors.
  */
-async function validateDoc(doc, intl, state) {
+export const validateDoc = async (doc, intl, state) => {
+  let newDoc = null;
   state.template.documents.forEach((document) => {
     if (document.name === doc.name) {
-      doc.state = "dup";
+      newDoc = {
+        ...doc,
+        state: "dup",
+      };
     }
   });
 
-  state.documents.documents.forEach((document) => {
-    if (document.name === doc.name && document.created !== doc.created) {
-      doc.state = "dup";
-    }
-  });
+  if (newDoc === null) {
+    state.documents.documents.forEach((document) => {
+      if (document.name === doc.name && document.created !== doc.created) {
+        newDoc = {
+          ...doc,
+          state: "dup",
+        };
+      }
+    });
+  }
 
-  state.main.owned_multisign.forEach((document) => {
-    if (document.name === doc.name) {
-      doc.state = "dup";
-    }
-  });
+  if (newDoc === null) {
+    state.main.owned_multisign.forEach((document) => {
+      if (document.name === doc.name) {
+        newDoc = {
+          ...doc,
+          state: "dup",
+        };
+      }
+    });
+  }
+
+  if (newDoc !== null) {
+    return newDoc;
+  }
 
   if (doc.state === "dup") {
     return doc;
@@ -326,7 +344,7 @@ async function validateDoc(doc, intl, state) {
       state: "failed-loading",
       message: intl.formatMessage(
         {
-          defaultMessage: `Document is too big (max size: ${size})`,
+          defaultMessage: "Document is too big (max size: {size})",
           id: "validate-too-big",
         },
         { size: humanFileSize(state.main.max_file_size) }
@@ -344,10 +362,10 @@ async function validateDoc(doc, intl, state) {
       };
     })
     .catch((err) => {
-      console.log('failed', err);
+      console.log("failed", err);
       return dealWithPDFError(doc, err, intl);
     });
-}
+};
 
 /**
  * @public
@@ -450,7 +468,7 @@ const setChangedDocument = async (thunkAPI, state, doc) => {
   const newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn);
   thunkAPI.dispatch(documentsSlice.actions.setState(newDoc));
   return newDoc;
-}
+};
 
 /**
  * @public
@@ -489,7 +507,6 @@ export const createDocument = createAsyncThunk(
       // If there was an error saving the document, we mark it as so,
       // and still try to save it to the redux store, so it can be displayed
       // as failed in the UI.
-      console.log('1st', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -499,7 +516,7 @@ export const createDocument = createAsyncThunk(
           }),
         })
       );
-      doc.state = 'failed-loading';
+      doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
         defaultMessage: "Problem adding document, please try again",
         id: "save-doc-problem-db",
@@ -515,7 +532,6 @@ export const createDocument = createAsyncThunk(
         prepareDocument({ doc: newDoc, intl: args.intl })
       );
     } catch (err) {
-      console.log('2st', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -526,7 +542,7 @@ export const createDocument = createAsyncThunk(
           }),
         })
       );
-      doc.state = 'failed-loading';
+      doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
         defaultMessage: "Problem preparing document for signing",
         id: "save-doc-problem-preparing",
@@ -539,7 +555,6 @@ export const createDocument = createAsyncThunk(
     try {
       await thunkAPI.dispatch(saveDocument({ docName: newDoc.name }));
     } catch (err) {
-      console.log('3st', err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -550,7 +565,7 @@ export const createDocument = createAsyncThunk(
           }),
         })
       );
-      doc.state = 'failed-loading';
+      doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
         defaultMessage: "Problem saving document in session",
         id: "save-doc-problem-session",
@@ -654,7 +669,6 @@ export const startSigning = createAsyncThunk(
      *     requiredLoa = doc.loa;
      *   } else {
      *     if (requiredLoa !== doc.loa) {
-     *       console.log(requiredLoa, doc.loa);
      *       loaOk = false;
      *     }
      *   }
@@ -664,7 +678,6 @@ export const startSigning = createAsyncThunk(
      *     requiredLoa = doc.loa;
      *   } else {
      *     if (requiredLoa !== doc.loa) {
-     *       console.log(requiredLoa, doc.loa);
      *       loaOk = false;
      *     }
      *   }
@@ -772,19 +785,16 @@ export const startSigningDocuments = createAsyncThunk(
 
         throw new Error(data.message);
       }
-      delete data.payload.documents;
+      const formData = {
+        ...data.payload,
+      };
+      delete formData.documents;
 
-      // Update the form for the sign service, and submit it
-      thunkAPI.dispatch(updateSigningForm(data.payload));
-      const form = document.getElementById("signing-form");
-      if (form.requestSubmit) {
-        form.requestSubmit();
-      } else {
-        // Safari does not implement the requestSubmit API
-        form.submit();
-      }
+      // Update the form for the sign service
+      thunkAPI.dispatch(updateSigningForm(formData));
       // Catch errors and inform the user, and update the state with that information.
     } catch (err) {
+      console.log("Error starting signing", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -799,9 +809,12 @@ export const startSigningDocuments = createAsyncThunk(
         id: "problem-signing",
       });
       thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
-      await data.payload.documents.forEach(async (doc) => {
-        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
-      });
+      if (data.payload.documents !== undefined) {
+        await data.payload.documents.forEach(async (doc) => {
+          await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+        });
+      }
+      return thunkAPI.rejectWithValue(err.toString());
     }
   }
 );
@@ -889,8 +902,17 @@ export const restartSigningDocuments = createAsyncThunk(
       // and message (reason for failure).
       // Update the document data with this info, and then store it in local storage.
       // The document data that we keep in local storage is that regarding invitations
-      // (both form the usert and to the user), since the data regarding non-invitation
+      // (both from the user and to the user), since the data regarding non-invitation
       // documents is already kept locally, in IndexedDB.
+      docsToSign.local.forEach((doc) => {
+        data.payload.failed.forEach((failed) => {
+          if (doc.key === failed.key) {
+            thunkAPI.dispatch(
+              documentsSlice.actions.setState({ name: doc.name, ...failed })
+            );
+          }
+        });
+      });
       docsToSign.owned = docsToSign.owned.map((doc) => {
         let isFailed = false;
         data.payload.failed.forEach((failed) => {
@@ -937,18 +959,14 @@ export const restartSigningDocuments = createAsyncThunk(
       // since it is not going to be needed - it is only needed after coming back from the
       // sign service / IdP.
       if (data.payload.documents.length > 0) {
-        delete data.payload.documents;
-        thunkAPI.dispatch(updateSigningForm(data.payload));
-        const form = document.getElementById("signing-form");
-        if (form.requestSubmit) {
-          form.requestSubmit();
-        } else {
-          form.submit();
-        }
+        const formData = { ...data.payload };
+        delete formData.documents;
+        thunkAPI.dispatch(updateSigningForm(formData));
       } else {
         await thunkAPI.dispatch(checkStoredDocuments());
       }
     } catch (err) {
+      console.log("Error restarting signing", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -1057,6 +1075,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
     });
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
+    console.log("Error fetching signed docs", err);
     // In case of errors, notify the user, and update the state.
     thunkAPI.dispatch(
       addNotification({
@@ -1102,7 +1121,7 @@ export const downloadSigned = createAsyncThunk(
     })[0];
     const b64content = doc.signedContent.split(",")[1];
     const blob = b64toBlob(b64content);
-    const newName = nameForDownload(doc.name, 'signed');
+    const newName = nameForDownload(doc.name, "signed");
     FileSaver.saveAs(blob, newName);
   }
 );
@@ -1128,16 +1147,16 @@ export const downloadAllSigned = createAsyncThunk(
         return doc.state === "signed";
       })
     );
-    let zip = new JSZip();
-    let folder = zip.folder("signed");
-    docs.forEach((doc) => {
+    const zip = await new JSZip();
+    const folder = await zip.folder("signed");
+    await docs.forEach(async (doc) => {
       const b64content = doc.signedContent.split(",")[1];
       const blob = b64toBlob(b64content);
-      const newName = nameForDownload(doc.name, 'signed');
-      folder.file(newName, blob);
+      const newName = nameForDownload(doc.name, "signed");
+      await folder.file(newName, blob);
     });
-    zip.generateAsync({ type: "blob" }).then(function (content) {
-      FileSaver.saveAs(content, "signed.zip");
+    await zip.generateAsync({ type: "blob" }).then(async function (content) {
+      await FileSaver.saveAs(content, "signed.zip");
     });
   }
 );
@@ -1329,7 +1348,10 @@ const documentsSlice = createSlice({
      */
     rmDup(state, action) {
       state.documents = state.documents.filter((doc) => {
-        return doc.name !== action.payload.name || doc.created !== action.payload.created;
+        return (
+          doc.name !== action.payload.name ||
+          doc.created !== action.payload.created
+        );
       });
     },
     /**

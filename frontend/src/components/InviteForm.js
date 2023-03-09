@@ -11,7 +11,7 @@ import { nameForCopy } from "components/utils";
 
 import "styles/InviteForm.scss";
 
-export const validateEmail = (mail, mail_aliases) => {
+export const validateEmail = (mail, mail_aliases, allValues, idx) => {
   return (value) => {
     let error;
 
@@ -23,13 +23,31 @@ export const validateEmail = (mail, mail_aliases) => {
       error = (
         <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
       );
-    } else if (value === mail || (mail_aliases !== undefined && mail_aliases.includes(value))) {
+    } else if (
+      value === mail ||
+      (mail_aliases !== undefined && mail_aliases.includes(value))
+    ) {
       error = (
         <FormattedMessage
           defaultMessage="Do not invite yourself"
           key="do-no-invite-yourself"
         />
       );
+    } else {
+      let count = 0;
+      allValues.forEach((val, i) => {
+        if (idx > i && val.email === value) {
+          count += 1;
+        }
+      });
+      if (count > 0) {
+        error = (
+          <FormattedMessage
+            defaultMessage="That email has already been invited"
+            key="email-problem-dup"
+          />
+        );
+      }
     }
     return error;
   };
@@ -92,11 +110,31 @@ export const validateNewname = (props) => {
 const validate = (props) => {
   return (values) => {
     let errors = {};
+    const emails = [];
     values.invitees.forEach((val, i) => {
       const nameError = validateName(val.name);
-      const emailError = validateEmail(props.mail, props.mail_aliases)(val.email);
+      const emailError = validateEmail(
+        props.mail,
+        props.mail_aliases,
+        values.invitees,
+        i
+      )(val.email);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
-      if (emailError !== undefined) errors[`invitees.${i}.email`] = emailError;
+      if (emailError !== undefined) {
+        errors[`invitees.${i}.email`] = emailError;
+      } else {
+        if (emails.includes(val.email)) {
+          const dupError = (
+            <FormattedMessage
+              defaultMessage="That email has already been invited"
+              key="email-problem-dup"
+            />
+          );
+          errors[`invitees.${i}.email`] = dupError;
+        } else {
+          emails.push(val.email);
+        }
+      }
     });
     if (values.makecopyChoice) {
       const newNameError = validateNewname(props)(values.newnameInput);
@@ -164,7 +202,7 @@ class InviteForm extends React.Component {
                   )}
                   <div className="invitee-form-row" key={index}>
                     <div className="invitee-form-name">
-                      <BForm.Group>
+                      <BForm.Group className="form-group">
                         <BForm.Label htmlFor={`invitees.${index}.name`}>
                           <FormattedMessage
                             defaultMessage="Name"
@@ -206,7 +244,7 @@ class InviteForm extends React.Component {
                       </BForm.Group>
                     </div>
                     <div className="invitee-form-email">
-                      <BForm.Group>
+                      <BForm.Group className="form-group">
                         <BForm.Label htmlFor={`invitees.${index}.email`}>
                           <FormattedMessage
                             defaultMessage="Email"
@@ -225,7 +263,12 @@ class InviteForm extends React.Component {
                           placeholder="jane@example.com"
                           as={BForm.Control}
                           type="email"
-                          validate={validateEmail(this.props.mail, this.props.mail_aliases)}
+                          validate={validateEmail(
+                            this.props.mail,
+                            this.props.mail_aliases,
+                            fprops.values.invitees,
+                            index
+                          )}
                           isValid={
                             fprops.touched.invitees &&
                             fprops.touched.invitees[index] &&
@@ -284,7 +327,7 @@ class InviteForm extends React.Component {
   render() {
     const sendsignedControl = (
       <div className="sendsigned-choice-holder">
-        <BForm.Group className="sendsigned-choice-group">
+        <BForm.Group className="sendsigned-choice-group form-group">
           <ESTooltip
             helpId="sendsigned-choice-input"
             inModal={true}
@@ -326,7 +369,7 @@ class InviteForm extends React.Component {
     const loaControl = (
       <>
         <div className="loa-select-holder">
-          <BForm.Group className="loa-select-group">
+          <BForm.Group className="loa-select-group form-group">
             <BForm.Label
               className="loa-select-label"
               htmlFor="loa-select-input"
@@ -368,7 +411,7 @@ class InviteForm extends React.Component {
         return (
           <>
             <div className="newname-text-holder">
-              <BForm.Group className="newname-text-group">
+              <BForm.Group className="newname-text-group form-group">
                 <BForm.Label
                   className="newname-text-label"
                   htmlFor="newnameInput"
@@ -438,7 +481,7 @@ class InviteForm extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                   <div className="invitation-text-holder">
-                    <BForm.Group className="invitation-text-group">
+                    <BForm.Group className="invitation-text-group form-group">
                       <BForm.Label
                         className="invitation-text-label"
                         htmlFor="invitation-text-input"

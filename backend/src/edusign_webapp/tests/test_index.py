@@ -43,8 +43,6 @@ def test_index(client):
     assert b"<title>eduSign</title>" in response.data
 
     assert session.get('eppn') == 'dummy-eppn@example.org'
-    assert session.get('givenName') == 'Tëster'
-    assert session.get('sn') == 'Testing'
     assert session.get('mail') == 'tester@example.org'
     assert session.get('idp') == 'https://idp'
     assert session.get('authn_method') == 'dummy'
@@ -63,8 +61,6 @@ def test_index_twice(client):
     assert b"<title>eduSign</title>" in response.data
 
     assert session.get('eppn') == 'dummy-eppn@example.org'
-    assert session.get('givenName') == 'Tëster'
-    assert session.get('sn') == 'Testing'
     assert session.get('mail') == 'tester@example.org'
     assert session.get('idp') == 'https://idp'
     assert session.get('authn_method') == 'dummy'

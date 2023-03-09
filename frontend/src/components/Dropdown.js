@@ -1,8 +1,6 @@
 import React from "react";
 import { injectIntl, FormattedMessage } from "react-intl";
-import Dropdown from "react-bootstrap/Dropdown";
 import DropdownButton from "containers/DropdownButton";
-import { ESTooltip } from "containers/Overlay";
 
 import "styles/Dropdown.scss";
 
@@ -18,7 +16,7 @@ class ESDropdown extends React.Component {
         className="button-dropdown-flex-item"
         variant="outline-dark"
         size="sm"
-        menuAlign="right"
+        align="end"
         disabling={true}
         id={buttonId}
         data-testid={buttonId}

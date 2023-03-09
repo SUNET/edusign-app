@@ -12,6 +12,7 @@ import { validateNewname } from "components/InviteForm";
 import "styles/DocPreview.scss";
 import "styles/PDFForm.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+import "react-pdf/dist/esm/Page/TextLayer.css";
 
 const initValues = (props) => ({ newfname: nameForCopy(props) });
 
@@ -72,6 +73,31 @@ class PDFForm extends React.Component {
     this.restoreValues();
   }
 
+  // https://github.com/mozilla/pdf.js/issues/15597
+  // remove this function once the fix for the above reaches react-pdf,
+  // which should depend on pdfjs-dist >= 3.0.279
+  async fixCheckboxBug() {
+    const pdf = this.state.docRef.current.state.pdf;
+    const page = await pdf.getPage(this.state.pageNumber);
+    const annotations = await page.getAnnotations();
+    annotations.forEach((ann) => {
+      if (ann.subtype === "Widget" && ann.checkBox) {
+        const elemId = `pdfjs_internal_id_${ann.id}`;
+        window.setTimeout(() => {
+          const elem = document.getElementById(elemId);
+          if (elem) {
+            elem.addEventListener("click", (e) => {
+              const checked = e.target.checked;
+              setTimeout(() => {
+                e.target.checked = checked;
+              }, 100);
+            });
+          }
+        }, 500);
+      }
+    });
+  }
+
   async collectValues() {
     const pdf = this.state.docRef.current.state.pdf;
     const page = await pdf.getPage(this.state.pageNumber);
@@ -81,7 +107,7 @@ class PDFForm extends React.Component {
     annotations.forEach((ann) => {
       if (ann.subtype === "Widget") {
         let val;
-        const elem = document.getElementById(ann.id);
+        const elem = document.getElementById(`pdfjs_internal_id_${ann.id}`);
         if (elem) {
           if (ann.checkBox) {
             val = elem.checked ? "on" : "off";
@@ -109,7 +135,7 @@ class PDFForm extends React.Component {
 
   restoreValues() {
     for (const key in this.state.values) {
-      const elem = document.getElementById(key);
+      const elem = document.getElementById(`pdfjs_internal_id_${key}`);
 
       if (elem) {
         if (elem.type === "checkbox") {
@@ -127,6 +153,11 @@ class PDFForm extends React.Component {
     this.setState({ values: {} });
   }
 
+  async initPage() {
+    await this.fixCheckboxBug();
+    this.restoreValues();
+  }
+
   render() {
     if (!this.props.show) return "";
     return (
@@ -138,7 +169,7 @@ class PDFForm extends React.Component {
           size="lg"
           centered
         >
-          <Modal.Header closeButton>
+          <Modal.Header closeButton className="pdf-form-header">
             <Formik
               innerRef={this.state.formRef}
               initialValues={initValues(this.props)}
@@ -151,7 +182,7 @@ class PDFForm extends React.Component {
               {(fprops) => (
                 <Form data-testid={"newfname-form-" + this.props.doc.name}>
                   <div className="newfname-text-holder">
-                    <BForm.Group className="newfname-text-group">
+                    <BForm.Group className="newfname-text-group form-group">
                       <BForm.Label
                         className="newfname-text-label"
                         htmlFor="newfname"
@@ -202,16 +233,16 @@ class PDFForm extends React.Component {
                 <Page
                   pageNumber={this.state.pageNumber}
                   width={this.props.width - 20}
-                  renderInteractiveForms={true}
+                  renderForms={true}
                   renderAnnotationLayer={true}
-                  onRenderSuccess={this.restoreValues.bind(this)}
+                  onRenderSuccess={this.initPage.bind(this)}
                 />
               )) || (
                 <Page
                   pageNumber={this.state.pageNumber}
-                  renderInteractiveForms={true}
+                  renderForms={true}
                   renderAnnotationLayer={true}
-                  onRenderSuccess={this.restoreValues.bind(this)}
+                  onRenderSuccess={this.initPage.bind(this)}
                 />
               )}
             </Document>

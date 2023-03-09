@@ -76,9 +76,7 @@ config_pro = {
 _environ_base = {
     "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
     "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn@example.org',
-    "HTTP_GIVENNAME": b64encode('<Attribute>Tëster</Attribute>'.encode("utf-8")),
     "HTTP_DISPLAYNAME": b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8")),
-    "HTTP_SN": b64encode(b'<Attribute>Testing</Attribute>'),
     "HTTP_MAIL": b64encode(b'<Attribute>tester@example.org</Attribute>'),
     "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
     "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
@@ -89,9 +87,7 @@ _environ_base = {
 _environ_base_2 = {
     "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
     "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn-2@example.org',
-    "HTTP_GIVENNAME": b64encode('<Attribute>Invited</Attribute>'.encode("utf-8")),
     "HTTP_DISPLAYNAME": b64encode('<Attribute>Invited Kid</Attribute>'.encode("utf-8")),
-    "HTTP_SN": b64encode(b'<Attribute>Pericue</Attribute>'),
     "HTTP_MAIL": b64encode(b'<Attribute>invited0@example.org</Attribute>'),
     "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
     "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',

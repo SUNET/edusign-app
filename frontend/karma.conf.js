@@ -79,16 +79,16 @@ module.exports = function(config) {
     preprocessors: {
       // these files we want to be precompiled with webpack
       // also run tests through sourcemap for easier debugging
-      "src/test.webpack.js": ["webpack", "sourcemap"] //preprocess with webpack and our sourcemap loader
+      "src/test.webpack.js": ["webpack", "sourcemap"], //preprocess with webpack and our sourcemap loader
+      'src/**/*.js': 'coverage'
     },
-    reporters: ["progress", "coverage-istanbul"], //report results in this format
-    coverageIstanbulReporter: {
-      reports: ["html", "text-summary"],
-      fixWebpackSourcePaths: true,
+    reporters: ["progress", "coverage"], //report results in this format
+    coverageReporter: {
       dir: path.join(__dirname, "coverage"),
-      "report-config": {
-        html: { subdir: "html" }
-      }
+      reporters: [
+        { type: 'html', subdir: 'report-html' },
+        { type: 'text-summary', subdir: '.' }
+      ]
     },
     webpack: webpackKarma,
     webpackServer: {
@@ -100,7 +100,6 @@ module.exports = function(config) {
       "karma-chrome-launcher",
       "karma-coverage",
       "karma-mocha",
-      "karma-coverage-istanbul-reporter"
     ]
   });
 };

@@ -15,7 +15,6 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
  * @component
  */
 class ForcedPreview extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -26,18 +25,19 @@ class ForcedPreview extends React.Component {
   }
 
   onDocumentLoadSuccess({ numPages }) {
-    if (numPages === 1) this.setState({readyToConfirm: true});
-    this.setState({numPages: numPages});
+    if (numPages === 1) this.setState({ readyToConfirm: true });
+    this.setState({ numPages: numPages });
   }
 
   changePage(offset) {
     const newPage = this.state.pageNumber + offset;
-    this.setState({pageNumber: newPage});
-    if (newPage === this.state.numPages) this.setState({readyToConfirm: true});
+    this.setState({ pageNumber: newPage });
+    if (newPage === this.state.numPages)
+      this.setState({ readyToConfirm: true });
   }
 
   firstPage() {
-    this.setState({pageNumber: 1});
+    this.setState({ pageNumber: 1 });
   }
 
   previousPage() {
@@ -49,12 +49,12 @@ class ForcedPreview extends React.Component {
   }
 
   lastPage() {
-    this.setState({readyToConfirm: true});
-    this.setState({pageNumber: this.state.numPages});
+    this.setState({ readyToConfirm: true });
+    this.setState({ pageNumber: this.state.numPages });
   }
 
-  render () {
-    if (this.props.docFile === null) return '';
+  render() {
+    if (this.props.docFile === null) return "";
 
     return (
       <>
@@ -128,7 +128,9 @@ class ForcedPreview extends React.Component {
               <BButton
                 variant="outline"
                 size="sm"
-                disabled={Number(this.state.pageNumber) >= Number(this.state.numPages)}
+                disabled={
+                  Number(this.state.pageNumber) >= Number(this.state.numPages)
+                }
                 onClick={this.nextPage.bind(this)}
                 data-testid={"preview-button-next-" + this.props.index}
               >
@@ -137,7 +139,9 @@ class ForcedPreview extends React.Component {
               <BButton
                 variant="outline"
                 size="sm"
-                disabled={Number(this.state.pageNumber) >= Number(this.state.numPages)}
+                disabled={
+                  Number(this.state.pageNumber) >= Number(this.state.numPages)
+                }
                 onClick={this.lastPage.bind(this)}
                 data-testid={"preview-button-last-" + this.props.index}
               >
@@ -190,7 +194,10 @@ class ForcedPreview extends React.Component {
                 <Button
                   disabled={!this.state.readyToConfirm}
                   onClick={this.props.handleConfirm(this.props.doc.name)}
-                  style={(!this.state.readyToConfirm && { pointerEvents: "none" }) || {}}
+                  style={
+                    (!this.state.readyToConfirm && { pointerEvents: "none" }) ||
+                    {}
+                  }
                   variant="outline-success"
                   id={"preview-button-confirm-" + this.props.index}
                 >

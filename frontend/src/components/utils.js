@@ -269,8 +269,8 @@ export const nameForDownload = (name, suffix) => {
   if (ext !== "") {
     return `${tmpName}-${suffix}.${ext}`;
   }
-  return `${tmpName}-${suffix}`
-}
+  return `${tmpName}-${suffix}`;
+};
 
 /**
  * @public

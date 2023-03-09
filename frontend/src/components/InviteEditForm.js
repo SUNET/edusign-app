@@ -82,7 +82,7 @@ class InviteEditForm extends React.Component {
                   </div>
                   <div className="invitee-form-row" key={index}>
                     <div className="invitee-form-name">
-                      <BForm.Group>
+                      <BForm.Group className="form-group">
                         <BForm.Label htmlFor={`invitees.${index}.name`}>
                           <FormattedMessage
                             defaultMessage="Name"
@@ -124,7 +124,7 @@ class InviteEditForm extends React.Component {
                       </BForm.Group>
                     </div>
                     <div className="invitee-form-email">
-                      <BForm.Group>
+                      <BForm.Group className="form-group">
                         <BForm.Label htmlFor={`invitees.${index}.email`}>
                           <FormattedMessage
                             defaultMessage="Email"
@@ -143,7 +143,12 @@ class InviteEditForm extends React.Component {
                           placeholder="jane@example.com"
                           as={BForm.Control}
                           type="email"
-                          validate={validateEmail(this.props.mail, this.props.mail_aliases)}
+                          validate={validateEmail(
+                            this.props.mail,
+                            this.props.mail_aliases,
+                            fprops.values.invitees,
+                            index
+                          )}
                           isValid={
                             fprops.touched.invitees &&
                             fprops.touched.invitees[index] &&
@@ -204,7 +209,7 @@ class InviteEditForm extends React.Component {
           validateOnBlur={true}
           validateOnChange={true}
           validateOnMount={true}
-          isInitialValid={true}
+          initialErrors={{}}
         >
           {(fprops) => (
             <Modal
@@ -230,7 +235,7 @@ class InviteEditForm extends React.Component {
                 </Modal.Header>
                 <Modal.Body>
                   <div className="invitation-text-holder">
-                    <BForm.Group className="invitation-text-group">
+                    <BForm.Group className="invitation-text-group form-group">
                       <BForm.Label
                         className="invitation-text-label"
                         htmlFor="invitation-text-input"

@@ -85,7 +85,7 @@ def pretty_print_req(req: requests.PreparedRequest) -> str:
         '-----------START-----------',
         str(req.method) + ' ' + str(req.url),
         '\r\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
-        str(req.body),
+        str(req.body)[:100],
     )
 
 
@@ -126,7 +126,7 @@ class APIClient(object):
         self.basic_auth = HTTPBasicAuth(config['EDUSIGN_API_USERNAME'], config['EDUSIGN_API_PASSWORD'])
         self.config = config
 
-    def _post(self, url: str, request_data: dict) -> requests.Response:
+    def _post(self, url: str, request_data: dict) -> dict:
         """
         Method to POST to the eduSign API, used by all methods of the class
         that POST to it.
@@ -146,7 +146,7 @@ class APIClient(object):
         current_app.logger.debug(f"Response from the API's {url} method: {response}")
         return response.json()
 
-    def prepare_document(self, document: dict) -> requests.Response:
+    def prepare_document(self, document: dict) -> dict:
         """
         Send request to the `prepare` endpoint of the API.
         This API method will prepare a PDF document
@@ -221,7 +221,11 @@ class APIClient(object):
 
         response = self._post(api_url, request_data)
 
-        current_app.logger.debug(f"Data returned from the API's prepare endpoint: {pformat(response)}")
+        if current_app.logger.level == 'DEBUG':
+            tolog = response.copy()
+            for doc in tolog['signedDocuments']:
+                doc['signedContent'] = doc['signedContent'][:20] + '...'
+            current_app.logger.debug(f"Data returned from the API's prepare endpoint: {pformat(tolog)}")
 
         return response
 
@@ -374,7 +378,10 @@ class APIClient(object):
 
             raise self.ExpiredCache()
 
-        current_app.logger.debug(f"Data returned from the API's create endpoint: {pformat(response_data)}")
+        if current_app.logger.level == 'DEBUG':
+            tolog = response_data.copy()
+            tolog['signRequest'] = tolog['signRequest'][:20] + '...'
+            current_app.logger.debug(f"Data returned from the API's create endpoint: {pformat(tolog)}")
 
         return response_data, documents_with_id
 
@@ -413,6 +420,10 @@ class APIClient(object):
 
         response = self._post(api_url, request_data)
 
-        current_app.logger.debug(f"Data returned from the API's process endpoint: {pformat(response)}")
+        if current_app.logger.level == 'DEBUG':
+            tolog = response.copy()
+            for doc in tolog['signedDocuments']:
+                doc['signedContent'] = doc['signedContent'][:20] + '...'
+            current_app.logger.debug(f"Data returned from the API's process endpoint: {pformat(tolog)}")
 
         return response

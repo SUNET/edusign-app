@@ -42,6 +42,7 @@ from flask import Blueprint, abort, current_app, make_response, redirect, render
 from flask_babel import force_locale, get_locale, gettext
 from werkzeug.wrappers import Response
 
+from edusign_webapp.doc_store import DocStore
 from edusign_webapp.forms import has_pdf_form, update_pdf_form
 from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
@@ -66,6 +67,7 @@ from edusign_webapp.schemata import (
     ToSignSchema,
 )
 from edusign_webapp.utils import (
+    MissingDisplayName,
     add_attributes_to_session,
     get_invitations,
     get_previous_signatures,
@@ -104,6 +106,61 @@ def cleanup():
     response = make_response(f"Removed {removed} documents out of {total} scheduled")
     response.mimetype = "text/plain"
     return response
+
+
+@admin_edusign_views.route('/migrate-to-redis-and-s3', methods=['POST'])
+def migrate_to_redis_and_s3():
+    """
+    Migrate the invitations contents from SQLite & the local fs
+    to redis and s3.
+
+    :return: the number of documents migrated
+    """
+    assert "S3Storage" in current_app.config['STORAGE_CLASS_PATH']
+    assert "RedisMD" in current_app.config['DOC_METADATA_CLASS_PATH']
+
+    assert 'LOCAL_STORAGE_BASE_DIR' in current_app.config
+    assert 'SQLITE_MD_DB_PATH' in current_app.config
+
+    from edusign_webapp.document.metadata.sqlite import SqliteMD
+    from edusign_webapp.document.storage.local import LocalStorage
+
+    sqlite_md = SqliteMD(current_app)
+    local_storage = LocalStorage(current_app.config, current_app.logger)
+
+    old_doc_store = DocStore.custom(current_app, local_storage, sqlite_md)
+
+    current_app.logger.info("STARTING MIGRATION TO REDIS AND S3")
+
+    keys = old_doc_store.get_old_documents(0)
+    current_app.logger.info(f"Going to migrate {len(keys)} documents")
+
+    migrated_docs = 0
+    migrated_invites = 0
+    for doc_key in keys:
+        current_app.logger.info(f"Migrating document with key {doc_key}")
+        old_document = old_doc_store.get_full_document(doc_key)
+        if not old_document:
+            current_app.logger.info(f"    Document with key {doc_key} not found, skipping")
+            continue
+
+        content = old_doc_store.get_document_content(doc_key)
+        old_invites = old_doc_store.get_full_invites(doc_key)
+        if len(old_invites) == 0:
+            current_app.logger.info(f"    Document with key {doc_key} has no invitations, skipping")
+            continue
+
+        doc_id = current_app.doc_store.add_document_raw(old_document, content)
+        migrated_docs += 1
+        current_app.logger.info(f"    Document with key {doc_key} added to db and storage")
+
+        current_app.logger.info(f"Going to migrate {len(old_invites)} invites for document with key {doc_key}")
+        for invite in old_invites:
+            invite['doc_id'] = doc_id
+            current_app.doc_store.add_invite_raw(invite)
+            migrated_invites += 1
+
+    return f'OK, migrated {migrated_docs} documents and {migrated_invites} invitations'
 
 
 @edusign_views.route('/metrics', methods=['GET'])
@@ -265,6 +322,15 @@ def get_index() -> str:
             'Your organization did not provide the correct information during login. Please contact your IT-support for assistance.'
         )
         return render_template('error-generic.jinja2', **context)
+    except MissingDisplayName:
+        current_app.logger.error(
+            'There is some misconfiguration and the IdP does not seem to provide the displayName.'
+        )
+        context['title'] = gettext("Missing displayName")
+        context['message'] = gettext(
+            'Your should add your name to your account at your organization. Please contact your IT-support for assistance.'
+        )
+        return render_template('error-generic.jinja2', **context)
     except ValueError:
         current_app.logger.debug("Authorizing non-whitelisted user")
         unauthn = True
@@ -311,11 +377,12 @@ def get_config() -> dict:
     else:
         payload['unauthn'] = True
 
-    attrs = {'eppn': session['eppn'], "mail": session["mail"], "mail_aliases": session.get("mail_aliases", [session["mail"]])}
-    if 'displayName' in session:
-        attrs['name'] = session['displayName']
-    else:
-        attrs['name'] = f"{session['givenName']} {session['sn']}"
+    attrs = {
+        'eppn': session['eppn'],
+        "mail": session["mail"],
+        "mail_aliases": session.get("mail_aliases", [session["mail"]]),
+        'name': session['displayName'],
+    }
 
     payload['signer_attributes'] = attrs
     payload['multisign_buttons'] = current_app.config['MULTISIGN_BUTTONS']
@@ -831,7 +898,7 @@ def get_signed_documents(sign_data: dict) -> dict:
     :return: A dict with the signed documents, or with error information if some error has ocurred.
     """
     try:
-        current_app.logger.info(f"Processing signature for {sign_data['sign_response']} for user {session['eppn']}")
+        current_app.logger.info(f"Processing signature for {sign_data['sign_response'][:50]} for user {session['eppn']}")
         process_data = current_app.api_client.process_sign_request(sign_data['sign_response'], sign_data['relay_state'])
 
     except Exception as e:
