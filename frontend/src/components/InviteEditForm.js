@@ -6,6 +6,7 @@ import BButton from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
+import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
 import { nameForCopy } from "components/utils";
 import { validateEmail, validateLang } from "components/InviteForm";
