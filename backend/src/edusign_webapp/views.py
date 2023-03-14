@@ -887,6 +887,9 @@ def get_signed_documents(sign_data: dict) -> dict:
                       as obtained from the POST from the signature service to the `sign_service_callback`.
     :return: A dict with the signed documents, or with error information if some error has ocurred.
     """
+    # migration to mail_aliases
+    mail_aliases = session.get('mail_aliases', [session['mail']])
+
     try:
         current_app.logger.info(f"Processing signature for {sign_data['sign_response'][:50]} for user {session['eppn']}")
         process_data = current_app.api_client.process_sign_request(sign_data['sign_response'], sign_data['relay_state'])
@@ -915,9 +918,6 @@ def get_signed_documents(sign_data: dict) -> dict:
         key = doc['id']
         owner = current_app.doc_store.get_owner_data(key)
         sendsigned = current_app.doc_store.get_sendsigned(key)
-
-        # migration to mail_aliases
-        mail_aliases = session.get('mail_aliases', [session['mail']])
 
         # this is an invitation to the current user
         if 'email' in owner and owner['email'] not in mail_aliases:

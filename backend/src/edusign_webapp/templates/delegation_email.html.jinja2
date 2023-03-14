@@ -3,10 +3,6 @@
 </head>
 <body>
 
-<p><strong>
-{% trans %}Message in English:{% endtrans %}
-</strong></p>
-
 <p>
 {% trans owner_name=owner_name, owner_email=owner_email, delegater_name=delegater_name, delegater_email=delegater_email, document_name=document_name %}
 This is to inform you that {{ delegater_name }} <{{ delegater_email }}>
