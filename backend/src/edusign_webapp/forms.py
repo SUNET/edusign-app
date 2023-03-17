@@ -58,7 +58,10 @@ def update_pdf_form(b64_pdf, fields):
 
     orig_doc = _load_b64_pdf(b64_pdf)
 
-    doc = try_pdfa(orig_doc, doc)
+    try:
+        doc = try_pdfa(orig_doc, doc)
+    except Exception as e:
+        current_app.logger.info(f"Problem ensuring PDF/A: {e}")
 
     doc_bytes = doc.tobytes()
     newpdf = b64encode(doc_bytes)
