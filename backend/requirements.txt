@@ -12,3 +12,4 @@ flask-misaka==1.0.0
 pyHanko==0.15.1
 PyMuPDF==1.21.0
 pytz==2022.6
+ocrmypdf==14.0.3
