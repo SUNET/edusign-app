@@ -65,20 +65,6 @@ export const previewTemplateMenuItem = (props, doc) => (
   </ESDropdownItem>
 );
 
-export const multiSignMenuItem = (props, doc) => (
-  <ESDropdownItem
-    doc={doc}
-    id={"menu-item-multisign-" + doc.name}
-    disabling={true}
-    onClick={props.openInviteForm(doc)}
-  >
-    <FormattedMessage
-      defaultMessage="Invite others to sign"
-      key="multisign-button"
-    />
-  </ESDropdownItem>
-);
-
 export const downloadDraftMenuItem = (props, doc) => (
   <ESDropdownItem
     doc={doc}

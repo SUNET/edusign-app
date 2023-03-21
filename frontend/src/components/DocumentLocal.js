@@ -198,10 +198,10 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
                       <ESDropdown doc={doc}>
-                        {menu.multiSignMenuItem(this.props, doc)}
                         {menu.createTemplateMenuItem(this.props, doc)}
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
+                      {widgets.multiSignButton(this.props, doc)}
                       {widgets.removeButton(this.props, doc)}
                     </div>
                   </>
@@ -223,9 +223,9 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
                       <ESDropdown doc={doc}>
-                        {menu.multiSignMenuItem(this.props, doc)}
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
+                      {widgets.multiSignButton(this.props, doc)}
                       {widgets.downloadSignedButton(this.props, doc)}
                       {widgets.removeButton(this.props, doc)}
                     </div>
@@ -316,10 +316,10 @@ class DocumentLocal extends React.Component {
                   </div>
                   <div className="doc-container-button-row">
                     <ESDropdown doc={doc}>
-                      {menu.multiSignMenuItem(this.props, doc)}
                       {menu.createTemplateMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.multiSignButton(this.props, doc)}
                     {widgets.removeButton(this.props, doc)}
                   </div>
                 </>
@@ -345,9 +345,9 @@ class DocumentLocal extends React.Component {
                   </div>
                   <div className="doc-container-button-row">
                     <ESDropdown doc={doc}>
-                      {menu.multiSignMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.multiSignButton(this.props, doc)}
                     {widgets.downloadSignedButton(this.props, doc)}
                     {widgets.removeButton(this.props, doc)}
                   </div>

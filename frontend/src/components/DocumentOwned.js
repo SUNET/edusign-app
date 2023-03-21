@@ -238,9 +238,9 @@ class DocumentOwned extends Component {
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
                       <ESDropdown doc={doc}>
-                        {menu.multiSignMenuItem(this.props, doc)}
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
+                      {widgets.multiSignButton(this.props, doc)}
                       {widgets.downloadSignedButton(this.props, doc)}
                       {widgets.removeConfirmButton(
                         this.props,

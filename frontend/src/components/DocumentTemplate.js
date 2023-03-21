@@ -67,11 +67,11 @@ class DocumentTemplate extends React.Component {
                 {widgets.docName(doc)}
                 <div className="doc-manager-buttons">
                   <ESDropdown doc={doc}>
-                    {menu.multiSignMenuItem(this.props, doc)}
                     {(doc.has_form && menu.fillFormMenuItem(this.props, doc)) ||
                       ""}
                     {menu.previewTemplateMenuItem(this.props, doc)}
                   </ESDropdown>
+                  {widgets.multiSignButton(this.props, doc)}
                   {widgets.removeTemplate(this.props, doc)}
                 </div>
               </div>
@@ -90,12 +90,12 @@ class DocumentTemplate extends React.Component {
                   </div>
                   <div className="doc-container-button-row">
                     <ESDropdown doc={doc}>
-                      {menu.multiSignMenuItem(this.props, doc)}
                       {(doc.has_form &&
                         menu.fillFormMenuItem(this.props, doc)) ||
                         ""}
                       {menu.previewTemplateMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.multiSignButton(this.props, doc)}
                     {widgets.removeTemplate(this.props, doc)}
                   </div>
                 </>

@@ -104,6 +104,37 @@ export const forcedPreviewButton = (props, doc) => {
   );
 };
 
+export const multiSignButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-multisign-flex-item">
+        <ESTooltip
+          helpId={"button-multisign-" + doc.key}
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Click here to invite others to sign"
+              key="multisign-button-tootip"
+            />
+          }
+        >
+          <Button
+            variant="outline-dark"
+            id={"button-multisign-" + doc.key}
+            size="sm"
+            disabling={true}
+            onClick={props.openInviteForm(doc)}
+          >
+            <FormattedMessage
+              defaultMessage="Invite others to sign"
+              key="multisign-button"
+            />
+          </Button>
+        </ESTooltip>
+      </div>
+    </>
+  );
+};
+
 export const removeConfirmButton = (props, doc, id) => {
   if (id === undefined) {
     id = "confirm-remove-owned-" + doc.name;
