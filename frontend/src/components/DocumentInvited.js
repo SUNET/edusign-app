@@ -203,6 +203,9 @@ class DocumentInvited extends Component {
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
+                      <ESDropdown doc={doc}>
+                        {menu.downloadDraftMenuItem(this.props, doc)}
+                      </ESDropdown>
                       {widgets.forcedPreviewButton(this.props, doc)}
                       {widgets.declineSignatureButton(this.props, doc)}
                     </>
@@ -264,6 +267,9 @@ class DocumentInvited extends Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
+                    <ESDropdown doc={doc}>
+                      {menu.downloadDraftMenuItem(this.props, doc)}
+                    </ESDropdown>
                     {widgets.forcedPreviewButton(this.props, doc)}
                     {widgets.declineSignatureButton(this.props, doc)}
                   </div>
