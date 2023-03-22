@@ -202,7 +202,24 @@ class DocManager extends React.Component {
                     }
                   } else {
                     docRepr = (
-                      <DocumentLocal key={index} doc={doc} {...this.props} />
+                      <>
+                        <DocumentLocal key={index} doc={doc} {...this.props} />
+                        <ConfirmDialogContainer
+                          confirmId={"confirm-remove-document-" + doc.name}
+                          title={this.props.intl.formatMessage({
+                            defaultMessage: "Confirm Removal of document",
+                            id: "header-confirm-remove-document-title",
+                          })}
+                          mainText={this.props.intl.formatMessage({
+                            defaultMessage:
+                              'Clicking "Confirm" will remove the document',
+                            id: "header-confirm-remove-document-text",
+                          })}
+                          confirm={this.props.handleRemoveDocument(
+                            doc, this.props
+                          )}
+                        />
+                      </>
                     );
                   }
                   return (

@@ -27,6 +27,7 @@ import {
   downloadAllSigned,
   saveDocument,
 } from "slices/Documents";
+import { removeInvites } from "slices/Invitations";
 import {
   removeTemplate,
   createTemplate,
@@ -93,6 +94,14 @@ const mapDispatchToProps = (dispatch, props) => {
     handleRemove: function (name) {
       return async () => {
         await dispatch(removeDocument({ docName: name }));
+      };
+    },
+    handleRemoveDocument: function (doc, props) {
+      return async () => {
+        dispatch(disablePolling());
+        await dispatch(removeDocument({ docName: doc.name }));
+        dispatch(unsetSpinning());
+        dispatch(enablePolling());
       };
     },
     handleSignedRemove: function (name) {
