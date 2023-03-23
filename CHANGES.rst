@@ -1,8 +1,9 @@
 
-In version 1.2.1:
+In version 1.2.0:
 -----------------
 
 * i18n: allow more than 2 languages, add spanish
+* i18n: Emails sent in one single language, selected by the user sending the invitations
 * do not require givenName or sn in saml authn assertions, and provide clear error message when displayName is missing
 * do not allow invitations on the same doument to the same user
 * script to migrate metadata from sqlite & local fs to redis and s3
@@ -10,7 +11,13 @@ In version 1.2.1:
 * redis backend thoroughly tested and updated
 * Update Python dependencies
 * Update JS dependencies
-* fix bug removing dupolicate invitations
+* fix bug removing duplicate invitations
+* Make sure large documents can be signed and over 20MB are rejected
+* Ensure filled PDF/A forms are still PDF/A
+* Trigger "invite others to sign" from button instead of from menu item
+* Always ask for confirmation when removing documents
+* Add download preview button at "preview and accept" stage
+* Add SMTP timeout shorter than the gunicorn workers timeout
 
 In version 1.1.1:
 -----------------
