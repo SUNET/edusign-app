@@ -146,6 +146,10 @@ MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', default='')
 MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', default='no-reply@localhost')
 MAIL_MAX_EMAILS = os.environ.get('MAIL_MAX_EMAILS', default=None)
 
+# Mail timeout in seconds. Set to 55, just above
+# the nginx default of 60 for proxy_connect_timeout
+MAIL_TIMEOUT = os.environ.get('MAIL_TIMEOUT', default=55)
+
 RAW_MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', default=False)
 MAIL_USE_TLS = get_boolean(RAW_MAIL_USE_TLS)
 
