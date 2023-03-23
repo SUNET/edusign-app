@@ -216,7 +216,8 @@ class DocManager extends React.Component {
                             id: "header-confirm-remove-document-text",
                           })}
                           confirm={this.props.handleRemoveDocument(
-                            doc, this.props
+                            doc,
+                            this.props
                           )}
                         />
                       </>

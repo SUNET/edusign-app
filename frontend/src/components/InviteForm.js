@@ -72,7 +72,12 @@ export const validateLang = (value) => {
     }
   });
   if (!found) {
-    return (<FormattedMessage defaultMessage="Unknown language" key="unknown-language" />);
+    return (
+      <FormattedMessage
+        defaultMessage="Unknown language"
+        key="unknown-language"
+      />
+    );
   }
   return undefined;
 };
@@ -346,10 +351,11 @@ class InviteForm extends React.Component {
                             fprops.errors.invitees[index].lang
                           }
                         >
-                          {(AVAILABLE_LANGUAGES.map((lang, i) => (
-                            <option key={i} value={lang[0]}>{lang[1]}</option>
-                          ))
-                          )}
+                          {AVAILABLE_LANGUAGES.map((lang, i) => (
+                            <option key={i} value={lang[0]}>
+                              {lang[1]}
+                            </option>
+                          ))}
                         </Field>
                       </BForm.Group>
                     </div>
@@ -369,7 +375,13 @@ class InviteForm extends React.Component {
               <Button
                 variant="outline-secondary"
                 data-testid={"button-add-invitation-" + this.props.docName}
-                onClick={() => arrayHelpers.push({ name: "", email: "", lang: Cookies.get('lang') })}
+                onClick={() =>
+                  arrayHelpers.push({
+                    name: "",
+                    email: "",
+                    lang: Cookies.get("lang"),
+                  })
+                }
               >
                 <FormattedMessage
                   defaultMessage="Invite more people"

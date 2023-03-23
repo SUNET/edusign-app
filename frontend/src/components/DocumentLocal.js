@@ -164,7 +164,11 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                     {widgets.showMessage(doc)}
                     <div className="doc-manager-buttons">
-                      {widgets.removeConfirmButton(this.props, doc, `confirm-remove-document-${doc.name}`)}
+                      {widgets.removeConfirmButton(
+                        this.props,
+                        doc,
+                        `confirm-remove-document-${doc.name}`
+                      )}
                     </div>
                   </>
                 )}
@@ -176,7 +180,11 @@ class DocumentLocal extends React.Component {
                     {widgets.showMessage(doc)}
                     <div className="doc-manager-buttons">
                       {widgets.retryButton(this.props, doc)}
-                      {widgets.removeConfirmButton(this.props, doc, `confirm-remove-document-${doc.name}`)}
+                      {widgets.removeConfirmButton(
+                        this.props,
+                        doc,
+                        `confirm-remove-document-${doc.name}`
+                      )}
                     </div>
                   </>
                 )}
@@ -187,7 +195,11 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
                       {widgets.forcedPreviewButton(this.props, doc)}
-                      {widgets.removeConfirmButton(this.props, doc, `confirm-remove-document-${doc.name}`)}
+                      {widgets.removeConfirmButton(
+                        this.props,
+                        doc,
+                        `confirm-remove-document-${doc.name}`
+                      )}
                     </div>
                   </>
                 )}
@@ -202,7 +214,11 @@ class DocumentLocal extends React.Component {
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
                       {widgets.multiSignButton(this.props, doc)}
-                      {widgets.removeConfirmButton(this.props, doc, `confirm-remove-document-${doc.name}`)}
+                      {widgets.removeConfirmButton(
+                        this.props,
+                        doc,
+                        `confirm-remove-document-${doc.name}`
+                      )}
                     </div>
                   </>
                 )}
@@ -227,7 +243,11 @@ class DocumentLocal extends React.Component {
                       </ESDropdown>
                       {widgets.multiSignButton(this.props, doc)}
                       {widgets.downloadSignedButton(this.props, doc)}
-                      {widgets.removeConfirmButton(this.props, doc, `confirm-remove-document-${doc.name}`)}
+                      {widgets.removeConfirmButton(
+                        this.props,
+                        doc,
+                        `confirm-remove-document-${doc.name}`
+                      )}
                     </div>
                   </>
                 )}
@@ -241,7 +261,11 @@ class DocumentLocal extends React.Component {
                       <ESDropdown doc={doc}>
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
-                      {widgets.removeConfirmButton(this.props, doc, `confirm-remove-document-${doc.name}`)}
+                      {widgets.removeConfirmButton(
+                        this.props,
+                        doc,
+                        `confirm-remove-document-${doc.name}`
+                      )}
                     </div>
                   </>
                 )}
@@ -274,7 +298,11 @@ class DocumentLocal extends React.Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.removeConfirmButton(this.props, doc, `confirm-remove-document-${doc.name}`)}
+                    {widgets.removeConfirmButton(
+                      this.props,
+                      doc,
+                      `confirm-remove-document-${doc.name}`
+                    )}
                   </div>
                 </>
               )}
@@ -290,7 +318,11 @@ class DocumentLocal extends React.Component {
                   </div>
                   <div className="doc-container-button-row">
                     {widgets.retryButton(this.props, doc)}
-                    {widgets.removeConfirmButton(this.props, doc, `confirm-remove-document-${doc.name}`)}
+                    {widgets.removeConfirmButton(
+                      this.props,
+                      doc,
+                      `confirm-remove-document-${doc.name}`
+                    )}
                   </div>
                 </>
               )}
@@ -303,7 +335,11 @@ class DocumentLocal extends React.Component {
                   </div>
                   <div className="doc-container-button-row">
                     {widgets.forcedPreviewButton(this.props, doc)}
-                    {widgets.removeConfirmButton(this.props, doc, `confirm-remove-document-${doc.name}`)}
+                    {widgets.removeConfirmButton(
+                      this.props,
+                      doc,
+                      `confirm-remove-document-${doc.name}`
+                    )}
                   </div>
                 </>
               )}
@@ -320,7 +356,11 @@ class DocumentLocal extends React.Component {
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
                     {widgets.multiSignButton(this.props, doc)}
-                    {widgets.removeConfirmButton(this.props, doc, `confirm-remove-document-${doc.name}`)}
+                    {widgets.removeConfirmButton(
+                      this.props,
+                      doc,
+                      `confirm-remove-document-${doc.name}`
+                    )}
                   </div>
                 </>
               )}
@@ -349,7 +389,11 @@ class DocumentLocal extends React.Component {
                     </ESDropdown>
                     {widgets.multiSignButton(this.props, doc)}
                     {widgets.downloadSignedButton(this.props, doc)}
-                    {widgets.removeConfirmButton(this.props, doc, `confirm-remove-document-${doc.name}`)}
+                    {widgets.removeConfirmButton(
+                      this.props,
+                      doc,
+                      `confirm-remove-document-${doc.name}`
+                    )}
                   </div>
                 </>
               )}
@@ -367,7 +411,11 @@ class DocumentLocal extends React.Component {
                     <ESDropdown doc={doc}>
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
-                    {widgets.removeConfirmButton(this.props, doc, `confirm-remove-document-${doc.name}`)}
+                    {widgets.removeConfirmButton(
+                      this.props,
+                      doc,
+                      `confirm-remove-document-${doc.name}`
+                    )}
                   </div>
                 </>
               )}

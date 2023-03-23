@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
-import Form from 'react-bootstrap/Form';
+import Form from "react-bootstrap/Form";
 
 import "styles/Footer.scss";
 
@@ -48,7 +48,10 @@ class Footer extends Component {
           </label>
         </div>
         <nav key="1">
-          <Form.Select onChange={this.props.changeLanguage} value={this.props.language}>
+          <Form.Select
+            onChange={this.props.changeLanguage}
+            value={this.props.language}
+          >
             {langElems}
           </Form.Select>
         </nav>
