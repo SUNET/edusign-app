@@ -34,7 +34,6 @@ import json
 
 
 def test_config(client):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'

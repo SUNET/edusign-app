@@ -38,7 +38,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def test_create_sign_request(client, monkeypatch):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -58,7 +57,6 @@ def test_create_sign_request(client, monkeypatch):
 
     with run.app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 
@@ -106,7 +104,6 @@ def test_create_sign_request(client, monkeypatch):
 
 
 def test_create_sign_request_post_raises(client, monkeypatch):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -120,7 +117,6 @@ def test_create_sign_request_post_raises(client, monkeypatch):
 
     with run.app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 
@@ -167,7 +163,6 @@ def test_create_sign_request_post_raises(client, monkeypatch):
 
 
 def _create_sign_request(client, monkeypatch, data_payload, csrf_token=None):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
@@ -175,7 +170,6 @@ def _create_sign_request(client, monkeypatch, data_payload, csrf_token=None):
     if csrf_token is None:
         with run.app.test_request_context():
             with client.session_transaction() as sess:
-
                 csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
                 user_key = sess['user_key']
     else:
@@ -375,7 +369,6 @@ def test_create_sign_request_doc_wrong_csrf(client, monkeypatch):
 
 
 def test_create_sign_request_expired(client, monkeypatch):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -392,7 +385,6 @@ def test_create_sign_request_expired(client, monkeypatch):
 
     with run.app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 
@@ -475,7 +467,6 @@ def test_create_sign_request_doc_invalid_key(client, monkeypatch):
 
 
 def test_create_sign_request_bad_api_response(client, monkeypatch):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -489,7 +480,6 @@ def test_create_sign_request_bad_api_response(client, monkeypatch):
 
     with run.app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 

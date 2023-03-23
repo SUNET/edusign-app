@@ -85,7 +85,9 @@ PRAGMA user_version = 6;
 DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_ALL = (
+    "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
+)
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa, updated, created FROM Documents WHERE key = ?;"
@@ -535,7 +537,11 @@ class SqliteMD(ABCMetadata):
 
                 if subinvites is not None and not isinstance(subinvites, dict):
                     for subinvite in subinvites:
-                        subemail_result = {'email': subinvite['user_email'], 'name': subinvite['user_name'], 'lang': subinvite['user_lang']}
+                        subemail_result = {
+                            'email': subinvite['user_email'],
+                            'name': subinvite['user_name'],
+                            'lang': subinvite['user_lang'],
+                        }
                         if subemail_result['email'] == email:
                             continue
                         if subinvite['declined'] == 1:
@@ -803,7 +809,9 @@ class SqliteMD(ABCMetadata):
 
         return {'document': doc, 'user': user}
 
-    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = '') -> Dict[str, Any]:
+    def add_invitation(
+        self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = ''
+    ) -> Dict[str, Any]:
         """
         Create a new invitation to sign
 

@@ -36,12 +36,12 @@ from base64 import b64decode
 from email.encoders import encode_base64
 from email.mime.base import MIMEBase
 from xml.etree import cElementTree as ET
+from zlib import error as zliberror
 
 from flask import current_app, request, session
 from flask_babel import force_locale, get_locale, gettext
 from flask_mailman import EmailMultiAlternatives
 from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
-from zlib import error as zliberror
 
 from edusign_webapp.mail_backend import ParallelEmailBackend
 
@@ -104,7 +104,6 @@ def add_attributes_to_session(check_whitelisted=True):
                 attr_values = get_attr_values(attr_in_header)
                 session[attr_in_session] = attr_values[0]
                 if attr_in_session == 'mail':
-
                     session[attr_in_session] = session[attr_in_session].lower()
                     session['mail_aliases'] = [m.lower() for m in attr_values]
             except (KeyError, IndexError):

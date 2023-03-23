@@ -38,7 +38,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def test_recreate_sign_request(client, monkeypatch, sample_doc_1):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(self, url, *args, **kwargs):
@@ -80,7 +79,6 @@ def test_recreate_sign_request(client, monkeypatch, sample_doc_1):
 
     with run.app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 
@@ -132,7 +130,6 @@ def test_recreate_sign_request(client, monkeypatch, sample_doc_1):
 
 
 def _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_on_prepare=True):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(self, url, *args, **kwargs):
@@ -171,7 +168,6 @@ def _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_
 
     with run.app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 
@@ -220,7 +216,6 @@ def _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_
 
 
 def test_recreate_sign_request_post_raises_on_prepare(client, monkeypatch, sample_doc_1):
-
     resp_data = _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_on_prepare=True)
 
     assert (
@@ -230,14 +225,12 @@ def test_recreate_sign_request_post_raises_on_prepare(client, monkeypatch, sampl
 
 
 def test_recreate_sign_request_post_raises_on_create(client, monkeypatch, sample_doc_1):
-
     resp_data = _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_on_prepare=False)
 
     assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
 def _recreate_sign_request(client, monkeypatch, payload_data, csrf_token=None):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
@@ -245,7 +238,6 @@ def _recreate_sign_request(client, monkeypatch, payload_data, csrf_token=None):
     if csrf_token is None:
         with run.app.test_request_context():
             with client.session_transaction() as sess:
-
                 csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
                 user_key = sess['user_key']
     else:
@@ -443,7 +435,6 @@ def test_recreate_sign_request_invalid_key(client, monkeypatch):
 
 
 def test_recreate_sign_request_bad_api_response(client, monkeypatch, sample_doc_1):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(self, url, *args, **kwargs):
@@ -479,7 +470,6 @@ def test_recreate_sign_request_bad_api_response(client, monkeypatch, sample_doc_
 
     with run.app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 

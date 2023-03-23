@@ -46,7 +46,6 @@ def _test_create_invited_signature(
     mock_invitation,
     doc_is_locked=False,
 ):
-
     _, app = app
 
     client = app.test_client()
@@ -60,7 +59,6 @@ def _test_create_invited_signature(
 
     with app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)["csrf_token"]
             user_key = sess["user_key"]
 

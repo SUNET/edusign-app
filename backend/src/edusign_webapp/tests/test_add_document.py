@@ -37,7 +37,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def test_add_document(app, environ_base, monkeypatch, sample_new_doc_1):
-
     _, app = app
 
     client = app.test_client()
@@ -93,7 +92,6 @@ def test_add_document(app, environ_base, monkeypatch, sample_new_doc_1):
 
 
 def test_add_document_error_preparing(client, monkeypatch, sample_new_doc_1):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -127,7 +125,6 @@ def test_add_document_error_preparing(client, monkeypatch, sample_new_doc_1):
 
 
 def _add_document_missing_data(client, data):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'

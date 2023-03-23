@@ -314,7 +314,9 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = '') -> Dict[str, Any]:
+    def add_invitation(
+        self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = ''
+    ) -> Dict[str, Any]:
         """
         Create a new invitation to sign
 
@@ -725,7 +727,9 @@ class DocStore(object):
                     invite_key = old["key"]
 
             if add:
-                self.metadata.add_invitation(document_key, new['name'], new['email'], new['lang'], invite_key=invite_key)
+                self.metadata.add_invitation(
+                    document_key, new['name'], new['email'], new['lang'], invite_key=invite_key
+                )
                 changed['added'].append(new)
 
         return changed

@@ -36,7 +36,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def _test_skip_final_signature(app, environ_base, monkeypatch, sample_doc_1):
-
     _, app = app
 
     client = app.test_client()
@@ -48,7 +47,6 @@ def _test_skip_final_signature(app, environ_base, monkeypatch, sample_doc_1):
 
     with app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 
@@ -110,14 +108,12 @@ def _test_skip_final_signature(app, environ_base, monkeypatch, sample_doc_1):
 
 
 def test_skip_final_signature(app, environ_base, monkeypatch, sample_doc_1):
-
     resp_data = _test_skip_final_signature(app, environ_base, monkeypatch, sample_doc_1)
 
     assert resp_data['payload']['documents'][0]['id'] == sample_doc_1['key']
 
 
 def _test_skip_final_signature_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_get_signed):
-
     from edusign_webapp.doc_store import DocStore
 
     monkeypatch.setattr(DocStore, 'get_signed_document', mock_get_signed)

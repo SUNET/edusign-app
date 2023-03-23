@@ -143,7 +143,6 @@ def _get_test_app(config):
 
 @pytest.fixture(params=[config_dev, config_pro])
 def app(request):
-
     yield _get_test_app(request.param)
 
 
@@ -157,7 +156,6 @@ def _get_test_s3_app(config):
 
 @pytest.fixture(params=[config_dev, config_pro])
 def s3_app(request):
-
     yield _get_test_s3_app(request.param)
 
 
@@ -278,12 +276,18 @@ def sample_doc_2():
 
 @pytest.fixture
 def sample_invites_1():
-    yield [{'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'}, {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'}]
+    yield [
+        {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
+        {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
+    ]
 
 
 @pytest.fixture
 def sample_invites_2():
-    yield [{'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'}, {'name': 'invite2', 'email': 'invite2@example.org', 'lang': 'en'}]
+    yield [
+        {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
+        {'name': 'invite2', 'email': 'invite2@example.org', 'lang': 'en'},
+    ]
 
 
 @pytest.fixture

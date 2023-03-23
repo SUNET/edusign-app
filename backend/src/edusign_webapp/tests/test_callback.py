@@ -33,7 +33,6 @@
 
 
 def test_sign_service_callback(client):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
@@ -56,7 +55,6 @@ def test_sign_service_callback(client):
 
 
 def test_sign_service_callback_no_sign_response(client):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
@@ -75,7 +73,6 @@ def test_sign_service_callback_no_sign_response(client):
 
 
 def test_sign_service_callback_no_relay_state(client):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'

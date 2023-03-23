@@ -323,9 +323,7 @@ def get_index() -> str:
         )
         return render_template('error-generic.jinja2', **context)
     except MissingDisplayName:
-        current_app.logger.error(
-            'There is some misconfiguration and the IdP does not seem to provide the displayName.'
-        )
+        current_app.logger.error('There is some misconfiguration and the IdP does not seem to provide the displayName.')
         context['title'] = gettext("Missing displayName")
         context['message'] = gettext(
             'Your should add your name to your account at your organization. Please contact your IT-support for assistance.'
@@ -595,7 +593,6 @@ def _ready_docs(
     new_docs = []
     failed = []
     for doc_data, doc in zip(docs_data, all_docs):
-
         if 'error' in doc_data and doc_data['error']:
             current_app.logger.error(f"Problem re-preparing document for user {session['eppn']}: {doc['name']}")
             failedDoc = {
@@ -891,7 +888,9 @@ def get_signed_documents(sign_data: dict) -> dict:
     mail_aliases = session.get('mail_aliases', [session['mail']])
 
     try:
-        current_app.logger.info(f"Processing signature for {sign_data['sign_response'][:50]} for user {session['eppn']}")
+        current_app.logger.info(
+            f"Processing signature for {sign_data['sign_response'][:50]} for user {session['eppn']}"
+        )
         process_data = current_app.api_client.process_sign_request(sign_data['sign_response'], sign_data['relay_state'])
 
     except Exception as e:
@@ -978,7 +977,12 @@ def create_multi_sign_request(data: dict) -> dict:
 
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
-        owner = {'name': session['displayName'], 'email': data['owner'], 'eppn': session['eppn'], 'lang': str(get_locale())}
+        owner = {
+            'name': session['displayName'],
+            'email': data['owner'],
+            'eppn': session['eppn'],
+            'lang': str(get_locale()),
+        }
         current_app.logger.debug(f"Adding document with required loa {data['loa']}")
         invites = current_app.doc_store.add_document(
             data['document'], owner, data['invites'], data['sendsigned'], data['loa']

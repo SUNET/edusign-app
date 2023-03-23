@@ -194,8 +194,8 @@ class APIClient(object):
         # XXX This is for development environments with a local mock idp
         # different from the IdP that will be used to sign documents
         # if self.config['ENVIRONMENT'] == 'development':
-            # # This is only to test the app in a development environment.
-            # idp = self.config['DEBUG_IDP']
+        # # This is only to test the app in a development environment.
+        # idp = self.config['DEBUG_IDP']
 
         if session.get('organizationName', None) is not None:
             idp = session['organizationName']
@@ -379,7 +379,6 @@ class APIClient(object):
             and 'message' in response_data
             and 'not found in cache' in response_data['message']
         ):
-
             raise self.ExpiredCache()
 
         if current_app.logger.level == 'DEBUG':

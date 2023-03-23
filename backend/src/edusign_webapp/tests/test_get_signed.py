@@ -37,7 +37,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def _test_get_signed_documents(client, monkeypatch, process_data=None):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -140,7 +139,6 @@ def _test_get_signed_documents(client, monkeypatch, process_data=None):
 
     with run.app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 
@@ -171,7 +169,6 @@ def _test_get_signed_documents(client, monkeypatch, process_data=None):
 
 
 def test_get_signed_documents(client, monkeypatch):
-
     response = _test_get_signed_documents(client, monkeypatch)
 
     assert response.status == '200 OK'
@@ -180,7 +177,6 @@ def test_get_signed_documents(client, monkeypatch):
 
 
 def test_get_signed_documents_process_error(client, monkeypatch):
-
     process_data = {'errorCode': 'error.dss', 'message': 'dummy message'}
 
     response = _test_get_signed_documents(client, monkeypatch, process_data=process_data)
@@ -191,7 +187,6 @@ def test_get_signed_documents_process_error(client, monkeypatch):
 
 
 def test_get_signed_documents_post_raises(client, monkeypatch):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -205,7 +200,6 @@ def test_get_signed_documents_post_raises(client, monkeypatch):
 
     with run.app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 
@@ -242,7 +236,6 @@ def test_get_signed_documents_post_raises(client, monkeypatch):
 
 
 def _get_signed_documents(client, monkeypatch, data_payload, csrf_token=None):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
@@ -250,7 +243,6 @@ def _get_signed_documents(client, monkeypatch, data_payload, csrf_token=None):
     if csrf_token is None:
         with run.app.test_request_context():
             with client.session_transaction() as sess:
-
                 csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
                 user_key = sess['user_key']
     else:

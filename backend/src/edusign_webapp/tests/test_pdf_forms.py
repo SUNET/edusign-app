@@ -39,7 +39,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def _test_get_form(app, environ_base, monkeypatch, form_data):
-
     _, app = app
 
     client = app.test_client()
@@ -53,7 +52,6 @@ def _test_get_form(app, environ_base, monkeypatch, form_data):
 
     with app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 

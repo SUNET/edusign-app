@@ -143,7 +143,6 @@ class Marshal(object):
 
         @wraps(f)
         def marshal_decorator(*args, **kwargs):
-
             resp_data = f(*args, **kwargs)
 
             if isinstance(resp_data, WerkzeugResponse):

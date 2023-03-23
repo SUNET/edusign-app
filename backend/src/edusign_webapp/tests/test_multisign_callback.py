@@ -33,7 +33,6 @@
 
 
 def _test_multisign_sevice_callback(client, monkeypatch, data, mock_locked=True):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -116,7 +115,6 @@ def _test_multisign_sevice_callback(client, monkeypatch, data, mock_locked=True)
 
 
 def test_multisign_sevice_callback(client, monkeypatch):
-
     data = {
         'Binding': 'POST/XML/1.0',
         'RelayState': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
@@ -131,7 +129,6 @@ def test_multisign_sevice_callback(client, monkeypatch):
 
 
 def test_multisign_sevice_callback_no_relay_state(client, monkeypatch):
-
     data = {
         'Binding': 'POST/XML/1.0',
         'EidSignResponse': 'Dummy Sign Response',
@@ -142,7 +139,6 @@ def test_multisign_sevice_callback_no_relay_state(client, monkeypatch):
 
 
 def test_multisign_sevice_callback_no_sign_response(client, monkeypatch):
-
     data = {
         'Binding': 'POST/XML/1.0',
         'RelayState': '09d91b6f-199c-4388-a4e5-230807dd4ac4',

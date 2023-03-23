@@ -36,7 +36,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def _test_create_multi_sign_request(app, environ_base, monkeypatch, doc_data, mock_add_document=None):
-
     _, app = app
 
     client = app.test_client()
@@ -53,7 +52,6 @@ def _test_create_multi_sign_request(app, environ_base, monkeypatch, doc_data, mo
 
     with app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 
@@ -81,7 +79,6 @@ def _test_create_multi_sign_request(app, environ_base, monkeypatch, doc_data, mo
 
 
 def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
-
     doc_data = {
         'payload': {
             'document': sample_doc_1,
@@ -106,7 +103,6 @@ def test_create_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1)
 
 
 def test_create_multi_sign_request_raises(app, environ_base, monkeypatch, sample_doc_1):
-
     doc_data = {
         'payload': {
             'document': sample_doc_1,
@@ -135,7 +131,6 @@ def test_create_multi_sign_request_raises(app, environ_base, monkeypatch, sample
 
 
 def test_create_multi_sign_wrong_owner(app, environ_base, monkeypatch, sample_doc_1):
-
     doc_data = {
         'payload': {
             'document': sample_doc_1,
@@ -163,7 +158,6 @@ def test_create_multi_sign_wrong_owner(app, environ_base, monkeypatch, sample_do
 
 
 def test_metrics(app, environ_base, monkeypatch, sample_doc_1):
-
     doc_data = {
         'payload': {
             'document': sample_doc_1,

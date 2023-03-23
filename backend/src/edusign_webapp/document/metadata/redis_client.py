@@ -625,7 +625,8 @@ class RedisMD(ABCMetadata):
                 document = self.client.query_document(doc_id)
                 if document is None or isinstance(document, list):
                     self.logger.error(
-                        f"Db seems corrupted, an invite for {email}" f" references a non existing document with id {doc_id}"
+                        f"Db seems corrupted, an invite for {email}"
+                        f" references a non existing document with id {doc_id}"
                     )
                     continue
 

@@ -33,7 +33,13 @@
 
 from marshmallow import Schema, fields
 
-from edusign_webapp.validators import validate_doc_type, validate_nonempty, validate_sign_requirement, validate_uuid4, validate_language
+from edusign_webapp.validators import (
+    validate_doc_type,
+    validate_language,
+    validate_nonempty,
+    validate_sign_requirement,
+    validate_uuid4,
+)
 
 
 class _DocumentSchema(Schema):
@@ -299,7 +305,6 @@ class DelegationSchema(Invitee):
 
 
 class Field(Schema):
-
     name = fields.String(required=True, validate=[validate_nonempty])
     type = fields.String(required=False, validate=[validate_nonempty])
     label = fields.String(required=False)

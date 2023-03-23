@@ -1,6 +1,6 @@
+import os.path
 from base64 import b64decode, b64encode
 from tempfile import TemporaryDirectory
-import os.path
 
 import fitz
 from flask import current_app

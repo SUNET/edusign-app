@@ -48,7 +48,6 @@ def _test_final_sign_multi_sign_request(
     create_data=None,
     error_creation=False,
 ):
-
     _, app = app
 
     client = app.test_client()
@@ -60,7 +59,6 @@ def _test_final_sign_multi_sign_request(
 
     with app.test_request_context():
         with client.session_transaction() as sess:
-
             csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
             user_key = sess['user_key']
 
@@ -75,7 +73,6 @@ def _test_final_sign_multi_sign_request(
     monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
     if create_sign_request:
-
         doc_data = {
             'csrf_token': csrf_token,
             'payload': {
