@@ -131,7 +131,7 @@ msgid "Success sending invitations to sign"
 msgstr "Inbjudningarna att signera har skickats"
 
 #: src/edusign_webapp/views.py:1024
-#, fuzzy, python-format
+#, python-format
 msgid "You have been invited to sign \"%(document_name)s\""
 msgstr "Du har blivit inbjuden att signera '%(document_name)s'"
 
@@ -161,14 +161,13 @@ msgid "Success sending reminder email to pending users"
 msgstr "Meddelandet skickades till alla som inte svarat på inbjudan att signera"
 
 #: src/edusign_webapp/views.py:1123
-#, fuzzy
 msgid "Problem editing the invitations"
-msgstr "Ett problem uppstod och inbjudningarna att signera skickades inte iväg"
+msgstr "Problem med att redigera inbjudningarna"
 
 #: src/edusign_webapp/views.py:1136
-#, fuzzy, python-format
+#, python-format
 msgid "Success editing invitation to sign '%(docname)s'"
-msgstr "Inbjudningarna att signera har skickats"
+msgstr "Framgång med redigering av inbjudan att signera '%(docname)s'"
 
 #: src/edusign_webapp/views.py:1141 src/edusign_webapp/views.py:1154
 #, python-format
@@ -202,7 +201,7 @@ msgid "Cannot find the document being signed"
 msgstr "Går inte att hitta dokumentet som skall signeras"
 
 #: src/edusign_webapp/views.py:1299
-#, fuzzy, python-format
+#, python-format
 msgid "\"%(docname)s\" is now signed"
 msgstr "'%(docname)s' är nu signerat"
 
@@ -235,9 +234,8 @@ msgid "Success delegating signature"
 msgstr "Signeringen av dokumentet nekades"
 
 #: src/edusign_webapp/views.py:1508
-#, fuzzy
 msgid "Problem filling in form in PDF, please try again"
-msgstr "Ett problem uppstod att neka signering, var god försök igen"
+msgstr "Problem med att fylla i formuläret i PDF, försök igen"
 
 #: src/edusign_webapp/templates/about.jinja2:4
 msgid "Frequently Asked Questions"
