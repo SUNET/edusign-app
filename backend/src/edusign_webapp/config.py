@@ -54,13 +54,13 @@ ENVIRONMENT = os.environ.get('ENVIRONMENT', default='production')
 
 SECRET_KEY = os.environ.get('SECRET_KEY', default='supersecret')
 
-SESSION_COOKIE_DOMAIN = os.environ.get('SP_HOSTNAME', default='sp.edusign.docker')
+SESSION_COOKIE_DOMAIN = os.environ.get('SP_HOSTNAME', default='edusign.sunet.se')
 SESSION_COOKIE_PATH = os.environ.get('SESSION_COOKIE_PATH', default='/sign')
 SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', default=True)
 SESSION_COOKIE_NAME = os.environ.get('SESSION_COOKIE_NAME', default='session')
 SESSION_COOKIE_SAMESITE = 'None'
 
-SERVER_NAME = os.environ.get('SP_HOSTNAME', default='sp.edusign.docker')
+SERVER_NAME = os.environ.get('SP_HOSTNAME', default='edusign.sunet.se')
 
 PREFERRED_URL_SCHEME = 'https'
 
