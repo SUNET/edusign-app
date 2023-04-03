@@ -195,6 +195,7 @@ class InviteForm extends React.Component {
                   {index > 0 && (
                     <div className="invitee-form-dismiss">
                       <ESTooltip
+                        helpId={"button-remove-entry-" + index}
                         inModal={true}
                         tooltip={
                           <FormattedMessage

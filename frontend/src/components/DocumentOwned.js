@@ -150,7 +150,6 @@ class DocumentOwned extends Component {
         {doc.declined !== undefined && doc.declined.length > 0 && (
           <>{declined}</>
         )}
-        {editForm}
       </>
     );
     let requiredLoa = "";
@@ -331,6 +330,7 @@ class DocumentOwned extends Component {
             </div>
           )}
         </ESPopover>
+        {editForm}
       </>
     );
   }

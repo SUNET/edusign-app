@@ -55,6 +55,8 @@ class InviteEditForm extends React.Component {
                 <div className="invitation-fields" key={index}>
                   <div className="invitee-form-dismiss">
                     <ESTooltip
+                      helpId={"button-remove-entry-" + index}
+                      inModal={true}
                       tooltip={
                         <FormattedMessage
                           defaultMessage="Remove this entry from invitation"
@@ -221,6 +223,8 @@ class InviteEditForm extends React.Component {
                 </div>
               ))}
             <ESTooltip
+              helpId="button-add-entry"
+              inModal={true}
               tooltip={
                 <FormattedMessage
                   defaultMessage="Invite one more person to sign this document"
@@ -230,7 +234,7 @@ class InviteEditForm extends React.Component {
             >
               <Button
                 variant="outline-secondary"
-                data-testid={"button-add-invitation-" + this.props.docName}
+                data-testid={"button-add-invitation-" + this.props.doc.name}
                 onClick={() =>
                   arrayHelpers.push({
                     name: "",
@@ -251,7 +255,7 @@ class InviteEditForm extends React.Component {
     );
   }
   render() {
-    const formId = "invite-form-" + this.props.docName;
+    const formId = "invite-form-" + this.props.doc.name;
     return (
       <>
         <Formik
@@ -282,7 +286,7 @@ class InviteEditForm extends React.Component {
                     <FormattedMessage
                       defaultMessage={`Edit invitations for {docName}`}
                       key="edit-invitation"
-                      values={{ docName: this.props.docName }}
+                      values={{ docName: this.props.doc.name }}
                     />
                   </Modal.Title>
                 </Modal.Header>
@@ -312,6 +316,8 @@ class InviteEditForm extends React.Component {
                 </Modal.Body>
                 <Modal.Footer>
                   <ESTooltip
+                    helpId="button-cancel-edit-form"
+                    inModal={true}
                     tooltip={
                       <FormattedMessage
                         defaultMessage="Dismiss edit form"
@@ -332,6 +338,8 @@ class InviteEditForm extends React.Component {
                     </Button>
                   </ESTooltip>
                   <ESTooltip
+                    helpId="button-save-edit-form"
+                    inModal={true}
                     tooltip={
                       <FormattedMessage
                         defaultMessage="Save changes to invitation"
@@ -342,11 +350,11 @@ class InviteEditForm extends React.Component {
                     <Button
                       variant="outline-success"
                       onClick={fprops.submitForm}
-                      id={"button-save-edit-invitation-" + this.props.docName}
+                      id={"button-save-edit-invitation-" + this.props.doc.name}
                       disabling={true}
                       disabled={!fprops.isValid}
                       data-testid={
-                        "button-save-edit-invitation-" + this.props.docName
+                        "button-save-edit-invitation-" + this.props.doc.name
                       }
                     >
                       <FormattedMessage
@@ -369,7 +377,6 @@ InviteEditForm.propTypes = {
   show: PropTypes.bool,
   size: PropTypes.string,
   docKey: PropTypes.string,
-  docName: PropTypes.string,
   handleClose: PropTypes.func,
   handleSubmit: PropTypes.func,
 };
