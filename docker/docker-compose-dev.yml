@@ -1,0 +1,51 @@
+---
+version: '3.8'
+services:
+
+  sp:
+    build: .
+    ports:
+      - 80:80
+    networks:
+      edusign-dev:
+        ipv4_address: 172.20.10.203
+    volumes:
+      - ../frontend/build:/opt/edusign/jsbuild:ro
+    environment:
+      - "HOSTNAME=sp.edusign.docker"
+    depends_on:
+      - www
+
+  redis:
+    image: redis:latest
+    networks:
+      edusign-dev:
+        ipv4_address: 172.20.10.205
+
+  www:
+    build: ../backend/.
+    networks:
+      edusign-dev:
+        ipv4_address: 172.20.10.204
+    expose:
+      - 8080
+    volumes:
+      - ../backend:/opt/edusign/edusign-webapp:ro
+    environment:
+      - "PYTHONPATH=/opt/edusign/edusign-webapp/src"
+      - "HOSTNAME=sp.edusign.docker"
+      - "SP_HOSTNAME=sp.edusign.docker"
+      - "DEBUG=True"
+      - "ENVIRONMENT=development"
+    depends_on:
+      - redis
+
+networks:
+  edusign-dev:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-edusign
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.20.10.0/24
