@@ -71,7 +71,7 @@ BABEL_DEFAULT_LOCALE = 'sv'
 BABEL_DEFAULT_TIMEZONE = 'UTC'
 BABEL_TRANSLATION_DIRECTORIES = os.path.join(HERE, 'translations')
 BABEL_DOMAIN = 'messages'
-SUPPORTED_LANGUAGES = {'en': 'English', 'sv': 'Svenska', 'es': 'Español'}
+SUPPORTED_LANGUAGES = {'en': 'English', 'sv': 'Svenska'}
 
 EDUSIGN_API_BASE_URL = os.environ.get('EDUSIGN_API_BASE_URL', default='https://sig.idsec.se/signint/v1/')
 EDUSIGN_API_PROFILE = os.environ.get('EDUSIGN_API_PROFILE', default='edusign-test')

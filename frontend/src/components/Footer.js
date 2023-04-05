@@ -11,23 +11,43 @@ import "styles/Footer.scss";
  */
 class Footer extends Component {
   render() {
-    const langElems = AVAILABLE_LANGUAGES.map((lang, index) => {
-      if (lang[0] === this.props.language) {
-        // sets the < html lang=""> to the interface language
-        document.documentElement.lang = this.props.language;
-        return (
-          <option value={lang[0]} key={index}>
-            {lang[1]}
-          </option>
-        );
-      } else {
-        return (
-          <option value={lang[0]} key={index}>
-            {lang[1]}
-          </option>
-        );
-      }
-    });
+    let langElems = null;
+    if (len(AVAILABLE_LANGUAGES) === 1) {
+      langElems = "";
+    } else if (len(AVAILABLE_LANGUAGES) === 2) {
+      langElems = AVAILABLE_LANGUAGES.map((lang, index) => {
+        if (lang[0] === this.props.language) {
+          // sets the < html lang=""> to the interface language
+          document.documentElement.lang = this.props.language;
+        } else {
+          return (
+            <p key="0" className="lang-selected" data-lang={lang[0]} key={index}>
+              <a key="0" onClick={this.props.changeLanguage}>
+                {lang[1]}
+              </a>
+            </p>
+          );
+        }
+      });
+    } else if (len(AVAILABLE_LANGUAGES) > 2) {
+      langElems = AVAILABLE_LANGUAGES.map((lang, index) => {
+        if (lang[0] === this.props.language) {
+          // sets the < html lang=""> to the interface language
+          document.documentElement.lang = this.props.language;
+          return (
+            <option value={lang[0]} key={index}>
+              {lang[1]}
+            </option>
+          );
+        } else {
+          return (
+            <option value={lang[0]} key={index}>
+              {lang[1]}
+            </option>
+          );
+        }
+      });
+    }
 
     return (
       <footer key="0" id="footer" data-testid="edusign-footer">
