@@ -12,9 +12,9 @@ import "styles/Footer.scss";
 class Footer extends Component {
   render() {
     let langElems = null;
-    if (len(AVAILABLE_LANGUAGES) === 1) {
+    if (AVAILABLE_LANGUAGES.length === 1) {
       langElems = "";
-    } else if (len(AVAILABLE_LANGUAGES) === 2) {
+    } else if (AVAILABLE_LANGUAGES.length === 2) {
       langElems = AVAILABLE_LANGUAGES.map((lang, index) => {
         if (lang[0] === this.props.language) {
           // sets the < html lang=""> to the interface language
@@ -29,7 +29,7 @@ class Footer extends Component {
           );
         }
       });
-    } else if (len(AVAILABLE_LANGUAGES) > 2) {
+    } else if (AVAILABLE_LANGUAGES.length > 2) {
       langElems = AVAILABLE_LANGUAGES.map((lang, index) => {
         if (lang[0] === this.props.language) {
           // sets the < html lang=""> to the interface language
