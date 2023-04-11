@@ -72,8 +72,7 @@ def try_pdfa(orig_doc, doc):
     with TemporaryDirectory() as dirname:
         orig_fname = os.path.join(dirname, 'orig.pdf')
         orig_doc.save(orig_fname)
-        # if file_claims_pdfa(orig_fname):
-        if True:
+        if file_claims_pdfa(orig_fname):
             fname = os.path.join(dirname, 'filled.pdf')
             doc.save(fname)
             fname_a = os.path.join(dirname, 'filled-a.pdf')
