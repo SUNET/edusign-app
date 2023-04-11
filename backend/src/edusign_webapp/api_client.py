@@ -191,11 +191,6 @@ class APIClient(object):
         :return: Flask representation of the HTTP response from the API.
         """
         idp = session['idp']
-        # XXX This is for development environments with a local mock idp
-        # different from the IdP that will be used to sign documents
-        # if self.config['ENVIRONMENT'] == 'development':
-        # # This is only to test the app in a development environment.
-        # idp = self.config['DEBUG_IDP']
 
         if session.get('organizationName', None) is not None:
             idp = session['organizationName']
@@ -307,10 +302,6 @@ class APIClient(object):
                  and list of mappings linking the documents' names with the generated ids.
         """
         idp = session['idp']
-        # XXX This is for development environments with a local mock idp
-        # different from the IdP that will be used to sign documents
-        # if self.config['ENVIRONMENT'] == 'development':
-        #     idp = self.config['DEBUG_IDP']
 
         authn_context = get_authn_context(documents)
 

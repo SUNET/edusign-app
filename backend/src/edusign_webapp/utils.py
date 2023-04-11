@@ -314,12 +314,6 @@ def get_authn_context(docs: list) -> list:
     :param docs: list of dicts with the data for the documents to be signed.
     :return: a list with the authn context classes
     """
-    # In development, use a configured context.
-    # XXX This is for development environments with a local mock idp
-    # different from the IdP that will be used to sign documents
-    # if current_app.config['ENVIRONMENT'] == 'development':
-    #     return [current_app.config['DEBUG_AUTHN_CONTEXT']]
-
     authn_context = set()
     for doc in docs:
         key = uuid.UUID(doc['key'])

@@ -82,9 +82,6 @@ SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.ids
 
 MULTISIGN_BUTTONS = os.environ.get('MULTISIGN_BUTTONS', default="yes")
 
-DEBUG_IDP = os.environ.get('DEBUG_IDP', default='https://login.idp.eduid.se/idp.xml')
-DEBUG_AUTHN_CONTEXT = os.environ.get('DEBUG_AUTHN_CONTEXT', default='https://refeds.org/profile/mfa')
-
 RAW_SIGNER_ATTRIBUTES = os.environ.get(
     'SIGNER_ATTRIBUTES',
     default='urn:oid:2.16.840.1.113730.3.1.241,displayName',
