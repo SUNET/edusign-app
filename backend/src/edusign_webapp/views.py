@@ -81,6 +81,7 @@ admin_edusign_views = Blueprint('edusign_admin', __name__, url_prefix='/admin', 
 anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template_folder='templates')
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
+edusign2_views = Blueprint('edusign2', __name__, url_prefix='/sign2', template_folder='templates')
 
 
 @admin_edusign_views.route('/cleanup', methods=['POST'])
@@ -221,6 +222,7 @@ def get_home():
     context = {
         'body': body,
         'login_initiator': f'{base_url}/Shibboleth.sso/Login?target=/sign',
+        'login_initiator2': f'{base_url}/Shibboleth.sso/Login?target=/sign2',
         'other_lang': other_lang,
         'other_lang_name': current_app.config['SUPPORTED_LANGUAGES'][other_lang],
         'version': version,
@@ -272,7 +274,6 @@ def get_help_page():
         abort(500)
 
 
-@edusign_views.route('/logout', methods=['GET'])
 def logout() -> Response:
     """
     View to log out of the app.
@@ -288,7 +289,10 @@ def logout() -> Response:
     return redirect(url_for('edusign_anon.get_home'))
 
 
-@edusign_views.route('/', methods=['GET'])
+logout = edusign_views.route('/logout', methods=['GET'])(logout)
+logout2 = edusign2_views.route('/logout', methods=['GET'])(logout)
+
+
 def get_index() -> str:
     """
     View to get the index html that loads the frontside app.
@@ -352,7 +356,10 @@ def get_index() -> str:
         abort(500)
 
 
-@edusign_views.route('/config', methods=['GET'])
+get_index = edusign_views.route('/', methods=['GET'])(get_index)
+get_index2 = edusign2_views.route('/', methods=['GET'])(get_index)
+
+
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """
@@ -395,7 +402,10 @@ def get_config() -> dict:
     }
 
 
-@edusign_views.route('/poll', methods=['GET'])
+get_config = edusign_views.route('/config', methods=['GET'])(get_config)
+get_config2 = edusign2_views.route('/config', methods=['GET'])(get_config)
+
+
 @Marshal(InvitationsSchema)
 def poll() -> dict:
     """
@@ -413,7 +423,10 @@ def poll() -> dict:
     }
 
 
-@edusign_views.route('/add-doc', methods=['POST'])
+poll = edusign_views.route('/poll', methods=['GET'])(poll)
+poll2 = edusign2_views.route('/poll', methods=['GET'])(poll)
+
+
 @UnMarshalNoCSRF(DocumentSchema)
 @Marshal(ReferenceSchema)
 def add_document(document: dict) -> dict:
@@ -456,7 +469,10 @@ def add_document(document: dict) -> dict:
     }
 
 
-@edusign_views.route('/create-sign-request', methods=['POST'])
+add_document = edusign_views.route('/add-doc', methods=['POST'])(add_document)
+add_document2 = edusign2_views.route('/add-doc', methods=['POST'])(add_document)
+
+
 @UnMarshal(ToSignSchema)
 @Marshal(SignRequestSchema)
 def create_sign_request(documents: dict) -> dict:
@@ -512,6 +528,10 @@ def create_sign_request(documents: dict) -> dict:
         return {'error': True, 'message': create_data['message']}
 
     return {'payload': sign_data}
+
+
+create_sign_request = edusign_views.route('/create-sign-request', methods=['POST'])(create_sign_request)
+create_sign_request2 = edusign2_views.route('/create-sign-request', methods=['POST'])(create_sign_request)
 
 
 def _gather_invited_docs(docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -623,7 +643,10 @@ def _ready_docs(
     return failed, new_docs
 
 
-@edusign_views.route('/recreate-sign-request', methods=['POST'])
+create_sign_request = edusign_views.route('/create-sign-request', methods=['POST'])(create_sign_request)
+create_sign_request2 = edusign2_views.route('/create-sign-request', methods=['POST'])(create_sign_request)
+
+
 @UnMarshal(ToRestartSigningSchema)
 @Marshal(ReSignRequestSchema)
 def recreate_sign_request(documents: dict) -> dict:
@@ -719,7 +742,10 @@ def recreate_sign_request(documents: dict) -> dict:
     return {'payload': sign_data}
 
 
-@edusign_views.route('/callback', methods=['POST', 'GET'])
+recreate_sign_request = edusign_views.route('/recreate-sign-request', methods=['POST'])(recreate_sign_request)
+recreate_sign_request2 = edusign2_views.route('/recreate-sign-request', methods=['POST'])(recreate_sign_request)
+
+
 def sign_service_callback() -> Union[str, Response]:
     """
     After the user has used the sign request to go through the sign service and IdP to sign the documents,
@@ -759,6 +785,10 @@ def sign_service_callback() -> Union[str, Response]:
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
         abort(500)
+
+
+sign_service_callback = edusign_views.route('/callback', methods=['POST', 'GET'])(sign_service_callback)
+sign_service_callback2 = edusign2_views.route('/callback', methods=['POST', 'GET'])(sign_service_callback)
 
 
 def _prepare_signed_by_email(key, owner):
@@ -871,7 +901,6 @@ def _prepare_signed_documents_data(process_data):
     return docs
 
 
-@edusign_views.route('/get-signed', methods=['POST'])
 @UnMarshal(SigningSchema)
 @Marshal(SignedDocumentsSchema)
 def get_signed_documents(sign_data: dict) -> dict:
@@ -947,7 +976,10 @@ def get_signed_documents(sign_data: dict) -> dict:
     }
 
 
-@edusign_views.route('/create-multi-sign', methods=['POST'])
+get_signed_documents = edusign_views.route('/get-signed', methods=['POST'])(get_signed_documents)
+get_signed_documents2 = edusign2_views.route('/get-signed', methods=['POST'])(get_signed_documents)
+
+
 @UnMarshal(MultiSignSchema)
 @Marshal()
 def create_multi_sign_request(data: dict) -> dict:
@@ -1013,6 +1045,10 @@ def create_multi_sign_request(data: dict) -> dict:
     return {'message': message}
 
 
+create_multi_sign_request = edusign_views.route('/create-multi-sign', methods=['POST'])(create_multi_sign_request)
+create_multi_sign_request2 = edusign2_views.route('/create-multi-sign', methods=['POST'])(create_multi_sign_request)
+
+
 def _send_invitation_mail(docname, owner, custom_text, recipients):
     invited_link = url_for('edusign.get_index', _external=True)
     try:
@@ -1039,7 +1075,6 @@ def _send_invitation_mail(docname, owner, custom_text, recipients):
         raise
 
 
-@edusign_views.route('/send-multisign-reminder', methods=['POST'])
 @UnMarshal(ResendMultiSignSchema)
 @Marshal()
 def send_multisign_reminder(data: dict) -> dict:
@@ -1108,7 +1143,10 @@ def send_multisign_reminder(data: dict) -> dict:
     return {'message': message}
 
 
-@edusign_views.route('/edit-multi-sign', methods=['POST'])
+send_multisign_reminder = edusign_views.route('/send-multisign-reminder', methods=['POST'])(send_multisign_reminder)
+send_multisign_reminder2 = edusign2_views.route('/send-multisign-reminder', methods=['POST'])(send_multisign_reminder)
+
+
 @UnMarshal(EditMultiSignSchema)
 @Marshal()
 def edit_multi_sign_request(data: dict) -> dict:
@@ -1163,6 +1201,10 @@ def edit_multi_sign_request(data: dict) -> dict:
     return {'message': message}
 
 
+edit_multi_sign_request = edusign_views.route('/edit-multi-sign', methods=['POST'])(edit_multi_sign_request)
+edit_multi_sign_request2 = edusign2_views.route('/edit-multi-sign', methods=['POST'])(edit_multi_sign_request)
+
+
 @edusign_views.route('/remove-multi-sign', methods=['POST'])
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal()
@@ -1214,6 +1256,10 @@ def remove_multi_sign_request(data: dict) -> dict:
     return {'message': message}
 
 
+remove_multi_sign_request = edusign_views.route('/remove-multi-sign', methods=['POST'])(remove_multi_sign_request)
+remove_multi_sign_request2 = edusign2_views.route('/remove-multi-sign', methods=['POST'])(remove_multi_sign_request)
+
+
 def _send_cancellation_mail(docname, owner_email, recipients):
     try:
         mail_context = {
@@ -1239,7 +1285,6 @@ def _send_cancellation_mail(docname, owner_email, recipients):
     return True
 
 
-@edusign_views.route('/get-partially-signed', methods=['POST'])
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal(BlobSchema)
 def get_partially_signed_doc(data: dict) -> dict:
@@ -1264,6 +1309,10 @@ def get_partially_signed_doc(data: dict) -> dict:
         return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
     return {'message': 'Success', 'payload': {'blob': doc}}
+
+
+get_partially_signed_doc = edusign_views.route('/get-partially-signed', methods=['POST'])(get_partially_signed_doc)
+get_partially_signed_doc2 = edusign2_views.route('/get-partially-signed', methods=['POST'])(get_partially_signed_doc)
 
 
 def _prepare_final_email_skipped(doc, key, sendsigned):
@@ -1314,7 +1363,6 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
     return messages
 
 
-@edusign_views.route('/skip-final-signature', methods=['POST'])
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal(SignedDocumentsSchema)
 def skip_final_signature(data: dict) -> dict:
@@ -1360,6 +1408,10 @@ def skip_final_signature(data: dict) -> dict:
     }
 
 
+skip_final_signature = edusign_views.route('/skip-final-signature', methods=['POST'])(skip_final_signature)
+skip_final_signature2 = edusign2_views.route('/skip-final-signature', methods=['POST'])(skip_final_signature)
+
+
 def _prepare_declined_email(key, owner_data):
     """
     Prepare email to inviter user informing about an invited user
@@ -1392,7 +1444,6 @@ def _prepare_declined_email(key, owner_data):
     return (recipients, subject, body_txt, body_html)
 
 
-@edusign_views.route('/decline-invitation', methods=['POST'])
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal()
 def decline_invitation(data):
@@ -1433,6 +1484,10 @@ def decline_invitation(data):
     return {'message': message}
 
 
+decline_invitation = edusign_views.route('/decline-invitation', methods=['POST'])(decline_invitation)
+decline_invitation2 = edusign2_views.route('/decline-invitation', methods=['POST'])(decline_invitation)
+
+
 def _prepare_delegation_email(owner_data, name, email, lang):
     """
     Prepare email to inform some user that a user invited to sign a document
@@ -1457,7 +1512,6 @@ def _prepare_delegation_email(owner_data, name, email, lang):
     return (recipients, subject, body_txt, body_html)
 
 
-@edusign_views.route('/delegate-invitation', methods=['POST'])
 @UnMarshal(DelegationSchema)
 @Marshal()
 def delegate_invitation(data):
@@ -1500,7 +1554,10 @@ def delegate_invitation(data):
     return {'message': message}
 
 
-@edusign_views.route('/update-form', methods=['POST'])
+delegate_invitation = edusign_views.route('/delegate-invitation', methods=['POST'])(delegate_invitation)
+delegate_invitation2 = edusign2_views.route('/delegate-invitation', methods=['POST'])(delegate_invitation)
+
+
 @UnMarshal(FillFormSchema)
 @Marshal(DocSchema)
 def update_form(data):
@@ -1513,3 +1570,7 @@ def update_form(data):
         return {'error': True, 'message': gettext('Problem filling in form in PDF, please try again')}
 
     return {'message': 'Success', 'payload': {'document': updated}}
+
+
+update_form = edusign_views.route('/update-form', methods=['POST'])(update_form)
+update_form2 = edusign2_views.route('/update-form', methods=['POST'])(update_form)
