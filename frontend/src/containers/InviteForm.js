@@ -35,6 +35,7 @@ const mapStateToProps = (state, props) => {
     templates: state.template.documents,
     documents: state.documents.documents,
     owned: state.main.owned_multisign,
+    max_signatures: state.main.max_signatures,
   };
 };
 

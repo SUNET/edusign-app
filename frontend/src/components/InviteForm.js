@@ -54,13 +54,24 @@ export const validateEmail = (mail, mail_aliases, allValues, idx) => {
   };
 };
 
-export const validateName = (value) => {
-  let error;
+export const validateName = (props, index) => {
+  _validateName = (value) => {
+    let error;
 
-  if (!value) {
-    error = <FormattedMessage defaultMessage="Required" key="required-field" />;
+    if (props.max_signatures < index) {
+      error = (
+        <FormattedMessage
+          defaultMessage="It is only possible to invite at most {max_signatures} people"
+          key="too-many-invitations"
+          values={{ max_signatures: props.max_signatures }}
+        />
+      );
+    } else if (!value) {
+      error = <FormattedMessage defaultMessage="Required" key="required-field" />;
+    }
+    return error;
   }
-  return error;
+  return _validateName;
 };
 
 export const validateLang = (value) => {
@@ -132,7 +143,7 @@ const validate = (props) => {
     let errors = {};
     const emails = [];
     values.invitees.forEach((val, i) => {
-      const nameError = validateName(val.name);
+      const nameError = validateName(props, i)(val.name);
       const emailError = validateEmail(
         props.mail,
         props.mail_aliases,
@@ -245,7 +256,7 @@ class InviteForm extends React.Component {
                           placeholder="Jane Doe"
                           as={BForm.Control}
                           type="text"
-                          validate={validateName}
+                          validate={validateName(this.props, index)}
                           isValid={
                             fprops.touched.invitees &&
                             fprops.touched.invitees[index] &&

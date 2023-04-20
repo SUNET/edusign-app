@@ -110,6 +110,7 @@ class ConfigSchema(InvitationsSchema):
     available_loas = fields.List(fields.Nested(AvailableLoa))
     unauthn = fields.Boolean(default=True)
     max_file_size = fields.String(required=True)
+    max_signatures = fields.String(required=True)
 
 
 class DocumentSchema(_DocumentSchema):

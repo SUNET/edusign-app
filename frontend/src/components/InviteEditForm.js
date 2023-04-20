@@ -9,7 +9,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
 import { nameForCopy } from "components/utils";
-import { validateEmail, validateLang } from "components/InviteForm";
+import { validateEmail, validateName, validateLang } from "components/InviteForm";
 
 import "styles/InviteForm.scss";
 
@@ -33,15 +33,6 @@ const validate = () => {
 
 const validateBody = (value) => {
   return undefined;
-};
-
-export const validateName = (value) => {
-  let error;
-
-  if (!value) {
-    error = <FormattedMessage defaultMessage="Required" key="required-field" />;
-  }
-  return error;
 };
 
 class InviteEditForm extends React.Component {
@@ -104,7 +95,7 @@ class InviteEditForm extends React.Component {
                           placeholder="Jane Doe"
                           as={BForm.Control}
                           type="text"
-                          validate={validateName}
+                          validate={validateName(this.props, index)}
                           isValid={
                             fprops.touched.invitees &&
                             fprops.touched.invitees[index] &&
