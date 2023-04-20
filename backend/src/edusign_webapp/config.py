@@ -173,3 +173,5 @@ AVAILABLE_LOAS = {
 }
 
 MAX_CONTENT_LENGTH = int(os.environ.get('MAX_FILE_SIZE', default=20971520))
+
+MAX_SIGNATURES = int(os.environ.get('MAX_SIGNATURES', default=10))

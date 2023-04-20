@@ -384,6 +384,7 @@ def get_config() -> dict:
 
     payload['signer_attributes'] = attrs
     payload['multisign_buttons'] = current_app.config['MULTISIGN_BUTTONS']
+    payload['max_signatures'] = current_app.config['MAX_SIGNATURES']
     payload['available_loas'] = []
     for uri, name in current_app.config['AVAILABLE_LOAS'].items():
         payload['available_loas'].append({'uri': uri, 'name': name})
