@@ -35,6 +35,7 @@ const mapStateToProps = (state, props) => {
     doc: doc,
     mail: state.main.signer_attributes.mail,
     mail_aliases: state.main.signer_attributes.mail_aliases,
+    max_signatures: state.main.max_signatures,
   };
 };
 
