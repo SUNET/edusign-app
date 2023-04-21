@@ -10,6 +10,7 @@ services:
       edusign-dev:
         ipv4_address: 172.20.10.203
     volumes:
+      - edusignlogs:/var/log/edusign:rw
       - ../frontend/build:/opt/edusign/jsbuild:ro
     environment:
       - "HOSTNAME=sp.edusign.docker"
@@ -30,6 +31,7 @@ services:
     expose:
       - 8080
     volumes:
+      - edusignlogs:/var/log/edusign:rw
       - ../backend:/opt/edusign/edusign-webapp:ro
     environment:
       - "PYTHONPATH=/opt/edusign/edusign-webapp/src"
@@ -39,6 +41,10 @@ services:
       - "ENVIRONMENT=development"
     depends_on:
       - redis
+
+volumes:
+  edusignlogs:
+    name: edusignlogs
 
 networks:
   edusign-dev:
