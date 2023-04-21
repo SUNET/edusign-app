@@ -104,11 +104,12 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
     app.mailer = Mail(app)
 
-    from edusign_webapp.views import admin_edusign_views, anon_edusign_views, edusign_views
+    from edusign_webapp.views import admin_edusign_views, anon_edusign_views, edusign_views, edusign2_views
 
     app.register_blueprint(admin_edusign_views)
     app.register_blueprint(anon_edusign_views)
     app.register_blueprint(edusign_views)
+    app.register_blueprint(edusign2_views)
 
     if app.config['APP_IN_TWO_PATHS']:
         from edusign_webapp.views import edusign_views2
