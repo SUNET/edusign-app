@@ -322,6 +322,15 @@ describe("Multi sign invitations", function () {
 
       await flushPromises(rerender, wrapped);
 
+      let langInput = await waitFor(() =>
+        screen.getAllByTestId("invitees.0.lang")
+      );
+      expect(langInput.length).to.equal(1);
+
+      fireEvent.change(langInput[0], { target: { value: "en" } });
+
+      await flushPromises(rerender, wrapped);
+
       const buttonSend = await waitFor(() =>
         screen.getAllByTestId("button-send-invites-testost.pdf")
       );
@@ -553,6 +562,15 @@ describe("Multi sign invitations", function () {
       expect(nameInput.length).to.equal(1);
 
       fireEvent.change(nameInput[0], { target: { value: "Dummy-2 Doe" } });
+
+      await flushPromises(rerender, wrapped);
+
+      const langInput = await waitFor(() =>
+        screen.getAllByTestId("invitees.0.lang")
+      );
+      expect(langInput.length).to.equal(1);
+
+      fireEvent.change(langInput[0], { target: { value: "en" } });
 
       await flushPromises(rerender, wrapped);
 

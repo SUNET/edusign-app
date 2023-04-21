@@ -51,6 +51,7 @@ class Footer extends Component {
           <Form.Select
             onChange={this.props.changeLanguage}
             value={this.props.language}
+            data-testid="language-selector"
           >
             {langElems}
           </Form.Select>
