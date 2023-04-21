@@ -69,8 +69,8 @@ def _test_edit_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
             'sendsigned': True,
             'loa': '',
             'invites': [
-                {'name': 'invite0', 'email': 'invite0@example.org'},
-                {'name': 'invite1', 'email': 'invite1@example.org'},
+                {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
+                {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
             ],
         },
     }
@@ -93,9 +93,9 @@ def _test_edit_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
             'key': sample_doc_1['key'],
             'text': "Some invitation text",
             'invites': [
-                {'name': 'invite0', 'email': 'invite0@example.org'},
-                {'name': 'invite2', 'email': 'invite2@example.org'},
-                {'name': 'invite3', 'email': 'invite3@example.org'},
+                {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
+                {'name': 'invite2', 'email': 'invite2@example.org', 'lang': 'en'},
+                {'name': 'invite3', 'email': 'invite3@example.org', 'lang': 'en'},
             ],
         },
     }

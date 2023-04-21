@@ -63,7 +63,7 @@ def test_get_no_pending(sqlite_md, sample_metadata_1, sample_owner_1, sample_inv
     tempdir, test_md = sqlite_md
 
     with run.app.app_context():
-        pending = test_md.get_pending('invite0@example.org')
+        pending = test_md.get_pending(['invite0@example.org'])
 
     assert pending == []
 
@@ -77,8 +77,8 @@ def test_add_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sampl
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
 
-        pending1 = test_md.get_pending('invite0@example.org')
-        pending2 = test_md.get_pending('invite1@example.org')
+        pending1 = test_md.get_pending(['invite0@example.org'])
+        pending2 = test_md.get_pending(['invite1@example.org'])
 
     assert len(pending1) == 1
     assert pending1[0]['name'] == 'test1.pdf'
@@ -102,7 +102,7 @@ def test_add_and_get_pending_not(sqlite_md, sample_metadata_1, sample_owner_1, s
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
 
-        pending = test_md.get_pending('invite3@example.org')
+        pending = test_md.get_pending(['invite3@example.org'])
 
     assert pending == []
 
@@ -120,7 +120,7 @@ def test_add_two_and_get_pending(
         test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
         test_md.add(dummy_key_2, sample_metadata_2, sample_owner_2, sample_invites_2, sendsigned, loa)
 
-        pending = test_md.get_pending('invite0@example.org')
+        pending = test_md.get_pending(['invite0@example.org'])
 
     assert len(pending) == 2
 
@@ -191,8 +191,8 @@ def test_update_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sa
 
         test_md.update(dummy_key, [sample_invites_1[0]['email']])
 
-        pending1 = test_md.get_pending('invite0@example.org')
-        pending2 = test_md.get_pending('invite1@example.org')
+        pending1 = test_md.get_pending(['invite0@example.org'])
+        pending2 = test_md.get_pending(['invite1@example.org'])
 
     assert len(pending1) == 0
 

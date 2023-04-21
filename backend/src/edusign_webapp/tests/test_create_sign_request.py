@@ -222,7 +222,7 @@ def test_create_sign_request_doc_no_name(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_create_sign_request_doc_no_ref(client, monkeypatch):
@@ -239,7 +239,7 @@ def test_create_sign_request_doc_no_ref(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_create_sign_request_doc_invalid_ref_1(client, monkeypatch):
@@ -257,7 +257,7 @@ def test_create_sign_request_doc_invalid_ref_1(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_create_sign_request_doc_invalid_ref_2(client, monkeypatch):
@@ -275,7 +275,7 @@ def test_create_sign_request_doc_invalid_ref_2(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_create_sign_request_doc_invalid_sign_req_1(client, monkeypatch):
@@ -293,7 +293,7 @@ def test_create_sign_request_doc_invalid_sign_req_1(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_create_sign_request_doc_invalid_sign_req_2(client, monkeypatch):
@@ -311,7 +311,7 @@ def test_create_sign_request_doc_invalid_sign_req_2(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_create_sign_request_doc_invalid_sign_req_3(client, monkeypatch):
@@ -329,7 +329,7 @@ def test_create_sign_request_doc_invalid_sign_req_3(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_create_sign_request_doc_no_csrf(client, monkeypatch):
@@ -347,7 +347,7 @@ def test_create_sign_request_doc_no_csrf(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload, csrf_token='rm')
 
     assert resp_data['error']
-    assert resp_data['message'] == "csrf_token: Required"
+    assert resp_data['message'] == "There were problems with the data you sent, please try again or contact your IT support"
 
 
 def test_create_sign_request_doc_wrong_csrf(client, monkeypatch):
@@ -365,7 +365,7 @@ def test_create_sign_request_doc_wrong_csrf(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload, csrf_token='wrong csrf token')
 
     assert resp_data['error']
-    assert resp_data['message'] == 'csrf_token: There was an error. Please try again, or contact the site administrator'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_create_sign_request_expired(client, monkeypatch):
@@ -445,7 +445,7 @@ def test_create_sign_request_doc_no_key(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_create_sign_request_doc_invalid_key(client, monkeypatch):
@@ -463,7 +463,7 @@ def test_create_sign_request_doc_invalid_key(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_create_sign_request_bad_api_response(client, monkeypatch):

@@ -69,8 +69,8 @@ def _test_send_reminders(app, environ_base, monkeypatch, sample_doc_1):
             'sendsigned': True,
             'loa': '',
             'invites': [
-                {'name': 'invite0', 'email': 'invite0@example.org'},
-                {'name': 'invite1', 'email': 'invite1@example.org'},
+                {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
+                {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
             ],
         },
     }

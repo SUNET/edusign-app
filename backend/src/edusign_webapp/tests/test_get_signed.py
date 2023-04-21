@@ -285,7 +285,7 @@ def test_get_signed_documents_no_sign_response(client, monkeypatch):
     resp_data = _get_signed_documents(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'sign_response: Required'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_get_signed_documents_empty_sign_response(client, monkeypatch):
@@ -294,7 +294,7 @@ def test_get_signed_documents_empty_sign_response(client, monkeypatch):
 
     assert resp_data['error']
     assert (
-        resp_data['message'] == 'sign_response: There was an error. Please try again, or contact the site administrator'
+        resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
     )
 
 
@@ -303,7 +303,7 @@ def test_get_signed_documents_no_relay_state(client, monkeypatch):
     resp_data = _get_signed_documents(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'relay_state: Required'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_get_signed_documents_empty_relay_state(client, monkeypatch):
@@ -312,7 +312,7 @@ def test_get_signed_documents_empty_relay_state(client, monkeypatch):
 
     assert resp_data['error']
     assert (
-        resp_data['message'] == 'relay_state: There was an error. Please try again, or contact the site administrator'
+        resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
     )
 
 
@@ -321,7 +321,7 @@ def test_get_signed_documents_no_csrf(client, monkeypatch):
     resp_data = _get_signed_documents(client, monkeypatch, data, csrf_token='rm')
 
     assert resp_data['error']
-    assert resp_data['message'] == 'csrf_token: Required'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
 
 
 def test_get_signed_documents_wrong_csrf(client, monkeypatch):
@@ -329,4 +329,4 @@ def test_get_signed_documents_wrong_csrf(client, monkeypatch):
     resp_data = _get_signed_documents(client, monkeypatch, data, csrf_token='wrong csrf token')
 
     assert resp_data['error']
-    assert resp_data['message'] == 'csrf_token: There was an error. Please try again, or contact the site administrator'
+    assert resp_data['message'] == 'There were problems with the data you sent, please try again or contact your IT support'
