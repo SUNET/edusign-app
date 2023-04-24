@@ -38,7 +38,6 @@ import pytest
 from edusign_webapp import run
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -54,20 +53,21 @@ def test_add(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     assert result[b'name'].decode('utf8') == 'test1.pdf'
     assert int(result[b'size']) == 1500000
     assert result[b'type'].decode('utf8') == 'application/pdf'
-    assert int(result[b'owner']) > 0
+    assert result[b'owner_name'].decode('utf8') == 'owner'
+    assert result[b'owner_email'].decode('utf8') == 'owner@example.org'
+    assert result[b'owner_lang'].decode('utf8') == 'en'
+    assert result[b'owner_eppn'].decode('utf8') == 'owner-eppn@example.org'
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_get_no_pending(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
 
     with run.app.app_context():
-        pending = test_md.get_pending('invite0@example.org')
+        pending = test_md.get_pending(['invite0@example.org'])
 
     assert pending == []
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -77,23 +77,22 @@ def test_add_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sample
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
 
-        pending1 = test_md.get_pending('invite0@example.org')
-        pending2 = test_md.get_pending('invite1@example.org')
+        pending1 = test_md.get_pending(['invite0@example.org'])
+        pending2 = test_md.get_pending(['invite1@example.org'])
 
     assert len(pending1) == 1
     assert pending1[0]['name'] == 'test1.pdf'
     assert pending1[0]['size'] == 1500000
     assert pending1[0]['type'] == 'application/pdf'
-    assert pending1[0]['owner']['email'] == 'owner@example.org'
+    assert pending1[0]['owner_email'] == 'owner@example.org'
 
     assert len(pending2) == 1
     assert pending2[0]['name'] == 'test1.pdf'
     assert pending2[0]['size'] == 1500000
     assert pending2[0]['type'] == 'application/pdf'
-    assert pending2[0]['owner']['email'] == 'owner@example.org'
+    assert pending2[0]['owner_email'] == 'owner@example.org'
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_and_get_pending_not(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -103,12 +102,11 @@ def test_add_and_get_pending_not(redis_md, sample_metadata_1, sample_owner_1, sa
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
 
-        pending = test_md.get_pending('invite3@example.org')
+        pending = test_md.get_pending(['invite3@example.org'])
 
     assert pending == []
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_two_and_get_pending(
     redis_md, sample_metadata_1, sample_metadata_2, sample_owner_1, sample_owner_2, sample_invites_1, sample_invites_2
 ):
@@ -122,7 +120,7 @@ def test_add_two_and_get_pending(
         test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
         test_md.add(dummy_key_2, sample_metadata_2, sample_owner_2, sample_invites_2, sendsigned, loa)
 
-        pending = test_md.get_pending('invite0@example.org')
+        pending = test_md.get_pending(['invite0@example.org'])
 
     assert len(pending) == 2
 
@@ -130,10 +128,9 @@ def test_add_two_and_get_pending(
         assert p['name'] in ['test1.pdf', 'test2.pdf']
         assert p['size'] == 1500000
         assert p['type'] == 'application/pdf'
-        assert p['owner']['email'] in ['owner@example.org', 'owner2@example.org']
+        assert p['owner_email'] in ['owner@example.org', 'owner2@example.org']
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_and_get_pending_invites(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key_1 = uuid.uuid4()
@@ -153,7 +150,6 @@ def test_add_and_get_pending_invites(redis_md, sample_metadata_1, sample_owner_1
         assert not p['signed']
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_update_and_get_pending_invites(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key_1 = uuid.uuid4()
@@ -163,7 +159,7 @@ def test_add_update_and_get_pending_invites(redis_md, sample_metadata_1, sample_
     with run.app.app_context():
         test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
 
-        test_md.update(dummy_key_1, sample_invites_1[0]['email'])
+        test_md.update(dummy_key_1, [sample_invites_1[0]['email']])
         pending = test_md.get_invited(dummy_key_1)
 
     assert len(pending) == 2
@@ -175,7 +171,6 @@ def test_add_update_and_get_pending_invites(redis_md, sample_metadata_1, sample_
     assert pending[0]['signed'] is not pending[1]['signed']
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_update_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -185,10 +180,10 @@ def test_update_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sam
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
 
-        test_md.update(dummy_key, sample_invites_1[0]['email'])
+        test_md.update(dummy_key, [sample_invites_1[0]['email']])
 
-        pending1 = test_md.get_pending('invite0@example.org')
-        pending2 = test_md.get_pending('invite1@example.org')
+        pending1 = test_md.get_pending(['invite0@example.org'])
+        pending2 = test_md.get_pending(['invite1@example.org'])
 
     assert len(pending1) == 0
 
@@ -196,10 +191,9 @@ def test_update_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sam
     assert pending2[0]['name'] == 'test1.pdf'
     assert pending2[0]['size'] == 1500000
     assert pending2[0]['type'] == 'application/pdf'
-    assert pending2[0]['owner']['email'] == 'owner@example.org'
+    assert pending2[0]['owner_email'] == 'owner@example.org'
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_updated_timestamp(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -218,15 +212,14 @@ def test_updated_timestamp(redis_md, sample_metadata_1, sample_owner_1, sample_i
     assert datetime.fromtimestamp(float(result[b'created'])) == datetime.fromtimestamp(float(result[b'updated']))
 
     with run.app.app_context():
-        test_md.update(dummy_key, 'invite1@example.org')
+        test_md.update(dummy_key, ['invite1@example.org'])
 
     result = get_doc()
 
     assert datetime.fromtimestamp(float(result[b'created'])) < datetime.fromtimestamp(float(result[b'updated']))
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
-def test_add_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+def test_add_and_get_owned_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
     sendsigned = True
@@ -235,7 +228,7 @@ def test_add_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_i
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
 
-        owned = test_md.get_owned('owner@example.org')
+        owned = test_md.get_owned_by_email('owner@example.org')
 
     assert len(owned) == 1
     assert owned[0]['key'] == dummy_key
@@ -246,7 +239,43 @@ def test_add_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_i
         assert p['email'] in ['invite0@example.org', 'invite1@example.org']
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
+def test_add_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+
+        owned = test_md.get_owned('owner-eppn@example.org')
+
+    assert len(owned) == 1
+    assert owned[0]['key'] == dummy_key
+    assert owned[0]['name'] == 'test1.pdf'
+    assert owned[0]['size'] == 1500000
+    assert owned[0]['type'] == 'application/pdf'
+    for p in owned[0]['pending']:
+        assert p['email'] in ['invite0@example.org', 'invite1@example.org']
+
+
+def test_add_and_remove_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        test_md.update(dummy_key, [sample_invites_1[0]['email']])
+        test_md.update(dummy_key, [sample_invites_1[1]['email']])
+        test_md.remove(dummy_key)
+
+        owned = test_md.get_owned_by_email('owner@example.org')
+
+    assert len(owned) == 0
+
+
 def test_add_and_remove(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -255,16 +284,32 @@ def test_add_and_remove(redis_md, sample_metadata_1, sample_owner_1, sample_invi
 
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        test_md.update(dummy_key, sample_invites_1[0]['email'])
-        test_md.update(dummy_key, sample_invites_1[1]['email'])
+        test_md.update(dummy_key, [sample_invites_1[0]['email']])
+        test_md.update(dummy_key, [sample_invites_1[1]['email']])
         test_md.remove(dummy_key)
 
-        owned = test_md.get_owned('owner@example.org')
+        owned = test_md.get_owned('owner-eppn@example.org')
 
     assert len(owned) == 0
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
+def test_add_and_remove_wrong_key_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        test_md.update(dummy_key, [sample_invites_1[0]['email']])
+        test_md.update(dummy_key, [sample_invites_1[1]['email']])
+        test_md.remove(uuid.uuid4())
+
+        owned = test_md.get_owned_by_email('owner@example.org')
+
+    assert len(owned) == 1
+
+
 def test_add_and_remove_wrong_key(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -273,16 +318,30 @@ def test_add_and_remove_wrong_key(redis_md, sample_metadata_1, sample_owner_1, s
 
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        test_md.update(dummy_key, sample_invites_1[0]['email'])
-        test_md.update(dummy_key, sample_invites_1[1]['email'])
+        test_md.update(dummy_key, [sample_invites_1[0]['email']])
+        test_md.update(dummy_key, [sample_invites_1[1]['email']])
         test_md.remove(uuid.uuid4())
 
-        owned = test_md.get_owned('owner@example.org')
+        owned = test_md.get_owned('owner-eppn@example.org')
 
     assert len(owned) == 1
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
+def test_add_and_remove_not_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        test_md.remove(dummy_key)
+
+        owned = test_md.get_owned_by_email('owner@example.org')
+
+    assert len(owned) == 1
+
+
 def test_add_and_remove_not(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -293,12 +352,26 @@ def test_add_and_remove_not(redis_md, sample_metadata_1, sample_owner_1, sample_
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
         test_md.remove(dummy_key)
 
-        owned = test_md.get_owned('owner@example.org')
+        owned = test_md.get_owned('owner-eppn@example.org')
 
     assert len(owned) == 1
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
+def test_add_and_remove_force_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = redis_md
+    dummy_key = uuid.uuid4()
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        test_md.remove(dummy_key, force=True)
+
+        owned = test_md.get_owned_by_email('owner@example.org')
+
+    assert len(owned) == 0
+
+
 def test_add_and_remove_force(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -309,12 +382,11 @@ def test_add_and_remove_force(redis_md, sample_metadata_1, sample_owner_1, sampl
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
         test_md.remove(dummy_key, force=True)
 
-        owned = test_md.get_owned('owner@example.org')
+        owned = test_md.get_owned('owner-eppn@example.org')
 
     assert len(owned) == 0
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_and_get_invitation(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -330,7 +402,6 @@ def test_add_and_get_invitation(redis_md, sample_metadata_1, sample_owner_1, sam
     assert invitation['document']['key'] == dummy_key
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_and_get_invitation_wrong_key(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -345,7 +416,6 @@ def test_add_and_get_invitation_wrong_key(redis_md, sample_metadata_1, sample_ow
     assert invitation == {}
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_get_no_document(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -360,7 +430,6 @@ def test_get_no_document(redis_md, sample_metadata_1, sample_owner_1, sample_inv
     assert doc == {}
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_and_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -379,7 +448,6 @@ def test_add_and_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invite
     assert locked
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_and_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -398,7 +466,6 @@ def test_add_and_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1, s
     assert not locked
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_and_rm_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -417,7 +484,6 @@ def test_add_and_rm_lock(redis_md, sample_metadata_1, sample_owner_1, sample_inv
     assert removed
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_and_rm_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -436,7 +502,6 @@ def test_add_and_rm_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1
     assert not removed
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_and_lock_before(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -454,7 +519,6 @@ def test_add_and_lock_before(redis_md, sample_metadata_1, sample_owner_1, sample
         assert not locked
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_and_lock_timeout(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -479,7 +543,6 @@ def test_add_and_lock_timeout(redis_md, sample_metadata_1, sample_owner_1, sampl
     assert not locked
 
 
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
 def test_add_and_get_user(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = redis_md
     dummy_key = uuid.uuid4()
@@ -489,22 +552,6 @@ def test_add_and_get_user(redis_md, sample_metadata_1, sample_owner_1, sample_in
     with run.app.app_context():
         invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
 
-        user_id = int(invites[0]['id'])
-        user = test_md.get_user(user_id)
+        invite = invites[0]
 
-    assert user['email'] == sample_invites_1[0]['email']
-
-
-@pytest.mark.skip(reason="Please update redis code and enable these tests")
-def test_add_and_get_no_user(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
-    dummy_key = uuid.uuid4()
-    sendsigned = True
-    loa = ''
-
-    with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-
-        user = test_md.get_user(1000000)
-
-    assert user == {}
+    assert invite['email'] == sample_invites_1[0]['email']

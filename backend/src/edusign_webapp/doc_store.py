@@ -149,6 +149,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + size: Size of the doc
                  + owner_email: Email of owner
                  + owner_name: Display name of owner
+                 + owner_lang: Language of owner
                  + owner_eppn: eppn of owner
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
@@ -166,6 +167,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :param invite: invitation data, with keys:
                  + user_name: The name of the user
                  + user_email: The email of the user
+                 + user_lang: The language of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
@@ -504,6 +506,7 @@ class DocStore(object):
                  + size: Size of the doc
                  + owner_email: Email of owner
                  + owner_name: Display name of owner
+                 + owner_lang: Language of owner
                  + owner_eppn: eppn of owner
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
@@ -640,6 +643,7 @@ class DocStore(object):
         :param invite: invitation data, with keys:
                  + user_name: The name of the user
                  + user_email: The email of the user
+                 + user_lang: The language of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
@@ -797,6 +801,7 @@ class DocStore(object):
                  + size: Size of the doc
                  + owner_email: Email of inviter user
                  + owner_name: Name of inviter user
+                 + owner_lang: Language of inviter user
                  + owner_eppn: Eppn of inviter user
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
@@ -887,6 +892,7 @@ class DocStore(object):
         :return: A list of dictionaries with information about the users, each of them with keys:
                  + name: The name of the user
                  + email: The email of the user
+                 + lang: The language of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
