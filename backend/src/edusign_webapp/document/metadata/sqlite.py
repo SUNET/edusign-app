@@ -83,14 +83,14 @@ PRAGMA user_version = 6;
 
 
 DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = (
     "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
 )
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa, updated, created FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, updated, created FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 DOCUMENT_QUERY_FROM_OWNER = (
     "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_eppn = ?;"
@@ -106,7 +106,7 @@ DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE do
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang) VALUES (?, ?, ?, ?, ?)"
 INVITE_INSERT_RAW = (
-    "INSERT INTO Invites (key, doc_id, user_email, user_name, signed, declined) VALUES (?, ?, ?, ?, ?, ?)"
+    "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, signed, declined) VALUES (?, ?, ?, ?, ?, ?)"
 )
 INVITE_QUERY_FROM_EMAIL = "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0;"
 INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, user_lang, signed, declined, key FROM Invites WHERE doc_id = ?;"
@@ -407,6 +407,7 @@ class SqliteMD(ABCMetadata):
                  + size: Size of the doc
                  + owner_email: Email of owner
                  + owner_name: Display name of owner
+                 + owner_lang: Language of owner
                  + owner_eppn: eppn of owner
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
@@ -427,6 +428,7 @@ class SqliteMD(ABCMetadata):
                 document['updated'],
                 document['owner_email'],
                 document['owner_name'],
+                document['owner_lang'],
                 document['owner_eppn'],
                 document['prev_signatures'],
                 document['sendsigned'],
@@ -441,6 +443,7 @@ class SqliteMD(ABCMetadata):
         :param invite: invitation data, with keys:
                  + user_name: The name of the user
                  + user_email: The email of the user
+                 + user_lang: The language of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
@@ -454,6 +457,7 @@ class SqliteMD(ABCMetadata):
                 invite['doc_id'],
                 invite['user_email'],
                 invite['user_name'],
+                invite['user_lang'],
                 invite['signed'],
                 invite['declined'],
             ),
@@ -692,6 +696,7 @@ class SqliteMD(ABCMetadata):
         :return: A list of dictionaries with information about the users, each of them with keys:
                  + name: The name of the user
                  + email: The email of the user
+                 + lang: The lang of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
@@ -712,7 +717,7 @@ class SqliteMD(ABCMetadata):
             return invitees
 
         for invite in invites:
-            email_result = {'email': invite['user_email'], 'name': invite['user_name']}
+            email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'lang': invite['user_lang']}
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
@@ -862,6 +867,7 @@ class SqliteMD(ABCMetadata):
                  + size: Size of the doc
                  + owner_email: Email of inviter user
                  + owner_name: Name of inviter user
+                 + owner_lang: Language of inviter user
                  + owner_eppn: Eppn of inviter user
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
