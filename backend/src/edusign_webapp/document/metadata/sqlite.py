@@ -106,7 +106,7 @@ DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE do
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang) VALUES (?, ?, ?, ?, ?)"
 INVITE_INSERT_RAW = (
-    "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, signed, declined) VALUES (?, ?, ?, ?, ?, ?)"
+    "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, signed, declined) VALUES (?, ?, ?, ?, ?, ?, ?)"
 )
 INVITE_QUERY_FROM_EMAIL = "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0;"
 INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, user_lang, signed, declined, key FROM Invites WHERE doc_id = ?;"
@@ -441,9 +441,9 @@ class SqliteMD(ABCMetadata):
         Add invitation.
 
         :param invite: invitation data, with keys:
-                 + user_name: The name of the user
-                 + user_email: The email of the user
-                 + user_lang: The language of the user
+                 + name: The name of the user
+                 + email: The email of the user
+                 + lang: The language of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
@@ -455,9 +455,9 @@ class SqliteMD(ABCMetadata):
             (
                 str(invite['key']),
                 invite['doc_id'],
-                invite['user_email'],
-                invite['user_name'],
-                invite['user_lang'],
+                invite['email'],
+                invite['name'],
+                invite['lang'],
                 invite['signed'],
                 invite['declined'],
             ),
