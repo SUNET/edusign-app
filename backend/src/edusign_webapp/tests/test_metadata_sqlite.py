@@ -93,6 +93,270 @@ def test_add_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sampl
     assert pending2[0]['owner']['email'] == 'owner@example.org'
 
 
+def test_add_document_and_get_owned(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    _, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+
+        owned = test_md.get_owned_by_email('owner@example.org')
+
+    assert len(owned) == 1
+    assert len(owned[0]['pending']) == 2
+    assert owned[0]['name'] == 'test1.pdf'
+    assert owned[0]['size'] == 1500000
+    assert owned[0]['type'] == 'application/pdf'
+
+    assert owned[0]['pending'][0]['email'] in ('invite1@example.org', 'invite0@example.org')
+    assert owned[0]['pending'][0]['name'] in ('invite1', 'invite0')
+    assert owned[0]['pending'][0]['lang'] == 'en'
+
+    assert owned[0]['pending'][1]['email'] in ('invite1@example.org', 'invite0@example.org')
+    assert owned[0]['pending'][1]['name'] in ('invite1', 'invite0')
+    assert owned[0]['pending'][1]['lang'] == 'en'
+
+
+def test_add_document_and_decline_and_get_owned(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    _, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+
+        test_md.decline(dummy_key, ['invite0@example.org'])
+
+        owned = test_md.get_owned_by_email('owner@example.org')
+
+    assert len(owned) == 1
+    assert len(owned[0]['pending']) == 1
+    assert len(owned[0]['declined']) == 1
+    assert owned[0]['name'] == 'test1.pdf'
+    assert owned[0]['size'] == 1500000
+    assert owned[0]['type'] == 'application/pdf'
+
+    assert owned[0]['pending'][0]['email'] == 'invite1@example.org'
+    assert owned[0]['pending'][0]['name'] == 'invite1'
+    assert owned[0]['pending'][0]['lang'] == 'en'
+
+    assert owned[0]['declined'][0]['email'] == 'invite0@example.org'
+    assert owned[0]['declined'][0]['name'] == 'invite0'
+    assert owned[0]['declined'][0]['lang'] == 'en'
+
+
+def test_add_document_and_sign_and_get_owned(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    _, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+
+        test_md.update(dummy_key, ['invite0@example.org'])
+
+        owned = test_md.get_owned_by_email('owner@example.org')
+
+    assert len(owned) == 1
+    assert len(owned[0]['pending']) == 1
+    assert len(owned[0]['declined']) == 0
+    assert len(owned[0]['signed']) == 1
+    assert owned[0]['name'] == 'test1.pdf'
+    assert owned[0]['size'] == 1500000
+    assert owned[0]['type'] == 'application/pdf'
+
+    assert owned[0]['pending'][0]['email'] == 'invite1@example.org'
+    assert owned[0]['pending'][0]['name'] == 'invite1'
+    assert owned[0]['pending'][0]['lang'] == 'en'
+
+    assert owned[0]['signed'][0]['email'] == 'invite0@example.org'
+    assert owned[0]['signed'][0]['name'] == 'invite0'
+    assert owned[0]['signed'][0]['lang'] == 'en'
+
+
+def test_add_document_and_sign_and_get_full_invites(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    _, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [sample_invites_1[0]], sendsigned, loa)
+
+        test_md.update(dummy_key, ['invite0@example.org'])
+
+        invites = test_md.get_full_invites(dummy_key)
+
+    assert len(invites) == 1
+
+    assert invites[0]['email'] == 'invite0@example.org'
+    assert invites[0]['name'] == 'invite0'
+    assert invites[0]['lang'] == 'en'
+    assert not invites[0]['declined']
+    assert invites[0]['signed']
+
+
+def test_add_document_and_decline_and_get_full_invites(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    _, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [sample_invites_1[0]], sendsigned, loa)
+
+        test_md.decline(dummy_key, ['invite0@example.org'])
+
+        invites = test_md.get_full_invites(dummy_key)
+
+    assert len(invites) == 1
+
+    assert invites[0]['email'] == 'invite0@example.org'
+    assert invites[0]['name'] == 'invite0'
+    assert invites[0]['lang'] == 'en'
+    assert invites[0]['declined']
+    assert not invites[0]['signed']
+
+
+def test_add_document_and_invitation_and_get_full_invites(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    _, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    dummy_invitation_key = str(uuid.uuid4())
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [], sendsigned, loa)
+
+        test_md.add_invitation(dummy_key, sample_invites_1[0]['name'], sample_invites_1[0]['email'], sample_invites_1[0]['lang'], dummy_invitation_key)
+
+        invites = test_md.get_full_invites(dummy_key)
+
+    assert len(invites) == 1
+
+    assert invites[0]['email'] == 'invite0@example.org'
+    assert invites[0]['name'] == 'invite0'
+    assert invites[0]['lang'] == 'en'
+    assert not invites[0]['declined']
+    assert not invites[0]['signed']
+
+
+def test_add_document_and_invitation_and_remove_and_get_full_invites(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    _, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    dummy_invitation_key = str(uuid.uuid4())
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [], sendsigned, loa)
+
+        test_md.add_invitation(dummy_key, sample_invites_1[0]['name'], sample_invites_1[0]['email'], sample_invites_1[0]['lang'], dummy_invitation_key)
+
+        test_md.rm_invitation(dummy_invitation_key, dummy_key)
+
+        invites = test_md.get_full_invites(dummy_key)
+
+    assert len(invites) == 0
+
+
+def test_add_document_and_invitation_raw_and_get_full_invites(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    _, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    dummy_invitation_key = uuid.uuid4()
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [], sendsigned, loa)
+
+        document_id = test_md.get_document(dummy_key)['doc_id']
+        invite = {
+            'name': sample_invites_1[0]['name'],
+            'email': sample_invites_1[0]['email'],
+            'lang': sample_invites_1[0]['lang'],
+            'signed': False,
+            'declined': False,
+            'key': str(dummy_invitation_key),
+            'doc_id': document_id,
+        }
+
+        test_md.add_invite_raw(invite)
+
+        invites = test_md.get_full_invites(dummy_key)
+
+    assert len(invites) == 1
+
+    assert invites[0]['email'] == 'invite0@example.org'
+    assert invites[0]['name'] == 'invite0'
+    assert invites[0]['lang'] == 'en'
+    assert not invites[0]['declined']
+    assert not invites[0]['signed']
+
+
+def test_add_document_and_2_invitation_raw_and_get_full_invites(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    _, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+    dummy_invitation_key = uuid.uuid4()
+    sendsigned = True
+    loa = ''
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [], sendsigned, loa)
+
+        document_id = test_md.get_document(dummy_key)['doc_id']
+        invite = {
+            'name': sample_invites_1[0]['name'],
+            'email': sample_invites_1[0]['email'],
+            'lang': sample_invites_1[0]['lang'],
+            'signed': True,
+            'declined': False,
+            'key': str(dummy_invitation_key),
+            'doc_id': document_id,
+        }
+
+        test_md.add_invite_raw(invite)
+
+        invite2 = {
+            'name': sample_invites_1[1]['name'],
+            'email': sample_invites_1[1]['email'],
+            'lang': sample_invites_1[1]['lang'],
+            'signed': False,
+            'declined': True,
+            'key': str(dummy_invitation_key),
+            'doc_id': document_id,
+        }
+
+        test_md.add_invite_raw(invite2)
+
+        invites = test_md.get_full_invites(dummy_key)
+
+    assert len(invites) == 2
+
+    if invites[0]['name'] == 'invite0':
+        invite0 = invites[0]
+        invite1 = invites[1]
+    else:
+        invite1 = invites[0]
+        invite0 = invites[1]
+
+    assert invite0['email'] == 'invite0@example.org'
+    assert invite0['name'] == 'invite0'
+    assert invite0['lang'] == 'en'
+    assert not invite0['declined']
+    assert invite0['signed']
+
+    assert invite1['email'] == 'invite1@example.org'
+    assert invite1['name'] == 'invite1'
+    assert invite1['lang'] == 'en'
+    assert invite1['declined']
+    assert not invite1['signed']
+
+
 def test_add_and_get_pending_not(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
