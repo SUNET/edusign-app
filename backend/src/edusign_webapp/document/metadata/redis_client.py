@@ -36,6 +36,7 @@ from typing import Any, Dict, List
 
 from flask import Flask, current_app
 from flask_redis import FlaskRedis
+from redis.exceptions import ResponseError
 
 from edusign_webapp.doc_store import ABCMetadata
 
@@ -240,8 +241,11 @@ class RedisStorageBackend:
         delta = timedelta(days=days)
         then = now - delta
         ts = then.timestamp()
-        keys = self.redis.zrange("doc:created", 0, ts)
-        return [uuid.UUID(b_doc[b'key'].decode('utf8')) for b_doc in keys]
+        try:
+            keys = self.redis.zrange("doc:created", 0, ts)
+            return [uuid.UUID(b_doc[b'key'].decode('utf8')) for b_doc in keys]
+        except ResponseError:
+            return []
 
     def query_documents_from_owner(self, eppn):
         docs = []
@@ -853,7 +857,7 @@ class RedisMD(ABCMetadata):
         for invite in invites:
             email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'lang': invite['user_lang']}
             email_result['signed'] = bool(invite['signed'])
-            email_result['declined'] = bool(invite['signed'])
+            email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
             email_result['doc_id'] = document_id
             invitees.append(email_result)
