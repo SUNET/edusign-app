@@ -101,6 +101,10 @@ const validateSendsigned = (value) => {
   return undefined;
 };
 
+const validateSkipfinal = (value) => {
+  return undefined;
+};
+
 export const validateNewname = (props) => {
   return (value) => {
     let error;
@@ -180,6 +184,7 @@ const validate = (props) => {
 const initialValues = (props) => ({
   invitationText: "",
   sendsignedChoice: true,
+  skipfinalChoice: false,
   makecopyChoice: false,
   isTemplate: props.isTemplate,
   newnameInput: nameForCopy(props),
@@ -412,6 +417,40 @@ class InviteForm extends React.Component {
   }
 
   render() {
+    const skipFinalControl = (
+      <div className="skipfinal-choice-holder">
+        <BForm.Group className="skipfinal-choice-group form-group">
+          <ESTooltip
+            helpId="skipfinal-choice-input"
+            inModal={true}
+            tooltip={
+              <FormattedMessage
+                defaultMessage="Skip signature by the user who is inviting."
+                key="skipfinal-choice-help"
+              />
+            }
+          >
+            <BForm.Label
+              className="skipfinal-choice-label"
+              htmlFor="skipfinal-choice-input"
+            >
+              <FormattedMessage
+                defaultMessage="Skip final signature"
+                key="skipfinal-choice-field"
+              />
+            </BForm.Label>
+          </ESTooltip>
+          <Field
+            name="skipfinalChoice"
+            id="skipfinal-choice-input"
+            data-testid="skipfinal-choice-input"
+            className="skipfinal-choice"
+            validate={validateSkipfinal}
+            type="checkbox"
+          />
+        </BForm.Group>
+      </div>
+    );
     const sendsignedControl = (
       <div className="sendsigned-choice-holder">
         <BForm.Group className="sendsigned-choice-group form-group">
@@ -589,6 +628,7 @@ class InviteForm extends React.Component {
                     </BForm.Group>
                   </div>
                   {sendsignedControl}
+                  {skipfinalControl}
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
                   {loaControlHidden}

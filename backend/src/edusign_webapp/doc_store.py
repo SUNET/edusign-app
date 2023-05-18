@@ -117,6 +117,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         invites: List[Dict[str, Any]],
         sendsigned: bool,
         loa: str,
+        skipfinal: bool,
     ) -> List[Dict[str, str]]:
         """
         Store metadata for a new document.
@@ -131,6 +132,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :param invites: List of the names and emails and languages of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
+        :param skipfinal: Whether to request signature from the user who is inviting.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
 
@@ -469,7 +471,7 @@ class DocStore(object):
         return store
 
     def add_document(
-        self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, Any]], sendsigned: bool, loa: str
+        self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, Any]], sendsigned: bool, loa: str, skipfinal: bool
     ) -> List[Dict[str, str]]:
         """
         Store document, to be signed by all users referenced in `invites`.
@@ -485,11 +487,12 @@ class DocStore(object):
         :param invites: List of names and email addresses and languages of the users that should sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
+        :param skipfinal: Whether to request signature from the user who is inviting.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
         key = uuid.UUID(document['key'])
         self.storage.add(key, document['blob'])
-        return self.metadata.add(key, document, owner, invites, sendsigned, loa)
+        return self.metadata.add(key, document, owner, invites, sendsigned, loa, skipfinal)
 
     def add_document_raw(
         self,
