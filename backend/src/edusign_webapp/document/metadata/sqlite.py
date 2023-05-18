@@ -57,6 +57,7 @@ CREATE TABLE [Documents]
        [prev_signatures] TEXT,
        [sendsigned] INTEGER DEFAULT 1,
        [loa] VARCHAR(255) DEFAULT "none",
+       [skipfinal] INTEGER DEFAULT 1,
        [locked] TIMESTAMP DEFAULT NULL,
        [locking_email] VARCHAR(255) DEFAULT NULL
 );
@@ -82,15 +83,15 @@ PRAGMA user_version = 6;
 """
 
 
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = (
     "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
 )
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, updated, created FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 DOCUMENT_QUERY_FROM_OWNER = (
     "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_eppn = ?;"
@@ -99,6 +100,7 @@ DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = (
     "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_email = ?;"
 )
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_SKIPFINAL = "SELECT skipfinal FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOA = "SELECT loa FROM Documents WHERE key = ?;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locking_email = '' WHERE doc_id = ?;"
@@ -335,6 +337,7 @@ class SqliteMD(ABCMetadata):
         invites: List[Dict[str, Any]],
         sendsigned: bool,
         loa: str,
+        skipfinal: bool,
     ):
         """
         Store metadata for a new document.
@@ -349,6 +352,7 @@ class SqliteMD(ABCMetadata):
         :param invites: List of the names and emails and languages of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
+        :param skipfinal: Whether to request signature from the user who is inviting.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
         prev_sigs = document.get("prev_signatures", "")
@@ -367,6 +371,7 @@ class SqliteMD(ABCMetadata):
                 prev_sigs,
                 sendsigned,
                 loa,
+                skipfinal,
             ),
         )
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
@@ -411,6 +416,7 @@ class SqliteMD(ABCMetadata):
                  + owner_eppn: eppn of owner
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
+                 + skipfinal: whether to send the signed document by mail
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
@@ -433,6 +439,7 @@ class SqliteMD(ABCMetadata):
                 document['prev_signatures'],
                 document['sendsigned'],
                 document['loa'],
+                document['skipfinal'],
             ),
         )
 
