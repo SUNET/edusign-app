@@ -18,7 +18,7 @@ import { setOwnedDocs, setInvitedDocs } from "slices/Main";
  */
 export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
   try {
-    const response = await fetch("/sign/poll", getRequest);
+    const response = await fetch(`${document.location.pathname}poll`, getRequest);
     const state = thunkAPI.getState();
     if (state.main.disablePoll) {
       return thunkAPI.rejectWithValue("Polling disabled");

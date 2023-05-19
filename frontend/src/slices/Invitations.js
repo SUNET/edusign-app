@@ -124,7 +124,7 @@ export const sendInvites = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await fetch("/sign/create-multi-sign", {
+      const response = await fetch(`${document.location.pathname}create-multi-sign`, {
         ...postRequest,
         body: body,
       });
@@ -136,7 +136,7 @@ export const sendInvites = createAsyncThunk(
           key: document.key,
         };
         const body_rm = preparePayload(state, dataToSend_rm);
-        const response = await fetch("/sign/remove-multi-sign", {
+        const response = await fetch(`${document.location.pathname}remove-multi-sign`, {
           ...postRequest,
           body: body_rm,
         });
@@ -232,7 +232,7 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
   let contentData;
   let data;
   try {
-    const response1 = await fetch("/sign/get-partially-signed", {
+    const response1 = await fetch(`${document.location.pathname}get-partially-signed`, {
       ...postRequest,
       body: body,
     });
@@ -243,7 +243,7 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
     }
     state = thunkAPI.getState();
     body = preparePayload(state, owned);
-    const response2 = await fetch("/sign/remove-multi-sign", {
+    const response2 = await fetch(`${document.location.pathname}remove-multi-sign`, {
       ...postRequest,
       body: body,
     });
@@ -317,7 +317,7 @@ const editInvitesPending = async (values, thunkAPI, intl) => {
   const body = preparePayload(state, dataToSend);
   let data = null;
   try {
-    const response = await fetch("/sign/edit-multi-sign", {
+    const response = await fetch(`${document.location.pathname}edit-multi-sign`, {
       ...postRequest,
       body: body,
     });
@@ -380,7 +380,7 @@ export const removeInvites = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await fetch("/sign/remove-multi-sign", {
+      const response = await fetch(`${document.location.pathname}remove-multi-sign`, {
         ...postRequest,
         body: body,
       });
@@ -448,7 +448,7 @@ export const resendInvitations = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await fetch("/sign/send-multisign-reminder", {
+      const response = await fetch(`${document.location.pathname}send-multisign-reminder`, {
         ...postRequest,
         body: body,
       });
