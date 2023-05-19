@@ -39,6 +39,13 @@ services:
       - "SP_HOSTNAME=sp.edusign.docker"
       - "DEBUG=True"
       - "ENVIRONMENT=development"
+      - "SESSION_COOKIE_SECURE=False"
+      - "PREFERRED_URL_SCHEME=http"
+      - "EDUSIGN_API_PROFILE=edusign-test2"
+      - "MAIL_SUPPRESS_SEND=True"
+      - "MAIL_BACKEND=dummy"
+    env_file:
+      - .env
     depends_on:
       - redis
 
