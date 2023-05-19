@@ -55,14 +55,14 @@ front-init:
 .PHONY: front-build-dev
 front-build-dev:
 	@cd $(FRONT_DIR); \
-		cp node_modules/pdfjs-dist/build/pdf.worker.js* build/ ; \
+		cp node_modules/pdfjs-dist/build/pdf.worker* build/ ; \
     npm start
 
 ## Build the production front app bundle
 .PHONY: front-build-pro
 front-build-pro:
 	@cd $(FRONT_DIR); \
-		cp node_modules/pdfjs-dist/build/pdf.worker.js* build/ ; \
+		cp node_modules/pdfjs-dist/build/pdf.worker* build/ ; \
     npm run build-pro
 
 ## Clean the production front app build stuff
