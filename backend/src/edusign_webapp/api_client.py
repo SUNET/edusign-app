@@ -68,7 +68,7 @@ from pprint import pformat
 from urllib.parse import urljoin
 
 import requests
-from flask import current_app, session, url_for
+from flask import current_app, session, url_for, request
 from requests.auth import HTTPBasicAuth
 
 from edusign_webapp.utils import get_authn_context
@@ -302,12 +302,15 @@ class APIClient(object):
                  and list of mappings linking the documents' names with the generated ids.
         """
         idp = session['idp']
-
         authn_context = get_authn_context(documents)
-
         correlation_id = str(uuid.uuid4())
-        return_url = url_for('edusign.sign_service_callback', _external=True, _scheme='https')
         attrs = [{'name': attr, 'value': session[name]} for attr, name in self.config['SIGNER_ATTRIBUTES'].items()]
+
+        scheme = self.config['PREFERRED_URL_SCHEME']
+        return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
+        current_app.logger.debug(f"THE SCHEME IS {scheme} AND THE PATH {request.path}")
+        if request.path.startswith('/sign2'):
+            return_url = url_for('edusign2.sign_service_callback', _external=True, _scheme=scheme)
 
         request_data = {
             "correlationId": correlation_id,

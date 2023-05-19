@@ -56,13 +56,17 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='supersecret')
 
 SESSION_COOKIE_DOMAIN = os.environ.get('SP_HOSTNAME', default='edusign.sunet.se')
 SESSION_COOKIE_PATH = os.environ.get('SESSION_COOKIE_PATH', default='/sign')
-SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', default=True)
+SESSION_COOKIE_SECURE_RAW = os.environ.get('SESSION_COOKIE_SECURE', default=True)
 SESSION_COOKIE_NAME = os.environ.get('SESSION_COOKIE_NAME', default='session')
 SESSION_COOKIE_SAMESITE = 'None'
 
+SESSION_COOKIE_SECURE = True
+if SESSION_COOKIE_SECURE_RAW in (False, 'False', 'false', 'F', 'f'):
+    SESSION_COOKIE_SECURE = False
+
 SERVER_NAME = os.environ.get('SP_HOSTNAME', default='edusign.sunet.se')
 
-PREFERRED_URL_SCHEME = 'https'
+PREFERRED_URL_SCHEME = os.environ.get('PREFERRED_URL_SCHEME', default='https')
 
 HASH_METHOD = 'sha256'
 SALT_LENGTH = 8
@@ -78,7 +82,7 @@ EDUSIGN_API_PROFILE = os.environ.get('EDUSIGN_API_PROFILE', default='edusign-tes
 EDUSIGN_API_USERNAME = os.environ.get('EDUSIGN_API_USERNAME', default='dummy')
 EDUSIGN_API_PASSWORD = os.environ.get('EDUSIGN_API_PASSWORD', default='dummy')
 
-SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.idsec.se/shibboleth")
+SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.idsec.se/edusign-test")
 
 MULTISIGN_BUTTONS = os.environ.get('MULTISIGN_BUTTONS', default="yes")
 

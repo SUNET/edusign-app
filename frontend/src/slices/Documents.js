@@ -596,7 +596,7 @@ export const prepareDocument = createAsyncThunk(
     const body = JSON.stringify({ payload: docToSend });
     let data = null;
     try {
-      const response = await fetch("/sign/add-doc", {
+      const response = await fetch(`${document.location.pathname}add-doc`, {
         ...postRequest,
         body: body,
       });
@@ -759,7 +759,7 @@ export const startSigningDocuments = createAsyncThunk(
     });
     const body = preparePayload(state, { documents: docsToSign });
     try {
-      const response = await fetch("/sign/create-sign-request", {
+      const response = await fetch(`${document.location.pathname}create-sign-request`, {
         ...postRequest,
         body: body,
       });
@@ -886,7 +886,7 @@ export const restartSigningDocuments = createAsyncThunk(
     // send data about documents to be signed to the backend
     const body = preparePayload(state, { documents: docsToSign });
     try {
-      const response = await fetch("/sign/recreate-sign-request", {
+      const response = await fetch(`${document.location.pathname}recreate-sign-request`, {
         ...postRequest,
         body: body,
       });
@@ -1014,7 +1014,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
   let data = null;
   try {
     // Send request to the `get-signed` endpoint to get the signed documents
-    const response = await fetch("/sign/get-signed", {
+    const response = await fetch(`${document.location.pathname}get-signed`, {
       ...postRequest,
       body: body,
     });
@@ -1179,7 +1179,7 @@ export const skipOwnedSignature = createAsyncThunk(
     // `skip-final-signature` endpoint in the backend.
     const body = preparePayload(state, docToSkip);
     try {
-      const response = await fetch("/sign/skip-final-signature", {
+      const response = await fetch(`${document.location.pathname}skip-final-signature`, {
         ...postRequest,
         body: body,
       });

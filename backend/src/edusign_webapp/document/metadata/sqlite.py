@@ -57,7 +57,7 @@ CREATE TABLE [Documents]
        [prev_signatures] TEXT,
        [sendsigned] INTEGER DEFAULT 1,
        [loa] VARCHAR(255) DEFAULT "none",
-       [skipfinal] INTEGER DEFAULT 1,
+       [skipfinal] INTEGER DEFAULT 0,
        [locked] TIMESTAMP DEFAULT NULL,
        [locking_email] VARCHAR(255) DEFAULT NULL
 );
@@ -79,12 +79,12 @@ CREATE INDEX IF NOT EXISTS [OwnerEppnIX] ON [Documents] ([owner_eppn]);
 CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
 CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-PRAGMA user_version = 6;
+PRAGMA user_version = 7;
 """
 
 
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = (
     "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
@@ -94,10 +94,10 @@ DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_l
 DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 DOCUMENT_QUERY_FROM_OWNER = (
-    "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_eppn = ?;"
+    "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal FROM Documents WHERE owner_eppn = ?;"
 )
 DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = (
-    "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_email = ?;"
+    "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal FROM Documents WHERE owner_email = ?;"
 )
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_SKIPFINAL = "SELECT skipfinal FROM Documents WHERE key = ?;"
@@ -224,6 +224,13 @@ def upgrade(db):
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [owner_lang] VARCHAR(2) DEFAULT \"sv\";")
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_lang] VARCHAR(2) DEFAULT \"sv\";")
         cur.execute("PRAGMA user_version = 6;")
+        cur.close()
+        db.commit()
+
+    if version == 6:
+        cur = db.cursor()
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [skipfinal] INTEGER DEFAULT 0;")
+        cur.execute("PRAGMA user_version = 7;")
         cur.close()
         db.commit()
 
@@ -691,6 +698,8 @@ class SqliteMD(ABCMetadata):
                     state = 'incomplete'
                     document['pending'].append(email_result)
 
+            if state == 'loaded' and document['skipfinal'] == 1:
+                state = 'signed'
             document['state'] = state
 
         return documents

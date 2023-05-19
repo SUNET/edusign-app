@@ -41,7 +41,7 @@ const mapDispatchToProps = (dispatch, props) => {
     startMultiSigning: (docRef) => {
       return () => {
         dispatch(setInvitedSigning(docRef));
-        window.document.location.href = "/sign/invitation/" + docRef;
+        window.document.location.href = `${document.location.pathname}invitation/${docRef}`;
       };
     },
     handlePreview: (docKey) => {

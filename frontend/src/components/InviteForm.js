@@ -55,7 +55,7 @@ export const validateEmail = (mail, mail_aliases, allValues, idx) => {
 };
 
 export const validateName = (props, index) => {
-  _validateName = (value) => {
+  const _validateName = (value) => {
     let error;
 
     if (props.max_signatures < index) {
@@ -628,7 +628,7 @@ class InviteForm extends React.Component {
                     </BForm.Group>
                   </div>
                   {sendsignedControl}
-                  {skipfinalControl}
+                  {skipFinalControl}
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
                   {loaControlHidden}

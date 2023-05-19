@@ -82,6 +82,8 @@ anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
 
+edusign_views2 = Blueprint('edusign2', __name__, url_prefix='/sign2', template_folder='templates')
+
 
 @admin_edusign_views.route('/cleanup', methods=['POST'])
 def cleanup():
@@ -273,6 +275,7 @@ def get_help_page():
 
 
 @edusign_views.route('/logout', methods=['GET'])
+@edusign_views2.route('/logout', methods=['GET'])
 def logout() -> Response:
     """
     View to log out of the app.
@@ -289,6 +292,7 @@ def logout() -> Response:
 
 
 @edusign_views.route('/', methods=['GET'])
+@edusign_views2.route('/', methods=['GET'])
 def get_index() -> str:
     """
     View to get the index html that loads the frontside app.
@@ -353,6 +357,7 @@ def get_index() -> str:
 
 
 @edusign_views.route('/config', methods=['GET'])
+@edusign_views2.route('/config', methods=['GET'])
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """
@@ -396,6 +401,7 @@ def get_config() -> dict:
 
 
 @edusign_views.route('/poll', methods=['GET'])
+@edusign_views2.route('/poll', methods=['GET'])
 @Marshal(InvitationsSchema)
 def poll() -> dict:
     """
@@ -414,6 +420,7 @@ def poll() -> dict:
 
 
 @edusign_views.route('/add-doc', methods=['POST'])
+@edusign_views2.route('/add-doc', methods=['POST'])
 @UnMarshalNoCSRF(DocumentSchema)
 @Marshal(ReferenceSchema)
 def add_document(document: dict) -> dict:
@@ -457,6 +464,7 @@ def add_document(document: dict) -> dict:
 
 
 @edusign_views.route('/create-sign-request', methods=['POST'])
+@edusign_views2.route('/create-sign-request', methods=['POST'])
 @UnMarshal(ToSignSchema)
 @Marshal(SignRequestSchema)
 def create_sign_request(documents: dict) -> dict:
@@ -624,6 +632,7 @@ def _ready_docs(
 
 
 @edusign_views.route('/recreate-sign-request', methods=['POST'])
+@edusign_views2.route('/recreate-sign-request', methods=['POST'])
 @UnMarshal(ToRestartSigningSchema)
 @Marshal(ReSignRequestSchema)
 def recreate_sign_request(documents: dict) -> dict:
@@ -720,6 +729,7 @@ def recreate_sign_request(documents: dict) -> dict:
 
 
 @edusign_views.route('/callback', methods=['POST', 'GET'])
+@edusign_views2.route('/callback', methods=['POST', 'GET'])
 def sign_service_callback() -> Union[str, Response]:
     """
     After the user has used the sign request to go through the sign service and IdP to sign the documents,
@@ -872,6 +882,7 @@ def _prepare_signed_documents_data(process_data):
 
 
 @edusign_views.route('/get-signed', methods=['POST'])
+@edusign_views2.route('/get-signed', methods=['POST'])
 @UnMarshal(SigningSchema)
 @Marshal(SignedDocumentsSchema)
 def get_signed_documents(sign_data: dict) -> dict:
@@ -948,6 +959,7 @@ def get_signed_documents(sign_data: dict) -> dict:
 
 
 @edusign_views.route('/create-multi-sign', methods=['POST'])
+@edusign_views2.route('/create-multi-sign', methods=['POST'])
 @UnMarshal(MultiSignSchema)
 @Marshal()
 def create_multi_sign_request(data: dict) -> dict:
@@ -1040,6 +1052,7 @@ def _send_invitation_mail(docname, owner, custom_text, recipients):
 
 
 @edusign_views.route('/send-multisign-reminder', methods=['POST'])
+@edusign_views2.route('/send-multisign-reminder', methods=['POST'])
 @UnMarshal(ResendMultiSignSchema)
 @Marshal()
 def send_multisign_reminder(data: dict) -> dict:
@@ -1109,6 +1122,7 @@ def send_multisign_reminder(data: dict) -> dict:
 
 
 @edusign_views.route('/edit-multi-sign', methods=['POST'])
+@edusign_views2.route('/edit-multi-sign', methods=['POST'])
 @UnMarshal(EditMultiSignSchema)
 @Marshal()
 def edit_multi_sign_request(data: dict) -> dict:
@@ -1164,6 +1178,7 @@ def edit_multi_sign_request(data: dict) -> dict:
 
 
 @edusign_views.route('/remove-multi-sign', methods=['POST'])
+@edusign_views2.route('/remove-multi-sign', methods=['POST'])
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal()
 def remove_multi_sign_request(data: dict) -> dict:
@@ -1240,6 +1255,7 @@ def _send_cancellation_mail(docname, owner_email, recipients):
 
 
 @edusign_views.route('/get-partially-signed', methods=['POST'])
+@edusign_views2.route('/get-partially-signed', methods=['POST'])
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal(BlobSchema)
 def get_partially_signed_doc(data: dict) -> dict:
@@ -1315,6 +1331,7 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
 
 
 @edusign_views.route('/skip-final-signature', methods=['POST'])
+@edusign_views2.route('/skip-final-signature', methods=['POST'])
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal(SignedDocumentsSchema)
 def skip_final_signature(data: dict) -> dict:
@@ -1393,6 +1410,7 @@ def _prepare_declined_email(key, owner_data):
 
 
 @edusign_views.route('/decline-invitation', methods=['POST'])
+@edusign_views2.route('/decline-invitation', methods=['POST'])
 @UnMarshal(KeyedMultiSignSchema)
 @Marshal()
 def decline_invitation(data):
@@ -1458,6 +1476,7 @@ def _prepare_delegation_email(owner_data, name, email, lang):
 
 
 @edusign_views.route('/delegate-invitation', methods=['POST'])
+@edusign_views2.route('/delegate-invitation', methods=['POST'])
 @UnMarshal(DelegationSchema)
 @Marshal()
 def delegate_invitation(data):
@@ -1501,6 +1520,7 @@ def delegate_invitation(data):
 
 
 @edusign_views.route('/update-form', methods=['POST'])
+@edusign_views2.route('/update-form', methods=['POST'])
 @UnMarshal(FillFormSchema)
 @Marshal(DocSchema)
 def update_form(data):
