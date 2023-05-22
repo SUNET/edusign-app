@@ -870,14 +870,8 @@ def _prepare_signed_documents_data(process_data):
         mail_aliases = session.get('mail_aliases', [session['mail']])
 
         if 'email' in owner and owner['email'] not in mail_aliases:
-            pending = len(current_app.doc_store.get_pending_invites(key)) == 0
-            skipfinal = current_app.doc_store.get_skipfinal(key)
-
-            if not pending and skipfinal:
-                current_app.doc_store.remove_document(key)
-            else:
-                current_app.doc_store.update_document(key, doc['signedContent'], mail_aliases)
-                current_app.doc_store.unlock_document(key, mail_aliases)
+            current_app.doc_store.update_document(key, doc['signedContent'], mail_aliases)
+            current_app.doc_store.unlock_document(key, mail_aliases)
 
         elif owner:
             current_app.doc_store.remove_document(key)
