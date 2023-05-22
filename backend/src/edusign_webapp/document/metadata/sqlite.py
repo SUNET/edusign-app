@@ -1033,6 +1033,20 @@ class SqliteMD(ABCMetadata):
 
         return bool(document_result['sendsigned'])
 
+    def get_skipfinal(self, key: uuid.UUID) -> bool:
+        """
+        Whether the final signed document should be signed by the inviter
+
+        :param key: The key identifying the document
+        :return: whether it should be signed by the owner
+        """
+        document_result = self._db_query(DOCUMENT_QUERY_SKIPFINAL, (str(key),), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.debug(f"Trying to find a non-existing document with key {key}")
+            return True
+
+        return bool(document_result['skipfinal'])
+
     def get_loa(self, key: uuid.UUID) -> str:
         """
         Required LoA for signature authn context

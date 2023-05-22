@@ -424,6 +424,15 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def get_skipfinal(self, key: uuid.UUID) -> bool:
+        """
+        Whether the final signed document should be signed by the inviter
+
+        :param key: The key identifying the document
+        :return: whether it should be signed by the owner
+        """
+
+    @abc.abstractmethod
     def get_loa(self, key: uuid.UUID) -> str:
         """
         Required LoA for signature authn context
@@ -931,6 +940,15 @@ class DocStore(object):
         :return: whether to send emails
         """
         return self.metadata.get_sendsigned(key)
+
+    def get_skipfinal(self, key: uuid.UUID) -> bool:
+        """
+        Whether the final signed document should be signed by the inviter
+
+        :param key: The key identifying the document
+        :return: whether it should be signed by the owner
+        """
+        return self.metadata.get_skipfinal(key)
 
     def get_loa(self, key: uuid.UUID) -> str:
         """

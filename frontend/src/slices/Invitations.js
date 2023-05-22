@@ -124,7 +124,7 @@ export const sendInvites = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await fetch(`${document.location.pathname}create-multi-sign`, {
+      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/create-multi-sign`, {
         ...postRequest,
         body: body,
       });
@@ -136,7 +136,7 @@ export const sendInvites = createAsyncThunk(
           key: document.key,
         };
         const body_rm = preparePayload(state, dataToSend_rm);
-        const response = await fetch(`${document.location.pathname}remove-multi-sign`, {
+        const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/remove-multi-sign`, {
           ...postRequest,
           body: body_rm,
         });
@@ -151,6 +151,7 @@ export const sendInvites = createAsyncThunk(
         throw new Error(data.error);
       }
     } catch (err) {
+      console.log(`Error sending invitations to sign: ${err}`);
       // In case of errors, inform the user, update the app state.
       const message = args.intl.formatMessage({
         defaultMessage: "Problem sending invitations to sign, please try again",
@@ -232,7 +233,7 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
   let contentData;
   let data;
   try {
-    const response1 = await fetch(`${document.location.pathname}get-partially-signed`, {
+    const response1 = await fetch(`/${window.document.location.pathname.split('/')[1]}/get-partially-signed`, {
       ...postRequest,
       body: body,
     });
@@ -243,7 +244,7 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
     }
     state = thunkAPI.getState();
     body = preparePayload(state, owned);
-    const response2 = await fetch(`${document.location.pathname}remove-multi-sign`, {
+    const response2 = await fetch(`/${window.document.location.pathname.split('/')[1]}/remove-multi-sign`, {
       ...postRequest,
       body: body,
     });
@@ -317,7 +318,7 @@ const editInvitesPending = async (values, thunkAPI, intl) => {
   const body = preparePayload(state, dataToSend);
   let data = null;
   try {
-    const response = await fetch(`${document.location.pathname}edit-multi-sign`, {
+    const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/edit-multi-sign`, {
       ...postRequest,
       body: body,
     });
@@ -380,7 +381,7 @@ export const removeInvites = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await fetch(`${document.location.pathname}remove-multi-sign`, {
+      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/remove-multi-sign`, {
         ...postRequest,
         body: body,
       });
@@ -448,7 +449,7 @@ export const resendInvitations = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await fetch(`${document.location.pathname}send-multisign-reminder`, {
+      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/send-multisign-reminder`, {
         ...postRequest,
         body: body,
       });
@@ -458,9 +459,10 @@ export const resendInvitations = createAsyncThunk(
         throw new Error(data.error);
       }
     } catch (err) {
+      console.log(`Error re-sending invitations to sign: ${err}`);
       // In case of errors, inform the user, and update the local state.
       const message = args.intl.formatMessage({
-        defaultMessage: "Problem sending invitations to sign, please try again",
+        defaultMessage: "Problem re-sending invitations to sign, please try again",
         id: "problem-sending-invitations",
       });
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));

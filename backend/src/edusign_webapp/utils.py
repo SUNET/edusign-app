@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import io
+import os
 import uuid
 from base64 import b64decode
 from email.encoders import encode_base64

@@ -60,9 +60,11 @@ SESSION_COOKIE_SECURE_RAW = os.environ.get('SESSION_COOKIE_SECURE', default=True
 SESSION_COOKIE_NAME = os.environ.get('SESSION_COOKIE_NAME', default='session')
 SESSION_COOKIE_SAMESITE = 'None'
 
-SESSION_COOKIE_SECURE = True
-if SESSION_COOKIE_SECURE_RAW in (False, 'False', 'false', 'F', 'f'):
-    SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = get_boolean(SESSION_COOKIE_SECURE_RAW)
+
+APP_IN_TWO_PATHS_RAW = os.environ.get('APP_IN_TWO_PATHS', default=False)
+
+APP_IN_TWO_PATHS = get_boolean(APP_IN_TWO_PATHS_RAW)
 
 SERVER_NAME = os.environ.get('SP_HOSTNAME', default='edusign.sunet.se')
 

@@ -55,7 +55,7 @@ export const fetchConfig = createAsyncThunk(
       intl = args.intl;
     }
     try {
-      const response = await fetch(`${document.location.pathname}config`, getRequest);
+      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/config`, getRequest);
       const configData = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, configData);
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
@@ -113,7 +113,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
     }
     const body = preparePayload(state, { key: args.key });
     try {
-      const response = await fetch(`${document.location.pathname}get-partially-signed`, {
+      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/get-partially-signed`, {
         ...postRequest,
         body: body,
       });
@@ -153,7 +153,7 @@ export const declineSigning = createAsyncThunk(
     const state = thunkAPI.getState();
     const body = preparePayload(state, { key: args.key });
     try {
-      const response = await fetch(`${document.location.pathname}decline-invitation`, {
+      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/decline-invitation`, {
         ...postRequest,
         body: body,
       });
@@ -232,7 +232,7 @@ export const delegateSignature = createAsyncThunk(
       email: args.values.delegationEmail,
     });
     try {
-      const response = await fetch(`${document.location.pathname}delegate-invitation`, {
+      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/delegate-invitation`, {
         ...postRequest,
         body: body,
       });

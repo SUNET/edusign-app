@@ -47,7 +47,7 @@ export const sendPDFForm = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await fetch(`${document.location.pathname}update-form`, {
+      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/update-form`, {
         ...postRequest,
         body: body,
       });

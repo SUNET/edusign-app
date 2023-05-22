@@ -38,7 +38,7 @@ from flask_babel import Babel
 from flask_cors import CORS
 from flask_mailman import Mail
 from flask_misaka import Misaka
-from werkzeug.wrappers import Response
+from werkzeug.wrappers import Request, Response
 
 from edusign_webapp.api_client import APIClient
 from edusign_webapp.doc_store import DocStore
@@ -104,12 +104,15 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
     app.mailer = Mail(app)
 
-    from edusign_webapp.views import admin_edusign_views, anon_edusign_views, edusign_views, edusign_views2
+    from edusign_webapp.views import admin_edusign_views, anon_edusign_views, edusign_views
 
     app.register_blueprint(admin_edusign_views)
     app.register_blueprint(anon_edusign_views)
     app.register_blueprint(edusign_views)
-    app.register_blueprint(edusign_views2)
+
+    if app.config['APP_IN_TWO_PATHS']:
+        from edusign_webapp.views import edusign_views2
+        app.register_blueprint(edusign_views2)
 
     to_tear_down = app.config['TO_TEAR_DOWN_WITH_APP_CONTEXT']
     for func_path in to_tear_down:
@@ -164,6 +167,13 @@ class LoggingMiddleware(object):
             return resp(status, headers, *args)
 
         return self._app(env, log_response)
+
+
+@app.before_request
+def set_cookie_path():
+    segment1 = request.path.split('/')[1]
+    current_app.config["SESSION_COOKIE_PATH"] = f"/{segment1}"
+    current_app.logger.debug(f"SESSION COOKIE PATH set to {segment1} from {request.path}")
 
 
 if __name__ == '__main__':
