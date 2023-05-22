@@ -191,16 +191,28 @@ def get_invitations():
     owned = current_app.doc_store.get_owned_documents(session['eppn'], mail_addresses)
     invited = current_app.doc_store.get_pending_documents(mail_addresses)
     poll = False
-    for docs in (owned, invited):
-        for doc in docs:
-            if len(doc['pending']) > 0:
-                poll = True
-            if doc['loa'] not in ("", "none"):
-                doc['loa'] += ',' + current_app.config['AVAILABLE_LOAS'][doc['loa']]
+    for doc in invited:
+        if len(doc['pending']) > 0:
+            poll = True
+        if doc['loa'] not in ("", "none"):
+            doc['loa'] += ',' + current_app.config['AVAILABLE_LOAS'][doc['loa']]
+    newowned, skipped = [], []
+    for doc in owned:
+        if len(doc['pending']) > 0:
+            poll = True
+            if doc['skipfinal']:
+                current_app.doc_store.remove_document(doc['key'])
+                skipped.append(doc)
+            else:
+                newowned.append(doc)
+
+        if doc['loa'] not in ("", "none"):
+            doc['loa'] += ',' + current_app.config['AVAILABLE_LOAS'][doc['loa']]
 
     return {
-        'owned_multisign': owned,
+        'owned_multisign': newowned,
         'pending_multisign': invited,
+        'skipped': skipped,
         'poll': poll,
     }
 
