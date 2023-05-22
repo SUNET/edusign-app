@@ -44,6 +44,7 @@ services:
       - "EDUSIGN_API_PROFILE=edusign-test2"
       - "MAIL_SUPPRESS_SEND=True"
       - "MAIL_BACKEND=dummy"
+      - "APP_IN_TWO_PATHS=True"
     env_file:
       - .env
     depends_on:

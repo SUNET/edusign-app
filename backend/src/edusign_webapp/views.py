@@ -870,8 +870,14 @@ def _prepare_signed_documents_data(process_data):
         mail_aliases = session.get('mail_aliases', [session['mail']])
 
         if 'email' in owner and owner['email'] not in mail_aliases:
-            current_app.doc_store.update_document(key, doc['signedContent'], mail_aliases)
-            current_app.doc_store.unlock_document(key, mail_aliases)
+            pending = len(current_app.doc_store.get_pending_invites(key)) == 0
+            skipfinal = current_app.doc_store.get_skipfinal(key)
+
+            if not pending and skipfinal:
+                current_app.doc_store.remove_document(key)
+            else:
+                current_app.doc_store.update_document(key, doc['signedContent'], mail_aliases)
+                current_app.doc_store.unlock_document(key, mail_aliases)
 
         elif owner:
             current_app.doc_store.remove_document(key)
@@ -938,6 +944,16 @@ def get_signed_documents(sign_data: dict) -> dict:
 
             except Exception as e:
                 current_app.logger.error(f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}")
+
+            pending = len(current_app.doc_store.get_pending_invites(key)) == 0
+            skipfinal = current_app.doc_store.get_skipfinal(key)
+            if not pending and skipfinal:
+                try:
+                    messages = _prepare_all_signed_email(key, owner, doc, sendsigned)
+                    emails.extend(messages)
+
+                except Exception as e:
+                    current_app.logger.error(f"Problem sending signed by all email to all invited: {e}")
 
         # this is an invitation from the current user
         elif owner:
