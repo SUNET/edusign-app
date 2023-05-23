@@ -85,8 +85,21 @@ class InvitationsSchema(Schema):
         loa = fields.String(default="")
         created = fields.String(default="")
 
+    class SkippedDocument(_DocumentSchema):
+        key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+        pending = fields.List(fields.Nested(Invitee))
+        signed = fields.List(fields.Nested(Invitee))
+        declined = fields.List(fields.Nested(Invitee))
+        state = fields.String(required=True, validate=[validate_nonempty])
+        prev_signatures = fields.String(default="")
+        loa = fields.String(default="")
+        created = fields.String(default="")
+        blob = fields.Raw(required=True, validate=[validate_nonempty])
+        signed_content = fields.Raw(required=True, validate=[validate_nonempty])
+
     pending_multisign = fields.List(fields.Nested(PendingDocument))
     owned_multisign = fields.List(fields.Nested(OwnedDocument))
+    skipped = fields.List(fields.Nested(SkippedDocument))
     poll = fields.Boolean(default=False)
 
 

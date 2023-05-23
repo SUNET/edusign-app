@@ -197,14 +197,18 @@ def get_invitations():
         if doc['loa'] not in ("", "none"):
             doc['loa'] += ',' + current_app.config['AVAILABLE_LOAS'][doc['loa']]
     newowned, skipped = [], []
+    current_app.logger.debug(f"Start checking {len(owned)} owned docs")
     for doc in owned:
+        current_app.logger.debug(f"Checking {doc['name']}, with {len(doc['pending'])} pending")
         if len(doc['pending']) > 0:
             poll = True
-            if doc['skipfinal']:
-                current_app.doc_store.remove_document(doc['key'])
-                skipped.append(doc)
-            else:
-                newowned.append(doc)
+            newowned.append(doc)
+        elif doc['skipfinal']:
+            current_app.logger.debug(f"Skipping {doc['name']}")
+            doc['blob'] = current_app.doc_store.get_document_content(doc['key'])
+            doc['signed_content'] = current_app.doc_store.get_document_content(doc['key'])
+            current_app.doc_store.remove_document(doc['key'])
+            skipped.append(doc)
 
         if doc['loa'] not in ("", "none"):
             doc['loa'] += ',' + current_app.config['AVAILABLE_LOAS'][doc['loa']]

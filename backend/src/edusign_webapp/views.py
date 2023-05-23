@@ -939,7 +939,7 @@ def get_signed_documents(sign_data: dict) -> dict:
             except Exception as e:
                 current_app.logger.error(f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}")
 
-            pending = len(current_app.doc_store.get_pending_invites(key)) == 0
+            pending = len(current_app.doc_store.get_pending_invites(key)) != 0
             skipfinal = current_app.doc_store.get_skipfinal(key)
             if not pending and skipfinal:
                 try:
