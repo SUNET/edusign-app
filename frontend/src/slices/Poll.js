@@ -9,7 +9,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import { getRequest, checkStatus, extractCsrfToken } from "slices/fetch-utils";
-import { setOwnedDocs, setInvitedDocs } from "slices/Main";
+import { setOwnedDocs, setInvitedDocs, removeOwned } from "slices/Main";
+import { addDocumentToDb, addDocument } from "slices/Documents";
 
 /**
  * @public
@@ -28,6 +29,38 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
     if (configData.error) {
       return thunkAPI.rejectWithValue(configData.message);
     } else {
+      console.log(`Getting skipped docs`);
+      await state.main.owned_multisign.forEach(async (oldDoc) => {
+        await configData.payload.skipped.forEach(async (doc) => {
+          console.log(`Found skipped doc ${doc['name']}`);
+          if (doc.key === oldDoc.key) {
+            console.log(`Found ${doc['name']} in owned multisign`);
+            let newSigned = [...oldDoc.signed];
+            newSigned = newSigned.concat(doc.signed);
+            let newDeclined = [...oldDoc.declined];
+            newDeclined = newDeclined.concat(doc.declined);
+            let newDoc = {
+              ...oldDoc,
+              signedContent: "data:application/pdf;base64," + doc.signed_content,
+              blob: "data:application/pdf;base64," + doc.signed_content,
+              state: "signed",
+              show: false,
+              showForced: false,
+              signed: newSigned,
+              declined: newDeclined,
+              pending: doc.pending,
+            };
+            thunkAPI.dispatch(removeOwned({ key: doc.key }));
+            newDoc = await addDocumentToDb(
+              newDoc,
+              state.main.signer_attributes.eppn
+            );
+            thunkAPI.dispatch(addDocument(newDoc));
+            console.log(`Added ${doc['name']} to local documents`);
+          }
+        });
+      });
+
       const currentOwned = [];
       const allOwned = state.main.owned_multisign.map((owned) => {
         currentOwned.push(owned.name);
@@ -45,6 +78,7 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
         }
         return owned;
       });
+
       if (configData.payload.owned_multisign.length > currentOwned.length) {
         configData.payload.owned_multisign.forEach((newOwned) => {
           if (!currentOwned.includes(newOwned.name)) {
