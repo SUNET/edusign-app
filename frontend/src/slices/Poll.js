@@ -29,38 +29,6 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
     if (configData.error) {
       return thunkAPI.rejectWithValue(configData.message);
     } else {
-      console.log(`Getting skipped docs`);
-      await state.main.owned_multisign.forEach(async (oldDoc) => {
-        await configData.payload.skipped.forEach(async (doc) => {
-          console.log(`Found skipped doc ${doc['name']}`);
-          if (doc.key === oldDoc.key) {
-            console.log(`Found ${doc['name']} in owned multisign`);
-            let newSigned = [...oldDoc.signed];
-            newSigned = newSigned.concat(doc.signed);
-            let newDeclined = [...oldDoc.declined];
-            newDeclined = newDeclined.concat(doc.declined);
-            let newDoc = {
-              ...oldDoc,
-              signedContent: "data:application/pdf;base64," + doc.signed_content,
-              blob: "data:application/pdf;base64," + doc.signed_content,
-              state: "signed",
-              show: false,
-              showForced: false,
-              signed: newSigned,
-              declined: newDeclined,
-              pending: doc.pending,
-            };
-            thunkAPI.dispatch(removeOwned({ key: doc.key }));
-            newDoc = await addDocumentToDb(
-              newDoc,
-              state.main.signer_attributes.eppn
-            );
-            thunkAPI.dispatch(addDocument(newDoc));
-            console.log(`Added ${doc['name']} to local documents`);
-          }
-        });
-      });
-
       const currentOwned = [];
       const allOwned = state.main.owned_multisign.map((owned) => {
         currentOwned.push(owned.name);
@@ -87,6 +55,9 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
         });
       }
       thunkAPI.dispatch(setOwnedDocs(allOwned));
+
+      await configureSkipped(thunkAPI, configData, state.main.owned_multisign);
+
       delete configData.payload.owned_multisign;
 
       const currentInvited = [];
@@ -118,6 +89,37 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
     return thunkAPI.rejectWithValue(err.toString());
   }
 });
+
+export const configureSkipped = async (thunkAPI, configData, owned) => {
+  const state = thunkAPI.getState();
+  await owned.forEach(async (oldDoc) => {
+    await configData.payload.skipped.forEach(async (doc) => {
+      if (doc.key === oldDoc.key) {
+        let newSigned = [...oldDoc.signed];
+        newSigned = newSigned.concat(doc.signed);
+        let newDeclined = [...oldDoc.declined];
+        newDeclined = newDeclined.concat(doc.declined);
+        let newDoc = {
+          ...oldDoc,
+          signedContent: "data:application/pdf;base64," + doc.signed_content,
+          blob: "data:application/pdf;base64," + doc.signed_content,
+          state: "signed",
+          show: false,
+          showForced: false,
+          signed: newSigned,
+          declined: newDeclined,
+          pending: doc.pending,
+        };
+        newDoc = await addDocumentToDb(
+          newDoc,
+          state.main.signer_attributes.eppn
+        );
+        thunkAPI.dispatch(addDocument(newDoc));
+        thunkAPI.dispatch(removeOwned({ key: doc.key }));
+      }
+    });
+  });
+}
 
 const pollSlice = createSlice({
   name: "poll",
