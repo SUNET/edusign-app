@@ -35,8 +35,8 @@ import {
   preparePayload,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { loadDocuments } from "slices/Documents";
-import { setPolling } from "slices/Poll";
+import { loadDocuments, addDocumentToDb, addDocument } from "slices/Documents";
+import { setPolling, configureSkipped } from "slices/Poll";
 import { b64toBlob, nameForDownload } from "components/utils";
 
 /**
@@ -47,9 +47,9 @@ import { b64toBlob, nameForDownload } from "components/utils";
 export const fetchConfig = createAsyncThunk(
   "main/fetchConfig",
   async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
     let intl;
     if (args === undefined) {
-      const state = thunkAPI.getState();
       intl = createIntl(state.intl);
     } else {
       intl = args.intl;
@@ -73,6 +73,21 @@ export const fetchConfig = createAsyncThunk(
         );
         thunkAPI.dispatch(setPolling(configData.payload.poll));
         delete configData.payload.poll;
+
+        await configData.payload.skipped.forEach(async (doc) => {
+          doc.signedContent = "data:application/pdf;base64," + doc.signed_content;
+          doc.blob = "data:application/pdf;base64," + doc.signed_content;
+          doc.state = "signed";
+          doc.show = false;
+          doc.showForced = false;
+          const newDoc = await addDocumentToDb(
+            doc,
+            state.main.signer_attributes.eppn
+          );
+          thunkAPI.dispatch(addDocument(newDoc));
+        });
+
+        delete configData.payload.skipped;
         return configData;
       }
     } catch (err) {
