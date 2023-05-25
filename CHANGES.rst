@@ -1,4 +1,11 @@
 
+In version 1.3.0:
+-----------------
+
+* allow requesting no final signature from inviter
+* Redis backend up to date wrt i18n
+* limit the number of invitations that can be made for a document (configurable)
+
 In version 1.2.0:
 -----------------
 
