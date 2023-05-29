@@ -65,7 +65,7 @@ class RedisStorageBackend:
         return self._transaction
 
     def insert_document(
-        self, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa
+        self, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal
     ):
         doc_id = self.redis.incr('doc-counter')
         now = datetime.now().timestamp()
@@ -83,6 +83,7 @@ class RedisStorageBackend:
             prev_signatures=prev_signatures,
             sendsigned=int(sendsigned),
             loa=loa,
+            skipfinal=int(skipfinal),
         )
         self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
         self.transaction.set(f"doc:key:{key}", doc_id)
@@ -107,6 +108,7 @@ class RedisStorageBackend:
         prev_signatures,
         sendsigned,
         loa,
+        skipfinal,
     ):
         mapping = dict(
             key=key,
@@ -122,6 +124,7 @@ class RedisStorageBackend:
             prev_signatures=prev_signatures,
             sendsigned=int(sendsigned),
             loa=loa,
+            skipfinal=int(skipfinal),
         )
         doc_id = self.redis.incr('doc-counter')
         self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
@@ -184,6 +187,7 @@ class RedisStorageBackend:
             loa=b_doc[b'loa'].decode('utf8'),
             updated=updated,
             created=created,
+            skipfinal=bool(b_doc[b'skipfinal']),
         )
         return doc
 
@@ -265,6 +269,7 @@ class RedisStorageBackend:
                 prev_signatures=b_doc[b'prev_signatures'].decode('utf8'),
                 loa=b_doc[b'loa'].decode('utf8'),
                 created=created,
+                skipfinal=bool(b_doc[b'skipfinal']),
             )
             docs.append(doc)
         return docs
@@ -287,6 +292,7 @@ class RedisStorageBackend:
                 prev_signatures=b_doc[b'prev_signatures'].decode('utf8'),
                 loa=b_doc[b'loa'].decode('utf8'),
                 created=created,
+                skipfinal=bool(b_doc[b'skipfinal']),
             )
             docs.append(doc)
         return docs
@@ -297,6 +303,13 @@ class RedisStorageBackend:
             return True
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         return bool(b_doc[b'sendsigned'])
+
+    def query_skipfinal(self, key):
+        doc_id = self.query_document_id(str(key))
+        if doc_id is None:
+            return True
+        b_doc = self.redis.hgetall(f"doc:{doc_id}")
+        return bool(b_doc[b'skipfinal'])
 
     def query_loa(self, key):
         doc_id = self.query_document_id(str(key))
@@ -509,6 +522,7 @@ class RedisMD(ABCMetadata):
         invites: List[Dict[str, str]],
         sendsigned: bool,
         loa: str,
+        skipfinal: bool,
     ):
         """
         Store metadata for a new document.
@@ -523,6 +537,7 @@ class RedisMD(ABCMetadata):
         :param invites: List of the names and emails and languages of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
+        :param skipfinal: Whether to request signature from the user who is inviting.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
         self.client.pipeline()
@@ -539,6 +554,7 @@ class RedisMD(ABCMetadata):
             document.get('prev_signatures', ''),
             sendsigned,
             loa,
+            skipfinal,
         )
 
         if document_id is None:  # This should never happen, it's just to please mypy
@@ -576,6 +592,7 @@ class RedisMD(ABCMetadata):
                  + owner_eppn: eppn of owner
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
+                 + skipfinal: whether to send the signed document by mail
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
@@ -597,6 +614,7 @@ class RedisMD(ABCMetadata):
             document['prev_signatures'],
             int(document['sendsigned']),
             document['loa'],
+            int(document['skipfinal']),
         )
         self.client.commit()
         return doc_id
@@ -771,6 +789,7 @@ class RedisMD(ABCMetadata):
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
+                 + skipfinal: whether to skip the final signature by the inviter user
         """
         documents = self.client.query_documents_from_owner(eppn)
         if documents is None or isinstance(documents, dict):
@@ -794,6 +813,7 @@ class RedisMD(ABCMetadata):
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
+                 + skipfinal: whether to skip the final signature by the inviter user
         """
         documents = self.client.query_documents_from_owner_by_email(email)
         if documents is None or isinstance(documents, dict):
@@ -824,6 +844,8 @@ class RedisMD(ABCMetadata):
                     state = 'incomplete'
                     document['pending'].append(email_result)
 
+            if state == 'loaded' and document['skipfinal']:
+                state = 'signed'
             document['state'] = state
 
         return documents
@@ -1019,6 +1041,7 @@ class RedisMD(ABCMetadata):
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
+                 + skipfinal: whether to skip the final signature by the inviter user
         """
         document_result = self.client.query_document_full(str(key))
         if document_result is None:
@@ -1157,6 +1180,15 @@ class RedisMD(ABCMetadata):
         :return: whether to send emails
         """
         return self.client.query_sendsigned(key)
+
+    def get_skipfinal(self, key: uuid.UUID) -> bool:
+        """
+        Whether the final signed document should be signed by the inviter
+
+        :param key: The key identifying the document
+        :return: whether it should be signed by the owner
+        """
+        return self.client.query_skipfinal(key)
 
     def get_loa(self, key: uuid.UUID) -> str:
         """

@@ -81,7 +81,7 @@ class ResponseSchema(Schema):
     """
 
     message = fields.String(required=False)
-    error = fields.Boolean(default=False)
+    error = fields.Boolean(dump_default=False)
     csrf_token = fields.String(required=True)
 
     @pre_dump
