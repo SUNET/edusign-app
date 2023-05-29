@@ -58,6 +58,9 @@ config_dev = {
     'MAIL_BACKEND': 'dummy',
     'BABEL_DEFAULT_LOCALE': 'en',
     'DOC_LOCK_TIMEOUT': 300,
+    'SESSION_COOKIE_SECURE': False,
+    'SESSION_COOKIE_DOMAIN': 'test.localhost',
+    'SERVER_NAME': 'test.localhost',
 }
 
 
@@ -70,6 +73,9 @@ config_pro = {
     'MAIL_BACKEND': 'dummy',
     'BABEL_DEFAULT_LOCALE': 'en',
     'DOC_LOCK_TIMEOUT': 300,
+    'SESSION_COOKIE_SECURE': False,
+    'SESSION_COOKIE_DOMAIN': 'test.localhost',
+    'SERVER_NAME': 'test.localhost',
 }
 
 
@@ -108,27 +114,29 @@ def environ_base_2():
 @pytest.fixture(params=[config_dev, config_pro])
 def client(request):
     app = run.edusign_init_app('testing', request.param)
+    app.testing = True
     app.config.update(request.param)
-    app.api_client.api_base_url = 'https://dummy.edusign.api'
+    app.api_client.api_base_url = 'https://test.localhost'
 
     with app.test_client() as client:
         client.environ_base.update(_environ_base)
 
-        yield client
+        yield app, client
 
 
 @pytest.fixture(params=[config_dev, config_pro])
 def client_non_whitelisted(request):
     app = run.edusign_init_app('testing')
+    app.testing = True
     app.config.update(request.param)
-    app.api_client.api_base_url = 'https://dummy.edusign.api'
+    app.api_client.api_base_url = 'https://test.localhost'
 
     with app.test_client() as client:
         environ = deepcopy(_environ_base)
         environ['HTTP_EDUPERSONPRINCIPALNAME'] = b'tester@example.com'
         client.environ_base.update(environ)
 
-        yield client
+        yield app, client
 
 
 def _get_test_app(config):
@@ -137,7 +145,8 @@ def _get_test_app(config):
     more_config = {'LOCAL_STORAGE_BASE_DIR': tempdir.name, 'SQLITE_MD_DB_PATH': db_path}
     more_config.update(config)
     app = run.edusign_init_app('testing', more_config)
-    app.api_client.api_base_url = 'https://dummy.edusign.api'
+    app.testing = True
+    app.api_client.api_base_url = 'https://test.localhost'
     return tempdir, app
 
 
@@ -150,7 +159,8 @@ def _get_test_s3_app(config):
     more_config = {'STORAGE_CLASS_PATH': 'edusign_webapp.document.storage.s3.S3Storage', 'AWS_REGION_NAME': 'us-east-1'}
     more_config.update(config)
     app = run.edusign_init_app('testing', more_config)
-    app.api_client.api_base_url = 'https://dummy.edusign.api'
+    app.testing = True
+    app.api_client.api_base_url = 'https://test.localhost'
     return app
 
 
@@ -175,6 +185,7 @@ def sqlite_md():
     config = {'SQLITE_MD_DB_PATH': db_path}
     config.update(config_dev)
     app = run.edusign_init_app('testing', config)
+    app.testing = True
     # return tempdir, since once it goes out of scope, it is removed
     yield tempdir, SqliteMD(app)
 
@@ -186,6 +197,7 @@ def redis_md():
     config = {'SQLITE_MD_DB_PATH': db_path}
     config.update(config_dev)
     app = run.edusign_init_app('testing', config)
+    app.testing = True
     # return tempdir, since once it goes out of scope, it is removed
     yield tempdir, RedisMD(app)
 
@@ -202,6 +214,7 @@ def doc_store_local_sqlite():
     }
     config.update(config_dev)
     app = run.edusign_init_app('testing', config)
+    app.testing = True
     # return tempdir, since once it goes out of scope, it is removed
     yield tempdir, DocStore(app)
 
@@ -216,6 +229,7 @@ def doc_store_local_redis():
     }
     config.update(config_dev)
     app = run.edusign_init_app('testing', config)
+    app.testing = True
     # return tempdir, since once it goes out of scope, it is removed
     yield tempdir, DocStore(app)
 

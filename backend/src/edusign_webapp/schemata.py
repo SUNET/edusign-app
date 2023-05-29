@@ -71,9 +71,9 @@ class InvitationsSchema(Schema):
         signed = fields.List(fields.Nested(Invitee))
         declined = fields.List(fields.Nested(Invitee))
         state = fields.String(required=True, validate=[validate_nonempty])
-        prev_signatures = fields.String(default="")
-        loa = fields.String(default="")
-        created = fields.String(default="")
+        prev_signatures = fields.String(dump_default="")
+        loa = fields.String(dump_default="")
+        created = fields.String(dump_default="")
 
     class OwnedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
@@ -81,9 +81,9 @@ class InvitationsSchema(Schema):
         signed = fields.List(fields.Nested(Invitee))
         declined = fields.List(fields.Nested(Invitee))
         state = fields.String(required=True, validate=[validate_nonempty])
-        prev_signatures = fields.String(default="")
-        loa = fields.String(default="")
-        created = fields.String(default="")
+        prev_signatures = fields.String(dump_default="")
+        loa = fields.String(dump_default="")
+        created = fields.String(dump_default="")
 
     class SkippedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
@@ -91,16 +91,16 @@ class InvitationsSchema(Schema):
         signed = fields.List(fields.Nested(Invitee))
         declined = fields.List(fields.Nested(Invitee))
         state = fields.String(required=True, validate=[validate_nonempty])
-        prev_signatures = fields.String(default="")
-        loa = fields.String(default="")
-        created = fields.String(default="")
+        prev_signatures = fields.String(dump_default="")
+        loa = fields.String(dump_default="")
+        created = fields.String(dump_default="")
         blob = fields.Raw(required=True, validate=[validate_nonempty])
         signed_content = fields.Raw(required=True, validate=[validate_nonempty])
 
     pending_multisign = fields.List(fields.Nested(PendingDocument))
     owned_multisign = fields.List(fields.Nested(OwnedDocument))
     skipped = fields.List(fields.Nested(SkippedDocument))
-    poll = fields.Boolean(default=False)
+    poll = fields.Boolean(dump_default=False)
 
 
 class ConfigSchema(InvitationsSchema):
@@ -121,7 +121,7 @@ class ConfigSchema(InvitationsSchema):
     signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)
     available_loas = fields.List(fields.Nested(AvailableLoa))
-    unauthn = fields.Boolean(default=True)
+    unauthn = fields.Boolean(dump_default=True)
     max_file_size = fields.String(required=True)
     max_signatures = fields.String(required=True)
 
@@ -190,8 +190,8 @@ class ReferenceSchema(_ReferenceSchema):
     referencing a document just prepared for signing.
     """
 
-    prev_signatures = fields.String(default="")
-    has_form = fields.Boolean(default=False)
+    prev_signatures = fields.String(dump_default="")
+    has_form = fields.Boolean(dump_default=False)
 
 
 class ToSignSchema(Schema):
@@ -290,7 +290,7 @@ class EditMultiSignSchema(Schema):
     """
 
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
-    text = fields.String(default="")
+    text = fields.String(dump_default="")
     invites = fields.List(fields.Nested(Invitee))
 
 
@@ -307,7 +307,7 @@ class ResendMultiSignSchema(KeyedMultiSignSchema):
     Schema to unmarshal requests for re-sending invitations for multi signatures.
     """
 
-    text = fields.String(default="")
+    text = fields.String(dump_default="")
 
 
 class DelegationSchema(Invitee):

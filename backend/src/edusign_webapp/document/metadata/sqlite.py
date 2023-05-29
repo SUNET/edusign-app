@@ -892,6 +892,7 @@ class SqliteMD(ABCMetadata):
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
+                 + skipfinal: whether to skip the final signature by the inviter user
         """
         document_result = self._db_query(DOCUMENT_QUERY_FULL, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
