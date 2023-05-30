@@ -137,35 +137,34 @@ def _test_get_signed_documents(client, monkeypatch, process_data=None):
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
-    }
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
+        }
 
-    from flask.sessions import SecureCookieSession
+        from flask.sessions import SecureCookieSession
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    return client.post(
-        '/sign/get-signed',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        return client.post(
+            '/sign/get-signed',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
 
 def test_get_signed_documents(client, monkeypatch):
@@ -198,41 +197,40 @@ def test_get_signed_documents_post_raises(client, monkeypatch):
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
-    }
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
+        }
 
-    from flask.sessions import SecureCookieSession
+        from flask.sessions import SecureCookieSession
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    response = client.post(
-        '/sign/get-signed',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        response = client.post(
+            '/sign/get-signed',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
-    assert response.status == '200 OK'
+        assert response.status == '200 OK'
 
-    resp_data = json.loads(response.data)
+        resp_data = json.loads(response.data)
 
-    assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
+        assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
 def _get_signed_documents(client, monkeypatch, data_payload, csrf_token=None):
@@ -241,43 +239,75 @@ def _get_signed_documents(client, monkeypatch, data_payload, csrf_token=None):
     assert response1.status == '200 OK'
 
     if csrf_token is None:
-        with run.app.test_request_context():
-            with client.session_transaction() as sess:
-                csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-                user_key = sess['user_key']
+        with client.session_transaction() as sess:
+            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+            user_key = sess['user_key']
+
+            doc_data = {
+                'csrf_token': csrf_token,
+                'payload': data_payload,
+            }
+            if csrf_token == 'rm':
+                del doc_data['csrf_token']
+
+            from flask.sessions import SecureCookieSession
+
+            def mock_getitem(self, key):
+                if key == 'user_key':
+                    return user_key
+                self.accessed = True
+                return super(SecureCookieSession, self).__getitem__(key)
+
+            monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+
+            response = client.post(
+                '/sign/get-signed',
+                headers={
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Origin': 'https://test.localhost',
+                    'X-Forwarded-Host': 'test.localhost',
+                },
+                json=doc_data,
+            )
+
+            assert response.status == '200 OK'
+
+            return json.loads(response.data)
+
     else:
-        user_key = 'dummy key'
+        with client.session_transaction():
+            user_key = 'dummy key'
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': data_payload,
-    }
-    if csrf_token == 'rm':
-        del doc_data['csrf_token']
+            doc_data = {
+                'csrf_token': csrf_token,
+                'payload': data_payload,
+            }
+            if csrf_token == 'rm':
+                del doc_data['csrf_token']
 
-    from flask.sessions import SecureCookieSession
+            from flask.sessions import SecureCookieSession
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+            def mock_getitem(self, key):
+                if key == 'user_key':
+                    return user_key
+                self.accessed = True
+                return super(SecureCookieSession, self).__getitem__(key)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+            monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    response = client.post(
-        '/sign/get-signed',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+            response = client.post(
+                '/sign/get-signed',
+                headers={
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Origin': 'https://test.localhost',
+                    'X-Forwarded-Host': 'test.localhost',
+                },
+                json=doc_data,
+            )
 
-    assert response.status == '200 OK'
+            assert response.status == '200 OK'
 
-    return json.loads(response.data)
+            return json.loads(response.data)
 
 
 def test_get_signed_documents_no_sign_response(client, monkeypatch):

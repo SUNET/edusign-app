@@ -83,7 +83,7 @@ def test_get_full(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1)
 
 def test_add_raw(sqlite_md, redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
-    tempdir, sqlite_test_md = sqlite_md
+    _, sqlite_test_md = sqlite_md
     dummy_key = uuid.uuid4()
     sendsigned = True
     skipfinal = False
@@ -92,7 +92,7 @@ def test_add_raw(sqlite_md, redis_md, sample_metadata_1, sample_owner_1, sample_
     with run.app.app_context():
         sqlite_test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
 
-    db_path = os.path.join(tempdir.name, 'test.db')
+    db_path = os.path.join('/tmp/test.db')
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
     cur.execute("SELECT * FROM Documents")

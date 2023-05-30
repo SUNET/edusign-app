@@ -47,10 +47,10 @@ def test_add(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invite
     with run.app.app_context():
         doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
 
-    assert len(os.listdir(doc_store.storage.base_dir)) == 2
-    assert 'test.db' in os.listdir(doc_store.storage.base_dir)
+    assert len(os.listdir(doc_store.storage.base_dir)) == 1
+    assert 'test.db' in os.listdir('/tmp')
 
-    db_path = os.path.join(tempdir.name, 'test.db')
+    db_path = os.path.join('/tmp/test.db')
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
     cur.execute("SELECT * FROM Documents")
