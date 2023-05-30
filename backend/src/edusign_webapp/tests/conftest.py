@@ -61,6 +61,7 @@ config_dev = {
     'SESSION_COOKIE_SECURE': False,
     'SESSION_COOKIE_DOMAIN': 'test.localhost',
     'SERVER_NAME': 'test.localhost',
+    'SQLITE_MD_DB_PATH': '/tmp/test.db',
 }
 
 
@@ -76,6 +77,7 @@ config_pro = {
     'SESSION_COOKIE_SECURE': False,
     'SESSION_COOKIE_DOMAIN': 'test.localhost',
     'SERVER_NAME': 'test.localhost',
+    'SQLITE_MD_DB_PATH': '/tmp/test.db',
 }
 
 
@@ -101,6 +103,13 @@ _environ_base_2 = {
 }
 
 
+@pytest.fixture(autouse=True)
+def run_around_tests():
+    if os.path.exists('/tmp/test.db'):
+        os.unlink('/tmp/test.db')
+    yield
+
+
 @pytest.fixture
 def environ_base():
     yield _environ_base
@@ -121,6 +130,23 @@ def client(request):
     with app.test_client() as client:
         client.environ_base.update(_environ_base)
 
+        app.doc_store = DocStore(app)
+
+        yield client
+
+
+@pytest.fixture(params=[config_dev, config_pro])
+def app_and_client(request):
+    app = run.edusign_init_app('testing', request.param)
+    app.testing = True
+    app.config.update(request.param)
+    app.api_client.api_base_url = 'https://test.localhost'
+
+    with app.test_client() as client:
+        client.environ_base.update(_environ_base)
+
+        app.doc_store = DocStore(app)
+
         yield app, client
 
 
@@ -136,7 +162,9 @@ def client_non_whitelisted(request):
         environ['HTTP_EDUPERSONPRINCIPALNAME'] = b'tester@example.com'
         client.environ_base.update(environ)
 
-        yield app, client
+        app.doc_store = DocStore(app)
+
+        yield client
 
 
 def _get_test_app(config):

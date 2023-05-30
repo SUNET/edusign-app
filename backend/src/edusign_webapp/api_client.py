@@ -308,7 +308,6 @@ class APIClient(object):
 
         scheme = self.config['PREFERRED_URL_SCHEME']
         return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
-        current_app.logger.debug(f"THE SCHEME IS {scheme} AND THE PATH {request.path}")
         if request.path.startswith('/sign2'):
             return_url = url_for('edusign2.sign_service_callback', _external=True, _scheme=scheme)
 

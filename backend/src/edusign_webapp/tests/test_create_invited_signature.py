@@ -39,7 +39,7 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def _test_create_invited_signature(
-    client,
+    app_and_client,
     environ_base,
     monkeypatch,
     sample_doc_1,
@@ -47,7 +47,7 @@ def _test_create_invited_signature(
     mock_invitation,
     doc_is_locked=False,
 ):
-    app, client = client
+    app, client = app_and_client
 
     new_doc = deepcopy(sample_doc_1)
 
@@ -143,13 +143,13 @@ def _test_create_invited_signature(
         )
 
 
-def test_create_invited_signature(client, environ_base, monkeypatch, sample_doc_1, sample_owned_doc_1, sample_invites_1):
+def test_create_invited_signature(app_and_client, environ_base, monkeypatch, sample_doc_1, sample_owned_doc_1, sample_invites_1):
     mock_invitation = {
         "document": sample_owned_doc_1,
         "user": sample_invites_1[0],
     }
     response = _test_create_invited_signature(
-        client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, mock_invitation
+        app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, mock_invitation
     )
 
     assert 'test1.pdf' == json.loads(response.data)['payload']['owned_multisign'][0]['name']

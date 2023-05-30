@@ -39,7 +39,7 @@ from edusign_webapp import run
 
 
 def test_add(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = sqlite_md
+    _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     sendsigned = True
     skipfinal = False
@@ -48,7 +48,7 @@ def test_add(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     with run.app.app_context():
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
 
-    db_path = os.path.join(tempdir.name, 'test.db')
+    db_path = os.path.join('/tmp/test.db')
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
     cur.execute("SELECT * FROM Documents")
@@ -484,7 +484,7 @@ def test_update_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sa
 
 
 def test_updated_timestamp(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = sqlite_md
+    _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     sendsigned = True
     skipfinal = False
@@ -494,7 +494,7 @@ def test_updated_timestamp(sqlite_md, sample_metadata_1, sample_owner_1, sample_
         test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
 
     def get_doc():
-        db_path = os.path.join(tempdir.name, 'test.db')
+        db_path = os.path.join('/tmp/test.db')
         conn = sqlite3.connect(db_path)
         cur = conn.cursor()
         cur.execute("SELECT * FROM Documents")
