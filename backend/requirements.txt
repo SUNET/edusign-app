@@ -10,7 +10,7 @@ fakeredis==2.0.0
 flask-cors==3.0.10
 flask-misaka==1.0.0
 reportlab<4.0.0
-pyHanko==0.15.1
-PyMuPDF==1.21.0
-pytz==2022.6
-ocrmypdf==14.0.3
+pyHanko==0.18.1
+PyMuPDF==1.22.3
+pytz>=2023.3
+ocrmypdf==14.2.1
