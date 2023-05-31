@@ -84,8 +84,8 @@ config_pro = {
 _environ_base = {
     "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
     "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn@example.org',
-    "HTTP_DISPLAYNAME": b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8")),
-    "HTTP_MAIL": b64encode(b'<Attribute>tester@example.org</Attribute>'),
+    "HTTP_DISPLAYNAME": b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8")).decode('ascii'),
+    "HTTP_MAIL": b64encode(b'<Attribute>tester@example.org</Attribute>').decode('ascii'),
     "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
     "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
     "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
@@ -95,8 +95,8 @@ _environ_base = {
 _environ_base_2 = {
     "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
     "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn-2@example.org',
-    "HTTP_DISPLAYNAME": b64encode('<Attribute>Invited Kid</Attribute>'.encode("utf-8")),
-    "HTTP_MAIL": b64encode(b'<Attribute>invited0@example.org</Attribute>'),
+    "HTTP_DISPLAYNAME": b64encode('<Attribute>Invited Kid</Attribute>'.encode("utf-8")).decode('ascii'),
+    "HTTP_MAIL": b64encode(b'<Attribute>invited0@example.org</Attribute>').decode('ascii'),
     "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
     "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
     "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
