@@ -90,7 +90,7 @@ def add_attributes_to_session(check_whitelisted=True):
             """
             attrs = []
             b64 = request.headers[attr_in_header]
-            attrs_b64 = b64.split(b';')
+            attrs_b64 = b64.split(';')
             for attr_b64 in attrs_b64:
                 attr_xml = b64decode(attr_b64)
                 attr_val = ET.fromstring(attr_xml)
