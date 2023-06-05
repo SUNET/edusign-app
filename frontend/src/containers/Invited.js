@@ -21,6 +21,7 @@ import {
 import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
 import { setActiveId, unsetActiveId } from "slices/Overlay";
+import { getLocation } from "slices/fetch-utils";
 
 const mapStateToProps = (state) => {
   return {
@@ -41,7 +42,7 @@ const mapDispatchToProps = (dispatch, props) => {
     startMultiSigning: (docRef) => {
       return () => {
         dispatch(setInvitedSigning(docRef));
-        window.document.location.href = `/${window.document.location.pathname.split('/')[1]}/invitation/${docRef}`;
+        window.document.location.href = getLocation(`/sign/invitation/${docRef}`);
       };
     },
     handlePreview: (docKey) => {

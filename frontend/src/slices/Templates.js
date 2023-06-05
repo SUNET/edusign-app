@@ -138,12 +138,12 @@ const templateSlice = createSlice({
       });
     },
   },
-  extraReducers: {
-    [removeTemplate.fulfilled]: (state, action) => {
+  extraReducers: (builder) => {
+    builder.addCase(removeTemplate.fulfilled, (state, action) => {
       state.documents = state.documents.filter((doc) => {
         return doc.id !== action.payload.id;
       });
-    },
+    })
   },
 });
 

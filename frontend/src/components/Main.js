@@ -22,8 +22,8 @@ import "styles/Main.scss";
  * @component
  */
 class Main extends Component {
-  componentDidMount() {
-    appIsRendered();
+  async componentDidMount() {
+    await appIsRendered();
   }
 
   render() {

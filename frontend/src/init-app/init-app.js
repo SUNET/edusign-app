@@ -45,8 +45,8 @@ const store = edusignStore();
  * <br />&nbsp;
  * It will trigger retrieving configuration parameters from the backend and loading documents from the IndeedBD db.
  */
-export const appIsRendered = function () {
-  store.dispatch(fetchConfig());
+export const appIsRendered = async function () {
+  await store.dispatch(fetchConfig());
 };
 
 /**
