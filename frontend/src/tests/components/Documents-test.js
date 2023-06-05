@@ -57,10 +57,10 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
-
   it("It shows the document after createDocument action - sm", async () => {
     await showsTheDocumentAfterCreateDocumentAction({
       payload: {
@@ -72,6 +72,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -87,6 +88,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -102,6 +104,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -117,6 +120,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -132,6 +136,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -146,6 +151,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -161,6 +167,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -175,6 +182,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -190,6 +198,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -206,6 +215,7 @@ describe("Document representations", function () {
         },
         owned_multisign: [],
         pending_multisign: [],
+        skipped: [],
       },
     });
   });
@@ -223,6 +233,7 @@ describe("Document representations", function () {
         },
         owned_multisign: [],
         pending_multisign: [],
+        skipped: [],
       },
     });
   });
@@ -239,6 +250,7 @@ describe("Document representations", function () {
         },
         owned_multisign: [],
         pending_multisign: [],
+        skipped: [],
       },
     });
   });
@@ -256,6 +268,7 @@ describe("Document representations", function () {
         },
         owned_multisign: [],
         pending_multisign: [],
+        skipped: [],
       },
     });
   });
@@ -273,6 +286,7 @@ describe("Document representations", function () {
           },
           owned_multisign: [],
           pending_multisign: [],
+          skipped: [],
         },
       },
       "first",
@@ -294,6 +308,7 @@ describe("Document representations", function () {
           },
           owned_multisign: [],
           pending_multisign: [],
+          skipped: [],
         },
       },
       "first",
@@ -313,6 +328,7 @@ describe("Document representations", function () {
         },
         owned_multisign: [],
         pending_multisign: [],
+        skipped: [],
       },
     });
   });
@@ -330,6 +346,7 @@ describe("Document representations", function () {
         },
         owned_multisign: [],
         pending_multisign: [],
+        skipped: [],
       },
     });
   });
@@ -344,6 +361,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -359,6 +377,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -373,6 +392,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -388,6 +408,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -402,6 +423,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -417,6 +439,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -431,6 +454,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -446,6 +470,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -460,6 +485,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -475,6 +501,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -489,6 +516,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -504,6 +532,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -519,6 +548,7 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
@@ -535,16 +565,17 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
       },
     });
   });
 });
 
 const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
-    store.dispatch(fetchConfig());
+    await store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
     let filename = screen.queryByText(/test.pdf/i);
@@ -604,9 +635,9 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
 
 const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
   async (payload) => {
+    fetchMock.get("/sign/config", payload);
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
     try {
-      fetchMock.get("/sign/config", payload);
       store.dispatch(fetchConfig());
       await flushPromises(rerender, wrapped);
 
@@ -690,9 +721,9 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
   };
 
 const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -775,9 +806,9 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
 const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
   payload
 ) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -831,9 +862,9 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
 };
 
 const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -900,9 +931,9 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
 };
 
 const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1005,9 +1036,9 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
   fst = "prev",
   lst = "next"
 ) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1104,9 +1135,9 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
 };
 
 const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1196,9 +1227,9 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
 };
 
 const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1276,9 +1307,9 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
 const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
   payload
 ) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1351,9 +1382,9 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
 const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
   payload
 ) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1429,9 +1460,9 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
 const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
   payload
 ) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1500,9 +1531,9 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
 };
 
 const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1601,9 +1632,9 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
 };
 
 const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1700,9 +1731,9 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
 };
 
 const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 

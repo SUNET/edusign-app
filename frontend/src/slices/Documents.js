@@ -43,6 +43,7 @@ import {
   checkStatus,
   extractCsrfToken,
   preparePayload,
+  esFetch,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 import {
@@ -244,7 +245,6 @@ export const checkStoredDocuments = createAsyncThunk(
     if (storedStr !== null) {
       const storedDocs = JSON.parse(storedStr);
       storedDocs.owned.forEach((doc) => {
-        console.log("DOCUMENT STATE RETURN " + doc.state);
         if (doc.state === "failed-signing") {
           thunkAPI.dispatch(setOwnedState(doc));
         }
@@ -363,7 +363,6 @@ export const validateDoc = async (doc, intl, state) => {
       };
     })
     .catch((err) => {
-      console.log("failed", err);
       return dealWithPDFError(doc, err, intl);
     });
 };
@@ -597,7 +596,7 @@ export const prepareDocument = createAsyncThunk(
     const body = JSON.stringify({ payload: docToSend });
     let data = null;
     try {
-      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/add-doc`, {
+      const response = await esFetch('/sign/add-doc', {
         ...postRequest,
         body: body,
       });
@@ -760,7 +759,7 @@ export const startSigningDocuments = createAsyncThunk(
     });
     const body = preparePayload(state, { documents: docsToSign });
     try {
-      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/create-sign-request`, {
+      const response = await esFetch('/sign/create-sign-request', {
         ...postRequest,
         body: body,
       });
@@ -795,7 +794,6 @@ export const startSigningDocuments = createAsyncThunk(
       thunkAPI.dispatch(updateSigningForm(formData));
       // Catch errors and inform the user, and update the state with that information.
     } catch (err) {
-      console.log("Error starting signing", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -887,7 +885,7 @@ export const restartSigningDocuments = createAsyncThunk(
     // send data about documents to be signed to the backend
     const body = preparePayload(state, { documents: docsToSign });
     try {
-      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/recreate-sign-request`, {
+      const response = await esFetch('/sign/recreate-sign-request', {
         ...postRequest,
         body: body,
       });
@@ -967,7 +965,6 @@ export const restartSigningDocuments = createAsyncThunk(
         await thunkAPI.dispatch(checkStoredDocuments());
       }
     } catch (err) {
-      console.log("Error restarting signing", err);
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -1015,7 +1012,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
   let data = null;
   try {
     // Send request to the `get-signed` endpoint to get the signed documents
-    const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/get-signed`, {
+    const response = await esFetch('/sign/get-signed', {
       ...postRequest,
       body: body,
     });
@@ -1076,7 +1073,6 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
     });
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
-    console.log("Error fetching signed docs", err);
     // In case of errors, notify the user, and update the state.
     thunkAPI.dispatch(
       addNotification({
@@ -1180,7 +1176,7 @@ export const skipOwnedSignature = createAsyncThunk(
     // `skip-final-signature` endpoint in the backend.
     const body = preparePayload(state, docToSkip);
     try {
-      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/skip-final-signature`, {
+      const response = await esFetch('/sign/skip-final-signature', {
         ...postRequest,
         body: body,
       });
@@ -1470,13 +1466,13 @@ const documentsSlice = createSlice({
       state.documents.push(action.payload);
     },
   },
-  extraReducers: {
-    [loadDocuments.rejected]: (state, action) => {
+  extraReducers: (builder) => {
+    builder.addCase(loadDocuments.rejected, (state, action) => {
       if (action.hasOwnProperty("payload") && action.payload !== undefined) {
         state.documents = action.payload.documents;
       }
-    },
-    [prepareDocument.fulfilled]: (state, action) => {
+    })
+    .addCase(prepareDocument.fulfilled, (state, action) => {
       let added = false;
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
@@ -1487,9 +1483,9 @@ const documentsSlice = createSlice({
         } else return doc;
       });
       if (!added) state.documents.push({ ...action.payload });
-    },
+    })
 
-    [prepareDocument.rejected]: (state, action) => {
+    .addCase(prepareDocument.rejected, (state, action) => {
       let added = false;
       state.documents = state.documents.map((doc) => {
         if (doc.name === action.payload.name) {
@@ -1500,7 +1496,7 @@ const documentsSlice = createSlice({
         } else return doc;
       });
       if (!added) state.documents.push({ ...action.payload });
-    },
+    })
   },
 });
 

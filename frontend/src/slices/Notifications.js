@@ -44,10 +44,10 @@ const notificationsSlice = createSlice({
       state.message = null;
     },
   },
-  extraReducers: {
-    [addNotification.fulfilled]: (state, action) => {
+  extraReducers: (builder) => {
+    builder.addCase(addNotification.fulfilled, (state, action) => {
       state.message = action.payload;
-    },
+    })
   },
 });
 

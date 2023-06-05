@@ -8,7 +8,7 @@
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import { getRequest, checkStatus, extractCsrfToken } from "slices/fetch-utils";
+import { getRequest, checkStatus, extractCsrfToken, esFetch } from "slices/fetch-utils";
 import { setOwnedDocs, setInvitedDocs, removeOwned } from "slices/Main";
 import { addDocumentToDb, addDocument } from "slices/Documents";
 
@@ -19,7 +19,7 @@ import { addDocumentToDb, addDocument } from "slices/Documents";
  */
 export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
   try {
-    const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/poll`, getRequest);
+    const response = await esFetch('/sign/poll', getRequest);
     const state = thunkAPI.getState();
     if (state.main.disablePoll) {
       return thunkAPI.rejectWithValue("Polling disabled");
@@ -165,15 +165,15 @@ const pollSlice = createSlice({
       state.timerId = action.payload;
     },
   },
-  extraReducers: {
-    [poll.fulfilled]: (state, action) => {
+  extraReducers: (builder) => {
+    builder.addCase(poll.fulfilled, (state, action) => {
       if (!state.disablePoll) {
         return {
           ...state,
           ...action.payload.payload,
         };
       }
-    },
+    })
   },
 });
 

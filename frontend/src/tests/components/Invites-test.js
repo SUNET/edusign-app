@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  act,
   screen,
   waitFor,
   fireEvent,
@@ -13,15 +12,12 @@ import {
   setupReduxComponent,
   b64SamplePDFData,
   samplePDFData,
+  flushPromises,
 } from "tests/test-utils";
 import Main from "components/Main";
 import { createDocument, saveTemplate, setState } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
 import { resetDb } from "init-app/database";
-
-async function flushPromises(rerender, ui) {
-  await act(() => waitFor(() => rerender(ui)));
-}
 
 describe("Multi sign invitations", function () {
   beforeEach(async () => {
@@ -33,27 +29,28 @@ describe("Multi sign invitations", function () {
   });
 
   it("It shows the invites form after clicking the invite button", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [],
+          pending_multisign: [],
+          available_loas: [],
+          skipped: [],
+        },
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -118,27 +115,28 @@ describe("Multi sign invitations", function () {
   });
 
   it("It shows two invites in form after clicking the add invitation button", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -225,39 +223,40 @@ describe("Multi sign invitations", function () {
   });
 
   it("It shows no invites form after clicking the send button", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .post("/sign/add-doc", {
+        message: "document added",
+        payload: {
+          key: "dummy key",
+          ref: "dummy ref",
+          sign_requirement: "dummy sign requirement",
+        },
+      })
+      .post("/sign/create-multi-sign", {
+        message: "Success creating multi signature request",
+        error: false,
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .post("/sign/add-doc", {
-          message: "document added",
-          payload: {
-            key: "dummy key",
-            ref: "dummy ref",
-            sign_requirement: "dummy sign requirement",
-          },
-        })
-        .post("/sign/create-multi-sign", {
-          message: "Success creating multi signature request",
-          error: false,
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -287,14 +286,6 @@ describe("Multi sign invitations", function () {
 
       const filename = await waitFor(() => screen.getAllByText("testost.pdf"));
       expect(filename.length).to.equal(1);
-
-      const dropdownButton = await waitFor(() =>
-        screen.getAllByText(/Other options/)
-      );
-      expect(dropdownButton.length).to.equal(1);
-
-      fireEvent.click(dropdownButton[0]);
-      await flushPromises(rerender, wrapped);
 
       const button = await waitFor(() =>
         screen.getAllByText(/Invite others to sign/)
@@ -355,39 +346,40 @@ describe("Multi sign invitations", function () {
   });
 
   it("It shows a template after clicking on Create template", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .post("/sign/add-doc", {
+        message: "document added",
+        payload: {
+          key: "dummy key",
+          ref: "dummy ref",
+          sign_requirement: "dummy sign requirement",
+        },
+      })
+      .post("/sign/create-multi-sign", {
+        message: "Success creating multi signature request",
+        error: false,
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .post("/sign/add-doc", {
-          message: "document added",
-          payload: {
-            key: "dummy key",
-            ref: "dummy ref",
-            sign_requirement: "dummy sign requirement",
-          },
-        })
-        .post("/sign/create-multi-sign", {
-          message: "Success creating multi signature request",
-          error: false,
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -448,39 +440,40 @@ describe("Multi sign invitations", function () {
   });
 
   it("From template make a copy and check the name of the copy", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .post("/sign/add-doc", {
+        message: "document added",
+        payload: {
+          key: "dummy key",
+          ref: "dummy ref",
+          sign_requirement: "dummy sign requirement",
+        },
+      })
+      .post("/sign/create-multi-sign", {
+        message: "Success creating multi signature request",
+        error: false,
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .post("/sign/add-doc", {
-          message: "document added",
-          payload: {
-            key: "dummy key",
-            ref: "dummy ref",
-            sign_requirement: "dummy sign requirement",
-          },
-        })
-        .post("/sign/create-multi-sign", {
-          message: "Success creating multi signature request",
-          error: false,
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -600,43 +593,44 @@ describe("Multi sign invitations", function () {
   });
 
   it("It shows invitation", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "incomplete",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              signed: [],
+              declined: [],
+              pending: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+              ],
+            },
+          ],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [
-              {
-                name: "test1.pdf",
-                type: "application/pdf",
-                state: "incomplete",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                signed: [],
-                declined: [],
-                pending: [
-                  {
-                    name: "Tester Invited1",
-                    email: "invited1@example.org",
-                  },
-                ],
-              },
-            ],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -667,44 +661,45 @@ describe("Multi sign invitations", function () {
   });
 
   it("It resends invitations", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [
+            {
+              state: "incomplete",
+              name: "test1.pdf",
+              state: "incomplete",
+              type: "application/pdf",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              signed: [],
+              declined: [],
+              pending: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+              ],
+            },
+          ],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [
-              {
-                state: "incomplete",
-                name: "test1.pdf",
-                state: "incomplete",
-                type: "application/pdf",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                signed: [],
-                declined: [],
-                pending: [
-                  {
-                    name: "Tester Invited1",
-                    email: "invited1@example.org",
-                  },
-                ],
-              },
-            ],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -775,43 +770,44 @@ describe("Multi sign invitations", function () {
   });
 
   it("It cancels resending invitations", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "incomplete",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              signed: [],
+              declined: [],
+              pending: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+              ],
+            },
+          ],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [
-              {
-                name: "test1.pdf",
-                type: "application/pdf",
-                state: "incomplete",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                signed: [],
-                declined: [],
-                pending: [
-                  {
-                    name: "Tester Invited1",
-                    email: "invited1@example.org",
-                  },
-                ],
-              },
-            ],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -881,47 +877,48 @@ describe("Multi sign invitations", function () {
   });
 
   it("It shows invitation with 2 invitees", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "incomplete",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              signed: [],
+              declined: [],
+              pending: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+                {
+                  name: "Tester Invited2",
+                  email: "invited2@example.org",
+                },
+              ],
+            },
+          ],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [
-              {
-                name: "test1.pdf",
-                type: "application/pdf",
-                state: "incomplete",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                signed: [],
-                declined: [],
-                pending: [
-                  {
-                    name: "Tester Invited1",
-                    email: "invited1@example.org",
-                  },
-                  {
-                    name: "Tester Invited2",
-                    email: "invited2@example.org",
-                  },
-                ],
-              },
-            ],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -957,48 +954,49 @@ describe("Multi sign invitations", function () {
   });
 
   it("It shows invitation with 2 invitees, one signed", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "incomplete",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              signed: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+              ],
+              declined: [],
+              pending: [
+                {
+                  name: "Tester Invited2",
+                  email: "invited2@example.org",
+                },
+              ],
+            },
+          ],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [
-              {
-                name: "test1.pdf",
-                type: "application/pdf",
-                state: "incomplete",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                signed: [
-                  {
-                    name: "Tester Invited1",
-                    email: "invited1@example.org",
-                  },
-                ],
-                declined: [],
-                pending: [
-                  {
-                    name: "Tester Invited2",
-                    email: "invited2@example.org",
-                  },
-                ],
-              },
-            ],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1034,47 +1032,48 @@ describe("Multi sign invitations", function () {
   });
 
   it("It shows invitation with 2 invitees, both signed", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "loaded",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              signed: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+                {
+                  name: "Tester Invited2",
+                  email: "invited2@example.org",
+                },
+              ],
+              declined: [],
+              pending: [],
+            },
+          ],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [
-              {
-                name: "test1.pdf",
-                type: "application/pdf",
-                state: "loaded",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                signed: [
-                  {
-                    name: "Tester Invited1",
-                    email: "invited1@example.org",
-                  },
-                  {
-                    name: "Tester Invited2",
-                    email: "invited2@example.org",
-                  },
-                ],
-                declined: [],
-                pending: [],
-              },
-            ],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1115,51 +1114,52 @@ describe("Multi sign invitations", function () {
   });
 
   it("It removes multisign invitation", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "loaded",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              signed: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+                {
+                  name: "Tester Invited2",
+                  email: "invited2@example.org",
+                },
+              ],
+              declined: [],
+              pending: [],
+            },
+          ],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .post("/sign/remove-multi-sign", {
+        error: false,
+        message: "Success removing invitation",
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [
-              {
-                name: "test1.pdf",
-                type: "application/pdf",
-                state: "loaded",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                signed: [
-                  {
-                    name: "Tester Invited1",
-                    email: "invited1@example.org",
-                  },
-                  {
-                    name: "Tester Invited2",
-                    email: "invited2@example.org",
-                  },
-                ],
-                declined: [],
-                pending: [],
-              },
-            ],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .post("/sign/remove-multi-sign", {
-          error: false,
-          message: "Success removing invitation",
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1193,51 +1193,52 @@ describe("Multi sign invitations", function () {
   });
 
   it("It cancels removing multisign invitation", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "loaded",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              signed: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+                {
+                  name: "Tester Invited2",
+                  email: "invited2@example.org",
+                },
+              ],
+              declined: [],
+              pending: [],
+            },
+          ],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .post("/sign/remove-multi-sign", {
+        error: false,
+        message: "Success removing invitation",
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [
-              {
-                name: "test1.pdf",
-                type: "application/pdf",
-                state: "loaded",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                signed: [
-                  {
-                    name: "Tester Invited1",
-                    email: "invited1@example.org",
-                  },
-                  {
-                    name: "Tester Invited2",
-                    email: "invited2@example.org",
-                  },
-                ],
-                declined: [],
-                pending: [],
-              },
-            ],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .post("/sign/remove-multi-sign", {
-          error: false,
-          message: "Success removing invitation",
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1271,43 +1272,44 @@ describe("Multi sign invitations", function () {
   });
 
   it("It shows invitation for us", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [],
+          available_loas: [],
+          skipped: [],
+          pending_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "loaded",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              invite_key: "22222222-2222-2222-2222-222222222222",
+              owner: {
+                name: "Tester Inviter",
+                email: "inviter@example.org",
+              },
+              pending: [],
+              signed: [],
+              declined: [],
+            },
+          ],
+        },
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [],
-            available_loas: [],
-            pending_multisign: [
-              {
-                name: "test1.pdf",
-                type: "application/pdf",
-                state: "loaded",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                invite_key: "22222222-2222-2222-2222-222222222222",
-                owner: {
-                  name: "Tester Inviter",
-                  email: "inviter@example.org",
-                },
-                pending: [],
-                signed: [],
-                declined: [],
-              },
-            ],
-          },
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1333,66 +1335,67 @@ describe("Multi sign invitations", function () {
   });
 
   it("It starts final signature of multisigned doc", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [
+            {
+              name: "test1.pdf",
+              created: "1668768051000.0",
+              type: "application/pdf",
+              state: "selected",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              loa: "none",
+              prev_signatures: "",
+              signed: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+                {
+                  name: "Tester Invited2",
+                  email: "invited2@example.org",
+                },
+              ],
+              declined: [],
+              pending: [],
+            },
+          ],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .post("/sign/recreate-sign-request", {
+        payload: {
+          failed: [],
+          relay_state: "dummy relay state",
+          sign_request: "dummy sign request",
+          binding: "dummy binding",
+          destination_url: "https://dummy.destination.url",
+          documents: [
+            {
+              name: "test1.pdf",
+              key: "11111111-1111-1111-1111-111111111111",
+            },
+          ],
+        },
+        error: false,
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [
-              {
-                name: "test1.pdf",
-                created: "1668768051000.0",
-                type: "application/pdf",
-                state: "selected",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                loa: "none",
-                prev_signatures: "",
-                signed: [
-                  {
-                    name: "Tester Invited1",
-                    email: "invited1@example.org",
-                  },
-                  {
-                    name: "Tester Invited2",
-                    email: "invited2@example.org",
-                  },
-                ],
-                declined: [],
-                pending: [],
-              },
-            ],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .post("/sign/recreate-sign-request", {
-          payload: {
-            failed: [],
-            relay_state: "dummy relay state",
-            sign_request: "dummy sign request",
-            binding: "dummy binding",
-            destination_url: "https://dummy.destination.url",
-            documents: [
-              {
-                name: "test1.pdf",
-                key: "11111111-1111-1111-1111-111111111111",
-              },
-            ],
-          },
-          error: false,
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1424,61 +1427,62 @@ describe("Multi sign invitations", function () {
   });
 
   it("It skips final signature of multisigned doc", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "loaded",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              signed: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+                {
+                  name: "Tester Invited2",
+                  email: "invited2@example.org",
+                },
+              ],
+              declined: [],
+              pending: [],
+            },
+          ],
+          pending_multisign: [],
+          skipped: [],
+          available_loas: [],
+        },
+      })
+      .post("/sign/skip-final-signature", {
+        payload: {
+          documents: [
+            {
+              id: "11111111-1111-1111-1111-111111111111",
+              signed_content: "dummy signed content",
+            },
+          ],
+        },
+        csrf_token:
+          "2dHK9eEX$8be8af38c0ca02a0be346df372d43a65dbefdbed757a4d43a770e793aed4d02b",
+        message: "Success",
+        error: false,
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [
-              {
-                name: "test1.pdf",
-                type: "application/pdf",
-                state: "loaded",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                signed: [
-                  {
-                    name: "Tester Invited1",
-                    email: "invited1@example.org",
-                  },
-                  {
-                    name: "Tester Invited2",
-                    email: "invited2@example.org",
-                  },
-                ],
-                declined: [],
-                pending: [],
-              },
-            ],
-            pending_multisign: [],
-            available_loas: [],
-          },
-        })
-        .post("/sign/skip-final-signature", {
-          payload: {
-            documents: [
-              {
-                id: "11111111-1111-1111-1111-111111111111",
-                signed_content: "dummy signed content",
-              },
-            ],
-          },
-          csrf_token:
-            "2dHK9eEX$8be8af38c0ca02a0be346df372d43a65dbefdbed757a4d43a770e793aed4d02b",
-          message: "Success",
-          error: false,
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1509,48 +1513,49 @@ describe("Multi sign invitations", function () {
   });
 
   it("It shows other invitees pending to sign in invitation for us", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [],
+          skipped: [],
+          available_loas: [],
+          pending_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "incomplete",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              invite_key: "22222222-2222-2222-2222-222222222222",
+              owner: {
+                name: "Tester Inviter",
+                email: "inviter@example.org",
+              },
+              pending: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+              ],
+              signed: [],
+              declined: [],
+            },
+          ],
+        },
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [],
-            available_loas: [],
-            pending_multisign: [
-              {
-                name: "test1.pdf",
-                type: "application/pdf",
-                state: "incomplete",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                invite_key: "22222222-2222-2222-2222-222222222222",
-                owner: {
-                  name: "Tester Inviter",
-                  email: "inviter@example.org",
-                },
-                pending: [
-                  {
-                    name: "Tester Invited1",
-                    email: "invited1@example.org",
-                  },
-                ],
-                signed: [],
-                declined: [],
-              },
-            ],
-          },
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1581,48 +1586,49 @@ describe("Multi sign invitations", function () {
   });
 
   it("It shows other already signed invitees in invitation for us", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [],
+          skipped: [],
+          available_loas: [],
+          pending_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "loaded",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              invite_key: "22222222-2222-2222-2222-222222222222",
+              owner: {
+                name: "Tester Inviter",
+                email: "inviter@example.org",
+              },
+              signed: [
+                {
+                  name: "Tester Invited1",
+                  email: "invited1@example.org",
+                },
+              ],
+              declined: [],
+              pending: [],
+            },
+          ],
+        },
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [],
-            available_loas: [],
-            pending_multisign: [
-              {
-                name: "test1.pdf",
-                type: "application/pdf",
-                state: "loaded",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                invite_key: "22222222-2222-2222-2222-222222222222",
-                owner: {
-                  name: "Tester Inviter",
-                  email: "inviter@example.org",
-                },
-                signed: [
-                  {
-                    name: "Tester Invited1",
-                    email: "invited1@example.org",
-                  },
-                ],
-                declined: [],
-                pending: [],
-              },
-            ],
-          },
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
@@ -1653,53 +1659,54 @@ describe("Multi sign invitations", function () {
   });
 
   it("It shows both pending and already signed invitees in invitation for us", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [],
+          skipped: [],
+          available_loas: [],
+          pending_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "incomplete",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              invite_key: "22222222-2222-2222-2222-222222222222",
+              owner: {
+                name: "Tester Inviter",
+                email: "inviter@example.org",
+              },
+              signed: [
+                {
+                  name: "Tester Signed",
+                  email: "invited1@example.org",
+                },
+              ],
+              declined: [],
+              pending: [
+                {
+                  name: "Tester Pending",
+                  email: "invited2@example.org",
+                },
+              ],
+            },
+          ],
+        },
+      })
+      .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
-      fetchMock
-        .get("/sign/config", {
-          payload: {
-            unauthn: false,
-            poll: false,
-            multisign_buttons: "true",
-            signer_attributes: {
-              name: "Tester Testig",
-              eppn: "tester@example.org",
-              mail: "tester@example.org",
-              mail_aliases: ["tester@example.org"],
-            },
-            owned_multisign: [],
-            available_loas: [],
-            pending_multisign: [
-              {
-                name: "test1.pdf",
-                type: "application/pdf",
-                state: "incomplete",
-                size: 1500,
-                key: "11111111-1111-1111-1111-111111111111",
-                invite_key: "22222222-2222-2222-2222-222222222222",
-                owner: {
-                  name: "Tester Inviter",
-                  email: "inviter@example.org",
-                },
-                signed: [
-                  {
-                    name: "Tester Signed",
-                    email: "invited1@example.org",
-                  },
-                ],
-                declined: [],
-                pending: [
-                  {
-                    name: "Tester Pending",
-                    email: "invited2@example.org",
-                  },
-                ],
-              },
-            ],
-          },
-        })
-        .get("/sign/poll", {});
       store.dispatch(
         fetchConfig({
           intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },

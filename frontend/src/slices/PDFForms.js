@@ -9,6 +9,7 @@ import {
   checkStatus,
   extractCsrfToken,
   preparePayload,
+  esFetch,
 } from "slices/fetch-utils";
 import { setState, createDocument, addDocument } from "slices/Documents";
 import { setTemplateFormSchema } from "slices/Templates";
@@ -47,7 +48,7 @@ export const sendPDFForm = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await fetch(`/${window.document.location.pathname.split('/')[1]}/update-form`, {
+      const response = await esFetch('/sign/update-form', {
         ...postRequest,
         body: body,
       });
@@ -118,7 +119,7 @@ const pdfFormSlice = createSlice({
       state.document = null;
     },
   },
-  extraReducers: {},
+  extraReducers: (builder) => {},
 });
 
 export const { showPDFForm, hidePDFForm } = pdfFormSlice.actions;
