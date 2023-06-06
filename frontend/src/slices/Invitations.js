@@ -90,18 +90,6 @@ export const sendInvites = createAsyncThunk(
         return doc.name === docName;
       })[0];
       thunkAPI.dispatch(setState({ name: docName, state: "loaded" }));
-      if (!isTemplate) {
-        thunkAPI.dispatch(rmDocument(document.name));
-        if (document.id !== undefined) {
-          await dbRemoveDocument(document);
-        }
-        const newTemplate = {
-          ...document,
-          state: "loaded",
-          isTemplate: true,
-        };
-        await saveTemplate(thunkAPI, newTemplate);
-      }
       document = newDocument;
     }
     // We send the gathered data to the `create-multi-sign` endpoint in the backend.

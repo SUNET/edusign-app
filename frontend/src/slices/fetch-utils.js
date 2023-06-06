@@ -15,7 +15,7 @@ import { setCsrfToken } from "slices/Main";
  */
 export const checkStatus = async function (response) {
   if (response.status >= 200 && response.status < 300) {
-    return await response.json();
+    return response.json();
   } else if (response.status === 0) {
     const next = document.location.href;
     document.location.assign(next);

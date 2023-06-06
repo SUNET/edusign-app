@@ -2,7 +2,6 @@ import React from "react";
 import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { expect } from "chai";
 import fetchMock from "fetch-mock";
-import JSZip from "jszip";
 import * as FileSaver from "file-saver";
 import sinon from "sinon";
 

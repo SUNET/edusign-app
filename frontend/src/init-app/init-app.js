@@ -8,7 +8,6 @@
  */
 
 import React from "react";
-import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";

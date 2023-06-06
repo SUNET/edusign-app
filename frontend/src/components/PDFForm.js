@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import BForm from "react-bootstrap/Form";
-import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
 import { nameForCopy } from "components/utils";
 import { validateNewname } from "components/InviteForm";
@@ -147,10 +147,6 @@ class PDFForm extends React.Component {
         }
       }
     }
-  }
-
-  resetValues() {
-    this.setState({ values: {} });
   }
 
   async initPage() {

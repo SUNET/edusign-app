@@ -116,7 +116,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     const oldDocs = state.main[args.stateKey].filter((doc) => {
-      doc.key === args.key;
+      return doc.key === args.key;
     });
     if (oldDocs.length == 1 && oldDocs[0].blob) {
       args.payload = oldDocs[0];

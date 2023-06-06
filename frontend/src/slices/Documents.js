@@ -48,9 +48,7 @@ import {
 import { addNotification } from "slices/Notifications";
 import {
   updateSigningForm,
-  addOwned,
   removeOwned,
-  updateOwned,
   finishInvited,
   startSigningInvited,
   startSigningOwned,
@@ -60,15 +58,11 @@ import {
   invitationsSignFailure,
   updateInvitationsFailed,
 } from "slices/Main";
-import { setPolling } from "slices/Poll";
 import { setTemplates, addTemplate } from "slices/Templates";
-import { unsetSpinning } from "slices/Button";
-import { dbSaveDocument, dbRemoveDocument } from "init-app/database";
-import { getDb } from "init-app/database";
+import { dbSaveDocument, dbRemoveDocument, getDb } from "init-app/database";
 import {
   b64toBlob,
   hashCode,
-  nameForCopy,
   humanFileSize,
   nameForDownload,
 } from "components/utils";
@@ -353,7 +347,7 @@ export const validateDoc = async (doc, intl, state) => {
     };
   }
 
-  return await pdfjs
+  return pdfjs
     .getDocument({ url: doc.blob, password: "", stopAtErrors: true })
     .promise.then(() => {
       return {

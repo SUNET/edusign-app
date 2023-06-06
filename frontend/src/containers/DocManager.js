@@ -27,7 +27,6 @@ import {
   downloadAllSigned,
   saveDocument,
 } from "slices/Documents";
-import { removeInvites } from "slices/Invitations";
 import {
   removeTemplate,
   createTemplate,

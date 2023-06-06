@@ -2,7 +2,6 @@ import { connect } from "react-redux";
 
 import Tooltip from "components/Tooltip";
 import Popover from "components/Popover";
-import { enableContextualHelp } from "slices/Main";
 import { setActiveId, unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {

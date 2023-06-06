@@ -8,7 +8,7 @@ import DelegateForm from "components/DelegateForm";
 
 import { delegateSignature, stopDelegating } from "slices/Main";
 import { unsetSpinning } from "slices/Button";
-import { disablePolling, enablePolling } from "slices/Poll";
+import { enablePolling } from "slices/Poll";
 import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {

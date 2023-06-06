@@ -15,7 +15,7 @@ import InviteEditForm from "components/InviteEditForm";
 import { editInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
-import { disablePolling, enablePolling } from "slices/Poll";
+import { enablePolling } from "slices/Poll";
 import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {

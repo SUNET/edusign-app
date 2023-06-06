@@ -15,7 +15,7 @@ import {
   flushPromises,
 } from "tests/test-utils";
 import Main from "components/Main";
-import { createDocument, saveTemplate, setState } from "slices/Documents";
+import { createDocument, setState } from "slices/Documents";
 import { fetchConfig } from "slices/Main";
 import { resetDb } from "init-app/database";
 

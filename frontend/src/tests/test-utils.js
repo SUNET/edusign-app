@@ -1,8 +1,7 @@
 import React from "react";
-import { Provider } from "react-intl-redux";
+import { Provider, updateIntl } from "react-intl-redux";
 import { render, fireEvent, waitFor } from "@testing-library/react";
 import configureStore from "redux-mock-store";
-import { updateIntl } from "react-intl-redux";
 import rootReducer from "init-app/store";
 import { edusignStore } from "init-app/init-app";
 

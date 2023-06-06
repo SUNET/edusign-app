@@ -98,7 +98,7 @@ export function docToFile(doc) {
  *
  */
 export const hashCode = function (s) {
-  var hash = 0,
+  let hash = 0,
     i,
     chr;
   if (s.length === 0) return hash;
