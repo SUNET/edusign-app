@@ -152,7 +152,6 @@ export const sendInvites = createAsyncThunk(
         throw new Error(data.error);
       }
     } catch (err) {
-      console.log(`Error sending invitations to sign: ${err}`);
       // In case of errors, inform the user, update the app state.
       const message = args.intl.formatMessage({
         defaultMessage: "Problem sending invitations to sign, please try again",
@@ -460,7 +459,6 @@ export const resendInvitations = createAsyncThunk(
         throw new Error(data.error);
       }
     } catch (err) {
-      console.log(`Error re-sending invitations to sign: ${err}`);
       // In case of errors, inform the user, and update the local state.
       const message = args.intl.formatMessage({
         defaultMessage: "Problem re-sending invitations to sign, please try again",
