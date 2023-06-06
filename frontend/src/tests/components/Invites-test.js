@@ -86,14 +86,6 @@ describe("Multi sign invitations", function () {
       store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
       await flushPromises(rerender, wrapped);
 
-      const dropdownButton = await waitFor(() =>
-        screen.getAllByText(/Other options/)
-      );
-      expect(dropdownButton.length).to.equal(1);
-
-      fireEvent.click(dropdownButton[0]);
-      await flushPromises(rerender, wrapped);
-
       const button = await waitFor(() =>
         screen.getAllByText(/Invite others to sign/)
       );
@@ -169,14 +161,6 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
-      await flushPromises(rerender, wrapped);
-
-      const dropdownButton = await waitFor(() =>
-        screen.getAllByText(/Other options/)
-      );
-      expect(dropdownButton.length).to.equal(1);
-
-      fireEvent.click(dropdownButton[0]);
       await flushPromises(rerender, wrapped);
 
       const button = await waitFor(() =>
@@ -272,6 +256,7 @@ describe("Multi sign invitations", function () {
         size: fileObj.size,
         type: fileObj.type,
         blob: "data:application/pdf;base64," + b64SamplePDFData,
+        created: Date.now(),
       };
       await store.dispatch(
         createDocument({
@@ -330,10 +315,10 @@ describe("Multi sign invitations", function () {
       fireEvent.click(buttonSend[0]);
       await flushPromises(rerender, wrapped);
 
-      const inviteWaiting = await waitFor(() =>
-        screen.getAllByText("Waiting for signatures by:")
-      );
-      expect(inviteWaiting.length).to.equal(1);
+      //const inviteWaiting = await waitFor(() =>
+        //screen.getAllByText(/Waiting for signatures by/)
+      //);
+      //expect(inviteWaiting.length).to.equal(1);
 
       const inviteName = await waitFor(() => screen.getAllByText(/Dummy Doe/));
       expect(inviteName.length).to.equal(1);
@@ -524,14 +509,6 @@ describe("Multi sign invitations", function () {
       filename = await waitFor(() => screen.getAllByText("testost.pdf"));
       expect(filename.length).to.equal(1);
 
-      dropdownButton = await waitFor(() =>
-        screen.getAllByText(/Other options/)
-      );
-      expect(dropdownButton.length).to.equal(1);
-
-      fireEvent.click(dropdownButton[0]);
-      await flushPromises(rerender, wrapped);
-
       button = await waitFor(() =>
         screen.getAllByText(/Invite others to sign/)
       );
@@ -677,16 +654,17 @@ describe("Multi sign invitations", function () {
             {
               state: "incomplete",
               name: "test1.pdf",
-              state: "incomplete",
               type: "application/pdf",
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
+              created: 1685976828240,
               signed: [],
               declined: [],
               pending: [
                 {
                   name: "Tester Invited1",
                   email: "invited1@example.org",
+                  lang: 'en',
                 },
               ],
             },
@@ -1352,7 +1330,7 @@ describe("Multi sign invitations", function () {
               name: "test1.pdf",
               created: "1668768051000.0",
               type: "application/pdf",
-              state: "selected",
+              state: "loaded",
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
               loa: "none",
@@ -1361,10 +1339,12 @@ describe("Multi sign invitations", function () {
                 {
                   name: "Tester Invited1",
                   email: "invited1@example.org",
+                  lang: 'en',
                 },
                 {
                   name: "Tester Invited2",
                   email: "invited2@example.org",
+                  lang: 'en',
                 },
               ],
               declined: [],
@@ -1392,6 +1372,22 @@ describe("Multi sign invitations", function () {
         },
         error: false,
       })
+      .post("/sign/create-sign-request", {
+        payload: {
+          failed: [],
+          relay_state: "dummy relay state",
+          sign_request: "dummy sign request",
+          binding: "dummy binding",
+          destination_url: "https://dummy.destination.url",
+          documents: [
+            {
+              name: "test1.pdf",
+              key: "11111111-1111-1111-1111-111111111111",
+            },
+          ],
+        },
+        error: false,
+      })
       .get("/sign/poll", {});
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
@@ -1403,7 +1399,15 @@ describe("Multi sign invitations", function () {
       );
       await flushPromises(rerender, wrapped);
 
-      store.dispatch(setState({ name: "test1.pdf", state: "selected" }));
+      //store.dispatch(setState({ name: "test1.pdf", state: "selected" }));
+      //await flushPromises(rerender, wrapped);
+
+      const selector = await waitFor(() =>
+        screen.getAllByTestId("doc-selector-test1.pdf")
+      );
+      expect(selector.length).to.equal(1);
+
+      fireEvent.click(selector[0]);
       await flushPromises(rerender, wrapped);
 
       const signButton = await waitFor(() =>

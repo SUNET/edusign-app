@@ -194,7 +194,7 @@ const initialValues = (props) => ({
     {
       name: "",
       email: "",
-      lang: Cookies.get("lang"),
+      lang: Cookies.get("lang") || 'en',
     },
   ],
 });
@@ -396,7 +396,7 @@ class InviteForm extends React.Component {
                   arrayHelpers.push({
                     name: "",
                     email: "",
-                    lang: Cookies.get("lang"),
+                    lang: Cookies.get("lang") || 'en',
                   })
                 }
               >
