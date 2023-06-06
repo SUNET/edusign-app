@@ -15,7 +15,7 @@ import InviteForm from "components/InviteForm";
 import { sendInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
-import { disablePolling, enablePolling } from "slices/Poll";
+import { enablePolling } from "slices/Poll";
 import { toggleLoa, isNotInviting } from "slices/InviteForm";
 import { unsetActiveId } from "slices/Overlay";
 

@@ -8,12 +8,10 @@ import { connect } from "react-redux";
 import { removeInvites } from "slices/Invitations";
 import Owned from "components/Owned";
 import { askConfirmation } from "slices/ConfirmDialog";
-import { showResend } from "slices/Modals";
-import { showForm } from "slices/Modals";
+import { showResend, showForm } from "slices/Modals";
 import {
   getPartiallySignedDoc,
   hideOwnedPreview,
-  setOwnedSigning,
   selectOwnedDoc,
 } from "slices/Main";
 import { disablePolling, enablePolling } from "slices/Poll";

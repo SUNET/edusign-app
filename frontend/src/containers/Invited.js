@@ -11,7 +11,6 @@ import {
   hideInvitedPreview,
   setInvitedSigning,
   selectInvitedDoc,
-  showForcedInvitedPreview,
   hideForcedInvitedPreview,
   confirmForcedInvitedPreview,
   declineSigning,

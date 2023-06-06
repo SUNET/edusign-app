@@ -1,16 +1,12 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { FormattedMessage, injectIntl } from "react-intl";
-import Button from "react-bootstrap/Button";
+import { injectIntl } from "react-intl";
 
-import { docToFile, humanFileSize } from "components/utils";
+import { docToFile } from "components/utils";
 import DocPreviewContainer from "containers/DocPreview";
-import LittleSpinner from "components/LittleSpinner";
 import ForcedPreviewContainer from "containers/ForcedPreview";
 import DocumentInvited from "components/DocumentInvited";
 import DelegateFormContainer from "containers/DelegateForm";
-import * as widgets from "components/widgets";
-import { preparePrevSigs } from "components/utils";
 
 import "styles/Invitation.scss";
 

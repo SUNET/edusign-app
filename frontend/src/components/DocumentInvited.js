@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
-import { ESPopover } from "containers/Overlay";
-import { ESTooltip } from "containers/Overlay";
+import { ESPopover, ESTooltip } from "containers/Overlay";
 import ESDropdown from "components/Dropdown";
 import * as menu from "components/dropdownItems";
 

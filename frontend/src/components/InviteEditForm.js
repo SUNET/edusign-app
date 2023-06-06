@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 import Button from "containers/Button";
@@ -8,7 +8,6 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
-import { nameForCopy } from "components/utils";
 import { validateEmail, validateName, validateLang } from "components/InviteForm";
 
 import "styles/InviteForm.scss";

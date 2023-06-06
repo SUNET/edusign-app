@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
-import Button from "react-bootstrap/Button";
 
 import ForcedPreviewContainer from "containers/ForcedPreview";
 import DocPreviewContainer from "containers/DocPreview";

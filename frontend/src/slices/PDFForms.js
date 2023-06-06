@@ -11,10 +11,8 @@ import {
   preparePayload,
   esFetch,
 } from "slices/fetch-utils";
-import { setState, createDocument, addDocument } from "slices/Documents";
-import { setTemplateFormSchema } from "slices/Templates";
+import { createDocument, addDocument } from "slices/Documents";
 import { showForm } from "slices/Modals";
-import { unsetSpinning } from "slices/Button";
 import { addNotification } from "slices/Notifications";
 
 /**

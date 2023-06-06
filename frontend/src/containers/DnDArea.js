@@ -73,7 +73,7 @@ const mapDispatchToProps = (dispatch) => {
             await dispatch(createDocument({ doc: file, intl: intl }));
             dispatch(setWaiting());
           };
-          await reader.readAsDataURL(fileObj);
+          reader.readAsDataURL(fileObj);
           dispatch(setWaiting());
         });
       };
