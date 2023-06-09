@@ -5,13 +5,14 @@
    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
    <link rel="icon" href="{{ favicon }}">
+   <style type="text/css" src="custom.css"></style>
    <title>eduSign</title>
  </head>
  <body>
    <noscript>
      You need to enable JavaScript to run this app.
    </noscript>
-   <div id="root"></div>
+   <div id="root" class="custom-root"></div>
    <script type="text/javascript" src="/js/{{ bundle_name }}.js"></script>
    <div id="sign-response-holder" data-signresponse="{{ sign_response }}" data-relaystate="{{ relay_state }}" />
  </body>
