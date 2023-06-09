@@ -205,9 +205,10 @@ def get_home():
     """
     current_lang = str(get_locale())
     md_name = f"home-{current_lang}.md"
-    md_etc = os.path.join('/etc/edusign/', md_name)
-    if os.path.exists(md_etc):
-        md_file = md_etc
+    base_dir = current_app.config['CUSTOMISATION_DIR']
+    md_custom = os.path.join(base_dir, md_name)
+    if os.path.exists(md_custom):
+        md_file = md_custom
     else:
         md_file = os.path.join(current_app.config['HERE'], 'md', md_name)
 
@@ -226,6 +227,9 @@ def get_home():
         'other_lang': other_lang,
         'other_lang_name': current_app.config['SUPPORTED_LANGUAGES'][other_lang],
         'version': version,
+        'favicon': current_app.config['CUSTOM_FAVICON'],
+        'company_logo': current_app.config['CUSTOM_COMPANY_LOGO'],
+        'edusign_logo': current_app.config['CUSTOM_EDUSIGN_LOGO'],
     }
 
     try:
@@ -233,6 +237,28 @@ def get_home():
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
         abort(500)
+
+
+@anon_edusign_views.route('/custom.css', methods=['GET'])
+def get_custom_css():
+    """
+    View to serve the custom css.
+    If there is none, this will serve an empty css file
+
+    :return: the css
+    """
+    css_name = "custom.css"
+    base_dir = current_app.config['CUSTOMISATION_DIR']
+    css_custom = os.path.join(base_dir, css_name)
+    if os.path.exists(css_custom):
+        with open(css_custom) as f:
+            css_str = f.read()
+    else:
+        css_str = ''
+
+    response = make_response(css_str)
+    response.mimetype = "text/css"
+    return response
 
 
 @anon_edusign_views.route('/faq', methods=['GET'])
@@ -247,9 +273,10 @@ def get_help_page():
     """
     current_lang = str(get_locale())
     md_name = f"faq-{current_lang}.md"
-    md_etc = os.path.join('/etc/edusign/', md_name)
-    if os.path.exists(md_etc):
-        md_file = md_etc
+    base_dir = current_app.config['CUSTOMISATION_DIR']
+    md_custom = os.path.join(base_dir, md_name)
+    if os.path.exists(md_custom):
+        md_file = md_custom
     else:
         md_file = os.path.join(current_app.config['HERE'], 'md', md_name)
 
@@ -265,6 +292,9 @@ def get_help_page():
         'other_lang': other_lang,
         'other_lang_name': current_app.config['SUPPORTED_LANGUAGES'][other_lang],
         'version': version,
+        'favicon': current_app.config['CUSTOM_FAVICON'],
+        'company_logo': current_app.config['CUSTOM_COMPANY_LOGO'],
+        'edusign_logo': current_app.config['CUSTOM_EDUSIGN_LOGO'],
     }
 
     try:
@@ -310,9 +340,13 @@ def get_index() -> str:
 
     :return: the rendered `index.jinja2` template as a string (or `error-generic.jinja2` in case of errors)
     """
+    favicon = current_app.config['CUSTOM_FAVICON'],
     context = {
         'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}",
         'back_button_text': gettext("Back"),
+        'favicon': favicon,
+        'company_logo': current_app.config['CUSTOM_COMPANY_LOGO'],
+        'edusign_logo': current_app.config['CUSTOM_EDUSIGN_LOGO'],
     }
     unauthn = False
     try:
@@ -349,8 +383,10 @@ def get_index() -> str:
     if current_app.config['ENVIRONMENT'] == 'development':
         bundle_name += '.dev'
 
+    favicon = current_app.config['CUSTOM_FAVICON'],
+
     try:
-        return render_template('index.jinja2', bundle_name=bundle_name)
+        return render_template('index.jinja2', bundle_name=bundle_name, favicon=favicon)
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
         abort(500)
@@ -394,6 +430,11 @@ def get_config() -> dict:
     for uri, name in current_app.config['AVAILABLE_LOAS'].items():
         payload['available_loas'].append({'uri': uri, 'name': name})
     payload['max_file_size'] = current_app.config['MAX_CONTENT_LENGTH']
+
+    payload['lookandfeel'] = {
+        'company_logo': current_app.config['CUSTOM_COMPANY_LOGO'],
+        'edusign_logo': current_app.config['CUSTOM_EDUSIGN_LOGO'],
+    }
 
     return {
         'payload': payload,
@@ -765,6 +806,7 @@ def sign_service_callback() -> Union[str, Response]:
             sign_response=sign_response,
             relay_state=relay_state,
             bundle_name=bundle_name,
+            favicon=current_app.config['CUSTOM_FAVICON'],
         )
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
