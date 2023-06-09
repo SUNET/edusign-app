@@ -89,6 +89,7 @@ export const fetchConfig = createAsyncThunk(
         });
 
         delete configData.payload.skipped;
+        setLookAndFeel(configData.lookandfeel);
         return configData;
       }
     } catch (err) {
@@ -105,6 +106,14 @@ export const fetchConfig = createAsyncThunk(
     }
   }
 );
+
+const setLookAndFeel = (lookandfeel) => {
+  const edusignElem = document.getElementById('edusign-logo');
+  const companyElem = document.getElementById('sunet-logo');
+
+  edusignElem.style.backgroundImage = lookandfeel.edusign_logo;
+  companyElem.style.backgroundImage = lookandfeel.company_logo;
+};
 
 /**
  * @public
