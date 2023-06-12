@@ -230,6 +230,9 @@ def get_home():
         'favicon': current_app.config['CUSTOM_FAVICON'],
         'company_logo': current_app.config['CUSTOM_COMPANY_LOGO'],
         'edusign_logo': current_app.config['CUSTOM_EDUSIGN_LOGO'],
+        'company_logo_small': current_app.config['CUSTOM_COMPANY_LOGO_SMALL'],
+        'edusign_logo_small': current_app.config['CUSTOM_EDUSIGN_LOGO_SMALL'],
+        'company_link': current_app.config['CUSTOM_COMPANY_LINK'],
     }
 
     try:
@@ -295,6 +298,9 @@ def get_help_page():
         'favicon': current_app.config['CUSTOM_FAVICON'],
         'company_logo': current_app.config['CUSTOM_COMPANY_LOGO'],
         'edusign_logo': current_app.config['CUSTOM_EDUSIGN_LOGO'],
+        'company_logo_small': current_app.config['CUSTOM_COMPANY_LOGO_SMALL'],
+        'edusign_logo_small': current_app.config['CUSTOM_EDUSIGN_LOGO_SMALL'],
+        'company_link': current_app.config['CUSTOM_COMPANY_LINK'],
     }
 
     try:
@@ -347,6 +353,9 @@ def get_index() -> str:
         'favicon': favicon,
         'company_logo': current_app.config['CUSTOM_COMPANY_LOGO'],
         'edusign_logo': current_app.config['CUSTOM_EDUSIGN_LOGO'],
+        'company_logo_small': current_app.config['CUSTOM_COMPANY_LOGO_SMALL'],
+        'edusign_logo_small': current_app.config['CUSTOM_EDUSIGN_LOGO_SMALL'],
+        'company_link': current_app.config['CUSTOM_COMPANY_LINK'],
     }
     unauthn = False
     try:
@@ -434,6 +443,9 @@ def get_config() -> dict:
     payload['lookandfeel'] = {
         'company_logo': current_app.config['CUSTOM_COMPANY_LOGO'],
         'edusign_logo': current_app.config['CUSTOM_EDUSIGN_LOGO'],
+        'company_logo_small': current_app.config['CUSTOM_COMPANY_LOGO_SMALL'],
+        'edusign_logo_small': current_app.config['CUSTOM_EDUSIGN_LOGO_SMALL'],
+        'company_link': current_app.config['CUSTOM_COMPANY_LINK'],
     }
 
     return {

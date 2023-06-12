@@ -17,12 +17,14 @@ const mapStateToProps = (state) => {
     return {
       loading: true,
       size: state.main.size,
+      ...state.main.lookandfeel,
     };
   }
   return {
     loading: false,
     signer_attributes: state.main.signer_attributes,
     size: state.main.size,
+    ...state.main.lookandfeel,
   };
 };
 
