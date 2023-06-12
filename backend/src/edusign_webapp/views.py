@@ -346,7 +346,7 @@ def get_index() -> str:
 
     :return: the rendered `index.jinja2` template as a string (or `error-generic.jinja2` in case of errors)
     """
-    favicon = current_app.config['CUSTOM_FAVICON'],
+    favicon = current_app.config['CUSTOM_FAVICON']
     context = {
         'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}",
         'back_button_text': gettext("Back"),
