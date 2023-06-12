@@ -392,8 +392,6 @@ def get_index() -> str:
     if current_app.config['ENVIRONMENT'] == 'development':
         bundle_name += '.dev'
 
-    favicon = current_app.config['CUSTOM_FAVICON'],
-
     try:
         return render_template('index.jinja2', bundle_name=bundle_name, favicon=favicon)
     except AttributeError as e:
