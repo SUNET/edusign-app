@@ -205,7 +205,7 @@ def get_home():
     """
     current_lang = str(get_locale())
     md_name = f"home-{current_lang}.md"
-    base_dir = current_app.config['CUSTOMISATION_DIR']
+    base_dir = current_app.config['CUSTOMIZATION_DIR']
     md_custom = os.path.join(base_dir, md_name)
     if os.path.exists(md_custom):
         md_file = md_custom
@@ -251,13 +251,13 @@ def get_custom_css():
     :return: the css
     """
     css_name = "custom.css"
-    base_dir = current_app.config['CUSTOMISATION_DIR']
+    base_dir = current_app.config['CUSTOMIZATION_DIR']
     css_custom = os.path.join(base_dir, css_name)
+
+    css_str = ''
     if os.path.exists(css_custom):
         with open(css_custom) as f:
             css_str = f.read()
-    else:
-        css_str = ''
 
     response = make_response(css_str)
     response.mimetype = "text/css"
@@ -276,7 +276,7 @@ def get_help_page():
     """
     current_lang = str(get_locale())
     md_name = f"faq-{current_lang}.md"
-    base_dir = current_app.config['CUSTOMISATION_DIR']
+    base_dir = current_app.config['CUSTOMIZATION_DIR']
     md_custom = os.path.join(base_dir, md_name)
     if os.path.exists(md_custom):
         md_file = md_custom

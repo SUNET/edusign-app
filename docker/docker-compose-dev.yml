@@ -33,6 +33,7 @@ services:
     volumes:
       - edusignlogs:/var/log/edusign:rw
       - ../backend:/opt/edusign/edusign-webapp:ro
+      - ../../docker-edusign-app/example-customization:/etc/edusign:ro
     environment:
       - "PYTHONPATH=/opt/edusign/edusign-webapp/src"
       - "HOSTNAME=sp.edusign.docker"
@@ -41,7 +42,7 @@ services:
       - "ENVIRONMENT=development"
       - "SESSION_COOKIE_SECURE=False"
       - "PREFERRED_URL_SCHEME=http"
-      - "EDUSIGN_API_PROFILE=edusign-test2"
+      - "EDUSIGN_API_PROFILE=edusign-test"
       - "MAIL_SUPPRESS_SEND=True"
       - "MAIL_BACKEND=dummy"
       - "APP_IN_TWO_PATHS=True"
