@@ -121,6 +121,9 @@ class ConfigSchema(InvitationsSchema):
     class LookAndFeel(Schema):
         company_logo = fields.String(required=True, validate=[validate_nonempty])
         edusign_logo = fields.String(required=True, validate=[validate_nonempty])
+        company_logo_small = fields.String(required=True, validate=[validate_nonempty])
+        edusign_logo_small = fields.String(required=True, validate=[validate_nonempty])
+        company_link = fields.String(required=True, validate=[validate_nonempty])
 
     signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)
