@@ -65,12 +65,12 @@ class Header extends Component {
         >
           <div id="logos-and-name">
             <div id="edusign-logo" data-testid="edusign-logo">
-              <img src={this.props.edusign_logo} />
+              <img src="" />
             </div>
             <div id="header-right" data-testid="header-right">
-              <a href={this.props.company_link}>
+              <a href="">
                 <div id="sunet-logo" data-testid="sunet-logo">
-                  <img src={this.props.company_logo} />
+                  <img src="" />
                 </div>
               </a>
               {name}
@@ -88,11 +88,11 @@ class Header extends Component {
         >
           <div id="edusign-logos" data-testid="edusign-logos">
             <div id="edusign-logo" data-testid="edusign-logo">
-              <img src={this.props.edusign_logo_small} />
+              <img src="" />
             </div>
-            <a href={this.props.company_link}>
+            <a href="">
               <div id="sunet-logo" data-testid="sunet-logo">
-                <img src={this.props.company_logo_small} />
+                <img src="" />
               </div>
             </a>
           </div>

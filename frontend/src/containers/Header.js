@@ -17,34 +17,12 @@ const mapStateToProps = (state) => {
     return {
       loading: true,
       size: state.main.size,
-      company_link: '',
-      edusign_logo: '',
-      company_logo: '',
-      edusign_logo_small: '',
-      company_logo_small: '',
-    };
-  }
-  if (state.main.lookandfeel === undefined) {
-    return {
-      loading: false,
-      signer_attributes: state.main.signer_attributes,
-      size: state.main.size,
-      company_link: '',
-      edusign_logo: '',
-      company_logo: '',
-      edusign_logo_small: '',
-      company_logo_small: '',
     };
   } else {
     return {
       loading: false,
       signer_attributes: state.main.signer_attributes,
       size: state.main.size,
-      company_link: state.main.lookandfeel.company_link,
-      edusign_logo: state.main.lookandfeel.edusign_logo,
-      company_logo: state.main.lookandfeel.company_logo,
-      edusign_logo_small: state.main.lookandfeel.edusign_logo_small,
-      company_logo_small: state.main.lookandfeel.company_logo_small,
     };
   }
 };
