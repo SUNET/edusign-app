@@ -91,7 +91,7 @@ class Header extends Component {
               <img src="/assets/edusign-logo.png" />
             </div>
             <a href={this.props.company_link}>
-              <div id="sunet-logo" data-testid="sunet-logo" />
+              <div id="sunet-logo" data-testid="sunet-logo">
                 <img src="/assets/company-logo.png" />
               </div>
             </a>
