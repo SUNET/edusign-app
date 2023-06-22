@@ -227,6 +227,7 @@ def get_home():
         'other_lang': other_lang,
         'other_lang_name': current_app.config['SUPPORTED_LANGUAGES'][other_lang],
         'version': version,
+        'company_link': current_app.config['COMPANY_LINK'],
     }
 
     try:
@@ -266,6 +267,7 @@ def get_help_page():
         'other_lang': other_lang,
         'other_lang_name': current_app.config['SUPPORTED_LANGUAGES'][other_lang],
         'version': version,
+        'company_link': current_app.config['COMPANY_LINK'],
     }
 
     try:
@@ -395,6 +397,7 @@ def get_config() -> dict:
     for uri, name in current_app.config['AVAILABLE_LOAS'].items():
         payload['available_loas'].append({'uri': uri, 'name': name})
     payload['max_file_size'] = current_app.config['MAX_CONTENT_LENGTH']
+    payload['company_link'] = current_app.config['COMPANY_LINK']
 
     return {
         'payload': payload,

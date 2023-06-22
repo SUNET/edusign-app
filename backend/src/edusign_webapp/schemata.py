@@ -124,6 +124,7 @@ class ConfigSchema(InvitationsSchema):
     unauthn = fields.Boolean(dump_default=True)
     max_file_size = fields.String(required=True)
     max_signatures = fields.String(required=True)
+    company_link = fields.String(required=True)
 
 
 class DocumentSchema(_DocumentSchema):
