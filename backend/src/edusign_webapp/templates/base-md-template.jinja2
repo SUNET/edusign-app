@@ -159,7 +159,11 @@ footer {
               {% endblock %}
             </div>
             <div id="lang-selector">
-              {{ other_lang_name }}
+              <select name="lang-selector">
+                {% for lang in other_langs %}
+                  <option value="{{ lang[0] }}">{{ lang[1] }}</option>
+                {% endfor %}
+              </select
             </div>
           </div>
         </footer>
@@ -170,12 +174,12 @@ footer {
 
           {% block script_bottom %}{% endblock %}
 
-          document.querySelector('#lang-selector').addEventListener('click', (e) => {
+          document.querySelector("#lang-selector select[name='lang-selector']").addEventListener('change', (e) => {
             e.preventDefault();
             var days = 365;
             var date = new Date();
             date.setTime(date.getTime() + (days*24*60*60*1000));
-            var cookie = "lang={{ other_lang }}; expires=" + date.toUTCString();
+            var cookie = `lang=${e.target.value}; expires=${date.toUTCString()}`;
             window.document.cookie = cookie;
             window.location.reload(true);
           });
