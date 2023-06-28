@@ -267,6 +267,7 @@ class SignedDocumentsSchema(Schema):
     class SignedDocumentSchema(Schema):
         id = fields.String(required=True, validate=[validate_nonempty])
         signed_content = fields.Raw(required=True, validate=[validate_nonempty])
+        validated = fields.Boolean()
 
     documents = fields.List(fields.Nested(SignedDocumentSchema))
 

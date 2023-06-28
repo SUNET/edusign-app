@@ -62,8 +62,10 @@ There are 4 basic steps to complete a signature procedure:
 
 1.- https://github.com/idsec-solutions/signservice-integration-rest/blob/master/docs/sample-flow.md
 """
+import asyncio
 import json
 import uuid
+from base64 import b64encode, b64decode
 from pprint import pformat
 from urllib.parse import urljoin
 
@@ -423,3 +425,41 @@ class APIClient(object):
             current_app.logger.debug(f"Data returned from the API's process endpoint: {pformat(tolog)}")
 
         return response
+
+    def validate_signatures(self, to_validate: list) -> list:
+        """
+        This method is called once a bunch of documents have been signed,
+        in order to add proof of validation to them.
+
+        :param to_validate: list in which each entry corresponds to a signed document to validate, with:
+            * key for the document
+            * owner of document
+            * document contents
+            * sendsigned flag
+
+        :return: a list like the to_validate param, in which the document contents may have been substituted
+            by the one with validation proof, and with an appended boolean indicating whether the contents
+            have been substituted.
+        """
+        url = current_app.config['VALIDATOR_API_BASE_URL'] + 'issue-svt'
+
+        def validate(doc):
+            pdf = b64decode(doc[2]['signedContent'])
+            resp = requests.post(url, data=pdf, headers={'Content-Type': 'application/pdf'})
+            if resp.status_code == 200:
+                vpdf = resp.content
+                doc[2]['signedContent'] = b64encode(vpdf)
+                doc.append(True)
+            else:
+                doc.append(False)
+
+            return doc
+
+        loop = asyncio.new_event_loop()
+        tasks = [loop.create_task(validate(doc)) for doc in to_validate]
+
+        if len(tasks) > 0:
+            loop.run_until_complete(asyncio.wait(tasks))
+        loop.close()
+
+        return [task.result() for task in tasks]

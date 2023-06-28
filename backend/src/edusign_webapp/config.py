@@ -86,6 +86,8 @@ EDUSIGN_API_PASSWORD = os.environ.get('EDUSIGN_API_PASSWORD', default='dummy')
 
 SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.idsec.se/edusign-test")
 
+VALIDATOR_API_BASE_URL = os.environ.get('VALIDATOR_API_BASE_URL', default='https://sig.idsec.se/sigval/')
+
 MULTISIGN_BUTTONS = os.environ.get('MULTISIGN_BUTTONS', default="yes")
 
 RAW_SIGNER_ATTRIBUTES = os.environ.get(
