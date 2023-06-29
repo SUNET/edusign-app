@@ -809,7 +809,7 @@ def _prepare_signed_by_email(key, owner):
     return (recipients, subject, body_txt, body_html)
 
 
-def _prepare_all_signed_email(key, owner, doc, sendsigned):
+def _prepare_all_signed_email(key, owner, doc, sendsigned, validated):
     """
     Prepare email to send to all users that have signed the document,
     possibly with the final signed PDF attached.
@@ -829,15 +829,18 @@ def _prepare_all_signed_email(key, owner, doc, sendsigned):
     }
     # attach PDF
     if sendsigned:
+        suffix = 'signed'
+        if validated:
+            suffix = 'signed-svt'
         doc_name = current_app.doc_store.get_document_name(key)
         if '.' in doc_name:
             splitted = doc_name.split('.')
             ext = splitted[-1]
             prename = '.'.join(splitted[:-1])
-            signed_doc_name = f"{prename}-signed.{ext}"
+            signed_doc_name = f"{prename}-{suffix}.{ext}"
         else:
-            signed_doc_name = doc_name + '-signed'
-        pdf_bytes = b64decode(doc['signedContent'], validate=True)
+            signed_doc_name = f"{doc_name}-{suffix}"
+        pdf_bytes = b64decode(doc.get('signedContent', doc.get('blob')), validate=True)
         email_kwargs = dict(
             attachment_name=signed_doc_name,
             attachment=pdf_bytes,
