@@ -443,7 +443,7 @@ class APIClient(object):
         """
         url = current_app.config['VALIDATOR_API_BASE_URL'] + 'issue-svt'
 
-        def validate(doc):
+        def _validate(doc):
             pdf = b64decode(doc[2]['signedContent'])
             resp = requests.post(url, data=pdf, headers={'Content-Type': 'application/pdf'})
             if resp.status_code == 200:
@@ -454,6 +454,9 @@ class APIClient(object):
                 doc.append(False)
 
             return doc
+
+        async def validate(doc):
+            return _validate(doc)
 
         loop = asyncio.new_event_loop()
         tasks = [loop.create_task(validate(doc)) for doc in to_validate]
