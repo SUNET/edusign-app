@@ -217,15 +217,14 @@ def get_home():
 
     base_url = f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}"
 
-    other_langs = filter(lambda lang: lang[0] != current_lang, current_app.config['SUPPORTED_LANGUAGES'])
-
     version = pkg_resources.require('edusign-webapp')[0].version
 
     company_link = current_app.config['COMPANY_LINK']
     context = {
         'body': body,
         'login_initiator': f'{base_url}/Shibboleth.sso/Login?target=/sign',
-        'other_langs': other_langs,
+        'current_lang': current_lang,
+        'langs': current_app.config['SUPPORTED_LANGUAGES'],
         'version': version,
         'company_link': company_link,
     }
@@ -259,14 +258,13 @@ def get_help_page():
     with open(md_file) as f:
         body = f.read()
 
-    other_langs = filter(lambda lang: lang[0] != current_lang, current_app.config['SUPPORTED_LANGUAGES'])
-
     version = pkg_resources.require('edusign-webapp')[0].version
 
     company_link = current_app.config['COMPANY_LINK']
     context = {
         'body': body,
-        'other_langs': other_langs,
+        'current_lang': current_lang,
+        'langs': current_app.config['SUPPORTED_LANGUAGES'],
         'version': version,
         'company_link': company_link,
     }
