@@ -809,7 +809,7 @@ def _prepare_signed_by_email(key, owner):
     return (recipients, subject, body_txt, body_html)
 
 
-def _prepare_all_signed_email(key, owner, doc, sendsigned, validated):
+def _prepare_all_signed_email(doc):
     """
     Prepare email to send to all users that have signed the document,
     possibly with the final signed PDF attached.
@@ -817,22 +817,22 @@ def _prepare_all_signed_email(key, owner, doc, sendsigned, validated):
     """
     recipients = []
     recipients = defaultdict(list)
-    recipients[owner['lang']].append(f"{owner['name']} <{owner['email']}>")
-    for invited in current_app.doc_store.get_pending_invites(key):
+    recipients[doc['owner']['lang']].append(f"{doc['owner']['name']} <{doc['owner']['email']}>")
+    for invited in current_app.doc_store.get_pending_invites(doc['key']):
         if not invited['signed']:
             continue
         lang = invited['lang']
         recipients[lang].append(f"{invited['name']} <{invited['email']}>")
 
     mail_context = {
-        'document_name': owner['docname'],
+        'document_name': doc['owner']['docname'],
     }
     # attach PDF
-    if sendsigned:
+    if doc['sendsigned']:
         suffix = 'signed'
-        if validated:
+        if doc['validated']:
             suffix = 'signed-svt'
-        doc_name = current_app.doc_store.get_document_name(key)
+        doc_name = current_app.doc_store.get_document_name(doc['key'])
         if '.' in doc_name:
             splitted = doc_name.split('.')
             ext = splitted[-1]
@@ -840,7 +840,7 @@ def _prepare_all_signed_email(key, owner, doc, sendsigned, validated):
             signed_doc_name = f"{prename}-{suffix}.{ext}"
         else:
             signed_doc_name = f"{doc_name}-{suffix}"
-        pdf_bytes = b64decode(doc.get('signedContent', doc.get('blob')), validate=True)
+        pdf_bytes = b64decode(doc['doc'].get('signedContent', doc['doc'].get('blob')))
         email_kwargs = dict(
             attachment_name=signed_doc_name,
             attachment=pdf_bytes,
@@ -851,8 +851,8 @@ def _prepare_all_signed_email(key, owner, doc, sendsigned, validated):
     messages = []
     for lang in recipients:
         with force_locale(lang):
-            subject = gettext("'%(docname)s' is now signed") % {'docname': owner['docname']}
-            if sendsigned:
+            subject = gettext("'%(docname)s' is now signed") % {'docname': doc['owner']['docname']}
+            if doc['sendsigned']:
                 body_txt = render_template('signed_all_email.txt.jinja2', **mail_context)
                 body_html = render_template('signed_all_email.html.jinja2', **mail_context)
             else:
@@ -957,26 +957,26 @@ def get_signed_documents(sign_data: dict) -> dict:
             skipfinal = current_app.doc_store.get_skipfinal(key)
             if not pending and skipfinal:
                 try:
-                    to_validate.append([key, owner, doc, sendsigned])
+                    to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
 
                 except Exception as e:
                     current_app.logger.error(f"Problem sending signed by all email to all invited: {e}")
 
         # this is an invitation from the current user
         elif owner:
-            try:
-                to_validate.append([key, owner, doc, sendsigned])
+            to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
 
-            except Exception as e:
-                current_app.logger.error(f"Problem sending signed by {owner['email']} email to all invited: {e}")
+        else:
+            to_validate.append({'key': key, 'owner': {}, 'doc': doc, 'sendsigned': False})
 
     validated = current_app.api_client.validate_signatures(to_validate)
 
     docs = []
     for doc in validated:
-        messages = _prepare_all_signed_email(*doc)
-        emails.extend(messages)
-        docs.append({'id': doc[0], 'signed_content': doc[2], 'validated': doc[4]})
+        if doc['owner']:
+            messages = _prepare_all_signed_email(doc)
+            emails.extend(messages)
+        docs.append({'id': doc['key'], 'signed_content': doc['doc']['signedContent'], 'validated': doc['validated']})
 
     if len(emails) > 0:
         sendmail_bulk(emails)

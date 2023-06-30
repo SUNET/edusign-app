@@ -431,27 +431,27 @@ class APIClient(object):
         This method is called once a bunch of documents have been signed,
         in order to add proof of validation to them.
 
-        :param to_validate: list in which each entry corresponds to a signed document to validate, with:
-            * key for the document
-            * owner of document
-            * document contents
-            * sendsigned flag
+        :param to_validate: list in which each entry is a dict that corresponds to a signed document to validate, with keys:
+            * key: key for the document
+            * owner: owner of document
+            * doc: document contents
+            * sendsigned: sendsigned flag
 
         :return: a list like the to_validate param, in which the document contents may have been substituted
-            by the one with validation proof, and with an appended boolean indicating whether the contents
-            have been substituted.
+            by the one with validation proof, and with an additional boolean key validated indicating whether the contents
+            have been substituted with a validated signature.
         """
         url = current_app.config['VALIDATOR_API_BASE_URL'] + 'issue-svt'
 
         def _validate(doc):
-            pdf = b64decode(doc[2]['signedContent'])
+            pdf = b64decode(doc['doc']['signedContent'])
             resp = requests.post(url, data=pdf, headers={'Content-Type': 'application/pdf'})
             if resp.status_code == 200:
                 vpdf = resp.content
-                doc[2]['signedContent'] = b64encode(vpdf)
-                doc.append(True)
+                doc['doc']['signedContent'] = b64encode(vpdf).decode('utf8')
+                doc['validated'] = True
             else:
-                doc.append(False)
+                doc['validated'] = False
 
             return doc
 
