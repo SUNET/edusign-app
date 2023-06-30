@@ -449,7 +449,7 @@ export const resendInvitations = createAsyncThunk(
     } catch (err) {
       // In case of errors, inform the user, and update the local state.
       const message = args.intl.formatMessage({
-        defaultMessage: "Problem re-sending invitations to sign, please try again",
+        defaultMessage: "Problem sending invitations to sign, please try again",
         id: "problem-sending-invitations",
       });
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
