@@ -1054,6 +1054,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
             show: false,
             showForced: false,
             signed: newSigned,
+            validated: doc.validated,
           };
           thunkAPI.dispatch(removeOwned({ key: doc.id }));
           newDoc = await addDocumentToDb(
@@ -1412,6 +1413,7 @@ const documentsSlice = createSlice({
             signedContent: signedContent,
             blob: signedContent,
             state: "signed",
+            validated: action.payload.validated,
           };
           return document;
         } else return doc;

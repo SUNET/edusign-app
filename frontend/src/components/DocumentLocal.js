@@ -132,6 +132,26 @@ class DocumentLocal extends React.Component {
         </div>
       )) ||
       "";
+    const validated =
+      (doc.state === "signed" && (
+        <div
+          className={"doc-container-info-row-" + this.props.size}
+          key={doc.name}
+        >
+          <span className="info-row-label">
+            {doc.validated && (
+              <FormattedMessage
+                defaultMessage="Validated"
+                key="multisign-owned-signed-validated"
+              />) || (
+              <FormattedMessage
+                defaultMessage="Not validated"
+                key="multisign-owned-signed-non-validated"
+              />)}
+          </span>
+        </div>
+      )) ||
+      "";
 
     return (
       <>
