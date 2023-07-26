@@ -2,7 +2,11 @@
 In version 1.3.0:
 -----------------
 
-* allow requesting no final signature from inviter
+* validation of signatures
+* customization - branding and style
+* synthetic testing
+* update dependencies - JS and Python
+* allow requesting no final signature from inviter when making an invitation
 * Redis backend up to date wrt i18n
 * limit the number of invitations that can be made for a document (configurable)
 
