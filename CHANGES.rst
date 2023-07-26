@@ -1,4 +1,9 @@
 
+In version 2.0.0:
+-----------------
+
+* Authentication through MyAcademicID
+
 In version 1.4.0:
 -----------------
 
