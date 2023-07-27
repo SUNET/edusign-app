@@ -1401,7 +1401,7 @@ def skip_final_signature(data: dict) -> dict:
     except Exception as e:
         current_app.logger.warning(f'Problem removing doc skipping final signature: {e}')
 
-    validated = current_app.api_client.validate_signatures([key, 'dummy', doc, sendsigned])
+    validated = current_app.api_client.validate_signatures([{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}])
     newdoc = validated[0]
 
     return {
