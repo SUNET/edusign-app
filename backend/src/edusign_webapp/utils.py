@@ -274,6 +274,7 @@ def compose_message(
     :param attachment_name: the file name of the PDF to attach
     :param attachment: the contents of the PDF to attach to the message
     """
+    current_app.logger.debug(f"message to send: {recipients} -- {subject}")
     msg = EmailMultiAlternatives(subject, body_txt, current_app.config['MAIL_DEFAULT_SENDER'], recipients)
     msg.attach_alternative(body_html, 'text/html')
 

@@ -444,7 +444,10 @@ class APIClient(object):
         url = current_app.config['VALIDATOR_API_BASE_URL'] + 'issue-svt'
 
         def _validate(doc):
-            pdf = b64decode(doc['doc']['signedContent'])
+            try:
+                pdf = b64decode(doc['doc']['blob'])
+            except KeyError:
+                pdf = b64decode(doc['doc']['signedContent'])
             resp = requests.post(url, data=pdf, headers={'Content-Type': 'application/pdf'})
             if resp.status_code == 200:
                 vpdf = resp.content

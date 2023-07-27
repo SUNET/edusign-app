@@ -796,8 +796,7 @@ def _prepare_signed_by_email(key, owner):
         'invited_email': session['mail'],
     }
     lang = owner['lang']
-    recipients = defaultdict(list)
-    recipients[lang].append(f"{owner['name']} <{owner['email']}>")
+    recipients = [f"{owner['name']} <{owner['email']}>"]
     with force_locale(lang):
         subject = gettext("%(name)s signed '%(docname)s'") % {
             'name': session['displayName'],
@@ -859,7 +858,7 @@ def _prepare_all_signed_email(doc):
                 body_txt = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
                 body_html = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
 
-        messages.append(((recipients, subject, body_txt, body_html), email_kwargs))
+        messages.append(((recipients[lang], subject, body_txt, body_html), email_kwargs))
 
     return messages
 
@@ -1273,7 +1272,7 @@ def _send_cancellation_mail(docname, owner_email, recipients):
                 body_txt = render_template('cancellation_email.txt.jinja2', **mail_context)
                 body_html = render_template('cancellation_email.html.jinja2', **mail_context)
 
-                messages.append(((recipients, subject, body_txt, body_html), {}))
+                messages.append(((recipients[lang], subject, body_txt, body_html), {}))
 
         sendmail_bulk(messages)
 
@@ -1406,7 +1405,7 @@ def skip_final_signature(data: dict) -> dict:
 
     return {
         'message': 'Success',
-        'payload': {'documents': [{'id': newdoc[0], 'signed_content': newdoc[2], 'validated': newdoc[4]}]},
+        'payload': {'documents': [{'id': newdoc['key'], 'signed_content': newdoc['doc']['signedContent'], 'validated': newdoc['validated']}]},
     }
 
 
