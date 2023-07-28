@@ -79,6 +79,7 @@ def add_attributes_to_session(check_whitelisted=True):
 
         attrs = [('mail', 'Mail'), ('displayName', 'Displayname')]
         more_attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
+        more_attrs.extend([(attr, attr.lower().capitalize()) for attr in current_app.config['AUTHN_ATTRIBUTES'].values()])
         for attr in more_attrs:
             if attr not in attrs:
                 attrs.append(attr)
@@ -335,6 +336,9 @@ def get_authn_context(docs: list) -> list:
     :param docs: list of dicts with the data for the documents to be signed.
     :return: a list with the authn context classes
     """
+    if current_app.config.get('FORCE_AUTHN_CONTEXT', ''):
+        return [current_app.config['FORCE_AUTHN_CONTEXT']]
+
     authn_context = set()
     for doc in docs:
         key = uuid.UUID(doc['key'])
