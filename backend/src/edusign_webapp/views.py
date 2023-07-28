@@ -269,7 +269,6 @@ def get_home():
     context = {
         'body': body,
         'login_initiator': f'{base_url}/Shibboleth.sso/Login?target=/sign',
-        'login_initiator2': f'{base_url}/Shibboleth.sso/Login?target=/sign2',
         'current_lang': current_lang,
         'langs': current_app.config['SUPPORTED_LANGUAGES'],
         'version': version,

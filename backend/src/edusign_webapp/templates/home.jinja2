@@ -1,22 +1,13 @@
 {% extends "base-md-template.jinja2" %}
 
-    {% block script %}
-    <script src="https://service.seamlessaccess.org/thiss.js"></script>
-    {% endblock %}
-
     {% block body %}
           <h1 id="main-title">{{ gettext("eduSign - Secure digital signature") }}</h1>
-          <div id="login"></div>
-          <div id="login2">
-            <a href="{{ login_initiator2 }}">
+          <div id="login">
+            <a href="{{ login_initiator }}" class="btn btn-primary active">
               MyAcademicID
             </a>
           </div>
           <div id="md-content">
             {{ body | markdown }}
           </div>
-    {% endblock %}
-
-    {% block script_bottom %}
-          thiss.DiscoveryComponent({ loginInitiatorURL: '{{ login_initiator }}' }).render('#login');
     {% endblock %}

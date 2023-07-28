@@ -124,6 +124,15 @@ RAW_AUTHN_ATTRIBUTES_20 = os.environ.get(
 
 AUTHN_ATTRIBUTES_20 = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_20.split(';')}
 
+RAW_AUTHN_ATTRIBUTES = os.environ.get(
+    'AUTHN_ATTRIBUTES',
+    default='urn:oid:1.2.752.201.3.7,eidasPersonIdentifier',
+)
+
+AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}
+
+FORCE_AUTHN_CONTEXT = os.environ.get('FORCE_AUTHN_CONTEXT', default='http://id.elegnamnden.se/loa/1.0/eidas-nf-sub')
+
 RAW_SCOPE_WHITELIST = os.environ.get('SCOPE_WHITELIST', default='eduid.se, sunet.se')
 
 SCOPE_WHITELIST = [scope.lower().strip() for scope in RAW_SCOPE_WHITELIST.split(',')]
