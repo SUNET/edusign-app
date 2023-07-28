@@ -132,6 +132,7 @@ class DocumentLocal extends React.Component {
         </div>
       )) ||
       "";
+    // validated is unused for now
     const validated =
       (doc.state === "signed" && (
         <div
@@ -292,7 +293,6 @@ class DocumentLocal extends React.Component {
               </div>
               {widgets.docCreated(this.props)}
               {signed}
-              {validated}
               {preparePrevSigs(doc, this.props.size)}
             </div>
           )) || (
@@ -442,7 +442,6 @@ class DocumentLocal extends React.Component {
               )}
               {widgets.docCreated(this.props)}
               {signed}
-              {validated}
               {preparePrevSigs(doc, this.props.size)}
             </div>
           )}
