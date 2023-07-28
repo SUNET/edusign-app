@@ -119,7 +119,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
       return doc.key === args.key;
     });
     if (oldDocs.length == 1 && oldDocs[0].blob) {
-      args.payload = oldDocs[0];
+      args.payload = {...oldDocs[0]};
       if (args.hasOwnProperty("showForced")) {
         args.payload.showForced = true;
       } else {
