@@ -104,7 +104,7 @@ RAW_AUTHN_ATTRIBUTES = os.environ.get(
 
 AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}
 
-FORCE_AUTHN_CONTEXT = os.environ.get('FORCE_AUTHN_CONTEXT', default='http://id.elegnamnden.se/loa/1.0/eidas-nf-sub')
+FORCE_AUTHN_CONTEXT = os.environ.get('FORCE_AUTHN_CONTEXT', default='')
 
 RAW_SCOPE_WHITELIST = os.environ.get('SCOPE_WHITELIST', default='eduid.se, sunet.se')
 
