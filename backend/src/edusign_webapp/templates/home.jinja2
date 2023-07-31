@@ -1,10 +1,30 @@
 {% extends "base-md-template.jinja2" %}
 
+    {% block script %}
+      <style type="text/css">
+      a.button{
+       text-decoration:none;
+       color:#cc0000;
+       background-color: #58b78c;
+       border:1px solid #629c92;
+       border-radius:5px;
+       margin-right:10px;
+       padding:10px 10px 10px 10px;
+      }
+      a.button:hover{
+        background-color:#4a9c77;
+      }
+      a.button:focus{
+       border:1px solid #58b78c;
+      }
+      </style>
+    {% endblock %}
+
     {% block body %}
           <h1 id="main-title">{{ gettext("eduSign - Secure digital signature") }}</h1>
           <div id="login">
-            <a href="{{ login_initiator }}" class="btn btn-primary active">
-              MyAcademicID
+            <a href="{{ login_initiator }}" class="button">
+              Login with MyAcademicID
             </a>
           </div>
           <div id="md-content">
