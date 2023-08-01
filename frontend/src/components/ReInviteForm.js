@@ -41,7 +41,7 @@ class ReInviteForm extends React.Component {
                 <Modal.Header closeButton>
                   <Modal.Title>
                     <FormattedMessage
-                      defaultMessage={`Send reminders to people pending to sign '{docName}'`}
+                      defaultMessage={`Send reminders to people pending to sign "${docName}"`}
                       key="re-invite-people"
                       values={{ docName: this.props.doc.name }}
                     />
