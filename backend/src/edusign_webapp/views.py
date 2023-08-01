@@ -942,24 +942,21 @@ def get_signed_documents(sign_data: dict) -> dict:
         key = doc['id']
         owner = current_app.doc_store.get_owner_data(key)
         sendsigned = current_app.doc_store.get_sendsigned(key)
+        pending = len(current_app.doc_store.get_pending_invites(key)) != 0
+        skipfinal = current_app.doc_store.get_skipfinal(key)
 
         # this is an invitation to the current user
         if 'email' in owner and owner['email'] not in mail_aliases:
-            try:
-                email_args = _prepare_signed_by_email(key, owner)
-                emails.append((email_args, {}))
-
-            except Exception as e:
-                current_app.logger.error(f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}")
-
-            pending = len(current_app.doc_store.get_pending_invites(key)) != 0
-            skipfinal = current_app.doc_store.get_skipfinal(key)
             if not pending and skipfinal:
+                to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
+
+            else:
                 try:
-                    to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
+                    email_args = _prepare_signed_by_email(key, owner)
+                    emails.append((email_args, {}))
 
                 except Exception as e:
-                    current_app.logger.error(f"Problem sending signed by all email to all invited: {e}")
+                    current_app.logger.error(f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}")
 
         # this is an invitation from the current user
         elif owner:
@@ -972,9 +969,12 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     docs = []
     for doc in validated:
-        if doc['owner']:
+        try:
             messages = _prepare_all_signed_email(doc)
             emails.extend(messages)
+        except Exception as e:
+            current_app.logger.error(f"Problem sending signed by all email to all invited for doc '{doc['owner']['docname']}': {e}")
+
         docs.append({'id': doc['key'], 'signed_content': doc['doc']['signedContent'], 'validated': doc['validated']})
 
     if len(emails) > 0:
