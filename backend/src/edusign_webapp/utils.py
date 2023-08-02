@@ -72,8 +72,11 @@ def add_attributes_to_session(check_whitelisted=True):
         try:
             eppn = request.headers.get('Edupersonprincipalname')
         except KeyError:
-            current_app.logger.error('Missing eduPersonPrincipalName from request')
-            raise
+            try:
+                eppn = request.headers.get('Personidentifier')
+            except KeyError:
+                current_app.logger.error('Missing eduPersonPrincipalName from request')
+                raise
         current_app.logger.info(f'User {eppn} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
 
