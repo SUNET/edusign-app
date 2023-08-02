@@ -317,19 +317,13 @@ class APIClient(object):
         assurance = get_required_assurance(documents)
         correlation_id = str(uuid.uuid4())
         attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
-        attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]
+        attrs_dict = {saml_name: session[friendly_name] for saml_name, friendly_name in attr_names}
         used_attr_names = tuple(friendly_name for _, friendly_name in attr_names)
-        more_attr_names = [
-            attr_names
-            for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items()
-            if attr_names[1] not in used_attr_names
-        ]
-        more_attrs = [
-            {'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in more_attr_names
-        ]
+        more_attr_names = [attr_names for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items() if attr_names[1] not in used_attr_names]
+        more_attrs_dict = {saml_name: session[friendly_name] for saml_name, friendly_name in more_attr_names}
         more_used_attr_names = tuple(friendly_name for _, friendly_name in more_attr_names)
         used_attr_names += more_used_attr_names
-        attrs.extend(more_attrs)
+        attrs_dict.update(more_attrs_dict)
         assurances = self.config['AVAILABLE_LOAS'].get(
             session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']
         )
@@ -340,7 +334,14 @@ class APIClient(object):
         else:
             assurance_attr_name = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
         if assurance_attr_name not in used_attr_names:
-            attrs.append({'name': assurance_attr_name, 'value': loa})
+            attrs_dict[assurance_attr_name] = loa
+
+        for old_attr, new_attr in self.config['AUTHN_ATTRIBUTES_MAPPING'].items():
+            if old_attr in attrs_dict:
+                attrs_dict[new_attr] = attrs_dict[old_attr]
+                del attrs_dict[old_attr]
+
+        attrs = [{'name': key, 'value': value} for key, value in attrs_dict.items()]
 
         scheme = self.config['PREFERRED_URL_SCHEME']
         return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)

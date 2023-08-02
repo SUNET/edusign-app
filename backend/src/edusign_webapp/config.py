@@ -131,6 +131,13 @@ RAW_AUTHN_ATTRIBUTES = os.environ.get(
 
 AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}
 
+RAW_AUTHN_ATTRIBUTES_MAPPING = os.environ.get(
+    'AUTHN_ATTRIBUTES',
+    default='http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier,urn:oid:1.2.752.201.3.7',
+)
+
+AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}
+
 FORCE_AUTHN_CONTEXT = os.environ.get('FORCE_AUTHN_CONTEXT', default='')
 
 RAW_SCOPE_WHITELIST = os.environ.get('SCOPE_WHITELIST', default='eduid.se, sunet.se')
