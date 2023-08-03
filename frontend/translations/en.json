@@ -88,7 +88,7 @@
   "components.ReInviteForm.cancel-invitation-tootip": "Dismiss invitation form",
   "components.ReInviteForm.cancel-invite": "Cancel",
   "components.ReInviteForm.re-invitation-text-field": "Add a message to send to all invitees pending to sign",
-  "components.ReInviteForm.re-invite-people": "Send reminders to people pending to sign '{docName}'",
+  "components.ReInviteForm.re-invite-people": "Send reminders to people pending to sign {docName}",
   "components.ReInviteForm.resend-invitation-tootip": "Resend invitations to sign to invitees pending to sign",
   "components.ReInviteForm.resend-invite": "Resend",
   "components.dropdownItems.create-template-menu-item": "Create template",
