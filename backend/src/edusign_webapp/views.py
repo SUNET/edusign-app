@@ -814,9 +814,10 @@ def _prepare_all_signed_email(doc):
     possibly with the final signed PDF attached.
     This is sent when the inviter user adds the final signature.
     """
+    current_lang = str(get_locale())
     recipients = []
     recipients = defaultdict(list)
-    recipients[doc['owner']['lang']].append(f"{doc['owner']['name']} <{doc['owner']['email']}>")
+    recipients[current_lang].append(f"{doc['owner']['name']} <{doc['owner']['email']}>")
     for invited in current_app.doc_store.get_pending_invites(doc['key']):
         if not invited['signed']:
             continue
@@ -942,8 +943,9 @@ def get_signed_documents(sign_data: dict) -> dict:
         key = doc['id']
         owner = current_app.doc_store.get_owner_data(key)
         sendsigned = current_app.doc_store.get_sendsigned(key)
-        pending = len(current_app.doc_store.get_pending_invites(key)) != 0
+        pending = len(current_app.doc_store.get_pending_invites(key)) > 1
         skipfinal = current_app.doc_store.get_skipfinal(key)
+        current_app.logger.debug(f"Data for signed emails - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}")
 
         # this is an invitation to the current user
         if 'email' in owner and owner['email'] not in mail_aliases:
@@ -962,6 +964,7 @@ def get_signed_documents(sign_data: dict) -> dict:
         elif owner:
             to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
 
+        # this is not an invitation
         else:
             to_validate.append({'key': key, 'owner': {}, 'doc': doc, 'sendsigned': False})
 
@@ -969,11 +972,12 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     docs = []
     for doc in validated:
-        try:
-            messages = _prepare_all_signed_email(doc)
-            emails.extend(messages)
-        except Exception as e:
-            current_app.logger.error(f"Problem sending signed by all email to all invited for doc '{doc['owner']['docname']}': {e}")
+        if doc['owner']:
+            try:
+                messages = _prepare_all_signed_email(doc)
+                emails.extend(messages)
+            except Exception as e:
+                current_app.logger.error(f"Problem sending signed by all email to all invited for doc '{doc['owner']['docname']}': {e}")
 
         docs.append({'id': doc['key'], 'signed_content': doc['doc']['signedContent'], 'validated': doc['validated']})
 
