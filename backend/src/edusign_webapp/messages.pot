@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-03-23 10:20+0100\n"
+"POT-Creation-Date: 2023-08-03 12:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,208 +17,208 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.12.1\n"
 
-#: src/edusign_webapp/marshal.py:242
+#: src/edusign_webapp/marshal.py:241
 msgid ""
 "There were problems with the data you sent, please try again or contact "
 "your IT support"
 msgstr ""
 
-#: src/edusign_webapp/utils.py:172 src/edusign_webapp/validators.py:50
+#: src/edusign_webapp/utils.py:176 src/edusign_webapp/validators.py:50
 #: src/edusign_webapp/validators.py:54 src/edusign_webapp/validators.py:65
 #: src/edusign_webapp/validators.py:78 src/edusign_webapp/validators.py:82
 #: src/edusign_webapp/validators.py:95 src/edusign_webapp/validators.py:99
 #: src/edusign_webapp/validators.py:103 src/edusign_webapp/validators.py:114
-#: src/edusign_webapp/views.py:499 src/edusign_webapp/views.py:695
-#: src/edusign_webapp/views.py:901
+#: src/edusign_webapp/views.py:511 src/edusign_webapp/views.py:707
+#: src/edusign_webapp/views.py:925
 msgid "There was an error. Please try again, or contact the site administrator."
 msgstr ""
 
-#: src/edusign_webapp/views.py:311
+#: src/edusign_webapp/views.py:318
 msgid "Back"
 msgstr ""
 
-#: src/edusign_webapp/views.py:320
+#: src/edusign_webapp/views.py:328
 msgid "Missing information"
 msgstr ""
 
-#: src/edusign_webapp/views.py:321
+#: src/edusign_webapp/views.py:329
 msgid ""
 "Your organization did not provide the correct information during login. "
 "Please contact your IT-support for assistance."
 msgstr ""
 
-#: src/edusign_webapp/views.py:329
+#: src/edusign_webapp/views.py:335
 msgid "Missing displayName"
 msgstr ""
 
-#: src/edusign_webapp/views.py:330
+#: src/edusign_webapp/views.py:336
 msgid ""
 "Your should add your name to your account at your organization. Please "
 "contact your IT-support for assistance."
 msgstr ""
 
-#: src/edusign_webapp/views.py:431 src/edusign_webapp/views.py:482
-#: src/edusign_webapp/views.py:656 src/edusign_webapp/views.py:967
+#: src/edusign_webapp/views.py:442 src/edusign_webapp/views.py:494
+#: src/edusign_webapp/views.py:668 src/edusign_webapp/views.py:1012
 msgid "Unauthorized"
 msgstr ""
 
-#: src/edusign_webapp/views.py:541
+#: src/edusign_webapp/views.py:553
 msgid ""
 "Document is being signed by another user, please try again in a few "
 "minutes."
 msgstr ""
 
-#: src/edusign_webapp/views.py:551
+#: src/edusign_webapp/views.py:563
 #, python-format
 msgid "There doesn't seem to be an invitation for you to sign \"%(docname)s\"."
 msgstr ""
 
-#: src/edusign_webapp/views.py:567
+#: src/edusign_webapp/views.py:579
 #, python-format
 msgid ""
 "The email %(email)s invited to sign \"%(docname)s\" does not coincide "
 "with yours."
 msgstr ""
 
-#: src/edusign_webapp/views.py:606
+#: src/edusign_webapp/views.py:617
 msgid ""
 "Problem preparing document for signing. Please try again, or contact the "
 "site administrator."
 msgstr ""
 
-#: src/edusign_webapp/views.py:789
+#: src/edusign_webapp/views.py:801
 #, python-format
 msgid "%(name)s signed '%(docname)s'"
 msgstr ""
 
-#: src/edusign_webapp/views.py:838
+#: src/edusign_webapp/views.py:854
 #, python-format
 msgid "'%(docname)s' is now signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:910
+#: src/edusign_webapp/views.py:934
 msgid "Could not provide the requested security level."
 msgstr ""
 
-#: src/edusign_webapp/views.py:974
+#: src/edusign_webapp/views.py:1019
 #, python-format
 msgid "You cannot invite as %(owner)s"
 msgstr ""
 
-#: src/edusign_webapp/views.py:989
+#: src/edusign_webapp/views.py:1039
 msgid "Problem creating invitation to sign, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1004
+#: src/edusign_webapp/views.py:1054
 msgid "There was a problem and the invitation email(s) were not sent"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1006
+#: src/edusign_webapp/views.py:1056
 msgid "Success sending invitations to sign"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1024
+#: src/edusign_webapp/views.py:1074
 #, python-format
 msgid "You have been invited to sign \"%(document_name)s\""
 msgstr ""
 
-#: src/edusign_webapp/views.py:1057
+#: src/edusign_webapp/views.py:1108
 msgid "Problem finding the users pending to multi sign"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1061
+#: src/edusign_webapp/views.py:1112
 msgid "Problem finding the users pending to sign"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1065
+#: src/edusign_webapp/views.py:1116
 msgid "Could not find the document"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1089
+#: src/edusign_webapp/views.py:1140
 #, python-format
 msgid "A reminder to sign '%(document_name)s'"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1099
+#: src/edusign_webapp/views.py:1150
 msgid "Problem sending the email, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1101
+#: src/edusign_webapp/views.py:1152
 msgid "Success sending reminder email to pending users"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1123
+#: src/edusign_webapp/views.py:1175
 msgid "Problem editing the invitations"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1136
+#: src/edusign_webapp/views.py:1188
 #, python-format
 msgid "Success editing invitation to sign '%(docname)s'"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1141 src/edusign_webapp/views.py:1154
+#: src/edusign_webapp/views.py:1193 src/edusign_webapp/views.py:1206
 #, python-format
 msgid "Some users may not have been notified of the changes for '%(docname)s'"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1189
+#: src/edusign_webapp/views.py:1242
 msgid "Problem removing the invitation, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1193
+#: src/edusign_webapp/views.py:1246
 msgid "Document has not been removed, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1202
+#: src/edusign_webapp/views.py:1255
 msgid "Success removing invitation to sign"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1207
+#: src/edusign_webapp/views.py:1260
 msgid "Some users may have not been informed of the cancellation"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1222
+#: src/edusign_webapp/views.py:1275
 #, python-format
 msgid "Cancellation of invitation to sign '%(document_name)s'"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1255 src/edusign_webapp/views.py:1259
-#: src/edusign_webapp/views.py:1333 src/edusign_webapp/views.py:1337
+#: src/edusign_webapp/views.py:1309 src/edusign_webapp/views.py:1313
+#: src/edusign_webapp/views.py:1388 src/edusign_webapp/views.py:1392
 msgid "Cannot find the document being signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1299
+#: src/edusign_webapp/views.py:1353
 #, python-format
 msgid "\"%(docname)s\" is now signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1380
+#: src/edusign_webapp/views.py:1438
 #, python-format
 msgid "%(name)s declined to sign '%(docname)s'"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1410
+#: src/edusign_webapp/views.py:1469
 msgid "Problem declining signature, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1426
+#: src/edusign_webapp/views.py:1485
 msgid "Success declining signature"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1445
+#: src/edusign_webapp/views.py:1504
 #, python-format
 msgid "%(name)s has delegated signature of \"%(docname)s\" to you"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1478
+#: src/edusign_webapp/views.py:1538
 msgid "There was a problem delegating the invitation"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1493
+#: src/edusign_webapp/views.py:1553
 msgid "Success delegating signature"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1508
+#: src/edusign_webapp/views.py:1569
 msgid "Problem filling in form in PDF, please try again"
 msgstr ""
 
@@ -230,8 +230,8 @@ msgstr ""
 msgid "Home"
 msgstr ""
 
-#: src/edusign_webapp/templates/base-md-template.jinja2:266
-#: src/edusign_webapp/templates/base-template.jinja2:126
+#: src/edusign_webapp/templates/base-md-template.jinja2:157
+#: src/edusign_webapp/templates/base-template.jinja2:127
 msgid "Help"
 msgstr ""
 
@@ -336,7 +336,7 @@ msgid ""
 "\"%(document_name)s\".\n"
 msgstr ""
 
-#: src/edusign_webapp/templates/home.jinja2:8
+#: src/edusign_webapp/templates/home.jinja2:24
 msgid "eduSign - Secure digital signature"
 msgstr ""
 

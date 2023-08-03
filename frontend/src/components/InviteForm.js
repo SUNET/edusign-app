@@ -425,7 +425,7 @@ class InviteForm extends React.Component {
             inModal={true}
             tooltip={
               <FormattedMessage
-                defaultMessage="Skip signature by the user who is inviting."
+                defaultMessage="Finalize the signature flow automatically after the last person invited responds to the invitation."
                 key="skipfinal-choice-help"
               />
             }
@@ -435,7 +435,7 @@ class InviteForm extends React.Component {
               htmlFor="skipfinal-choice-input"
             >
               <FormattedMessage
-                defaultMessage="Skip final signature"
+                defaultMessage="Finalise signature flow automatically"
                 key="skipfinal-choice-field"
               />
             </BForm.Label>
