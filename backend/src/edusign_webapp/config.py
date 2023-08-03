@@ -99,7 +99,7 @@ SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGN
 
 RAW_AUTHN_ATTRIBUTES = os.environ.get(
     'AUTHN_ATTRIBUTES',
-    default='urn:oid:1.2.752.201.3.7,eidasPersonIdentifier',
+    default='http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier,PersonIdentifier',
 )
 
 AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES.split(';')}
