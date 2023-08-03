@@ -120,7 +120,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
     });
     if (oldDocs.length == 1 && oldDocs[0].blob) {
       args.payload = oldDocs[0];
-      if (args.hasOwnProperty("showForced")) {
+      if (args.showForced) {
         args.payload = {
           ...args.payload,
           showForced: true
@@ -766,8 +766,10 @@ const mainSlice = createSlice({
                 ...doc,
                 ...action.payload.payload,
               };
-              newDoc.blob =
-                "data:application/pdf;base64," + action.payload.payload.blob;
+              if (!newDoc.blob.startsWith("data:application/pdf;base64,")) {
+                newDoc.blob =
+                  "data:application/pdf;base64," + action.payload.payload.blob;
+              }
             }
             return newDoc;
           } else return doc;
