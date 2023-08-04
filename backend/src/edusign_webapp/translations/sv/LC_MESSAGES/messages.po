@@ -415,9 +415,13 @@ msgstr ""
 "%(invited_name)s <%(invited_email)s> har signerat dokumentet "
 "\"%(document_name)s\".\n"
 
-#: src/edusign_webapp/templates/home.jinja2:8
+#: src/edusign_webapp/templates/home.jinja2:37
 msgid "eduSign - Secure digital signature"
 msgstr "eduSign - säker digital underskrift"
+
+#: src/edusign_webapp/templates/home.jinja2:42
+msgid "Login with MyAcademicID"
+msgstr "Logga in med MyAcademicID"
 
 #: src/edusign_webapp/templates/invitation_email.html.jinja2:7
 #, python-format
