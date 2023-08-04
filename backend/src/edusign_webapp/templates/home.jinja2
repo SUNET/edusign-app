@@ -2,30 +2,47 @@
 
     {% block script %}
       <style type="text/css">
-      a.button{
-       text-decoration:none;
-       color:#cc0000;
-       background-color: #58b78c;
-       border:1px solid #629c92;
-       border-radius:5px;
-       margin-right:10px;
-       padding:10px 10px 10px 10px;
-      }
-      a.button:hover{
-        background-color:#4a9c77;
-      }
-      a.button:focus{
-       border:1px solid #58b78c;
-      }
+        div#button-wrapper {
+          width: fit-content;
+          height: fit-content;
+          padding: 4px;
+          background-color: rgb(33, 110, 147);
+          color: rgb(240, 240, 240);
+          border-radius: 7px;
+          cursor: pointer;
+          font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+          font-weight: 700;
+          font-size: 1rem;
+        }
+        div#inner-button-wrapper {
+          width: fit-content;
+          height: fit-content;
+          padding: 1px;
+          background-color: rgb(33, 110, 147);
+          border-radius: 3px;
+        }
+        div#inner-button-wrapper:hover {
+          background-color: #fff;rgb(240, 240, 240)
+        }
+        a#myc-button {
+          display: inline-block;
+          padding: 0.7rem 1.7rem;
+          background-color: rgb(33, 110, 147);
+          border-radius: 3px;
+        }
       </style>
     {% endblock %}
 
     {% block body %}
           <h1 id="main-title">{{ gettext("eduSign - Secure digital signature") }}</h1>
           <div id="login">
-            <a href="{{ login_initiator }}" class="button">
-              Login with MyAcademicID
-            </a>
+            <div id="button-wrapper">
+              <div id="inner-button-wrapper">
+                <a id="myc-button">
+                  {{ gettext("Login with MyAcademicID") }}
+                </a>
+              </div>
+            </div>
           </div>
           <div id="md-content">
             {{ body | markdown }}
