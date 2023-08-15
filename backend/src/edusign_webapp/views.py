@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import asyncio
+import binascii
 import json
 import os
 import uuid
@@ -760,8 +761,21 @@ def sign_service_callback() -> Union[str, Response]:
     try:
         sign_response = request.form['EidSignResponse']
         relay_state = request.form['RelayState']
+
+        # validate input data: sign_response must be in base64 which is safe against xss
+        # and relay_state is in 4f479e08-47ff-4a4b-9295-c9bd3f80e0f4 form
+        # so strip '-' and check if base64
+        b64decode(sign_response, validate=True)
+        b64decode(relay_state.replace('-', ''), validate=True)
+
     except KeyError as e:
         current_app.logger.error(f'Missing data in callback request: {e}')
+        abort(400)
+    except ValueError as e:
+        current_app.logger.error(f'Invalid data in callback request: {e}')
+        abort(400)
+    except binascii.Error as e:
+        current_app.logger.error(f'Invalid data in callback request: {e}')
         abort(400)
 
     try:
