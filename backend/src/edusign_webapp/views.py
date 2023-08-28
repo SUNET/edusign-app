@@ -208,8 +208,11 @@ def get_home():
     md_name = f"home-{current_lang}.md"
     base_dir = current_app.config['CUSTOMIZATION_DIR']
     md_custom = os.path.join(base_dir, 'md', md_name)
+    old_md_custom = os.path.join(base_dir, md_name)
     if os.path.exists(md_custom):
         md_file = md_custom
+    elif os.path.exists(old_md_custom):
+        md_file = old_md_custom
     else:
         md_file = os.path.join(current_app.config['HERE'], 'md', md_name)
 
@@ -251,8 +254,11 @@ def get_help_page():
     md_name = f"faq-{current_lang}.md"
     base_dir = current_app.config['CUSTOMIZATION_DIR']
     md_custom = os.path.join(base_dir, 'md', md_name)
+    old_md_custom = os.path.join(base_dir, md_name)
     if os.path.exists(md_custom):
         md_file = md_custom
+    elif os.path.exists(old_md_custom):
+        md_file = old_md_custom
     else:
         md_file = os.path.join(current_app.config['HERE'], 'md', md_name)
 
