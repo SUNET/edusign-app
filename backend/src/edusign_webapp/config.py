@@ -351,7 +351,7 @@ MD_SERVICE_NAMES = {
 
 RAW_MD_ATTRIBUTES = os.environ.get(
     'MD_ATTRIBUTES',
-    default='eduPersonPrincipalName,urn:oid:1.3.6.1.4.1.5923.1.1.1.6;sn,urn:oid:2.5.4.4;givenName,urn:oid:2.5.4.42;displayName,urn:oid:2.16.840.1.113730.3.1.241;eduPersonAssurance,urn:oid:1.3.6.1.4.1.5923.1.1.1.11;mail,urn:oid:0.9.2342.19200300.100.1.3;mailLocalAddress,urn:oid:2.16.840.1.113730.3.1.13',
+    default='eduPersonPrincipalName,urn:oid:1.3.6.1.4.1.5923.1.1.1.6;sn,urn:oid:2.5.4.4;givenName,urn:oid:2.5.4.42;displayName,urn:oid:2.16.840.1.113730.3.1.241;eduPersonAssurance,urn:oid:1.3.6.1.4.1.5923.1.1.1.11;mail,urn:oid:0.9.2342.19200300.100.1.3;mailLocalAddress,urn:oid:2.16.840.1.113730.3.1.13;PersonIdentifier,http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier'
 )
 
 MD_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_MD_ATTRIBUTES.split(';')}
