@@ -40,9 +40,8 @@ from collections import defaultdict
 from typing import Any, Dict, List, Tuple, Union
 
 import pkg_resources
-from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for, Response
 from flask_babel import force_locale, get_locale, gettext
-from werkzeug.wrappers import Response
 
 from edusign_webapp.doc_store import DocStore
 from edusign_webapp.forms import has_pdf_form, update_pdf_form
@@ -192,6 +191,46 @@ def metrics():
     response = make_response(report)
     response.mimetype = "text/plain"
     return response
+
+
+@anon_edusign_views.route('/metadata.xml', methods=['GET'])
+def metadata():
+    """
+    Serve the SAML2 SP metadata
+    """
+    context = {
+        'entity_id': current_app.config['MD_ENTITY_ID'],
+        'entity_categories': current_app.config['MD_ENTITY_CATEGORIES'],
+        'display_names': current_app.config['MD_DISPLAY_NAMES'],
+        'descriptions': current_app.config['MD_DESCRIPTIONS'],
+        'information_urls': current_app.config['MD_INFORMATION_URLS'],
+        'privacy_statement_urls': current_app.config['MD_PRIVACY_STATEMENT_URLS'],
+        'shibboleth_location': current_app.config['MD_SHIBBOLETH_LOCATION'],
+        'domain': current_app.config['SERVER_NAME'],
+        'signing_certificate': current_app.config['MD_SIGNING_CERTIFICATE'],
+        'encryption_certificate': current_app.config['MD_ENCRYPTION_CERTIFICATE'],
+        'service_names': current_app.config['MD_SERVICE_NAMES'],
+        'attributes': current_app.config['MD_ATTRIBUTES'],
+        'organization_names': current_app.config['MD_ORGANIZATION_NAMES'],
+        'organization_display_names': current_app.config['MD_ORGANIZATION_DISPLAY_NAMES'],
+        'organization_urls': current_app.config['MD_ORGANIZATION_URLS'],
+        'technical_contact_name': current_app.config['MD_TECHNICAL_CONTACT_NAME'],
+        'technical_contact_email': current_app.config['MD_TECHNICAL_CONTACT_EMAIL'],
+        'administrative_contact_name': current_app.config['MD_ADMINISTRATIVE_CONTACT_NAME'],
+        'administrative_contact_email': current_app.config['MD_ADMINISTRATIVE_CONTACT_EMAIL'],
+        'support_contact_name': current_app.config['MD_SUPPORT_CONTACT_NAME'],
+        'support_contact_email': current_app.config['MD_SUPPORT_CONTACT_EMAIL'],
+        'security_contact_name': current_app.config['MD_SECURITY_CONTACT_NAME'],
+        'security_contact_email': current_app.config['MD_SECURITY_CONTACT_EMAIL'],
+    }
+    try:
+        xml = render_template('metadata.jinja2', **context)
+    except AttributeError as e:
+        current_app.logger.error(f'Template rendering failed: {e}')
+        abort(500)
+
+    return Response(xml, mimetype='text/xml')
+
 
 
 @anon_edusign_views.route('/', methods=['GET'])
