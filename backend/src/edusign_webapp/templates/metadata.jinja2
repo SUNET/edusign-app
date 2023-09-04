@@ -35,10 +35,10 @@
         <mdui:Description xml:lang="{{ lang }}">{{ descriptions[lang] }}</mdui:Description>
         {% endfor %}
         {% for lang in information_urls %}
-        <mdui:InformationURL xml:lang="en">{{ information_urls[lang] }}</mdui:InformationURL>
+        <mdui:InformationURL xml:lang="{{ lang }}">{{ information_urls[lang] }}</mdui:InformationURL>
         {% endfor %}
         {% for lang in privacy_statement_urls %}
-        <mdui:PrivacyStatementURL xml:lang="sv">{{ privacy_statement_urls[lang] }}</mdui:PrivacyStatementURL>
+        <mdui:PrivacyStatementURL xml:lang="{{ lang }}">{{ privacy_statement_urls[lang] }}</mdui:PrivacyStatementURL>
         {% endfor %}
       </mdui:UIInfo>
       <init:RequestInitiator Binding="urn:oasis:names:tc:SAML:profiles:SSO:request-init" Location="{{ shibboleth_location }}/Login"/>
