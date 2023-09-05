@@ -118,25 +118,29 @@ def _test_multisign_sevice_callback(client, monkeypatch, data, mock_locked=True)
 
 
 def test_multisign_sevice_callback(client, monkeypatch):
-    sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
+
+    sign_response = b64encode(b'Dummy Sign Response')
+
     data = {
         'Binding': 'POST/XML/1.0',
         'RelayState': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
-        'EidSignResponse': sign_response,
+        'EidSignResponse': sign_response.decode('utf8'),
     }
     response = _test_multisign_sevice_callback(client, monkeypatch, data)
 
     assert response.status == '200 OK'
 
     assert b"<title>eduSign</title>" in response.data
-    assert b64encode(b'Dummy Sign Response') in response.data
+    assert sign_response in response.data
 
 
 def test_multisign_sevice_callback_no_relay_state(client, monkeypatch):
-    sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
+
+    sign_response = b64encode(b'Dummy Sign Response')
+
     data = {
         'Binding': 'POST/XML/1.0',
-        'EidSignResponse': sign_response,
+        'EidSignResponse': sign_response.decode('utf8'),
     }
     response = _test_multisign_sevice_callback(client, monkeypatch, data)
 
