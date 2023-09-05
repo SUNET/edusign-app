@@ -55,10 +55,24 @@ def _test_skip_final_signature(client, monkeypatch, sample_doc_1):
 
         monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
+        from edusign_webapp.api_client import APIClient
+
+        def mock_validate(self, to_validate):
+            for doc in to_validate:
+                doc['validated'] = True
+                doc['doc']['signedContent'] = doc['doc']['blob']
+
+            return to_validate
+
+        monkeypatch.setattr(APIClient, 'validate_signatures', mock_validate)
+
+        sample_doc = sample_doc_1.copy()
+        sample_doc['signedContent'] = sample_doc['blob']
+
         doc_data = {
             'csrf_token': csrf_token,
             'payload': {
-                'document': sample_doc_1,
+                'document': sample_doc,
                 'owner': 'tester@example.org',
                 'text': 'Dummy invitation text',
                 'sendsigned': True,
@@ -86,7 +100,7 @@ def _test_skip_final_signature(client, monkeypatch, sample_doc_1):
         skip_final_data = {
             'csrf_token': csrf_token,
             'payload': {
-                'key': sample_doc_1['key'],
+                'key': sample_doc['key'],
             },
         }
 
