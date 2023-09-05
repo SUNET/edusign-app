@@ -339,7 +339,6 @@ MD_ORGANIZATION_URLS = {
     name.split(",")[0].strip(): name.split(",")[1].strip() for name in RAW_MD_ORGANIZATION_URLS.strip().strip(';').split(';')
 }
 
-
 MD_TECHNICAL_CONTACT_NAME = os.environ.get('MD_TECHNICAL_CONTACT_NAME', default="SUNET")
 
 MD_TECHNICAL_CONTACT_EMAIL = os.environ.get('MD_TECHNICAL_CONTACT_EMAIL', default="mailto:noc@sunet.se")
@@ -355,3 +354,11 @@ MD_SUPPORT_CONTACT_EMAIL = os.environ.get('MD_SUPPORT_CONTACT_EMAIL', default="m
 MD_SECURITY_CONTACT_NAME = os.environ.get('MD_SECURITY_CONTACT_NAME', default="SUNET")
 
 MD_SECURITY_CONTACT_EMAIL = os.environ.get('MD_SECURITY_CONTACT_EMAIL', default="mailto:cert@cert.sunet.se")
+
+RAW_UI_SEND_SIGNED = os.environ.get('UI_SEND_SIGNED', default=True)
+
+UI_SEND_SIGNED = get_boolean(RAW_UI_SEND_SIGNED)
+
+RAW_UI_SKIP_FINAL = os.environ.get('UI_SKIP_FINAL', default=True)
+
+UI_SKIP_FINAL = get_boolean(RAW_UI_SKIP_FINAL)

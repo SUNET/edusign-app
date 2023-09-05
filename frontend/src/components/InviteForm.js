@@ -183,8 +183,8 @@ const validate = (props) => {
 
 const initialValues = (props) => ({
   invitationText: "",
-  sendsignedChoice: true,
-  skipfinalChoice: false,
+  sendsignedChoice: props.ui_defaults.send_signed,
+  skipfinalChoice: props.ui_defaults.skip_final,
   makecopyChoice: false,
   isTemplate: props.isTemplate,
   newnameInput: nameForCopy(props),
