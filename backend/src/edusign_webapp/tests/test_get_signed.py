@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import json
+from base64 import b64encode
 
 from edusign_webapp import run
 from edusign_webapp.marshal import ResponseSchema
@@ -38,6 +39,8 @@ from edusign_webapp.marshal import ResponseSchema
 
 def _test_get_signed_documents(client, monkeypatch, process_data=None):
     from edusign_webapp.api_client import APIClient
+
+    signed_content = b64encode(b'Dummy signed content').decode('ascii')
 
     def mock_post(*args, **kwargs):
         if process_data is not None:
@@ -50,7 +53,7 @@ def _test_get_signed_documents(client, monkeypatch, process_data=None):
                 {
                     'id': '6e46692d-7d34-4954-b760-96ee6ce48f61',
                     'mimeType': 'application/pdf',
-                    'signedContent': 'Dummy signed content',
+                    'signedContent': signed_content,
                 }
             ],
             'signerAssertionInformation': {
@@ -133,6 +136,16 @@ def _test_get_signed_documents(client, monkeypatch, process_data=None):
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
 
+    def mock_validate(self, to_validate):
+        for doc in to_validate:
+            doc['validated'] = True
+            if 'blob' in doc['doc']:
+                doc['doc']['signedContent'] = doc['doc']['blob']
+
+        return to_validate
+
+    monkeypatch.setattr(APIClient, 'validate_signatures', mock_validate)
+
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
@@ -141,9 +154,11 @@ def _test_get_signed_documents(client, monkeypatch, process_data=None):
         csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
         user_key = sess['user_key']
 
+        sign_response = b64encode(b'Dummy Sign Response').decode('ascii')
+
         doc_data = {
             'csrf_token': csrf_token,
-            'payload': {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
+            'payload': {'sign_response': sign_response, 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
         }
 
         from flask.sessions import SecureCookieSession
@@ -172,7 +187,9 @@ def test_get_signed_documents(client, monkeypatch):
 
     assert response.status == '200 OK'
 
-    assert b'Dummy signed content' in response.data
+    signed_content = b64encode(b'Dummy signed content')
+
+    assert signed_content in response.data
 
 
 def test_get_signed_documents_process_error(client, monkeypatch):
@@ -193,6 +210,15 @@ def test_get_signed_documents_post_raises(client, monkeypatch):
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
 
+    def mock_validate(self, to_validate):
+        for doc in to_validate:
+            doc['validated'] = True
+            doc['doc']['signedContent'] = doc['doc']['blob']
+
+        return to_validate
+
+    monkeypatch.setattr(APIClient, 'validate_signatures', mock_validate)
+
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
@@ -201,9 +227,11 @@ def test_get_signed_documents_post_raises(client, monkeypatch):
         csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
         user_key = sess['user_key']
 
+        sign_response = b64encode(b'Dummy Sign Response').decode('ascii')
+
         doc_data = {
             'csrf_token': csrf_token,
-            'payload': {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
+            'payload': {'sign_response': sign_response, 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
         }
 
         from flask.sessions import SecureCookieSession
@@ -237,6 +265,17 @@ def _get_signed_documents(client, monkeypatch, data_payload, csrf_token=None):
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
+
+    from edusign_webapp.api_client import APIClient
+
+    def mock_validate(self, to_validate):
+        for doc in to_validate:
+            doc['validated'] = True
+            doc['doc']['signedContent'] = doc['doc']['blob']
+
+        return to_validate
+
+    monkeypatch.setattr(APIClient, 'validate_signatures', mock_validate)
 
     if csrf_token is None:
         with client.session_transaction() as sess:

@@ -31,16 +31,20 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+from base64 import b64encode
+
 
 def test_sign_service_callback(client):
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
 
+    sign_response = b64encode(b'Dummy Sign Response')
+
     data = {
         'Binding': 'POST/XML/1.0',
         'RelayState': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
-        'EidSignResponse': 'Dummy Sign Response',
+        'EidSignResponse': sign_response,
     }
 
     response = client.post(
@@ -51,7 +55,7 @@ def test_sign_service_callback(client):
     assert response.status == '200 OK'
 
     assert b"<title>eduSign</title>" in response.data
-    assert b"Dummy Sign Response" in response.data
+    assert sign_response in response.data
 
 
 def test_sign_service_callback_no_sign_response(client):
@@ -77,9 +81,11 @@ def test_sign_service_callback_no_relay_state(client):
 
     assert response1.status == '200 OK'
 
+    sign_response = b64encode(b'Dummy Sign Response')
+
     data = {
         'Binding': 'POST/XML/1.0',
-        'EidSignResponse': 'Dummy Sign Response',
+        'EidSignResponse': sign_response,
     }
 
     response = client.post(
