@@ -40,6 +40,8 @@ from edusign_webapp.marshal import ResponseSchema
 def _test_get_signed_documents(client, monkeypatch, process_data=None):
     from edusign_webapp.api_client import APIClient
 
+    signed_content = b64encode(b'Dummy signed content').decode('ascii')
+
     def mock_post(*args, **kwargs):
         if process_data is not None:
             return process_data
@@ -136,6 +138,16 @@ def _test_get_signed_documents(client, monkeypatch, process_data=None):
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
 
+    def mock_validate(self, to_validate):
+        for doc in to_validate:
+            doc['validated'] = True
+            if 'blob' in doc['doc']:
+                doc['doc']['signedContent'] = doc['doc']['blob']
+
+        return to_validate
+
+    monkeypatch.setattr(APIClient, 'validate_signatures', mock_validate)
+
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
@@ -200,6 +212,15 @@ def test_get_signed_documents_post_raises(client, monkeypatch):
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
 
+    def mock_validate(self, to_validate):
+        for doc in to_validate:
+            doc['validated'] = True
+            doc['doc']['signedContent'] = doc['doc']['blob']
+
+        return to_validate
+
+    monkeypatch.setattr(APIClient, 'validate_signatures', mock_validate)
+
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
@@ -246,6 +267,17 @@ def _get_signed_documents(client, monkeypatch, data_payload, csrf_token=None):
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
+
+    from edusign_webapp.api_client import APIClient
+
+    def mock_validate(self, to_validate):
+        for doc in to_validate:
+            doc['validated'] = True
+            doc['doc']['signedContent'] = doc['doc']['blob']
+
+        return to_validate
+
+    monkeypatch.setattr(APIClient, 'validate_signatures', mock_validate)
 
     if csrf_token is None:
         with client.session_transaction() as sess:
