@@ -430,6 +430,12 @@ def get_config() -> dict:
     else:
         payload['unauthn'] = True
 
+    ui_defaults = {
+        'send_signed': current_app.config['UI_SEND_SIGNED'],
+        'skip_final': current_app.config['UI_SKIP_FINAL'],
+    }
+    payload['ui_defaults'] = ui_defaults
+
     attrs = {
         'eppn': session['eppn'],
         "mail": session["mail"],
