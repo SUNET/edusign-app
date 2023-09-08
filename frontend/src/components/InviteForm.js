@@ -25,8 +25,8 @@ export const validateEmail = (mail, mail_aliases, allValues, idx) => {
         <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
       );
     } else if (
-      value === mail ||
-      (mail_aliases !== undefined && mail_aliases.includes(value))
+      value.toLowerCase() === mail ||
+      (mail_aliases !== undefined && mail_aliases.includes(value.toLowerCase()))
     ) {
       error = (
         <FormattedMessage
@@ -37,7 +37,7 @@ export const validateEmail = (mail, mail_aliases, allValues, idx) => {
     } else {
       let count = 0;
       allValues.forEach((val, i) => {
-        if (idx > i && val.email === value) {
+        if (idx > i && val.email.toLowerCase() === value.toLowerCase()) {
           count += 1;
         }
       });
