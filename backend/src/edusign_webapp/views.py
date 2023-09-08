@@ -1049,6 +1049,9 @@ def edit_multi_sign_request(data: dict) -> dict:
     :return: A message about the result of the procedure
     """
     key = uuid.UUID(data['key'])
+
+    for invite in data['invites']:
+        invite['email'] = invite['email'].lower()
     try:
         changed = current_app.doc_store.update_invitations(key, data['invites'])
     except Exception as e:
