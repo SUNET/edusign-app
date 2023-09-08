@@ -23,7 +23,7 @@ export const validateEmail = (mail, mail_aliases) => {
       error = (
         <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
       );
-    } else if (value === mail || (mail_aliases !== undefined && mail_aliases.includes(value))) {
+    } else if (value.toLowerCase() === mail || (mail_aliases !== undefined && mail_aliases.includes(value.toLowerCase()))) {
       error = (
         <FormattedMessage
           defaultMessage="Do not invite yourself"
