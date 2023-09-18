@@ -102,56 +102,56 @@ RAW_SIGNER_ATTRIBUTES = os.environ.get(
     default='urn:oid:2.16.840.1.113730.3.1.241,displayName',
 )
 
-SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}
+SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';') if ',' in attr}
 
 RAW_AUTHN_ATTRIBUTES = os.environ.get(
     'AUTHN_ATTRIBUTES',
     default='',
 )
 
-AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES.split(';')}
+AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES.split(';') if ',' in attr}
 
 RAW_AUTHN_ATTRIBUTES_MAPPING = os.environ.get(
     'AUTHN_ATTRIBUTES_MAPPING',
     default='http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier,urn:oid:1.2.752.201.3.7',
 )
 
-AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_MAPPING.split(';')}
+AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_MAPPING.split(';') if ',' in attr}
 
 EIDAS_RAW_SIGNER_ATTRIBUTES = os.environ.get(
     'EIDAS_SIGNER_ATTRIBUTES',
     default='urn:oid:2.16.840.1.113730.3.1.241,displayName',
 )
 
-EIDAS_SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_SIGNER_ATTRIBUTES.split(';')}
+EIDAS_SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_SIGNER_ATTRIBUTES.split(';') if ',' in attr}
 
 EIDAS_RAW_AUTHN_ATTRIBUTES = os.environ.get(
     'EIDAS_AUTHN_ATTRIBUTES',
     default='http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier,PersonIdentifier',
 )
 
-EIDAS_AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_AUTHN_ATTRIBUTES.split(';')}
+EIDAS_AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_AUTHN_ATTRIBUTES.split(';') if ',' in attr}
 
 EIDAS_RAW_AUTHN_ATTRIBUTES_MAPPING = os.environ.get(
     'EIDAS_AUTHN_ATTRIBUTES_MAPPING',
     default='http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier,urn:oid:1.2.752.201.3.7',
 )
 
-EIDAS_AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_AUTHN_ATTRIBUTES_MAPPING.split(';')}
+EIDAS_AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_AUTHN_ATTRIBUTES_MAPPING.split(';') if ',' in attr}
 
 FORCE_AUTHN_CONTEXT = os.environ.get('FORCE_AUTHN_CONTEXT', default='')
 
 RAW_SCOPE_WHITELIST = os.environ.get('SCOPE_WHITELIST', default='eduid.se, sunet.se')
 
-SCOPE_WHITELIST = [scope.strip() for scope in RAW_SCOPE_WHITELIST.split(',')]
+SCOPE_WHITELIST = [scope.strip() for scope in RAW_SCOPE_WHITELIST.split(',') if scope]
 
 RAW_USER_BLACKLIST = os.environ.get('USER_BLACKLIST', default='blacklisted@eduid.se')
 
-USER_BLACKLIST = [eppn.strip() for eppn in RAW_USER_BLACKLIST.split(',')]
+USER_BLACKLIST = [eppn.strip() for eppn in RAW_USER_BLACKLIST.split(',') if eppn]
 
 RAW_USER_WHITELIST = os.environ.get('USER_WHITELIST', default='whitelisted@eduid.se')
 
-USER_WHITELIST = [eppn.strip() for eppn in RAW_USER_WHITELIST.split(',')]
+USER_WHITELIST = [eppn.strip() for eppn in RAW_USER_WHITELIST.split(',') if eppn]
 
 STORAGE_CLASS_PATH = os.environ.get('STORAGE_CLASS_PATH', default='edusign_webapp.document.storage.local.LocalStorage')
 LOCAL_STORAGE_BASE_DIR = os.environ.get('LOCAL_STORAGE_BASE_DIR', default='/tmp')
@@ -217,7 +217,7 @@ RAW_AVAILABLE_LOAS = os.environ.get(
 )
 
 AVAILABLE_LOAS = {
-    loa.split(",")[0].strip(): loa.split(",")[1].strip() for loa in RAW_AVAILABLE_LOAS.strip().strip(';').split(';')
+    loa.split(",")[0].strip(): loa.split(",")[1].strip() for loa in RAW_AVAILABLE_LOAS.strip().strip(';').split(';') if ',' in loa
 }
 
 MAX_CONTENT_LENGTH = int(os.environ.get('MAX_FILE_SIZE', default=20971520))
@@ -241,7 +241,7 @@ RAW_MD_DISPLAY_NAMES = os.environ.get(
     default="sv,SUNET eduSIGN - tjänst för e-signaturer;en,SUNET eduSIGN Service"
 )
 MD_DISPLAY_NAMES = {
-    dname.split(",")[0].strip(): dname.split(",")[1].strip() for dname in RAW_MD_DISPLAY_NAMES.strip().strip(';').split(';')
+    dname.split(",")[0].strip(): dname.split(",")[1].strip() for dname in RAW_MD_DISPLAY_NAMES.strip().strip(';').split(';') if ',' in dname
 }
 
 RAW_MD_DESCRIPTIONS = os.environ.get(
@@ -249,7 +249,7 @@ RAW_MD_DESCRIPTIONS = os.environ.get(
     default="sv,SUNET eduSIGN gör det enkelt att arbeta med e-signaturer;en,SUNET eduSIGN Service makes it easy to electronically sign documents"
 )
 MD_DESCRIPTIONS = {
-    desc.split(",")[0].strip(): desc.split(",")[1].strip() for desc in RAW_MD_DESCRIPTIONS.strip().strip(';').split(';')
+    desc.split(",")[0].strip(): desc.split(",")[1].strip() for desc in RAW_MD_DESCRIPTIONS.strip().strip(';').split(';') if ',' in desc
 }
 
 RAW_MD_INFORMATION_URLS = os.environ.get(
@@ -257,7 +257,7 @@ RAW_MD_INFORMATION_URLS = os.environ.get(
     default="sv,https://www.sunet.se/services/sakerhet/edusign/;en,https://www.sunet.se/services/sakerhet/edusign/"
 )
 MD_INFORMATION_URLS = {
-    url.split(",")[0].strip(): url.split(",")[1].strip() for url in RAW_MD_INFORMATION_URLS.strip().strip(';').split(';')
+    url.split(",")[0].strip(): url.split(",")[1].strip() for url in RAW_MD_INFORMATION_URLS.strip().strip(';').split(';') if ',' in url
 }
 
 RAW_MD_PRIVACY_STATEMENT_URLS = os.environ.get(
@@ -265,7 +265,7 @@ RAW_MD_PRIVACY_STATEMENT_URLS = os.environ.get(
     default="sv,https://wiki.sunet.se/display/info/eduSign+Privacy+Policy?showLanguage=sv_SE;en,https://wiki.sunet.se/display/info/eduSign+Privacy+Policy?showLanguage=en_GB"
 )
 MD_PRIVACY_STATEMENT_URLS = {
-    url.split(",")[0].strip(): url.split(",")[1].strip() for url in RAW_MD_PRIVACY_STATEMENT_URLS.strip().strip(';').split(';')
+    url.split(",")[0].strip(): url.split(",")[1].strip() for url in RAW_MD_PRIVACY_STATEMENT_URLS.strip().strip(';').split(';') if ',' in url
 }
 
 MD_SHIBBOLETH_LOCATION = os.environ.get('MD_SHIBBOLETH_LOCATION', default="https://edusign.sunet.se/Shibboleth.sso")
@@ -325,7 +325,7 @@ RAW_MD_SERVICE_NAMES = os.environ.get(
     default="sv,SUNET eduSIGN - tjänst för e-signaturer;en,SUNET eduSIGN Service"
 )
 MD_SERVICE_NAMES = {
-    name.split(",")[0].strip(): name.split(",")[1].strip() for name in RAW_MD_SERVICE_NAMES.strip().strip(';').split(';')
+    name.split(",")[0].strip(): name.split(",")[1].strip() for name in RAW_MD_SERVICE_NAMES.strip().strip(';').split(';') if ',' in name
 }
 
 RAW_MD_ATTRIBUTES = os.environ.get(
@@ -333,14 +333,14 @@ RAW_MD_ATTRIBUTES = os.environ.get(
     default='eduPersonPrincipalName,urn:oid:1.3.6.1.4.1.5923.1.1.1.6;sn,urn:oid:2.5.4.4;givenName,urn:oid:2.5.4.42;displayName,urn:oid:2.16.840.1.113730.3.1.241;eduPersonAssurance,urn:oid:1.3.6.1.4.1.5923.1.1.1.11;mail,urn:oid:0.9.2342.19200300.100.1.3;mailLocalAddress,urn:oid:2.16.840.1.113730.3.1.13;PersonIdentifier,http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier'
 )
 
-MD_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_MD_ATTRIBUTES.split(';')}
+MD_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_MD_ATTRIBUTES.split(';') if ',' in attr}
 
 RAW_MD_ORGANIZATION_NAMES = os.environ.get(
     'MD_ORGANIZATION_NAMES',
     default="sv,Vetenskapsrådet;en,The Swedish Research Council"
 )
 MD_ORGANIZATION_NAMES = {
-    name.split(",")[0].strip(): name.split(",")[1].strip() for name in RAW_MD_ORGANIZATION_NAMES.strip().strip(';').split(';')
+    name.split(",")[0].strip(): name.split(",")[1].strip() for name in RAW_MD_ORGANIZATION_NAMES.strip().strip(';').split(';') if ',' in name
 }
 
 RAW_MD_ORGANIZATION_DISPLAY_NAMES = os.environ.get(
@@ -348,7 +348,7 @@ RAW_MD_ORGANIZATION_DISPLAY_NAMES = os.environ.get(
     default="sv,Sunet;en,Sunet"
 )
 MD_ORGANIZATION_DISPLAY_NAMES = {
-    name.split(",")[0].strip(): name.split(",")[1].strip() for name in RAW_MD_ORGANIZATION_DISPLAY_NAMES.strip().strip(';').split(';')
+    name.split(",")[0].strip(): name.split(",")[1].strip() for name in RAW_MD_ORGANIZATION_DISPLAY_NAMES.strip().strip(';').split(';') if ',' in name
 }
 
 RAW_MD_ORGANIZATION_URLS = os.environ.get(
@@ -356,7 +356,7 @@ RAW_MD_ORGANIZATION_URLS = os.environ.get(
     default="sv,https://www.sunet.se;en,https://www.sunet.se"
 )
 MD_ORGANIZATION_URLS = {
-    name.split(",")[0].strip(): name.split(",")[1].strip() for name in RAW_MD_ORGANIZATION_URLS.strip().strip(';').split(';')
+    url.split(",")[0].strip(): url.split(",")[1].strip() for url in RAW_MD_ORGANIZATION_URLS.strip().strip(';').split(';') if ',' in url
 }
 
 
