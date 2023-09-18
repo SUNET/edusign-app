@@ -118,6 +118,8 @@ RAW_AUTHN_ATTRIBUTES_MAPPING = os.environ.get(
 
 AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_MAPPING.split(';') if ',' in attr}
 
+EIDAS_AUTHN_AUTHORITY = "dummy"
+
 EIDAS_RAW_SIGNER_ATTRIBUTES = os.environ.get(
     'EIDAS_SIGNER_ATTRIBUTES',
     default='urn:oid:2.16.840.1.113730.3.1.241,displayName',
