@@ -145,7 +145,10 @@ RAW_AUTHN_ATTRIBUTES_MAPPING = os.environ.get(
 
 AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_MAPPING.split(';') if ',' in attr}
 
-EIDAS_AUTHN_AUTHORITY = "dummy"
+EIDAS_AUTHN_AUTHORITY = os.environ.get(
+    'EIDAS_AUTHN_AUTHORITY',
+    default="https://proxy.staging.my-academic-id.sunet.se/proxy",
+)
 
 EIDAS_RAW_SIGNER_ATTRIBUTES = os.environ.get(
     'EIDAS_SIGNER_ATTRIBUTES',
