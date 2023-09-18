@@ -114,19 +114,28 @@ class APIClient(object):
 
     def __init__(self, config: dict):
         """
+
+        :param config: Dict containing the configuration parameters provided to Flask.
+        """
+        self.config = config
+
+    def _config(self):
+        """
         Initialize the client object with configuration gathered by flask.
         We need 3 parameters here:
 
         + The base URL of the signature service / API
         + The profile in the API to use - for which we have credentials (HTTP Basic Auth)
         + The HTTP Basic Auth credentials.
-
-        :param config: Dict containing the configuration parameters provided to Flask.
         """
-        self.api_base_url = config['EDUSIGN_API_BASE_URL']
-        self.profile = config['EDUSIGN_API_PROFILE']
-        self.basic_auth = HTTPBasicAuth(config['EDUSIGN_API_USERNAME'], config['EDUSIGN_API_PASSWORD'])
-        self.config = config
+        if session['eidas']:
+            self.api_base_url = self.config['EIDAS_EDUSIGN_API_BASE_URL']
+            self.profile = self.config['EIDAS_EDUSIGN_API_PROFILE']
+            self.basic_auth = HTTPBasicAuth(self.config['EIDAS_EDUSIGN_API_USERNAME'], self.config['EIDAS_EDUSIGN_API_PASSWORD'])
+        else:
+            self.api_base_url = self.config['EDUSIGN_API_BASE_URL']
+            self.profile = self.config['EDUSIGN_API_PROFILE']
+            self.basic_auth = HTTPBasicAuth(self.config['EDUSIGN_API_USERNAME'], self.config['EDUSIGN_API_PASSWORD'])
 
     def _post(self, url: str, request_data: dict) -> dict:
         """
@@ -192,12 +201,18 @@ class APIClient(object):
         :param document: Dict holding the PDF (data and metadata) to prepare for signing.
         :return: Flask representation of the HTTP response from the API.
         """
+        self._config()
         idp = session['idp']
+
+        if session['eidas']:
+            signer_attrs = self.config['EIDAS_SIGNER_ATTRIBUTES']
+        else:
+            signer_attrs = self.config['SIGNER_ATTRIBUTES']
 
         if session.get('organizationName', None) is not None:
             idp = session['organizationName']
 
-        attrs = [{'name': attr} for attr in self.config['SIGNER_ATTRIBUTES'].keys()]
+        attrs = [{'name': attr} for attr in signer_attrs.keys()]
         current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
 
         doc_data = document['blob']
@@ -306,9 +321,20 @@ class APIClient(object):
         idp = session['idp']
         authn_context = get_authn_context(documents)
         correlation_id = str(uuid.uuid4())
-        attrs_dict = {attr: session[name] for attr, name in self.config['SIGNER_ATTRIBUTES'].items()}
-        attrs_dict.update({attr: session[name] for attr, name in self.config['AUTHN_ATTRIBUTES'].items()})
-        for old_attr, new_attr in self.config['AUTHN_ATTRIBUTES_MAPPING'].items():
+        if session['eidas']:
+            signer_attrs = self.config['EIDAS_SIGNER_ATTRIBUTES']
+            authn_attrs = self.config['EIDAS_AUTHN_ATTRIBUTES']
+            attr_mapping = self.config['EIDAS_AUTHN_ATTRIBUTES_MAPPING']
+            requester_id = self.config['EIDAS_SIGN_REQUESTER_ID']
+        else:
+            signer_attrs = self.config['SIGNER_ATTRIBUTES']
+            authn_attrs = self.config['AUTHN_ATTRIBUTES']
+            attr_mapping = self.config['AUTHN_ATTRIBUTES_MAPPING']
+            requester_id = self.config['SIGN_REQUESTER_ID']
+
+        attrs_dict = {attr: session[name] for attr, name in signer_attrs.items()}
+        attrs_dict.update({attr: session[name] for attr, name in authn_attrs.items()})
+        for old_attr, new_attr in attr_mapping.items():
             if old_attr in attrs_dict:
                 attrs_dict[new_attr] = attrs_dict[old_attr]
                 del attrs_dict[old_attr]
@@ -322,7 +348,7 @@ class APIClient(object):
 
         request_data = {
             "correlationId": correlation_id,
-            "signRequesterID": self.config['SIGN_REQUESTER_ID'],
+            "signRequesterID": requester_id,
             "returnUrl": return_url,
             "authnRequirements": {
                 "authnServiceID": idp,
@@ -373,6 +399,7 @@ class APIClient(object):
                  and a list of mappings linking the documents' names with the generated ids (sent to
                  the API as tbsDocuments.N.id).
         """
+        self._config()
         response_data, documents_with_id = self._try_creating_sign_request(documents, add_blob=add_blob)
 
         if (
