@@ -118,7 +118,7 @@ class APIClient(object):
         """
         self.config = config
 
-    def initialize_credentials(self):
+    def _config(self):
         """
         Initialize the client object with configuration gathered by flask.
         We need 3 things here:
@@ -128,11 +128,14 @@ class APIClient(object):
         + The HTTP Basic Auth credentials.
         """
         attr_schema = session['saml-attr-schema']
-        self.api_base_url = self.config['EDUSIGN_API_BASE_URL']
-        self.profile = self.config[f'EDUSIGN_API_PROFILE_{attr_schema}']
-        self.basic_auth = HTTPBasicAuth(
-            self.config[f'EDUSIGN_API_USERNAME_{attr_schema}'], self.config[f'EDUSIGN_API_PASSWORD_{attr_schema}']
-        )
+        if session['eidas']:
+            self.api_base_url = self.config['EIDAS_EDUSIGN_API_BASE_URL']
+            self.profile = self.config['EIDAS_EDUSIGN_API_PROFILE']
+            self.basic_auth = HTTPBasicAuth(self.config['EIDAS_EDUSIGN_API_USERNAME'], self.config['EIDAS_EDUSIGN_API_PASSWORD'])
+        else:
+            self.api_base_url = self.config['EDUSIGN_API_BASE_URL']
+            self.profile = self.config[f'EDUSIGN_API_PROFILE_{attr_schema}']
+            self.basic_auth = HTTPBasicAuth(self.config[f'EDUSIGN_API_USERNAME_{attr_schema}'], self.config[f'EDUSIGN_API_PASSWORD_{attr_schema}'])
 
     def _post(self, url: str, request_data: dict) -> dict:
         """
@@ -198,14 +201,19 @@ class APIClient(object):
         :param document: Dict holding the PDF (data and metadata) to prepare for signing.
         :return: Flask representation of the HTTP response from the API.
         """
-        self.initialize_credentials()
+        self._config()
         idp = session['idp']
         attr_schema = session['saml-attr-schema']
+
+        if session['eidas']:
+            signer_attrs = self.config['EIDAS_SIGNER_ATTRIBUTES']
+        else:
+            signer_attrs = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}']
 
         if session.get('organizationName', None) is not None:
             idp = session['organizationName']
 
-        attrs = [{'name': attr} for attr in self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].keys()]
+        attrs = [{'name': attr} for attr in signer_attrs.keys()]
         current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
 
         doc_data = document['blob']
@@ -316,27 +324,39 @@ class APIClient(object):
         authn_context = get_authn_context(documents)
         assurance = get_required_assurance(documents)
         correlation_id = str(uuid.uuid4())
-        attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
-        attrs_dict = {saml_name: session[friendly_name] for saml_name, friendly_name in attr_names}
-        used_attr_names = tuple(friendly_name for _, friendly_name in attr_names)
-        more_attr_names = [attr_names for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items() if attr_names[1] not in used_attr_names]
-        more_attrs_dict = {saml_name: session[friendly_name] for saml_name, friendly_name in more_attr_names}
-        more_used_attr_names = tuple(friendly_name for _, friendly_name in more_attr_names)
-        used_attr_names += more_used_attr_names
-        attrs_dict.update(more_attrs_dict)
-        assurances = self.config['AVAILABLE_LOAS'].get(
-            session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']
-        )
-        levels = {'low': 0, 'medium': 1, 'high': 2}
-        loa = assurances[levels[assurance]]
-        if attr_schema == '11':
-            assurance_attr_name = 'urn:mace:dir:attribute-def:eduPersonAssurance'
-        else:
-            assurance_attr_name = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
-        if assurance_attr_name not in used_attr_names:
-            attrs_dict[assurance_attr_name] = loa
 
-        for old_attr, new_attr in self.config['AUTHN_ATTRIBUTES_MAPPING'].items():
+        if session['eidas']:
+            signer_attrs = self.config['EIDAS_SIGNER_ATTRIBUTES']
+            authn_attrs = self.config['EIDAS_AUTHN_ATTRIBUTES']
+            attr_mapping = self.config['EIDAS_AUTHN_ATTRIBUTES_MAPPING']
+            requester_id = self.config['EIDAS_SIGN_REQUESTER_ID']
+            attrs_dict = {attr: session[name] for attr, name in signer_attrs.items()}
+            attrs_dict.update({attr: session[name] for attr, name in authn_attrs.items()})
+        else:
+            attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
+            attrs_dict = {saml_name: session[friendly_name] for saml_name, friendly_name in attr_names}
+            used_attr_names = tuple(friendly_name for _, friendly_name in attr_names)
+            more_attr_names = [attr_names for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items() if attr_names[1] not in used_attr_names]
+            more_attrs_dict = {saml_name: session[friendly_name] for saml_name, friendly_name in more_attr_names}
+            more_used_attr_names = tuple(friendly_name for _, friendly_name in more_attr_names)
+            used_attr_names += more_used_attr_names
+            attrs_dict.update(more_attrs_dict)
+            assurances = self.config['AVAILABLE_LOAS'].get(
+                session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']
+            )
+            levels = {'low': 0, 'medium': 1, 'high': 2}
+            loa = assurances[levels[assurance]]
+            if attr_schema == '11':
+                assurance_attr_name = 'urn:mace:dir:attribute-def:eduPersonAssurance'
+            else:
+                assurance_attr_name = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
+            if assurance_attr_name not in used_attr_names:
+                attrs_dict[assurance_attr_name] = loa
+
+            attr_mapping = self.config['AUTHN_ATTRIBUTES_MAPPING']
+            requester_id = self.config['SIGN_REQUESTER_ID']
+
+        for old_attr, new_attr in attr_mapping.items():
             if old_attr in attrs_dict:
                 attrs_dict[new_attr] = attrs_dict[old_attr]
                 del attrs_dict[old_attr]
@@ -350,7 +370,7 @@ class APIClient(object):
 
         request_data = {
             "correlationId": correlation_id,
-            "signRequesterID": self.config['SIGN_REQUESTER_ID'],
+            "signRequesterID": requester_id,
             "returnUrl": return_url,
             "authnRequirements": {
                 "authnServiceID": idp,
@@ -401,7 +421,7 @@ class APIClient(object):
                  and a list of mappings linking the documents' names with the generated ids (sent to
                  the API as tbsDocuments.N.id).
         """
-        self.initialize_credentials()
+        self._config()
         response_data, documents_with_id = self._try_creating_sign_request(documents, add_blob=add_blob)
 
         if (

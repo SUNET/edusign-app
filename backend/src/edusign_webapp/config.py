@@ -92,6 +92,13 @@ EDUSIGN_API_PASSWORD_11 = os.environ.get('EDUSIGN_API_PASSWORD_11', default='dum
 
 SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.idsec.se/edusign-test")
 
+EIDAS_EDUSIGN_API_BASE_URL = os.environ.get('EIDAS_EDUSIGN_API_BASE_URL', default='https://sig.idsec.se/signint/v1/')
+EIDAS_EDUSIGN_API_PROFILE = os.environ.get('EIDAS_EDUSIGN_API_PROFILE', default='edusign-test')
+EIDAS_EDUSIGN_API_USERNAME = os.environ.get('EIDAS_EDUSIGN_API_USERNAME', default='dummy')
+EIDAS_EDUSIGN_API_PASSWORD = os.environ.get('EIDAS_EDUSIGN_API_PASSWORD', default='dummy')
+
+EIDAS_SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.idsec.se/edusign-test")
+
 VALIDATOR_API_BASE_URL = os.environ.get('VALIDATOR_API_BASE_URL', default='https://sig.idsec.se/sigval/')
 
 MULTISIGN_BUTTONS = os.environ.get('MULTISIGN_BUTTONS', default="yes")
@@ -126,7 +133,7 @@ AUTHN_ATTRIBUTES_20 = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AU
 
 RAW_AUTHN_ATTRIBUTES = os.environ.get(
     'AUTHN_ATTRIBUTES',
-    default='http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier,PersonIdentifier',
+    default='',
 )
 
 AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES.split(';')}
@@ -137,6 +144,27 @@ RAW_AUTHN_ATTRIBUTES_MAPPING = os.environ.get(
 )
 
 AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_MAPPING.split(';')}
+
+EIDAS_RAW_SIGNER_ATTRIBUTES = os.environ.get(
+    'EIDAS_SIGNER_ATTRIBUTES',
+    default='urn:oid:2.16.840.1.113730.3.1.241,displayName',
+)
+
+EIDAS_SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_SIGNER_ATTRIBUTES.split(';')}
+
+EIDAS_RAW_AUTHN_ATTRIBUTES = os.environ.get(
+    'EIDAS_AUTHN_ATTRIBUTES',
+    default='http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier,PersonIdentifier',
+)
+
+EIDAS_AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_AUTHN_ATTRIBUTES.split(';')}
+
+EIDAS_RAW_AUTHN_ATTRIBUTES_MAPPING = os.environ.get(
+    'EIDAS_AUTHN_ATTRIBUTES_MAPPING',
+    default='http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier,urn:oid:1.2.752.201.3.7',
+)
+
+EIDAS_AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_AUTHN_ATTRIBUTES_MAPPING.split(';')}
 
 FORCE_AUTHN_CONTEXT = os.environ.get('FORCE_AUTHN_CONTEXT', default='')
 

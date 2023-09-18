@@ -73,16 +73,48 @@ def add_attributes_to_session(check_whitelisted=True):
     """
     if 'eppn' not in session:
         try:
-            eppn = request.headers['Personidentifier-20']
-            attr_schema = '20'
+            auth = request.headers.get('Authnauthority')
         except KeyError:
-            try:
-                eppn = request.headers.get('Personidentifier-11')
-                attr_schema = '11'
-            except KeyError:
-                current_app.logger.error('Missing eduPersonPrincipalName from request')
-                raise
+            current_app.logger.error('Missing authenticating authority from request')
+            raise
 
+        if auth == current_app.config['EIDAS_AUTHN_AUTHORITY']:
+            session['eidas'] = True
+            person_identifier = 'Personidentifier-20'
+            signer_attributes = current_app.config['EIDAS_SIGNER_ATTRIBUTES']
+            authn_attributes = current_app.config['EIDAS_AUTHN_ATTRIBUTES']
+            try:
+                idp = request.headers.get('Shib-Identity-Provider')
+            except KeyError:
+                current_app.logger.error('Missing Identity Provider from request')
+                raise
+            attr_schema = '20'
+
+            try:
+                eppn = request.headers.get(person_identifier)
+            except KeyError:
+                current_app.logger.error('Missing person identifier from request')
+                raise
+        else:
+            session['eidas'] = False
+            try:
+                person_identifier = 'Edupersonprincipalname-20'
+                eppn = request.headers.get(person_identifier)
+                attr_schema = '20'
+            except KeyError:
+                try:
+                    person_identifier = 'Edupersonprincipalname-11'
+                    eppn = request.headers.get(person_identifier)
+                    attr_schema = '11'
+                except KeyError:
+                    current_app.logger.error('Missing person identifier from request')
+                    raise
+
+            signer_attributes = current_app.config[f'SIGNER_ATTRIBUTES_{attr_schema}']
+            authn_attributes = current_app.config[f'AUTHN_ATTRIBUTES_{attr_schema}']
+            idp = auth
+
+        session['idp'] = idp
         session['eppn'] = eppn
         session['eduPersonPrincipalName'] = eppn
         session['saml-attr-schema'] = attr_schema
@@ -93,11 +125,11 @@ def add_attributes_to_session(check_whitelisted=True):
         attrs = [('mail', f'Mail-{attr_schema}'), ('displayName', f'Displayname-{attr_schema}')]
         more_attrs = [
             (attr, attr.lower().capitalize() + f'-{attr_schema}')
-            for attr in current_app.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].values()
+            for attr in signer_attributes.values()
         ]
         more_attrs.extend([
             (attr, attr.lower().capitalize() + f'-{attr_schema}')
-            for attr in current_app.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].values()
+            for attr in authn_attributes.values()
         ])
         for attr in more_attrs:
             if attr not in attrs and attr[0] != 'eduPersonPrincipalName':
