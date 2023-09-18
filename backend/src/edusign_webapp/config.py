@@ -91,7 +91,7 @@ EIDAS_EDUSIGN_API_PROFILE = os.environ.get('EIDAS_EDUSIGN_API_PROFILE', default=
 EIDAS_EDUSIGN_API_USERNAME = os.environ.get('EIDAS_EDUSIGN_API_USERNAME', default='dummy')
 EIDAS_EDUSIGN_API_PASSWORD = os.environ.get('EIDAS_EDUSIGN_API_PASSWORD', default='dummy')
 
-EIDAS_SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.idsec.se/edusign-test")
+EIDAS_SIGN_REQUESTER_ID = os.environ.get('EIDAS_SIGN_REQUESTER_ID', default="https://sig.idsec.se/edusign-test")
 
 VALIDATOR_API_BASE_URL = os.environ.get('VALIDATOR_API_BASE_URL', default='https://sig.idsec.se/sigval/')
 
