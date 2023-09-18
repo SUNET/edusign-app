@@ -77,7 +77,6 @@ def add_attributes_to_session(check_whitelisted=True):
 
         if auth == current_app.config['EIDAS_AUTHN_AUTHORITY']:
             session['eidas'] = True
-            person_identifier = 'Personidentifier'
             signer_attributes = current_app.config['EIDAS_SIGNER_ATTRIBUTES']
             authn_attributes = current_app.config['EIDAS_AUTHN_ATTRIBUTES']
             try:
@@ -87,12 +86,11 @@ def add_attributes_to_session(check_whitelisted=True):
                 raise
         else:
             session['eidas'] = False
-            person_identifier = 'Edupersonprincipalname'
             signer_attributes = current_app.config['SIGNER_ATTRIBUTES']
             authn_attributes = current_app.config['AUTHN_ATTRIBUTES']
             idp = auth
         try:
-            eppn = request.headers.get(person_identifier)
+            eppn = request.headers.get('Edupersonprincipalname')
         except KeyError:
             current_app.logger.error('Missing person identifier from request')
             raise
