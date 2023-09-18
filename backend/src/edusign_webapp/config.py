@@ -108,14 +108,14 @@ RAW_SIGNER_ATTRIBUTES_11 = os.environ.get(
     default='urn:mace:dir:attribute-def:displayName,displayName',
 )
 
-SIGNER_ATTRIBUTES_11 = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES_11.split(';')}
+SIGNER_ATTRIBUTES_11 = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES_11.split(';') if ',' in attr}
 
 RAW_SIGNER_ATTRIBUTES_20 = os.environ.get(
     'SIGNER_ATTRIBUTES_20',
     default='urn:oid:2.16.840.1.113730.3.1.241,displayName',
 )
 
-SIGNER_ATTRIBUTES_20 = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES_20.split(';')}
+SIGNER_ATTRIBUTES_20 = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES_20.split(';') if ',' in attr}
 
 RAW_AUTHN_ATTRIBUTES_11 = os.environ.get(
     'AUTHN_ATTRIBUTES_11',
@@ -136,35 +136,35 @@ RAW_AUTHN_ATTRIBUTES = os.environ.get(
     default='',
 )
 
-AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES.split(';')}
+AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES.split(';') if ',' in attr}
 
 RAW_AUTHN_ATTRIBUTES_MAPPING = os.environ.get(
     'AUTHN_ATTRIBUTES_MAPPING',
     default='http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier,urn:oid:1.2.752.201.3.7',
 )
 
-AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_MAPPING.split(';')}
+AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_MAPPING.split(';') if ',' in attr}
 
 EIDAS_RAW_SIGNER_ATTRIBUTES = os.environ.get(
     'EIDAS_SIGNER_ATTRIBUTES',
     default='urn:oid:2.16.840.1.113730.3.1.241,displayName',
 )
 
-EIDAS_SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_SIGNER_ATTRIBUTES.split(';')}
+EIDAS_SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_SIGNER_ATTRIBUTES.split(';') if ',' in attr}
 
 EIDAS_RAW_AUTHN_ATTRIBUTES = os.environ.get(
     'EIDAS_AUTHN_ATTRIBUTES',
     default='http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier,PersonIdentifier',
 )
 
-EIDAS_AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_AUTHN_ATTRIBUTES.split(';')}
+EIDAS_AUTHN_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_AUTHN_ATTRIBUTES.split(';') if ',' in attr}
 
 EIDAS_RAW_AUTHN_ATTRIBUTES_MAPPING = os.environ.get(
     'EIDAS_AUTHN_ATTRIBUTES_MAPPING',
     default='http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier,urn:oid:1.2.752.201.3.7',
 )
 
-EIDAS_AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_AUTHN_ATTRIBUTES_MAPPING.split(';')}
+EIDAS_AUTHN_ATTRIBUTES_MAPPING = {attr.split(',')[0]: attr.split(',')[1] for attr in EIDAS_RAW_AUTHN_ATTRIBUTES_MAPPING.split(';') if ',' in attr}
 
 FORCE_AUTHN_CONTEXT = os.environ.get('FORCE_AUTHN_CONTEXT', default='')
 
@@ -294,7 +294,7 @@ RAW_MD_DESCRIPTIONS = os.environ.get(
     default="sv,SUNET eduSIGN gör det enkelt att arbeta med e-signaturer;en,SUNET eduSIGN Service makes it easy to electronically sign documents",
 )
 MD_DESCRIPTIONS = {
-    desc.split(",")[0].strip(): desc.split(",")[1].strip() for desc in RAW_MD_DESCRIPTIONS.strip().strip(';').split(';')
+    desc.split(",")[0].strip(): desc.split(",")[1].strip() for desc in RAW_MD_DESCRIPTIONS.strip().strip(';').split(';') if ',' in desc
 }
 
 RAW_MD_INFORMATION_URLS = os.environ.get(
@@ -382,7 +382,7 @@ RAW_MD_ATTRIBUTES = os.environ.get(
     default='eduPersonPrincipalName,urn:oid:1.3.6.1.4.1.5923.1.1.1.6;sn,urn:oid:2.5.4.4;givenName,urn:oid:2.5.4.42;displayName,urn:oid:2.16.840.1.113730.3.1.241;eduPersonAssurance,urn:oid:1.3.6.1.4.1.5923.1.1.1.11;mail,urn:oid:0.9.2342.19200300.100.1.3;mailLocalAddress,urn:oid:2.16.840.1.113730.3.1.13;PersonIdentifier,http://eidas.europa.eu/attributes/naturalperson/PersonIdentifier'
 )
 
-MD_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_MD_ATTRIBUTES.split(';')}
+MD_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_MD_ATTRIBUTES.split(';') if ',' in attr}
 
 RAW_MD_ORGANIZATION_NAMES = os.environ.get(
     'MD_ORGANIZATION_NAMES', default="sv,Vetenskapsrådet;en,The Swedish Research Council"
