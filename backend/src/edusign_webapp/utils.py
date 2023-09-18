@@ -83,12 +83,12 @@ def add_attributes_to_session(check_whitelisted=True):
             person_identifier = 'Personidentifier-20'
             signer_attributes = current_app.config['EIDAS_SIGNER_ATTRIBUTES']
             authn_attributes = current_app.config['EIDAS_AUTHN_ATTRIBUTES']
+            attr_schema = '20'
             try:
                 idp = request.headers.get('Shib-Identity-Provider')
             except KeyError:
                 current_app.logger.error('Missing Identity Provider from request')
                 raise
-            attr_schema = '20'
 
             try:
                 eppn = request.headers.get(person_identifier)
