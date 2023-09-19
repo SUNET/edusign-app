@@ -90,14 +90,14 @@ EDUSIGN_API_PROFILE_11 = os.environ.get('EDUSIGN_API_PROFILE_11', default='edusi
 EDUSIGN_API_USERNAME_11 = os.environ.get('EDUSIGN_API_USERNAME_11', default='dummy')
 EDUSIGN_API_PASSWORD_11 = os.environ.get('EDUSIGN_API_PASSWORD_11', default='dummy')
 
-SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.idsec.se/edusign-test")
+SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://test.edusign.sunet.se/shibboleth")
 
 EIDAS_EDUSIGN_API_BASE_URL = os.environ.get('EIDAS_EDUSIGN_API_BASE_URL', default='https://sig.idsec.se/signint/v1/')
 EIDAS_EDUSIGN_API_PROFILE = os.environ.get('EIDAS_EDUSIGN_API_PROFILE', default='edusign-test')
 EIDAS_EDUSIGN_API_USERNAME = os.environ.get('EIDAS_EDUSIGN_API_USERNAME', default='dummy')
 EIDAS_EDUSIGN_API_PASSWORD = os.environ.get('EIDAS_EDUSIGN_API_PASSWORD', default='dummy')
 
-EIDAS_SIGN_REQUESTER_ID = os.environ.get('EIDAS_SIGN_REQUESTER_ID', default="https://sig.idsec.se/edusign-test")
+EIDAS_SIGN_REQUESTER_ID = os.environ.get('EIDAS_SIGN_REQUESTER_ID', default="https://test.edusign.geant.org/shibboleth")
 
 VALIDATOR_API_BASE_URL = os.environ.get('VALIDATOR_API_BASE_URL', default='https://sig.idsec.se/sigval/')
 
