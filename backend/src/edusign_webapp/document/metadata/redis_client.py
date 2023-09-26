@@ -65,7 +65,19 @@ class RedisStorageBackend:
         return self._transaction
 
     def insert_document(
-        self, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal
+        self,
+        key,
+        name,
+        size,
+        type,
+        owner_email,
+        owner_name,
+        owner_lang,
+        owner_eppn,
+        prev_signatures,
+        sendsigned,
+        loa,
+        skipfinal,
     ):
         doc_id = self.redis.incr('doc-counter')
         now = datetime.now().timestamp()
@@ -976,7 +988,9 @@ class RedisMD(ABCMetadata):
 
         return {'document': doc, 'user': user}
 
-    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = '') -> Dict[str, Any]:
+    def add_invitation(
+        self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = ''
+    ) -> Dict[str, Any]:
         """
         Create a new invitation to sign
 

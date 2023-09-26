@@ -36,7 +36,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def _test_get_partially_signed_doc(client, monkeypatch, sample_doc_1):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'

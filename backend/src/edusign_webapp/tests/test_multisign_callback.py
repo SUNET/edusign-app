@@ -118,7 +118,6 @@ def _test_multisign_sevice_callback(client, monkeypatch, data, mock_locked=True)
 
 
 def test_multisign_sevice_callback(client, monkeypatch):
-
     sign_response = b64encode(b'Dummy Sign Response')
 
     data = {
@@ -135,7 +134,6 @@ def test_multisign_sevice_callback(client, monkeypatch):
 
 
 def test_multisign_sevice_callback_no_relay_state(client, monkeypatch):
-
     sign_response = b64encode(b'Dummy Sign Response')
 
     data = {

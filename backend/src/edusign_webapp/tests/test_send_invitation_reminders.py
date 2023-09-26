@@ -36,7 +36,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def _test_send_reminders(client, monkeypatch, sample_doc_1):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'

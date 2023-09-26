@@ -143,7 +143,9 @@ def _test_create_invited_signature(
         )
 
 
-def test_create_invited_signature(app_and_client, environ_base, monkeypatch, sample_doc_1, sample_owned_doc_1, sample_invites_1):
+def test_create_invited_signature(
+    app_and_client, environ_base, monkeypatch, sample_doc_1, sample_owned_doc_1, sample_invites_1
+):
     mock_invitation = {
         "document": sample_owned_doc_1,
         "user": sample_invites_1[0],
