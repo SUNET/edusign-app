@@ -31,6 +31,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import json
+import os
+import yaml
 
 
 def test_config(client):
@@ -47,3 +49,61 @@ def test_config(client):
     assert data['payload']['signer_attributes']['name'] == "Tëster Kid"
     assert data['payload']['signer_attributes']['mail'] == "tester@example.org"
     assert data['payload']['signer_attributes']['eppn'] == "dummy-eppn@example.org"
+
+
+def test_config_custom(client_custom):
+
+    config_dict = {
+        'https://idp': {
+            'send_signed': True,
+            'skip_final': True
+        }
+    }
+
+    custom_yaml = '/tmp/edusign-forms.yaml'
+    with open(custom_yaml, 'w') as f:
+        f.write(yaml.dump(config_dict))
+
+    response1 = client_custom.get('/sign/')
+
+    assert response1.status == '200 OK'
+
+    response = client_custom.get('/sign/config')
+
+    assert response.status == '200 OK'
+
+    data = json.loads(response.data)
+
+    assert data['payload']['ui_defaults']['skip_final']
+    assert data['payload']['ui_defaults']['send_signed']
+
+    os.unlink(custom_yaml)
+
+
+def test_no_config_custom(client_custom):
+
+    config_dict = {
+        'https://idp2': {
+            'send_signed': True,
+            'skip_final': True
+        }
+    }
+
+    custom_yaml = '/tmp/edusign-forms.yaml'
+    with open(custom_yaml, 'w') as f:
+        f.write(yaml.dump(config_dict))
+
+    response1 = client_custom.get('/sign/')
+
+    assert response1.status == '200 OK'
+
+    response = client_custom.get('/sign/config')
+
+    assert response.status == '200 OK'
+
+    data = json.loads(response.data)
+
+    assert not data['payload']['ui_defaults']['skip_final']
+    assert not data['payload']['ui_defaults']['send_signed']
+
+    os.unlink(custom_yaml)

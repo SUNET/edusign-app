@@ -118,6 +118,10 @@ class ConfigSchema(InvitationsSchema):
         name = fields.String(required=True, validate=[validate_nonempty])
         uri = fields.String(required=True, validate=[validate_nonempty])
 
+    class UIDefaults(Schema):
+        send_signed = fields.Boolean(dump_default=True)
+        skip_final = fields.Boolean(dump_default=True)
+
     signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)
     available_loas = fields.List(fields.Nested(AvailableLoa))
@@ -125,6 +129,7 @@ class ConfigSchema(InvitationsSchema):
     max_file_size = fields.String(required=True)
     max_signatures = fields.String(required=True)
     company_link = fields.String(required=True)
+    ui_defaults = fields.Nested(UIDefaults)
 
 
 class DocumentSchema(_DocumentSchema):
