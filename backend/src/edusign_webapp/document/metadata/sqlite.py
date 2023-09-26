@@ -93,12 +93,8 @@ DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id 
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
-DOCUMENT_QUERY_FROM_OWNER = (
-    "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal FROM Documents WHERE owner_eppn = ?;"
-)
-DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = (
-    "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal FROM Documents WHERE owner_email = ?;"
-)
+DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal FROM Documents WHERE owner_eppn = ?;"
+DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal FROM Documents WHERE owner_email = ?;"
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_SKIPFINAL = "SELECT skipfinal FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOA = "SELECT loa FROM Documents WHERE key = ?;"
