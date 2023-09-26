@@ -112,6 +112,7 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
     if app.config['APP_IN_TWO_PATHS']:
         from edusign_webapp.views import edusign_views2
+
         app.register_blueprint(edusign_views2)
 
     to_tear_down = app.config['TO_TEAR_DOWN_WITH_APP_CONTEXT']

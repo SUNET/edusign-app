@@ -40,9 +40,21 @@ from collections import defaultdict
 from typing import Any, Dict, List, Tuple, Union
 
 import pkg_resources
-from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for, Response
+from flask import (
+    Blueprint,
+    abort,
+    current_app,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+    Response,
+)
 from flask_babel import force_locale, get_locale, gettext
 import yaml
+
 try:
     from yaml import CLoader as Loader
 except ImportError:
@@ -237,7 +249,6 @@ def metadata():
     return Response(xml, mimetype='text/xml')
 
 
-
 @anon_edusign_views.route('/', methods=['GET'])
 def get_home():
     """
@@ -412,7 +423,6 @@ def get_index() -> str:
 
 
 def _get_ui_defaults():
-
     ui_defaults = {
         'send_signed': current_app.config['UI_SEND_SIGNED'],
         'skip_final': current_app.config['UI_SKIP_FINAL'],
@@ -1040,7 +1050,9 @@ def get_signed_documents(sign_data: dict) -> dict:
         pending_invites = current_app.doc_store.get_pending_invites(key)
         pending = sum([1 for p in pending_invites if not p['signed'] and not p['declined']]) > 1
         skipfinal = current_app.doc_store.get_skipfinal(key)
-        current_app.logger.debug(f"Data for signed emails - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}")
+        current_app.logger.debug(
+            f"Data for signed emails - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}"
+        )
 
         # this is an invitation to the current user
         if owner and 'email' in owner and owner['email'] not in mail_aliases:
@@ -1506,9 +1518,22 @@ def skip_final_signature(data: dict) -> dict:
     except Exception as e:
         current_app.logger.warning(f'Problem removing doc skipping final signature: {e}')
 
+    validated = current_app.api_client.validate_signatures(
+        [{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}]
+    )
+    newdoc = validated[0]
+
     return {
         'message': 'Success',
-        'payload': {'documents': [{'id': newdoc['key'], 'signed_content': newdoc['doc'].get('signedContent', newdoc['doc']['blob']), 'validated': newdoc['validated']}]},
+        'payload': {
+            'documents': [
+                {
+                    'id': newdoc['key'],
+                    'signed_content': newdoc['doc'].get('signedContent', newdoc['doc']['blob']),
+                    'validated': newdoc['validated'],
+                }
+            ]
+        },
     }
 
 
