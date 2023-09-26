@@ -36,7 +36,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def _test_edit_multi_sign_request(client, environ_base, monkeypatch, sample_doc_1):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'

@@ -482,7 +482,13 @@ class DocStore(object):
         return store
 
     def add_document(
-        self, document: Dict[str, str], owner: Dict[str, str], invites: List[Dict[str, Any]], sendsigned: bool, loa: str, skipfinal: bool
+        self,
+        document: Dict[str, str],
+        owner: Dict[str, str],
+        invites: List[Dict[str, Any]],
+        sendsigned: bool,
+        loa: str,
+        skipfinal: bool,
     ) -> List[Dict[str, str]]:
         """
         Store document, to be signed by all users referenced in `invites`.

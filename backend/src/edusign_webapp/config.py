@@ -169,7 +169,7 @@ MAIL_ASCII_ATTACHMENTS = get_boolean(RAW_MAIL_ASCII_ATTACHMENTS)
 
 RAW_AVAILABLE_LOAS = os.environ.get(
     'AVAILABLE_LOAS',
-    default='http://www.swamid.se/policy/assurance/al1,Low;http://www.swamid.se/policy/assurance/al2,Medium;http://www.swamid.se/policy/assurance/al3,High;'
+    default='http://www.swamid.se/policy/assurance/al1,Low;http://www.swamid.se/policy/assurance/al2,Medium;http://www.swamid.se/policy/assurance/al3,High;',
 )
 
 AVAILABLE_LOAS = {
@@ -198,21 +198,21 @@ MD_ENTITY_ID = os.environ.get('MD_ENTITY_ID', default="https://edusign.sunet.se/
 
 RAW_MD_ENTITY_CATEGORIES = os.environ.get(
     'MD_ENTITY_CATEGORIES',
-    default="http://www.geant.net/uri/dataprotection-code-of-conduct/v1,https://refeds.org/category/code-of-conduct/v2,http://refeds.org/category/research-and-scholarship"
+    default="http://www.geant.net/uri/dataprotection-code-of-conduct/v1,https://refeds.org/category/code-of-conduct/v2,http://refeds.org/category/research-and-scholarship",
 )
 MD_ENTITY_CATEGORIES = RAW_MD_ENTITY_CATEGORIES.split(',')
 
 RAW_MD_DISPLAY_NAMES = os.environ.get(
-    'MD_DISPLAY_NAMES',
-    default="sv,SUNET eduSIGN - tjänst för e-signaturer;en,SUNET eduSIGN Service"
+    'MD_DISPLAY_NAMES', default="sv,SUNET eduSIGN - tjänst för e-signaturer;en,SUNET eduSIGN Service"
 )
 MD_DISPLAY_NAMES = {
-    dname.split(",")[0].strip(): dname.split(",")[1].strip() for dname in RAW_MD_DISPLAY_NAMES.strip().strip(';').split(';')
+    dname.split(",")[0].strip(): dname.split(",")[1].strip()
+    for dname in RAW_MD_DISPLAY_NAMES.strip().strip(';').split(';')
 }
 
 RAW_MD_DESCRIPTIONS = os.environ.get(
     'MD_DESCRIPTIONS',
-    default="sv,SUNET eduSIGN gör det enkelt att arbeta med e-signaturer;en,SUNET eduSIGN Service makes it easy to electronically sign documents"
+    default="sv,SUNET eduSIGN gör det enkelt att arbeta med e-signaturer;en,SUNET eduSIGN Service makes it easy to electronically sign documents",
 )
 MD_DESCRIPTIONS = {
     desc.split(",")[0].strip(): desc.split(",")[1].strip() for desc in RAW_MD_DESCRIPTIONS.strip().strip(';').split(';')
@@ -220,18 +220,20 @@ MD_DESCRIPTIONS = {
 
 RAW_MD_INFORMATION_URLS = os.environ.get(
     'MD_INFORMATION_URLS',
-    default="sv,https://www.sunet.se/services/sakerhet/edusign/;en,https://www.sunet.se/services/sakerhet/edusign/"
+    default="sv,https://www.sunet.se/services/sakerhet/edusign/;en,https://www.sunet.se/services/sakerhet/edusign/",
 )
 MD_INFORMATION_URLS = {
-    url.split(",")[0].strip(): url.split(",")[1].strip() for url in RAW_MD_INFORMATION_URLS.strip().strip(';').split(';')
+    url.split(",")[0].strip(): url.split(",")[1].strip()
+    for url in RAW_MD_INFORMATION_URLS.strip().strip(';').split(';')
 }
 
 RAW_MD_PRIVACY_STATEMENT_URLS = os.environ.get(
     'MD_PRIVACY_STATEMENT_URLS',
-    default="sv,https://wiki.sunet.se/display/info/eduSign+Privacy+Policy?showLanguage=sv_SE;en,https://wiki.sunet.se/display/info/eduSign+Privacy+Policy?showLanguage=en_GB"
+    default="sv,https://wiki.sunet.se/display/info/eduSign+Privacy+Policy?showLanguage=sv_SE;en,https://wiki.sunet.se/display/info/eduSign+Privacy+Policy?showLanguage=en_GB",
 )
 MD_PRIVACY_STATEMENT_URLS = {
-    url.split(",")[0].strip(): url.split(",")[1].strip() for url in RAW_MD_PRIVACY_STATEMENT_URLS.strip().strip(';').split(';')
+    url.split(",")[0].strip(): url.split(",")[1].strip()
+    for url in RAW_MD_PRIVACY_STATEMENT_URLS.strip().strip(';').split(';')
 }
 
 MD_SHIBBOLETH_LOCATION = os.environ.get('MD_SHIBBOLETH_LOCATION', default="https://edusign.sunet.se/Shibboleth.sso")
@@ -259,7 +261,8 @@ ZXG+mRzFsn/MG2hAVqGxpMOseJu1A7tG88rDrrJ81+7gljQGiqoKo7KTfI7zVuB3
 ofmGAkPZhwPTCVfav+lzx2qiHWeTCJSa554MLguc10zXiwqGicZ2cWVn/ObWRtEJ
 3IRvnkYciEFPHSR14TXwuaCkUD34c2lutnfOYM65XfNo5jbj/4JtUHhN8ISyp/sy
 OgE98IGafmnnEjVe5o5q3bQRB13pjWwSTeXFII8/0FkApV1IENNvNiRyiMAj9VZ4
-q6i3w8KKR5Zi4g5QHRTk1QFroyidLA==""")
+q6i3w8KKR5Zi4g5QHRTk1QFroyidLA==""",
+)
 
 MD_ENCRYPTION_CERTIFICATE = os.environ.get(
     'MD_ENCRYPTION_CERTIFICATE',
@@ -284,14 +287,15 @@ ZXG+mRzFsn/MG2hAVqGxpMOseJu1A7tG88rDrrJ81+7gljQGiqoKo7KTfI7zVuB3
 ofmGAkPZhwPTCVfav+lzx2qiHWeTCJSa554MLguc10zXiwqGicZ2cWVn/ObWRtEJ
 3IRvnkYciEFPHSR14TXwuaCkUD34c2lutnfOYM65XfNo5jbj/4JtUHhN8ISyp/sy
 OgE98IGafmnnEjVe5o5q3bQRB13pjWwSTeXFII8/0FkApV1IENNvNiRyiMAj9VZ4
-q6i3w8KKR5Zi4g5QHRTk1QFroyidLA==""")
+q6i3w8KKR5Zi4g5QHRTk1QFroyidLA==""",
+)
 
 RAW_MD_SERVICE_NAMES = os.environ.get(
-    'MD_SERVICE_NAMES',
-    default="sv,SUNET eduSIGN - tjänst för e-signaturer;en,SUNET eduSIGN Service"
+    'MD_SERVICE_NAMES', default="sv,SUNET eduSIGN - tjänst för e-signaturer;en,SUNET eduSIGN Service"
 )
 MD_SERVICE_NAMES = {
-    name.split(",")[0].strip(): name.split(",")[1].strip() for name in RAW_MD_SERVICE_NAMES.strip().strip(';').split(';')
+    name.split(",")[0].strip(): name.split(",")[1].strip()
+    for name in RAW_MD_SERVICE_NAMES.strip().strip(';').split(';')
 }
 
 RAW_MD_ATTRIBUTES = os.environ.get(
@@ -302,27 +306,25 @@ RAW_MD_ATTRIBUTES = os.environ.get(
 MD_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_MD_ATTRIBUTES.split(';')}
 
 RAW_MD_ORGANIZATION_NAMES = os.environ.get(
-    'MD_ORGANIZATION_NAMES',
-    default="sv,Vetenskapsrådet;en,The Swedish Research Council"
+    'MD_ORGANIZATION_NAMES', default="sv,Vetenskapsrådet;en,The Swedish Research Council"
 )
 MD_ORGANIZATION_NAMES = {
-    name.split(",")[0].strip(): name.split(",")[1].strip() for name in RAW_MD_ORGANIZATION_NAMES.strip().strip(';').split(';')
+    name.split(",")[0].strip(): name.split(",")[1].strip()
+    for name in RAW_MD_ORGANIZATION_NAMES.strip().strip(';').split(';')
 }
 
-RAW_MD_ORGANIZATION_DISPLAY_NAMES = os.environ.get(
-    'MD_ORGANIZATION_DISPLAY_NAMES',
-    default="sv,Sunet;en,Sunet"
-)
+RAW_MD_ORGANIZATION_DISPLAY_NAMES = os.environ.get('MD_ORGANIZATION_DISPLAY_NAMES', default="sv,Sunet;en,Sunet")
 MD_ORGANIZATION_DISPLAY_NAMES = {
-    name.split(",")[0].strip(): name.split(",")[1].strip() for name in RAW_MD_ORGANIZATION_DISPLAY_NAMES.strip().strip(';').split(';')
+    name.split(",")[0].strip(): name.split(",")[1].strip()
+    for name in RAW_MD_ORGANIZATION_DISPLAY_NAMES.strip().strip(';').split(';')
 }
 
 RAW_MD_ORGANIZATION_URLS = os.environ.get(
-    'MD_ORGANIZATION_URLS',
-    default="sv,https://www.sunet.se;en,https://www.sunet.se"
+    'MD_ORGANIZATION_URLS', default="sv,https://www.sunet.se;en,https://www.sunet.se"
 )
 MD_ORGANIZATION_URLS = {
-    name.split(",")[0].strip(): name.split(",")[1].strip() for name in RAW_MD_ORGANIZATION_URLS.strip().strip(';').split(';')
+    name.split(",")[0].strip(): name.split(",")[1].strip()
+    for name in RAW_MD_ORGANIZATION_URLS.strip().strip(';').split(';')
 }
 
 MD_TECHNICAL_CONTACT_NAME = os.environ.get('MD_TECHNICAL_CONTACT_NAME', default="SUNET")
