@@ -198,10 +198,7 @@ def test_final_sign_multi_sign_request_prepare_error(client, monkeypatch, sample
         client, monkeypatch, sample_doc_1, mock_invitation, prepare_data=prepare_data
     )
 
-    assert (
-        data['payload']['failed'][0]['message']
-        == 'Problem preparing multisigned document'
-    )
+    assert data['payload']['failed'][0]['message'] == 'Problem preparing multisigned document'
 
 
 def test_final_sign_multi_sign_request_create_error(client, monkeypatch, sample_doc_1):
@@ -213,14 +210,9 @@ def test_final_sign_multi_sign_request_create_error(client, monkeypatch, sample_
         'owner': 'tester@example.org',
         'blob': 'dummy blob',
     }
-    data = _test_final_sign_multi_sign_request(
-        client, monkeypatch, sample_doc_1, mock_invitation, error_creation=True
-    )
+    data = _test_final_sign_multi_sign_request(client, monkeypatch, sample_doc_1, mock_invitation, error_creation=True)
 
-    assert (
-        data['message']
-        == 'There was an error. Please try again, or contact the site administrator.'
-    )
+    assert data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
 def test_final_sign_multi_sign_request_no_relay_state(client, monkeypatch, sample_doc_1):
@@ -244,10 +236,7 @@ def test_final_sign_multi_sign_request_no_relay_state(client, monkeypatch, sampl
         client, monkeypatch, sample_doc_1, mock_invitation, create_data=create_data
     )
 
-    assert (
-        data['message']
-        == 'Dummy error message'
-    )
+    assert data['message'] == 'Dummy error message'
 
 
 def test_final_sign_multi_sign_request_no_sign_request(client, monkeypatch, sample_doc_1):
@@ -271,7 +260,4 @@ def test_final_sign_multi_sign_request_no_sign_request(client, monkeypatch, samp
         client, monkeypatch, sample_doc_1, mock_invitation, create_data=create_data
     )
 
-    assert (
-        data['message']
-        == 'Dummy error message'
-    )
+    assert data['message'] == 'Dummy error message'
