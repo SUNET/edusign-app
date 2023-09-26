@@ -35,7 +35,7 @@ import os
 import tempfile
 import uuid
 from base64 import b64decode, b64encode
-from copy import deepcopy
+from copy import copy, deepcopy
 
 import pytest
 
@@ -125,6 +125,27 @@ def client(request):
     app = run.edusign_init_app('testing', request.param)
     app.testing = True
     app.config.update(request.param)
+    app.api_client.api_base_url = 'https://test.localhost'
+
+    with app.test_client() as client:
+        client.environ_base.update(_environ_base)
+
+        app.doc_store = DocStore(app)
+
+        yield client
+
+
+@pytest.fixture(params=[config_dev, config_pro])
+def client_custom(request):
+
+    config_custom = copy(request.param)
+    config_custom['UI_SEND_SIGNED'] = False
+    config_custom['UI_SKIP_FINAL'] = False
+    config_custom['CUSTOM_FORMS_DEFAULTS_FILE'] = '/tmp/edusign-forms.yaml'
+
+    app = run.edusign_init_app('testing', config_custom)
+    app.testing = True
+    app.config.update(config_custom)
     app.api_client.api_base_url = 'https://test.localhost'
 
     with app.test_client() as client:
