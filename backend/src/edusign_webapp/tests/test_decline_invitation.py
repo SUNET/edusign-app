@@ -35,8 +35,9 @@ import json
 from edusign_webapp.marshal import ResponseSchema
 
 
-def _test_decline_invitation(app_and_client, environ_base, environ_base_2, monkeypatch, sample_doc_1, mock_get_owner_data=None):
-
+def _test_decline_invitation(
+    app_and_client, environ_base, environ_base_2, monkeypatch, sample_doc_1, mock_get_owner_data=None
+):
     app, client = app_and_client
 
     response1 = client.get('/sign/')
