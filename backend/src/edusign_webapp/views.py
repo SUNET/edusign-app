@@ -42,6 +42,11 @@ from typing import Any, Dict, List, Tuple, Union
 import pkg_resources
 from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for, Response
 from flask_babel import force_locale, get_locale, gettext
+import yaml
+try:
+    from yaml import CLoader as Loader
+except ImportError:
+    from yaml import Loader
 
 from edusign_webapp.doc_store import DocStore
 from edusign_webapp.forms import has_pdf_form, update_pdf_form
@@ -406,6 +411,32 @@ def get_index() -> str:
         abort(500)
 
 
+def _get_ui_defaults():
+
+    ui_defaults = {
+        'send_signed': current_app.config['UI_SEND_SIGNED'],
+        'skip_final': current_app.config['UI_SKIP_FINAL'],
+    }
+    form_config_file = current_app.config['CUSTOM_FORMS_DEFAULTS_FILE']
+    if os.path.exists(form_config_file):
+        config = None
+        with open(form_config_file, 'r') as f:
+            try:
+                config = yaml.safe_load(f)
+            except yaml.YAMLError as e:
+                current_app.logger.info(f"Cannot read YAML file at {form_config_file}: {e}")
+
+        if config is not None:
+            idp = session['idp']
+            if idp in config:
+                idp_config = config[idp]
+                ui_defaults = {
+                    'send_signed': idp_config['send_signed'],
+                    'skip_final': idp_config['skip_final'],
+                }
+    return ui_defaults
+
+
 @edusign_views.route('/config', methods=['GET'])
 @edusign_views2.route('/config', methods=['GET'])
 @Marshal(ConfigSchema)
@@ -430,11 +461,7 @@ def get_config() -> dict:
     else:
         payload['unauthn'] = True
 
-    ui_defaults = {
-        'send_signed': current_app.config['UI_SEND_SIGNED'],
-        'skip_final': current_app.config['UI_SKIP_FINAL'],
-    }
-    payload['ui_defaults'] = ui_defaults
+    payload['ui_defaults'] = _get_ui_defaults()
 
     attrs = {
         'eppn': session['eppn'],
