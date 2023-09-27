@@ -73,7 +73,7 @@ import requests
 from flask import current_app, session, url_for, request
 from requests.auth import HTTPBasicAuth
 
-from edusign_webapp.utils import get_authn_context
+from edusign_webapp.utils import get_authn_context, get_required_assurance
 
 
 def pretty_print_req(req: requests.PreparedRequest) -> str:
@@ -305,8 +305,12 @@ class APIClient(object):
         """
         idp = session['idp']
         authn_context = get_authn_context(documents)
+        assurance = get_required_assurance(documents)
         correlation_id = str(uuid.uuid4())
-        attrs = [{'name': attr, 'value': session[name]} for attr, name in self.config['SIGNER_ATTRIBUTES'].items()]
+        attrs = []
+        if assurance not in ('', 'none'):
+            attrs = [{'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11', 'value': assurance}]
+        attrs.extend([{'name': attr, 'value': session[name]} for attr, name in self.config['SIGNER_ATTRIBUTES'].items()])
 
         scheme = self.config['PREFERRED_URL_SCHEME']
         return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
