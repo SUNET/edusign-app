@@ -73,7 +73,7 @@ import requests
 from flask import current_app, session, url_for, request
 from requests.auth import HTTPBasicAuth
 
-from edusign_webapp.utils import get_authn_context
+from edusign_webapp.utils import get_authn_context, get_required_assurance
 
 
 def pretty_print_req(req: requests.PreparedRequest) -> str:
@@ -312,13 +312,23 @@ class APIClient(object):
         idp = session['idp']
         attr_schema = session['saml-attr-schema']
         authn_context = get_authn_context(documents)
+        assurance = get_required_assurance(documents)
         correlation_id = str(uuid.uuid4())
         attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
         attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]
-        used_attr_names = (friendly_name for _, friendly_name in attr_names)
+        used_attr_names = tuple(friendly_name for _, friendly_name in attr_names)
         more_attr_names = [attr_names for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items() if attr_names[1] not in used_attr_names]
         more_attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in more_attr_names]
+        more_used_attr_names = tuple(friendly_name for _, friendly_name in more_attr_names)
+        used_attr_names += more_used_attr_names
         attrs.extend(more_attrs)
+        if assurance not in ('', 'none'):
+            if attr_schema == '11':
+                assurance_attr_name = 'urn:mace:dir:attribute-def:eduPersonAssurance'
+            else:
+                assurance_attr_name = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
+            if assurance_attr_name not in used_attr_names:
+                attrs.append({'name': assurance_attr_name, 'value': assurance})
 
         scheme = self.config['PREFERRED_URL_SCHEME']
         return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
