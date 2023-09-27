@@ -65,13 +65,13 @@ class EduSignApp(Flask):
         :param eppn: the eduPersonPrincipalName
         :return: whether it is whitelisted
         """
-        if eppn in self.config['USER_BLACKLIST']:
+        if eppn.lower() in self.config['USER_BLACKLIST']:
             return False
 
-        elif eppn in self.config['USER_WHITELIST']:
+        elif eppn.lower() in self.config['USER_WHITELIST']:
             return True
 
-        return eppn.split('@')[1] in self.config['SCOPE_WHITELIST']
+        return eppn.lower().split('@')[1] in self.config['SCOPE_WHITELIST']
 
 
 def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
