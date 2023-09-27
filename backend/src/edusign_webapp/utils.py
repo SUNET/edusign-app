@@ -327,23 +327,36 @@ def sendmail_bulk(msgs_data: list):
 def get_authn_context(docs: list) -> list:
     """
     Get the authentication context classes to send to the `create` API method.
-    If some of the docs to be signed are invitations and have a requirement
-    for some minimum LoA, use that. Otherwise, use the LoA obtained in the
-    authentication of the user, kept in the session.
 
     :param docs: list of dicts with the data for the documents to be signed.
     :return: a list with the authn context classes
     """
-    authn_context = set()
+    return [session['authn_context']]
+
+
+class AssuranceMismatch(Exception):
+    pass
+
+
+def get_required_assurance(docs: list) -> str:
+    """
+    Get the eduPersonAssurance values to send to the `create` API method.
+    If some of the docs to be signed are invitations and have a requirement
+    for some minimum assurance, use that. Otherwise, use the value obtained in the
+    authentication of the user, kept in the session.
+
+    :param docs: list of dicts with the data for the documents to be signed.
+    :return: the required level of assurance
+    """
+    assurance = 'none'
     for doc in docs:
         key = uuid.UUID(doc['key'])
-        loa = current_app.doc_store.get_loa(key)
-        if loa not in ("", "none"):
-            authn_context = authn_context.union(set(loa.split(';')))
+        required = current_app.doc_store.get_loa(key)
+        if assurance in ("", "none"):
+            assurance = required
+        elif required != assurance:
+            raise AssuranceMismatch(f"Conflicting required assurances: {required} and {assurance}")
 
-    if not authn_context:
-        authn_context.add(session['authn_context'])
+    current_app.logger.debug(f"Required assurance: {assurance}")
 
-    current_app.logger.debug(f"Authn context: {authn_context}")
-
-    return list(authn_context)
+    return assurance
