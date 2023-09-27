@@ -716,6 +716,27 @@ export const startSigningDocuments = createAsyncThunk(
         });
       }
     });
+    let mismatchedAssurance = false;
+    let requiredAssurance = 'none':
+    docsToSign.forEach((doc) => {
+      if (requiredAssurance === 'none') {
+        requiredAssurance = doc.loa || 'none';
+      } else if (requiredAssurance !== doc.loa) {
+        mismatchedAssurance = true;
+      }
+    });
+    if (mismatchedAssurance) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "success",
+          message: args.intl.formatMessage({
+            defaultMessage: "There is a mismatch in the required assurance levels for the documents you want to sign",
+            id: "start-signing-assurance-mismatch",
+          }),
+        })
+      );
+      return;
+    }
     const body = preparePayload(state, { documents: docsToSign });
     try {
       const response = await esFetch("/sign/create-sign-request", {
@@ -739,6 +760,17 @@ export const startSigningDocuments = createAsyncThunk(
             })
           );
           await thunkAPI.dispatch(restartSigningDocuments({ intl: args.intl }));
+          return;
+        } else if (data.message === "assurance mismatch") {
+          thunkAPI.dispatch(
+            addNotification({
+              level: "success",
+              message: args.intl.formatMessage({
+                defaultMessage: "There is a mismatch in the required assurance levels for the documents you want to sign",
+                id: "start-signing-assurance-mismatch",
+              }),
+            })
+          );
           return;
         }
         throw new Error(data.message);
@@ -840,6 +872,27 @@ export const restartSigningDocuments = createAsyncThunk(
         });
       }
     });
+    let mismatchedAssurance = false;
+    let requiredAssurance = 'none':
+    docsToSign.forEach((doc) => {
+      if (requiredAssurance === 'none') {
+        requiredAssurance = doc.loa || 'none';
+      } else if (requiredAssurance !== doc.loa) {
+        mismatchedAssurance = true;
+      }
+    });
+    if (mismatchedAssurance) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "success",
+          message: args.intl.formatMessage({
+            defaultMessage: "There is a mismatch in the required assurance levels for the documents you want to sign",
+            id: "start-signing-assurance-mismatch",
+          }),
+        })
+      );
+      return;
+    }
     // send data about documents to be signed to the backend
     const body = preparePayload(state, { documents: docsToSign });
     try {
@@ -853,6 +906,18 @@ export const restartSigningDocuments = createAsyncThunk(
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
+        if (data.message === "assurance mismatch") {
+          thunkAPI.dispatch(
+            addNotification({
+              level: "success",
+              message: args.intl.formatMessage({
+                defaultMessage: "There is a mismatch in the required assurance levels for the documents you want to sign",
+                id: "start-signing-assurance-mismatch",
+              }),
+            })
+          );
+          return;
+        }
         throw new Error(data.message);
       }
       // data.payload.failed carries objects with keys: key, state (failed-signing),
