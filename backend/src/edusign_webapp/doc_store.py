@@ -119,6 +119,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         loa: str,
         skipfinal: bool,
         ordered: bool,
+        invitation_text: str,
     ) -> List[Dict[str, str]]:
         """
         Store metadata for a new document.
@@ -135,7 +136,8 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :param loa: The "authentication for signature" required LoA.
         :param skipfinal: Whether to request signature from the user who is inviting.
         :param ordered: Whether to send invitations in order.
-        :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
+        :param invitation_text: The custom text to send in the invitation email
+        :return: The list of invitations as dicts with 5 keys: name, email, lang, order, and generated key (UUID)
         """
 
     @abc.abstractmethod
@@ -161,6 +163,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + updated: modification timestamp
                  + created: creation timestamp
                  + ordered: Whether to send invitations in order.
+                 + invitation_text: The custom text to send in the invitation email
         :return: new document id
         """
 
@@ -371,6 +374,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + created: creation timestamp
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: send invitations in order
+                 + invitation_text: The custom text to send in the invitation email
         """
 
     @abc.abstractmethod
@@ -450,6 +454,24 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :return: LoA
         """
 
+    @abc.abstractmethod
+    def get_ordered(self, key: uuid.UUID) -> bool:
+        """
+        Whether the invitations for the document are ordered
+
+        :param key: The key identifying the document
+        :return: whether the invitations for signing the document are ordered
+        """
+
+    @abc.abstractmethod
+    def get_invitation_text(self, key: uuid.UUID) -> str:
+        """
+        The custom text to send in the invitation email
+
+        :param key: The key identifying the document
+        :return: The custom text to send in the invitation email
+        """
+
 
 class DocStore(object):
     """
@@ -497,6 +519,7 @@ class DocStore(object):
         loa: str,
         skipfinal: bool,
         ordered: bool,
+        invitation_text: str,
     ) -> List[Dict[str, str]]:
         """
         Store document, to be signed by all users referenced in `invites`.
@@ -517,7 +540,7 @@ class DocStore(object):
         """
         key = uuid.UUID(document['key'])
         self.storage.add(key, document['blob'])
-        return self.metadata.add(key, document, owner, invites, sendsigned, loa, skipfinal, ordered)
+        return self.metadata.add(key, document, owner, invites, sendsigned, loa, skipfinal, ordered, invitation_text)
 
     def add_document_raw(
         self,
@@ -542,6 +565,7 @@ class DocStore(object):
                  + updated: modification timestamp
                  + created: creation timestamp
                  + ordered: send invitations in order
+                 + invitation_text: The custom text to send in the invitation email
         :param content: base64 string with the contents of the document, with a newly added signature.
         :return: new document id
         """
@@ -838,6 +862,7 @@ class DocStore(object):
                  + updated: modification timestamp
                  + created: creation timestamp
                  + ordered: send invitations in order
+                 + invitation_text: The custom text to send in the invitation email
         """
         doc = self.metadata.get_full_document(key)
         return doc
@@ -949,6 +974,7 @@ class DocStore(object):
         invites = self.metadata.get_invited(key)
         if exclude:
             invites = [i for i in invites if i['email'] not in exclude]
+        invites.sort(key=lambda invite: invite['order'])
         return invites
 
     def get_sendsigned(self, key: uuid.UUID) -> bool:
@@ -977,3 +1003,21 @@ class DocStore(object):
         :return: LoA
         """
         return self.metadata.get_loa(key)
+
+    def get_ordered(self, key: uuid.UUID) -> bool:
+        """
+        Whether the invitations for the document are ordered
+
+        :param key: The key identifying the document
+        :return: whether the invitations for signing the document are ordered
+        """
+        return self.metadata.get_ordered(key)
+
+    def get_invitation_text(self, key: uuid.UUID) -> str:
+        """
+        The custom text to send in the invitation email
+
+        :param key: The key identifying the document
+        :return: The custom text to send in the invitation email
+        """
+        return self.metadata.get_invitation_text(key)
