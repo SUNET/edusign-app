@@ -101,6 +101,7 @@ export const sendInvites = createAsyncThunk(
       sendsigned: args.values.sendsignedChoice,
       skipfinal: args.values.skipfinalChoice,
       loa: loa,
+      ordered: args.values.orderedChoice,
       document: {
         key: document.key,
         name: document.name,

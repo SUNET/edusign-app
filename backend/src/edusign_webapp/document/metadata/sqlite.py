@@ -60,6 +60,7 @@ CREATE TABLE [Documents]
        [skipfinal] INTEGER DEFAULT 0,
        [locked] TIMESTAMP DEFAULT NULL,
        [locking_email] VARCHAR(255) DEFAULT NULL
+       [ordered] INTEGER DEFAULT 0,
 );
 CREATE TABLE [Invites]
 (      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -70,6 +71,7 @@ CREATE TABLE [Invites]
        [doc_id] INTEGER NOT NULL,
        [signed] INTEGER DEFAULT 0,
        [declined] INTEGER DEFAULT 0,
+       [order] INTEGER DEFAULT 0,
             FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -79,19 +81,19 @@ CREATE INDEX IF NOT EXISTS [OwnerEppnIX] ON [Documents] ([owner_eppn]);
 CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
 CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-PRAGMA user_version = 7;
+PRAGMA user_version = 8;
 """
 
 
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = (
     "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
 )
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created, ordered FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal FROM Documents WHERE owner_eppn = ?;"
 DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal FROM Documents WHERE owner_email = ?;"
@@ -102,12 +104,12 @@ DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locking_email = '' WHERE doc_id = ?;"
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
-INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang) VALUES (?, ?, ?, ?, ?)"
+INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, order) VALUES (?, ?, ?, ?, ?, ?)"
 INVITE_INSERT_RAW = (
-    "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, signed, declined) VALUES (?, ?, ?, ?, ?, ?, ?)"
+    "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, signed, declined, order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 )
 INVITE_QUERY_FROM_EMAIL = "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0;"
-INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, user_lang, signed, declined, key FROM Invites WHERE doc_id = ?;"
+INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, user_lang, signed, declined, key, order FROM Invites WHERE doc_id = ?;"
 INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT inviteID FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0;"
 INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, user_lang, doc_id FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_email IN (%s) and doc_id = ?;"
@@ -230,6 +232,14 @@ def upgrade(db):
         cur.close()
         db.commit()
 
+    if version == 7:
+        cur = db.cursor()
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [ordered] INTEGER DEFAULT 0;")
+        cur.execute("ALTER TABLE [Invites] ADD COLUMN [order] INTEGER DEFAULT 0;")
+        cur.execute("PRAGMA user_version = 8;")
+        cur.close()
+        db.commit()
+
 
 def drop_owner_and_locked_by_in_documents(cur):
     cur.execute(
@@ -341,6 +351,7 @@ class SqliteMD(ABCMetadata):
         sendsigned: bool,
         loa: str,
         skipfinal: bool,
+        ordered: bool,
     ):
         """
         Store metadata for a new document.
@@ -356,6 +367,7 @@ class SqliteMD(ABCMetadata):
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :param skipfinal: Whether to request signature from the user who is inviting.
+        :param ordered: Whether to send invitations in order.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
         prev_sigs = document.get("prev_signatures", "")
@@ -375,6 +387,7 @@ class SqliteMD(ABCMetadata):
                 sendsigned,
                 loa,
                 skipfinal,
+                ordered,
             ),
         )
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
@@ -389,9 +402,9 @@ class SqliteMD(ABCMetadata):
 
         updated_invites = []
 
-        for user in invites:
+        for order, user in enumerate(invites):
             invite_key = str(uuid.uuid4())
-            self._db_execute(INVITE_INSERT, (invite_key, document_id, user['email'], user['name'], user['lang']))
+            self._db_execute(INVITE_INSERT, (invite_key, document_id, user['email'], user['name'], user['lang'], order))
 
             updated_invite = {'key': invite_key}
             updated_invite.update(user)
@@ -423,6 +436,7 @@ class SqliteMD(ABCMetadata):
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
+                 + ordered: Whether to send invitations in order.
         :return:
         """
         self._db_execute(
@@ -443,6 +457,7 @@ class SqliteMD(ABCMetadata):
                 document['sendsigned'],
                 document['loa'],
                 document['skipfinal'],
+                document['ordered'],
             ),
         )
 
@@ -458,6 +473,7 @@ class SqliteMD(ABCMetadata):
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + doc_id: the id of the document.
+                 + order: the order of the invitation.
         :return:
         """
         self._db_execute(
@@ -470,6 +486,7 @@ class SqliteMD(ABCMetadata):
                 invite['lang'],
                 invite['signed'],
                 invite['declined'],
+                invite['order'],
             ),
         )
 
@@ -715,6 +732,7 @@ class SqliteMD(ABCMetadata):
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + doc_id: the id of the invited document
+                 + order: the order of the invitation
         """
         invitees: List[Dict[str, Any]] = []
 
@@ -736,6 +754,7 @@ class SqliteMD(ABCMetadata):
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
             email_result['doc_id'] = doc_id
+            email_result['order'] = invite['order']
             invitees.append(email_result)
 
         return invitees
@@ -889,6 +908,7 @@ class SqliteMD(ABCMetadata):
                  + updated: modification timestamp
                  + created: creation timestamp
                  + skipfinal: whether to skip the final signature by the inviter user
+                 + ordered: send invitations in order
         """
         document_result = self._db_query(DOCUMENT_QUERY_FULL, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
