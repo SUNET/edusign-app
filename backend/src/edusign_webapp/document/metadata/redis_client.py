@@ -79,6 +79,7 @@ class RedisStorageBackend:
         loa,
         skipfinal,
         ordered,
+        invitation_text,
     ):
         doc_id = self.redis.incr('doc-counter')
         now = datetime.now().timestamp()
@@ -98,6 +99,7 @@ class RedisStorageBackend:
             loa=loa,
             skipfinal=int(skipfinal),
             ordered=int(ordered),
+            invitation_text=invitation_text,
         )
         self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
         self.transaction.set(f"doc:key:{key}", doc_id)
@@ -124,6 +126,7 @@ class RedisStorageBackend:
         loa,
         skipfinal,
         ordered,
+        invitation_text,
     ):
         mapping = dict(
             key=key,
@@ -141,6 +144,7 @@ class RedisStorageBackend:
             loa=loa,
             skipfinal=int(skipfinal),
             ordered=int(ordered),
+            invitation_text=invitation_text,
         )
         doc_id = self.redis.incr('doc-counter')
         self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
@@ -205,6 +209,7 @@ class RedisStorageBackend:
             created=created,
             skipfinal=bool(b_doc[b'skipfinal']),
             ordered=bool(b_doc[b'ordered']),
+            invitation_text=b_doc[b'invitation_text'].decode('utf8'),
         )
         return doc
 
@@ -336,7 +341,22 @@ class RedisStorageBackend:
         loa = b_doc.get(b"loa", b"none")
         return loa.decode('utf8')
 
-    def insert_invite(self, key, doc_id, user_email, user_name, user_lang, ordered):
+    def query_ordered(self, key):
+        doc_id = self.query_document_id(str(key))
+        if doc_id is None:
+            return "none"
+        b_doc = self.redis.hgetall(f"doc:{doc_id}")
+        return bool(b_doc[b'ordered'])
+
+    def query_invitation_text(self, key):
+        doc_id = self.query_document_id(str(key))
+        if doc_id is None:
+            return ""
+        b_doc = self.redis.hgetall(f"doc:{doc_id}")
+        text = b_doc.get(b"invitation_text", b"")
+        return text.decode('utf8')
+
+    def insert_invite(self, key, doc_id, user_email, user_name, user_lang, order):
         invite_id = self.redis.incr('invite-counter')
         mapping = dict(
             key=key,
@@ -346,7 +366,7 @@ class RedisStorageBackend:
             user_lang=user_lang,
             signed=0,
             declined=0,
-            ordered=int(ordered),
+            order=int(order),
         )
         self.transaction.hset(f"invite:{invite_id}", mapping=mapping)
         self.transaction.set(f"invite:key:{key}", invite_id)
@@ -355,7 +375,7 @@ class RedisStorageBackend:
         current_app.logger.debug(f"Added invite for document with id {doc_id} for {user_name} <{user_email}>")
         return invite_id
 
-    def insert_invite_raw(self, key, doc_id, user_email, user_name, user_lang, signed, declined, ordered):
+    def insert_invite_raw(self, key, doc_id, user_email, user_name, user_lang, signed, declined, order):
         invite_id = self.redis.incr('invite-counter')
         mapping = dict(
             key=key,
@@ -365,7 +385,7 @@ class RedisStorageBackend:
             user_email=user_email,
             signed=signed,
             declined=declined,
-            ordered=ordered,
+            order=order,
         )
         self.transaction.hset(f"invite:{invite_id}", mapping=mapping)
         self.transaction.set(f"invite:key:{key}", invite_id)
@@ -544,6 +564,7 @@ class RedisMD(ABCMetadata):
         loa: str,
         skipfinal: bool,
         ordered: bool,
+        invitation_text: str,
     ):
         """
         Store metadata for a new document.
@@ -560,7 +581,8 @@ class RedisMD(ABCMetadata):
         :param loa: The "authentication for signature" required LoA.
         :param skipfinal: Whether to request signature from the user who is inviting.
         :param ordered: Whether to send invitations in order.
-        :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
+        :param invitation_text: The custom text to send in the invitation email
+        :return: The list of invitations as dicts with 5 keys: name, email, lang, order, and generated key (UUID)
         """
         self.client.pipeline()
 
@@ -578,6 +600,7 @@ class RedisMD(ABCMetadata):
             loa,
             skipfinal,
             ordered,
+            invitation_text,
         )
 
         if document_id is None:  # This should never happen, it's just to please mypy
@@ -586,11 +609,11 @@ class RedisMD(ABCMetadata):
 
         updated_invites = []
 
-        for user in invites:
+        for order, user in enumerate(invites):
             invite_key = str(uuid.uuid4())
-            self.client.insert_invite(invite_key, document_id, user['email'], user['name'], user['lang'], user['ordered'])
+            self.client.insert_invite(invite_key, document_id, user['email'], user['name'], user['lang'], order)
 
-            updated_invite = {'key': invite_key}
+            updated_invite = {'key': invite_key, 'order': order}
             updated_invite.update(user)
             updated_invites.append(updated_invite)
 
@@ -620,6 +643,7 @@ class RedisMD(ABCMetadata):
                  + updated: modification timestamp
                  + created: creation timestamp
                  + ordered: Whether to send invitations in order.
+                 + invitation_text: The custom text to send in the invitation email
         :return: new document id
         """
         self.client.pipeline()
@@ -640,6 +664,7 @@ class RedisMD(ABCMetadata):
             document['loa'],
             int(document['skipfinal']),
             int(document['ordered']),
+            document['invitation_text'],
         )
         self.client.commit()
         return doc_id
@@ -1074,6 +1099,7 @@ class RedisMD(ABCMetadata):
                  + created: creation timestamp
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: send invitations in order
+                 + invitation_text: The custom text to send in the invitation email
         """
         document_result = self.client.query_document_full(str(key))
         if document_result is None:
@@ -1230,3 +1256,21 @@ class RedisMD(ABCMetadata):
         :return: LoA
         """
         return self.client.query_loa(key)
+
+    def get_ordered(self, key: uuid.UUID) -> bool:
+        """
+        Whether the invitations for the document are ordered
+
+        :param key: The key identifying the document
+        :return: whether the invitations for signing the document are ordered
+        """
+        return self.client.query_ordered(key)
+
+    def get_invitation_text(self, key: uuid.UUID) -> str:
+        """
+        Get the custom text to send in the invitation email
+
+        :param key: The key identifying the document
+        :return: The invitation text
+        """
+        return self.client.query_invitation_text(key)

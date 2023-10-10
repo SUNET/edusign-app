@@ -996,6 +996,63 @@ def _prepare_signed_documents_data(process_data):
     return docs
 
 
+def _process_signed_documents(process_data):
+    emails = []
+    to_validate = []
+    # migration to mail_aliases
+    mail_aliases = session.get('mail_aliases', [session['mail']])
+    # Prepare emails to send
+    for doc in process_data['signedDocuments']:
+        key = doc['id']
+        ordered = current_app.doc_store.get_ordered(key)
+        owner = current_app.doc_store.get_owner_data(key)
+        sendsigned = current_app.doc_store.get_sendsigned(key)
+        pending_invites = current_app.doc_store.get_pending_invites(key)
+        pending = len(pending_invites) > 1
+        skipfinal = current_app.doc_store.get_skipfinal(key)
+        current_app.logger.debug(
+            f"Data for signed emails - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}"
+        )
+
+        # this is an invitation to the current user
+        if 'email' in owner and owner['email'] not in mail_aliases:
+            if not pending and skipfinal:
+                to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
+
+            else:
+                if pending and ordered:
+                    recipients = defaultdict(list)
+                    invite = pending_invites[0]
+                    lang = invite['lang']
+                    recipients[lang].append(f"{invite['name']} <{invite['email']}>")
+                    docname = doc['name']
+                    custom_text = current_app.doc_store.get_invitation_text(key)
+                    try:
+                        _send_invitation_mail(docname, owner, custom_text, recipients)
+
+                    except Exception as e:
+                        current_app.logger.error(
+                            f"There was a problem and the invitation email to {invite['name']} were not sent for {doc['name']}: {e}"
+                        )
+                try:
+                    email_args = _prepare_signed_by_email(key, owner)
+                    emails.append((email_args, {}))
+
+                except Exception as e:
+                    current_app.logger.error(
+                        f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}"
+                    )
+        # this is an invitation from the current user
+        elif owner:
+            to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
+
+        # this is not an invitation
+        else:
+            to_validate.append({'key': key, 'owner': {}, 'doc': doc, 'sendsigned': False})
+
+    return emails, to_validate
+
+
 @edusign_views.route('/get-signed', methods=['POST'])
 @edusign_views2.route('/get-signed', methods=['POST'])
 @UnMarshal(SigningSchema)
@@ -1011,9 +1068,6 @@ def get_signed_documents(sign_data: dict) -> dict:
                       as obtained from the POST from the signature service to the `sign_service_callback`.
     :return: A dict with the signed documents, or with error information if some error has ocurred.
     """
-    # migration to mail_aliases
-    mail_aliases = session.get('mail_aliases', [session['mail']])
-
     try:
         current_app.logger.info(
             f"Processing signature for {sign_data['sign_response'][:50]} for user {session['eppn']}"
@@ -1038,41 +1092,7 @@ def get_signed_documents(sign_data: dict) -> dict:
         # XXX translate
         return {'error': True, 'message': message}
 
-    emails = []
-    to_validate = []
-    # Prepare emails to send
-    for doc in process_data['signedDocuments']:
-        key = doc['id']
-        owner = current_app.doc_store.get_owner_data(key)
-        sendsigned = current_app.doc_store.get_sendsigned(key)
-        pending = len(current_app.doc_store.get_pending_invites(key)) > 1
-        skipfinal = current_app.doc_store.get_skipfinal(key)
-        current_app.logger.debug(
-            f"Data for signed emails - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}"
-        )
-
-        # this is an invitation to the current user
-        if 'email' in owner and owner['email'] not in mail_aliases:
-            if not pending and skipfinal:
-                to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
-
-            else:
-                try:
-                    email_args = _prepare_signed_by_email(key, owner)
-                    emails.append((email_args, {}))
-
-                except Exception as e:
-                    current_app.logger.error(
-                        f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}"
-                    )
-
-        # this is an invitation from the current user
-        elif owner:
-            to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
-
-        # this is not an invitation
-        else:
-            to_validate.append({'key': key, 'owner': {}, 'doc': doc, 'sendsigned': False})
+    emails, to_validate = _process_signed_documents(process_data)
 
     validated = current_app.api_client.validate_signatures(to_validate)
 
@@ -1139,18 +1159,25 @@ def create_multi_sign_request(data: dict) -> dict:
         }
         current_app.logger.debug(f"Adding document with required loa {data['loa']}")
         invites = current_app.doc_store.add_document(
-            data['document'], owner, data['invites'], data['sendsigned'], data['loa'], data['skipfinal'], data['ordered']
+            data['document'], owner, data['invites'], data['sendsigned'], data['loa'], data['skipfinal'], data['ordered'], data['text']
         )
 
     except Exception as e:
         current_app.logger.error(f'Problem processing multi sign request: {e}')
         return {'error': True, 'message': gettext('Problem creating invitation to sign, please try again')}
 
+    ordered = data['ordered']
+
     if len(invites) > 0:
         recipients = defaultdict(list)
-        for invite in invites:
+        if ordered:
+            invite = invites[0]
             lang = invite['lang']
             recipients[lang].append(f"{invite['name']} <{invite['email']}>")
+        else:
+            for invite in invites:
+                lang = invite['lang']
+                recipients[lang].append(f"{invite['name']} <{invite['email']}>")
 
         docname = data['document']['name']
         custom_text = data['text']
