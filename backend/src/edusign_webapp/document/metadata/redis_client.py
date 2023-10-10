@@ -78,6 +78,7 @@ class RedisStorageBackend:
         sendsigned,
         loa,
         skipfinal,
+        ordered,
     ):
         doc_id = self.redis.incr('doc-counter')
         now = datetime.now().timestamp()
@@ -96,6 +97,7 @@ class RedisStorageBackend:
             sendsigned=int(sendsigned),
             loa=loa,
             skipfinal=int(skipfinal),
+            ordered=int(ordered),
         )
         self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
         self.transaction.set(f"doc:key:{key}", doc_id)
@@ -121,6 +123,7 @@ class RedisStorageBackend:
         sendsigned,
         loa,
         skipfinal,
+        ordered,
     ):
         mapping = dict(
             key=key,
@@ -137,6 +140,7 @@ class RedisStorageBackend:
             sendsigned=int(sendsigned),
             loa=loa,
             skipfinal=int(skipfinal),
+            ordered=int(ordered),
         )
         doc_id = self.redis.incr('doc-counter')
         self.transaction.hset(f"doc:{doc_id}", mapping=mapping)
@@ -200,6 +204,7 @@ class RedisStorageBackend:
             updated=updated,
             created=created,
             skipfinal=bool(b_doc[b'skipfinal']),
+            ordered=bool(b_doc[b'ordered']),
         )
         return doc
 
@@ -331,7 +336,7 @@ class RedisStorageBackend:
         loa = b_doc.get(b"loa", b"none")
         return loa.decode('utf8')
 
-    def insert_invite(self, key, doc_id, user_email, user_name, user_lang):
+    def insert_invite(self, key, doc_id, user_email, user_name, user_lang, ordered):
         invite_id = self.redis.incr('invite-counter')
         mapping = dict(
             key=key,
@@ -341,6 +346,7 @@ class RedisStorageBackend:
             user_lang=user_lang,
             signed=0,
             declined=0,
+            ordered=int(ordered),
         )
         self.transaction.hset(f"invite:{invite_id}", mapping=mapping)
         self.transaction.set(f"invite:key:{key}", invite_id)
@@ -349,7 +355,7 @@ class RedisStorageBackend:
         current_app.logger.debug(f"Added invite for document with id {doc_id} for {user_name} <{user_email}>")
         return invite_id
 
-    def insert_invite_raw(self, key, doc_id, user_email, user_name, user_lang, signed, declined):
+    def insert_invite_raw(self, key, doc_id, user_email, user_name, user_lang, signed, declined, ordered):
         invite_id = self.redis.incr('invite-counter')
         mapping = dict(
             key=key,
@@ -359,6 +365,7 @@ class RedisStorageBackend:
             user_email=user_email,
             signed=signed,
             declined=declined,
+            ordered=ordered,
         )
         self.transaction.hset(f"invite:{invite_id}", mapping=mapping)
         self.transaction.set(f"invite:key:{key}", invite_id)
@@ -471,6 +478,7 @@ class RedisStorageBackend:
                     'user_name': b_invite[b'user_name'].decode('utf8'),
                     'user_email': b_invite[b'user_email'].decode('utf8'),
                     'user_lang': b_invite[b'user_lang'].decode('utf8'),
+                    'order': int(b_invite[b'order']),
                 }
             )
         return invites
@@ -535,6 +543,7 @@ class RedisMD(ABCMetadata):
         sendsigned: bool,
         loa: str,
         skipfinal: bool,
+        ordered: bool,
     ):
         """
         Store metadata for a new document.
@@ -550,6 +559,7 @@ class RedisMD(ABCMetadata):
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :param skipfinal: Whether to request signature from the user who is inviting.
+        :param ordered: Whether to send invitations in order.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
         self.client.pipeline()
@@ -567,6 +577,7 @@ class RedisMD(ABCMetadata):
             sendsigned,
             loa,
             skipfinal,
+            ordered,
         )
 
         if document_id is None:  # This should never happen, it's just to please mypy
@@ -577,7 +588,7 @@ class RedisMD(ABCMetadata):
 
         for user in invites:
             invite_key = str(uuid.uuid4())
-            self.client.insert_invite(invite_key, document_id, user['email'], user['name'], user['lang'])
+            self.client.insert_invite(invite_key, document_id, user['email'], user['name'], user['lang'], user['ordered'])
 
             updated_invite = {'key': invite_key}
             updated_invite.update(user)
@@ -608,6 +619,7 @@ class RedisMD(ABCMetadata):
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
+                 + ordered: Whether to send invitations in order.
         :return: new document id
         """
         self.client.pipeline()
@@ -627,6 +639,7 @@ class RedisMD(ABCMetadata):
             int(document['sendsigned']),
             document['loa'],
             int(document['skipfinal']),
+            int(document['ordered']),
         )
         self.client.commit()
         return doc_id
@@ -643,6 +656,7 @@ class RedisMD(ABCMetadata):
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + doc_id: the id of the document.
+                 + order: the order of the invitation.
         :return:
         """
         self.client.pipeline()
@@ -655,6 +669,7 @@ class RedisMD(ABCMetadata):
             invite['lang'],
             int(invite['signed']),
             int(invite['declined']),
+            int(invite['order']),
         )
         self.client.commit()
 
@@ -875,6 +890,7 @@ class RedisMD(ABCMetadata):
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + doc_id: the id of the invited document
+                 + order: the order of the invitation
         """
         invitees: List[Dict[str, Any]] = []
 
@@ -888,12 +904,13 @@ class RedisMD(ABCMetadata):
             self.logger.error(f"Trying to retrieve non-existing invitees for document with key {key}")
             return invitees
 
-        for invite in invites:
+        for order, invite in enumerate(invites):
             email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'lang': invite['user_lang']}
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
             email_result['doc_id'] = document_id
+            email_result['order'] = order
             invitees.append(email_result)
 
         return invitees
@@ -1056,6 +1073,7 @@ class RedisMD(ABCMetadata):
                  + updated: modification timestamp
                  + created: creation timestamp
                  + skipfinal: whether to skip the final signature by the inviter user
+                 + ordered: send invitations in order
         """
         document_result = self.client.query_document_full(str(key))
         if document_result is None:

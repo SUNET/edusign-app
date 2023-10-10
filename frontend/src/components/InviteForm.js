@@ -107,6 +107,10 @@ const validateSkipfinal = (value) => {
   return undefined;
 };
 
+const validateOrdered = (value) => {
+  return undefined;
+};
+
 export const validateNewname = (props) => {
   return (value) => {
     let error;
@@ -192,6 +196,7 @@ const initialValues = (props) => ({
   newnameInput: nameForCopy(props),
   loa: "none",
   documentId: props.docId,
+  ordered: false,
   invitees: [
     {
       name: "",
@@ -487,6 +492,40 @@ class InviteForm extends React.Component {
         </BForm.Group>
       </div>
     );
+    const orderedControl = (
+      <div className="ordered-choice-holder">
+        <BForm.Group className="ordered-choice-group form-group">
+          <ESTooltip
+            helpId="ordered-choice-input"
+            inModal={true}
+            tooltip={
+              <FormattedMessage
+                defaultMessage="Ask for invited signatures in the given order."
+                key="ordered-choice-help"
+              />
+            }
+          >
+            <BForm.Label
+              className="ordered-choice-label"
+              htmlFor="ordered-choice-input"
+            >
+              <FormattedMessage
+                defaultMessage="Invited signatures in order"
+                key="ordered-choice-field"
+              />
+            </BForm.Label>
+          </ESTooltip>
+          <Field
+            name="orderedChoice"
+            id="ordered-choice-input"
+            data-testid="ordered-choice-input"
+            className="ordered-choice"
+            validate={validateOrdered}
+            type="checkbox"
+          />
+        </BForm.Group>
+      </div>
+    );
     const makecopyControl = (props) => {
       if (!props.isTemplate) {
         return <Field name="makecopyChoice" value={false} type="hidden" />;
@@ -631,6 +670,7 @@ class InviteForm extends React.Component {
                   </div>
                   {sendsignedControl}
                   {skipFinalControl}
+                  {orderedControl}
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
                   {loaControl}
