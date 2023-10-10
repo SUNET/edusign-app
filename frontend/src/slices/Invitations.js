@@ -101,6 +101,7 @@ export const sendInvites = createAsyncThunk(
       skipfinal: args.values.skipfinalChoice,
       loa:
         args.values.loa.join !== undefined ? args.values.loa.join(";") : "none",
+      ordered: args.values.orderedChoice,
       document: {
         key: document.key,
         name: document.name,

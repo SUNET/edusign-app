@@ -289,6 +289,7 @@ class MultiSignSchema(Schema):
     invites = fields.List(fields.Nested(Invitee))
     owner = fields.Email(required=True)
     loa = fields.String()
+    ordered = fields.Boolean()
 
 
 class EditMultiSignSchema(Schema):

@@ -118,6 +118,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         sendsigned: bool,
         loa: str,
         skipfinal: bool,
+        ordered: bool,
     ) -> List[Dict[str, str]]:
         """
         Store metadata for a new document.
@@ -133,6 +134,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :param skipfinal: Whether to request signature from the user who is inviting.
+        :param ordered: Whether to send invitations in order.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
 
@@ -158,6 +160,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
+                 + ordered: Whether to send invitations in order.
         :return: new document id
         """
 
@@ -174,6 +177,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + doc_id: the id of the document.
+                 + order: the order of the invitation.
         :return:
         """
 
@@ -282,6 +286,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + doc_id: the id of the invited document
+                 + order: the order of the invitation
         """
 
     @abc.abstractmethod
@@ -364,6 +369,8 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
+                 + skipfinal: whether to skip the final signature by the inviter user
+                 + ordered: send invitations in order
         """
 
     @abc.abstractmethod
@@ -489,6 +496,7 @@ class DocStore(object):
         sendsigned: bool,
         loa: str,
         skipfinal: bool,
+        ordered: bool,
     ) -> List[Dict[str, str]]:
         """
         Store document, to be signed by all users referenced in `invites`.
@@ -509,7 +517,7 @@ class DocStore(object):
         """
         key = uuid.UUID(document['key'])
         self.storage.add(key, document['blob'])
-        return self.metadata.add(key, document, owner, invites, sendsigned, loa, skipfinal)
+        return self.metadata.add(key, document, owner, invites, sendsigned, loa, skipfinal, ordered)
 
     def add_document_raw(
         self,
@@ -533,6 +541,7 @@ class DocStore(object):
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
+                 + ordered: send invitations in order
         :param content: base64 string with the contents of the document, with a newly added signature.
         :return: new document id
         """
@@ -828,6 +837,7 @@ class DocStore(object):
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
+                 + ordered: send invitations in order
         """
         doc = self.metadata.get_full_document(key)
         return doc
@@ -917,6 +927,7 @@ class DocStore(object):
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + doc_id: the id of the invited document
+                 + order: the order of the invitation
         """
         invites = self.metadata.get_full_invites(key)
         return invites
