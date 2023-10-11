@@ -1026,20 +1026,27 @@ def _process_signed_documents(process_data):
                 to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
 
             else:
-                if pending and ordered:
-                    recipients = defaultdict(list)
-                    invite = pending_invites[0]
-                    lang = invite['lang']
-                    recipients[lang].append(f"{invite['name']} <{invite['email']}>")
-                    docname = doc['name']
-                    custom_text = current_app.doc_store.get_invitation_text(key)
-                    try:
-                        _send_invitation_mail(docname, owner, custom_text, recipients)
+                if pending:
+                    if ordered:
+                        invite = pending_invites[0]
+                        lang = invite['lang']
+                        recipient = f"{invite['name']} <{invite['email']}>"
+                        docname = doc['name']
+                        custom_text = current_app.doc_store.get_invitation_text(key)
+                        invited_link = url_for('edusign.get_index', _external=True)
+                        mail_context = {
+                            'document_name': docname,
+                            'inviter_email': f"{owner['email']}",
+                            'inviter_name': f"{owner['name']}",
+                            'invited_link': invited_link,
+                            'text': custom_text,
+                        }
+                        with force_locale(lang):
+                            subject = gettext('You have been invited to sign "%(document_name)s"') % {'document_name': docname}
+                            body_txt = render_template('invitation_email.txt.jinja2', **mail_context)
+                            body_html = render_template('invitation_email.html.jinja2', **mail_context)
 
-                    except Exception as e:
-                        current_app.logger.error(
-                            f"There was a problem and the invitation email to {invite['name']} were not sent for {doc['name']}: {e}"
-                        )
+                            emails.append(((recipient, subject, body_txt, body_html), {}))
                 try:
                     email_args = _prepare_signed_by_email(key, owner)
                     emails.append((email_args, {}))
