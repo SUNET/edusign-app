@@ -171,6 +171,23 @@ class DocumentOwned extends Component {
         </div>
       );
     }
+    const ordered = (
+      <div className={"doc-container-info-row-" + this.props.size}>
+        <span className="info-row-label">
+          {this.props.ordered && (
+            <FormattedMessage
+              defaultMessage="Ordered invitations"
+              key="multisign-owned-ordered"
+            />
+          ) || (
+            <FormattedMessage
+              defaultMessage="Unordered invitations"
+              key="multisign-owned-unordered"
+            />
+          )}
+        </span>
+      </div>
+    );
     return (
       <>
         <ESPopover
@@ -252,6 +269,7 @@ class DocumentOwned extends Component {
                 {requiredLoa}
                 {invites}
                 {preparePrevSigs(doc, this.props.size)}
+                {ordered}
               </div>
             </div>
           )) || (
@@ -326,6 +344,7 @@ class DocumentOwned extends Component {
               {requiredLoa}
               {invites}
               {preparePrevSigs(doc, this.props.size)}
+              {ordered}
             </div>
           )}
         </ESPopover>
