@@ -93,11 +93,11 @@ DOCUMENT_QUERY_ALL = (
     "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
 )
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
+DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created, ordered FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created, ordered, invitation_text FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal FROM Documents WHERE owner_eppn = ?;"
-DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal FROM Documents WHERE owner_email = ?;"
+DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered FROM Documents WHERE owner_eppn = ?;"
+DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered FROM Documents WHERE owner_email = ?;"
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_SKIPFINAL = "SELECT skipfinal FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ORDERED = "SELECT ordered FROM Documents WHERE key = ?;"
@@ -535,6 +535,7 @@ class SqliteMD(ABCMetadata):
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
+                 + ordered: Whether to send invitations in order.
         """
         pending = []
         doc_ids = []
@@ -576,6 +577,7 @@ class SqliteMD(ABCMetadata):
                 subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
 
                 if subinvites is not None and not isinstance(subinvites, dict):
+                    to_order = []
                     for subinvite in subinvites:
                         subemail_result = {
                             'email': subinvite['user_email'],
@@ -589,7 +591,13 @@ class SqliteMD(ABCMetadata):
                         elif subinvite['signed'] == 1:
                             document['signed'].append(subemail_result)
                         else:
-                            document['pending'].append(subemail_result)
+                            to_order.append(subemail_result)
+
+                    if document['ordered']:
+                        to_order.sort(key=lambda invite: invite['order'])
+                        document['pending'] = [to_order[0]]
+                    else:
+                        document['pending'] = to_order
 
                 pending.append(document)
 
@@ -666,6 +674,7 @@ class SqliteMD(ABCMetadata):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
                  + skipfinal: whether to skip the final signature by the inviter user
+                 + ordered: Whether to send invitations in order.
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (eppn,))
         if documents is None or isinstance(documents, dict):
@@ -691,6 +700,7 @@ class SqliteMD(ABCMetadata):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
                  + skipfinal: whether to skip the final signature by the inviter user
+                 + ordered: Whether to send invitations in order.
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL, (email,))
         if documents is None or isinstance(documents, dict):
