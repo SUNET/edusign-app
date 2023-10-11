@@ -214,6 +214,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
+                 + ordered: Whether to send invitations in order.
         """
 
     @abc.abstractmethod
@@ -253,6 +254,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
                  + skipfinal: whether to skip the final signature by the inviter user
+                 + ordered: Whether to send invitations in order.
         """
 
     @abc.abstractmethod
@@ -274,6 +276,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
                  + skipfinal: whether to skip the final signature by the inviter user
+                 + ordered: Whether to send invitations in order.
         """
 
     @abc.abstractmethod

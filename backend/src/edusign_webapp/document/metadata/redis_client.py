@@ -292,6 +292,7 @@ class RedisStorageBackend:
                 loa=b_doc[b'loa'].decode('utf8'),
                 created=created,
                 skipfinal=bool(b_doc[b'skipfinal']),
+                ordered=bool(b_doc[b'ordered']),
             )
             docs.append(doc)
         return docs
@@ -315,6 +316,7 @@ class RedisStorageBackend:
                 loa=b_doc[b'loa'].decode('utf8'),
                 created=created,
                 skipfinal=bool(b_doc[b'skipfinal']),
+                ordered=bool(b_doc[b'ordered']),
             )
             docs.append(doc)
         return docs
@@ -727,6 +729,7 @@ class RedisMD(ABCMetadata):
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
+                 + ordered: Whether to send invitations in order.
         """
         pending = []
         doc_ids = []
@@ -758,7 +761,6 @@ class RedisMD(ABCMetadata):
                     'eppn': document['owner_eppn'],
                 }
                 document['invite_key'] = invite['key']
-                document['pending'] = []
                 document['signed'] = []
                 document['declined'] = []
                 document['state'] = "unconfirmed"
@@ -766,6 +768,7 @@ class RedisMD(ABCMetadata):
                 subinvites = self.client.query_invites_from_doc(doc_id)
 
                 if subinvites is not None and not isinstance(subinvites, dict):
+                    to_order = []
                     for subinvite in subinvites:
                         subemail_result = {'email': subinvite['user_email'], 'name': subinvite['user_name']}
                         if subemail_result['email'] == email:
@@ -775,7 +778,13 @@ class RedisMD(ABCMetadata):
                         elif subinvite['declined'] == 1:
                             document['declined'].append(subemail_result)
                         else:
-                            document['pending'].append(subemail_result)
+                            to_order.append(subemail_result)
+
+                    if document['ordered']:
+                        to_order.sort(key=lambda invite: invite['order'])
+                        document['pending'] = [to_order[0]]
+                    else:
+                        document['pending'] = to_order
 
                 pending.append(document)
 
@@ -842,6 +851,7 @@ class RedisMD(ABCMetadata):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
                  + skipfinal: whether to skip the final signature by the inviter user
+                 + ordered: Whether to send invitations in order.
         """
         documents = self.client.query_documents_from_owner(eppn)
         if documents is None or isinstance(documents, dict):
@@ -866,6 +876,7 @@ class RedisMD(ABCMetadata):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
                  + skipfinal: whether to skip the final signature by the inviter user
+                 + ordered: Whether to send invitations in order.
         """
         documents = self.client.query_documents_from_owner_by_email(email)
         if documents is None or isinstance(documents, dict):

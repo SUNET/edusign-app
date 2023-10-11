@@ -74,6 +74,7 @@ class InvitationsSchema(Schema):
         prev_signatures = fields.String(dump_default="")
         loa = fields.String(dump_default="")
         created = fields.String(dump_default="")
+        ordered = fields.Boolean()
 
     class OwnedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
@@ -84,6 +85,7 @@ class InvitationsSchema(Schema):
         prev_signatures = fields.String(dump_default="")
         loa = fields.String(dump_default="")
         created = fields.String(dump_default="")
+        ordered = fields.Boolean()
 
     class SkippedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
@@ -96,6 +98,7 @@ class InvitationsSchema(Schema):
         created = fields.String(dump_default="")
         blob = fields.Raw(required=True, validate=[validate_nonempty])
         signed_content = fields.Raw(required=True, validate=[validate_nonempty])
+        ordered = fields.Boolean()
 
     pending_multisign = fields.List(fields.Nested(PendingDocument))
     owned_multisign = fields.List(fields.Nested(OwnedDocument))
