@@ -40,8 +40,10 @@ from collections import defaultdict
 from typing import Any, Dict, List, Tuple, Union
 
 import pkg_resources
+import yaml
 from flask import (
     Blueprint,
+    Response,
     abort,
     current_app,
     make_response,
@@ -50,10 +52,8 @@ from flask import (
     request,
     session,
     url_for,
-    Response,
 )
 from flask_babel import force_locale, get_locale, gettext
-import yaml
 
 try:
     from yaml import CLoader as Loader
@@ -1036,7 +1036,9 @@ def _process_signed_documents(process_data):
                             'text': custom_text,
                         }
                         with force_locale(lang):
-                            subject = gettext('You have been invited to sign "%(document_name)s"') % {'document_name': docname}
+                            subject = gettext('You have been invited to sign "%(document_name)s"') % {
+                                'document_name': docname
+                            }
                             body_txt = render_template('invitation_email.txt.jinja2', **mail_context)
                             body_html = render_template('invitation_email.html.jinja2', **mail_context)
 
@@ -1166,7 +1168,14 @@ def create_multi_sign_request(data: dict) -> dict:
         }
         current_app.logger.debug(f"Adding document with required loa {data['loa']}")
         invites = current_app.doc_store.add_document(
-            data['document'], owner, data['invites'], data['sendsigned'], data['loa'], data['skipfinal'], data['ordered'], data['text']
+            data['document'],
+            owner,
+            data['invites'],
+            data['sendsigned'],
+            data['loa'],
+            data['skipfinal'],
+            data['ordered'],
+            data['text'],
         )
 
     except Exception as e:

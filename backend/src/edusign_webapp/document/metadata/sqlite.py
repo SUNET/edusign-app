@@ -108,11 +108,11 @@ DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locking_email = '' WHERE
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, order) VALUES (?, ?, ?, ?, ?, ?)"
-INVITE_INSERT_RAW = (
-    "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, signed, declined, order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-)
+INVITE_INSERT_RAW = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, signed, declined, order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 INVITE_QUERY_FROM_EMAIL = "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0;"
-INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, user_lang, signed, declined, key, order FROM Invites WHERE doc_id = ?;"
+INVITE_QUERY_FROM_DOC = (
+    "SELECT user_email, user_name, user_lang, signed, declined, key, order FROM Invites WHERE doc_id = ?;"
+)
 INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT inviteID FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0;"
 INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, user_lang, doc_id FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_email IN (%s) and doc_id = ?;"
