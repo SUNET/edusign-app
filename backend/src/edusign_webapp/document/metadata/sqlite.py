@@ -60,7 +60,7 @@ CREATE TABLE [Documents]
        [skipfinal] INTEGER DEFAULT 0,
        [locked] TIMESTAMP DEFAULT NULL,
        [locking_email] VARCHAR(255) DEFAULT NULL
-       [ordered] INTEGER DEFAULT 0,
+       [ordered_invitations] INTEGER DEFAULT 0,
        [invitation_text] TEXT,
 );
 CREATE TABLE [Invites]
@@ -86,21 +86,21 @@ PRAGMA user_version = 8;
 """
 
 
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = (
     "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
 )
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created, ordered FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created, ordered, invitation_text FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created, ordered_invitations FROM Documents WHERE doc_id = ?;"
+DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created, ordered_invitations, invitation_text FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered FROM Documents WHERE owner_eppn = ?;"
-DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered FROM Documents WHERE owner_email = ?;"
+DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations FROM Documents WHERE owner_eppn = ?;"
+DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations FROM Documents WHERE owner_email = ?;"
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_SKIPFINAL = "SELECT skipfinal FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_ORDERED = "SELECT ordered FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_ORDERED = "SELECT ordered_invitations FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_INVITATION_TEXT = "SELECT invitation_text FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOA = "SELECT loa FROM Documents WHERE key = ?;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
@@ -237,7 +237,7 @@ def upgrade(db):
 
     if version == 7:
         cur = db.cursor()
-        cur.execute("ALTER TABLE [Documents] ADD COLUMN [ordered] INTEGER DEFAULT 0;")
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [ordered_invitations] INTEGER DEFAULT 0;")
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [invitation_text] TEXT DEFAULT \"\";")
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [order_invitation] INTEGER DEFAULT 0;")
         cur.execute("PRAGMA user_version = 8;")
@@ -443,7 +443,7 @@ class SqliteMD(ABCMetadata):
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
-                 + ordered: Whether to send invitations in order.
+                 + ordered_invitations: Whether to send invitations in order.
                  + invitation_text: The custom text to send in the invitation email
         :return:
         """
@@ -465,7 +465,7 @@ class SqliteMD(ABCMetadata):
                 document['sendsigned'],
                 document['loa'],
                 document['skipfinal'],
-                document['ordered'],
+                document['ordered_invitations'],
                 document['invitation_text'],
             ),
         )
@@ -573,6 +573,7 @@ class SqliteMD(ABCMetadata):
                 document['declined'] = []
                 document['state'] = "unconfirmed"
                 document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
+                document['ordered'] = document['ordered_invitations']
 
                 subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
 
@@ -594,7 +595,7 @@ class SqliteMD(ABCMetadata):
                             to_order.append(subemail_result)
 
                     if document['ordered']:
-                        to_order.sort(key=lambda invite: invite['order_invitaion'])
+                        to_order.sort(key=lambda invite: invite['order_invitation'])
                         document['pending'] = [to_order[0]]
                     else:
                         document['pending'] = to_order
@@ -716,6 +717,7 @@ class SqliteMD(ABCMetadata):
             document['declined'] = []
             document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
             state = 'loaded'
+            document['ordered'] = document['ordered_invitations'])
             document_id = document['doc_id']
             invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
             del document['doc_id']
@@ -927,7 +929,7 @@ class SqliteMD(ABCMetadata):
                  + updated: modification timestamp
                  + created: creation timestamp
                  + skipfinal: whether to skip the final signature by the inviter user
-                 + ordered: send invitations in order
+                 + ordered_invitations: send invitations in order
                  + invitation_text: The custom text to send in the invitation email
         """
         document_result = self._db_query(DOCUMENT_QUERY_FULL, (str(key),), one=True)
@@ -1112,7 +1114,7 @@ class SqliteMD(ABCMetadata):
             self.logger.debug(f"Trying to get ordered from a non-existing document with key {key}")
             return False
 
-        return bool(document_result['odered'])
+        return bool(document_result['odered_invitations'])
 
     def get_invitation_text(self, key: uuid.UUID) -> str:
         """
