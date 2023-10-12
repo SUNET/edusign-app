@@ -92,16 +92,16 @@ export const sendInvites = createAsyncThunk(
       thunkAPI.dispatch(setState({ name: docName, state: "loaded" }));
       document = newDocument;
     }
-    const loa = args.values.loa;
+    const loa = args.values.loa !== undefined  ? args.values.loa : false;
     // We send the gathered data to the `create-multi-sign` endpoint in the backend.
     const dataToSend = {
       owner: owner,
       invites: invitees,
       text: args.values.invitationText,
-      sendsigned: args.values.sendsignedChoice,
-      skipfinal: args.values.skipfinalChoice,
+      sendsigned: args.values.sendsignedChoice !== undefined  ? args.values.sendsignedChoice : false,
+      skipfinal: args.values.skipfinalChoice !== undefined  ? args.values.skipfinalChoice : false,
       loa: loa,
-      ordered: args.values.orderedChoice,
+      ordered: args.values.orderedChoice !== undefined  ? args.values.orderedChoice : false,
       document: {
         key: document.key,
         name: document.name,
