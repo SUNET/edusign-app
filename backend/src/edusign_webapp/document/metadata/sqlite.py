@@ -72,7 +72,7 @@ CREATE TABLE [Invites]
        [doc_id] INTEGER NOT NULL,
        [signed] INTEGER DEFAULT 0,
        [declined] INTEGER DEFAULT 0,
-       [order] INTEGER DEFAULT 0,
+       [order_invitation] INTEGER DEFAULT 0,
             FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -107,11 +107,11 @@ DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locking_email = '' WHERE doc_id = ?;"
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
-INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, order) VALUES (?, ?, ?, ?, ?, ?)"
-INVITE_INSERT_RAW = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, signed, declined, order) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, order_invitation) VALUES (?, ?, ?, ?, ?, ?)"
+INVITE_INSERT_RAW = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, signed, declined, order_invitation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
 INVITE_QUERY_FROM_EMAIL = "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0;"
 INVITE_QUERY_FROM_DOC = (
-    "SELECT user_email, user_name, user_lang, signed, declined, key, order FROM Invites WHERE doc_id = ?;"
+    "SELECT user_email, user_name, user_lang, signed, declined, key, order_invitation FROM Invites WHERE doc_id = ?;"
 )
 INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT inviteID FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0;"
 INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, user_lang, doc_id FROM Invites WHERE key = ?;"
@@ -239,7 +239,7 @@ def upgrade(db):
         cur = db.cursor()
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [ordered] INTEGER DEFAULT 0;")
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [invitation_text] TEXT DEFAULT \"\";")
-        cur.execute("ALTER TABLE [Invites] ADD COLUMN [order] INTEGER DEFAULT 0;")
+        cur.execute("ALTER TABLE [Invites] ADD COLUMN [order_invitation] INTEGER DEFAULT 0;")
         cur.execute("PRAGMA user_version = 8;")
         cur.close()
         db.commit()
@@ -482,7 +482,7 @@ class SqliteMD(ABCMetadata):
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + doc_id: the id of the document.
-                 + order: the order of the invitation.
+                 + order_invitation: the order of the invitation.
         :return:
         """
         self._db_execute(
@@ -495,7 +495,7 @@ class SqliteMD(ABCMetadata):
                 invite['lang'],
                 invite['signed'],
                 invite['declined'],
-                invite['order'],
+                invite['order_invitation'],
             ),
         )
 
@@ -594,7 +594,7 @@ class SqliteMD(ABCMetadata):
                             to_order.append(subemail_result)
 
                     if document['ordered']:
-                        to_order.sort(key=lambda invite: invite['order'])
+                        to_order.sort(key=lambda invite: invite['order_invitaion'])
                         document['pending'] = [to_order[0]]
                     else:
                         document['pending'] = to_order
@@ -773,7 +773,7 @@ class SqliteMD(ABCMetadata):
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
             email_result['doc_id'] = doc_id
-            email_result['order'] = invite['order']
+            email_result['order_invitation'] = invite['order_invitation']
             invitees.append(email_result)
 
         return invitees
