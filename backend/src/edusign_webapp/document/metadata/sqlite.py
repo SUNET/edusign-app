@@ -61,7 +61,7 @@ CREATE TABLE [Documents]
        [locked] TIMESTAMP DEFAULT NULL,
        [locking_email] VARCHAR(255) DEFAULT NULL,
        [ordered_invitations] INTEGER DEFAULT 0,
-       [invitation_text] TEXT,
+       [invitation_text] TEXT
 );
 CREATE TABLE [Invites]
 (      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
