@@ -97,11 +97,11 @@ export const sendInvites = createAsyncThunk(
       owner: owner,
       invites: invitees,
       text: args.values.invitationText,
-      sendsigned: args.values.sendsignedChoice,
-      skipfinal: args.values.skipfinalChoice,
+      sendsigned: args.values.sendsignedChoice !== undefined  ? args.values.sendsignedChoice : false,
+      skipfinal: args.values.skipfinalChoice !== undefined  ? args.values.skipfinalChoice : false,
       loa:
         args.values.loa.join !== undefined ? args.values.loa.join(";") : "none",
-      ordered: args.values.orderedChoice,
+      ordered: args.values.orderedChoice !== undefined  ? args.values.orderedChoice : false,
       document: {
         key: document.key,
         name: document.name,
