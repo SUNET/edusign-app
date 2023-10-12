@@ -578,7 +578,10 @@ class SqliteMD(ABCMetadata):
                 subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
 
                 if subinvites is not None and not isinstance(subinvites, dict):
-                    to_order = []
+                    if document["ordered"]:
+                        subinvites.sort(key=lambda i: i["order_invitation"])
+                        if subinvites[0]['user_email'] == email:
+                            continue
                     for subinvite in subinvites:
                         subemail_result = {
                             'email': subinvite['user_email'],
@@ -593,13 +596,7 @@ class SqliteMD(ABCMetadata):
                         elif subinvite['signed'] == 1:
                             document['signed'].append(subemail_result)
                         else:
-                            to_order.append(subemail_result)
-
-                    if document['ordered']:
-                        to_order.sort(key=lambda invite: invite['order'])
-                        document['pending'] = [to_order[0]]
-                    else:
-                        document['pending'] = to_order
+                            document['pending'].append(subemail_result)
 
                 pending.append(document)
 
