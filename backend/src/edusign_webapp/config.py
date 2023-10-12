@@ -72,7 +72,7 @@ SERVER_NAME = os.environ.get('SP_HOSTNAME', default='edusign.sunet.se')
 
 PREFERRED_URL_SCHEME = os.environ.get('PREFERRED_URL_SCHEME', default='https')
 
-HASH_METHOD = 'sha256'
+HASH_METHOD = 'scrypt'
 SALT_LENGTH = 8
 
 BABEL_DEFAULT_LOCALE = 'sv'
