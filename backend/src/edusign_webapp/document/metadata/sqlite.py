@@ -59,7 +59,7 @@ CREATE TABLE [Documents]
        [loa] VARCHAR(255) DEFAULT "none",
        [skipfinal] INTEGER DEFAULT 0,
        [locked] TIMESTAMP DEFAULT NULL,
-       [locking_email] VARCHAR(255) DEFAULT NULL
+       [locking_email] VARCHAR(255) DEFAULT NULL,
        [ordered_invitations] INTEGER DEFAULT 0,
        [invitation_text] TEXT,
 );
