@@ -584,6 +584,7 @@ class SqliteMD(ABCMetadata):
                             'email': subinvite['user_email'],
                             'name': subinvite['user_name'],
                             'lang': subinvite['user_lang'],
+                            'order': subinvite['order_invitation'],
                         }
                         if subemail_result['email'] == email:
                             continue
@@ -595,7 +596,7 @@ class SqliteMD(ABCMetadata):
                             to_order.append(subemail_result)
 
                     if document['ordered']:
-                        to_order.sort(key=lambda invite: invite['order_invitation'])
+                        to_order.sort(key=lambda invite: invite['order'])
                         document['pending'] = [to_order[0]]
                     else:
                         document['pending'] = to_order
