@@ -891,7 +891,7 @@ def _prepare_signed_by_email(key, owner):
     pending = current_app.doc_store.get_pending_invites(key, exclude=session.get('mail_aliases', [session['mail']]))
     pending = [p for p in pending if not p['signed'] and not p['declined']]
 
-    if len(pending) > 0:
+    if len(pending) > 1:
         template = 'signed_by_email'
     else:
         if skipfinal:
