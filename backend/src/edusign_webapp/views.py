@@ -1022,10 +1022,10 @@ def _process_signed_documents(process_data):
 
             else:
                 if pending:
-                    if ordered:
-                        invite = pending_invites[0]
+                    if ordered and len(pending_invites) > 1:
+                        invite = pending_invites[1]
                         lang = invite['lang']
-                        recipient = f"{invite['name']} <{invite['email']}>"
+                        recipients = [f"{invite['name']} <{invite['email']}>"]
                         custom_text = current_app.doc_store.get_invitation_text(key)
                         invited_link = url_for('edusign.get_index', _external=True)
                         mail_context = {
@@ -1042,7 +1042,7 @@ def _process_signed_documents(process_data):
                             body_txt = render_template('invitation_email.txt.jinja2', **mail_context)
                             body_html = render_template('invitation_email.html.jinja2', **mail_context)
 
-                            emails.append(((recipient, subject, body_txt, body_html), {}))
+                            emails.append(((recipients, subject, body_txt, body_html), {}))
                 try:
                     email_args = _prepare_signed_by_email(key, owner)
                     emails.append((email_args, {}))
