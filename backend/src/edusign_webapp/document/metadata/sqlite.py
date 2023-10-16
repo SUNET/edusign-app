@@ -1112,7 +1112,7 @@ class SqliteMD(ABCMetadata):
             self.logger.debug(f"Trying to get ordered from a non-existing document with key {key}")
             return False
 
-        return bool(document_result['odered_invitations'])
+        return bool(document_result['ordered_invitations'])
 
     def get_invitation_text(self, key: uuid.UUID) -> str:
         """
