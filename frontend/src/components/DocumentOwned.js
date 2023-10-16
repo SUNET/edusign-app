@@ -174,7 +174,7 @@ class DocumentOwned extends Component {
     const ordered = (
       <div className={"doc-container-info-row-" + this.props.size}>
         <span className="info-row-label">
-          {this.props.ordered && (
+          {doc.ordered && (
             <FormattedMessage
               defaultMessage="Ordered invitations"
               key="multisign-owned-ordered"
