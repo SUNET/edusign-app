@@ -898,7 +898,7 @@ class DocStore(object):
         :return: the document name
         """
         doc = self.metadata.get_document(key)
-        return doc['name']
+        return doc.get('name', '')
 
     def get_document_email(self, key: uuid.UUID) -> str:
         """
