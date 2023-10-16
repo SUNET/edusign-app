@@ -580,7 +580,7 @@ class SqliteMD(ABCMetadata):
                 if subinvites is not None and not isinstance(subinvites, dict):
                     if document["ordered"]:
                         subinvites.sort(key=lambda i: i["order_invitation"])
-                        if subinvites[0]['user_email'] == email:
+                        if subinvites[0]['user_email'] != email:
                             continue
                     for subinvite in subinvites:
                         subemail_result = {
