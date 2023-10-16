@@ -1028,7 +1028,7 @@ def _process_signed_documents(process_data):
                 to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
 
             else:
-                if pending:
+                if pending > 1:
                     if ordered:
                         invite = pending_invites[1]
                         lang = invite['lang']
