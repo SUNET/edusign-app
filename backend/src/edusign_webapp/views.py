@@ -1009,7 +1009,10 @@ def _process_signed_documents(process_data):
         owner = current_app.doc_store.get_owner_data(key)
         sendsigned = current_app.doc_store.get_sendsigned(key)
         pending_invites = current_app.doc_store.get_pending_invites(key)
-        pending = len(pending_invites) > 1
+        pending = 0
+        for invite in pending_invites:
+            if not invite['signed'] and not invite['declined']:
+                pending += 1
         skipfinal = current_app.doc_store.get_skipfinal(key)
         current_app.logger.debug(
             f"Data for signed emails - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}"
@@ -1017,11 +1020,11 @@ def _process_signed_documents(process_data):
 
         # this is an invitation to the current user
         if 'email' in owner and owner['email'] not in mail_aliases:
-            if not pending and skipfinal:
+            if pending <= 1 and skipfinal:
                 to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
 
             else:
-                if pending:
+                if pending > 1:
                     if ordered:
                         invite = pending_invites[1]
                         lang = invite['lang']
