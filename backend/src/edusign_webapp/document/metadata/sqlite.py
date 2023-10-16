@@ -808,6 +808,7 @@ class SqliteMD(ABCMetadata):
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
+            email_result['order'] = invite['order_invitation']
             invitees.append(email_result)
 
         return invitees
