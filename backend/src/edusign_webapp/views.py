@@ -1007,6 +1007,7 @@ def _process_signed_documents(process_data):
     # Prepare emails to send
     for doc in process_data['signedDocuments']:
         key = doc['id']
+        docname = current_app.doc_store.get_document_name(key)
         ordered = current_app.doc_store.get_ordered(key)
         owner = current_app.doc_store.get_owner_data(key)
         sendsigned = current_app.doc_store.get_sendsigned(key)
@@ -1028,7 +1029,6 @@ def _process_signed_documents(process_data):
                         invite = pending_invites[0]
                         lang = invite['lang']
                         recipient = f"{invite['name']} <{invite['email']}>"
-                        docname = doc['name']
                         custom_text = current_app.doc_store.get_invitation_text(key)
                         invited_link = url_for('edusign.get_index', _external=True)
                         mail_context = {
