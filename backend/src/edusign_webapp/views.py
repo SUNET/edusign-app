@@ -1026,7 +1026,7 @@ def _process_signed_documents(process_data):
             else:
                 if pending > 1:
                     if ordered:
-                        invite = pending_invites[1]
+                        invite = pending_invites[len(pending_invites) - pending + 1]
                         lang = invite['lang']
                         recipients = [f"{invite['name']} <{invite['email']}>"]
                         custom_text = current_app.doc_store.get_invitation_text(key)
