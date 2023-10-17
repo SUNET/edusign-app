@@ -40,6 +40,7 @@ export const sendInvites = createAsyncThunk(
     const documentId = args.values.documentId;
     const invitees = args.values.invitees;
     const isTemplate = args.values.isTemplate;
+    const ordered = args.values.orderedChoice !== undefined  ? args.values.orderedChoice : false;
 
     let state = thunkAPI.getState();
 
@@ -101,7 +102,7 @@ export const sendInvites = createAsyncThunk(
       skipfinal: args.values.skipfinalChoice !== undefined  ? args.values.skipfinalChoice : false,
       loa:
         args.values.loa.join !== undefined ? args.values.loa.join(";") : "none",
-      ordered: args.values.orderedChoice !== undefined  ? args.values.orderedChoice : false,
+      ordered: ordered,
       document: {
         key: document.key,
         name: document.name,
@@ -162,6 +163,7 @@ export const sendInvites = createAsyncThunk(
       signed: [],
       declined: [],
       created: Date.now(),
+      ordered: ordered,
     };
     await thunkAPI.dispatch(removeDocument({ docName: document.name }));
     thunkAPI.dispatch(addOwned(owned));
