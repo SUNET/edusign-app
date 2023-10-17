@@ -1399,11 +1399,13 @@ def remove_multi_sign_request(data: dict) -> dict:
         pending = current_app.doc_store.get_pending_invites(key)
         docname = current_app.doc_store.get_document_name(key)
         owner_email = current_app.doc_store.get_document_email(key)
+        ordered = current_app.doc_store.get_ordered(key)
     except Exception as e:
         current_app.logger.error(f'Problem getting info about document {key}: {e}')
         pending = []
         docname = ''
         owner_email = session['mail']
+        ordered = False
 
     try:
         removed = current_app.doc_store.remove_document(key, force=True)
@@ -1417,11 +1419,18 @@ def remove_multi_sign_request(data: dict) -> dict:
         return {'error': True, 'message': gettext('Document has not been removed, please try again')}
 
     recipients = defaultdict(list)
-    for invite in pending:
-        if invite['signed'] or invite['declined']:
-            continue
-        lang = invite['lang']
-        recipients[lang].append(f"{invite['name']} <{invite['email']}>")
+    if not ordered:
+        for invite in pending:
+            if invite['signed'] or invite['declined']:
+                continue
+            lang = invite['lang']
+            recipients[lang].append(f"{invite['name']} <{invite['email']}>")
+    else:
+        npending = sum([1 for i in pending if not i['signed'] and not i['declined']])
+        if npending > 1:
+            invite = pending[len(pending) - npending + 1]
+            lang = invite['lang']
+            recipients[lang].append(f"{invite['name']} <{invite['email']}>")
 
     message = gettext("Success removing invitation to sign")
 
