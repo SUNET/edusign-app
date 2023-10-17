@@ -40,6 +40,7 @@ export const sendInvites = createAsyncThunk(
     const documentId = args.values.documentId;
     const invitees = args.values.invitees;
     const isTemplate = args.values.isTemplate;
+    const ordered = args.values.orderedChoice !== undefined  ? args.values.orderedChoice : false;
 
     let state = thunkAPI.getState();
 
@@ -92,7 +93,7 @@ export const sendInvites = createAsyncThunk(
       thunkAPI.dispatch(setState({ name: docName, state: "loaded" }));
       document = newDocument;
     }
-    const loa = args.values.loa !== undefined  ? args.values.loa : false;
+    const loa = args.values.loa !== undefined  ? args.values.loa : 'none';
     // We send the gathered data to the `create-multi-sign` endpoint in the backend.
     const dataToSend = {
       owner: owner,
@@ -101,7 +102,7 @@ export const sendInvites = createAsyncThunk(
       sendsigned: args.values.sendsignedChoice !== undefined  ? args.values.sendsignedChoice : false,
       skipfinal: args.values.skipfinalChoice !== undefined  ? args.values.skipfinalChoice : false,
       loa: loa,
-      ordered: args.values.orderedChoice !== undefined  ? args.values.orderedChoice : false,
+      ordered: ordered,
       document: {
         key: document.key,
         name: document.name,
@@ -184,6 +185,7 @@ export const sendInvites = createAsyncThunk(
       declined: [],
       created: Date.now(),
       loa: `${loa},${display_loa}`,
+      ordered: ordered,
     };
     await thunkAPI.dispatch(removeDocument({ docName: document.name }));
     thunkAPI.dispatch(addOwned(owned));
