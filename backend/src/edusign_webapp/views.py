@@ -1001,6 +1001,29 @@ def _prepare_signed_documents_data(process_data):
     return docs
 
 
+def _next_ordered_invitation_mail(doc_key, docname, pending_invites, pending, owner):
+    invite = pending_invites[len(pending_invites) - pending + 1]
+    lang = invite['lang']
+    recipients = [f"{invite['name']} <{invite['email']}>"]
+    custom_text = current_app.doc_store.get_invitation_text(doc_key)
+    invited_link = url_for('edusign.get_index', _external=True)
+    mail_context = {
+        'document_name': docname,
+        'inviter_email': f"{owner['email']}",
+        'inviter_name': f"{owner['name']}",
+        'invited_link': invited_link,
+        'text': custom_text,
+    }
+    with force_locale(lang):
+        subject = gettext('You have been invited to sign "%(document_name)s"') % {
+            'document_name': docname
+        }
+        body_txt = render_template('invitation_email.txt.jinja2', **mail_context)
+        body_html = render_template('invitation_email.html.jinja2', **mail_context)
+
+    return ((recipients, subject, body_txt, body_html), {})
+
+
 def _process_signed_documents(process_data):
     emails = []
     to_validate = []
@@ -1029,26 +1052,8 @@ def _process_signed_documents(process_data):
             else:
                 if pending > 1:
                     if ordered:
-                        invite = pending_invites[len(pending_invites) - pending + 1]
-                        lang = invite['lang']
-                        recipients = [f"{invite['name']} <{invite['email']}>"]
-                        custom_text = current_app.doc_store.get_invitation_text(key)
-                        invited_link = url_for('edusign.get_index', _external=True)
-                        mail_context = {
-                            'document_name': docname,
-                            'inviter_email': f"{owner['email']}",
-                            'inviter_name': f"{owner['name']}",
-                            'invited_link': invited_link,
-                            'text': custom_text,
-                        }
-                        with force_locale(lang):
-                            subject = gettext('You have been invited to sign "%(document_name)s"') % {
-                                'document_name': docname
-                            }
-                            body_txt = render_template('invitation_email.txt.jinja2', **mail_context)
-                            body_html = render_template('invitation_email.html.jinja2', **mail_context)
-
-                            emails.append(((recipients, subject, body_txt, body_html), {}))
+                        next_invitation_mail = _next_ordered_invitation_mail(key, docname, pending_invites, pending, owner)
+                        emails.append(next_invitation_mail)
                 try:
                     email_args = _prepare_signed_by_email(key, owner)
                     emails.append((email_args, {}))
@@ -1592,12 +1597,15 @@ def skip_final_signature(data: dict) -> dict:
     }
 
 
-def _prepare_declined_email(key, owner_data):
+def _prepare_declined_emails(key, owner_data):
     """
     Prepare email to inviter user informing about an invited user
     that has declined to sign the document.
     """
-    # migration to mail_aliases
+    docname = owner_data['docname']
+    ordered = current_app.doc_store.get_ordered(key)
+    pending_invites = current_app.doc_store.get_pending_invites(key)
+    pending = sum([1 for i in pending_invites if not i['signed'] and not i['declined']])
     mail_aliases = session.get('mail_aliases', [session['mail']])
 
     skipfinal = current_app.doc_store.get_skipfinal(key)
@@ -1613,7 +1621,7 @@ def _prepare_declined_email(key, owner_data):
 
     recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
     mail_context = {
-        'document_name': owner_data['docname'],
+        'document_name': docname,
         'invited_name': session['displayName'],
         'invited_email': session['mail'],
     }
@@ -1645,6 +1653,10 @@ def _prepare_declined_email(key, owner_data):
 
         except Exception as e:
             current_app.logger.error(f'Problem preparing declined signed by all document to invited users: {e}')
+
+    if len(pending) > 0 and ordered:
+        next_invitation_mail = _next_ordered_invitation_mail(key, docname, pending_invites, len(pending) + 1, owner_data)
+        emails.append(next_invitation_mail)
 
     return emails
 
@@ -1680,8 +1692,9 @@ def decline_invitation(data):
             )
 
         else:
-            emails = _prepare_declined_email(key, owner_data)
-            sendmail_bulk(emails)
+            emails = _prepare_declined_emails(key, owner_data)
+            if len(emails) > 0:
+                sendmail_bulk(emails)
 
     except Exception as e:
         current_app.logger.error(f'Problem sending email of declination: {e}')
