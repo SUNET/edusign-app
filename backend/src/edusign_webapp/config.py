@@ -78,7 +78,11 @@ BABEL_DEFAULT_LOCALE = 'sv'
 BABEL_DEFAULT_TIMEZONE = 'UTC'
 BABEL_TRANSLATION_DIRECTORIES = os.path.join(HERE, 'translations')
 BABEL_DOMAIN = 'messages'
-SUPPORTED_LANGUAGES = {'en': 'English', 'sv': 'Svenska'}
+RAW_SUPPORTED_LANGUAGES = os.environ.get(
+    "SUPPORTED_LANGUAGES",
+    default="en,English;sv,Svenska"
+)
+SUPPORTED_LANGUAGES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SUPPORTED_LANGUAGES.split(';')}
 
 EDUSIGN_API_BASE_URL = os.environ.get('EDUSIGN_API_BASE_URL', default='https://sig.idsec.se/signint/v1/')
 EDUSIGN_API_PROFILE_20 = os.environ.get('EDUSIGN_API_PROFILE_20', default='edusign-test')
@@ -194,12 +198,16 @@ MAIL_ASCII_ATTACHMENTS = get_boolean(RAW_MAIL_ASCII_ATTACHMENTS)
 
 RAW_AVAILABLE_LOAS = os.environ.get(
     'AVAILABLE_LOAS',
-    default='http://www.swamid.se/policy/assurance/al1,Low;http://www.swamid.se/policy/assurance/al2,Medium;http://www.swamid.se/policy/assurance/al3,High;',
+    default='http://www.swamid.se/;http://www.swamid.se/policy/assurance/al1,http://www.swamid.se/policy/assurance/al2,http://www.swamid.se/policy/assurance/al3|'\
+            'default;https://refeds.org/assurance/IAP/low,https://refeds.org/assurance/IAP/medium,https://refeds.org/assurance/IAP/high;'
 )
 
-AVAILABLE_LOAS = {
-    loa.split(",")[0].strip(): loa.split(",")[1].strip() for loa in RAW_AVAILABLE_LOAS.strip().strip(';').split(';')
-}
+_PRE_LOAS = RAW_AVAILABLE_LOAS.strip().strip('|').split('|')
+
+AVAILABLE_LOAS = {}
+
+for pre_loa in _PRE_LOAS:
+    AVAILABLE_LOAS[pre_loa.split(";")[0].strip()] = pre_loa.split(";")[1].strip().strip(',').split(',')
 
 MAX_CONTENT_LENGTH = int(os.environ.get('MAX_FILE_SIZE', default=20971520))
 
