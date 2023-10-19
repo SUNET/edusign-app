@@ -122,6 +122,14 @@ def add_attributes_to_session(check_whitelisted=True):
             session['mail_aliases'] = list(set(session['mail_aliases']))
 
         session['eppn'] = eppn
+
+        try:
+            assurances = get_attr_values('Edupersonassurance')
+        except KeyError:
+            current_app.logger.error('Missing eduPersonAssurance from request')
+            assurances = "none"
+        session['eduPersonAssurance'] = assurances
+
         try:
             session['idp'] = request.headers.get('Shib-Identity-Provider')
         except KeyError:
