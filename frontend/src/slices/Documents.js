@@ -908,7 +908,7 @@ export const restartSigningDocuments = createAsyncThunk(
       }
     });
     let mismatchedAssurance = false;
-    let requiredAssurance = 'none':
+    let requiredAssurance = 'none';
     docsToSign.forEach((doc) => {
       if (requiredAssurance === 'none') {
         requiredAssurance = doc.loa || 'none';
