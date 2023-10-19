@@ -102,7 +102,7 @@ class ResponseSchema(Schema):
         else:
             sess['user_key'] = user_key
         token_hash = generate_password_hash(user_key + secret, method=method, salt_length=salt_length)
-        token = token_hash.replace(method + '$', '')
+        token = token_hash.replace(method + ':', '')
         out_data['csrf_token'] = token
         return out_data
 
@@ -185,7 +185,7 @@ class RequestSchema(Schema):
         csrf_check_headers()
 
         method = current_app.config['HASH_METHOD']
-        token = f'{method}${value}'
+        token = f'{method}:{value}'
 
         secret = current_app.config['SECRET_KEY']
         key = session['user_key'] + secret
