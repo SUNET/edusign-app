@@ -484,9 +484,12 @@ def get_config() -> dict:
     payload['signer_attributes'] = attrs
     payload['multisign_buttons'] = current_app.config['MULTISIGN_BUTTONS']
     payload['max_signatures'] = current_app.config['MAX_SIGNATURES']
-    payload['available_loas'] = []
-    for uri, name in current_app.config['AVAILABLE_LOAS'].items():
-        payload['available_loas'].append({'uri': uri, 'name': name})
+    payload['available_loas'] = [
+        {'name': gettext('None'), 'value': 'none'},
+        {'name': gettext('Low'), 'value': 'low'},
+        {'name': gettext('Medium'), 'value': 'medium'},
+        {'name': gettext('High'), 'value': 'high'},
+    ]
     payload['max_file_size'] = current_app.config['MAX_CONTENT_LENGTH']
     payload['company_link'] = current_app.config['COMPANY_LINK']
 

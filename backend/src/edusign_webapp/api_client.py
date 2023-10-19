@@ -304,12 +304,15 @@ class APIClient(object):
                  and list of mappings linking the documents' names with the generated ids.
         """
         idp = session['idp']
+        correlation_id = str(uuid.uuid4())
         authn_context = get_authn_context(documents)
         assurance = get_required_assurance(documents)
-        correlation_id = str(uuid.uuid4())
         attrs = []
         if assurance not in ('', 'none'):
-            attrs = [{'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11', 'value': assurance}]
+            assurances = self.config['AVAILABLE_LOAS'].get(session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default'])
+            levels = {'low': 1, 'medium': 2, 'high': 3}
+            loa = assurances[levels[assurance]]
+            attrs = [{'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11', 'value': loa}]
         attrs.extend([{'name': attr, 'value': session[name]} for attr, name in self.config['SIGNER_ATTRIBUTES'].items()])
 
         scheme = self.config['PREFERRED_URL_SCHEME']
