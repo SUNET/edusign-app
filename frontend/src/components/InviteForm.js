@@ -519,7 +519,7 @@ class InviteForm extends React.Component {
                   <BForm.Label key={i} className="loa-checkbox">
                     <Field
                       name="loa"
-                      value={level.uri}
+                      value={level.value}
                       className="loa-select"
                       type="checkbox"
                     />

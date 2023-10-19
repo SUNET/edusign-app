@@ -159,6 +159,11 @@ def add_attributes_to_session(check_whitelisted=True):
         if orgName is not None:
             session['organizationName'] = orgName.encode('latin1').decode('utf8')
 
+        session['registrationAuthority'] = None
+        reg_auth = request.headers.get('Md-Registrationauthority', None)
+        if reg_auth is not None:
+            session['registrationAuthority'] = reg_auth.encode('latin1').decode('utf8')
+
         current_app.logger.debug(f'Headers sent by Shibboleth SP {request.headers}')
 
         if check_whitelisted:
