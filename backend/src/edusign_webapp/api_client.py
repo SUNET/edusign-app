@@ -323,12 +323,15 @@ class APIClient(object):
         used_attr_names += more_used_attr_names
         attrs.extend(more_attrs)
         if assurance not in ('', 'none'):
+            assurances = self.config['AVAILABLE_LOAS'].get(session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default'])
+            levels = {'low': 1, 'medium': 2, 'high': 3}
+            loa = assurances[levels[assurance]]
             if attr_schema == '11':
                 assurance_attr_name = 'urn:mace:dir:attribute-def:eduPersonAssurance'
             else:
                 assurance_attr_name = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
             if assurance_attr_name not in used_attr_names:
-                attrs.append({'name': assurance_attr_name, 'value': assurance})
+                attrs.append({'name': assurance_attr_name, 'value': loa})
 
         scheme = self.config['PREFERRED_URL_SCHEME']
         return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
