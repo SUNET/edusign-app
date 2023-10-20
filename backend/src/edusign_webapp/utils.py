@@ -127,7 +127,7 @@ def add_attributes_to_session(check_whitelisted=True):
             assurances = get_attr_values('Edupersonassurance')
         except KeyError:
             current_app.logger.error('Missing eduPersonAssurance from request')
-            assurances = "none"
+            assurances = []
         session['eduPersonAssurance'] = assurances
 
         try:
@@ -204,11 +204,16 @@ def get_invitations():
     owned = current_app.doc_store.get_owned_documents(session['eppn'], mail_addresses)
     invited = current_app.doc_store.get_pending_documents(mail_addresses)
     poll = False
+    levels = {'low': 0, 'medium': 1, 'high': 2}
     for doc in invited:
-        if len(doc['pending']) > 0:
-            poll = True
         if doc['loa'] not in ("", "none"):
-            doc['loa'] += ',' + current_app.config['AVAILABLE_LOAS'][doc['loa']]
+            required_level = levels[doc['loa']]
+            required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
+            if required_loa not in session['eduPersonAssurance']:
+                doc['state'] = 'failed-loa'
+                doc['message'] = gettext("You don't provide the required securiry level, please make sure to provide level %(level)s" % {'level': required_loa})
+        elif len(doc['pending']) > 0:
+            poll = True
     newowned, skipped = [], []
     current_app.logger.debug(f"Start checking {len(owned)} owned docs")
     for doc in owned:
@@ -347,29 +352,27 @@ def get_authn_context(docs: list) -> list:
     return [session['authn_context']]
 
 
-class AssuranceMismatch(Exception):
-    pass
-
-
 def get_required_assurance(docs: list) -> str:
     """
     Get the eduPersonAssurance values to send to the `create` API method.
     If some of the docs to be signed are invitations and have a requirement
-    for some minimum assurance, use that. Otherwise, use the value obtained in the
-    authentication of the user, kept in the session.
+    for some minimum assurance, use the highest of them. Otherwise do not
+    require any level of assurance.
 
     :param docs: list of dicts with the data for the documents to be signed.
     :return: the required level of assurance
     """
-    assurance = 'none'
+    assurance = 0
+    required_assurance = 'none'
+    levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
     for doc in docs:
         key = uuid.UUID(doc['key'])
         required = current_app.doc_store.get_loa(key)
-        if assurance in ("", "none"):
-            assurance = required
-        elif required != assurance:
-            raise AssuranceMismatch(f"Conflicting required assurances: {required} and {assurance}")
+        required_level = levels[required]
+        if required_level > assurance:
+            assurance = required_level
+            required_assurance = required
 
-    current_app.logger.debug(f"Required assurance: {assurance}")
+    current_app.logger.debug(f"Required assurance: {required_assurance}")
 
-    return assurance
+    return required_assurance

@@ -84,7 +84,6 @@ from edusign_webapp.schemata import (
     ToSignSchema,
 )
 from edusign_webapp.utils import (
-    AssuranceMismatch,
     MissingDisplayName,
     add_attributes_to_session,
     get_invitations,
@@ -596,8 +595,6 @@ def create_sign_request(documents: dict) -> dict:
             f"Some document(s) have expired for {session['eppn']} in the API's cache, restarting process..."
         )
         return {'error': True, 'message': 'expired cache'}
-    except AssuranceMismatch:
-        return {'error': True, 'message': 'assurance mismatch'}
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
@@ -795,8 +792,6 @@ def recreate_sign_request(documents: dict) -> dict:
             current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
             create_data, documents_with_id = current_app.api_client.create_sign_request(new_docs)
 
-        except AssuranceMismatch:
-            return {'error': True, 'message': 'assurance mismatch'}
         except Exception as e:
             current_app.logger.error(f'Problem creating sign request: {e}')
             return {
