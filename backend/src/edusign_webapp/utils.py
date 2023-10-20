@@ -231,9 +231,6 @@ def get_invitations(remove_finished=False):
         else:
             newowned.append(doc)
 
-        if doc['loa'] not in ("", "none"):
-            doc['loa'] += ',' + current_app.config['AVAILABLE_LOAS'][doc['loa']]
-
     return {
         'owned_multisign': newowned,
         'pending_multisign': invited,

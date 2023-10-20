@@ -78,6 +78,15 @@ class DocumentInvited extends Component {
           "You have declined to sign this document. It will dissapear from here if you reload the app.",
         id: "docmanager-help-declined-invited",
       }),
+      "failed-loa-title": this.props.intl.formatMessage({
+        defaultMessage: "Insufficient security level",
+        id: "docmanager-help-failed-loa-title",
+      }),
+      "failed-loa": this.props.intl.formatMessage({
+        defaultMessage:
+          "Your account does not provide the required security level. Please take the steps to provide it.",
+        id: "docmanager-help-failed-loa-invited",
+      }),
     };
     return msgs[msg];
   }
@@ -249,6 +258,15 @@ class DocumentInvited extends Component {
                       {widgets.dummyButton()}
                     </>
                   )}
+                  {doc.state === "failed-loa" && (
+                    <>
+                      {widgets.dummySelectDoc()}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                      {widgets.showMessage(doc)}
+                      {widgets.dummyButton()}
+                    </>
+                  )}
                 </div>
                 {widgets.docCreated(this.props)}
                 {requiredLoa}
@@ -318,6 +336,21 @@ class DocumentInvited extends Component {
                 </>
               )}
               {doc.state === "declined" && (
+                <>
+                  <div className="doc-container-md-row">
+                    {widgets.dummySelectDoc()}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                  </div>
+                  <div className="doc-container-msg-row">
+                    {widgets.showMessage(doc)}
+                  </div>
+                  <div className="doc-container-button-row">
+                    {widgets.dummyButton()}
+                  </div>
+                </>
+              )}
+              {doc.state === "failed-loa" && (
                 <>
                   <div className="doc-container-md-row">
                     {widgets.dummySelectDoc()}
