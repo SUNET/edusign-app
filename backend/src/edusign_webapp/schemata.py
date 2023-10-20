@@ -116,7 +116,7 @@ class ConfigSchema(InvitationsSchema):
 
     class AvailableLoa(Schema):
         name = fields.String(required=True, validate=[validate_nonempty])
-        uri = fields.String(required=True, validate=[validate_nonempty])
+        value = fields.String(required=True, validate=[validate_nonempty])
 
     class UIDefaults(Schema):
         send_signed = fields.Boolean(dump_default=True)
