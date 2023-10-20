@@ -396,26 +396,30 @@ def get_authn_context(docs: list) -> list:
     return [session['authn_context']]
 
 
-class AssuranceMismatch(Exception):
-    pass
-
-
 def get_required_assurance(docs: list) -> str:
     """
     Get the eduPersonAssurance values to send to the `create` API method.
     If some of the docs to be signed are invitations and have a requirement
-    for some minimum assurance, use that. Otherwise, use the value obtained in the
-    authentication of the user, kept in the session.
+    for some minimum assurance, use the highest of them. Otherwise do not
+    require any level of assurance.
 
     :param docs: list of dicts with the data for the documents to be signed.
     :return: the required level of assurance
     """
     assurance = 0
+<<<<<<< HEAD
     required_assurance = 'low'
     levels = {'low': 0, 'medium': 1, 'high': 2}
     for doc in docs:
         key = uuid.UUID(doc['key'])
         required = current_app.extensions['doc_store'].get_loa(key)
+=======
+    required_assurance = 'none'
+    levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
+    for doc in docs:
+        key = uuid.UUID(doc['key'])
+        required = current_app.doc_store.get_loa(key)
+>>>>>>> 9a9f409d (check loa)
         required_level = levels[required]
         if required_level > assurance:
             assurance = required_level
