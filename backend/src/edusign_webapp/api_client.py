@@ -324,7 +324,7 @@ class APIClient(object):
         attrs.extend(more_attrs)
         if assurance not in ('', 'none'):
             assurances = self.config['AVAILABLE_LOAS'].get(session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default'])
-            levels = {'low': 1, 'medium': 2, 'high': 3}
+            levels = {'low': 0, 'medium': 1, 'high': 2}
             loa = assurances[levels[assurance]]
             if attr_schema == '11':
                 assurance_attr_name = 'urn:mace:dir:attribute-def:eduPersonAssurance'
