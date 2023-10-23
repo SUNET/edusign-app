@@ -207,9 +207,10 @@ def get_invitations():
     levels = {'low': 0, 'medium': 1, 'high': 2}
     display_levels = {'none': gettext('Any'), 'low': gettext('Low'), 'medium': gettext('Medium'), 'high': gettext('High')}
     for doc in invited:
-        doc['loa'] = f"{doc['loa']},{display_levels[doc['loa']]}"
-        if doc['loa'] not in ("", "none"):
-            required_level = levels[doc['loa']]
+        loa = doc['loa']
+        doc['loa'] = f"{loa},{display_levels[loa]}"
+        if loa not in ("", "none"):
+            required_level = levels[loa]
             required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
             if required_loa not in session['eduPersonAssurance']:
                 doc['state'] = 'failed-loa'
