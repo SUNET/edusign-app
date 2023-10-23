@@ -92,6 +92,7 @@ export const sendInvites = createAsyncThunk(
       thunkAPI.dispatch(setState({ name: docName, state: "loaded" }));
       document = newDocument;
     }
+    const loa = args.values.loa;
     // We send the gathered data to the `create-multi-sign` endpoint in the backend.
     const dataToSend = {
       owner: owner,
@@ -99,8 +100,7 @@ export const sendInvites = createAsyncThunk(
       text: args.values.invitationText,
       sendsigned: args.values.sendsignedChoice,
       skipfinal: args.values.skipfinalChoice,
-      loa:
-        args.values.loa.join !== undefined ? args.values.loa.join(";") : "none",
+      loa: loa,
       document: {
         key: document.key,
         name: document.name,
@@ -148,6 +148,28 @@ export const sendInvites = createAsyncThunk(
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return thunkAPI.rejectWithValue(null);
     }
+
+    if (loa === 'none') {
+      const display_loa = args.intl.formatMessage({
+        defaultMessage: "Any",
+        id: "loa-name-none",
+      });
+    } else if (loa === 'low') {
+      const display_loa = args.intl.formatMessage({
+        defaultMessage: "Low",
+        id: "loa-name-low",
+      });
+    } else if (loa === 'medium') {
+      const display_loa = args.intl.formatMessage({
+        defaultMessage: "Medium",
+        id: "loa-name-medium",
+      });
+    } else if (loa === 'high') {
+      const display_loa = args.intl.formatMessage({
+        defaultMessage: "High",
+        id: "loa-name-high",
+      });
+    }
     // If there are no errors, remove the original document from the collection (in the redux state)
     // of non-invitation documents, and add it to the collection of documents invited by the user.
     const owned = {
@@ -161,6 +183,7 @@ export const sendInvites = createAsyncThunk(
       signed: [],
       declined: [],
       created: Date.now(),
+      loa: `${loa},${display_loa}`,
     };
     await thunkAPI.dispatch(removeDocument({ docName: document.name }));
     thunkAPI.dispatch(addOwned(owned));
