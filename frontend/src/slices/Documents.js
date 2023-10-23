@@ -655,65 +655,30 @@ export const startSigning = createAsyncThunk(
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     let invited = false;
-    let requiredLoa = null;
-    let loaOk = true;
-    /**
-     * state.main.owned_multisign.forEach((doc) => {
-     *   if (requiredLoa === null) {
-     *     requiredLoa = doc.loa;
-     *   } else {
-     *     if (requiredLoa !== doc.loa) {
-     *       loaOk = false;
-     *     }
-     *   }
-     * });
-     * state.main.pending_multisign.forEach((doc) => {
-     *   if (requiredLoa === null) {
-     *     requiredLoa = doc.loa;
-     *   } else {
-     *     if (requiredLoa !== doc.loa) {
-     *       loaOk = false;
-     *     }
-     *   }
-     * });
-     **/
-    if (!loaOk) {
-      thunkAPI.dispatch(
-        addNotification({
-          level: "danger",
-          message: args.intl.formatMessage({
-            defaultMessage:
-              "You cannot sign together documents with different security requirements",
-            id: "cannot-sign-security",
-          }),
-        })
-      );
-    } else {
-      await state.documents.documents.forEach(async (doc) => {
-        if (doc.state === "selected") {
-          thunkAPI.dispatch(
-            documentsSlice.actions.startSigningDocument(doc.name)
-          );
-          await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
-        }
-      });
-      state.main.owned_multisign.forEach((doc) => {
-        if (doc.state === "selected") {
-          invited = true;
-          thunkAPI.dispatch(startSigningOwned(doc.name));
-        }
-      });
-      state.main.pending_multisign.forEach((doc) => {
-        if (doc.state === "selected") {
-          invited = true;
-          thunkAPI.dispatch(startSigningInvited(doc.name));
-        }
-      });
-      if (invited) {
-        thunkAPI.dispatch(restartSigningDocuments(args));
-      } else {
-        thunkAPI.dispatch(startSigningDocuments(args));
+    await state.documents.documents.forEach(async (doc) => {
+      if (doc.state === "selected") {
+        thunkAPI.dispatch(
+          documentsSlice.actions.startSigningDocument(doc.name)
+        );
+        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
       }
+    });
+    state.main.owned_multisign.forEach((doc) => {
+      if (doc.state === "selected") {
+        invited = true;
+        thunkAPI.dispatch(startSigningOwned(doc.name));
+      }
+    });
+    state.main.pending_multisign.forEach((doc) => {
+      if (doc.state === "selected") {
+        invited = true;
+        thunkAPI.dispatch(startSigningInvited(doc.name));
+      }
+    });
+    if (invited) {
+      thunkAPI.dispatch(restartSigningDocuments(args));
+    } else {
+      thunkAPI.dispatch(startSigningDocuments(args));
     }
   }
 );
@@ -751,27 +716,6 @@ export const startSigningDocuments = createAsyncThunk(
         });
       }
     });
-    let mismatchedAssurance = false;
-    let requiredAssurance = 'none';
-    docsToSign.forEach((doc) => {
-      if (requiredAssurance === 'none') {
-        requiredAssurance = doc.loa || 'none';
-      } else if (requiredAssurance !== doc.loa) {
-        mismatchedAssurance = true;
-      }
-    });
-    if (mismatchedAssurance) {
-      thunkAPI.dispatch(
-        addNotification({
-          level: "success",
-          message: args.intl.formatMessage({
-            defaultMessage: "There is a mismatch in the required assurance levels for the documents you want to sign",
-            id: "start-signing-assurance-mismatch",
-          }),
-        })
-      );
-      return;
-    }
     const body = preparePayload(state, { documents: docsToSign });
     try {
       const response = await esFetch('/sign/create-sign-request', {
@@ -795,17 +739,6 @@ export const startSigningDocuments = createAsyncThunk(
             })
           );
           await thunkAPI.dispatch(restartSigningDocuments({ intl: args.intl }));
-          return;
-        } else if (data.message === "assurance mismatch") {
-          thunkAPI.dispatch(
-            addNotification({
-              level: "success",
-              message: args.intl.formatMessage({
-                defaultMessage: "There is a mismatch in the required assurance levels for the documents you want to sign",
-                id: "start-signing-assurance-mismatch",
-              }),
-            })
-          );
           return;
         }
         throw new Error(data.message);
@@ -907,27 +840,6 @@ export const restartSigningDocuments = createAsyncThunk(
         });
       }
     });
-    let mismatchedAssurance = false;
-    let requiredAssurance = 'none';
-    docsToSign.forEach((doc) => {
-      if (requiredAssurance === 'none') {
-        requiredAssurance = doc.loa || 'none';
-      } else if (requiredAssurance !== doc.loa) {
-        mismatchedAssurance = true;
-      }
-    });
-    if (mismatchedAssurance) {
-      thunkAPI.dispatch(
-        addNotification({
-          level: "success",
-          message: args.intl.formatMessage({
-            defaultMessage: "There is a mismatch in the required assurance levels for the documents you want to sign",
-            id: "start-signing-assurance-mismatch",
-          }),
-        })
-      );
-      return;
-    }
     // send data about documents to be signed to the backend
     const body = preparePayload(state, { documents: docsToSign });
     try {
@@ -941,18 +853,6 @@ export const restartSigningDocuments = createAsyncThunk(
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
-        if (data.message === "assurance mismatch") {
-          thunkAPI.dispatch(
-            addNotification({
-              level: "success",
-              message: args.intl.formatMessage({
-                defaultMessage: "There is a mismatch in the required assurance levels for the documents you want to sign",
-                id: "start-signing-assurance-mismatch",
-              }),
-            })
-          );
-          return;
-        }
         throw new Error(data.message);
       }
       // data.payload.failed carries objects with keys: key, state (failed-signing),
