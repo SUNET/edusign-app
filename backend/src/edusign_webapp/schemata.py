@@ -74,6 +74,7 @@ class InvitationsSchema(Schema):
         prev_signatures = fields.String(dump_default="")
         loa = fields.String(dump_default="")
         created = fields.String(dump_default="")
+        message = fields.String(dump_default="")
 
     class OwnedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
