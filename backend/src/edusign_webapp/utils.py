@@ -205,7 +205,9 @@ def get_invitations():
     invited = current_app.doc_store.get_pending_documents(mail_addresses)
     poll = False
     levels = {'low': 0, 'medium': 1, 'high': 2}
+    display_levels = {'none': gettext('Any'), 'low': gettext('Low'), 'medium': gettext('Medium'), 'high': gettext('High')}
     for doc in invited:
+        doc['loa'] = f"{doc['loa']},{display_levels[doc['loa']]}"
         if doc['loa'] not in ("", "none"):
             required_level = levels[doc['loa']]
             required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
