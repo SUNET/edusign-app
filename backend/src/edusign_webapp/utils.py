@@ -219,6 +219,7 @@ def get_invitations(remove_finished=False):
     newowned, skipped = [], []
     current_app.logger.debug(f"Start checking {len(owned)} owned docs")
     for doc in owned:
+        doc['loa'] = f"{doc['loa']},{display_levels[doc['loa']]}"
         current_app.logger.debug(f"Checking {doc['name']}, with {len(doc['pending'])} pending")
         if len(doc['pending']) > 0:
             poll = True
