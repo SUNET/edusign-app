@@ -149,23 +149,22 @@ export const sendInvites = createAsyncThunk(
       return thunkAPI.rejectWithValue(null);
     }
 
-    if (loa === 'none') {
-      const display_loa = args.intl.formatMessage({
-        defaultMessage: "Any",
-        id: "loa-name-none",
-      });
-    } else if (loa === 'low') {
-      const display_loa = args.intl.formatMessage({
+    let display_loa = args.intl.formatMessage({
+      defaultMessage: "Any",
+      id: "loa-name-none",
+    });
+    if (loa === 'low') {
+      display_loa = args.intl.formatMessage({
         defaultMessage: "Low",
         id: "loa-name-low",
       });
     } else if (loa === 'medium') {
-      const display_loa = args.intl.formatMessage({
+      display_loa = args.intl.formatMessage({
         defaultMessage: "Medium",
         id: "loa-name-medium",
       });
     } else if (loa === 'high') {
-      const display_loa = args.intl.formatMessage({
+      display_loa = args.intl.formatMessage({
         defaultMessage: "High",
         id: "loa-name-high",
       });
