@@ -521,7 +521,7 @@ class InviteForm extends React.Component {
                       name="loa"
                       value={level.value}
                       className="loa-select"
-                      type="checkbox"
+                      type="radio"
                     />
                     {level.name}
                   </BForm.Label>
