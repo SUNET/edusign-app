@@ -8,7 +8,12 @@
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import { getRequest, checkStatus, extractCsrfToken, esFetch } from "slices/fetch-utils";
+import {
+  getRequest,
+  checkStatus,
+  extractCsrfToken,
+  esFetch,
+} from "slices/fetch-utils";
 import { setOwnedDocs, setInvitedDocs, removeOwned } from "slices/Main";
 import { addDocumentToDb, addDocument } from "slices/Documents";
 
@@ -19,7 +24,7 @@ import { addDocumentToDb, addDocument } from "slices/Documents";
  */
 export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
   try {
-    const response = await esFetch('/sign/poll', getRequest);
+    const response = await esFetch("/sign/poll", getRequest);
     const state = thunkAPI.getState();
     if (state.main.disablePoll) {
       return thunkAPI.rejectWithValue("Polling disabled");
@@ -117,7 +122,7 @@ export const configureSkipped = async (thunkAPI, configData, owned) => {
       }
     });
   });
-}
+};
 
 const pollSlice = createSlice({
   name: "poll",
@@ -171,7 +176,7 @@ const pollSlice = createSlice({
           ...action.payload.payload,
         };
       }
-    })
+    });
   },
 });
 

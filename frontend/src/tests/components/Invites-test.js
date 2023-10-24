@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  screen,
-  waitFor,
-  fireEvent,
-  cleanup,
-} from "@testing-library/react";
+import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { expect } from "chai";
 import fetchMock from "fetch-mock";
 
@@ -316,7 +311,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       //const inviteWaiting = await waitFor(() =>
-        //screen.getAllByText(/Waiting for signatures by/)
+      //screen.getAllByText(/Waiting for signatures by/)
       //);
       //expect(inviteWaiting.length).to.equal(1);
 
@@ -664,7 +659,7 @@ describe("Multi sign invitations", function () {
                 {
                   name: "Tester Invited1",
                   email: "invited1@example.org",
-                  lang: 'en',
+                  lang: "en",
                 },
               ],
             },
@@ -1339,12 +1334,12 @@ describe("Multi sign invitations", function () {
                 {
                   name: "Tester Invited1",
                   email: "invited1@example.org",
-                  lang: 'en',
+                  lang: "en",
                 },
                 {
                   name: "Tester Invited2",
                   email: "invited2@example.org",
-                  lang: 'en',
+                  lang: "en",
                 },
               ],
               declined: [],

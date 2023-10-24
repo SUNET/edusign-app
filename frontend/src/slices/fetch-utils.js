@@ -91,15 +91,15 @@ export const preparePayload = (state, payload) => {
 };
 
 export const esFetch = async (resource, options) => {
-  if (window.document.location.pathname.includes('/sign2/')) {
-    resource.replace('/sign/', '/sign2/');
+  if (window.document.location.pathname.includes("/sign2/")) {
+    resource.replace("/sign/", "/sign2/");
   }
   return await fetch(resource, options);
 };
 
 export const getLocation = (resource) => {
-  if (window.document.location.pathname.includes('/sign2/')) {
-    resource.replace('/sign/', '/sign2/');
+  if (window.document.location.pathname.includes("/sign2/")) {
+    resource.replace("/sign/", "/sign2/");
   }
   return resource;
 };

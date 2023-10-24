@@ -140,15 +140,17 @@ class DocumentLocal extends React.Component {
           key={doc.name}
         >
           <span className="info-row-label">
-            {doc.validated && (
+            {(doc.validated && (
               <FormattedMessage
                 defaultMessage="Validated"
                 key="multisign-owned-signed-validated"
-              />) || (
+              />
+            )) || (
               <FormattedMessage
                 defaultMessage="Not validated"
                 key="multisign-owned-signed-non-validated"
-              />)}
+              />
+            )}
           </span>
         </div>
       )) ||

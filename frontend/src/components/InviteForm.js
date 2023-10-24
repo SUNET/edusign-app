@@ -67,10 +67,12 @@ export const validateName = (props, index) => {
         />
       );
     } else if (!value) {
-      error = <FormattedMessage defaultMessage="Required" key="required-field" />;
+      error = (
+        <FormattedMessage defaultMessage="Required" key="required-field" />
+      );
     }
     return error;
-  }
+  };
   return _validateName;
 };
 
@@ -194,7 +196,7 @@ const initialValues = (props) => ({
     {
       name: "",
       email: "",
-      lang: Cookies.get("lang") || 'en',
+      lang: Cookies.get("lang") || "en",
     },
   ],
 });
@@ -396,7 +398,7 @@ class InviteForm extends React.Component {
                   arrayHelpers.push({
                     name: "",
                     email: "",
-                    lang: Cookies.get("lang") || 'en',
+                    lang: Cookies.get("lang") || "en",
                   })
                 }
               >
