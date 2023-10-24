@@ -83,23 +83,35 @@ config_pro = {
 
 _environ_base = {
     "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
+    "HTTP_MD_REGISTRATIONAUTHORITY": 'http://www.swamid.se/',
     "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn@example.org',
     "HTTP_DISPLAYNAME": b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8")).decode('ascii'),
     "HTTP_MAIL": b64encode(b'<Attribute>tester@example.org</Attribute>').decode('ascii'),
     "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
     "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
     "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
+    "HTTP_EDUPERSONASSURANCE": b';'.join([
+        b64encode(b'<AttributeValue>http://www.swamid.se/policy/assurance/al1</AttributeValue>'),
+        b64encode(b'<AttributeValue>https://refeds.org/assurance/IAP/low</AttributeValue>'),
+        b64encode(b'<AttributeValue>https://refeds.org/assurance</AttributeValue>'),
+    ]).decode('ascii'),
 }
 
 
 _environ_base_2 = {
     "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
+    "HTTP_MD_REGISTRATIONAUTHORITY": 'http://www.swamid.se/',
     "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn-2@example.org',
     "HTTP_DISPLAYNAME": b64encode('<Attribute>Invited Kid</Attribute>'.encode("utf-8")).decode('ascii'),
-    "HTTP_MAIL": b64encode(b'<Attribute>invited0@example.org</Attribute>').decode('ascii'),
+    "HTTP_MAIL": b64encode(b'<Attribute>invite0@example.org</Attribute>').decode('ascii'),
     "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
     "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
     "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
+    "HTTP_EDUPERSONASSURANCE": b';'.join([
+        b64encode(b'<AttributeValue>http://www.swamid.se/policy/assurance/al1</AttributeValue>'),
+        b64encode(b'<AttributeValue>https://refeds.org/assurance/IAP/low</AttributeValue>'),
+        b64encode(b'<AttributeValue>https://refeds.org/assurance</AttributeValue>'),
+    ]).decode('ascii'),
 }
 
 
