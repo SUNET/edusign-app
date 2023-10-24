@@ -46,7 +46,7 @@ export const sendPDFForm = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await esFetch('/sign/update-form', {
+      const response = await esFetch("/sign/update-form", {
         ...postRequest,
         body: body,
       });
