@@ -32,8 +32,12 @@
 #
 import json
 import os
-
 import yaml
+from copy import deepcopy
+from datetime import timedelta
+
+from edusign_webapp.marshal import ResponseSchema
+
 
 
 def test_config(client):
@@ -96,3 +100,148 @@ def test_no_config_custom(client_custom):
     assert not data['payload']['ui_defaults']['send_signed']
 
     os.unlink(custom_yaml)
+
+
+def _test_get_config_with_invitations(
+    app_and_client,
+    environ_base,
+    environ_base_2,
+    monkeypatch,
+    sample_doc_1,
+    sample_invites_1,
+    loa,
+):
+    app, client = app_and_client
+
+    new_doc = deepcopy(sample_doc_1)
+
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=1)
+
+    from edusign_webapp.api_client import APIClient
+
+    def mock_post(self, url, *args, **kwargs):
+        if "prepare" in url:
+            return {
+                "policy": "edusign-test",
+                "updatedPdfDocumentReference": "ba26478f-f8e0-43db-991c-08af7c65ed58",
+                "visiblePdfSignatureRequirement": {
+                    "fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"},
+                    "page": 2,
+                    "scale": -74,
+                    "signerName": {
+                        "formatting": None,
+                        "signerAttributes": [
+                            {"name": "urn:oid:2.5.4.42"},
+                            {"name": "urn:oid:2.5.4.4"},
+                            {"name": "urn:oid:0.9.2342.19200300.100.1.3"},
+                        ],
+                    },
+                    "templateImageRef": "eduSign-image",
+                    "xposition": 37,
+                    "yposition": 165,
+                },
+            }
+
+        return {
+            "binding": "POST/XML/1.0",
+            "destinationUrl": "https://sig.idsec.se/sigservice-dev/request",
+            "relayState": "31dc573b-ab7d-496c-845e-cae8792ba063",
+            "signRequest": "DUMMY SIGN REQUEST",
+            "state": {"id": "31dc573b-ab7d-496c-845e-cae8792ba063"},
+        }
+
+    monkeypatch.setattr(APIClient, "_post", mock_post)
+
+    client.environ_base.update(environ_base)
+
+    response1 = client.get("/sign/")
+
+    assert response1.status == "200 OK"
+
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)["csrf_token"]
+        user_key = sess["user_key"]
+
+        from flask.sessions import SecureCookieSession
+
+        def mock_getitem(self, key):
+            if key == "user_key":
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
+
+        monkeypatch.setattr(SecureCookieSession, "__getitem__", mock_getitem)
+
+        doc_data = {
+            "csrf_token": csrf_token,
+            "payload": {
+                "document": new_doc,
+                "owner": "tester@example.org",
+                "invites": sample_invites_1,
+                "text": "text to send",
+                "sendsigned": True,
+                "skipfinal": True,
+                "loa": loa,
+            },
+        }
+
+        response = client.post(
+            "/sign/create-multi-sign",
+            headers={
+                "X-Requested-With": "XMLHttpRequest",
+                "Origin": "https://test.localhost",
+                "X-Forwarded-Host": "test.localhost",
+            },
+            json=doc_data,
+        )
+
+        assert response.status == "200 OK"
+
+    client.environ_base.update(environ_base_2)
+
+    response1 = client.get("/sign/")
+
+    assert response1.status == "200 OK"
+
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)["csrf_token"]
+        user_key = sess["user_key"]
+
+        from flask.sessions import SecureCookieSession
+
+        def mock_getitem(self, key):
+            if key == "user_key":
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
+
+        monkeypatch.setattr(SecureCookieSession, "__getitem__", mock_getitem)
+
+        return client.get(
+            '/sign/config',
+            headers={
+                "X-Requested-With": "XMLHttpRequest",
+                "Origin": "https://test.localhost",
+                "X-Forwarded-Host": "test.localhost",
+            },
+        )
+
+
+def test_get_config_with_invitations(
+    app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, environ_base_2
+):
+    response = _test_get_config_with_invitations(
+        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'low'
+    )
+    assert 'unconfirmed' == json.loads(response.data)['payload']['pending_multisign'][0]['state']
+    assert '' == json.loads(response.data)['payload']['pending_multisign'][0]['message']
+
+
+def test_get_config_with_invitations_insifficient_loa(
+    app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, environ_base_2
+):
+    response = _test_get_config_with_invitations(
+        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'high'
+    )
+    assert 'failed-loa' == json.loads(response.data)['payload']['pending_multisign'][0]['state']
+    assert json.loads(response.data)['payload']['pending_multisign'][0]['message'].startswith("You don't provide the required securiry level")
