@@ -82,7 +82,7 @@ def test_create_multi_sign_request(app_and_client, monkeypatch, sample_doc_1):
             'text': 'Test text',
             'sendsigned': True,
             'skipfinal': False,
-            'loa': '',
+            'loa': 'none',
             'invites': [
                 {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
                 {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
@@ -107,6 +107,7 @@ def test_create_multi_sign_request_raises(app_and_client, monkeypatch, sample_do
             'text': 'Test text',
             'sendsigned': True,
             'skipfinal': False,
+            'loa': 'none',
             'invites': [
                 {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
                 {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
@@ -135,6 +136,7 @@ def test_create_multi_sign_wrong_owner(app_and_client, monkeypatch, sample_doc_1
             'owner': 'non-tester@example.org',
             'sendsigned': True,
             'skipfinal': False,
+            'loa': 'none',
             'invites': [
                 {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
                 {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
@@ -164,7 +166,7 @@ def test_metrics(app_and_client, monkeypatch, sample_doc_1):
             'text': 'Test text',
             'sendsigned': True,
             'skipfinal': False,
-            'loa': '',
+            'loa': 'none',
             'invites': [
                 {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
                 {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
