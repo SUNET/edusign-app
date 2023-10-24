@@ -44,8 +44,7 @@ def _test_create_invited_signature(
     monkeypatch,
     sample_doc_1,
     sample_invites_1,
-    mock_invitation,
-    doc_is_locked=False,
+    loa,
 ):
     app, client = app_and_client
 
@@ -117,7 +116,7 @@ def _test_create_invited_signature(
                 "text": "text to send",
                 "sendsigned": True,
                 "skipfinal": True,
-                "loa": '',
+                "loa": loa,
             },
         }
 
@@ -144,14 +143,22 @@ def _test_create_invited_signature(
 
 
 def test_create_invited_signature(
-    app_and_client, environ_base, monkeypatch, sample_doc_1, sample_owned_doc_1, sample_invites_1
+    app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1
 ):
-    mock_invitation = {
-        "document": sample_owned_doc_1,
-        "user": sample_invites_1[0],
-    }
     response = _test_create_invited_signature(
-        app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, mock_invitation
+        app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, 'low'
     )
 
     assert 'test1.pdf' == json.loads(response.data)['payload']['owned_multisign'][0]['name']
+    assert 'low,Low' == json.loads(response.data)['payload']['owned_multisign'][0]['loa']
+
+
+def test_create_invited_signature_insifficient_loa(
+    app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1
+):
+    response = _test_create_invited_signature(
+        app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, 'high'
+    )
+
+    assert 'test1.pdf' == json.loads(response.data)['payload']['owned_multisign'][0]['name']
+    assert 'high,High' == json.loads(response.data)['payload']['owned_multisign'][0]['loa']
