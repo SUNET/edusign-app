@@ -143,7 +143,7 @@ const templateSlice = createSlice({
       state.documents = state.documents.filter((doc) => {
         return doc.id !== action.payload.id;
       });
-    })
+    });
   },
 });
 

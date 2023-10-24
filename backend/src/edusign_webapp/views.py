@@ -40,8 +40,10 @@ from collections import defaultdict
 from typing import Any, Dict, List, Tuple, Union
 
 import pkg_resources
+import yaml
 from flask import (
     Blueprint,
+    Response,
     abort,
     current_app,
     make_response,
@@ -50,10 +52,8 @@ from flask import (
     request,
     session,
     url_for,
-    Response,
 )
 from flask_babel import force_locale, get_locale, gettext
-import yaml
 
 try:
     from yaml import CLoader as Loader

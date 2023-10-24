@@ -56,7 +56,7 @@ export const fetchConfig = createAsyncThunk(
       intl = args.intl;
     }
     try {
-      const response = await esFetch('/sign/config', getRequest);
+      const response = await esFetch("/sign/config", getRequest);
       const configData = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, configData);
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
@@ -76,7 +76,8 @@ export const fetchConfig = createAsyncThunk(
         delete configData.payload.poll;
 
         await configData.payload.skipped.forEach(async (doc) => {
-          doc.signedContent = "data:application/pdf;base64," + doc.signed_content;
+          doc.signedContent =
+            "data:application/pdf;base64," + doc.signed_content;
           doc.blob = "data:application/pdf;base64," + doc.signed_content;
           doc.state = "signed";
           doc.show = false;
@@ -123,19 +124,19 @@ export const getPartiallySignedDoc = createAsyncThunk(
       if (args.showForced) {
         args.payload = {
           ...args.payload,
-          showForced: true
+          showForced: true,
         };
       } else {
         args.payload = {
           ...args.payload,
-          show: true
+          show: true,
         };
       }
       return args;
     }
     const body = preparePayload(state, { key: args.key });
     try {
-      const response = await esFetch('/sign/get-partially-signed', {
+      const response = await esFetch("/sign/get-partially-signed", {
         ...postRequest,
         body: body,
       });
@@ -175,7 +176,7 @@ export const declineSigning = createAsyncThunk(
     const state = thunkAPI.getState();
     const body = preparePayload(state, { key: args.key });
     try {
-      const response = await esFetch('/sign/decline-invitation', {
+      const response = await esFetch("/sign/decline-invitation", {
         ...postRequest,
         body: body,
       });
@@ -254,7 +255,7 @@ export const delegateSignature = createAsyncThunk(
       email: args.values.delegationEmail,
     });
     try {
-      const response = await esFetch('/sign/delegate-invitation', {
+      const response = await esFetch("/sign/delegate-invitation", {
         ...postRequest,
         body: body,
       });
@@ -744,54 +745,56 @@ const mainSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(fetchConfig.fulfilled, (state, action) => {
-      return {
-        ...state,
-        ...action.payload.payload,
-      };
-    })
-    .addCase(fetchConfig.rejected, (state, action) => {
-      return {
-        ...state,
-        signer_attributes: null,
-      };
-    })
-    .addCase(getPartiallySignedDoc.fulfilled, (state, action) => {
-      state[action.payload.stateKey] = state[action.payload.stateKey].map(
-        (doc) => {
-          if (doc.key === action.payload.key) {
-            let newDoc = { ...doc };
-            if (action.payload.payload) {
-              newDoc = {
-                ...doc,
-                ...action.payload.payload,
-              };
-              if (!newDoc.blob.startsWith("data:application/pdf;base64,")) {
-                newDoc.blob =
-                  "data:application/pdf;base64," + action.payload.payload.blob;
+    builder
+      .addCase(fetchConfig.fulfilled, (state, action) => {
+        return {
+          ...state,
+          ...action.payload.payload,
+        };
+      })
+      .addCase(fetchConfig.rejected, (state, action) => {
+        return {
+          ...state,
+          signer_attributes: null,
+        };
+      })
+      .addCase(getPartiallySignedDoc.fulfilled, (state, action) => {
+        state[action.payload.stateKey] = state[action.payload.stateKey].map(
+          (doc) => {
+            if (doc.key === action.payload.key) {
+              let newDoc = { ...doc };
+              if (action.payload.payload) {
+                newDoc = {
+                  ...doc,
+                  ...action.payload.payload,
+                };
+                if (!newDoc.blob.startsWith("data:application/pdf;base64,")) {
+                  newDoc.blob =
+                    "data:application/pdf;base64," +
+                    action.payload.payload.blob;
+                }
               }
-            }
-            return newDoc;
+              return newDoc;
+            } else return doc;
+          }
+        );
+      })
+      .addCase(declineSigning.fulfilled, (state, action) => {
+        state.pending_multisign = state.pending_multisign.map((doc) => {
+          if (doc.key === action.payload.key) {
+            return {
+              ...doc,
+              state: "declined",
+              message: action.payload.message,
+            };
           } else return doc;
-        }
-      );
-    })
-    .addCase(declineSigning.fulfilled, (state, action) => {
-      state.pending_multisign = state.pending_multisign.map((doc) => {
-        if (doc.key === action.payload.key) {
-          return {
-            ...doc,
-            state: "declined",
-            message: action.payload.message,
-          };
-        } else return doc;
+        });
+      })
+      .addCase(delegateSignature.fulfilled, (state, action) => {
+        state.pending_multisign = state.pending_multisign.filter((doc) => {
+          return doc.key !== action.payload.key;
+        });
       });
-    })
-    .addCase(delegateSignature.fulfilled, (state, action) => {
-      state.pending_multisign = state.pending_multisign.filter((doc) => {
-        return doc.key !== action.payload.key;
-      });
-    })
   },
 });
 
