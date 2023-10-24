@@ -8,7 +8,11 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
-import { validateEmail, validateName, validateLang } from "components/InviteForm";
+import {
+  validateEmail,
+  validateName,
+  validateLang,
+} from "components/InviteForm";
 
 import "styles/InviteForm.scss";
 
