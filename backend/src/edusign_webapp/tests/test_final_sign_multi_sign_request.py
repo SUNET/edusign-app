@@ -74,7 +74,7 @@ def _test_final_sign_multi_sign_request(
                     'text': 'Dummy invitation text',
                     'sendsigned': True,
                     'skipfinal': False,
-                    'loa': '',
+                    'loa': 'none',
                     'invites': [
                         {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
                         {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
