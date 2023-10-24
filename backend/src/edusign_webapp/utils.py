@@ -218,7 +218,12 @@ def get_invitations(remove_finished=False):
     invited = current_app.doc_store.get_pending_documents(mail_addresses)
     poll = False
     levels = {'low': 0, 'medium': 1, 'high': 2}
-    display_levels = {'none': gettext('Any'), 'low': gettext('Low'), 'medium': gettext('Medium'), 'high': gettext('High')}
+    display_levels = {
+        'none': gettext('Any'),
+        'low': gettext('Low'),
+        'medium': gettext('Medium'),
+        'high': gettext('High'),
+    }
     for doc in invited:
         loa = doc['loa']
         doc['loa'] = f"{loa},{display_levels[loa]}"
@@ -227,7 +232,10 @@ def get_invitations(remove_finished=False):
             required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
             if required_loa not in session['eduPersonAssurance']:
                 doc['state'] = 'failed-loa'
-                doc['message'] = gettext("You don't provide the required securiry level, please make sure to provide level %(level)s" % {'level': required_loa})
+                doc['message'] = gettext(
+                    "You don't provide the required securiry level, please make sure to provide level %(level)s"
+                    % {'level': required_loa}
+                )
         elif len(doc['pending']) > 0:
             poll = True
     newowned, skipped = [], []

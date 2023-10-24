@@ -33,6 +33,7 @@
 
 import datetime
 import os
+
 import yaml
 
 HERE = os.path.dirname(__file__)
@@ -78,10 +79,7 @@ BABEL_DEFAULT_LOCALE = 'sv'
 BABEL_DEFAULT_TIMEZONE = 'UTC'
 BABEL_TRANSLATION_DIRECTORIES = os.path.join(HERE, 'translations')
 BABEL_DOMAIN = 'messages'
-RAW_SUPPORTED_LANGUAGES = os.environ.get(
-    "SUPPORTED_LANGUAGES",
-    default="en,English;sv,Svenska"
-)
+RAW_SUPPORTED_LANGUAGES = os.environ.get("SUPPORTED_LANGUAGES", default="en,English;sv,Svenska")
 SUPPORTED_LANGUAGES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SUPPORTED_LANGUAGES.split(';')}
 
 EDUSIGN_API_BASE_URL = os.environ.get('EDUSIGN_API_BASE_URL', default='https://sig.idsec.se/signint/v1/')
@@ -198,8 +196,8 @@ MAIL_ASCII_ATTACHMENTS = get_boolean(RAW_MAIL_ASCII_ATTACHMENTS)
 
 RAW_AVAILABLE_LOAS = os.environ.get(
     'AVAILABLE_LOAS',
-    default='http://www.swamid.se/;http://www.swamid.se/policy/assurance/al1,http://www.swamid.se/policy/assurance/al2,http://www.swamid.se/policy/assurance/al3|'\
-            'default;https://refeds.org/assurance/IAP/low,https://refeds.org/assurance/IAP/medium,https://refeds.org/assurance/IAP/high;'
+    default='http://www.swamid.se/;http://www.swamid.se/policy/assurance/al1,http://www.swamid.se/policy/assurance/al2,http://www.swamid.se/policy/assurance/al3|'
+    'default;https://refeds.org/assurance/IAP/low,https://refeds.org/assurance/IAP/medium,https://refeds.org/assurance/IAP/high;',
 )
 
 _PRE_LOAS = RAW_AVAILABLE_LOAS.strip().strip('|').split('|')

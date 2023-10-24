@@ -65,12 +65,12 @@ There are 4 basic steps to complete a signature procedure:
 import asyncio
 import json
 import uuid
-from base64 import b64encode, b64decode
+from base64 import b64decode, b64encode
 from pprint import pformat
 from urllib.parse import urljoin
 
 import requests
-from flask import current_app, session, url_for, request
+from flask import current_app, request, session, url_for
 from requests.auth import HTTPBasicAuth
 
 from edusign_webapp.utils import get_authn_context, get_required_assurance
@@ -323,7 +323,9 @@ class APIClient(object):
         used_attr_names += more_used_attr_names
         attrs.extend(more_attrs)
         if assurance not in ('', 'none'):
-            assurances = self.config['AVAILABLE_LOAS'].get(session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default'])
+            assurances = self.config['AVAILABLE_LOAS'].get(
+                session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']
+            )
             levels = {'low': 0, 'medium': 1, 'high': 2}
             loa = assurances[levels[assurance]]
             if attr_schema == '11':

@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  screen,
-  fireEvent,
-  waitFor,
-  cleanup,
-} from "@testing-library/react";
+import { screen, fireEvent, waitFor, cleanup } from "@testing-library/react";
 import {
   setupComponent,
   setupReduxComponent,

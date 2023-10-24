@@ -895,7 +895,9 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     );
     await flushPromises(rerender, wrapped);
 
-    rmButton = await waitFor(() => screen.getAllByTestId("button-rm-invitation-dummy-ref"));
+    rmButton = await waitFor(() =>
+      screen.getAllByTestId("button-rm-invitation-dummy-ref")
+    );
     expect(rmButton.length).to.equal(1);
 
     fireEvent.click(rmButton[0]);
@@ -918,7 +920,9 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     );
     expect(downloadButton).to.equal(null);
 
-    rmButton = await waitFor(() => screen.queryByText("button-rm-invitation-dummy-ref"));
+    rmButton = await waitFor(() =>
+      screen.queryByText("button-rm-invitation-dummy-ref")
+    );
     expect(rmButton).to.equal(null);
   } catch (err) {
     unmount();
