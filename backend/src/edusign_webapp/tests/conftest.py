@@ -137,7 +137,6 @@ def client(request):
 
 @pytest.fixture(params=[config_dev, config_pro])
 def client_custom(request):
-
     config_custom = copy(request.param)
     config_custom['UI_SEND_SIGNED'] = False
     config_custom['UI_SKIP_FINAL'] = False

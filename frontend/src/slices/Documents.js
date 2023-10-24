@@ -590,7 +590,7 @@ export const prepareDocument = createAsyncThunk(
     const body = JSON.stringify({ payload: docToSend });
     let data = null;
     try {
-      const response = await esFetch('/sign/add-doc', {
+      const response = await esFetch("/sign/add-doc", {
         ...postRequest,
         body: body,
       });
@@ -718,7 +718,7 @@ export const startSigningDocuments = createAsyncThunk(
     });
     const body = preparePayload(state, { documents: docsToSign });
     try {
-      const response = await esFetch('/sign/create-sign-request', {
+      const response = await esFetch("/sign/create-sign-request", {
         ...postRequest,
         body: body,
       });
@@ -843,7 +843,7 @@ export const restartSigningDocuments = createAsyncThunk(
     // send data about documents to be signed to the backend
     const body = preparePayload(state, { documents: docsToSign });
     try {
-      const response = await esFetch('/sign/recreate-sign-request', {
+      const response = await esFetch("/sign/recreate-sign-request", {
         ...postRequest,
         body: body,
       });
@@ -970,7 +970,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
   let data = null;
   try {
     // Send request to the `get-signed` endpoint to get the signed documents
-    const response = await esFetch('/sign/get-signed', {
+    const response = await esFetch("/sign/get-signed", {
       ...postRequest,
       body: body,
     });
@@ -1135,7 +1135,7 @@ export const skipOwnedSignature = createAsyncThunk(
     // `skip-final-signature` endpoint in the backend.
     const body = preparePayload(state, docToSkip);
     try {
-      const response = await esFetch('/sign/skip-final-signature', {
+      const response = await esFetch("/sign/skip-final-signature", {
         ...postRequest,
         body: body,
       });
@@ -1427,36 +1427,37 @@ const documentsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(loadDocuments.rejected, (state, action) => {
-      if (action.hasOwnProperty("payload") && action.payload !== undefined) {
-        state.documents = action.payload.documents;
-      }
-    })
-    .addCase(prepareDocument.fulfilled, (state, action) => {
-      let added = false;
-      state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload.name) {
-          added = true;
-          return {
-            ...action.payload,
-          };
-        } else return doc;
-      });
-      if (!added) state.documents.push({ ...action.payload });
-    })
+    builder
+      .addCase(loadDocuments.rejected, (state, action) => {
+        if (action.hasOwnProperty("payload") && action.payload !== undefined) {
+          state.documents = action.payload.documents;
+        }
+      })
+      .addCase(prepareDocument.fulfilled, (state, action) => {
+        let added = false;
+        state.documents = state.documents.map((doc) => {
+          if (doc.name === action.payload.name) {
+            added = true;
+            return {
+              ...action.payload,
+            };
+          } else return doc;
+        });
+        if (!added) state.documents.push({ ...action.payload });
+      })
 
-    .addCase(prepareDocument.rejected, (state, action) => {
-      let added = false;
-      state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload.name) {
-          added = true;
-          return {
-            ...action.payload,
-          };
-        } else return doc;
+      .addCase(prepareDocument.rejected, (state, action) => {
+        let added = false;
+        state.documents = state.documents.map((doc) => {
+          if (doc.name === action.payload.name) {
+            added = true;
+            return {
+              ...action.payload,
+            };
+          } else return doc;
+        });
+        if (!added) state.documents.push({ ...action.payload });
       });
-      if (!added) state.documents.push({ ...action.payload });
-    })
   },
 });
 
