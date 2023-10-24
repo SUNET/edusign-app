@@ -32,6 +32,7 @@
 #
 import json
 import os
+
 import yaml
 
 
@@ -52,13 +53,7 @@ def test_config(client):
 
 
 def test_config_custom(client_custom):
-
-    config_dict = {
-        'https://idp': {
-            'send_signed': True,
-            'skip_final': True
-        }
-    }
+    config_dict = {'https://idp': {'send_signed': True, 'skip_final': True}}
 
     custom_yaml = '/tmp/edusign-forms.yaml'
     with open(custom_yaml, 'w') as f:
@@ -81,13 +76,7 @@ def test_config_custom(client_custom):
 
 
 def test_no_config_custom(client_custom):
-
-    config_dict = {
-        'https://idp2': {
-            'send_signed': True,
-            'skip_final': True
-        }
-    }
+    config_dict = {'https://idp2': {'send_signed': True, 'skip_final': True}}
 
     custom_yaml = '/tmp/edusign-forms.yaml'
     with open(custom_yaml, 'w') as f:
