@@ -57,6 +57,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -72,6 +73,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -88,6 +90,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -104,6 +107,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -120,6 +124,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -136,6 +141,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -151,6 +157,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -167,6 +174,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -182,6 +190,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -198,6 +207,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -215,6 +225,7 @@ describe("Document representations", function () {
         owned_multisign: [],
         pending_multisign: [],
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -233,6 +244,7 @@ describe("Document representations", function () {
         owned_multisign: [],
         pending_multisign: [],
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -250,6 +262,7 @@ describe("Document representations", function () {
         owned_multisign: [],
         pending_multisign: [],
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -268,6 +281,7 @@ describe("Document representations", function () {
         owned_multisign: [],
         pending_multisign: [],
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -286,6 +300,7 @@ describe("Document representations", function () {
           owned_multisign: [],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
         },
       },
       "first",
@@ -308,6 +323,7 @@ describe("Document representations", function () {
           owned_multisign: [],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
         },
       },
       "first",
@@ -328,6 +344,7 @@ describe("Document representations", function () {
         owned_multisign: [],
         pending_multisign: [],
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -346,6 +363,7 @@ describe("Document representations", function () {
         owned_multisign: [],
         pending_multisign: [],
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -361,6 +379,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -377,6 +396,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -392,6 +412,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -408,6 +429,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -423,6 +445,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -439,6 +462,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -454,6 +478,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -470,6 +495,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -485,6 +511,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -501,6 +528,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -516,6 +544,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -532,6 +561,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -548,6 +578,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
@@ -565,6 +596,7 @@ describe("Document representations", function () {
           mail_aliases: ["tester@example.org"],
         },
         skipped: [],
+        ui_defaults: {sendsigned: true, skip_final: true},
       },
     });
   });
