@@ -2,6 +2,7 @@
 In version 1.4.0:
 -----------------
 
+* Inviter can reuire LoA levels
 * customization of defaults in forms
 
 In version 1.3.0:
