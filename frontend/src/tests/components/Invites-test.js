@@ -40,6 +40,7 @@ describe("Multi sign invitations", function () {
           pending_multisign: [],
           available_loas: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
         },
       })
       .get("/sign/poll", {});
@@ -117,6 +118,7 @@ describe("Multi sign invitations", function () {
           owned_multisign: [],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -217,6 +219,7 @@ describe("Multi sign invitations", function () {
           owned_multisign: [],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -341,6 +344,7 @@ describe("Multi sign invitations", function () {
           owned_multisign: [],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -435,6 +439,7 @@ describe("Multi sign invitations", function () {
           owned_multisign: [],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -596,6 +601,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -666,6 +672,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -774,6 +781,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -885,6 +893,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -963,6 +972,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -1040,6 +1050,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -1122,6 +1133,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -1201,6 +1213,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -1260,6 +1273,7 @@ describe("Multi sign invitations", function () {
           owned_multisign: [],
           available_loas: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           pending_multisign: [
             {
               name: "test1.pdf",
@@ -1299,6 +1313,137 @@ describe("Multi sign invitations", function () {
         screen.getAllByText(/Tester Inviter/)
       );
       expect(inviteName.length).to.equal(1);
+    } catch (err) {
+      unmount();
+      throw err;
+    }
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows insecured invitation for us", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [],
+          available_loas: [{name: 'Low', value: 'low'},{name: 'Medium', value: 'medium'},{name: 'High', value: 'high'}],
+          skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
+          pending_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "failed-loa",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              invite_key: "22222222-2222-2222-2222-222222222222",
+              owner: {
+                name: "Tester Inviter",
+                email: "inviter@example.org",
+              },
+              loa: 'high',
+              message: "You don't provide the required securiry level",
+              pending: [],
+              signed: [],
+              declined: [],
+            },
+          ],
+        },
+      })
+      .get("/sign/poll", {});
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    try {
+      store.dispatch(
+        fetchConfig({
+          intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+        })
+      );
+      await flushPromises(rerender, wrapped);
+
+      const errorMessage = await waitFor(() =>
+        screen.getAllByText(/You don't provide the required securiry level/)
+      );
+      expect(errorMessage.length).to.equal(1);
+
+      const inviteName = await waitFor(() =>
+        screen.getAllByText(/Tester Inviter/)
+      );
+      expect(inviteName.length).to.equal(1);
+    } catch (err) {
+      unmount();
+      throw err;
+    }
+    // if we don't unmount here, mounted components (DocPreview) leak to other tests
+    unmount();
+  });
+
+  it("It shows secured invitation for us", async () => {
+    fetchMock
+      .get("/sign/config", {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [],
+          available_loas: [{name: 'Low', value: 'low'},{name: 'Medium', value: 'medium'},{name: 'High', value: 'high'}],
+          skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
+          pending_multisign: [
+            {
+              name: "test1.pdf",
+              type: "application/pdf",
+              state: "loaded",
+              size: 1500,
+              key: "11111111-1111-1111-1111-111111111111",
+              invite_key: "22222222-2222-2222-2222-222222222222",
+              owner: {
+                name: "Tester Inviter",
+                email: "inviter@example.org",
+              },
+              loa: 'high,High',
+              pending: [],
+              signed: [],
+              declined: [],
+            },
+          ],
+        },
+      })
+      .get("/sign/poll", {});
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
+
+    try {
+      store.dispatch(
+        fetchConfig({
+          intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+        })
+      );
+      await flushPromises(rerender, wrapped);
+
+      const loaLevel = await waitFor(() =>
+        screen.getAllByText(/Required security level/)
+      );
+      expect(loaLevel.length).to.equal(1);
+
+      const level = await waitFor(() =>
+        screen.getAllByText(/High/)
+      );
+      expect(level.length).to.equal(1);
     } catch (err) {
       unmount();
       throw err;
@@ -1348,6 +1493,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -1461,6 +1607,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
         },
       })
@@ -1526,6 +1673,7 @@ describe("Multi sign invitations", function () {
           },
           owned_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
           pending_multisign: [
             {
@@ -1599,6 +1747,7 @@ describe("Multi sign invitations", function () {
           },
           owned_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
           pending_multisign: [
             {
@@ -1672,6 +1821,7 @@ describe("Multi sign invitations", function () {
           },
           owned_multisign: [],
           skipped: [],
+          ui_defaults: {sendsigned: true, skip_final: true},
           available_loas: [],
           pending_multisign: [
             {
