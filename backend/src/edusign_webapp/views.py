@@ -1270,6 +1270,7 @@ def send_multisign_reminder(data: dict) -> dict:
         pending = current_app.doc_store.get_pending_invites(uuid.UUID(data['key']))
         docname = current_app.doc_store.get_document_name(uuid.UUID(data['key']))
         owner_email = current_app.doc_store.get_document_email(uuid.UUID(data['key']))
+        ordered = current_app.doc_store.get_ordered(uuid.UUID(data['key']))
 
     except Exception as e:
         current_app.logger.error(f'Problem finding users pending to multi sign: {e}')
@@ -1284,13 +1285,18 @@ def send_multisign_reminder(data: dict) -> dict:
         return {'error': True, 'message': gettext('Could not find the document')}
 
     recipients = defaultdict(list)
-    for invite in pending:
-        if invite['signed'] or invite['declined']:
-            continue
-
+    invites = [i for i in pending if not i['signed'] and not i['declined']]
+    invites.sort(key=lambda i: i['order'])
+    if ordered:
+        invite = invites[0]
         lang = invite['lang']
         recipient = f"{invite['name']} <{invite['email']}>"
         recipients[lang].append(recipient)
+    else:
+        for invite in invites:
+            lang = invite['lang']
+            recipient = f"{invite['name']} <{invite['email']}>"
+            recipients[lang].append(recipient)
 
     if len(recipients) > 0:
         try:
@@ -1427,8 +1433,8 @@ def remove_multi_sign_request(data: dict) -> dict:
             recipients[lang].append(f"{invite['name']} <{invite['email']}>")
     else:
         npending = sum([1 for i in pending if not i['signed'] and not i['declined']])
-        if npending > 1:
-            invite = pending[len(pending) - npending + 1]
+        if npending > 0:
+            invite = pending[len(pending) - npending]
             lang = invite['lang']
             recipients[lang].append(f"{invite['name']} <{invite['email']}>")
 
