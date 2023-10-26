@@ -183,6 +183,7 @@ def _test_get_config_with_invitations(
                 "sendsigned": True,
                 "skipfinal": True,
                 "loa": loa,
+                "ordered": False,
             },
         }
 
@@ -232,7 +233,7 @@ def test_get_config_with_invitations(
     app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, environ_base_2
 ):
     response = _test_get_config_with_invitations(
-        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'low'
+        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'none'
     )
     assert 'unconfirmed' == json.loads(response.data)['payload']['pending_multisign'][0]['state']
     assert '' == json.loads(response.data)['payload']['pending_multisign'][0]['message']
