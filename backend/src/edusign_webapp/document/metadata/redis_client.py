@@ -963,6 +963,7 @@ class RedisMD(ABCMetadata):
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
+                 + order: the order of the invitation
         """
         invitees: List[Dict[str, Any]] = []
 
@@ -981,6 +982,7 @@ class RedisMD(ABCMetadata):
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
+            email_result['order'] = int(invite['order_invitation'])
             invitees.append(email_result)
 
         return invitees
