@@ -308,6 +308,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
+                 + order: the order of the invitation
         """
 
     @abc.abstractmethod
