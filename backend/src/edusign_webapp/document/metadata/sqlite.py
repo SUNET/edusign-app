@@ -897,7 +897,7 @@ class SqliteMD(ABCMetadata):
         if invite_key == '':
             invite_key = str(uuid.uuid4())
 
-        self._db_execute(INVITE_INSERT, (invite_key, document_id, email, name, lang))
+        self._db_execute(INVITE_INSERT, (invite_key, document_id, email, name, lang, 0))
         self._db_commit()
 
         return {'key': invite_key, 'name': name, 'email': email}
