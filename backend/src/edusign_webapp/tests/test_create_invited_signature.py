@@ -117,6 +117,7 @@ def _test_create_invited_signature(
                 "sendsigned": True,
                 "skipfinal": True,
                 "loa": loa,
+                "ordered": False,
             },
         }
 
