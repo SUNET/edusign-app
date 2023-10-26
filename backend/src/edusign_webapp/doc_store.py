@@ -865,7 +865,7 @@ class DocStore(object):
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
-                 + ordered: send invitations in order
+                 + ordered_invitations: send invitations in order
                  + invitation_text: The custom text to send in the invitation email
         """
         doc = self.metadata.get_full_document(key)

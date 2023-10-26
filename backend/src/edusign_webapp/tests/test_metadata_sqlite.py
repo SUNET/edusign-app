@@ -38,15 +38,21 @@ from datetime import datetime
 from edusign_webapp import run
 
 
+invitation_flags = [
+    True,  # sendsigned
+    'any',  # loa
+    False,  # skipfinal
+    False,  # ordered
+    'Invitation text',  # invitation_text
+]
+
+
 def test_add(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
     db_path = os.path.join('/tmp/test.db')
     conn = sqlite3.connect(db_path)
@@ -72,12 +78,9 @@ def test_get_no_pending(sqlite_md, sample_metadata_1, sample_owner_1, sample_inv
 def test_add_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         pending1 = test_md.get_pending(['invite0@example.org'])
         pending2 = test_md.get_pending(['invite1@example.org'])
@@ -98,12 +101,9 @@ def test_add_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sampl
 def test_add_document_and_get_owned(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         owned = test_md.get_owned_by_email('owner@example.org')
 
@@ -125,12 +125,9 @@ def test_add_document_and_get_owned(sqlite_md, sample_metadata_1, sample_owner_1
 def test_add_document_and_decline_and_get_owned(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         test_md.decline(dummy_key, ['invite0@example.org'])
 
@@ -155,12 +152,9 @@ def test_add_document_and_decline_and_get_owned(sqlite_md, sample_metadata_1, sa
 def test_add_document_and_sign_and_get_owned(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         test_md.update(dummy_key, ['invite0@example.org'])
 
@@ -186,12 +180,9 @@ def test_add_document_and_sign_and_get_owned(sqlite_md, sample_metadata_1, sampl
 def test_add_document_and_sign_and_get_full_invites(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [sample_invites_1[0]], sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [sample_invites_1[0]], *invitation_flags)
 
         test_md.update(dummy_key, ['invite0@example.org'])
 
@@ -209,12 +200,9 @@ def test_add_document_and_sign_and_get_full_invites(sqlite_md, sample_metadata_1
 def test_add_document_and_decline_and_get_full_invites(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [sample_invites_1[0]], sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [sample_invites_1[0]], *invitation_flags)
 
         test_md.decline(dummy_key, ['invite0@example.org'])
 
@@ -235,12 +223,9 @@ def test_add_document_and_invitation_and_get_full_invites(
     _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     dummy_invitation_key = str(uuid.uuid4())
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [], sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [], *invitation_flags)
 
         test_md.add_invitation(
             dummy_key,
@@ -267,12 +252,9 @@ def test_add_document_and_invitation_and_remove_and_get_full_invites(
     _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     dummy_invitation_key = str(uuid.uuid4())
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [], sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [], *invitation_flags)
 
         test_md.add_invitation(
             dummy_key,
@@ -295,12 +277,9 @@ def test_add_document_and_invitation_raw_and_get_full_invites(
     _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     dummy_invitation_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [], sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [], *invitation_flags)
 
         document_id = test_md.get_document(dummy_key)['doc_id']
         invite = {
@@ -332,12 +311,9 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
     _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
     dummy_invitation_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [], sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, [], *invitation_flags)
 
         document_id = test_md.get_document(dummy_key)['doc_id']
         invite = {
@@ -348,6 +324,7 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
             'declined': False,
             'key': str(dummy_invitation_key),
             'doc_id': document_id,
+            'order_invitation': 0,
         }
 
         test_md.add_invite_raw(invite)
@@ -360,6 +337,7 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
             'declined': True,
             'key': str(dummy_invitation_key),
             'doc_id': document_id,
+            'order_invitation': 1,
         }
 
         test_md.add_invite_raw(invite2)
@@ -380,23 +358,22 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
     assert invite0['lang'] == 'en'
     assert not invite0['declined']
     assert invite0['signed']
+    assert invite0['order'] == 0
 
     assert invite1['email'] == 'invite1@example.org'
     assert invite1['name'] == 'invite1'
     assert invite1['lang'] == 'en'
     assert invite1['declined']
     assert not invite1['signed']
+    assert invite0['order'] == 1
 
 
 def test_add_and_get_pending_not(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         pending = test_md.get_pending(['invite3@example.org'])
 
@@ -406,16 +383,13 @@ def test_add_and_get_pending_not(sqlite_md, sample_metadata_1, sample_owner_1, s
 def test_add_two_and_get_pending(
     sqlite_md, sample_metadata_1, sample_metadata_2, sample_owner_1, sample_owner_2, sample_invites_1, sample_invites_2
 ):
-    tempdir, test_md = sqlite_md
+    _, test_md = sqlite_md
     dummy_key_1 = uuid.uuid4()
     dummy_key_2 = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
-        test_md.add(dummy_key_2, sample_metadata_2, sample_owner_2, sample_invites_2, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
+        test_md.add(dummy_key_2, sample_metadata_2, sample_owner_2, sample_invites_2, *invitation_flags)
 
         pending = test_md.get_pending(['invite0@example.org'])
 
@@ -435,12 +409,9 @@ def test_add_two_and_get_pending(
 def test_add_and_get_pending_invites(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key_1 = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         pending = test_md.get_invited(dummy_key_1)
 
@@ -458,12 +429,9 @@ def test_add_and_get_pending_invites(sqlite_md, sample_metadata_1, sample_owner_
 def test_add_update_and_get_pending_invites(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key_1 = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key_1, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         test_md.update(dummy_key_1, [sample_invites_1[0]['email']])
         pending = test_md.get_invited(dummy_key_1)
@@ -482,12 +450,9 @@ def test_add_update_and_get_pending_invites(sqlite_md, sample_metadata_1, sample
 def test_update_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         test_md.update(dummy_key, [sample_invites_1[0]['email']])
 
@@ -506,12 +471,9 @@ def test_update_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sa
 def test_updated_timestamp(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
     def get_doc():
         db_path = os.path.join('/tmp/test.db')
@@ -538,12 +500,9 @@ def test_updated_timestamp(sqlite_md, sample_metadata_1, sample_owner_1, sample_
 def test_add_and_get_owned(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         owned = test_md.get_owned('owner-eppn@example.org')
 
@@ -558,12 +517,9 @@ def test_add_and_get_owned(sqlite_md, sample_metadata_1, sample_owner_1, sample_
 def test_add_and_remove(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
         test_md.update(dummy_key, [sample_invites_1[0]['email']])
         test_md.update(dummy_key, [sample_invites_1[1]['email']])
         test_md.remove(dummy_key)
@@ -576,12 +532,9 @@ def test_add_and_remove(sqlite_md, sample_metadata_1, sample_owner_1, sample_inv
 def test_add_and_remove_wrong_key(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
         test_md.update(dummy_key, [sample_invites_1[0]['email']])
         test_md.update(dummy_key, [sample_invites_1[1]['email']])
         test_md.remove(uuid.uuid4())
@@ -594,12 +547,9 @@ def test_add_and_remove_wrong_key(sqlite_md, sample_metadata_1, sample_owner_1, 
 def test_add_and_remove_not(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
         test_md.remove(dummy_key)
 
         owned = test_md.get_owned('owner-eppn@example.org')
@@ -610,12 +560,9 @@ def test_add_and_remove_not(sqlite_md, sample_metadata_1, sample_owner_1, sample
 def test_add_and_remove_force(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
         test_md.remove(dummy_key, force=True)
 
         owned = test_md.get_owned('owner-eppn@example.org')
@@ -626,13 +573,10 @@ def test_add_and_remove_force(sqlite_md, sample_metadata_1, sample_owner_1, samp
 def test_add_and_get_invitation(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
         invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal
+            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
         )
 
         key = uuid.UUID(invites[0]['key'])
@@ -644,12 +588,9 @@ def test_add_and_get_invitation(sqlite_md, sample_metadata_1, sample_owner_1, sa
 def test_add_and_get_invitation_wrong_key(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         invitation = test_md.get_invitation(uuid.uuid4())
 
@@ -659,12 +600,9 @@ def test_add_and_get_invitation_wrong_key(sqlite_md, sample_metadata_1, sample_o
 def test_get_no_document(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
-        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal)
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         doc = test_md.get_document(uuid.uuid4())
 
@@ -674,13 +612,10 @@ def test_get_no_document(sqlite_md, sample_metadata_1, sample_owner_1, sample_in
 def test_add_and_lock(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
         invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal
+            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
         )
 
         key = uuid.UUID(invites[0]['key'])
@@ -695,13 +630,10 @@ def test_add_and_lock(sqlite_md, sample_metadata_1, sample_owner_1, sample_invit
 def test_add_and_lock_wrong_email(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
         invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal
+            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
         )
 
         key = uuid.UUID(invites[0]['key'])
@@ -716,13 +648,10 @@ def test_add_and_lock_wrong_email(sqlite_md, sample_metadata_1, sample_owner_1, 
 def test_add_and_rm_lock(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
         invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal
+            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
         )
 
         key = uuid.UUID(invites[0]['key'])
@@ -737,13 +666,10 @@ def test_add_and_rm_lock(sqlite_md, sample_metadata_1, sample_owner_1, sample_in
 def test_add_and_rm_lock_wrong_email(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
         invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal
+            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
         )
 
         key = uuid.UUID(invites[0]['key'])
@@ -758,13 +684,10 @@ def test_add_and_rm_lock_wrong_email(sqlite_md, sample_metadata_1, sample_owner_
 def test_add_and_lock_before(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
         invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal
+            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
         )
 
         key = uuid.UUID(invites[0]['key'])
@@ -778,9 +701,6 @@ def test_add_and_lock_before(sqlite_md, sample_metadata_1, sample_owner_1, sampl
 def test_add_and_lock_timeout(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
         import datetime
@@ -788,7 +708,7 @@ def test_add_and_lock_timeout(sqlite_md, sample_metadata_1, sample_owner_1, samp
         old = run.app.config['DOC_LOCK_TIMEOUT']
         run.app.config['DOC_LOCK_TIMEOUT'] = datetime.timedelta(seconds=0)
         invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal
+            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
         )
 
         key = uuid.UUID(invites[0]['key'])
@@ -805,13 +725,10 @@ def test_add_and_lock_timeout(sqlite_md, sample_metadata_1, sample_owner_1, samp
 def test_add_and_get_user(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     tempdir, test_md = sqlite_md
     dummy_key = uuid.uuid4()
-    sendsigned = True
-    skipfinal = False
-    loa = ''
 
     with run.app.app_context():
         invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, sendsigned, loa, skipfinal
+            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
         )
 
     assert invites[0]['email'] == sample_invites_1[0]['email']
