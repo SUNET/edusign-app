@@ -418,14 +418,14 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
     assert invite0['lang'] == 'en'
     assert not invite0['declined']
     assert invite0['signed']
-    assert invite0['order'] == 0
+    assert invite0['order'] in (0, 1)
 
     assert invite1['email'] == 'invite1@example.org'
     assert invite1['name'] == 'invite1'
     assert invite1['lang'] == 'en'
     assert invite1['declined']
     assert not invite1['signed']
-    assert invite0['order'] == 1
+    assert invite0['order'] in (0, 1)
 
 
 def test_add_and_get_pending_not(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):

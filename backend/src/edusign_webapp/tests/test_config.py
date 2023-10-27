@@ -34,6 +34,7 @@ import json
 import os
 
 import yaml
+from base64 import b64encode
 from copy import deepcopy
 from datetime import timedelta
 
@@ -111,6 +112,7 @@ def _test_get_config_with_invitations(
     sample_doc_1,
     sample_invites_1,
     loa,
+    ordered
 ):
     app, client = app_and_client
 
@@ -183,7 +185,7 @@ def _test_get_config_with_invitations(
                 "sendsigned": True,
                 "skipfinal": True,
                 "loa": loa,
-                "ordered": False,
+                "ordered": ordered,
             },
         }
 
@@ -219,7 +221,7 @@ def _test_get_config_with_invitations(
 
         monkeypatch.setattr(SecureCookieSession, "__getitem__", mock_getitem)
 
-        return client.get(
+        response2 = client.get(
             '/sign/config',
             headers={
                 "X-Requested-With": "XMLHttpRequest",
@@ -228,22 +230,67 @@ def _test_get_config_with_invitations(
             },
         )
 
+    client.environ_base["HTTP_MAIL"] = b64encode(b'<Attribute>invite1@example.org</Attribute>').decode('ascii')
+
+    response3 = client.get("/sign/")
+
+    assert response3.status == "200 OK"
+
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)["csrf_token"]
+        user_key = sess["user_key"]
+
+        from flask.sessions import SecureCookieSession
+
+        def mock_getitem(self, key):
+            if key == "user_key":
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
+
+        monkeypatch.setattr(SecureCookieSession, "__getitem__", mock_getitem)
+
+        response4 = client.get(
+            '/sign/config',
+            headers={
+                "X-Requested-With": "XMLHttpRequest",
+                "Origin": "https://test.localhost",
+                "X-Forwarded-Host": "test.localhost",
+            },
+        )
+    return response2, response4
+
 
 def test_get_config_with_invitations(
     app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, environ_base_2
 ):
-    response = _test_get_config_with_invitations(
-        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'none'
+    response1, response2 = _test_get_config_with_invitations(
+        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'none', False
     )
-    assert 'unconfirmed' == json.loads(response.data)['payload']['pending_multisign'][0]['state']
-    assert '' == json.loads(response.data)['payload']['pending_multisign'][0]['message']
+    assert 'unconfirmed' == json.loads(response1.data)['payload']['pending_multisign'][0]['state']
+    assert '' == json.loads(response1.data)['payload']['pending_multisign'][0]['message']
+
+    assert 'unconfirmed' == json.loads(response2.data)['payload']['pending_multisign'][0]['state']
+    assert '' == json.loads(response2.data)['payload']['pending_multisign'][0]['message']
 
 
-def test_get_config_with_invitations_insifficient_loa(
+def test_get_config_with_invitations_insufficient_loa(
     app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, environ_base_2
 ):
-    response = _test_get_config_with_invitations(
-        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'high'
+    response, _ = _test_get_config_with_invitations(
+        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'high', False
     )
     assert 'failed-loa' == json.loads(response.data)['payload']['pending_multisign'][0]['state']
     assert json.loads(response.data)['payload']['pending_multisign'][0]['message'].startswith("You don't provide the required securiry level")
+
+
+def test_get_config_with_ordered_invitations(
+    app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, environ_base_2
+):
+    response1, response2 = _test_get_config_with_invitations(
+        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'none', True
+    )
+    assert 'unconfirmed' == json.loads(response1.data)['payload']['pending_multisign'][0]['state']
+    assert '' == json.loads(response1.data)['payload']['pending_multisign'][0]['message']
+
+    assert len(json.loads(response2.data)['payload']['pending_multisign']) == 0
