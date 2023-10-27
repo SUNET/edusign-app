@@ -62,7 +62,8 @@ def _test_remove_multi_sign_request(client, monkeypatch, sample_doc_1):
                 'text': 'Dummy invitation text',
                 'sendsigned': True,
                 'skipfinal': False,
-                'loa': '',
+                'loa': 'none',
+                'ordered': False,
                 'invites': [
                     {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
                     {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
