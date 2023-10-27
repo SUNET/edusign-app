@@ -593,7 +593,7 @@ class SqliteMD(ABCMetadata):
                             'email': subinvite['user_email'],
                             'name': subinvite['user_name'],
                             'lang': subinvite['user_lang'],
-                            'order': subinvite['order_invitation'],
+                            'order': int(subinvite['order_invitation']),
                         }
                         if subemail_result['email'] == email:
                             continue
@@ -779,7 +779,7 @@ class SqliteMD(ABCMetadata):
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
             email_result['doc_id'] = doc_id
-            email_result['order_invitation'] = invite['order_invitation']
+            email_result['order'] = int(invite['order_invitation'])
             invitees.append(email_result)
 
         return invitees
@@ -815,7 +815,7 @@ class SqliteMD(ABCMetadata):
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
-            email_result['order'] = invite['order_invitation']
+            email_result['order'] = int(invite['order_invitation'])
             invitees.append(email_result)
 
         return invitees
