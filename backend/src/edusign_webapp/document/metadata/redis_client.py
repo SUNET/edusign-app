@@ -259,7 +259,7 @@ class RedisStorageBackend:
             prev_signatures=b_doc[b'prev_signatures'].decode('utf8'),
             loa=b_doc[b'loa'].decode('utf8'),
             created=created,
-            ordered=b_doc[b'ordered_invitations'].decode('utf8'),
+            ordered=int(b_doc[b'ordered_invitations']),
         )
         return doc
 
@@ -293,7 +293,7 @@ class RedisStorageBackend:
                 loa=b_doc[b'loa'].decode('utf8'),
                 created=created,
                 skipfinal=bool(b_doc[b'skipfinal']),
-                ordered=bool(b_doc[b'ordered']),
+                ordered=bool(b_doc[b'ordered_invitations']),
             )
             docs.append(doc)
         return docs
@@ -317,7 +317,7 @@ class RedisStorageBackend:
                 loa=b_doc[b'loa'].decode('utf8'),
                 created=created,
                 skipfinal=bool(b_doc[b'skipfinal']),
-                ordered=bool(b_doc[b'ordered']),
+                ordered=bool(b_doc[b'ordered_invitations']),
             )
             docs.append(doc)
         return docs
@@ -388,7 +388,7 @@ class RedisStorageBackend:
             user_email=user_email,
             signed=signed,
             declined=declined,
-            order_invitation=order,
+            order_invitation=int(order),
         )
         self.transaction.hset(f"invite:{invite_id}", mapping=mapping)
         self.transaction.set(f"invite:key:{key}", invite_id)
@@ -697,7 +697,7 @@ class RedisMD(ABCMetadata):
             invite['lang'],
             int(invite['signed']),
             int(invite['declined']),
-            int(invite['order']),
+            int(invite['order_invitation']),
         )
         self.client.commit()
 
@@ -771,7 +771,7 @@ class RedisMD(ABCMetadata):
 
                 if subinvites is not None and not isinstance(subinvites, dict):
                     if document["ordered"]:
-                        subinvites.sort(key=lambda i: i["order_invitation"])
+                        subinvites.sort(key=lambda i: i["order"])
                         is_next = False
                         for subinvite in subinvites:
                             if not subinvite['signed'] and not subinvite['declined']:

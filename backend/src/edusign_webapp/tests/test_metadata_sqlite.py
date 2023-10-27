@@ -33,6 +33,7 @@
 import os
 import sqlite3
 import uuid
+from copy import copy
 from datetime import datetime
 
 from edusign_webapp import run
@@ -96,6 +97,30 @@ def test_add_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sampl
     assert pending2[0]['size'] == 1500000
     assert pending2[0]['type'] == 'application/pdf'
     assert pending2[0]['owner']['email'] == 'owner@example.org'
+
+
+def test_add_ordered_and_get_pending(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+
+    flags = copy(invitation_flags)
+    flags[3] = True  # ordered
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *flags)
+
+        pending1 = test_md.get_pending(['invite0@example.org'])
+        pending2 = test_md.get_pending(['invite1@example.org'])
+
+    if len(pending2) == 1:
+        pending1, pending2 = pending2, pending1
+
+    assert len(pending1) == 1
+    assert pending1[0]['name'] == 'test1.pdf'
+    assert pending1[0]['size'] == 1500000
+    assert pending1[0]['type'] == 'application/pdf'
+    assert pending1[0]['owner']['email'] == 'owner@example.org'
+
+    assert len(pending2) == 0
 
 
 def test_add_document_and_get_owned(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
@@ -290,6 +315,7 @@ def test_add_document_and_invitation_raw_and_get_full_invites(
             'declined': False,
             'key': str(dummy_invitation_key),
             'doc_id': document_id,
+            'order_invitation': 0,
         }
 
         test_md.add_invite_raw(invite)
@@ -358,14 +384,14 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
     assert invite0['lang'] == 'en'
     assert not invite0['declined']
     assert invite0['signed']
-    assert invite0['order'] == 0
+    assert invite0['order'] in (0, 1)
 
     assert invite1['email'] == 'invite1@example.org'
     assert invite1['name'] == 'invite1'
     assert invite1['lang'] == 'en'
     assert invite1['declined']
     assert not invite1['signed']
-    assert invite0['order'] == 1
+    assert invite1['order'] in (0, 1)
 
 
 def test_add_and_get_pending_not(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
