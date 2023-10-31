@@ -38,7 +38,11 @@ export const sendInvites = createAsyncThunk(
   async (args, thunkAPI) => {
     thunkAPI.dispatch(isInviting());
     const documentId = args.values.documentId;
-    const invitees = args.values.invitees;
+    const invitees = args.values.invitees.map(invitee => ({
+      name: invitee.name,
+      email: invitee.email,
+      lang: invitee.lang,
+    }));
     const isTemplate = args.values.isTemplate;
     const ordered = args.values.orderedChoice !== undefined  ? args.values.orderedChoice : false;
 
