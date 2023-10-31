@@ -369,6 +369,7 @@ class InviteForm extends React.Component {
                                 </div>
                                 <div className="invitee-form-language">
                                   <BForm.Group className="form-group">
+                                    <Field name="id" value={`invitees.${index}.id`} type="hidden" />
                                     <BForm.Label htmlFor={`invitees.${index}.lang`}>
                                       <FormattedMessage
                                         defaultMessage="Language"
