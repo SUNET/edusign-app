@@ -8,7 +8,6 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Cookies from "js-cookie";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import {HTML5Backend} from "react-dnd-html5-backend";
 import { ESTooltip } from "containers/Overlay";
 import { nameForCopy } from "components/utils";
 
