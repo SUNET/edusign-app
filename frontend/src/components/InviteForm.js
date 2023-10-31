@@ -418,6 +418,7 @@ class InviteForm extends React.Component {
                           )}
                         </Draggable>
                       ))}
+                      {provided.placeholder}
                     </div>
                   )}
                 </Droppable>
