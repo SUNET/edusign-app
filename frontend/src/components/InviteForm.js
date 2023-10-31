@@ -203,7 +203,7 @@ const initialValues = (props) => ({
       name: "",
       email: "",
       lang: Cookies.get("lang") || "en",
-      id: 0,
+      id: 'id0',
     },
   ],
 });
@@ -277,6 +277,7 @@ class InviteForm extends React.Component {
                                   </ESTooltip>
                                 </div>
                               )}
+                              <Field name="id" value={`invitees.${index}.id`} type="hidden" />
                               <div className="invitee-form-row" key={index}>
                                 <div className="invitee-form-name">
                                   <BForm.Group className="form-group">
@@ -369,7 +370,6 @@ class InviteForm extends React.Component {
                                 </div>
                                 <div className="invitee-form-language">
                                   <BForm.Group className="form-group">
-                                    <Field name="id" value={`invitees.${index}.id`} type="hidden" />
                                     <BForm.Label htmlFor={`invitees.${index}.lang`}>
                                       <FormattedMessage
                                         defaultMessage="Language"
@@ -442,7 +442,7 @@ class InviteForm extends React.Component {
                       name: "",
                       email: "",
                       lang: Cookies.get("lang") || "en",
-                      id: this.state.n_invites,
+                      id: `id${this.state.n_invites}`,
                     });
                     this.setState({n_invites: this.state.n_invites + 1});
                   }
