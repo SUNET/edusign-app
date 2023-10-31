@@ -203,18 +203,24 @@ const initialValues = (props) => ({
       name: "",
       email: "",
       lang: Cookies.get("lang") || "en",
+      id: 0,
     },
   ],
 });
 
 class InviteForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      n_invites: 1,
+    };
+  }
   onDragEnd(arrayHelpers) {
     return result => {
       // dropped outside the list
       if (!result.destination) {
         return;
       }
-
       arrayHelpers.move(result.source.index, result.destination.index);
     }
   }
@@ -231,7 +237,7 @@ class InviteForm extends React.Component {
                     ref={provided.innerRef}>
                     {fprops.values.invitees.length > 0 &&
                       fprops.values.invitees.map((invitee, index) => (
-                        <Draggable key={invitee.email} draggableId={invitee.email} index={index}>
+                        <Draggable key={invitee.id} draggableId={invitee.id} index={index}>
                           {(provided, snapshot) => (
                             <div
                               className="invitation-fields"
@@ -429,13 +435,16 @@ class InviteForm extends React.Component {
                 <Button
                   variant="outline-secondary"
                   data-testid={"button-add-invitation-" + this.props.docName}
-                  onClick={() =>
+                  onClick={() => {
                     arrayHelpers.push({
                       name: "",
                       email: "",
                       lang: Cookies.get("lang") || "en",
-                    })
+                      id: this.state.n_invites,
+                    });
+                    this.setState({n_invites: this.state.n_invites + 1});
                   }
+                }
                 >
                   <FormattedMessage
                     defaultMessage="Invite more people"
