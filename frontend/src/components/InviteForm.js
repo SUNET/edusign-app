@@ -154,7 +154,7 @@ const validate = (props) => {
     let errors = {};
     let emails = [];
     values.invitees.forEach((val, i) => {
-      if (i === 0) {
+      if (emails.length > i) {
         emails = [];
       }
       const nameError = validateName(props, i)(val.name);
