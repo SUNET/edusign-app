@@ -245,7 +245,7 @@ class InviteForm extends React.Component {
       <FieldArray name="invitees" validateOnChange={true}>
         {(arrayHelpers) => (
           <>
-            <DragDropContext onDragEnd={this.onDragEnd(arrayHelpers)}>
+            <DragDropContext onBeforeCapture={this.onBeforeCapture} onDragEnd={this.onDragEnd(arrayHelpers)}>
               <Droppable droppableId="droppable">
                 {(provided, snapshot) => (
                   <div
