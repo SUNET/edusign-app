@@ -149,9 +149,13 @@ export const validateNewname = (props) => {
   };
 };
 
-const validate = (props) => {
+const validate = (self) => {
+  props = self.props;
   return (values) => {
     let errors = {};
+    if (!self.validate) {
+      return errors;
+    }
     let emails = [];
     values.invitees.forEach((val, i) => {
       if (emails.length > i) {
@@ -216,7 +220,13 @@ class InviteForm extends React.Component {
     super(props);
     this.state = {
       n_invites: 1,
+      validate: true,
     };
+    this.onBeforeCapture.bind(this);
+    this.onDragEnd.bind(this);
+  }
+  onBeforeCapture() {
+    this.setState({validate: false});
   }
   onDragEnd(arrayHelpers) {
     return result => {
@@ -225,6 +235,7 @@ class InviteForm extends React.Component {
         return;
       }
       arrayHelpers.move(result.source.index, result.destination.index);
+      this.setState({validate: true});
     }
   }
   inviteeControl(fprops) {
@@ -661,7 +672,7 @@ class InviteForm extends React.Component {
         <Formik
           initialValues={initialValues(this.props)}
           onSubmit={this.props.handleSubmit.bind(this)}
-          validate={validate(this.props)}
+          validate={validate(this)}
           enableReinitialize={true}
           validateOnBlur={true}
           validateOnChange={true}
