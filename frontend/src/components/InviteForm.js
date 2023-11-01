@@ -152,8 +152,11 @@ export const validateNewname = (props) => {
 const validate = (props) => {
   return (values) => {
     let errors = {};
-    const emails = [];
+    let emails = [];
     values.invitees.forEach((val, i) => {
+      if (i === 0) {
+        emails = [];
+      }
       const nameError = validateName(props, i)(val.name);
       const emailError = validateEmail(
         props.mail,
