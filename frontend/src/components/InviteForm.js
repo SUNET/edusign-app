@@ -150,7 +150,7 @@ export const validateNewname = (props) => {
 };
 
 const validate = (self) => {
-  props = self.props;
+  const props = self.props;
   return (values) => {
     let errors = {};
     if (!self.validate) {
@@ -158,9 +158,6 @@ const validate = (self) => {
     }
     let emails = [];
     values.invitees.forEach((val, i) => {
-      if (emails.length > i) {
-        emails = [];
-      }
       const nameError = validateName(props, i)(val.name);
       const emailError = validateEmail(
         props.mail,
