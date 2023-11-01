@@ -1,5 +1,5 @@
 [version]
-current = "1.4.0b60"
+current = "1.4.0b61"
 regex = '''
   (?P<major>\d+)
   \.
