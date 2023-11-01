@@ -13,9 +13,15 @@ import { nameForCopy } from "components/utils";
 
 import "styles/InviteForm.scss";
 
-export const validateEmail = (mail, mail_aliases, allValues, idx) => {
+export const validateEmail = (self, allValues, idx) => {
+  const mail = self.props.mail;
+  const mail_aliases = self.props.mail_aliases;
   return (value) => {
     let error;
+
+    if (!self.state.validate) {
+      return error;
+    }
 
     if (!value) {
       error = (
@@ -153,15 +159,14 @@ const validate = (self) => {
   const props = self.props;
   return (values) => {
     let errors = {};
-    if (!self.validate) {
+    if (!self.state.validate) {
       return errors;
     }
     let emails = [];
     values.invitees.forEach((val, i) => {
       const nameError = validateName(props, i)(val.name);
       const emailError = validateEmail(
-        props.mail,
-        props.mail_aliases,
+        self,
         values.invitees,
         i
       )(val.email);
@@ -353,8 +358,7 @@ class InviteForm extends React.Component {
                                       as={BForm.Control}
                                       type="email"
                                       validate={validateEmail(
-                                        this.props.mail,
-                                        this.props.mail_aliases,
+                                        this,
                                         fprops.values.invitees,
                                         index
                                       )}
