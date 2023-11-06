@@ -13,15 +13,11 @@ import { nameForCopy } from "components/utils";
 
 import "styles/InviteForm.scss";
 
-export const validateEmail = (self, allValues, idx) => {
-  const mail = self.props.mail;
-  const mail_aliases = self.props.mail_aliases;
+export const validateEmail = (props, allValues, idx) => {
+  const mail = props.mail;
+  const mail_aliases = props.mail_aliases;
   return (value) => {
     let error;
-
-    if (!self.state.validate) {
-      return error;
-    }
 
     if (!value) {
       error = (
@@ -155,19 +151,15 @@ export const validateNewname = (props) => {
   };
 };
 
-const validate = (self) => {
-  const props = self.props;
+const validate = (props) => {
   return (values) => {
     let errors = {};
-    if (!self.state.validate) {
-      return errors;
-    }
     let emails = [];
     values.invitees.forEach((val, i) => {
       const nameError = validateName(props, i)(val.name);
       const emailError = validateEmail(
-        self,
-        values.invitees,
+        props,
+        values.invitees[:i],
         i
       )(val.email);
       const langError = validateLang(val.lang);
@@ -222,13 +214,7 @@ class InviteForm extends React.Component {
     super(props);
     this.state = {
       n_invites: 1,
-      validate: true,
     };
-    this.onBeforeCapture.bind(this);
-    this.onDragEnd.bind(this);
-  }
-  onBeforeCapture() {
-      this.setState({validate: false});
   }
   onDragEnd(arrayHelpers) {
     return result => {
@@ -237,7 +223,6 @@ class InviteForm extends React.Component {
         return;
       }
       arrayHelpers.move(result.source.index, result.destination.index);
-      this.setState({validate: true});
     }
   }
   inviteeControl(fprops) {
@@ -358,8 +343,8 @@ class InviteForm extends React.Component {
                                       as={BForm.Control}
                                       type="email"
                                       validate={validateEmail(
-                                        this,
-                                        fprops.values.invitees,
+                                        this.props,
+                                        [...fprops.values.invitees[:index]],
                                         index
                                       )}
                                       isValid={
@@ -673,7 +658,7 @@ class InviteForm extends React.Component {
         <Formik
           initialValues={initialValues(this.props)}
           onSubmit={this.props.handleSubmit.bind(this)}
-          validate={validate(this)}
+          validate={validate(this.props)}
           enableReinitialize={true}
           validateOnBlur={true}
           validateOnChange={true}
