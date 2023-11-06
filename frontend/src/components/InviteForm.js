@@ -227,19 +227,17 @@ class InviteForm extends React.Component {
     this.onBeforeCapture.bind(this);
     this.onDragEnd.bind(this);
   }
-  onBeforeCapture(self) {
-    return () => {
-      self.setState({validate: false});
-    }
+  onBeforeCapture() {
+      this.setState({validate: false});
   }
-  onDragEnd(self, arrayHelpers) {
+  onDragEnd(arrayHelpers) {
     return result => {
       // dropped outside the list
       if (!result.destination) {
         return;
       }
       arrayHelpers.move(result.source.index, result.destination.index);
-      self.setState({validate: true});
+      this.setState({validate: true});
     }
   }
   inviteeControl(fprops) {
@@ -247,7 +245,7 @@ class InviteForm extends React.Component {
       <FieldArray name="invitees" validateOnChange={true}>
         {(arrayHelpers) => (
           <>
-            <DragDropContext onBeforeCapture={this.onBeforeCapture(this)} onDragEnd={this.onDragEnd(this, arrayHelpers)}>
+            <DragDropContext onBeforeCapture={this.onBeforeCapture} onDragEnd={this.onDragEnd(arrayHelpers)}>
               <Droppable droppableId="droppable">
                 {(provided, snapshot) => (
                   <div
