@@ -159,7 +159,7 @@ const validate = (props) => {
       const nameError = validateName(props, i)(val.name);
       const emailError = validateEmail(
         props,
-        values.invitees[:i],
+        values.invitees.slice(0, i),
         i
       )(val.email);
       const langError = validateLang(val.lang);
@@ -344,7 +344,7 @@ class InviteForm extends React.Component {
                                       type="email"
                                       validate={validateEmail(
                                         this.props,
-                                        [...fprops.values.invitees[:index]],
+                                        [...fprops.values.invitees.slice(0, index)],
                                         index
                                       )}
                                       isValid={
