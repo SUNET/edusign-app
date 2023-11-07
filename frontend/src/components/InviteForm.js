@@ -246,19 +246,14 @@ class DnDContext extends React.Component {
             )}
           </Droppable>
       </DragDropContext>
-    ):
+    );
   }
 }
 
 class InviteesControl extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      n_invites: 1,
-    };
-  }
   render() {
     const fprops = this.props.fprops;
+    const arrayHelpers = this.props.arrayHelpers;
     const index = this.props.index;
     return (
       <>
