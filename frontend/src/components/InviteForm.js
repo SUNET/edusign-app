@@ -209,6 +209,24 @@ const initialValues = (props) => ({
   ],
 });
 
+class DummyDnDContext extends React.Component {
+
+  render() {
+    return (
+      <div>
+        {this.props.fprops.values.invitees.length > 0 &&
+         this.props.fprops.values.invitees.map((invitee, index) => (
+          <div
+            className="invitation-fields"
+            key={index}>
+              <InviteesControl index={index} ...this.props />
+          </div>
+        ))}
+      </div>
+    );
+  }
+}
+
 class DnDContext extends React.Component {
 
   onDragEnd() {
@@ -436,6 +454,7 @@ class InviteForm extends React.Component {
     super(props);
     this.state = {
       n_invites: 1,
+      ordered: false,
     };
   }
   onDragEnd(arrayHelpers) {
@@ -448,11 +467,15 @@ class InviteForm extends React.Component {
     }
   }
   inviteeControl(fprops) {
+    let dndComponent = DummyDnDContext;
+    if (this.state.ordered) {
+      dndComponent = DnDContext;
+    }
     return (
       <FieldArray name="invitees" validateOnChange={true}>
         {(arrayHelpers) => (
           <>
-            <DnDContext fprops={fprops} arrayHelpers={arrayHelpers} ...this.props /> 
+            <dndComponent fprops={fprops} arrayHelpers={arrayHelpers} ...this.props /> 
             <ESTooltip
                 helpId={"button-add-invitation-" + this.props.docName}
                 inModal={true}
@@ -590,6 +613,10 @@ class InviteForm extends React.Component {
             className="ordered-choice"
             validate={validateOrdered}
             type="checkbox"
+            onChange={(e) => {
+              const ordered = e.target.checked;
+              this.setState({ordered: ordered});
+            }}
           />
         </BForm.Group>
       </div>
@@ -688,8 +715,8 @@ class InviteForm extends React.Component {
           validate={validate(this.props)}
           enableReinitialize={true}
           validateOnBlur={true}
-          validateOnChange={true}
-          validateOnMount={true}
+          validateOnChange={false}
+          validateOnMount={false}
         >
           {(fprops) => (
             <Modal
