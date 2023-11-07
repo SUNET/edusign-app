@@ -72,17 +72,23 @@
   }
 }
 
-.sendsigned-choice-group, .skipfinal-choice-group, .ordered-choice-group {
+.sendsigned-choice-group,
+.skipfinal-choice-group,
+.ordered-choice-group {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   margin-right: 10%;
   margin-left: 10%;
 
-  .sendsigned-choice-label, .skipfinal-choice-label, .ordered-choice-label {
+  .sendsigned-choice-label,
+  .skipfinal-choice-label,
+  .ordered-choice-label {
     padding-right: 1rem;
   }
-  .sendsigned-choice, .skipfinal-choice, .ordered-choice {
+  .sendsigned-choice,
+  .skipfinal-choice,
+  .ordered-choice {
     color: $form-field-text;
     border: 1px solid $form-field-border-unfocused;
     border-radius: 0.25rem;
@@ -90,7 +96,9 @@
     margin-bottom: 0.5rem;
   }
 
-  .sendsigned-choice:focus, .skipfinal-choice:focus, .ordered-choice:focus {
+  .sendsigned-choice:focus,
+  .skipfinal-choice:focus,
+  .ordered-choice:focus {
     border-color: $form-field-border;
     box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
     outline: 0;
