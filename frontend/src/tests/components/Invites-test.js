@@ -40,7 +40,7 @@ describe("Multi sign invitations", function () {
           pending_multisign: [],
           available_loas: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
         },
       })
       .get("/sign/poll", {});
@@ -118,7 +118,7 @@ describe("Multi sign invitations", function () {
           owned_multisign: [],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -219,7 +219,7 @@ describe("Multi sign invitations", function () {
           owned_multisign: [],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -344,7 +344,7 @@ describe("Multi sign invitations", function () {
           owned_multisign: [],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -439,7 +439,7 @@ describe("Multi sign invitations", function () {
           owned_multisign: [],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -601,7 +601,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -672,7 +672,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -781,7 +781,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -893,7 +893,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -972,7 +972,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -1050,7 +1050,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -1133,7 +1133,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -1213,7 +1213,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -1273,7 +1273,7 @@ describe("Multi sign invitations", function () {
           owned_multisign: [],
           available_loas: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           pending_multisign: [
             {
               name: "test1.pdf",
@@ -1335,9 +1335,13 @@ describe("Multi sign invitations", function () {
             mail_aliases: ["tester@example.org"],
           },
           owned_multisign: [],
-          available_loas: [{name: 'Low', value: 'low'},{name: 'Medium', value: 'medium'},{name: 'High', value: 'high'}],
+          available_loas: [
+            { name: "Low", value: "low" },
+            { name: "Medium", value: "medium" },
+            { name: "High", value: "high" },
+          ],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           pending_multisign: [
             {
               name: "test1.pdf",
@@ -1350,7 +1354,7 @@ describe("Multi sign invitations", function () {
                 name: "Tester Inviter",
                 email: "inviter@example.org",
               },
-              loa: 'high',
+              loa: "high",
               message: "You don't provide the required securiry level",
               pending: [],
               signed: [],
@@ -1401,9 +1405,13 @@ describe("Multi sign invitations", function () {
             mail_aliases: ["tester@example.org"],
           },
           owned_multisign: [],
-          available_loas: [{name: 'Low', value: 'low'},{name: 'Medium', value: 'medium'},{name: 'High', value: 'high'}],
+          available_loas: [
+            { name: "Low", value: "low" },
+            { name: "Medium", value: "medium" },
+            { name: "High", value: "high" },
+          ],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           pending_multisign: [
             {
               name: "test1.pdf",
@@ -1416,7 +1424,7 @@ describe("Multi sign invitations", function () {
                 name: "Tester Inviter",
                 email: "inviter@example.org",
               },
-              loa: 'high,High',
+              loa: "high,High",
               pending: [],
               signed: [],
               declined: [],
@@ -1440,9 +1448,7 @@ describe("Multi sign invitations", function () {
       );
       expect(loaLevel.length).to.equal(1);
 
-      const level = await waitFor(() =>
-        screen.getAllByText(/High/)
-      );
+      const level = await waitFor(() => screen.getAllByText(/High/));
       expect(level.length).to.equal(1);
     } catch (err) {
       unmount();
@@ -1493,7 +1499,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -1607,7 +1613,7 @@ describe("Multi sign invitations", function () {
           ],
           pending_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
         },
       })
@@ -1673,7 +1679,7 @@ describe("Multi sign invitations", function () {
           },
           owned_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
           pending_multisign: [
             {
@@ -1747,7 +1753,7 @@ describe("Multi sign invitations", function () {
           },
           owned_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
           pending_multisign: [
             {
@@ -1821,7 +1827,7 @@ describe("Multi sign invitations", function () {
           },
           owned_multisign: [],
           skipped: [],
-          ui_defaults: {sendsigned: true, skip_final: true},
+          ui_defaults: { sendsigned: true, skip_final: true },
           available_loas: [],
           pending_multisign: [
             {
