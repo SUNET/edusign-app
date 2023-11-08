@@ -16,13 +16,19 @@ import { sendInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { enablePolling } from "slices/Poll";
-import { toggleLoa, isNotInviting } from "slices/InviteForm";
+import { toggleLoa, isNotInviting, setOrdered, setValues } from "slices/InviteForm";
 import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {
   let show = false;
   if (state.modals.show_form && state.modals.form_id === props.docId) {
     show = true;
+  }
+  let ordered;
+  if (state.inviteform.ordered !== null) {
+    ordered = state.inviteform.ordered;
+  } else {
+    ordered = state.main.ui_defaults.ordered_invitations;
   }
   return {
     size: state.main.size,
@@ -37,6 +43,8 @@ const mapStateToProps = (state, props) => {
     owned: state.main.owned_multisign,
     max_signatures: state.main.max_signatures,
     ui_defaults: state.main.ui_defaults,
+    ordered: ordered,
+    values: state.inviteform.values,
   };
 };
 
@@ -51,6 +59,7 @@ const _close = (dispatch) => {
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: async function (values, actions) {
+      dispatch(setValues(values));
       await dispatch(sendInvites({ values: values, intl: this.props.intl }));
       _close(dispatch);
     },
@@ -65,6 +74,13 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleToggleLoa: function () {
       dispatch(toggleLoa());
+    },
+    handleSetOrdered: function (ordered, fprops) {
+      fprops.values.orderedChoice = ordered;
+      return () => {
+        dispatch(setValues(fprops.values));
+        dispatch(setOrdered(ordered));
+      }
     },
   };
 };
