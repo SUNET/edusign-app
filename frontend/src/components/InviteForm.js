@@ -189,7 +189,11 @@ const validate = (props) => {
   };
 };
 
-const initialValues = (props) => ({
+const initialValues = (props) => {
+  if (props.values !== null) {
+    return props.values;
+  }
+  return {
   invitationText: "",
   sendsignedChoice: props.ui_defaults.send_signed,
   skipfinalChoice: props.ui_defaults.skip_final,
@@ -198,7 +202,7 @@ const initialValues = (props) => ({
   newnameInput: nameForCopy(props),
   loa: "none",
   documentId: props.docId,
-  ordered: false,
+  orderedChoice: props.ordered,
   invitees: [
     {
       name: "",
@@ -207,7 +211,7 @@ const initialValues = (props) => ({
       id: 'id0',
     },
   ],
-});
+}};
 
 class DummyDnDContext extends React.Component {
 
@@ -219,7 +223,7 @@ class DummyDnDContext extends React.Component {
           <div
             className="invitation-fields"
             key={index}>
-              <InviteesControl index={index} {...this.props} />
+              <InviteesControl invitee={invitee} index={index} {...this.props} />
           </div>
         ))}
       </div>
@@ -229,7 +233,7 @@ class DummyDnDContext extends React.Component {
 
 class DnDContext extends React.Component {
 
-  onDragEnd() {
+  onDragEnd(result) {
     // dropped outside the list
     if (!result.destination) {
       return;
@@ -254,7 +258,7 @@ class DnDContext extends React.Component {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}>
-                          <InviteesControl index={index} {...this.props} />
+                          <InviteesControl invitee={invitee} index={index} {...this.props} />
                       </div>
                     )}
                   </Draggable>
@@ -273,6 +277,7 @@ class InviteesControl extends React.Component {
     const fprops = this.props.fprops;
     const arrayHelpers = this.props.arrayHelpers;
     const index = this.props.index;
+    const invitee = this.props.invitee;
     return (
       <>
         {index > 0 && (
@@ -449,33 +454,23 @@ class InviteesControl extends React.Component {
   }
 }
 
-class InviteForm extends React.Component {
+class InviteesWidget extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       n_invites: 1,
-      ordered: false,
     };
   }
-  onDragEnd(arrayHelpers) {
-    return result => {
-      // dropped outside the list
-      if (!result.destination) {
-        return;
-      }
-      arrayHelpers.move(result.source.index, result.destination.index);
-    }
-  }
-  inviteeControl(fprops) {
-    let dndComponent = DummyDnDContext;
-    if (this.state.ordered) {
-      dndComponent = DnDContext;
+  render() {
+    let DndComponent = DummyDnDContext;
+    if (this.props.ordered) {
+      DndComponent = DnDContext;
     }
     return (
       <FieldArray name="invitees" validateOnChange={true}>
         {(arrayHelpers) => (
           <>
-            <dndComponent fprops={fprops} arrayHelpers={arrayHelpers} {...this.props} /> 
+            <DndComponent ordered={this.props.ordered} arrayHelpers={arrayHelpers} {...this.props} />
             <ESTooltip
                 helpId={"button-add-invitation-" + this.props.docName}
                 inModal={true}
@@ -509,6 +504,9 @@ class InviteForm extends React.Component {
         </FieldArray>
     );
   }
+}
+
+class InviteForm extends React.Component {
 
   shouldComponentUpdate(nextProps) {
     return !nextProps.inviting;
@@ -583,44 +581,46 @@ class InviteForm extends React.Component {
         </BForm.Group>
       </div>
     );
-    const orderedControl = (
-      <div className="ordered-choice-holder">
-        <BForm.Group className="ordered-choice-group form-group">
-          <ESTooltip
-            helpId="ordered-choice-input"
-            inModal={true}
-            tooltip={
-              <FormattedMessage
-                defaultMessage="Ask for invited signatures in the given order."
-                key="ordered-choice-help"
-              />
-            }
-          >
-            <BForm.Label
-              className="ordered-choice-label"
-              htmlFor="ordered-choice-input"
+    const orderedControl = (fprops) => {
+      return (
+        <div className="ordered-choice-holder">
+          <BForm.Group className="ordered-choice-group form-group">
+            <ESTooltip
+              helpId="ordered-choice-input"
+              inModal={true}
+              tooltip={
+                <FormattedMessage
+                  defaultMessage="Ask for invited signatures in the given order."
+                  key="ordered-choice-help"
+                />
+              }
             >
-              <FormattedMessage
-                defaultMessage="Invited signatures in order"
-                key="ordered-choice-field"
-              />
-            </BForm.Label>
-          </ESTooltip>
-          <Field
-            name="orderedChoice"
-            id="ordered-choice-input"
-            data-testid="ordered-choice-input"
-            className="ordered-choice"
-            validate={validateOrdered}
-            type="checkbox"
-            onChange={(e) => {
-              const ordered = e.target.checked;
-              this.setState({ordered: ordered});
-            }}
-          />
-        </BForm.Group>
-      </div>
-    );
+              <BForm.Label
+                className="ordered-choice-label"
+                htmlFor="ordered-choice-input"
+              >
+                <FormattedMessage
+                  defaultMessage="Invited signatures in order"
+                  key="ordered-choice-field"
+                />
+              </BForm.Label>
+            </ESTooltip>
+            <Field
+              name="orderedChoice"
+              id="ordered-choice-input"
+              data-testid="ordered-choice-input"
+              className="ordered-choice"
+              validate={validateOrdered}
+              type="checkbox"
+	      checked={this.props.ordered}
+              onChange={(e) => {
+                this.props.handleSetOrdered(e.target.checked, fprops)();
+              }}
+            />
+          </BForm.Group>
+        </div>
+      );
+    };
     const makecopyControl = (props) => {
       if (!props.isTemplate) {
         return <Field name="makecopyChoice" value={false} type="hidden" />;
@@ -716,7 +716,7 @@ class InviteForm extends React.Component {
           enableReinitialize={true}
           validateOnBlur={true}
           validateOnChange={false}
-          validateOnMount={false}
+          validateOnMount={true}
         >
           {(fprops) => (
             <Modal
@@ -765,11 +765,11 @@ class InviteForm extends React.Component {
                   </div>
                   {sendsignedControl}
                   {skipFinalControl}
-                  {orderedControl}
+                  {orderedControl(fprops)}
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
                   {loaControl}
-                  {this.inviteeControl(fprops)}
+                  <InviteesWidget ordered={this.props.ordered} fprops={fprops} {...this.props} />
                 </Modal.Body>
                 <Modal.Footer>
                   <ESTooltip
