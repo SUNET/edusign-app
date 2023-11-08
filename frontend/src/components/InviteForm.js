@@ -219,7 +219,7 @@ class DummyDnDContext extends React.Component {
           <div
             className="invitation-fields"
             key={index}>
-              <InviteesControl index={index} ...this.props />
+              <InviteesControl index={index} {...this.props} />
           </div>
         ))}
       </div>
@@ -254,7 +254,7 @@ class DnDContext extends React.Component {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}>
-                          <InviteesControl index={index} ...this.props />
+                          <InviteesControl index={index} {...this.props} />
                       </div>
                     )}
                   </Draggable>
@@ -475,7 +475,7 @@ class InviteForm extends React.Component {
       <FieldArray name="invitees" validateOnChange={true}>
         {(arrayHelpers) => (
           <>
-            <dndComponent fprops={fprops} arrayHelpers={arrayHelpers} ...this.props /> 
+            <dndComponent fprops={fprops} arrayHelpers={arrayHelpers} {...this.props} /> 
             <ESTooltip
                 helpId={"button-add-invitation-" + this.props.docName}
                 inModal={true}
