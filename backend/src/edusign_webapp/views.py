@@ -426,6 +426,7 @@ def _get_ui_defaults():
     ui_defaults = {
         'send_signed': current_app.config['UI_SEND_SIGNED'],
         'skip_final': current_app.config['UI_SKIP_FINAL'],
+        'ordered_invitations': current_app.config['UI_ORDERED_INVITATIONS'],
     }
     form_config_file = current_app.config['CUSTOM_FORMS_DEFAULTS_FILE']
     if os.path.exists(form_config_file):
@@ -443,6 +444,7 @@ def _get_ui_defaults():
                 ui_defaults = {
                     'send_signed': idp_config['send_signed'],
                     'skip_final': idp_config['skip_final'],
+                    'ordered_invitations': idp_config['ordered_invitations'],
                 }
     return ui_defaults
 
