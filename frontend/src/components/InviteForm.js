@@ -238,7 +238,7 @@ class DnDContext extends React.Component {
   }
   render() {
     return (
-      <DragDropContext onDragEnd={this.onDragEnd.bind(this);}>
+      <DragDropContext onDragEnd={this.onDragEnd.bind(this)}>
         <Droppable droppableId="droppable">
           {(provided, snapshot) => (
             <div
