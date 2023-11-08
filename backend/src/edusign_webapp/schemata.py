@@ -125,6 +125,7 @@ class ConfigSchema(InvitationsSchema):
     class UIDefaults(Schema):
         send_signed = fields.Boolean(dump_default=True)
         skip_final = fields.Boolean(dump_default=True)
+        ordered_invitations = fields.Boolean(dump_default=False)
 
     signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)

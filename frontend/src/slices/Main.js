@@ -300,6 +300,7 @@ const mainSlice = createSlice({
     signer_attributes: {
       eppn: "",
       name: "",
+      mail: "",
       mail_aliases: [],
     },
     owned_multisign: [],
@@ -309,6 +310,15 @@ const mainSlice = createSlice({
     width: 0,
     multisign_buttons: "yes",
     showHelp: true,
+    max_file_size: 20971520,
+    max_signatures: 10,
+    company_link: 'https://sunet.se',
+    available_loas: [],
+    ui_defaults: {
+      skip_final: false,
+      send_signed: true,
+      ordered_invitations: false,
+    },
   },
   reducers: {
     /**
