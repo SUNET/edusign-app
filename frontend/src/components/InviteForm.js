@@ -190,28 +190,27 @@ const validate = (props) => {
 };
 
 const initialValues = (props) => {
-  if (props.values !== null) {
-    return props.values;
-  }
-  return {
-  invitationText: "",
-  sendsignedChoice: props.ui_defaults.send_signed,
-  skipfinalChoice: props.ui_defaults.skip_final,
-  makecopyChoice: false,
-  isTemplate: props.isTemplate,
-  newnameInput: nameForCopy(props),
-  loa: "none",
-  documentId: props.docId,
-  orderedChoice: props.ordered,
-  invitees: [
-    {
-      name: "",
-      email: "",
-      lang: Cookies.get("lang") || "en",
-      id: 'id0',
-    },
-  ],
-}};
+  const values = {
+    invitationText: "",
+    sendsignedChoice: props.ui_defaults.send_signed,
+    skipfinalChoice: props.ui_defaults.skip_final,
+    makecopyChoice: false,
+    isTemplate: props.isTemplate,
+    newnameInput: nameForCopy(props),
+    loa: "none",
+    documentId: props.docId,
+    orderedChoice: props.ui_defaults.ordered_invitations,
+    invitees: [
+      {
+        name: "",
+        email: "",
+        lang: Cookies.get("lang") || "en",
+        id: 'id0',
+        },
+      ],
+    }
+  return values;
+};
 
 class DummyDnDContext extends React.Component {
 
@@ -239,6 +238,7 @@ class DnDContext extends React.Component {
       return;
     }
     this.props.arrayHelpers.move(result.source.index, result.destination.index);
+    this.props.fprops.validateForm();
   }
   render() {
     return (
@@ -462,15 +462,15 @@ class InviteesWidget extends React.Component {
     };
   }
   render() {
-    let DndComponent = DummyDnDContext;
-    if (this.props.ordered) {
-      DndComponent = DnDContext;
-    }
     return (
       <FieldArray name="invitees" validateOnChange={true}>
         {(arrayHelpers) => (
           <>
-            <DndComponent ordered={this.props.ordered} arrayHelpers={arrayHelpers} {...this.props} />
+            {(this.props.fprops.values.orderedChoice) && (
+              <DnDContext arrayHelpers={arrayHelpers} {...this.props} />
+            ) || (
+              <DummyDnDContext arrayHelpers={arrayHelpers} {...this.props} />
+            )}
             <ESTooltip
                 helpId={"button-add-invitation-" + this.props.docName}
                 inModal={true}
@@ -612,7 +612,6 @@ class InviteForm extends React.Component {
               className="ordered-choice"
               validate={validateOrdered}
               type="checkbox"
-	      checked={this.props.ordered}
               onChange={(e) => {
                 this.props.handleSetOrdered(e.target.checked, fprops)();
               }}
@@ -715,7 +714,7 @@ class InviteForm extends React.Component {
           validate={validate(this.props)}
           enableReinitialize={true}
           validateOnBlur={true}
-          validateOnChange={false}
+          validateOnChange={true}
           validateOnMount={true}
         >
           {(fprops) => (
@@ -769,7 +768,7 @@ class InviteForm extends React.Component {
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
                   {loaControl}
-                  <InviteesWidget ordered={this.props.ordered} fprops={fprops} {...this.props} />
+                  <InviteesWidget fprops={fprops} {...this.props} />
                 </Modal.Body>
                 <Modal.Footer>
                   <ESTooltip

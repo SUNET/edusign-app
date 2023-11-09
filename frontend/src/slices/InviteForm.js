@@ -10,8 +10,6 @@ const inviteFormSlice = createSlice({
   initialState: {
     show_loa_selection: false,
     inviting: false,
-    ordered: null,
-    values: null,
   },
   reducers: {
     /**
@@ -54,26 +52,10 @@ const inviteFormSlice = createSlice({
     isNotInviting(state) {
       state.inviting = false;
     },
-    /**
-     * @public
-     * @function setOrdered
-     * @desc Redux action to set the "ordered invitations" configuration key.
-     */
-    setOrdered(state, action) {
-      state.ordered = action.payload;
-    },
-    /**
-     * @public
-     * @function setValues
-     * @desc Redux action to keep the invite form values.
-     */
-    setValues(state, action) {
-      state.values = action.payload;
-    },
   },
 });
 
-export const { toggleLoa, showLoa, hideLoa, isInviting, isNotInviting, setOrdered, setValues } =
+export const { toggleLoa, showLoa, hideLoa, isInviting, isNotInviting } =
   inviteFormSlice.actions;
 
 export default inviteFormSlice.reducer;
