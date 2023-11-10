@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { connect } from "react-redux";
 import Modal from "react-bootstrap/Modal";
 import Button from "containers/Button";
 import BButton from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
-import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
+import { Formik, Form, Field, ErrorMessage, FieldArray, useFormikContext } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Cookies from "js-cookie";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -190,289 +191,214 @@ const validate = (props) => {
 };
 
 const initialValues = (props) => {
-  if (props.values !== null) {
-    return props.values;
-  }
-  return {
-  invitationText: "",
-  sendsignedChoice: props.ui_defaults.send_signed,
-  skipfinalChoice: props.ui_defaults.skip_final,
-  makecopyChoice: false,
-  isTemplate: props.isTemplate,
-  newnameInput: nameForCopy(props),
-  loa: "none",
-  documentId: props.docId,
-  orderedChoice: props.ordered,
-  invitees: [
-    {
-      name: "",
-      email: "",
-      lang: Cookies.get("lang") || "en",
-      id: 'id0',
-    },
-  ],
-}};
-
-class DummyDnDContext extends React.Component {
-
-  render() {
-    return (
-      <div>
-        {this.props.fprops.values.invitees.length > 0 &&
-         this.props.fprops.values.invitees.map((invitee, index) => (
-          <div
-            className="invitation-fields"
-            key={index}>
-              <InviteesControl invitee={invitee} index={index} {...this.props} />
-          </div>
-        ))}
-      </div>
-    );
-  }
-}
-
-class DnDContext extends React.Component {
-
-  onDragEnd(result) {
-    // dropped outside the list
-    if (!result.destination) {
-      return;
+  const values = {
+    invitationText: "",
+    sendsignedChoice: props.ui_defaults.send_signed,
+    skipfinalChoice: props.ui_defaults.skip_final,
+    makecopyChoice: false,
+    isTemplate: props.isTemplate,
+    newnameInput: nameForCopy(props),
+    loa: "none",
+    documentId: props.docId,
+    orderedChoice: props.ui_defaults.ordered_invitations,
+    invitees: [
+      {
+        name: "",
+        email: "",
+        lang: Cookies.get("lang") || "en",
+        id: 'id0',
+        },
+      ],
     }
-    this.props.arrayHelpers.move(result.source.index, result.destination.index);
-  }
-  render() {
-    return (
-      <DragDropContext onDragEnd={this.onDragEnd.bind(this)}>
-        <Droppable droppableId="droppable">
-          {(provided, snapshot) => (
-            <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}>
-              {this.props.fprops.values.invitees.length > 0 &&
-                this.props.fprops.values.invitees.map((invitee, index) => (
-                  <Draggable key={invitee.id} draggableId={invitee.id} index={index}>
-                    {(provided, snapshot) => (
-                      <div
-                        className="invitation-fields"
-                        key={index}
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}>
-                          <InviteesControl invitee={invitee} index={index} {...this.props} />
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-      </DragDropContext>
-    );
-  }
-}
+  return values;
+};
 
-class InviteesControl extends React.Component {
-  render() {
-    const fprops = this.props.fprops;
-    const arrayHelpers = this.props.arrayHelpers;
-    const index = this.props.index;
-    const invitee = this.props.invitee;
-    return (
-      <>
-        {index > 0 && (
-          <div className="invitee-form-dismiss">
-            <ESTooltip
-              helpId={"button-remove-entry-" + index}
-              inModal={true}
-              tooltip={
-                <FormattedMessage
-                  defaultMessage="Remove this entry from invitation"
-                  key="rm-invitation-tootip"
-                />
+function InviteesControl (props) {
+  const fprops = useFormikContext();
+  const arrayHelpers = props.arrayHelpers;
+  const index = props.index;
+  const invitee = props.invitee;
+  return (
+    <>
+      {index > 0 && (
+        <div className="invitee-form-dismiss">
+          <ESTooltip
+            helpId={"button-remove-entry-" + index}
+            inModal={true}
+            tooltip={
+              <FormattedMessage
+                defaultMessage="Remove this entry from invitation"
+                key="rm-invitation-tootip"
+              />
+            }
+          >
+            <BButton
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                arrayHelpers.remove(index);
+                window.setTimeout(() => {
+                  document
+                    .getElementById("invitation-text-input")
+                    .focus();
+                  document
+                    .getElementById("invitation-text-input")
+                    .blur();
+                }, 0);
+              }}
+            >
+              ×
+            </BButton>
+          </ESTooltip>
+        </div>
+      )}
+      <Field name="id" value={`invitees.${index}.id`} type="hidden" />
+      <div className="invitee-form-row" key={index}>
+        <div className="invitee-form-name">
+          <BForm.Group className="form-group">
+            <BForm.Label htmlFor={`invitees.${index}.name`}>
+              <FormattedMessage
+                defaultMessage="Name"
+                key="name-input-field"
+              />
+            </BForm.Label>
+            <ErrorMessage
+              name={`invitees.${index}.name`}
+              component="div"
+              className="field-error"
+            />
+            <Field
+              name={`invitees.${index}.name`}
+              data-testid={`invitees.${index}.name`}
+              value={invitee.name}
+              placeholder="Jane Doe"
+              as={BForm.Control}
+              type="text"
+              validate={validateName(props, index)}
+              isValid={
+                fprops.touched.invitees &&
+                fprops.touched.invitees[index] &&
+                fprops.touched.invitees[index].name &&
+                (!fprops.errors.invitees ||
+                  (fprops.errors.invitees &&
+                    (!fprops.errors.invitees[index] ||
+                      (fprops.errors.invitees[index] &&
+                        !fprops.errors.invitees[index].name))))
+              }
+              isInvalid={
+                fprops.touched.invitees &&
+                fprops.touched.invitees[index] &&
+                fprops.touched.invitees[index].name &&
+                fprops.errors.invitees &&
+                fprops.errors.invitees[index] &&
+                fprops.errors.invitees[index].name
+              }
+            />
+          </BForm.Group>
+        </div>
+        <div className="invitee-form-email">
+          <BForm.Group className="form-group">
+            <BForm.Label htmlFor={`invitees.${index}.email`}>
+              <FormattedMessage
+                defaultMessage="Email"
+                key="email-input-field"
+              />
+            </BForm.Label>
+            <ErrorMessage
+              name={`invitees.${index}.email`}
+              component="div"
+              className="field-error"
+            />
+            <Field
+              name={`invitees.${index}.email`}
+              data-testid={`invitees.${index}.email`}
+              value={invitee.email}
+              placeholder="jane@example.com"
+              as={BForm.Control}
+              type="email"
+              validate={validateEmail(
+                props,
+                [...fprops.values.invitees],
+                index
+              )}
+              isValid={
+                fprops.touched.invitees &&
+                fprops.touched.invitees[index] &&
+                fprops.touched.invitees[index].email &&
+                (!fprops.errors.invitees ||
+                  (fprops.errors.invitees &&
+                    (!fprops.errors.invitees[index] ||
+                      (fprops.errors.invitees[index] &&
+                        !fprops.errors.invitees[index].email))))
+              }
+              isInvalid={
+                fprops.touched.invitees &&
+                fprops.touched.invitees[index] &&
+                fprops.touched.invitees[index].email &&
+                fprops.errors.invitees &&
+                fprops.errors.invitees[index] &&
+                fprops.errors.invitees[index].email
+              }
+            />
+          </BForm.Group>
+        </div>
+        <div className="invitee-form-language">
+          <BForm.Group className="form-group">
+            <BForm.Label htmlFor={`invitees.${index}.lang`}>
+              <FormattedMessage
+                defaultMessage="Language"
+                key="language-input-field"
+              />
+            </BForm.Label>
+            <ErrorMessage
+              name={`invitees.${index}.lang`}
+              component="div"
+              className="field-error"
+            />
+            <Field
+              name={`invitees.${index}.lang`}
+              data-testid={`invitees.${index}.lang`}
+              value={invitee.lang}
+              as={BForm.Select}
+              validate={validateLang}
+              isValid={
+                fprops.touched.invitees &&
+                fprops.touched.invitees[index] &&
+                fprops.touched.invitees[index].lang &&
+                (!fprops.errors.invitees ||
+                  (fprops.errors.invitees &&
+                    (!fprops.errors.invitees[index] ||
+                      (fprops.errors.invitees[index] &&
+                        !fprops.errors.invitees[index].lang))))
+              }
+              isInvalid={
+                fprops.touched.invitees &&
+                fprops.touched.invitees[index] &&
+                fprops.touched.invitees[index].lang &&
+                fprops.errors.invitees &&
+                fprops.errors.invitees[index] &&
+                fprops.errors.invitees[index].lang
               }
             >
-              <BButton
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  arrayHelpers.remove(index);
-                  window.setTimeout(() => {
-                    document
-                      .getElementById("invitation-text-input")
-                      .focus();
-                    document
-                      .getElementById("invitation-text-input")
-                      .blur();
-                  }, 0);
-                }}
-              >
-                ×
-              </BButton>
-            </ESTooltip>
-          </div>
-        )}
-        <Field name="id" value={`invitees.${index}.id`} type="hidden" />
-        <div className="invitee-form-row" key={index}>
-          <div className="invitee-form-name">
-            <BForm.Group className="form-group">
-              <BForm.Label htmlFor={`invitees.${index}.name`}>
-                <FormattedMessage
-                  defaultMessage="Name"
-                  key="name-input-field"
-                />
-              </BForm.Label>
-              <ErrorMessage
-                name={`invitees.${index}.name`}
-                component="div"
-                className="field-error"
-              />
-              <Field
-                name={`invitees.${index}.name`}
-                data-testid={`invitees.${index}.name`}
-                value={invitee.name}
-                placeholder="Jane Doe"
-                as={BForm.Control}
-                type="text"
-                validate={validateName(this.props, index)}
-                isValid={
-                  fprops.touched.invitees &&
-                  fprops.touched.invitees[index] &&
-                  fprops.touched.invitees[index].name &&
-                  (!fprops.errors.invitees ||
-                    (fprops.errors.invitees &&
-                      (!fprops.errors.invitees[index] ||
-                        (fprops.errors.invitees[index] &&
-                          !fprops.errors.invitees[index].name))))
-                }
-                isInvalid={
-                  fprops.touched.invitees &&
-                  fprops.touched.invitees[index] &&
-                  fprops.touched.invitees[index].name &&
-                  fprops.errors.invitees &&
-                  fprops.errors.invitees[index] &&
-                  fprops.errors.invitees[index].name
-                }
-              />
-            </BForm.Group>
-          </div>
-          <div className="invitee-form-email">
-            <BForm.Group className="form-group">
-              <BForm.Label htmlFor={`invitees.${index}.email`}>
-                <FormattedMessage
-                  defaultMessage="Email"
-                  key="email-input-field"
-                />
-              </BForm.Label>
-              <ErrorMessage
-                name={`invitees.${index}.email`}
-                component="div"
-                className="field-error"
-              />
-              <Field
-                name={`invitees.${index}.email`}
-                data-testid={`invitees.${index}.email`}
-                value={invitee.email}
-                placeholder="jane@example.com"
-                as={BForm.Control}
-                type="email"
-                validate={validateEmail(
-                  this.props,
-                  [...fprops.values.invitees],
-                  index
-                )}
-                isValid={
-                  fprops.touched.invitees &&
-                  fprops.touched.invitees[index] &&
-                  fprops.touched.invitees[index].email &&
-                  (!fprops.errors.invitees ||
-                    (fprops.errors.invitees &&
-                      (!fprops.errors.invitees[index] ||
-                        (fprops.errors.invitees[index] &&
-                          !fprops.errors.invitees[index].email))))
-                }
-                isInvalid={
-                  fprops.touched.invitees &&
-                  fprops.touched.invitees[index] &&
-                  fprops.touched.invitees[index].email &&
-                  fprops.errors.invitees &&
-                  fprops.errors.invitees[index] &&
-                  fprops.errors.invitees[index].email
-                }
-              />
-            </BForm.Group>
-          </div>
-          <div className="invitee-form-language">
-            <BForm.Group className="form-group">
-              <BForm.Label htmlFor={`invitees.${index}.lang`}>
-                <FormattedMessage
-                  defaultMessage="Language"
-                  key="language-input-field"
-                />
-              </BForm.Label>
-              <ErrorMessage
-                name={`invitees.${index}.lang`}
-                component="div"
-                className="field-error"
-              />
-              <Field
-                name={`invitees.${index}.lang`}
-                data-testid={`invitees.${index}.lang`}
-                value={invitee.lang}
-                as={BForm.Select}
-                validate={validateLang}
-                isValid={
-                  fprops.touched.invitees &&
-                  fprops.touched.invitees[index] &&
-                  fprops.touched.invitees[index].lang &&
-                  (!fprops.errors.invitees ||
-                    (fprops.errors.invitees &&
-                      (!fprops.errors.invitees[index] ||
-                        (fprops.errors.invitees[index] &&
-                          !fprops.errors.invitees[index].lang))))
-                }
-                isInvalid={
-                  fprops.touched.invitees &&
-                  fprops.touched.invitees[index] &&
-                  fprops.touched.invitees[index].lang &&
-                  fprops.errors.invitees &&
-                  fprops.errors.invitees[index] &&
-                  fprops.errors.invitees[index].lang
-                }
-              >
-                {AVAILABLE_LANGUAGES.map((lang, i) => (
-                  <option key={i} value={lang[0]}>
-                    {lang[1]}
-                  </option>
-                ))}
-              </Field>
-            </BForm.Group>
-          </div>
+              {AVAILABLE_LANGUAGES.map((lang, i) => (
+                <option key={i} value={lang[0]}>
+                  {lang[1]}
+                </option>
+              ))}
+            </Field>
+          </BForm.Group>
         </div>
-      </>
-    );
-  }
+      </div>
+    </>
+  );
 }
 
-class InviteesWidget extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      n_invites: 1,
-    };
-  }
-  render() {
-    let DndComponent = DummyDnDContext;
-    if (this.props.ordered) {
-      DndComponent = DnDContext;
-    }
-    return (
-      <FieldArray name="invitees" validateOnChange={true}>
-        {(arrayHelpers) => (
-          <>
-            <DndComponent ordered={this.props.ordered} arrayHelpers={arrayHelpers} {...this.props} />
+function _InviteesWidget (props) {
+  const [n_invites, setNInvites] = useState(1);
+  const fprops = useFormikContext();
+  const button = (arrayHelpers) => (
             <ESTooltip
-                helpId={"button-add-invitation-" + this.props.docName}
+                helpId={"button-add-invitation-" + props.docName}
                 inModal={true}
                 tooltip={
                   <FormattedMessage
@@ -482,15 +408,15 @@ class InviteesWidget extends React.Component {
                 }>
               <Button
                   variant="outline-secondary"
-                  data-testid={"button-add-invitation-" + this.props.docName}
+                  data-testid={"button-add-invitation-" + props.docName}
                   onClick={() => {
                     arrayHelpers.push({
                       name: "",
                       email: "",
                       lang: Cookies.get("lang") || "en",
-                      id: `id${this.state.n_invites}`,
+                      id: `id${n_invites}`,
                     });
-                    this.setState({n_invites: this.state.n_invites + 1});
+                    setNInvites(n_invites + 1);
                   }
                 }>
                   <FormattedMessage
@@ -499,12 +425,86 @@ class InviteesWidget extends React.Component {
                   />
               </Button>
             </ESTooltip>
+  );
+  return (
+    <div className={`dummy-div-${props.ordered}`}>
+            {(props.ordered) && (
+      <FieldArray name="invitees" validateOnChange={true} data-dummy={`dummy-${props.ordered}`}>
+        {(arrayHelpers) => (
+          <>
+              <DragDropContext onDragEnd={(result) => {
+                if (!result.destination) {
+                  return;
+                }
+                arrayHelpers.move(result.source.index, result.destination.index);
+          }}>
+                <Droppable droppableId="droppable">
+                  {(provided, snapshot) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}>
+                      {fprops.values.invitees.length > 0 &&
+                        fprops.values.invitees.map((invitee, index) => (
+                          <Draggable key={invitee.id} draggableId={invitee.id} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                data-dummy={`dummy-${props.ordered}`}
+                                className="invitation-fields"
+                                key={index}
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}>
+                                  <InviteesControl invitee={invitee} index={index} arrayHelpers={arrayHelpers} {...props} />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+              </DragDropContext>
+            {button(arrayHelpers)}
           </>
-          )}
+        )}
         </FieldArray>
-    );
-  }
+            ) || (
+      <FieldArray name="invitees" validateOnChange={true} data-dummy={`dummy-${props.ordered}`}>
+        {(arrayHelpers) => (
+        <>
+              <div>
+                {fprops.values.invitees.length > 0 &&
+                 fprops.values.invitees.map((invitee, index) => (
+                  <div
+                    data-dummy={`dummy-${props.ordered}`}
+                    className="invitation-fields"
+                    key={index}>
+                      <InviteesControl invitee={invitee} index={index} arrayHelpers={arrayHelpers} {...props} />
+                  </div>
+                ))}
+              </div>
+    {button(arrayHelpers)}
+        </>
+            )}
+        </FieldArray>
+  )}
+     </div>
+  );
 }
+
+const mapStateToProps = (state, props) => {
+  let ordered;
+  if (state.inviteform.ordered === null) {
+    ordered = state.main.ui_defaults.ordered_invitations;
+  } else {
+    ordered = state.inviteform.ordered;
+  }
+  return {
+    ordered: ordered,
+  };
+};
+
+const InviteesWidget = connect(mapStateToProps)(_InviteesWidget);
 
 class InviteForm extends React.Component {
 
@@ -612,9 +612,10 @@ class InviteForm extends React.Component {
               className="ordered-choice"
               validate={validateOrdered}
               type="checkbox"
-	      checked={this.props.ordered}
               onChange={(e) => {
-                this.props.handleSetOrdered(e.target.checked, fprops)();
+                fprops.setFieldValue('orderedChoice', e.target.checked);
+                this.props.handleSetOrdered(e.target.checked);
+                fprops.validateForm();
               }}
             />
           </BForm.Group>
@@ -713,9 +714,9 @@ class InviteForm extends React.Component {
           initialValues={initialValues(this.props)}
           onSubmit={this.props.handleSubmit.bind(this)}
           validate={validate(this.props)}
-          enableReinitialize={true}
+          enableReinitialize={false}
           validateOnBlur={true}
-          validateOnChange={false}
+          validateOnChange={true}
           validateOnMount={true}
         >
           {(fprops) => (
@@ -769,7 +770,7 @@ class InviteForm extends React.Component {
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
                   {loaControl}
-                  <InviteesWidget ordered={this.props.ordered} fprops={fprops} {...this.props} />
+                  <InviteesWidget {...this.props} />
                 </Modal.Body>
                 <Modal.Footer>
                   <ESTooltip
