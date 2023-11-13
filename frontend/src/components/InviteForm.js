@@ -216,7 +216,19 @@ const initialValues = (props) => {
   return values;
 };
 
-function InviteesControl(props) {
+const mapStateToProps = (state, props) => {
+  let ordered;
+  if (state.inviteform.ordered === null) {
+    ordered = state.main.ui_defaults.ordered_invitations;
+  } else {
+    ordered = state.inviteform.ordered;
+  }
+  return {
+    ordered: ordered,
+  };
+};
+
+function _InviteesControl(props) {
   const fprops = useFormikContext();
   const arrayHelpers = props.arrayHelpers;
   const index = props.index;
@@ -224,7 +236,7 @@ function InviteesControl(props) {
   return (
     <>
       {index > 0 && (
-        <div className="invitee-form-dismiss">
+        <div className={"invitee-form-dismiss " + props.ordered}>
           <ESTooltip
             helpId={"button-remove-entry-" + index}
             inModal={true}
@@ -389,6 +401,108 @@ function InviteesControl(props) {
   );
 }
 
+const InviteesControl = connect(mapStateToProps)(_InviteesControl);
+
+function _InvitessArrayOrdered(props) {
+  const fprops = useFormikContext();
+  return (
+    <FieldArray
+      name="invitees"
+      validateOnChange={true}
+      data-dummy={`dummy-${props.ordered}`}
+    >
+      {(arrayHelpers) => (
+        <>
+          <DragDropContext
+            onDragEnd={(result) => {
+              if (!result.destination) {
+                return;
+              }
+              arrayHelpers.move(
+                result.source.index,
+                result.destination.index
+              );
+            }}
+          >
+            <Droppable droppableId="droppable">
+              {(provided, snapshot) => (
+                <div {...provided.droppableProps} ref={provided.innerRef}>
+                  {fprops.values.invitees.length > 0 &&
+                    fprops.values.invitees.map((invitee, index) => (
+                      <Draggable
+                        key={invitee.id}
+                        draggableId={invitee.id}
+                        index={index}
+                      >
+                        {(provided, snapshot) => (
+                          <div
+                            data-dummy={`dummy-${props.ordered}`}
+                            className="invitation-fields"
+                            key={index}
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <InviteesControl
+                              invitee={invitee}
+                              index={index}
+                              arrayHelpers={arrayHelpers}
+                              {...props}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+          {props.button(arrayHelpers)}
+        </>
+      )}
+    </FieldArray>
+  );
+}
+
+const InviteesArrayOrdered = connect(mapStateToProps)(_InviteesArrayOrdered);
+
+function _InvitessArray(props) {
+  const fprops = useFormikContext();
+  return (
+    <FieldArray
+      name="invitees"
+      validateOnChange={true}
+      data-dummy={`dummy-${props.ordered}`}
+    >
+      {(arrayHelpers) => (
+        <>
+          <div>
+            {fprops.values.invitees.length > 0 &&
+              fprops.values.invitees.map((invitee, index) => (
+                <div
+                  data-dummy={`dummy-${props.ordered}`}
+                  className="invitation-fields"
+                  key={index}
+                >
+                  <InviteesControl
+                    invitee={invitee}
+                    index={index}
+                    arrayHelpers={arrayHelpers}
+                    {...props}
+                  />
+                </div>
+              ))}
+          </div>
+          {button(arrayHelpers)}
+        </>
+      )}
+    </FieldArray>
+  );
+}
+
+const InviteesArray = connect(mapStateToProps)(_InviteesArray);
+
 function _InviteesWidget(props) {
   const [n_invites, setNInvites] = useState(1);
   const fprops = useFormikContext();
@@ -426,107 +540,13 @@ function _InviteesWidget(props) {
   return (
     <div className={`dummy-div-${props.ordered}`}>
       {(props.ordered && (
-        <FieldArray
-          name="invitees"
-          validateOnChange={true}
-          data-dummy={`dummy-${props.ordered}`}
-        >
-          {(arrayHelpers) => (
-            <>
-              <DragDropContext
-                onDragEnd={(result) => {
-                  if (!result.destination) {
-                    return;
-                  }
-                  arrayHelpers.move(
-                    result.source.index,
-                    result.destination.index
-                  );
-                }}
-              >
-                <Droppable droppableId="droppable">
-                  {(provided, snapshot) => (
-                    <div {...provided.droppableProps} ref={provided.innerRef}>
-                      {fprops.values.invitees.length > 0 &&
-                        fprops.values.invitees.map((invitee, index) => (
-                          <Draggable
-                            key={invitee.id}
-                            draggableId={invitee.id}
-                            index={index}
-                          >
-                            {(provided, snapshot) => (
-                              <div
-                                data-dummy={`dummy-${props.ordered}`}
-                                className="invitation-fields"
-                                key={index}
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                              >
-                                <InviteesControl
-                                  invitee={invitee}
-                                  index={index}
-                                  arrayHelpers={arrayHelpers}
-                                  {...props}
-                                />
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-              {button(arrayHelpers)}
-            </>
-          )}
-        </FieldArray>
+        <InviteesArrayOrdered ordered={props.ordered} button={button} {...props} />
       )) || (
-        <FieldArray
-          name="invitees"
-          validateOnChange={true}
-          data-dummy={`dummy-${props.ordered}`}
-        >
-          {(arrayHelpers) => (
-            <>
-              <div>
-                {fprops.values.invitees.length > 0 &&
-                  fprops.values.invitees.map((invitee, index) => (
-                    <div
-                      data-dummy={`dummy-${props.ordered}`}
-                      className="invitation-fields"
-                      key={index}
-                    >
-                      <InviteesControl
-                        invitee={invitee}
-                        index={index}
-                        arrayHelpers={arrayHelpers}
-                        {...props}
-                      />
-                    </div>
-                  ))}
-              </div>
-              {button(arrayHelpers)}
-            </>
-          )}
-        </FieldArray>
+        <InviteesArray ordered={props.ordered} button={button} {...props} />
       )}
     </div>
   );
 }
-
-const mapStateToProps = (state, props) => {
-  let ordered;
-  if (state.inviteform.ordered === null) {
-    ordered = state.main.ui_defaults.ordered_invitations;
-  } else {
-    ordered = state.inviteform.ordered;
-  }
-  return {
-    ordered: ordered,
-  };
-};
 
 const InviteesWidget = connect(mapStateToProps)(_InviteesWidget);
 
