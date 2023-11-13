@@ -5,7 +5,14 @@ import Modal from "react-bootstrap/Modal";
 import Button from "containers/Button";
 import BButton from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
-import { Formik, Form, Field, ErrorMessage, FieldArray, useFormikContext } from "formik";
+import {
+  Formik,
+  Form,
+  Field,
+  ErrorMessage,
+  FieldArray,
+  useFormikContext,
+} from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Cookies from "js-cookie";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -158,11 +165,7 @@ const validate = (props) => {
     let emails = [];
     values.invitees.forEach((val, i) => {
       const nameError = validateName(props, i)(val.name);
-      const emailError = validateEmail(
-        props,
-        values.invitees,
-        i
-      )(val.email);
+      const emailError = validateEmail(props, values.invitees, i)(val.email);
       const langError = validateLang(val.lang);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
       if (emailError !== undefined) {
@@ -206,14 +209,14 @@ const initialValues = (props) => {
         name: "",
         email: "",
         lang: Cookies.get("lang") || "en",
-        id: 'id0',
-        },
-      ],
-    }
+        id: "id0",
+      },
+    ],
+  };
   return values;
 };
 
-function InviteesControl (props) {
+function InviteesControl(props) {
   const fprops = useFormikContext();
   const arrayHelpers = props.arrayHelpers;
   const index = props.index;
@@ -238,12 +241,8 @@ function InviteesControl (props) {
               onClick={() => {
                 arrayHelpers.remove(index);
                 window.setTimeout(() => {
-                  document
-                    .getElementById("invitation-text-input")
-                    .focus();
-                  document
-                    .getElementById("invitation-text-input")
-                    .blur();
+                  document.getElementById("invitation-text-input").focus();
+                  document.getElementById("invitation-text-input").blur();
                 }, 0);
               }}
             >
@@ -257,10 +256,7 @@ function InviteesControl (props) {
         <div className="invitee-form-name">
           <BForm.Group className="form-group">
             <BForm.Label htmlFor={`invitees.${index}.name`}>
-              <FormattedMessage
-                defaultMessage="Name"
-                key="name-input-field"
-              />
+              <FormattedMessage defaultMessage="Name" key="name-input-field" />
             </BForm.Label>
             <ErrorMessage
               name={`invitees.${index}.name`}
@@ -393,59 +389,71 @@ function InviteesControl (props) {
   );
 }
 
-function _InviteesWidget (props) {
+function _InviteesWidget(props) {
   const [n_invites, setNInvites] = useState(1);
   const fprops = useFormikContext();
   const button = (arrayHelpers) => (
-            <ESTooltip
-                helpId={"button-add-invitation-" + props.docName}
-                inModal={true}
-                tooltip={
-                  <FormattedMessage
-                    defaultMessage="Invite one more person to sign this document"
-                    key="add-invitation-tootip"
-                  />
-                }>
-              <Button
-                  variant="outline-secondary"
-                  data-testid={"button-add-invitation-" + props.docName}
-                  onClick={() => {
-                    arrayHelpers.push({
-                      name: "",
-                      email: "",
-                      lang: Cookies.get("lang") || "en",
-                      id: `id${n_invites}`,
-                    });
-                    setNInvites(n_invites + 1);
-                  }
-                }>
-                  <FormattedMessage
-                    defaultMessage="Invite more people"
-                    key="add-invite"
-                  />
-              </Button>
-            </ESTooltip>
+    <ESTooltip
+      helpId={"button-add-invitation-" + props.docName}
+      inModal={true}
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Invite one more person to sign this document"
+          key="add-invitation-tootip"
+        />
+      }
+    >
+      <Button
+        variant="outline-secondary"
+        data-testid={"button-add-invitation-" + props.docName}
+        onClick={() => {
+          arrayHelpers.push({
+            name: "",
+            email: "",
+            lang: Cookies.get("lang") || "en",
+            id: `id${n_invites}`,
+          });
+          setNInvites(n_invites + 1);
+        }}
+      >
+        <FormattedMessage
+          defaultMessage="Invite more people"
+          key="add-invite"
+        />
+      </Button>
+    </ESTooltip>
   );
   return (
     <div className={`dummy-div-${props.ordered}`}>
-            {(props.ordered) && (
-      <FieldArray name="invitees" validateOnChange={true} data-dummy={`dummy-${props.ordered}`}>
-        {(arrayHelpers) => (
-          <>
-              <DragDropContext onDragEnd={(result) => {
-                if (!result.destination) {
-                  return;
-                }
-                arrayHelpers.move(result.source.index, result.destination.index);
-          }}>
+      {(props.ordered && (
+        <FieldArray
+          name="invitees"
+          validateOnChange={true}
+          data-dummy={`dummy-${props.ordered}`}
+        >
+          {(arrayHelpers) => (
+            <>
+              <DragDropContext
+                onDragEnd={(result) => {
+                  if (!result.destination) {
+                    return;
+                  }
+                  arrayHelpers.move(
+                    result.source.index,
+                    result.destination.index
+                  );
+                }}
+              >
                 <Droppable droppableId="droppable">
                   {(provided, snapshot) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}>
+                    <div {...provided.droppableProps} ref={provided.innerRef}>
                       {fprops.values.invitees.length > 0 &&
                         fprops.values.invitees.map((invitee, index) => (
-                          <Draggable key={invitee.id} draggableId={invitee.id} index={index}>
+                          <Draggable
+                            key={invitee.id}
+                            draggableId={invitee.id}
+                            index={index}
+                          >
                             {(provided, snapshot) => (
                               <div
                                 data-dummy={`dummy-${props.ordered}`}
@@ -453,42 +461,58 @@ function _InviteesWidget (props) {
                                 key={index}
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                {...provided.dragHandleProps}>
-                                  <InviteesControl invitee={invitee} index={index} arrayHelpers={arrayHelpers} {...props} />
+                                {...provided.dragHandleProps}
+                              >
+                                <InviteesControl
+                                  invitee={invitee}
+                                  index={index}
+                                  arrayHelpers={arrayHelpers}
+                                  {...props}
+                                />
                               </div>
                             )}
                           </Draggable>
                         ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
               </DragDropContext>
-            {button(arrayHelpers)}
-          </>
-        )}
+              {button(arrayHelpers)}
+            </>
+          )}
         </FieldArray>
-            ) || (
-      <FieldArray name="invitees" validateOnChange={true} data-dummy={`dummy-${props.ordered}`}>
-        {(arrayHelpers) => (
-        <>
+      )) || (
+        <FieldArray
+          name="invitees"
+          validateOnChange={true}
+          data-dummy={`dummy-${props.ordered}`}
+        >
+          {(arrayHelpers) => (
+            <>
               <div>
                 {fprops.values.invitees.length > 0 &&
-                 fprops.values.invitees.map((invitee, index) => (
-                  <div
-                    data-dummy={`dummy-${props.ordered}`}
-                    className="invitation-fields"
-                    key={index}>
-                      <InviteesControl invitee={invitee} index={index} arrayHelpers={arrayHelpers} {...props} />
-                  </div>
-                ))}
+                  fprops.values.invitees.map((invitee, index) => (
+                    <div
+                      data-dummy={`dummy-${props.ordered}`}
+                      className="invitation-fields"
+                      key={index}
+                    >
+                      <InviteesControl
+                        invitee={invitee}
+                        index={index}
+                        arrayHelpers={arrayHelpers}
+                        {...props}
+                      />
+                    </div>
+                  ))}
               </div>
-    {button(arrayHelpers)}
-        </>
-            )}
+              {button(arrayHelpers)}
+            </>
+          )}
         </FieldArray>
-  )}
-     </div>
+      )}
+    </div>
   );
 }
 
@@ -507,7 +531,6 @@ const mapStateToProps = (state, props) => {
 const InviteesWidget = connect(mapStateToProps)(_InviteesWidget);
 
 class InviteForm extends React.Component {
-
   shouldComponentUpdate(nextProps) {
     return !nextProps.inviting;
   }
@@ -613,7 +636,7 @@ class InviteForm extends React.Component {
               validate={validateOrdered}
               type="checkbox"
               onChange={(e) => {
-                fprops.setFieldValue('orderedChoice', e.target.checked);
+                fprops.setFieldValue("orderedChoice", e.target.checked);
                 this.props.handleSetOrdered(e.target.checked);
                 fprops.validateForm();
               }}

@@ -76,7 +76,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleSetOrdered: function (ordered) {
       dispatch(setOrdered(ordered));
-    }
+    },
   };
 };
 
