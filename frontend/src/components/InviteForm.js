@@ -403,7 +403,7 @@ function _InviteesControl(props) {
 
 const InviteesControl = connect(mapStateToProps)(_InviteesControl);
 
-function _InvitessArrayOrdered(props) {
+function _InviteesArrayOrdered(props) {
   const fprops = useFormikContext();
   return (
     <FieldArray
@@ -467,7 +467,7 @@ function _InvitessArrayOrdered(props) {
 
 const InviteesArrayOrdered = connect(mapStateToProps)(_InviteesArrayOrdered);
 
-function _InvitessArray(props) {
+function _InviteesArray(props) {
   const fprops = useFormikContext();
   return (
     <FieldArray
@@ -494,7 +494,7 @@ function _InvitessArray(props) {
                 </div>
               ))}
           </div>
-          {button(arrayHelpers)}
+          {props.button(arrayHelpers)}
         </>
       )}
     </FieldArray>
@@ -540,9 +540,9 @@ function _InviteesWidget(props) {
   return (
     <div className={`dummy-div-${props.ordered}`}>
       {(props.ordered && (
-        <InviteesArrayOrdered ordered={props.ordered} button={button} {...props} />
+        <InviteesArrayOrdered button={button} {...props} />
       )) || (
-        <InviteesArray ordered={props.ordered} button={button} {...props} />
+        <InviteesArray button={button} {...props} />
       )}
     </div>
   );
