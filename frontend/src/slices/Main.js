@@ -308,7 +308,7 @@ const mainSlice = createSlice({
     showHelp: true,
     max_file_size: 20971520,
     max_signatures: 10,
-    company_link: 'https://sunet.se',
+    company_link: "https://sunet.se",
     available_loas: [],
     ui_defaults: {
       skip_final: false,
