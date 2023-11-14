@@ -58,8 +58,9 @@ const _close = (dispatch) => {
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: async function (values, actions) {
-      dispatch(setValues(values));
       await dispatch(sendInvites({ values: values, intl: this.props.intl }));
+      actions.setSubmitting(false);
+      actions.resetForm();
       _close(dispatch);
     },
     handleClose: function () {
