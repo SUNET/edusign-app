@@ -6,7 +6,7 @@ import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
-import { validateName, validateEmail } from "components/InviteForm";
+import { validateName } from "components/InviteForm";
 
 import "styles/DelegateForm.scss";
 
@@ -16,6 +16,33 @@ const initialValues = (inviteKey, documentKey) => ({
   inviteKey: inviteKey,
   documentKey: documentKey,
 });
+
+const validateEmail = (mail, mail_aliases) => {
+  return (value) => {
+    let error;
+
+    if (!value) {
+      error = (
+        <FormattedMessage defaultMessage="Required" key="required-field" />
+      );
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
+      error = (
+        <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
+      );
+    } else if (
+      value.toLowerCase() === mail ||
+      (mail_aliases !== undefined && mail_aliases.includes(value.toLowerCase()))
+    ) {
+      error = (
+        <FormattedMessage
+          defaultMessage="Do not invite yourself"
+          key="do-no-invite-yourself"
+        />
+      );
+    }
+    return error;
+  };
+};
 
 class DelegateForm extends React.Component {
   render() {
@@ -111,7 +138,7 @@ class DelegateForm extends React.Component {
                         placeholder="Jane Doe"
                         as={BForm.Control}
                         type="text"
-                        validate={validateEmail(this.props.email)}
+                        validate={validateEmail(this.props.email, this.props.mail_aliases)}
                         isValid={
                           fprops.touched.delegationEmail &&
                           !fprops.errors.delegationEmail
