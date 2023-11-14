@@ -186,7 +186,7 @@ def prepare_document(document: dict) -> dict:
         }
 
 
-def get_invitations():
+def get_invitations(remove_finished=False):
     """
     Function that will retrieve from the db all invitations concerning the user in the current session.
     This is called from the `get_config` and `poll` views, and the results are sent to the client side app
@@ -237,7 +237,8 @@ def get_invitations():
             current_app.logger.debug(f"Skipping {doc['name']}")
             doc['blob'] = current_app.doc_store.get_document_content(doc['key'])
             doc['signed_content'] = current_app.doc_store.get_document_content(doc['key'])
-            current_app.doc_store.remove_document(doc['key'])
+            if remove_finished:
+                current_app.doc_store.remove_document(doc['key'])
             skipped.append(doc)
         else:
             newowned.append(doc)
