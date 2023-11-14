@@ -21,11 +21,12 @@ import { nameForCopy } from "components/utils";
 
 import "styles/InviteForm.scss";
 
-export const validateEmail = (props, allValues, idx) => {
+export const validateEmail = (props, allValues, idx, status) => {
   const mail = props.mail;
   const mail_aliases = props.mail_aliases;
   return (value) => {
     let error;
+    if (status !== undefined && !status.validate) return error;
 
     if (!value) {
       error = (
@@ -48,7 +49,7 @@ export const validateEmail = (props, allValues, idx) => {
     } else {
       let count = 0;
       allValues.forEach((val, i) => {
-        if (idx > i && val.email.toLowerCase() === value.toLowerCase()) {
+        if (val.email.toLowerCase() === value.toLowerCase()) {
           count += 1;
         }
       });
@@ -165,7 +166,7 @@ const validate = (props) => {
     let emails = [];
     values.invitees.forEach((val, i) => {
       const nameError = validateName(props, i)(val.name);
-      const emailError = validateEmail(props, values.invitees, i)(val.email);
+      const emailError = validateEmail(props, values.invitees, i, {validate: true})(val.email);
       const langError = validateLang(val.lang);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
       if (emailError !== undefined) {
@@ -327,7 +328,8 @@ function _InviteesControl(props) {
               validate={validateEmail(
                 props,
                 [...fprops.values.invitees],
-                index
+                index,
+                fprops.status,
               )}
               isValid={
                 fprops.touched.invitees &&
@@ -414,14 +416,17 @@ function _InviteesArrayOrdered(props) {
       {(arrayHelpers) => (
         <>
           <DragDropContext
+            onBeforeCapture={() => {fprops.setStatus({validate: false})}}
             onDragEnd={(result) => {
               if (!result.destination) {
+                fprops.setStatus({validate: true});
                 return;
               }
               arrayHelpers.move(
                 result.source.index,
                 result.destination.index
               );
+              fprops.setStatus({validate: true});
             }}
           >
             <Droppable droppableId="droppable">
