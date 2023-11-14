@@ -757,7 +757,7 @@ class InviteForm extends React.Component {
           initialValues={initialValues(this.props)}
           onSubmit={this.props.handleSubmit.bind(this)}
           validate={validate(this.props)}
-          enableReinitialize={false}
+          enableReinitialize={true}
           validateOnBlur={true}
           validateOnChange={true}
           validateOnMount={true}
