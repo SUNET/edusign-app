@@ -49,7 +49,7 @@ export const validateEmail = (props, allValues, idx, status) => {
     } else {
       let count = 0;
       allValues.forEach((val, i) => {
-        if (val.email.toLowerCase() === value.toLowerCase()) {
+        if (idx > i && val.email.toLowerCase() === value.toLowerCase()) {
           count += 1;
         }
       });
