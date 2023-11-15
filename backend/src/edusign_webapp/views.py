@@ -423,7 +423,7 @@ def get_config() -> dict:
 
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
-    payload = get_invitations()
+    payload = get_invitations(remove_finished=True)
 
     if 'eppn' in session and current_app.is_whitelisted(session['eppn']):
         payload['unauthn'] = False
@@ -463,7 +463,7 @@ def poll() -> dict:
 
     :return: A dict with the invitation data.
     """
-    payload = get_invitations()
+    payload = get_invitations(remove_finished=True)
 
     return {
         'payload': payload,
