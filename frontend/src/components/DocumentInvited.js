@@ -172,26 +172,6 @@ class DocumentInvited extends Component {
         )}
       </>
     );
-    let requiredLoa = "";
-    if (doc.loa !== undefined && !("", "none").includes(doc.loa)) {
-      const loa = doc.loa.split(",");
-      const loaName = loa[1];
-      const loaValue = loa[0];
-      requiredLoa = (
-        <div className={"doc-container-info-row-" + this.props.size}>
-          <span className="info-row-label">
-            <FormattedMessage
-              defaultMessage="Required security level:"
-              key="multisign-loa"
-            />
-          </span>
-          &nbsp;
-          <ESTooltip tooltip={loaValue} helpId={"tooltip-" + loaValue}>
-            <span className="info-row-item">{loaName}</span>
-          </ESTooltip>
-        </div>
-      );
-    }
     return (
       <>
         <ESPopover
@@ -268,10 +248,9 @@ class DocumentInvited extends Component {
                     </>
                   )}
                 </div>
-                {widgets.docCreated(this.props)}
-                {requiredLoa}
                 {invites}
                 {preparePrevSigs(doc, this.props.size)}
+                {widgets.infoLine(doc, this.props.size)}
               </div>
             </div>
           )) || (
@@ -365,10 +344,9 @@ class DocumentInvited extends Component {
                   </div>
                 </>
               )}
-              {widgets.docCreated(this.props)}
-              {requiredLoa}
               {invites}
               {preparePrevSigs(doc, this.props.size)}
+              {widgets.infoLine(doc, this.props.size)}
             </div>
           )}
         </ESPopover>
