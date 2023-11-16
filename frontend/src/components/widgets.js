@@ -32,6 +32,71 @@ export const docCreated = (props) => {
   } else return "";
 };
 
+export const infoLine = (doc, size) => {
+  const creationDate = getCreationDate(doc);
+  let created = "";
+  if (creationDate !== null) {
+    created = (
+      <div className={"info-line-1 doc-container-info-row-" + size}>
+        <span className="info-row-label">
+          <FormattedMessage
+            defaultMessage="Created:"
+            key="creation-date-label"
+          />
+        </span>
+        <span className="info-row-items">
+          <span className="info-row-item">{creationDate.toLocaleString()}</span>
+        </span>
+      </div>
+    );
+  }
+  let requiredLoa = "";
+  if (doc.loa !== undefined && !("", "none").includes(doc.loa)) {
+    const loa = doc.loa.split(",");
+    const loaName = loa[1];
+    const loaValue = loa[0];
+    requiredLoa = (
+      <div className={"info-line-2 doc-container-info-row-" + size}>
+        <span className="info-row-label">
+          <FormattedMessage
+            defaultMessage="Required security level:"
+            key="multisign-loa"
+          />
+        </span>
+        &nbsp;
+        <ESTooltip tooltip={loaValue} helpId={"invited-" + loaValue}>
+          <span className="info-row-item">{loaName}</span>
+        </ESTooltip>
+      </div>
+    );
+  }
+
+  const ordered = (
+    <div className={"info-line-3 doc-container-info-row-" + size}>
+      <span className="info-row-label">
+        {(doc.ordered && (
+          <FormattedMessage
+            defaultMessage="Ordered invitations"
+            key="multisign-owned-ordered"
+          />
+        )) || (
+          <FormattedMessage
+            defaultMessage="Unordered invitations"
+            key="multisign-owned-unordered"
+          />
+        )}
+      </span>
+    </div>
+  );
+  return (
+    <div className="doc-info-line">
+      {created}
+      {requiredLoa}
+      {ordered}
+    </div>
+  );
+};
+
 export const namedSpinner = (index, name) => {
   return (
     <>
