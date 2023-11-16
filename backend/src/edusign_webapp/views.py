@@ -1353,38 +1353,40 @@ def edit_multi_sign_request(data: dict) -> dict:
         current_app.logger.error(f"Problem editing the invitations for {key}: {e}")
         return {'error': True, 'message': gettext('Problem editing the invitations')}
 
-    recipients_added = defaultdict(list)
-    for invite in changed['added']:
-        lang = invite['lang']
-        recipient = f"{invite['name']} <{invite['email']}>"
-        recipients_added[lang].append(recipient)
-
+    ordered = current_app.doc_store.get_ordered(key)
     docname = current_app.doc_store.get_document_name(key)
-    owner_email = session['mail']
-    owner = {'name': session['displayName'], 'email': owner_email}
-    text = data['text']
-
     message = gettext("Success editing invitation to sign '%(docname)s'") % {'docname': docname}
 
-    try:
-        _send_invitation_mail(docname, owner, text, recipients_added)
-    except Exception:
-        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
-            'docname': docname
-        }
+    if not ordered:
+        recipients_added = defaultdict(list)
+        for invite in changed['added']:
+            lang = invite['lang']
+            recipient = f"{invite['name']} <{invite['email']}>"
+            recipients_added[lang].append(recipient)
 
-    recipients_removed = defaultdict(list)
-    for invite in changed['removed']:
-        lang = invite['lang']
-        recipient = f"{invite['name']} <{invite['email']}>"
-        recipients_removed[lang].append(recipient)
+        owner_email = session['mail']
+        owner = {'name': session['displayName'], 'email': owner_email}
+        text = data['text']
 
-    if len(recipients_removed) > 0:
-        sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
-        if not sent:
+        try:
+            _send_invitation_mail(docname, owner, text, recipients_added)
+        except Exception:
             message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
                 'docname': docname
             }
+
+        recipients_removed = defaultdict(list)
+        for invite in changed['removed']:
+            lang = invite['lang']
+            recipient = f"{invite['name']} <{invite['email']}>"
+            recipients_removed[lang].append(recipient)
+
+        if len(recipients_removed) > 0:
+            sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
+            if not sent:
+                message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+                    'docname': docname
+                }
 
     return {'message': message}
 
@@ -1702,7 +1704,12 @@ def decline_invitation(data):
         return {'error': True, 'message': gettext('Problem declining signature, please try again')}
 
     try:
+        docname = current_app.doc_store.get_document_name(key)
         owner_data = current_app.doc_store.get_owner_data(key)
+        ordered = current_app.doc_store.get_ordered(key)
+        pending_invites = current_app.doc_store.get_pending_invites(key)
+        pending = sum([1 for i in pending_invites if not i['signed'] and not i['declined']])
+
         if not owner_data:
             current_app.logger.error(
                 f"Problem sending email about {session['mail']} declining document {key} with no owner data"
@@ -1710,6 +1717,11 @@ def decline_invitation(data):
 
         else:
             emails = _prepare_declined_emails(key, owner_data)
+
+            if pending > 1 and ordered:
+                next_invitation_mail = _next_ordered_invitation_mail(key, docname, pending_invites, pending, owner_data)
+                emails.append(next_invitation_mail)
+
             if len(emails) > 0:
                 sendmail_bulk(emails)
 
