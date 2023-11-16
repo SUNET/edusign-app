@@ -321,3 +321,9 @@ div.invited-unauthn-title {
   margin-top: 3rem;
   margin-bottom: 4rem;
 }
+
+div.doc-info-line {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
