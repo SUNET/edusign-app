@@ -151,43 +151,6 @@ class DocumentOwned extends Component {
         )}
       </>
     );
-    let requiredLoa = "";
-    if (doc.loa !== undefined && !("", "none").includes(doc.loa)) {
-      const loa = doc.loa.split(",");
-      const loaName = loa[1];
-      const loaValue = loa[0];
-      requiredLoa = (
-        <div className={"doc-container-info-row-" + this.props.size}>
-          <span className="info-row-label">
-            <FormattedMessage
-              defaultMessage="Required security level:"
-              key="multisign-loa"
-            />
-          </span>
-          &nbsp;
-          <ESTooltip tooltip={loaValue} helpId={"invited-" + loaValue}>
-            <span className="info-row-item">{loaName}</span>
-          </ESTooltip>
-        </div>
-      );
-    }
-    const ordered = (
-      <div className={"doc-container-info-row-" + this.props.size}>
-        <span className="info-row-label">
-          {(doc.ordered && (
-            <FormattedMessage
-              defaultMessage="Ordered invitations"
-              key="multisign-owned-ordered"
-            />
-          )) || (
-            <FormattedMessage
-              defaultMessage="Unordered invitations"
-              key="multisign-owned-unordered"
-            />
-          )}
-        </span>
-      </div>
-    );
     return (
       <>
         <ESPopover
@@ -265,11 +228,9 @@ class DocumentOwned extends Component {
                     </>
                   )}
                 </div>
-                {widgets.docCreated(this.props)}
-                {requiredLoa}
                 {invites}
                 {preparePrevSigs(doc, this.props.size)}
-                {ordered}
+                {widgets.infoLine(doc, this.props.size)}
               </div>
             </div>
           )) || (
@@ -340,11 +301,9 @@ class DocumentOwned extends Component {
                   </div>
                 </>
               )}
-              {widgets.docCreated(this.props)}
-              {requiredLoa}
               {invites}
               {preparePrevSigs(doc, this.props.size)}
-              {ordered}
+              {widgets.infoLine(doc, this.props.size)}
             </div>
           )}
         </ESPopover>
