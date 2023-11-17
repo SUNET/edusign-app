@@ -1000,7 +1000,8 @@ def get_signed_documents(sign_data: dict) -> dict:
         key = doc['id']
         owner = current_app.doc_store.get_owner_data(key)
         sendsigned = current_app.doc_store.get_sendsigned(key)
-        pending = len(current_app.doc_store.get_pending_invites(key)) > 1
+        pending_invites = current_app.doc_store.get_pending_invites(key)
+        pending = sum([1 for p in pending_invites if not p['signed'] and not p['declined']]) > 1
         skipfinal = current_app.doc_store.get_skipfinal(key)
         current_app.logger.debug(f"Data for signed emails - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}")
 
@@ -1009,13 +1010,12 @@ def get_signed_documents(sign_data: dict) -> dict:
             if not pending and skipfinal:
                 to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
 
-            else:
-                try:
-                    email_args = _prepare_signed_by_email(key, owner)
-                    emails.append((email_args, {}))
+            try:
+                email_args = _prepare_signed_by_email(key, owner)
+                emails.append((email_args, {}))
 
-                except Exception as e:
-                    current_app.logger.error(f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}")
+            except Exception as e:
+                current_app.logger.error(f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}")
 
         # this is an invitation from the current user
         elif owner:
