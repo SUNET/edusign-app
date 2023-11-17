@@ -867,7 +867,7 @@ def _prepare_signed_by_email(key, owner):
     return (recipients, subject, body_txt, body_html)
 
 
-def _prepare_all_signed_email(doc):
+def _prepare_all_signed_email(doc, mail_aliases):
     """
     Prepare email to send to all users that have signed the document,
     possibly with the final signed PDF attached.
@@ -878,7 +878,7 @@ def _prepare_all_signed_email(doc):
     recipients = defaultdict(list)
     recipients[current_lang].append(f"{doc['owner']['name']} <{doc['owner']['email']}>")
     for invited in current_app.doc_store.get_pending_invites(doc['key']):
-        if not invited['signed']:
+        if not invited['signed'] and invited['email'] not in mail_aliases:
             continue
         lang = invited['lang']
         recipients[lang].append(f"{invited['name']} <{invited['email']}>")
@@ -889,8 +889,6 @@ def _prepare_all_signed_email(doc):
     # attach PDF
     if doc['sendsigned']:
         suffix = 'signed'
-        if doc['validated']:
-            suffix = 'signed-svt'
         doc_name = current_app.doc_store.get_document_name(doc['key'])
         if '.' in doc_name:
             splitted = doc_name.split('.')
@@ -937,14 +935,14 @@ def _prepare_signed_documents_data(process_data):
         mail_aliases = session.get('mail_aliases', [session['mail']])
 
         if 'email' in owner and owner['email'] not in mail_aliases:
-            pending = len(current_app.doc_store.get_pending_invites(key)) != 0
-            skipfinal = current_app.doc_store.get_skipfinal(key)
-            if not pending and skipfinal:
-                current_app.doc_store.remove_document(key)
-            else:
-                current_app.doc_store.update_document(key, doc['signedContent'], mail_aliases)
-                current_app.doc_store.unlock_document(key, mail_aliases)
+            current_app.doc_store.update_document(key, doc['signedContent'], mail_aliases)
+            current_app.doc_store.unlock_document(key, mail_aliases)
 
+            pending_invites = current_app.doc_store.get_pending_invites(key)
+            pending = sum([1 for p in pending_invites if not p['signed'] and not p['declined']])
+            skipfinal = current_app.doc_store.get_skipfinal(key)
+
+            if pending > 0 or not skipfinal:
                 docs.append({'id': key, 'signed_content': doc['signedContent'], 'validated': False})
 
         elif owner:
@@ -1007,7 +1005,7 @@ def get_signed_documents(sign_data: dict) -> dict:
         current_app.logger.debug(f"Data for signed emails - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}")
 
         # this is an invitation to the current user
-        if 'email' in owner and owner['email'] not in mail_aliases:
+        if owner and 'email' in owner and owner['email'] not in mail_aliases:
             if not pending and skipfinal:
                 to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
 
@@ -1031,19 +1029,21 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     docs = []
     for doc in validated:
-        if doc['owner']:
+        owner = doc['owner']
+        if owner:
             try:
-                messages = _prepare_all_signed_email(doc)
+                messages = _prepare_all_signed_email(doc, mail_aliases)
                 emails.extend(messages)
             except Exception as e:
-                current_app.logger.error(f"Problem sending signed by all email to all invited for doc '{doc['owner']['docname']}': {e}")
+                current_app.logger.error(f"Problem sending signed by all email to all invited for doc '{owner['docname']}': {e}")
 
         docs.append({'id': doc['key'], 'signed_content': doc['doc']['signedContent'], 'validated': doc['validated']})
 
     if len(emails) > 0:
         sendmail_bulk(emails)
 
-    docs.extend(_prepare_signed_documents_data(process_data))
+    prepared_data = _prepare_signed_documents_data(process_data)
+    docs.extend(prepared_data)
 
     return {
         'payload': {'documents': docs},
@@ -1453,8 +1453,11 @@ def skip_final_signature(data: dict) -> dict:
         current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
         return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
+    validated = current_app.api_client.validate_signatures([{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}])
+    newdoc = validated[0]
+
     try:
-        messages = _prepare_final_email_skipped(doc, key, sendsigned)
+        messages = _prepare_final_email_skipped(newdoc, key, sendsigned)
         sendmail_bulk(messages)
 
     except Exception as e:
@@ -1465,9 +1468,6 @@ def skip_final_signature(data: dict) -> dict:
 
     except Exception as e:
         current_app.logger.warning(f'Problem removing doc skipping final signature: {e}')
-
-    validated = current_app.api_client.validate_signatures([{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}])
-    newdoc = validated[0]
 
     return {
         'message': 'Success',
