@@ -1514,23 +1514,24 @@ def _prepare_declined_email(key, owner_data):
 
     emails = [((recipients, subject, body_txt, body_html), {})]
 
-    try:
-        doc = current_app.doc_store.get_signed_document(key)
-        sendsigned = current_app.doc_store.get_sendsigned(key)
+    if len(pending) == 0:
+        try:
+            doc = current_app.doc_store.get_signed_document(key)
+            sendsigned = current_app.doc_store.get_sendsigned(key)
 
-    except Exception as e:
-        current_app.logger.error(f'Problem getting signed document: {e}')
-        return {'error': True, 'message': gettext('Cannot find the document being signed')}
+        except Exception as e:
+            current_app.logger.error(f'Problem getting signed document: {e}')
+            return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
-    validated = current_app.api_client.validate_signatures([{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}])
-    newdoc = validated[0]
+        validated = current_app.api_client.validate_signatures([{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}])
+        newdoc = validated[0]
 
-    try:
-        emails_more = _prepare_final_email_skipped(newdoc, key, sendsigned)
-        emails.extend(emails_more)
+        try:
+            emails_more = _prepare_final_email_skipped(newdoc, key, sendsigned)
+            emails.extend(emails_more)
 
-    except Exception as e:
-        current_app.logger.error(f'Problem preparing declined signed by all document to invited users: {e}')
+        except Exception as e:
+            current_app.logger.error(f'Problem preparing declined signed by all document to invited users: {e}')
 
     return emails
 
