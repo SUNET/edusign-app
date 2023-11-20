@@ -1514,7 +1514,7 @@ def _prepare_declined_email(key, owner_data):
 
     emails = [((recipients, subject, body_txt, body_html), {})]
 
-    if len(pending) == 0:
+    if len(pending) == 0 and skipfinal:
         try:
             doc = current_app.doc_store.get_signed_document(key)
             sendsigned = current_app.doc_store.get_sendsigned(key)
