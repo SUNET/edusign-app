@@ -841,13 +841,17 @@ def _prepare_signed_by_email(key, owner):
     that one invited user (perhaps the last remaining one)
     has signed the document.
     """
+    skipfinal = current_app.doc_store.get_skipfinal(key)
     pending = current_app.doc_store.get_pending_invites(key, exclude=session.get('mail_aliases', [session['mail']]))
     pending = [p for p in pending if not p['signed'] and not p['declined']]
 
     if len(pending) > 0:
         template = 'signed_by_email'
     else:
-        template = 'final_signed_by_email'
+        if skipfinal:
+            template = 'final_signed_by_email_skip'
+        else:
+            template = 'final_signed_by_email'
 
     mail_context = {
         'document_name': owner['docname'],
@@ -1388,7 +1392,7 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
         recipients[lang].append(f"{invited['name']} <{invited['email']}>")
 
     mail_context = {
-        'document_name': doc['name'],
+        'document_name': doc['doc']['name'],
     }
     # attach PDF
     if sendsigned:
@@ -1400,7 +1404,7 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
             signed_doc_name = f"{prename}-signed.{ext}"
         else:
             signed_doc_name = doc_name + '-signed'
-        pdf_bytes = b64decode(doc['blob'], validate=True)
+        pdf_bytes = b64decode(doc['doc']['blob'], validate=True)
 
         kwargs = dict(
             attachment_name=signed_doc_name,
@@ -1412,7 +1416,7 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
     messages = []
     for lang in recipients:
         with force_locale(lang):
-            subject = gettext('"%(docname)s" is now signed') % {'docname': doc['name']}
+            subject = gettext('"%(docname)s" is now signed') % {'docname': doc['doc']['name']}
             if sendsigned:
                 body_txt = render_template('signed_all_email.txt.jinja2', **mail_context)
                 body_html = render_template('signed_all_email.html.jinja2', **mail_context)
@@ -1471,7 +1475,7 @@ def skip_final_signature(data: dict) -> dict:
 
     return {
         'message': 'Success',
-        'payload': {'documents': [{'id': newdoc['key'], 'signed_content': newdoc['doc']['signedContent'], 'validated': newdoc['validated']}]},
+        'payload': {'documents': [{'id': newdoc['key'], 'signed_content': newdoc['doc'].get('signedContent', newdoc['doc']['blob']), 'validated': newdoc['validated']}]},
     }
 
 
@@ -1483,12 +1487,16 @@ def _prepare_declined_email(key, owner_data):
     # migration to mail_aliases
     mail_aliases = session.get('mail_aliases', [session['mail']])
 
+    skipfinal = current_app.doc_store.get_skipfinal(key)
     pending = current_app.doc_store.get_pending_invites(key, exclude=mail_aliases)
     pending = [p for p in pending if not p['signed'] and not p['declined']]
     if len(pending) > 0:
         template = 'declined_by_email'
     else:
-        template = 'final_declined_by_email'
+        if skipfinal:
+            template = 'final_declined_by_email_skip'
+        else:
+            template = 'final_declined_by_email'
 
     recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
     mail_context = {
