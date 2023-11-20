@@ -1488,8 +1488,8 @@ def _prepare_declined_email(key, owner_data):
     mail_aliases = session.get('mail_aliases', [session['mail']])
 
     skipfinal = current_app.doc_store.get_skipfinal(key)
-    pending = current_app.doc_store.get_pending_invites(key, exclude=mail_aliases)
-    pending = [p for p in pending if not p['signed'] and not p['declined']]
+    pending_invites = current_app.doc_store.get_pending_invites(key, exclude=mail_aliases)
+    pending = [p for p in pending_invites if not p['signed'] and not p['declined']]
     if len(pending) > 0:
         template = 'declined_by_email'
     else:
@@ -1512,7 +1512,27 @@ def _prepare_declined_email(key, owner_data):
         body_txt = render_template(f'{template}.txt.jinja2', **mail_context)
         body_html = render_template(f'{template}.html.jinja2', **mail_context)
 
-    return (recipients, subject, body_txt, body_html)
+    emails = [((recipients, subject, body_txt, body_html), {})]
+
+    try:
+        doc = current_app.doc_store.get_signed_document(key)
+        sendsigned = current_app.doc_store.get_sendsigned(key)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem getting signed document: {e}')
+        return {'error': True, 'message': gettext('Cannot find the document being signed')}
+
+    validated = current_app.api_client.validate_signatures([{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}])
+    newdoc = validated[0]
+
+    try:
+        emails_more = _prepare_final_email_skipped(newdoc, key, sendsigned)
+        emails.extend(emails_more)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem preparing declined signed by all document to invited users: {e}')
+
+    return emails
 
 
 @edusign_views.route('/decline-invitation', methods=['POST'])
@@ -1546,8 +1566,8 @@ def decline_invitation(data):
             )
 
         else:
-            args = _prepare_declined_email(key, owner_data)
-            sendmail(*args)
+            emails = _prepare_declined_email(key, owner_data)
+            sendmail_bulk(emails)
 
     except Exception as e:
         current_app.logger.error(f'Problem sending email of declination: {e}')

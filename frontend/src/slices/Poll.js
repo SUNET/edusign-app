@@ -95,10 +95,8 @@ export const configureSkipped = async (thunkAPI, configData, owned) => {
   await owned.forEach(async (oldDoc) => {
     await configData.payload.skipped.forEach(async (doc) => {
       if (doc.key === oldDoc.key) {
-        let newSigned = [...oldDoc.signed];
-        newSigned = newSigned.concat(doc.signed);
-        let newDeclined = [...oldDoc.declined];
-        newDeclined = newDeclined.concat(doc.declined);
+        let newSigned = [...doc.signed];
+        let newDeclined = [...doc.declined];
         let newDoc = {
           ...oldDoc,
           signedContent: "data:application/pdf;base64," + doc.signed_content,
