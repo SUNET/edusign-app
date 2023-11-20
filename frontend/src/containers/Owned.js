@@ -14,7 +14,7 @@ import {
   hideOwnedPreview,
   selectOwnedDoc,
 } from "slices/Main";
-import { disablePolling, enablePolling } from "slices/Poll";
+import { disablePolling, enablePolling, poll } from "slices/Poll";
 import { skipOwnedSignature } from "slices/Documents";
 import { unsetSpinning } from "slices/Button";
 import { setActiveId, unsetActiveId } from "slices/Overlay";
@@ -61,7 +61,8 @@ const mapDispatchToProps = (dispatch, props) => {
       };
     },
     openEditInvitationForm: function (doc) {
-      return () => {
+      return async () => {
+        await dispatch(poll());
         dispatch(disablePolling());
         dispatch(setActiveId("dummy-help-id"));
         dispatch(showForm(doc.key + "-edit-invitations"));
