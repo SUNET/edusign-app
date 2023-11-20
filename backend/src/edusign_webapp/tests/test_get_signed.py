@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import json
+from base64 import b64encode
 
 from edusign_webapp import run
 from edusign_webapp.marshal import ResponseSchema
@@ -43,6 +44,8 @@ def _test_get_signed_documents(client, monkeypatch, process_data=None):
         if process_data is not None:
             return process_data
 
+        signed_content = b64encode(b'Dummy signed content').decode('utf8')
+
         return {
             'correlationId': '2a08e13e-8719-4b53-8586-662037f153ec',
             'id': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
@@ -50,7 +53,7 @@ def _test_get_signed_documents(client, monkeypatch, process_data=None):
                 {
                     'id': '6e46692d-7d34-4954-b760-96ee6ce48f61',
                     'mimeType': 'application/pdf',
-                    'signedContent': 'Dummy signed content',
+                    'signedContent': signed_content,
                 }
             ],
             'signerAssertionInformation': {
@@ -141,9 +144,11 @@ def _test_get_signed_documents(client, monkeypatch, process_data=None):
         csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
         user_key = sess['user_key']
 
+        sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
+
         doc_data = {
             'csrf_token': csrf_token,
-            'payload': {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
+            'payload': {'sign_response': sign_response, 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
         }
 
         from flask.sessions import SecureCookieSession
@@ -172,7 +177,9 @@ def test_get_signed_documents(client, monkeypatch):
 
     assert response.status == '200 OK'
 
-    assert b'Dummy signed content' in response.data
+    signed_content = b64encode(b'Dummy signed content')
+
+    assert signed_content in response.data
 
 
 def test_get_signed_documents_process_error(client, monkeypatch):
@@ -201,9 +208,11 @@ def test_get_signed_documents_post_raises(client, monkeypatch):
         csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
         user_key = sess['user_key']
 
+        sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
+
         doc_data = {
             'csrf_token': csrf_token,
-            'payload': {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
+            'payload': {'sign_response': sign_response, 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
         }
 
         from flask.sessions import SecureCookieSession
@@ -333,7 +342,8 @@ def test_get_signed_documents_empty_sign_response(client, monkeypatch):
 
 
 def test_get_signed_documents_no_relay_state(client, monkeypatch):
-    data = {'sign_response': 'Dummy Sign Response'}
+    sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
+    data = {'sign_response': sign_response}
     resp_data = _get_signed_documents(client, monkeypatch, data)
 
     assert resp_data['error']
@@ -344,7 +354,8 @@ def test_get_signed_documents_no_relay_state(client, monkeypatch):
 
 
 def test_get_signed_documents_empty_relay_state(client, monkeypatch):
-    data = {'sign_response': 'Dummy Sign Response', 'relay_state': ''}
+    sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
+    data = {'sign_response': sign_response, 'relay_state': ''}
     resp_data = _get_signed_documents(client, monkeypatch, data)
 
     assert resp_data['error']
@@ -355,7 +366,8 @@ def test_get_signed_documents_empty_relay_state(client, monkeypatch):
 
 
 def test_get_signed_documents_no_csrf(client, monkeypatch):
-    data = {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'}
+    sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
+    data = {'sign_response': sign_response, 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'}
     resp_data = _get_signed_documents(client, monkeypatch, data, csrf_token='rm')
 
     assert resp_data['error']
@@ -366,7 +378,8 @@ def test_get_signed_documents_no_csrf(client, monkeypatch):
 
 
 def test_get_signed_documents_wrong_csrf(client, monkeypatch):
-    data = {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'}
+    sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
+    data = {'sign_response': sign_response, 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'}
     resp_data = _get_signed_documents(client, monkeypatch, data, csrf_token='wrong csrf token')
 
     assert resp_data['error']
