@@ -59,7 +59,7 @@ def test_config(client):
 
 
 def test_config_custom(client_custom):
-    config_dict = {'https://idp': {'send_signed': True, 'skip_final': True}}
+    config_dict = {'https://idp': {'send_signed': True, 'skip_final': True, 'ordered_invitations': True}}
 
     custom_yaml = '/tmp/edusign-forms.yaml'
     with open(custom_yaml, 'w') as f:
@@ -77,12 +77,13 @@ def test_config_custom(client_custom):
 
     assert data['payload']['ui_defaults']['skip_final']
     assert data['payload']['ui_defaults']['send_signed']
+    assert data['payload']['ui_defaults']['ordered_invitations']
 
     os.unlink(custom_yaml)
 
 
 def test_no_config_custom(client_custom):
-    config_dict = {'https://idp2': {'send_signed': True, 'skip_final': True}}
+    config_dict = {'https://idp2': {'send_signed': True, 'skip_final': True, 'ordered_invitations': True}}
 
     custom_yaml = '/tmp/edusign-forms.yaml'
     with open(custom_yaml, 'w') as f:
@@ -100,6 +101,7 @@ def test_no_config_custom(client_custom):
 
     assert not data['payload']['ui_defaults']['skip_final']
     assert not data['payload']['ui_defaults']['send_signed']
+    assert not data['payload']['ui_defaults']['ordered_invitations']
 
     os.unlink(custom_yaml)
 
