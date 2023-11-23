@@ -308,13 +308,12 @@ class APIClient(object):
         authn_context = get_authn_context(documents)
         assurance = get_required_assurance(documents)
         attrs = []
-        if assurance not in ('', 'none'):
-            assurances = self.config['AVAILABLE_LOAS'].get(
-                session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']
-            )
-            levels = {'low': 0, 'medium': 1, 'high': 2}
-            loa = assurances[levels[assurance]]
-            attrs = [{'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11', 'value': loa}]
+        assurances = self.config['AVAILABLE_LOAS'].get(
+            session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']
+        )
+        levels = {'low': 0, 'medium': 1, 'high': 2}
+        loa = assurances[levels[assurance]]
+        attrs = [{'name': 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11', 'value': loa}]
         attrs.extend(
             [{'name': attr, 'value': session[name]} for attr, name in self.config['SIGNER_ATTRIBUTES'].items()]
         )

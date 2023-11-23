@@ -202,7 +202,7 @@ const initialValues = (props) => {
     makecopyChoice: false,
     isTemplate: props.isTemplate,
     newnameInput: nameForCopy(props),
-    loa: "none",
+    loa: "low",
     documentId: props.docId,
     orderedChoice: props.ui_defaults.ordered_invitations,
     invitees: [
@@ -754,7 +754,7 @@ class InviteForm extends React.Component {
         return <Field name="newnameInput" value="" type="hidden" />;
       }
     };
-    const loaControlHidden = <Field name="loa" value="none" type="hidden" />;
+    const loaControlHidden = <Field name="loa" value="low" type="hidden" />;
     const formId = "invite-form-" + this.props.docName;
     return (
       <>
