@@ -206,7 +206,6 @@ def get_invitations(remove_finished=False):
     poll = False
     levels = {'low': 0, 'medium': 1, 'high': 2}
     display_levels = {
-        'none': gettext('Any'),
         'low': gettext('Low'),
         'medium': gettext('Medium'),
         'high': gettext('High'),
@@ -214,16 +213,15 @@ def get_invitations(remove_finished=False):
     for doc in invited:
         loa = doc['loa']
         doc['loa'] = f"{loa},{display_levels[loa]}"
-        if loa not in ("", "none"):
-            required_level = levels[loa]
-            required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
-            if required_loa not in session['eduPersonAssurance']:
-                doc['state'] = 'failed-loa'
-                doc['message'] = gettext(
-                    "You don't provide the required securiry level, please make sure to provide level %(level)s"
-                    % {'level': required_loa}
-                )
-        elif len(doc['pending']) > 0:
+        required_level = levels[loa]
+        required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
+        if required_loa not in session['eduPersonAssurance']:
+            doc['state'] = 'failed-loa'
+            doc['message'] = gettext(
+                "You don't provide the required securiry level, please make sure to provide level %(level)s"
+                % {'level': required_loa}
+            )
+        if len(doc['pending']) > 0:
             poll = True
     newowned, skipped = [], []
     current_app.logger.debug(f"Start checking {len(owned)} owned docs")
@@ -373,8 +371,8 @@ def get_required_assurance(docs: list) -> str:
     :return: the required level of assurance
     """
     assurance = 0
-    required_assurance = 'none'
-    levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
+    required_assurance = 'low'
+    levels = {'low': 0, 'medium': 1, 'high': 2}
     for doc in docs:
         key = uuid.UUID(doc['key'])
         required = current_app.doc_store.get_loa(key)
