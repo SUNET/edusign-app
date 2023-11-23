@@ -37,7 +37,7 @@ export const infoLine = (doc, size) => {
   let created = "";
   if (creationDate !== null) {
     created = (
-      <div className={"info-line-1 doc-container-info-row-" + size}>
+      <div className={"info-line info-line-1 doc-container-info-row-" + size}>
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Created:"
@@ -56,7 +56,7 @@ export const infoLine = (doc, size) => {
     const loaName = loa[1];
     const loaValue = loa[0];
     requiredLoa = (
-      <div className={"info-line-2 doc-container-info-row-" + size}>
+      <div className={"info-line info-line-2 doc-container-info-row-" + size}>
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Required security level:"
@@ -72,7 +72,7 @@ export const infoLine = (doc, size) => {
   }
 
   const ordered = (
-    <div className={"info-line-3 doc-container-info-row-" + size}>
+    <div className={"info-line info-line-3 doc-container-info-row-" + size}>
       <span className="info-row-label">
         {(doc.ordered && (
           <FormattedMessage
