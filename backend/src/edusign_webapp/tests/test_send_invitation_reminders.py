@@ -62,7 +62,7 @@ def _test_send_reminders(client, monkeypatch, sample_doc_1):
                 'text': 'Dummy invitation text',
                 'sendsigned': True,
                 'skipfinal': False,
-                'loa': 'none',
+                'loa': 'low',
                 'ordered': False,
                 'invites': [
                     {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},

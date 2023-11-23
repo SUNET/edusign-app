@@ -1479,7 +1479,7 @@ describe("Multi sign invitations", function () {
               state: "loaded",
               size: 1500,
               key: "11111111-1111-1111-1111-111111111111",
-              loa: "none",
+              loa: "low",
               prev_signatures: "",
               signed: [
                 {
