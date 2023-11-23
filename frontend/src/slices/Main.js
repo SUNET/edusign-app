@@ -125,7 +125,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
           ...args.payload,
           showForced: true
         };
-      } else {
+      } else if (args.show) {
         args.payload = {
           ...args.payload,
           show: true
@@ -213,8 +213,8 @@ export const declineSigning = createAsyncThunk(
 export const downloadInvitedDraft = createAsyncThunk(
   "main/downloadInvitedDraft",
   async (args, thunkAPI) => {
-    const state = thunkAPI.getState();
-    const doc = state.main.pending_multisign.filter((d) => {
+    let state = thunkAPI.getState();
+    let doc = state.main.pending_multisign.filter((d) => {
       return d.name === args.docName;
     })[0];
     if (!doc.signedContent) {
@@ -228,6 +228,10 @@ export const downloadInvitedDraft = createAsyncThunk(
         })
       );
     }
+    state = thunkAPI.getState();
+    doc = state.main.pending_multisign.filter((d) => {
+      return d.name === args.docName;
+    })[0];
     const b64content =
       doc.signedContent !== undefined
         ? doc.signedContent.split(",")[1]
