@@ -56,7 +56,7 @@ CREATE TABLE [Documents]
        [owner_lang] VARCHAR(2) NOT NULL,
        [prev_signatures] TEXT,
        [sendsigned] INTEGER DEFAULT 1,
-       [loa] VARCHAR(255) DEFAULT "none",
+       [loa] VARCHAR(255) DEFAULT "low",
        [skipfinal] INTEGER DEFAULT 0,
        [locked] TIMESTAMP DEFAULT NULL,
        [locking_email] VARCHAR(255) DEFAULT NULL,
@@ -82,7 +82,7 @@ CREATE INDEX IF NOT EXISTS [OwnerEppnIX] ON [Documents] ([owner_eppn]);
 CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
 CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-PRAGMA user_version = 8;
+PRAGMA user_version = 9;
 """
 
 
@@ -241,6 +241,14 @@ def upgrade(db):
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [invitation_text] TEXT DEFAULT \"\";")
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [order_invitation] INTEGER DEFAULT 0;")
         cur.execute("PRAGMA user_version = 8;")
+        cur.close()
+        db.commit()
+
+    if version == 8:
+        cur = db.cursor()
+        cur.execute("ALTER TABLE [Documents] DROP COLUMN [loa];")
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [loa] VARCHAR(255) DEFAULT \"low\";")
+        cur.execute("PRAGMA user_version = 9;")
         cur.close()
         db.commit()
 
@@ -1104,7 +1112,7 @@ class SqliteMD(ABCMetadata):
         document_result = self._db_query(DOCUMENT_QUERY_LOA, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.debug(f"Trying to find loa for a non-existing document with key {key}")
-            return "none"
+            return "low"
 
         return str(document_result['loa'])
 

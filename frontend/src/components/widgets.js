@@ -51,7 +51,7 @@ export const infoLine = (doc, size) => {
     );
   }
   let requiredLoa = "";
-  if (doc.loa !== undefined && !("", "none").includes(doc.loa)) {
+  if (doc.loa !== undefined) {
     const loa = doc.loa.split(",");
     const loaName = loa[1];
     const loaValue = loa[0];

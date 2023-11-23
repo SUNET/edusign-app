@@ -339,15 +339,15 @@ class RedisStorageBackend:
     def query_loa(self, key):
         doc_id = self.query_document_id(str(key))
         if doc_id is None:
-            return "none"
+            return "low"
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
-        loa = b_doc.get(b"loa", b"none")
+        loa = b_doc.get(b"loa", b"low")
         return loa.decode('utf8')
 
     def query_ordered(self, key):
         doc_id = self.query_document_id(str(key))
         if doc_id is None:
-            return "none"
+            return False
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         return bool(b_doc[b'ordered_invitations'])
 
