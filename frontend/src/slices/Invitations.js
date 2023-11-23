@@ -100,7 +100,7 @@ export const sendInvites = createAsyncThunk(
       thunkAPI.dispatch(setState({ name: docName, state: "loaded" }));
       document = newDocument;
     }
-    const loa = args.values.loa !== undefined ? args.values.loa : "none";
+    const loa = args.values.loa !== undefined ? args.values.loa : "low";
     // We send the gathered data to the `create-multi-sign` endpoint in the backend.
     const dataToSend = {
       owner: owner,
@@ -165,15 +165,10 @@ export const sendInvites = createAsyncThunk(
     }
 
     let display_loa = args.intl.formatMessage({
-      defaultMessage: "Any",
-      id: "loa-name-none",
+      defaultMessage: "Low",
+      id: "loa-name-low",
     });
-    if (loa === "low") {
-      display_loa = args.intl.formatMessage({
-        defaultMessage: "Low",
-        id: "loa-name-low",
-      });
-    } else if (loa === "medium") {
+    if (loa === "medium") {
       display_loa = args.intl.formatMessage({
         defaultMessage: "Medium",
         id: "loa-name-medium",

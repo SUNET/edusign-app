@@ -267,7 +267,7 @@ def test_get_config_with_invitations(
     app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, environ_base_2
 ):
     response1, response2 = _test_get_config_with_invitations(
-        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'none', False
+        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'low', False
     )
     assert 'unconfirmed' == json.loads(response1.data)['payload']['pending_multisign'][0]['state']
     assert '' == json.loads(response1.data)['payload']['pending_multisign'][0]['message']
@@ -290,7 +290,7 @@ def test_get_config_with_ordered_invitations(
     app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, environ_base_2
 ):
     response1, response2 = _test_get_config_with_invitations(
-        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'none', True
+        app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'low', True
     )
     assert 'unconfirmed' == json.loads(response1.data)['payload']['pending_multisign'][0]['state']
     assert '' == json.loads(response1.data)['payload']['pending_multisign'][0]['message']
