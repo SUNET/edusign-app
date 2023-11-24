@@ -90,11 +90,13 @@ _environ_base = {
     "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
     "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
     "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
-    "HTTP_EDUPERSONASSURANCE_20": b';'.join([
-        b64encode(b'<AttributeValue>http://www.swamid.se/policy/assurance/al1</AttributeValue>'),
-        b64encode(b'<AttributeValue>https://refeds.org/assurance/IAP/low</AttributeValue>'),
-        b64encode(b'<AttributeValue>https://refeds.org/assurance</AttributeValue>'),
-    ]).decode('ascii'),
+    "HTTP_EDUPERSONASSURANCE_20": b';'.join(
+        [
+            b64encode(b'<AttributeValue>http://www.swamid.se/policy/assurance/al1</AttributeValue>'),
+            b64encode(b'<AttributeValue>https://refeds.org/assurance/IAP/low</AttributeValue>'),
+            b64encode(b'<AttributeValue>https://refeds.org/assurance</AttributeValue>'),
+        ]
+    ).decode('ascii'),
 }
 
 
@@ -107,11 +109,13 @@ _environ_base_2 = {
     "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
     "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
     "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
-    "HTTP_EDUPERSONASSURANCE_20": b';'.join([
-        b64encode(b'<AttributeValue>http://www.swamid.se/policy/assurance/al1</AttributeValue>'),
-        b64encode(b'<AttributeValue>https://refeds.org/assurance/IAP/low</AttributeValue>'),
-        b64encode(b'<AttributeValue>https://refeds.org/assurance</AttributeValue>'),
-    ]).decode('ascii'),
+    "HTTP_EDUPERSONASSURANCE_20": b';'.join(
+        [
+            b64encode(b'<AttributeValue>http://www.swamid.se/policy/assurance/al1</AttributeValue>'),
+            b64encode(b'<AttributeValue>https://refeds.org/assurance/IAP/low</AttributeValue>'),
+            b64encode(b'<AttributeValue>https://refeds.org/assurance</AttributeValue>'),
+        ]
+    ).decode('ascii'),
 }
 
 
