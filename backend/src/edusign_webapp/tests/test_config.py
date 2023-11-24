@@ -35,13 +35,7 @@ import os
 from base64 import b64encode
 from copy import deepcopy
 from datetime import timedelta
-
 import yaml
-from copy import deepcopy
-from datetime import timedelta
-
-from edusign_webapp.marshal import ResponseSchema
-
 
 from edusign_webapp.marshal import ResponseSchema
 
