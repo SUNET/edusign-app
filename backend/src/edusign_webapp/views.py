@@ -1017,9 +1017,7 @@ def _next_ordered_invitation_mail(doc_key, docname, pending_invites, pending, ow
         'text': custom_text,
     }
     with force_locale(lang):
-        subject = gettext('You have been invited to sign "%(document_name)s"') % {
-            'document_name': docname
-        }
+        subject = gettext('You have been invited to sign "%(document_name)s"') % {'document_name': docname}
         body_txt = render_template('invitation_email.txt.jinja2', **mail_context)
         body_html = render_template('invitation_email.html.jinja2', **mail_context)
 
@@ -1054,7 +1052,9 @@ def _process_signed_documents(process_data):
             else:
                 if pending > 1:
                     if ordered:
-                        next_invitation_mail = _next_ordered_invitation_mail(key, docname, pending_invites, pending, owner)
+                        next_invitation_mail = _next_ordered_invitation_mail(
+                            key, docname, pending_invites, pending, owner
+                        )
                         emails.append(next_invitation_mail)
                 try:
                     email_args = _prepare_signed_by_email(key, owner)
@@ -1132,7 +1132,9 @@ def get_signed_documents(sign_data: dict) -> dict:
                 messages = _prepare_all_signed_email(doc, mail_aliases)
                 emails.extend(messages)
             except Exception as e:
-                current_app.logger.error(f"Problem sending signed by all email to all invited for doc '{owner['docname']}': {e}")
+                current_app.logger.error(
+                    f"Problem sending signed by all email to all invited for doc '{owner['docname']}': {e}"
+                )
 
         docs.append({'id': doc['key'], 'signed_content': doc['doc']['signedContent'], 'validated': doc['validated']})
 
@@ -1617,7 +1619,9 @@ def skip_final_signature(data: dict) -> dict:
         current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
         return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
-    validated = current_app.api_client.validate_signatures([{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}])
+    validated = current_app.api_client.validate_signatures(
+        [{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}]
+    )
     newdoc = validated[0]
 
     try:
@@ -1699,7 +1703,9 @@ def _prepare_declined_emails(key, owner_data):
             current_app.logger.error(f'Problem getting signed document: {e}')
             return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
-        validated = current_app.api_client.validate_signatures([{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}])
+        validated = current_app.api_client.validate_signatures(
+            [{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}]
+        )
         newdoc = validated[0]
 
         try:
@@ -1710,7 +1716,9 @@ def _prepare_declined_emails(key, owner_data):
             current_app.logger.error(f'Problem preparing declined signed by all document to invited users: {e}')
 
     if len(pending) > 0 and ordered:
-        next_invitation_mail = _next_ordered_invitation_mail(key, docname, pending_invites, len(pending) + 1, owner_data)
+        next_invitation_mail = _next_ordered_invitation_mail(
+            key, docname, pending_invites, len(pending) + 1, owner_data
+        )
         emails.append(next_invitation_mail)
 
     return emails
