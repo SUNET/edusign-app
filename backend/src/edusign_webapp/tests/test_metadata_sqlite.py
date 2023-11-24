@@ -38,7 +38,6 @@ from datetime import datetime
 
 from edusign_webapp import run
 
-
 invitation_flags = [
     True,  # sendsigned
     'any',  # loa
@@ -601,9 +600,7 @@ def test_add_and_get_invitation(sqlite_md, sample_metadata_1, sample_owner_1, sa
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
-        invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
-        )
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
@@ -640,9 +637,7 @@ def test_add_and_lock(sqlite_md, sample_metadata_1, sample_owner_1, sample_invit
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
-        invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
-        )
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
@@ -658,9 +653,7 @@ def test_add_and_lock_wrong_email(sqlite_md, sample_metadata_1, sample_owner_1, 
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
-        invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
-        )
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
@@ -676,9 +669,7 @@ def test_add_and_rm_lock(sqlite_md, sample_metadata_1, sample_owner_1, sample_in
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
-        invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
-        )
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
@@ -694,9 +685,7 @@ def test_add_and_rm_lock_wrong_email(sqlite_md, sample_metadata_1, sample_owner_
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
-        invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
-        )
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
@@ -712,9 +701,7 @@ def test_add_and_lock_before(sqlite_md, sample_metadata_1, sample_owner_1, sampl
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
-        invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
-        )
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
@@ -733,9 +720,7 @@ def test_add_and_lock_timeout(sqlite_md, sample_metadata_1, sample_owner_1, samp
 
         old = run.app.config['DOC_LOCK_TIMEOUT']
         run.app.config['DOC_LOCK_TIMEOUT'] = datetime.timedelta(seconds=0)
-        invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
-        )
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         key = uuid.UUID(invites[0]['key'])
         invitation = test_md.get_invitation(key)
@@ -753,8 +738,6 @@ def test_add_and_get_user(sqlite_md, sample_metadata_1, sample_owner_1, sample_i
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
-        invites = test_md.add(
-            dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags
-        )
+        invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
     assert invites[0]['email'] == sample_invites_1[0]['email']

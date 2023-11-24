@@ -785,7 +785,7 @@ class RedisMD(ABCMetadata):
                             'email': subinvite['user_email'],
                             'name': subinvite['user_name'],
                             'lang': subinvite['user_lang'],
-                            'order': subinvite['order']
+                            'order': subinvite['order'],
                         }
                         if subemail_result['email'] == email:
                             continue

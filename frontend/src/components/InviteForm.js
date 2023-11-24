@@ -166,7 +166,9 @@ const validate = (props) => {
     let emails = [];
     values.invitees.forEach((val, i) => {
       const nameError = validateName(props, i)(val.name);
-      const emailError = validateEmail(props, values.invitees, i, {validate: true})(val.email);
+      const emailError = validateEmail(props, values.invitees, i, {
+        validate: true,
+      })(val.email);
       const langError = validateLang(val.lang);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
       if (emailError !== undefined) {
@@ -329,7 +331,7 @@ function _InviteesControl(props) {
                 props,
                 [...fprops.values.invitees],
                 index,
-                fprops.status,
+                fprops.status
               )}
               isValid={
                 fprops.touched.invitees &&
@@ -416,17 +418,16 @@ function _InviteesArrayOrdered(props) {
       {(arrayHelpers) => (
         <>
           <DragDropContext
-            onBeforeCapture={() => {fprops.setStatus({validate: false})}}
+            onBeforeCapture={() => {
+              fprops.setStatus({ validate: false });
+            }}
             onDragEnd={(result) => {
               if (!result.destination) {
-                fprops.setStatus({validate: true});
+                fprops.setStatus({ validate: true });
                 return;
               }
-              arrayHelpers.move(
-                result.source.index,
-                result.destination.index
-              );
-              fprops.setStatus({validate: true});
+              arrayHelpers.move(result.source.index, result.destination.index);
+              fprops.setStatus({ validate: true });
             }}
           >
             <Droppable droppableId="droppable">
@@ -546,9 +547,7 @@ function _InviteesWidget(props) {
     <div className={`dummy-div-${props.ordered}`}>
       {(props.ordered && (
         <InviteesArrayOrdered button={button} {...props} />
-      )) || (
-        <InviteesArray button={button} {...props} />
-      )}
+      )) || <InviteesArray button={button} {...props} />}
     </div>
   );
 }

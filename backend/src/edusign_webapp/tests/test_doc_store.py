@@ -37,7 +37,6 @@ import uuid
 
 from edusign_webapp import run
 
-
 invitation_flags = [
     True,  # sendsigned
     'any',  # loa
