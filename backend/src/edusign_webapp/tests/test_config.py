@@ -32,14 +32,13 @@
 #
 import json
 import os
-
-import yaml
 from base64 import b64encode
 from copy import deepcopy
 from datetime import timedelta
 
-from edusign_webapp.marshal import ResponseSchema
+import yaml
 
+from edusign_webapp.marshal import ResponseSchema
 
 
 def test_config(client):
@@ -107,14 +106,7 @@ def test_no_config_custom(client_custom):
 
 
 def _test_get_config_with_invitations(
-    app_and_client,
-    environ_base,
-    environ_base_2,
-    monkeypatch,
-    sample_doc_1,
-    sample_invites_1,
-    loa,
-    ordered
+    app_and_client, environ_base, environ_base_2, monkeypatch, sample_doc_1, sample_invites_1, loa, ordered
 ):
     app, client = app_and_client
 
@@ -283,7 +275,9 @@ def test_get_config_with_invitations_insufficient_loa(
         app_and_client, environ_base, environ_base_2, monkeypatch, sample_owned_doc_1, sample_invites_1, 'high', False
     )
     assert 'failed-loa' == json.loads(response.data)['payload']['pending_multisign'][0]['state']
-    assert json.loads(response.data)['payload']['pending_multisign'][0]['message'].startswith("You don't provide the required securiry level")
+    assert json.loads(response.data)['payload']['pending_multisign'][0]['message'].startswith(
+        "You don't provide the required securiry level"
+    )
 
 
 def test_get_config_with_ordered_invitations(
