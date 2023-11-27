@@ -48,6 +48,7 @@ invitation_flags = [
 
 def test_add(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -67,6 +68,7 @@ def test_add(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
 
 def test_get_full(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -85,6 +87,7 @@ def test_get_full(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1)
 
 def test_add_raw(sqlite_md, redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     _, sqlite_test_md = sqlite_md
     dummy_key = uuid.uuid4()
 
@@ -125,6 +128,7 @@ def test_add_raw(sqlite_md, redis_md, sample_metadata_1, sample_owner_1, sample_
 
 def test_get_no_pending(redis_md):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
 
     with run.app.app_context():
         pending = test_md.get_pending(['invite0@example.org'])
@@ -134,6 +138,7 @@ def test_get_no_pending(redis_md):
 
 def test_add_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -157,6 +162,7 @@ def test_add_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sample
 
 def test_add_document_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -181,6 +187,7 @@ def test_add_document_and_get_owned(redis_md, sample_metadata_1, sample_owner_1,
 
 def test_add_document_and_decline_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -208,6 +215,7 @@ def test_add_document_and_decline_and_get_owned(redis_md, sample_metadata_1, sam
 
 def test_add_document_and_sign_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -236,6 +244,7 @@ def test_add_document_and_sign_and_get_owned(redis_md, sample_metadata_1, sample
 
 def test_add_document_and_sign_and_get_full_invites(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -256,6 +265,7 @@ def test_add_document_and_sign_and_get_full_invites(redis_md, sample_metadata_1,
 
 def test_add_document_and_decline_and_get_full_invites(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -278,6 +288,7 @@ def test_add_document_and_invitation_and_get_full_invites(
     redis_md, sample_metadata_1, sample_owner_1, sample_invites_1
 ):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
     dummy_invitation_key = str(uuid.uuid4())
 
@@ -307,6 +318,7 @@ def test_add_document_and_invitation_and_remove_and_get_full_invites(
     redis_md, sample_metadata_1, sample_owner_1, sample_invites_1
 ):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
     dummy_invitation_key = str(uuid.uuid4())
 
@@ -332,6 +344,7 @@ def test_add_document_and_invitation_raw_and_get_full_invites(
     redis_md, sample_metadata_1, sample_owner_1, sample_invites_1
 ):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
     dummy_invitation_key = uuid.uuid4()
 
@@ -368,6 +381,7 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
     redis_md, sample_metadata_1, sample_owner_1, sample_invites_1
 ):
     _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
     dummy_invitation_key = uuid.uuid4()
 
@@ -428,7 +442,8 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
 
 
 def test_add_and_get_pending_not(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -442,7 +457,8 @@ def test_add_and_get_pending_not(redis_md, sample_metadata_1, sample_owner_1, sa
 def test_add_two_and_get_pending(
     redis_md, sample_metadata_1, sample_metadata_2, sample_owner_1, sample_owner_2, sample_invites_1, sample_invites_2
 ):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key_1 = uuid.uuid4()
     dummy_key_2 = uuid.uuid4()
 
@@ -462,7 +478,8 @@ def test_add_two_and_get_pending(
 
 
 def test_add_and_get_pending_invites(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key_1 = uuid.uuid4()
 
     with run.app.app_context():
@@ -479,7 +496,8 @@ def test_add_and_get_pending_invites(redis_md, sample_metadata_1, sample_owner_1
 
 
 def test_add_update_and_get_pending_invites(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key_1 = uuid.uuid4()
 
     with run.app.app_context():
@@ -498,7 +516,8 @@ def test_add_update_and_get_pending_invites(redis_md, sample_metadata_1, sample_
 
 
 def test_update_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -519,7 +538,8 @@ def test_update_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sam
 
 
 def test_updated_timestamp(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -542,7 +562,8 @@ def test_updated_timestamp(redis_md, sample_metadata_1, sample_owner_1, sample_i
 
 
 def test_add_and_get_owned_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -560,7 +581,8 @@ def test_add_and_get_owned_by_email(redis_md, sample_metadata_1, sample_owner_1,
 
 
 def test_add_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -578,7 +600,8 @@ def test_add_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_i
 
 
 def test_add_and_remove_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -593,7 +616,8 @@ def test_add_and_remove_by_email(redis_md, sample_metadata_1, sample_owner_1, sa
 
 
 def test_add_and_remove(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -608,7 +632,8 @@ def test_add_and_remove(redis_md, sample_metadata_1, sample_owner_1, sample_invi
 
 
 def test_add_and_remove_wrong_key_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -623,7 +648,8 @@ def test_add_and_remove_wrong_key_by_email(redis_md, sample_metadata_1, sample_o
 
 
 def test_add_and_remove_wrong_key(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -638,7 +664,8 @@ def test_add_and_remove_wrong_key(redis_md, sample_metadata_1, sample_owner_1, s
 
 
 def test_add_and_remove_not_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -651,7 +678,8 @@ def test_add_and_remove_not_by_email(redis_md, sample_metadata_1, sample_owner_1
 
 
 def test_add_and_remove_not(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -664,7 +692,8 @@ def test_add_and_remove_not(redis_md, sample_metadata_1, sample_owner_1, sample_
 
 
 def test_add_and_remove_force_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -677,7 +706,8 @@ def test_add_and_remove_force_by_email(redis_md, sample_metadata_1, sample_owner
 
 
 def test_add_and_remove_force(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -690,7 +720,8 @@ def test_add_and_remove_force(redis_md, sample_metadata_1, sample_owner_1, sampl
 
 
 def test_add_and_get_invitation(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -703,7 +734,8 @@ def test_add_and_get_invitation(redis_md, sample_metadata_1, sample_owner_1, sam
 
 
 def test_add_and_get_invitation_wrong_key(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -715,7 +747,8 @@ def test_add_and_get_invitation_wrong_key(redis_md, sample_metadata_1, sample_ow
 
 
 def test_get_no_document(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -727,7 +760,8 @@ def test_get_no_document(redis_md, sample_metadata_1, sample_owner_1, sample_inv
 
 
 def test_add_and_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -743,7 +777,8 @@ def test_add_and_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invite
 
 
 def test_add_and_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -759,7 +794,8 @@ def test_add_and_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1, s
 
 
 def test_add_and_rm_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -775,7 +811,8 @@ def test_add_and_rm_lock(redis_md, sample_metadata_1, sample_owner_1, sample_inv
 
 
 def test_add_and_rm_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -791,7 +828,8 @@ def test_add_and_rm_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1
 
 
 def test_add_and_lock_before(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -806,7 +844,8 @@ def test_add_and_lock_before(redis_md, sample_metadata_1, sample_owner_1, sample
 
 
 def test_add_and_lock_timeout(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
@@ -828,7 +867,8 @@ def test_add_and_lock_timeout(redis_md, sample_metadata_1, sample_owner_1, sampl
 
 
 def test_add_and_get_user(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
-    tempdir, test_md = redis_md
+    _, test_md = redis_md
+    test_md.client.redis.flushall()
     dummy_key = uuid.uuid4()
 
     with run.app.app_context():
