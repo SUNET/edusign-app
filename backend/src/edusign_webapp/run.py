@@ -130,7 +130,6 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 app = edusign_init_app('edusign')
 
 
-@app.babel.localeselector
 def get_locale():
     """
     get locale, from cookie or from config
@@ -138,6 +137,9 @@ def get_locale():
     if 'lang' in request.cookies:
         return request.cookies.get('lang')
     return request.accept_languages.best_match(app.config.get('SUPPORTED_LANGUAGES'))
+
+
+app.babel.init_app(app, locale_selector=get_locale)
 
 
 class LoggingMiddleware(object):
