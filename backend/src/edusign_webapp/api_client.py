@@ -393,7 +393,7 @@ class APIClient(object):
 
         return response_data, documents_with_id
 
-    def process_sign_request(self, sign_response: dict, relay_state: str) -> requests.Response:
+    def process_sign_request(self, sign_response: dict, relay_state: str) -> dict:
         """
         This method is meant to be called after the user has completed the sgnature process, through the
         sign service and the IdP. At this point, the documents are signed and kept in the API's cache.

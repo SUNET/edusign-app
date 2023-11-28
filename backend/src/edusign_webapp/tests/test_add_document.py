@@ -32,9 +32,6 @@
 #
 import json
 
-from edusign_webapp import run
-from edusign_webapp.marshal import ResponseSchema
-
 
 def test_add_document(app, environ_base, monkeypatch, sample_new_doc_1):
     _, app = app

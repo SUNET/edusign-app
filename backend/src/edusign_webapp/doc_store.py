@@ -764,7 +764,7 @@ class DocStore(object):
         """
         current = self.metadata.get_invited(document_key)
         pending = list(filter(lambda invite: not invite['signed'] and not invite['declined'], current))
-        changed = {'added': [], 'removed': []}
+        changed: Dict[str, List[Dict[str, str]]] = {'added': [], 'removed': []}
 
         for old in pending:
             remove = True

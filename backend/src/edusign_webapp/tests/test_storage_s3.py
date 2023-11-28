@@ -36,7 +36,7 @@ from moto import mock_s3
 
 
 def _create_bucket(app):
-    app.doc_store.storage.s3.create_bucket(Bucket='edusign-storage')
+    app.extensions['doc_store'].storage.s3.create_bucket(Bucket='edusign-storage')
 
 
 @mock_s3
@@ -44,17 +44,17 @@ def test_add(s3_app, sample_pdf_data, sample_binary_pdf_data):
     _create_bucket(s3_app)
     key = str(uuid.uuid4())
 
-    s3_app.doc_store.storage.add(key, sample_pdf_data)
+    s3_app.extensions['doc_store'].storage.add(key, sample_pdf_data)
 
-    assert list(s3_app.doc_store.storage.s3_bucket.objects.all())[0].key == key
+    assert list(s3_app.extensions['doc_store'].storage.s3_bucket.objects.all())[0].key == key
 
 
 @mock_s3
 def test_add_and_retrieve(s3_app, sample_pdf_data):
     _create_bucket(s3_app)
     key = str(uuid.uuid4())
-    s3_app.doc_store.storage.add(key, sample_pdf_data)
-    content = s3_app.doc_store.storage.get_content(key)
+    s3_app.extensions['doc_store'].storage.add(key, sample_pdf_data)
+    content = s3_app.extensions['doc_store'].storage.get_content(key)
 
     assert content == sample_pdf_data
 
@@ -63,11 +63,11 @@ def test_add_and_retrieve(s3_app, sample_pdf_data):
 def test_add_update_and_retrieve(s3_app, sample_pdf_data, sample_pdf_data_2):
     _create_bucket(s3_app)
     key = str(uuid.uuid4())
-    s3_app.doc_store.storage.add(key, sample_pdf_data)
+    s3_app.extensions['doc_store'].storage.add(key, sample_pdf_data)
 
-    s3_app.doc_store.storage.update(key, sample_pdf_data_2)
+    s3_app.extensions['doc_store'].storage.update(key, sample_pdf_data_2)
 
-    content = s3_app.doc_store.storage.get_content(key)
+    content = s3_app.extensions['doc_store'].storage.get_content(key)
 
     assert content != sample_pdf_data
     assert content == sample_pdf_data_2
@@ -78,13 +78,13 @@ def test_add_two_update_and_retrieve(s3_app, sample_pdf_data, sample_pdf_data_2)
     _create_bucket(s3_app)
     key1 = str(uuid.uuid4())
     key2 = str(uuid.uuid4())
-    s3_app.doc_store.storage.add(key1, sample_pdf_data)
-    s3_app.doc_store.storage.add(key2, sample_pdf_data_2)
+    s3_app.extensions['doc_store'].storage.add(key1, sample_pdf_data)
+    s3_app.extensions['doc_store'].storage.add(key2, sample_pdf_data_2)
 
-    s3_app.doc_store.storage.update(key1, sample_pdf_data_2)
+    s3_app.extensions['doc_store'].storage.update(key1, sample_pdf_data_2)
 
-    content1 = s3_app.doc_store.storage.get_content(key1)
-    content2 = s3_app.doc_store.storage.get_content(key2)
+    content1 = s3_app.extensions['doc_store'].storage.get_content(key1)
+    content2 = s3_app.extensions['doc_store'].storage.get_content(key2)
 
     assert content1 == sample_pdf_data_2
     assert content1 == content2
@@ -94,25 +94,25 @@ def test_add_two_update_and_retrieve(s3_app, sample_pdf_data, sample_pdf_data_2)
 def test_add_and_remove(s3_app, sample_pdf_data):
     _create_bucket(s3_app)
     key = str(uuid.uuid4())
-    s3_app.doc_store.storage.add(key, sample_pdf_data)
+    s3_app.extensions['doc_store'].storage.add(key, sample_pdf_data)
 
-    s3_app.doc_store.storage.remove(key)
+    s3_app.extensions['doc_store'].storage.remove(key)
 
-    assert len(list(s3_app.doc_store.storage.s3_bucket.objects.all())) == 0
+    assert len(list(s3_app.extensions['doc_store'].storage.s3_bucket.objects.all())) == 0
 
 
 @mock_s3
 def test_add_2_and_remove_1(s3_app, sample_pdf_data, sample_pdf_data_2):
     _create_bucket(s3_app)
     key = str(uuid.uuid4())
-    s3_app.doc_store.storage.add(key, sample_pdf_data)
+    s3_app.extensions['doc_store'].storage.add(key, sample_pdf_data)
     key2 = str(uuid.uuid4())
-    s3_app.doc_store.storage.add(key2, sample_pdf_data_2)
+    s3_app.extensions['doc_store'].storage.add(key2, sample_pdf_data_2)
 
-    s3_app.doc_store.storage.remove(key)
+    s3_app.extensions['doc_store'].storage.remove(key)
 
-    assert len(list(s3_app.doc_store.storage.s3_bucket.objects.all())) == 1
+    assert len(list(s3_app.extensions['doc_store'].storage.s3_bucket.objects.all())) == 1
 
-    content2 = s3_app.doc_store.storage.get_content(key2)
+    content2 = s3_app.extensions['doc_store'].storage.get_content(key2)
 
     assert content2 == sample_pdf_data_2

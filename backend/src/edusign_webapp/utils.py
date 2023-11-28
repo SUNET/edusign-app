@@ -31,7 +31,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import io
-import os
 import uuid
 from base64 import b64decode
 from email.encoders import encode_base64
@@ -40,7 +39,7 @@ from xml.etree import cElementTree as ET
 from zlib import error as zliberror
 
 from flask import current_app, request, session
-from flask_babel import force_locale, get_locale, gettext
+from flask_babel import gettext
 from flask_mailman import EmailMultiAlternatives
 from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
 
@@ -70,7 +69,7 @@ def add_attributes_to_session(check_whitelisted=True):
     """
     if 'eppn' not in session:
         try:
-            eppn = request.headers.get('Edupersonprincipalname')
+            eppn = request.headers['Edupersonprincipalname']
         except KeyError:
             current_app.logger.error('Missing eduPersonPrincipalName from request')
             raise
@@ -159,7 +158,7 @@ def add_attributes_to_session(check_whitelisted=True):
         current_app.logger.debug(f'Headers sent by Shibboleth SP {request.headers}')
 
         if check_whitelisted:
-            if not current_app.is_whitelisted(eppn):
+            if not is_whitelisted(current_app, eppn):
                 current_app.logger.info(f"Rejecting user with {eppn} address")
                 raise ValueError('Unauthorized user')
 
@@ -176,7 +175,7 @@ def prepare_document(document: dict) -> dict:
     """
     try:
         current_app.logger.info(f"Sending document {document['name']} for preparation for user {session['eppn']}")
-        return current_app.api_client.prepare_document(document)
+        return current_app.extensions['api_client'].prepare_document(document)
 
     except Exception as e:
         current_app.logger.error(f'Problem preparing document: {e}')
@@ -201,8 +200,8 @@ def get_invitations(remove_finished=False):
     mail_addresses = session.get('mail_aliases')
     if mail_addresses is None:
         mail_addresses = [session['mail']]
-    owned = current_app.doc_store.get_owned_documents(session['eppn'], mail_addresses)
-    invited = current_app.doc_store.get_pending_documents(mail_addresses)
+    owned = current_app.extensions['doc_store'].get_owned_documents(session['eppn'], mail_addresses)
+    invited = current_app.extensions['doc_store'].get_pending_documents(mail_addresses)
     poll = False
     levels = {'low': 0, 'medium': 1, 'high': 2}
     display_levels = {
@@ -233,10 +232,10 @@ def get_invitations(remove_finished=False):
 
         if doc['skipfinal'] and len(doc['pending']) == 0:
             current_app.logger.debug(f"Skipping {doc['name']}")
-            doc['blob'] = current_app.doc_store.get_document_content(doc['key'])
-            doc['signed_content'] = current_app.doc_store.get_document_content(doc['key'])
+            doc['blob'] = current_app.extensions['doc_store'].get_document_content(doc['key'])
+            doc['signed_content'] = current_app.extensions['doc_store'].get_document_content(doc['key'])
             if remove_finished:
-                current_app.doc_store.remove_document(doc['key'])
+                current_app.extensions['doc_store'].remove_document(doc['key'])
             skipped.append(doc)
         else:
             newowned.append(doc)
@@ -279,6 +278,23 @@ def get_previous_signatures(document: dict) -> str:
     except Exception as e:
         current_app.logger.error(f'Problem reading previous signatures: {e}')
         return ""
+
+
+def is_whitelisted(app, eppn: str) -> bool:
+    """
+    Check whether a given email address is whitelisted for starting sign processes
+
+    :param app: the Flask app
+    :param eppn: the eduPersonPrincipalName
+    :return: whether it is whitelisted
+    """
+    if eppn.lower() in app.config['USER_BLACKLIST']:
+        return False
+
+    elif eppn.lower() in app.config['USER_WHITELIST']:
+        return True
+
+    return eppn.lower().split('@')[1] in app.config['SCOPE_WHITELIST']
 
 
 def compose_message(
@@ -332,18 +348,19 @@ def sendmail_bulk(msgs_data: list):
 
     :param msgs: a list of arguments for `compose_message`.
     """
+    dummy = False
     if current_app.config['MAIL_BACKEND'] == 'dummy':
-        backend = 'dummy'
+        dummy = True
+        conn = current_app.extensions['mailer'].get_connection(backend='dummy')
     else:
-        backend = ParallelEmailBackend
-    conn = current_app.mailer.get_connection(backend=backend)
+        conn = current_app.extensions['mailer'].get_connection(backend=ParallelEmailBackend)
     msgs = []
 
     for args, kwargs in msgs_data:
         msg = compose_message(*args, **kwargs)
         msgs.append(msg)
 
-    if backend == 'dummy':
+    if dummy:
         conn.send_messages(msgs)
     else:
         conn.send_messages_in_parallel(msgs)
@@ -375,7 +392,7 @@ def get_required_assurance(docs: list) -> str:
     levels = {'low': 0, 'medium': 1, 'high': 2}
     for doc in docs:
         key = uuid.UUID(doc['key'])
-        required = current_app.doc_store.get_loa(key)
+        required = current_app.extensions['doc_store'].get_loa(key)
         required_level = levels[required]
         if required_level > assurance:
             assurance = required_level
