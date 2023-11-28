@@ -71,23 +71,26 @@ export const infoLine = (doc, size) => {
     );
   }
 
-  const ordered = (
-    <div className={"info-line info-line-3 doc-container-info-row-" + size}>
-      <span className="info-row-label">
-        {(doc.ordered && (
-          <FormattedMessage
-            defaultMessage="Ordered invitations"
-            key="multisign-owned-ordered"
-          />
-        )) || (
-          <FormattedMessage
-            defaultMessage="Unordered invitations"
-            key="multisign-owned-unordered"
-          />
-        )}
-      </span>
-    </div>
-  );
+  let ordered = "";
+  if (doc.ordered !== undefined) {
+    ordered = (
+      <div className={"info-line info-line-3 doc-container-info-row-" + size}>
+        <span className="info-row-label">
+          {(doc.ordered && (
+            <FormattedMessage
+              defaultMessage="Ordered invitations"
+              key="multisign-owned-ordered"
+            />
+          )) || (
+            <FormattedMessage
+              defaultMessage="Unordered invitations"
+              key="multisign-owned-unordered"
+            />
+          )}
+        </span>
+      </div>
+    );
+  }
   return (
     <div className="doc-info-line">
       {created}
