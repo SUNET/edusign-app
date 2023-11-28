@@ -158,18 +158,13 @@
       cursor: pointer;
     }
   }
-
-  .hidden {
-    visibility: hidden;
-    height: 0;
-  }
   #loa-select-field {
     flex: none;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 
     .loa-checkbox {
-      height: 1.5rem;
+      margin-right: 2rem;
 
       .loa-select {
         color: $form-field-text;
