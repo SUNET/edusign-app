@@ -16,7 +16,7 @@ import { sendInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { enablePolling } from "slices/Poll";
-import { toggleLoa, isNotInviting, setOrdered } from "slices/InviteForm";
+import { isNotInviting, setOrdered } from "slices/InviteForm";
 import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {
@@ -36,7 +36,6 @@ const mapStateToProps = (state, props) => {
     mail: state.main.signer_attributes.mail,
     mail_aliases: state.main.signer_attributes.mail_aliases,
     loas: state.main.available_loas,
-    show_loa: state.inviteform.show_loa_selection,
     inviting: state.inviteform.inviting,
     templates: state.template.documents,
     documents: state.documents.documents,
@@ -71,9 +70,6 @@ const mapDispatchToProps = (dispatch, props) => {
         _close(dispatch);
         resetForm();
       };
-    },
-    handleToggleLoa: function () {
-      dispatch(toggleLoa());
     },
     handleSetOrdered: function (ordered) {
       dispatch(setOrdered(ordered));
