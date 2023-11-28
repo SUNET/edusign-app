@@ -407,19 +407,11 @@ def get_required_assurance(docs: list) -> str:
     :return: the required level of assurance
     """
     assurance = 0
-<<<<<<< HEAD
     required_assurance = 'low'
     levels = {'low': 0, 'medium': 1, 'high': 2}
     for doc in docs:
         key = uuid.UUID(doc['key'])
         required = current_app.extensions['doc_store'].get_loa(key)
-=======
-    required_assurance = 'none'
-    levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
-    for doc in docs:
-        key = uuid.UUID(doc['key'])
-        required = current_app.doc_store.get_loa(key)
->>>>>>> 9a9f409d (check loa)
         required_level = levels[required]
         if required_level > assurance:
             assurance = required_level

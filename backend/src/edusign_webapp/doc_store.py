@@ -764,6 +764,7 @@ class DocStore(object):
                  and an `added` key pointing to added invitations
         """
         current = self.metadata.get_invited(document_key)
+
         pending = [invite for invite in current if not invite['signed'] and not invite['declined']]
         changed: Dict[str, List[Dict[str, str]]] = {'added': [], 'removed': []}
         ordered = self.get_ordered(document_key)
