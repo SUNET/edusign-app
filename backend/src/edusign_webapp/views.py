@@ -41,24 +41,9 @@ from typing import Any, Dict, List, Tuple, Union
 
 import pkg_resources
 import yaml
-from flask import (
-    Blueprint,
-    Response,
-    abort,
-    current_app,
-    make_response,
-    redirect,
-    render_template,
-    request,
-    session,
-    url_for,
-)
+from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for
 from flask_babel import force_locale, get_locale, gettext
-
-try:
-    from yaml import CLoader as Loader
-except ImportError:
-    from yaml import Loader
+from werkzeug.wrappers.response import Response
 
 from edusign_webapp.doc_store import DocStore
 from edusign_webapp.forms import has_pdf_form, update_pdf_form
@@ -89,6 +74,7 @@ from edusign_webapp.utils import (
     add_attributes_to_session,
     get_invitations,
     get_previous_signatures,
+    is_whitelisted,
     prepare_document,
     sendmail,
     sendmail_bulk,
@@ -111,13 +97,13 @@ def cleanup():
 
     :return: the number of documents removed
     """
-    keys = current_app.doc_store.get_old_documents(current_app.config['MAX_DOCUMENT_AGE'])
+    keys = current_app.extensions['doc_store'].get_old_documents(current_app.config['MAX_DOCUMENT_AGE'])
     current_app.logger.info(f'Purging old documents form db with keys: {keys}')
     total = len(keys)
     removed = 0
     for key in keys:
         try:
-            current_app.doc_store.remove_document(key, force=True)
+            current_app.extensions['doc_store'].remove_document(key, force=True)
             removed += 1
         except Exception as e:
             current_app.logger.error(f'Problem removing old document {key}: {e}')
@@ -170,14 +156,14 @@ def migrate_to_redis_and_s3():
             current_app.logger.info(f"    Document with key {doc_key} has no invitations, skipping")
             continue
 
-        doc_id = current_app.doc_store.add_document_raw(old_document, content)
+        doc_id = current_app.extensions['doc_store'].add_document_raw(old_document, content)
         migrated_docs += 1
         current_app.logger.info(f"    Document with key {doc_key} added to db and storage")
 
         current_app.logger.info(f"Going to migrate {len(old_invites)} invites for document with key {doc_key}")
         for invite in old_invites:
             invite['doc_id'] = doc_id
-            current_app.doc_store.add_invite_raw(invite)
+            current_app.extensions['doc_store'].add_invite_raw(invite)
             migrated_invites += 1
 
     return f'OK, migrated {migrated_docs} documents and {migrated_invites} invitations'
@@ -190,19 +176,19 @@ def metrics():
 
     :return: the number of documents removed
     """
-    keys = current_app.doc_store.get_old_documents(0)
+    keys = current_app.extensions['doc_store'].get_old_documents(0)
     report = f"Number of documents: {len(keys)}\n"
     weight = 0
     for key in keys:
-        weight += current_app.doc_store.get_document_size(key)
+        weight += current_app.extensions['doc_store'].get_document_size(key)
 
     report += f"Total bytes: {weight}\n"
 
-    old_keys = current_app.doc_store.get_old_documents(current_app.config['MAX_DOCUMENT_AGE'])
+    old_keys = current_app.extensions['doc_store'].get_old_documents(current_app.config['MAX_DOCUMENT_AGE'])
     report += f"Number of documents to purge: {len(old_keys)}\n"
     weight = 0
     for key in old_keys:
-        weight += current_app.doc_store.get_document_size(key)
+        weight += current_app.extensions['doc_store'].get_document_size(key)
 
     report += f"Total bytes to purge: {weight}\n"
 
@@ -469,7 +455,7 @@ def get_config() -> dict:
     """
     payload = get_invitations(remove_finished=True)
 
-    if 'eppn' in session and current_app.is_whitelisted(session['eppn']):
+    if 'eppn' in session and is_whitelisted(current_app, session['eppn']):
         payload['unauthn'] = False
     else:
         payload['unauthn'] = True
@@ -532,7 +518,7 @@ def add_document(document: dict) -> dict:
     :return: a dict with the data returned from the API after preparing the document,
              or with eerror information in case of some error.
     """
-    if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
+    if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
         return {'error': True, 'message': gettext('Unauthorized')}
 
     prepare_data = prepare_document(document)
@@ -584,15 +570,17 @@ def create_sign_request(documents: dict) -> dict:
     :return: A dict with either the relevant information returned by the API,
              or information about some error obtained in the process.
     """
-    if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
+    if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
         return {'error': True, 'message': gettext('Unauthorized')}
 
     current_app.logger.debug(f'Data gotten in create view: {documents}')
     try:
         current_app.logger.info(f"Creating signature request for user {session['eppn']}")
-        create_data, documents_with_id = current_app.api_client.create_sign_request(documents['documents'])
+        create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request(
+            documents['documents']
+        )
 
-    except current_app.api_client.ExpiredCache:
+    except current_app.extensions['api_client'].ExpiredCache:
         current_app.logger.info(
             f"Some document(s) have expired for {session['eppn']} in the API's cache, restarting process..."
         )
@@ -638,8 +626,8 @@ def _gather_invited_docs(docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any
     for doc in docs:
         current_app.logger.debug(f"Re-preparing invited document {doc['name']}")
         try:
-            stored = current_app.doc_store.get_invitation(doc['invite_key'])
-        except current_app.doc_store.DocumentLocked:
+            stored = current_app.extensions['doc_store'].get_invitation(doc['invite_key'])
+        except current_app.extensions['doc_store'].DocumentLocked:
             current_app.logger.debug(f"Invited document {doc['name']} is locked")
             failedDoc = {
                 'key': doc['key'],
@@ -757,7 +745,7 @@ def recreate_sign_request(documents: dict) -> dict:
     :return: A dict with either the relevant information returned by the API's `create` sign request endpoint,
              or information about some error obtained in the process.
     """
-    if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
+    if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
         if not session['invited-unauthn']:
             return {'error': True, 'message': gettext('Unauthorized')}
 
@@ -771,7 +759,7 @@ def recreate_sign_request(documents: dict) -> dict:
     tasks = [loop.create_task(prepare(doc)) for doc in documents['documents']['local']]
 
     for doc in documents['documents']['owned']:
-        doc['blob'] = current_app.doc_store.get_document_content(doc['key'])
+        doc['blob'] = current_app.extensions['doc_store'].get_document_content(doc['key'])
         tasks.append(loop.create_task(prepare(doc)))
 
     failed, invited_docs = _gather_invited_docs(documents['documents']['invited'])
@@ -792,7 +780,7 @@ def recreate_sign_request(documents: dict) -> dict:
     if len(new_docs) > 0:
         try:
             current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
-            create_data, documents_with_id = current_app.api_client.create_sign_request(new_docs)
+            create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request(new_docs)
 
         except Exception as e:
             current_app.logger.error(f'Problem creating sign request: {e}')
@@ -889,8 +877,10 @@ def _prepare_signed_by_email(key, owner):
     that one invited user (perhaps the last remaining one)
     has signed the document.
     """
-    skipfinal = current_app.doc_store.get_skipfinal(key)
-    pending = current_app.doc_store.get_pending_invites(key, exclude=session.get('mail_aliases', [session['mail']]))
+    skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
+    pending = current_app.extensions['doc_store'].get_pending_invites(
+        key, exclude=session.get('mail_aliases', [session['mail']])
+    )
     pending = [p for p in pending if not p['signed'] and not p['declined']]
 
     if len(pending) > 0:
@@ -929,7 +919,7 @@ def _prepare_all_signed_email(doc, mail_aliases):
     recipients = []
     recipients = defaultdict(list)
     recipients[current_lang].append(f"{doc['owner']['name']} <{doc['owner']['email']}>")
-    for invited in current_app.doc_store.get_pending_invites(doc['key']):
+    for invited in current_app.extensions['doc_store'].get_pending_invites(doc['key']):
         if not invited['signed'] and invited['email'] not in mail_aliases:
             continue
         lang = invited['lang']
@@ -941,7 +931,7 @@ def _prepare_all_signed_email(doc, mail_aliases):
     # attach PDF
     if doc['sendsigned']:
         suffix = 'signed'
-        doc_name = current_app.doc_store.get_document_name(doc['key'])
+        doc_name = current_app.extensions['doc_store'].get_document_name(doc['key'])
         if '.' in doc_name:
             splitted = doc_name.split('.')
             ext = splitted[-1]
@@ -980,25 +970,25 @@ def _prepare_signed_documents_data(process_data):
     docs = []
     for doc in process_data['signedDocuments']:
         key = doc['id']
-        owner = current_app.doc_store.get_owner_data(key)
+        owner = current_app.extensions['doc_store'].get_owner_data(key)
         current_app.logger.debug(f"Post-processing {key} for {owner}")
 
         # migration to mail_aliases
         mail_aliases = session.get('mail_aliases', [session['mail']])
 
         if 'email' in owner and owner['email'] not in mail_aliases:
-            current_app.doc_store.update_document(key, doc['signedContent'], mail_aliases)
-            current_app.doc_store.unlock_document(key, mail_aliases)
+            current_app.extensions['doc_store'].update_document(key, doc['signedContent'], mail_aliases)
+            current_app.extensions['doc_store'].unlock_document(key, mail_aliases)
 
-            pending_invites = current_app.doc_store.get_pending_invites(key)
+            pending_invites = current_app.extensions['doc_store'].get_pending_invites(key)
             pending = sum([1 for p in pending_invites if not p['signed'] and not p['declined']])
-            skipfinal = current_app.doc_store.get_skipfinal(key)
+            skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
 
             if pending > 0 or not skipfinal:
                 docs.append({'id': key, 'signed_content': doc['signedContent'], 'validated': False})
 
         elif owner:
-            current_app.doc_store.remove_document(key)
+            current_app.extensions['doc_store'].remove_document(key)
 
     return docs
 
@@ -1007,7 +997,7 @@ def _next_ordered_invitation_mail(doc_key, docname, pending_invites, pending, ow
     invite = pending_invites[len(pending_invites) - pending + 1]
     lang = invite['lang']
     recipients = [f"{invite['name']} <{invite['email']}>"]
-    custom_text = current_app.doc_store.get_invitation_text(doc_key)
+    custom_text = current_app.extensions['doc_store'].get_invitation_text(doc_key)
     invited_link = url_for('edusign.get_index', _external=True)
     mail_context = {
         'document_name': docname,
@@ -1032,14 +1022,14 @@ def _process_signed_documents(process_data):
     # Prepare emails to send
     for doc in process_data['signedDocuments']:
         key = doc['id']
-        docname = current_app.doc_store.get_document_name(key)
-        ordered = current_app.doc_store.get_ordered(key)
-        owner = current_app.doc_store.get_owner_data(key)
-        sendsigned = current_app.doc_store.get_sendsigned(key)
-        pending_invites = current_app.doc_store.get_pending_invites(key)
+        docname = current_app.extensions['doc_store'].get_document_name(key)
+        ordered = current_app.extensions['doc_store'].get_ordered(key)
+        owner = current_app.extensions['doc_store'].get_owner_data(key)
+        sendsigned = current_app.extensions['doc_store'].get_sendsigned(key)
+        pending_invites = current_app.extensions['doc_store'].get_pending_invites(key)
         pending_invites = [p for p in pending_invites if not p['signed'] and not p['declined']]
         pending = len(pending_invites) > 1
-        skipfinal = current_app.doc_store.get_skipfinal(key)
+        skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
         current_app.logger.debug(
             f"Data for signed emails - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}"
         )
@@ -1094,7 +1084,9 @@ def get_signed_documents(sign_data: dict) -> dict:
         current_app.logger.info(
             f"Processing signature for {sign_data['sign_response'][:50]} for user {session['eppn']}"
         )
-        process_data = current_app.api_client.process_sign_request(sign_data['sign_response'], sign_data['relay_state'])
+        process_data = current_app.extensions['api_client'].process_sign_request(
+            sign_data['sign_response'], sign_data['relay_state']
+        )
 
     except Exception as e:
         current_app.logger.error(f'Problem processing sign request: {e}')
@@ -1121,7 +1113,7 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     emails, to_validate = _process_signed_documents(process_data)
 
-    validated = current_app.api_client.validate_signatures(to_validate)
+    validated = current_app.extensions['api_client'].validate_signatures(to_validate)
 
     mail_aliases = session.get('mail_aliases', [session['mail']])
     docs = []
@@ -1166,7 +1158,7 @@ def create_multi_sign_request(data: dict) -> dict:
                  and the emails of the users invited to sign the doc.
     :return: A message about the result of the procedure
     """
-    if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
+    if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
         return {'error': True, 'message': gettext('Unauthorized')}
 
     # migration to mail_aliases
@@ -1188,7 +1180,7 @@ def create_multi_sign_request(data: dict) -> dict:
             'lang': str(get_locale()),
         }
         current_app.logger.debug(f"Adding document with required loa {data['loa']}")
-        invites = current_app.doc_store.add_document(
+        invites = current_app.extensions['doc_store'].add_document(
             data['document'],
             owner,
             data['invites'],
@@ -1222,7 +1214,7 @@ def create_multi_sign_request(data: dict) -> dict:
             _send_invitation_mail(docname, owner, custom_text, recipients)
 
         except Exception:
-            current_app.doc_store.remove_document(uuid.UUID(data['document']['key']), force=True)
+            current_app.extensions['doc_store'].remove_document(uuid.UUID(data['document']['key']), force=True)
             return {'error': True, 'message': gettext('There was a problem and the invitation email(s) were not sent')}
 
     message = gettext("Success sending invitations to sign")
@@ -1271,10 +1263,10 @@ def send_multisign_reminder(data: dict) -> dict:
     :return: A message about the result of the procedure
     """
     try:
-        pending = current_app.doc_store.get_pending_invites(uuid.UUID(data['key']))
-        docname = current_app.doc_store.get_document_name(uuid.UUID(data['key']))
-        owner_email = current_app.doc_store.get_document_email(uuid.UUID(data['key']))
-        ordered = current_app.doc_store.get_ordered(uuid.UUID(data['key']))
+        pending = current_app.extensions['doc_store'].get_pending_invites(uuid.UUID(data['key']))
+        docname = current_app.extensions['doc_store'].get_document_name(uuid.UUID(data['key']))
+        owner_email = current_app.extensions['doc_store'].get_document_email(uuid.UUID(data['key']))
+        ordered = current_app.extensions['doc_store'].get_ordered(uuid.UUID(data['key']))
 
     except Exception as e:
         current_app.logger.error(f'Problem finding users pending to multi sign: {e}')
@@ -1312,7 +1304,7 @@ def send_multisign_reminder(data: dict) -> dict:
                 'invited_link': invited_link,
                 'text': 'text' in data and data['text'] or "",
             }
-            messages = []
+            messages: List[tuple] = []
             for lang in recipients:
                 with force_locale(lang):
                     subject = gettext("A reminder to sign '%(document_name)s'") % {'document_name': docname}
@@ -1351,17 +1343,19 @@ def edit_multi_sign_request(data: dict) -> dict:
     for invite in data['invites']:
         invite['email'] = invite['email'].lower()
     try:
-        changed = current_app.doc_store.update_invitations(key, data['invites'])
+        changed = current_app.extensions['doc_store'].update_invitations(key, data['invites'])
     except Exception as e:
         current_app.logger.error(f"Problem editing the invitations for {key}: {e}")
         return {'error': True, 'message': gettext('Problem editing the invitations')}
 
-    ordered = current_app.doc_store.get_ordered(key)
-    docname = current_app.doc_store.get_document_name(key)
+    ordered = current_app.extensions['doc_store'].get_ordered(key)
+    docname = current_app.extensions['doc_store'].get_document_name(key)
     message = gettext("Success editing invitation to sign '%(docname)s'") % {'docname': docname}
 
+    recipients_removed = defaultdict(list)
+    recipients_added = defaultdict(list)
+
     if not ordered:
-        recipients_added = defaultdict(list)
         for invite in changed['added']:
             lang = invite['lang']
             recipient = f"{invite['name']} <{invite['email']}>"
@@ -1377,7 +1371,6 @@ def edit_multi_sign_request(data: dict) -> dict:
                 'docname': docname
             }
 
-        recipients_removed = defaultdict(list)
         for invite in changed['removed']:
             lang = invite['lang']
             recipient = f"{invite['name']} <{invite['email']}>"
@@ -1391,7 +1384,7 @@ def edit_multi_sign_request(data: dict) -> dict:
                 }
     else:
         removed = None
-        pending = current_app.doc_store.get_pending_invites(key)
+        pending = current_app.extensions['doc_store'].get_pending_invites(key)
         npending = sum([1 for i in pending if not i['signed'] and not i['declined']])
         if npending > 0:
             invite = pending[len(pending) - npending]
@@ -1402,7 +1395,7 @@ def edit_multi_sign_request(data: dict) -> dict:
         if removed is not None:
             lang = removed['lang']
             recipient = f"{removed['name']} <{removed['email']}>"
-            recipients_removed = {lang: [recipient]}
+            recipients_removed[lang].append(recipient)
             sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
             if not sent:
                 message = gettext("%(name)s has not been notified of the cancellation to sign '%(docname)s'") % {
@@ -1413,7 +1406,7 @@ def edit_multi_sign_request(data: dict) -> dict:
         added = changed['added'][0]
         lang = added['lang']
         recipient = f"{added['name']} <{added['email']}>"
-        recipients_added = {lang: [recipient]}
+        recipients_added[lang].append(recipient)
 
         owner = {'name': session['displayName'], 'email': owner_email}
         text = data['text']
@@ -1444,10 +1437,10 @@ def remove_multi_sign_request(data: dict) -> dict:
     """
     key = uuid.UUID(data['key'])
     try:
-        pending = current_app.doc_store.get_pending_invites(key)
-        docname = current_app.doc_store.get_document_name(key)
-        owner_email = current_app.doc_store.get_document_email(key)
-        ordered = current_app.doc_store.get_ordered(key)
+        pending = current_app.extensions['doc_store'].get_pending_invites(key)
+        docname = current_app.extensions['doc_store'].get_document_name(key)
+        owner_email = current_app.extensions['doc_store'].get_document_email(key)
+        ordered = current_app.extensions['doc_store'].get_ordered(key)
     except Exception as e:
         current_app.logger.error(f'Problem getting info about document {key}: {e}')
         pending = []
@@ -1456,7 +1449,7 @@ def remove_multi_sign_request(data: dict) -> dict:
         ordered = False
 
     try:
-        removed = current_app.doc_store.remove_document(key, force=True)
+        removed = current_app.extensions['doc_store'].remove_document(key, force=True)
 
     except Exception as e:
         current_app.logger.error(f'Problem removing multi sign request: {e}')
@@ -1530,7 +1523,7 @@ def get_partially_signed_doc(data: dict) -> dict:
     :return: A message about the result of the procedure
     """
     try:
-        doc = current_app.doc_store.get_document_content(uuid.UUID(data['key']))
+        doc = current_app.extensions['doc_store'].get_document_content(uuid.UUID(data['key']))
 
     except Exception as e:
         current_app.logger.error(f'Problem getting multi sign document: {e}')
@@ -1544,10 +1537,10 @@ def get_partially_signed_doc(data: dict) -> dict:
 
 
 def _prepare_final_email_skipped(doc, key, sendsigned):
-    owner = current_app.doc_store.get_owner_data(key)
+    owner = current_app.extensions['doc_store'].get_owner_data(key)
     recipients = defaultdict(list)
     recipients[owner['lang']].append(f"{owner['name']} <{owner['email']}>")
-    for invited in current_app.doc_store.get_pending_invites(key):
+    for invited in current_app.extensions['doc_store'].get_pending_invites(key):
         if not invited['signed']:
             continue
         lang = invited['lang']
@@ -1558,7 +1551,7 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
     }
     # attach PDF
     if sendsigned:
-        doc_name = current_app.doc_store.get_document_name(key)
+        doc_name = current_app.extensions['doc_store'].get_document_name(key)
         if '.' in doc_name:
             splitted = doc_name.split('.')
             ext = splitted[-1]
@@ -1608,8 +1601,8 @@ def skip_final_signature(data: dict) -> dict:
 
     key = uuid.UUID(data['key'])
     try:
-        doc = current_app.doc_store.get_signed_document(key)
-        sendsigned = current_app.doc_store.get_sendsigned(key)
+        doc = current_app.extensions['doc_store'].get_signed_document(key)
+        sendsigned = current_app.extensions['doc_store'].get_sendsigned(key)
 
     except Exception as e:
         current_app.logger.error(f'Problem getting signed document: {e}')
@@ -1619,7 +1612,7 @@ def skip_final_signature(data: dict) -> dict:
         current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
         return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
-    validated = current_app.api_client.validate_signatures(
+    validated = current_app.extensions['api_client'].validate_signatures(
         [{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}]
     )
     newdoc = validated[0]
@@ -1632,12 +1625,12 @@ def skip_final_signature(data: dict) -> dict:
         current_app.logger.error(f'Problem sending signed document to invited users: {e}')
 
     try:
-        current_app.doc_store.remove_document(key)
+        current_app.extensions['doc_store'].remove_document(key)
 
     except Exception as e:
         current_app.logger.warning(f'Problem removing doc skipping final signature: {e}')
 
-    validated = current_app.api_client.validate_signatures(
+    validated = current_app.extensions['api_client'].validate_signatures(
         [{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}]
     )
     newdoc = validated[0]
@@ -1662,13 +1655,13 @@ def _prepare_declined_emails(key, owner_data):
     that has declined to sign the document.
     """
     docname = owner_data['docname']
-    ordered = current_app.doc_store.get_ordered(key)
-    pending_invites = current_app.doc_store.get_pending_invites(key)
+    ordered = current_app.extensions['doc_store'].get_ordered(key)
+    pending_invites = current_app.extensions['doc_store'].get_pending_invites(key)
     pending = sum([1 for i in pending_invites if not i['signed'] and not i['declined']])
     mail_aliases = session.get('mail_aliases', [session['mail']])
 
-    skipfinal = current_app.doc_store.get_skipfinal(key)
-    pending_invites = current_app.doc_store.get_pending_invites(key, exclude=mail_aliases)
+    skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
+    pending_invites = current_app.extensions['doc_store'].get_pending_invites(key, exclude=mail_aliases)
     pending = [p for p in pending_invites if not p['signed'] and not p['declined']]
     if len(pending) > 0:
         template = 'declined_by_email'
@@ -1696,14 +1689,14 @@ def _prepare_declined_emails(key, owner_data):
 
     if len(pending) == 0 and skipfinal:
         try:
-            doc = current_app.doc_store.get_signed_document(key)
-            sendsigned = current_app.doc_store.get_sendsigned(key)
+            doc = current_app.extensions['doc_store'].get_signed_document(key)
+            sendsigned = current_app.extensions['doc_store'].get_sendsigned(key)
 
         except Exception as e:
             current_app.logger.error(f'Problem getting signed document: {e}')
             return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
-        validated = current_app.api_client.validate_signatures(
+        validated = current_app.extensions['api_client'].validate_signatures(
             [{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}]
         )
         newdoc = validated[0]
@@ -1742,13 +1735,13 @@ def decline_invitation(data):
     mail_aliases = session.get('mail_aliases', [session['mail']])
 
     try:
-        current_app.doc_store.decline_document(key, mail_aliases)
+        current_app.extensions['doc_store'].decline_document(key, mail_aliases)
     except Exception as e:
         current_app.logger.error(f'Problem declining signature of document: {e}')
         return {'error': True, 'message': gettext('Problem declining signature, please try again')}
 
     try:
-        owner_data = current_app.doc_store.get_owner_data(key)
+        owner_data = current_app.extensions['doc_store'].get_owner_data(key)
 
         if not owner_data:
             current_app.logger.error(
@@ -1813,13 +1806,13 @@ def delegate_invitation(data):
     email = data['email']
     lang = data['lang']
     try:
-        current_app.doc_store.delegate(invite_key, document_key, name, email, lang)
+        current_app.extensions['doc_store'].delegate(invite_key, document_key, name, email, lang)
 
     except Exception as e:
         current_app.logger.error(f'Problem delegating invitation: {e}')
         return {'error': True, 'message': gettext('There was a problem delegating the invitation')}
     try:
-        owner_data = current_app.doc_store.get_owner_data(document_key)
+        owner_data = current_app.extensions['doc_store'].get_owner_data(document_key)
         if not owner_data:
             current_app.logger.error(
                 f"Problem sending email about {session['mail']} delegating signature of document {document_key} with no owner data"
@@ -1843,7 +1836,7 @@ def delegate_invitation(data):
 @Marshal(DocSchema)
 def update_form(data):
     pdf = data['document']
-    fields = data['fields']
+    fields = data['form_fields']
     try:
         updated = update_pdf_form(pdf, fields)
     except Exception as e:
