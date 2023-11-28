@@ -340,14 +340,6 @@ class Field(Schema):
     choices = fields.List(fields.String)
 
 
-class FormSchema(Schema):
-    """
-    Schema to marshall PDF forms.
-    """
-
-    fields = fields.List(fields.Nested(Field))
-
-
 class DocSchema(Schema):
     """
     Schema to unmarshal a document's contents
@@ -359,4 +351,4 @@ class DocSchema(Schema):
 
 class FillFormSchema(Schema):
     document = fields.String(required=True, validate=[validate_nonempty])
-    fields = fields.List(fields.Nested(Field))
+    form_fields = fields.List(fields.Nested(Field))
