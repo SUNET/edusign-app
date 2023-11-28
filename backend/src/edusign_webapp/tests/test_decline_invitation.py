@@ -84,7 +84,7 @@ def _test_decline_invitation(
         assert response.status == '200 OK'
 
         if mock_get_owner_data is not None:
-            monkeypatch.setattr(app.doc_store, 'get_owner_data', mock_get_owner_data)
+            monkeypatch.setattr(app.extensions['doc_store'], 'get_owner_data', mock_get_owner_data)
 
         get_doc_data = {
             'csrf_token': csrf_token,

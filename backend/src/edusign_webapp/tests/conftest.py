@@ -141,12 +141,12 @@ def client(request):
     app = run.edusign_init_app('testing', request.param)
     app.testing = True
     app.config.update(request.param)
-    app.api_client.api_base_url = 'https://test.localhost'
+    app.extensions['api_client'].api_base_url = 'https://test.localhost'
 
     with app.test_client() as client:
         client.environ_base.update(_environ_base)
 
-        app.doc_store = DocStore(app)
+        app.extensions['doc_store'] = DocStore(app)
 
         yield client
 
@@ -161,12 +161,12 @@ def client_custom(request):
     app = run.edusign_init_app('testing', config_custom)
     app.testing = True
     app.config.update(config_custom)
-    app.api_client.api_base_url = 'https://test.localhost'
+    app.extensions['api_client'].api_base_url = 'https://test.localhost'
 
     with app.test_client() as client:
         client.environ_base.update(_environ_base)
 
-        app.doc_store = DocStore(app)
+        app.extensions['doc_store'] = DocStore(app)
 
         yield client
 
@@ -176,12 +176,12 @@ def app_and_client(request):
     app = run.edusign_init_app('testing', request.param)
     app.testing = True
     app.config.update(request.param)
-    app.api_client.api_base_url = 'https://test.localhost'
+    app.extensions['api_client'].api_base_url = 'https://test.localhost'
 
     with app.test_client() as client:
         client.environ_base.update(_environ_base)
 
-        app.doc_store = DocStore(app)
+        app.extensions['doc_store'] = DocStore(app)
 
         yield app, client
 
@@ -191,14 +191,14 @@ def client_non_whitelisted(request):
     app = run.edusign_init_app('testing')
     app.testing = True
     app.config.update(request.param)
-    app.api_client.api_base_url = 'https://test.localhost'
+    app.extensions['api_client'].api_base_url = 'https://test.localhost'
 
     with app.test_client() as client:
         environ = deepcopy(_environ_base)
         environ['HTTP_EDUPERSONPRINCIPALNAME_20'] = b'tester@example.com'
         client.environ_base.update(environ)
 
-        app.doc_store = DocStore(app)
+        app.extensions['doc_store'] = DocStore(app)
 
         yield client
 
@@ -210,7 +210,7 @@ def _get_test_app(config):
     more_config.update(config)
     app = run.edusign_init_app('testing', more_config)
     app.testing = True
-    app.api_client.api_base_url = 'https://test.localhost'
+    app.extensions['api_client'].api_base_url = 'https://test.localhost'
     return tempdir, app
 
 
@@ -224,7 +224,7 @@ def _get_test_s3_app(config):
     more_config.update(config)
     app = run.edusign_init_app('testing', more_config)
     app.testing = True
-    app.api_client.api_base_url = 'https://test.localhost'
+    app.extensions['api_client'].api_base_url = 'https://test.localhost'
     return app
 
 
