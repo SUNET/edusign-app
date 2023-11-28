@@ -41,7 +41,7 @@ export const sendPDFForm = createAsyncThunk(
     }
     const dataToSend = {
       document: doc.blob,
-      fields: fields,
+      form_fields: fields,
     };
     const body = preparePayload(state, dataToSend);
     let data = null;
