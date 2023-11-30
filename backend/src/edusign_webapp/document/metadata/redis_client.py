@@ -1054,7 +1054,7 @@ class RedisMD(ABCMetadata):
         return {'document': doc, 'user': user}
 
     def add_invitation(
-        self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = ''
+        self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = '', order: int = 0
     ) -> Dict[str, Any]:
         """
         Create a new invitation to sign
@@ -1064,6 +1064,7 @@ class RedisMD(ABCMetadata):
         :param email: The email for the new invitation
         :param lang: The language for the new invitation
         :param invite_key: The invite key for the new invitation
+        :param order: The order for the new invitation
         :return: data on the new invitation
         """
         self.client.pipeline()
@@ -1077,7 +1078,7 @@ class RedisMD(ABCMetadata):
         if invite_key == '':
             invite_key = str(uuid.uuid4())
 
-        self.client.insert_invite(invite_key, document_id, email, name, lang, 0)
+        self.client.insert_invite(invite_key, document_id, email, name, lang, order)
 
         self.client.commit()
 

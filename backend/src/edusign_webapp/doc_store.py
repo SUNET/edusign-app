@@ -343,6 +343,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :param email: The email for the new invitation
         :param lang: The lang for the new invitation
         :param invite_key: The invite key for the new invitation
+        :param order: The order for the new invitation
         :return: data on the new invitation
         """
 
@@ -766,6 +767,7 @@ class DocStore(object):
         pending = [invite for invite in current if not invite['signed'] and not invite['declined']]
         changed: Dict[str, List[Dict[str, str]]] = {'added': [], 'removed': []}
         ordered = self.get_ordered(document_key)
+        order = max([invite['order'] for invite in pending])
 
         for idx, old in enumerate(pending):
             remove = True
@@ -792,8 +794,9 @@ class DocStore(object):
                     invite_key = old["key"]
 
             if add:
+                order += 1
                 self.metadata.add_invitation(
-                    document_key, new['name'], new['email'], new['lang'], invite_key=invite_key
+                    document_key, new['name'], new['email'], new['lang'], invite_key=invite_key, order=order
                 )
                 if ordered and len(changed['removed']) > 0:
                     changed['added'].append(new)
