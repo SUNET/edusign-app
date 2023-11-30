@@ -763,10 +763,11 @@ class DocStore(object):
                  and an `added` key pointing to added invitations
         """
         current = self.metadata.get_invited(document_key)
-        pending = list(filter(lambda invite: not invite['signed'] and not invite['declined'], current))
+        pending = [invite for invite in current if not invite['signed'] and not invite['declined']]
         changed: Dict[str, List[Dict[str, str]]] = {'added': [], 'removed': []}
+        ordered = self.get_ordered(document_key)
 
-        for old in pending:
+        for idx, old in enumerate(pending):
             remove = True
             for new in invitations:
                 if new['email'] == old['email'] and new['name'] == old['name']:
@@ -775,7 +776,10 @@ class DocStore(object):
 
             if remove:
                 self.metadata.rm_invitation(uuid.UUID(old['key']), document_key)
-                changed['removed'].append(old)
+                # Who has to receive a declination email. If ordered invitations, only the next,
+                # if it has been removed, otherwise all.
+                if not ordered or idx == 0:
+                    changed['removed'].append(old)
 
         for new in invitations:
             add = True
@@ -791,7 +795,8 @@ class DocStore(object):
                 self.metadata.add_invitation(
                     document_key, new['name'], new['email'], new['lang'], invite_key=invite_key
                 )
-                changed['added'].append(new)
+                if ordered and len(changed['removed']) > 0:
+                    changed['added'].append(new)
 
         return changed
 
