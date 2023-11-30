@@ -390,7 +390,7 @@ def get_index() -> str:
         current_app.logger.debug("Authorizing non-whitelisted user")
         unauthn = True
 
-    if 'invited-unauthn' in session and session['invited-unauthn']:
+    if 'invited-unauthn' in session:
         invites = get_invitations()
         if len(invites['pending_multisign']) > 0:
             unauthn = True
