@@ -389,7 +389,7 @@ def get_index() -> str:
         current_app.logger.debug("Authorizing non-whitelisted user")
         unauthn = True
 
-    if 'invited-unauthn' in session:
+    if 'invited-unauthn' in session and session['invited-unauthn']:
         invites = get_invitations()
         if len(invites['pending_multisign']) > 0:
             unauthn = True
@@ -570,7 +570,8 @@ def create_sign_request(documents: dict) -> dict:
              or information about some error obtained in the process.
     """
     if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
-        return {'error': True, 'message': gettext('Unauthorized')}
+        if not session['invited-unauthn']:
+            return {'error': True, 'message': gettext('Unauthorized')}
 
     current_app.logger.debug(f'Data gotten in create view: {documents}')
     try:
