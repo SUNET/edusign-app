@@ -72,21 +72,14 @@ export const infoLine = (doc, size) => {
   }
 
   let ordered = "";
-  if (doc.ordered !== undefined) {
+  if (doc.ordered) {
     ordered = (
       <div className={"info-line info-line-3 doc-container-info-row-" + size}>
         <span className="info-row-label">
-          {(doc.ordered && (
-            <FormattedMessage
-              defaultMessage="Workflow invitation"
-              key="multisign-owned-ordered"
-            />
-          )) || (
-            <FormattedMessage
-              defaultMessage="Unordered invitations"
-              key="multisign-owned-unordered"
-            />
-          )}
+          <FormattedMessage
+            defaultMessage="Workflow invitation"
+            key="multisign-owned-ordered"
+          />
         </span>
       </div>
     );
