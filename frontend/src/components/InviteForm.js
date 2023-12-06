@@ -637,7 +637,7 @@ class InviteForm extends React.Component {
               inModal={true}
               tooltip={
                 <FormattedMessage
-                  defaultMessage="Ask for invited signatures in the given order."
+                  defaultMessage="Invited persons will be asked to sign document in a given order."
                   key="ordered-choice-help"
                 />
               }
@@ -647,7 +647,7 @@ class InviteForm extends React.Component {
                 htmlFor="ordered-choice-input"
               >
                 <FormattedMessage
-                  defaultMessage="Invited signatures in order"
+                  defaultMessage="Use workflow for signatures"
                   key="ordered-choice-field"
                 />
               </BForm.Label>
@@ -685,7 +685,7 @@ class InviteForm extends React.Component {
               htmlFor="loa-select-input"
             >
               <FormattedMessage
-                defaultMessage="Security level for the signature"
+                defaultMessage="Security level for signatures"
                 key="loa-select-field"
               />
             </BForm.Label>
