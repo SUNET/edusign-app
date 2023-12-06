@@ -64,6 +64,7 @@
   "components.InviteForm.email-input-field": "Email",
   "components.InviteForm.email-problem-dup": "",
   "components.InviteForm.invalid-email": "Email inválido",
+  "components.InviteForm.invitation-for-ordinal": "",
   "components.InviteForm.invitation-text-field": "Añade un mensaje para enviar a todos los invitados",
   "components.InviteForm.invite-people": "Invita gente a firmar: {docName}",
   "components.InviteForm.language-input-field": "",
