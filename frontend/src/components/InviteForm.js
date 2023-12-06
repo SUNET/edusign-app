@@ -486,7 +486,7 @@ function _InviteesArrayOrdered(props) {
                               <>
                                 <div className="invite-ordinal">
                                   <span className="">{getOrdinal(Cookies.get("lang") || "sv", index + 1)}</span>
-                                  &nbsp
+                                  &nbsp;
                                   <FormattedMessage
                                     defaultMessage="invitation"
                                     key="invitation-for-ordinal"
