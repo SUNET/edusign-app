@@ -19,6 +19,11 @@
       color: $orange-highlight;
     }
   }
+  .invite-ordinal {
+    font-size: 0.8rem;
+    color: $darker-dark-grey;
+    padding: 3px;
+  }
   .invitee-form-row {
     flex: none;
     display: flex;
