@@ -78,7 +78,7 @@ export const infoLine = (doc, size) => {
         <span className="info-row-label">
           {(doc.ordered && (
             <FormattedMessage
-              defaultMessage="Ordered invitations"
+              defaultMessage="Workflow invitation"
               key="multisign-owned-ordered"
             />
           )) || (
