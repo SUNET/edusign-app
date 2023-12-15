@@ -80,9 +80,12 @@ BABEL_DOMAIN = 'messages'
 SUPPORTED_LANGUAGES = {'en': 'English', 'sv': 'Svenska'}
 
 EDUSIGN_API_BASE_URL = os.environ.get('EDUSIGN_API_BASE_URL', default='https://sig.idsec.se/signint/v1/')
-EDUSIGN_API_PROFILE = os.environ.get('EDUSIGN_API_PROFILE', default='edusign-test')
-EDUSIGN_API_USERNAME = os.environ.get('EDUSIGN_API_USERNAME', default='dummy')
-EDUSIGN_API_PASSWORD = os.environ.get('EDUSIGN_API_PASSWORD', default='dummy')
+EDUSIGN_API_PROFILE_20 = os.environ.get('EDUSIGN_API_PROFILE_20', default='edusign-test')
+EDUSIGN_API_USERNAME_20 = os.environ.get('EDUSIGN_API_USERNAME_20', default='dummy')
+EDUSIGN_API_PASSWORD_20 = os.environ.get('EDUSIGN_API_PASSWORD_20', default='dummy')
+EDUSIGN_API_PROFILE_11 = os.environ.get('EDUSIGN_API_PROFILE_11', default='edusign-test')
+EDUSIGN_API_USERNAME_11 = os.environ.get('EDUSIGN_API_USERNAME_11', default='dummy')
+EDUSIGN_API_PASSWORD_11 = os.environ.get('EDUSIGN_API_PASSWORD_11', default='dummy')
 
 SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.idsec.se/edusign-test")
 
