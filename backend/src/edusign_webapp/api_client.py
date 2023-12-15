@@ -114,20 +114,23 @@ class APIClient(object):
 
     def __init__(self, config: dict):
         """
+        :param config: Dict containing the configuration parameters provided to Flask.
+        """
+        self.config = config
+
+    def initialize_credentials(self):
+        """
         Initialize the client object with configuration gathered by flask.
-        We need 3 parameters here:
+        We need 3 things here:
 
         + The base URL of the signature service / API
         + The profile in the API to use - for which we have credentials (HTTP Basic Auth)
         + The HTTP Basic Auth credentials.
-
-        :param config: Dict containing the configuration parameters provided to Flask.
         """
         attr_schema = session['saml-attr-schema']
-        self.api_base_url = config['EDUSIGN_API_BASE_URL']
-        self.profile = config[f'EDUSIGN_API_PROFILE_{attr_schema}']
-        self.basic_auth = HTTPBasicAuth(config[f'EDUSIGN_API_USERNAME_{attr_schema}'], config[f'EDUSIGN_API_PASSWORD_{attr_schema}'])
-        self.config = config
+        self.api_base_url = self.config['EDUSIGN_API_BASE_URL']
+        self.profile = self.config[f'EDUSIGN_API_PROFILE_{attr_schema}']
+        self.basic_auth = HTTPBasicAuth(self.config[f'EDUSIGN_API_USERNAME_{attr_schema}'], self.config[f'EDUSIGN_API_PASSWORD_{attr_schema}'])
 
     def _post(self, url: str, request_data: dict) -> dict:
         """
@@ -193,6 +196,7 @@ class APIClient(object):
         :param document: Dict holding the PDF (data and metadata) to prepare for signing.
         :return: Flask representation of the HTTP response from the API.
         """
+        self.initialize_credentials()
         idp = session['idp']
         attr_schema = session['saml-attr-schema']
 
@@ -374,6 +378,7 @@ class APIClient(object):
                  and a list of mappings linking the documents' names with the generated ids (sent to
                  the API as tbsDocuments.N.id).
         """
+        self.initialize_credentials()
         response_data, documents_with_id = self._try_creating_sign_request(documents, add_blob=add_blob)
 
         if (
@@ -421,6 +426,7 @@ class APIClient(object):
         :return: Data (containing the signed documents in successful requests) received in the HTTP response
                  from the API.
         """
+        self.initialize_credentials()
         request_data = {"signResponse": sign_response, "relayState": relay_state, "state": {"id": relay_state}}
         api_url = urljoin(self.api_base_url, 'process')
 
