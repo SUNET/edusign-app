@@ -123,9 +123,10 @@ class APIClient(object):
 
         :param config: Dict containing the configuration parameters provided to Flask.
         """
+        attr_schema = session['saml-attr-schema']
         self.api_base_url = config['EDUSIGN_API_BASE_URL']
-        self.profile = config['EDUSIGN_API_PROFILE']
-        self.basic_auth = HTTPBasicAuth(config['EDUSIGN_API_USERNAME'], config['EDUSIGN_API_PASSWORD'])
+        self.profile = config[f'EDUSIGN_API_PROFILE_{attr_schema}']
+        self.basic_auth = HTTPBasicAuth(config[f'EDUSIGN_API_USERNAME_{attr_schema}'], config[f'EDUSIGN_API_PASSWORD_{attr_schema}'])
         self.config = config
 
     def _post(self, url: str, request_data: dict) -> dict:
