@@ -90,12 +90,33 @@ VALIDATOR_API_BASE_URL = os.environ.get('VALIDATOR_API_BASE_URL', default='https
 
 MULTISIGN_BUTTONS = os.environ.get('MULTISIGN_BUTTONS', default="yes")
 
-RAW_SIGNER_ATTRIBUTES = os.environ.get(
-    'SIGNER_ATTRIBUTES',
+RAW_SIGNER_ATTRIBUTES_11 = os.environ.get(
+    'SIGNER_ATTRIBUTES_11',
+    default='urn:mace:dir:attribute-def:displayName,displayName',
+)
+
+SIGNER_ATTRIBUTES_11 = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES_11.split(';')}
+
+RAW_SIGNER_ATTRIBUTES_20 = os.environ.get(
+    'SIGNER_ATTRIBUTES_20',
     default='urn:oid:2.16.840.1.113730.3.1.241,displayName',
 )
 
-SIGNER_ATTRIBUTES = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES.split(';')}
+SIGNER_ATTRIBUTES_20 = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES_20.split(';')}
+
+RAW_AUTHN_ATTRIBUTES_11 = os.environ.get(
+    'AUTHN_ATTRIBUTES_11',
+    default='urn:mace:dir:attribute-def:eduPersonPrincipalName,eduPersonPrincipalName',
+)
+
+AUTHN_ATTRIBUTES_11 = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_11.split(';')}
+
+RAW_AUTHN_ATTRIBUTES_20 = os.environ.get(
+    'AUTHN_ATTRIBUTES_20',
+    default='urn:oid:1.3.6.1.4.1.5923.1.1.1.6,eduPersonPrincipalName',
+)
+
+AUTHN_ATTRIBUTES_20 = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_20.split(';')}
 
 RAW_SCOPE_WHITELIST = os.environ.get('SCOPE_WHITELIST', default='eduid.se, sunet.se')
 
