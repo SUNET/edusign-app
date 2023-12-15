@@ -70,15 +70,25 @@ def add_attributes_to_session(check_whitelisted=True):
     """
     if 'eppn' not in session:
         try:
-            eppn = request.headers.get('Edupersonprincipalname')
+            eppn = request.headers.get('Edupersonprincipalname-20')
+            attr_schema = '20'
         except KeyError:
-            current_app.logger.error('Missing eduPersonPrincipalName from request')
-            raise
+            try:
+                eppn = request.headers.get('Edupersonprincipalname-11')
+                attr_schema = '11'
+            except KeyError:
+                current_app.logger.error('Missing eduPersonPrincipalName from request')
+                raise
+
+        session['eppn'] = eppn
+        session['eduPersonPrincipalName'] = eppn
+        session['saml-attr-schema'] = attr_schema
+
         current_app.logger.info(f'User {eppn} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
 
-        attrs = [('mail', 'Mail'), ('displayName', 'Displayname')]
-        more_attrs = [(attr, attr.lower().capitalize()) for attr in current_app.config['SIGNER_ATTRIBUTES'].values()]
+        attrs = [('mail', f'Mail-{attr_schema}'), ('displayName', f'Displayname-{attr_schema}')]
+        more_attrs = [(attr, attr.lower().capitalize() + f'-{attr_schema}') for attr in current_app.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].values()]
         for attr in more_attrs:
             if attr not in attrs:
                 attrs.append(attr)
@@ -113,15 +123,14 @@ def add_attributes_to_session(check_whitelisted=True):
                     raise MissingDisplayName()
                 raise
 
-        if 'Maillocaladdress' in request.headers:
-            addresses = get_attr_values('Maillocaladdress')
+        if f'Maillocaladdress-{attr_schema}' in request.headers:
+            addresses = get_attr_values(f'Maillocaladdress-{attr_schema}')
             if 'mail_aliases' not in session:
                 session['mail_aliases'] = []
 
             session['mail_aliases'] += [m.lower() for m in addresses]
             session['mail_aliases'] = list(set(session['mail_aliases']))
 
-        session['eppn'] = eppn
         try:
             session['idp'] = request.headers.get('Shib-Identity-Provider')
         except KeyError:
