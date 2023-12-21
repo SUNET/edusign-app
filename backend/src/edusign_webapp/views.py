@@ -1348,6 +1348,8 @@ def edit_multi_sign_request(data: dict) -> dict:
     """
     key = uuid.UUID(data['key'])
     owner_email = session['mail']
+    ordered = current_app.extensions['doc_store'].get_ordered(key)
+    orig_invites = current_app.extensions['doc_store'].get_pending_invites(key)
 
     for invite in data['invites']:
         invite['email'] = invite['email'].lower()
@@ -1368,27 +1370,54 @@ def edit_multi_sign_request(data: dict) -> dict:
         recipient = f"{invite['name']} <{invite['email']}>"
         recipients_added[lang].append(recipient)
 
-    owner = {'name': session['displayName'], 'email': owner_email}
-    text = data['text']
-
-    try:
-        _send_invitation_mail(docname, owner, text, recipients_added)
-    except Exception:
-        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
-            'docname': docname
-        }
-
     for invite in changed['removed']:
         lang = invite['lang']
         recipient = f"{invite['name']} <{invite['email']}>"
         recipients_removed[lang].append(recipient)
 
-    if len(recipients_removed) > 0:
-        sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
-        if not sent:
+    owner = {'name': session['displayName'], 'email': owner_email}
+    text = data['text']
+
+    if ordered:
+        orig_pending = [i for i in orig_invites if not i['signed'] and not i['declined']]
+        orig_next_invite = orig_pending[0]
+        orig_next_recipient = f"{orig_next_invite['name']} <{orig_next_invite['email']}>"
+        if orig_next_recipient in recipients_removed[orig_next_invite['lang']]:
+            sent = _send_cancellation_mail(docname, owner_email, [orig_next_recipient])
+            if not sent:
+                message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+                    'docname': docname
+                }
+            current_invites = current_app.extensions['doc_store'].get_pending_invites(key)
+            current_pending = [i for i in current_invites if not i['signed'] and not i['declined']]
+            if len(current_pending) > 0:
+                next_invite = current_pending[0]
+                next_recipient = f"{next_invite['name']} <{next_invite['email']}>"
+                _send_invitation_mail(docname, owner, text, [next_recipient])
+            else:
+                skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
+                if skipfinal:
+                    doc = current_app.extensions['doc_store'].get_signed_document(key)
+                    mail_aliases = session.get('mail_aliases', [session['mail']])
+                    messages = _prepare_all_signed_email(doc, mail_aliases)
+                    sendmail_bulk(messages)
+                else:
+                    args = _prepare_signed_by_email(key, owner)
+                    sendmail(*args)
+    else:
+        try:
+            _send_invitation_mail(docname, owner, text, recipients_added)
+        except Exception:
             message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
                 'docname': docname
             }
+
+        if len(recipients_removed) > 0:
+            sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
+            if not sent:
+                message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+                    'docname': docname
+                }
 
     return {'message': message}
 
