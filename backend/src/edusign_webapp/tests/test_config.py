@@ -224,7 +224,7 @@ def _test_get_config_with_invitations(
             },
         )
 
-    client.environ_base["HTTP_MAIL"] = b64encode(b'<Attribute>invite1@example.org</Attribute>').decode('ascii')
+    client.environ_base["HTTP_MAIL_20"] = b64encode(b'<Attribute>invite1@example.org</Attribute>').decode('ascii')
 
     response3 = client.get("/sign/")
 
