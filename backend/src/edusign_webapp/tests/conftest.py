@@ -83,9 +83,9 @@ config_pro = {
 
 _environ_base = {
     "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
-    "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn@example.org',
-    "HTTP_DISPLAYNAME": b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8")).decode('ascii'),
-    "HTTP_MAIL": b64encode(b'<Attribute>tester@example.org</Attribute>').decode('ascii'),
+    "HTTP_EDUPERSONPRINCIPALNAME_20": 'dummy-eppn@example.org',
+    "HTTP_DISPLAYNAME_20": b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8")).decode('ascii'),
+    "HTTP_MAIL_20": b64encode(b'<Attribute>tester@example.org</Attribute>').decode('ascii'),
     "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
     "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
     "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
@@ -94,9 +94,9 @@ _environ_base = {
 
 _environ_base_2 = {
     "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
-    "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn-2@example.org',
-    "HTTP_DISPLAYNAME": b64encode('<Attribute>Invited Kid</Attribute>'.encode("utf-8")).decode('ascii'),
-    "HTTP_MAIL": b64encode(b'<Attribute>invited0@example.org</Attribute>').decode('ascii'),
+    "HTTP_EDUPERSONPRINCIPALNAME_20": 'dummy-eppn-2@example.org',
+    "HTTP_DISPLAYNAME_20": b64encode('<Attribute>Invited Kid</Attribute>'.encode("utf-8")).decode('ascii'),
+    "HTTP_MAIL_20": b64encode(b'<Attribute>invited0@example.org</Attribute>').decode('ascii'),
     "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
     "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
     "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
@@ -159,7 +159,7 @@ def client_non_whitelisted(request):
 
     with app.test_client() as client:
         environ = deepcopy(_environ_base)
-        environ['HTTP_EDUPERSONPRINCIPALNAME'] = b'tester@example.com'
+        environ['HTTP_EDUPERSONPRINCIPALNAME_20'] = b'tester@example.com'
         client.environ_base.update(environ)
 
         app.doc_store = DocStore(app)
