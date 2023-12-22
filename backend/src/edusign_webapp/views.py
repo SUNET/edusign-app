@@ -1402,9 +1402,7 @@ def edit_multi_sign_request(data: dict) -> dict:
                     mail_aliases = session.get('mail_aliases', [session['mail']])
                     messages = _prepare_all_signed_email(doc, mail_aliases)
                     sendmail_bulk(messages)
-                else:
-                    args = _prepare_signed_by_email(key, owner)
-                    sendmail(*args)
+
     else:
         try:
             _send_invitation_mail(docname, owner, text, recipients_added)
