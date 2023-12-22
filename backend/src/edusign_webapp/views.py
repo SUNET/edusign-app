@@ -1382,7 +1382,8 @@ def edit_multi_sign_request(data: dict) -> dict:
         orig_next_invite = orig_pending[0]
         orig_next_recipient = f"{orig_next_invite['name']} <{orig_next_invite['email']}>"
         if orig_next_recipient in recipients_removed[orig_next_invite['lang']]:
-            sent = _send_cancellation_mail(docname, owner_email, {orig_next_invite['lang']: [orig_next_recipient]})
+            recipient = {orig_next_invite['lang']: [orig_next_recipient]}
+            sent = _send_cancellation_mail(docname, owner_email, recipient)
             if not sent:
                 message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
                     'docname': docname
@@ -1391,8 +1392,8 @@ def edit_multi_sign_request(data: dict) -> dict:
             current_pending = [i for i in current_invites if not i['signed'] and not i['declined']]
             if len(current_pending) > 0:
                 next_invite = current_pending[0]
-                next_recipient = f"{next_invite['name']} <{next_invite['email']}>"
-                _send_invitation_mail(docname, owner, text, [next_recipient])
+                recipient = {next_invite['name']: [f"{next_invite['name']} <{next_invite['email']}>"]}
+                _send_invitation_mail(docname, owner, text, recipient)
             else:
                 skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
                 if skipfinal:
