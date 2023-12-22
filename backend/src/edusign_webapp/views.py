@@ -1346,9 +1346,10 @@ def edit_multi_sign_request(data: dict) -> dict:
     :return: A message about the result of the procedure
     """
     key = uuid.UUID(data['key'])
-    owner_email = session['mail']
     ordered = current_app.extensions['doc_store'].get_ordered(key)
     orig_invites = current_app.extensions['doc_store'].get_pending_invites(key)
+    owner = current_app.extensions['doc_store'].get_owner_data(key)
+    owner_email = owner['email']
 
     for invite in data['invites']:
         invite['email'] = invite['email'].lower()
@@ -1374,7 +1375,6 @@ def edit_multi_sign_request(data: dict) -> dict:
         recipient = f"{invite['name']} <{invite['email']}>"
         recipients_removed[lang].append(recipient)
 
-    owner = {'name': session['displayName'], 'email': owner_email}
     text = data['text']
 
     if ordered:
