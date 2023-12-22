@@ -1038,9 +1038,7 @@ def _process_signed_documents(process_data):
         if owner and 'email' in owner and owner['email'] not in mail_aliases:
             # Last person to sign this document
             if not pending and skipfinal:
-                current_app.logger.debug(
-                    f"Data for final email - key: {key}, owner: {owner}, sendsigned: {sendsigned}"
-                )
+                current_app.logger.debug(f"Data for final email - key: {key}, owner: {owner}, sendsigned: {sendsigned}")
                 to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
 
             else:
@@ -1051,9 +1049,7 @@ def _process_signed_documents(process_data):
                         # We still haven't removed the invitation currently being addressed,
                         # thus the index 1
                         invite = pending_invites[1]
-                        next_invitation_mail = _next_ordered_invitation_mail(
-                            key, docname, invite, owner
-                        )
+                        next_invitation_mail = _next_ordered_invitation_mail(key, docname, invite, owner)
                         emails.append(next_invitation_mail)
                 try:
                     email_args = _prepare_signed_by_email(key, owner)
@@ -1709,9 +1705,7 @@ def _prepare_declined_emails(key, owner_data):
 
     if len(pending) > 0 and ordered:
         invite = pending_invites[0]
-        next_invitation_mail = _next_ordered_invitation_mail(
-            key, docname, invite, owner_data
-        )
+        next_invitation_mail = _next_ordered_invitation_mail(key, docname, invite, owner_data)
         emails.append(next_invitation_mail)
 
     return emails

@@ -130,7 +130,9 @@ class APIClient(object):
         attr_schema = session['saml-attr-schema']
         self.api_base_url = self.config['EDUSIGN_API_BASE_URL']
         self.profile = self.config[f'EDUSIGN_API_PROFILE_{attr_schema}']
-        self.basic_auth = HTTPBasicAuth(self.config[f'EDUSIGN_API_USERNAME_{attr_schema}'], self.config[f'EDUSIGN_API_PASSWORD_{attr_schema}'])
+        self.basic_auth = HTTPBasicAuth(
+            self.config[f'EDUSIGN_API_USERNAME_{attr_schema}'], self.config[f'EDUSIGN_API_PASSWORD_{attr_schema}']
+        )
 
     def _post(self, url: str, request_data: dict) -> dict:
         """
@@ -317,8 +319,14 @@ class APIClient(object):
         attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
         attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]
         used_attr_names = tuple(friendly_name for _, friendly_name in attr_names)
-        more_attr_names = [attr_names for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items() if attr_names[1] not in used_attr_names]
-        more_attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in more_attr_names]
+        more_attr_names = [
+            attr_names
+            for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items()
+            if attr_names[1] not in used_attr_names
+        ]
+        more_attrs = [
+            {'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in more_attr_names
+        ]
         more_used_attr_names = tuple(friendly_name for _, friendly_name in more_attr_names)
         used_attr_names += more_used_attr_names
         attrs.extend(more_attrs)

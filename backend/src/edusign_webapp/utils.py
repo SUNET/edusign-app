@@ -91,8 +91,14 @@ def add_attributes_to_session(check_whitelisted=True):
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
 
         attrs = [('mail', f'Mail-{attr_schema}'), ('displayName', f'Displayname-{attr_schema}')]
-        more_attrs = [(attr, attr.lower().capitalize() + f'-{attr_schema}') for attr in current_app.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].values()]
-        more_attrs.extend([(attr, attr.lower().capitalize() + f'-{attr_schema}') for attr in current_app.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].values()])
+        more_attrs = [
+            (attr, attr.lower().capitalize() + f'-{attr_schema}')
+            for attr in current_app.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].values()
+        ]
+        more_attrs.extend([
+            (attr, attr.lower().capitalize() + f'-{attr_schema}')
+            for attr in current_app.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].values()
+        ])
         for attr in more_attrs:
             if attr not in attrs and attr[0] != 'eduPersonPrincipalName':
                 attrs.append(attr)
