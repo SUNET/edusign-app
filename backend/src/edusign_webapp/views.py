@@ -1383,7 +1383,7 @@ def edit_multi_sign_request(data: dict) -> dict:
         orig_next_invite = orig_pending[0]
         orig_next_recipient = f"{orig_next_invite['name']} <{orig_next_invite['email']}>"
         if orig_next_recipient in recipients_removed[orig_next_invite['lang']]:
-            sent = _send_cancellation_mail(docname, owner_email, [orig_next_recipient])
+            sent = _send_cancellation_mail(docname, owner_email, {orig_next_invite['lang']: [orig_next_recipient]})
             if not sent:
                 message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
                     'docname': docname
