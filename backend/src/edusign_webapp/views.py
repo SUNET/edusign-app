@@ -1404,7 +1404,7 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
             signed_doc_name = f"{prename}-signed.{ext}"
         else:
             signed_doc_name = doc_name + '-signed'
-        pdf_bytes = b64decode(doc['doc']['blob'], validate=True)
+        pdf_bytes = b64decode(doc['doc']['signedContent'], validate=True)
 
         kwargs = dict(
             attachment_name=signed_doc_name,
