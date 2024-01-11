@@ -80,7 +80,7 @@ def add_attributes_to_session(check_whitelisted=True):
 
         if auth == current_app.config['EIDAS_AUTHN_AUTHORITY']:
             session['eidas'] = True
-            person_identifier = 'Personidentifier-20'
+            person_identifier = 'Personidentifier'
             signer_attributes = current_app.config['EIDAS_SIGNER_ATTRIBUTES']
             authn_attributes = current_app.config['EIDAS_AUTHN_ATTRIBUTES']
             attr_schema = '20'
