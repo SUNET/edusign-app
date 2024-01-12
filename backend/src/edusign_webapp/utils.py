@@ -70,11 +70,11 @@ def add_attributes_to_session(check_whitelisted=True):
     """
     if 'eppn' not in session:
         try:
-            eppn = request.headers.get('Edupersonprincipalname-20')
+            eppn = request.headers['Edupersonprincipalname-20']
             attr_schema = '20'
         except KeyError:
             try:
-                eppn = request.headers.get('Edupersonprincipalname-11')
+                eppn = request.headers['Edupersonprincipalname-11']
                 attr_schema = '11'
             except KeyError:
                 current_app.logger.error('Missing eduPersonPrincipalName from request')
