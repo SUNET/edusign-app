@@ -68,6 +68,7 @@ from edusign_webapp.schemata import (
 )
 from edusign_webapp.utils import (
     MissingDisplayName,
+    NonWhitelisted,
     add_attributes_to_session,
     get_invitations,
     get_previous_signatures,
@@ -383,7 +384,7 @@ def get_index() -> str:
             'Your should add your name to your account at your organization. Please contact your IT-support for assistance.'
         )
         return render_template('error-generic.jinja2', **context)
-    except ValueError:
+    except NonWhitelisted:
         current_app.logger.debug("Authorizing non-whitelisted user")
         unauthn = True
 

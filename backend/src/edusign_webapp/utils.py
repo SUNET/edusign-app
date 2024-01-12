@@ -51,6 +51,10 @@ class MissingDisplayName(Exception):
     pass
 
 
+class NonWhitelisted(Exception):
+    pass
+
+
 def add_attributes_to_session(check_whitelisted=True):
     """
     If the Flask session does not contain information identifying the user,
@@ -91,7 +95,7 @@ def add_attributes_to_session(check_whitelisted=True):
         more_attrs = [(attr, attr.lower().capitalize() + f'-{attr_schema}') for attr in current_app.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].values()]
         more_attrs.extend([(attr, attr.lower().capitalize() + f'-{attr_schema}') for attr in current_app.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].values()])
         for attr in more_attrs:
-            if attr not in attrs:
+            if attr not in attrs and attr[0] != 'eduPersonPrincipalName':
                 attrs.append(attr)
 
         def get_attr_values(attr_in_header):
@@ -158,7 +162,7 @@ def add_attributes_to_session(check_whitelisted=True):
         if check_whitelisted:
             if not current_app.is_whitelisted(eppn):
                 current_app.logger.info(f"Rejecting user with {eppn} address")
-                raise ValueError('Unauthorized user')
+                raise NonWhitelisted('Unauthorized user')
 
 
 def prepare_document(document: dict) -> dict:
