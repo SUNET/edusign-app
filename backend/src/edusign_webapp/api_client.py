@@ -87,7 +87,7 @@ def pretty_print_req(req: requests.PreparedRequest) -> str:
         '-----------START-----------',
         str(req.method) + ' ' + str(req.url),
         '\r\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
-        str(req.body)[:100],
+        str(req.body),
     )
 
 
@@ -149,7 +149,7 @@ class APIClient(object):
 
         settings = requests_session.merge_environment_settings(prepped.url, {}, None, None, None)
         response = requests_session.send(prepped, **settings)
-        current_app.logger.debug(f"Response from the API's {url} method: {response}")
+        current_app.logger.debug(f"Response from the API's {url} method: {response.json()}")
         return response.json()
 
     def prepare_document(self, document: dict) -> dict:
