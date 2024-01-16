@@ -454,7 +454,8 @@ class APIClient(object):
                 doc['doc']['signedContent'] = b64encode(vpdf).decode('utf8')
                 doc['validated'] = True
             else:
-                doc['doc']['signedContent'] = doc['doc']['blob']
+                if 'signedContent' not in doc['doc']:
+                    doc['doc']['signedContent'] = doc['doc']['blob']
                 doc['validated'] = False
 
             return doc
