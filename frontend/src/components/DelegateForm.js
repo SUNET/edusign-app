@@ -6,7 +6,7 @@ import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
-import { validateName } from "components/InviteForm";
+import { validateName } from "components/validation";
 
 import "styles/DelegateForm.scss";
 

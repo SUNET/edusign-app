@@ -26,6 +26,12 @@ const mapStateToProps = (state, props) => {
   ) {
     show = true;
   }
+  let ordered;
+  if (state.inviteform.ordered === null) {
+    ordered = state.main.ui_defaults.ordered_invitations;
+  } else {
+    ordered = state.inviteform.ordered;
+  }
   const doc = state.main.owned_multisign.filter(
     (d) => d.key === props.docKey
   )[0];
@@ -36,6 +42,8 @@ const mapStateToProps = (state, props) => {
     mail: state.main.signer_attributes.mail,
     mail_aliases: state.main.signer_attributes.mail_aliases,
     max_signatures: state.main.max_signatures,
+    ui_defaults: state.main.ui_defaults,
+    ordered: ordered,
   };
 };
 

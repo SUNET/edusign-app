@@ -7,7 +7,7 @@ import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
 import { nameForCopy } from "components/utils";
-import { validateNewname } from "components/InviteForm";
+import { validateNewname } from "components/validation";
 
 import "styles/DocPreview.scss";
 import "styles/PDFForm.scss";

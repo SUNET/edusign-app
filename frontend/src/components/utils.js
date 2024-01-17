@@ -290,3 +290,36 @@ export const getCreationDate = (doc) => {
   }
   return creationDate;
 };
+
+export const getOrdinal = (lang, num) => {
+
+  const ordinalRules = new Intl.PluralRules(lang, { type: "ordinal" });
+  const formatOrdinals = (n, suffixes) => {
+    const rule = ordinalRules.select(n);
+    const suffix = suffixes.get(rule);
+    return `${n}${suffix}`;
+  };
+  let suffixes;
+
+  if (lang.startsWith('en')) {
+    suffixes = new Map([
+      ["one", "st"],
+      ["two", "nd"],
+      ["few", "rd"],
+      ["other", "th"],
+    ]);
+  } else if (lang.startsWith('sv')) {
+    suffixes = new Map([
+      ["one", ":a"],
+      ["other", ":e"],
+    ]);
+  } else {
+    suffixes = new Map([
+      ["one", "ª"],
+      ["two", "ª"],
+      ["few", "ª"],
+      ["other", "ª"],
+    ]);
+  }
+  return formatOrdinals(num, suffixes);
+}
