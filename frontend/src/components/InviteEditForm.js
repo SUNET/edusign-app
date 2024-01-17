@@ -23,8 +23,9 @@ const initialValues = (props) => {
     invitationText: "",
     invitees: [],
   };
-  props.doc.pending.forEach((invite) => {
+  props.doc.pending.forEach((invite, i) => {
     vals.invitees.push({
+      id: `id${i}`,
       ...invite,
     });
   });
