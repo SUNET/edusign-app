@@ -469,7 +469,7 @@ class APIClient(object):
         :return: Data (containing the signed documents in successful requests) received in the HTTP response
                  from the API.
         """
-        self.initialize_credentials()
+        self._config()
         request_data = {"signResponse": sign_response, "relayState": relay_state, "state": {"id": relay_state}}
         api_url = urljoin(self.api_base_url, 'process')
 
