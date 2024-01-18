@@ -7,10 +7,11 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import { addNotification } from "slices/Notifications";
 import {
-  getRequest,
+  postRequest,
   checkStatus,
   extractCsrfToken,
   esFetch,
+  preparePayload,
 } from "slices/fetch-utils";
 
 /**
@@ -22,10 +23,11 @@ import {
  */
 export const showEditInvitationForm = createAsyncThunk("main/showEditInvitationForm", async (args, thunkAPI) => {
   try {
+    const state = thunkAPI.getState();
     const toSend = {
       key: args.key,
     };
-    const body = JSON.stringify({ payload: toSend });
+    const body = preparePayload(state, toSend);
     const response = await esFetch("/sign/lock-doc", {
       ...postRequest,
       body: body,
@@ -67,7 +69,7 @@ export const hideEditInvitationForm = createAsyncThunk("main/hideEditInvitationF
     const toSend = {
       key: key,
     };
-    const body = JSON.stringify({ payload: toSend });
+    const body = preparePayload(state, toSend);
     const response = await esFetch("/sign/unlock-doc", {
       ...postRequest,
       body: body,

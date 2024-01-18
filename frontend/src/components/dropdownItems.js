@@ -20,7 +20,7 @@ export const editInvitationMenuItem = (props, doc) => (
     doc={doc}
     id={"menu-item-edit-invitations-" + doc.key}
     disabling={true}
-    onClick={props.openEditInvitationForm(doc)}
+    onClick={props.openEditInvitationForm(doc, props)}
   >
     <FormattedMessage
       defaultMessage="Edit invitations"

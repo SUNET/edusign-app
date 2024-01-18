@@ -60,7 +60,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(askConfirmation(confirmId));
       };
     },
-    openEditInvitationForm: function (doc) {
+    openEditInvitationForm: function (doc, props) {
       return async () => {
         await dispatch(poll());
         dispatch(disablePolling());
