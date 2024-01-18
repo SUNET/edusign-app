@@ -8,7 +8,7 @@ import { connect } from "react-redux";
 import { removeInvites } from "slices/Invitations";
 import Owned from "components/Owned";
 import { askConfirmation } from "slices/ConfirmDialog";
-import { showResend, showForm } from "slices/Modals";
+import { showResend, showEditInvitationForm } from "slices/Modals";
 import {
   getPartiallySignedDoc,
   hideOwnedPreview,
@@ -65,7 +65,7 @@ const mapDispatchToProps = (dispatch, props) => {
         await dispatch(poll());
         dispatch(disablePolling());
         dispatch(setActiveId("dummy-help-id"));
-        dispatch(showForm(doc.key + "-edit-invitations"));
+        dispatch(showEditInvitationForm({key: doc.key, form_id: doc.key + "-edit-invitations", intl: props.intl}));
         dispatch(unsetSpinning());
       };
     },

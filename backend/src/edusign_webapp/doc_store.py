@@ -825,6 +825,20 @@ class DocStore(object):
 
         return False
 
+    def lock_document(self, key: uuid.UUID, locked_by: str) -> bool:
+        """
+        Lock document on behalf of the user identified by `unlocked_by`.
+
+        :param key: The key identifying the document to lock
+        :param unlocked_by: Emails of the user locking the document
+        :return: Whether the document is locked
+        """
+        doc = self.metadata.get_document(key)
+        if not doc:
+            return False
+
+        return self.metadata.add_lock(doc['doc_id'], locked_by)
+
     def unlock_document(self, key: uuid.UUID, unlocked_by: List[str]) -> bool:
         """
         Unlock document on behalf of the user identified by `unlocked_by`.

@@ -57,7 +57,7 @@ from edusign_webapp.schemata import (
     EditMultiSignSchema,
     FillFormSchema,
     InvitationsSchema,
-    KeyedMultiSignSchema,
+    KeySchema,
     MultiSignSchema,
     ReferenceSchema,
     ResendMultiSignSchema,
@@ -1419,7 +1419,7 @@ def edit_multi_sign_request(data: dict) -> dict:
 
 @edusign_views.route('/remove-multi-sign', methods=['POST'])
 @edusign_views2.route('/remove-multi-sign', methods=['POST'])
-@UnMarshal(KeyedMultiSignSchema)
+@UnMarshal(KeySchema)
 @Marshal()
 def remove_multi_sign_request(data: dict) -> dict:
     """
@@ -1505,7 +1505,7 @@ def _send_cancellation_mail(docname, owner_email, recipients):
 
 @edusign_views.route('/get-partially-signed', methods=['POST'])
 @edusign_views2.route('/get-partially-signed', methods=['POST'])
-@UnMarshal(KeyedMultiSignSchema)
+@UnMarshal(KeySchema)
 @Marshal(BlobSchema)
 def get_partially_signed_doc(data: dict) -> dict:
     """
@@ -1581,7 +1581,7 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
 
 @edusign_views.route('/skip-final-signature', methods=['POST'])
 @edusign_views2.route('/skip-final-signature', methods=['POST'])
-@UnMarshal(KeyedMultiSignSchema)
+@UnMarshal(KeySchema)
 @Marshal(SignedDocumentsSchema)
 def skip_final_signature(data: dict) -> dict:
     """
@@ -1713,7 +1713,7 @@ def _prepare_declined_emails(key, owner_data):
 
 @edusign_views.route('/decline-invitation', methods=['POST'])
 @edusign_views2.route('/decline-invitation', methods=['POST'])
-@UnMarshal(KeyedMultiSignSchema)
+@UnMarshal(KeySchema)
 @Marshal()
 def decline_invitation(data):
     """
@@ -1838,3 +1838,39 @@ def update_form(data):
         return {'error': True, 'message': gettext('Problem filling in form in PDF, please try again')}
 
     return {'message': 'Success', 'payload': {'document': updated}}
+
+
+@edusign_views.route('/lock-doc', methods=['POST'])
+@edusign_views2.route('/lock-doc', methods=['POST'])
+@UnMarshal(KeySchema)
+@Marshal()
+def lock_document(data):
+    key = data['key']
+    email = session["mail"]
+    locked = current_app.extensions['doc_store'].lock_document(key, email)
+
+    if not locked:
+        message = gettext('The document is being signed by an invitee, please try again in a few minutes')
+        return {'error': True, 'message': message}
+
+    message = gettext("Success locking document")
+
+    return {'message': message}
+
+
+@edusign_views.route('/unlock-doc', methods=['POST'])
+@edusign_views2.route('/unlock-doc', methods=['POST'])
+@UnMarshal(KeySchema)
+@Marshal()
+def unlock_document(data):
+    key = data['key']
+    emails = session["mail_aliases"]
+    unlocked = current_app.extensions['doc_store'].unlock_document(key, emails)
+
+    if not unlocked:
+        message = gettext('There was a problem unlocking the document')
+        return {'error': True, 'message': message}
+
+    message = gettext("Success unlocking document")
+
+    return {'message': message}

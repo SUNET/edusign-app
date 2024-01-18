@@ -307,7 +307,7 @@ class EditMultiSignSchema(Schema):
     invites = fields.List(fields.Nested(Invitee))
 
 
-class KeyedMultiSignSchema(Schema):
+class KeySchema(Schema):
     """
     Schema to unmarshal requests for removing multi signatures.
     """
@@ -315,7 +315,7 @@ class KeyedMultiSignSchema(Schema):
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
 
 
-class ResendMultiSignSchema(KeyedMultiSignSchema):
+class ResendMultiSignSchema(KeySchema):
     """
     Schema to unmarshal requests for re-sending invitations for multi signatures.
     """

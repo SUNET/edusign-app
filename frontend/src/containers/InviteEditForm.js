@@ -13,7 +13,7 @@ import { connect } from "react-redux";
 import InviteEditForm from "components/InviteEditForm";
 
 import { editInvites } from "slices/Invitations";
-import { hideForm } from "slices/Modals";
+import { hideEditInvitationForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { enablePolling } from "slices/Poll";
 import { unsetActiveId } from "slices/Overlay";
@@ -50,7 +50,7 @@ const mapStateToProps = (state, props) => {
 const _close = (dispatch) => {
   dispatch(unsetSpinning());
   dispatch(enablePolling());
-  dispatch(hideForm());
+  dispatch(hideEditInvitationForm());
   dispatch(unsetActiveId());
 };
 
