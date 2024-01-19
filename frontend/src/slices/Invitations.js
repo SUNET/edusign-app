@@ -188,7 +188,7 @@ export const sendInvites = createAsyncThunk(
       type: document.type,
       prev_signatures: document.prev_signatures,
       state: "incomplete",
-      pending: invitees,
+      pending: args.values.invitees,
       signed: [],
       declined: [],
       created: Date.now(),
@@ -326,7 +326,11 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
 const editInvitesPending = async (values, thunkAPI, intl) => {
   const documentKey = values.documentKey;
   const invitationText = values.invitationText;
-  const invitees = values.invitees;
+  const invitees = values.invitees.map((invitee) => {
+    name: invitee.name,
+    email: invitee.email,
+    lang: invitee.lang,
+  });
 
   let state = thunkAPI.getState();
 
@@ -364,7 +368,7 @@ const editInvitesPending = async (values, thunkAPI, intl) => {
   // If there are no errors, update the pending key in the concerned document
   const newOwned = {
     key: documentKey,
-    pending: invitees,
+    pending: values.invitees,
   };
   if (invitees.length === 0) {
     newOwned.state = "loaded";
