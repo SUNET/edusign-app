@@ -13,7 +13,7 @@ import { connect } from "react-redux";
 import InviteEditForm from "components/InviteEditForm";
 
 import { editInvites } from "slices/Invitations";
-import { hideEditInvitationForm } from "slices/Modals";
+import { hideForm, hideEditInvitationForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { enablePolling } from "slices/Poll";
 import { unsetActiveId } from "slices/Overlay";
@@ -58,7 +58,10 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: async function (values) {
       await dispatch(editInvites({ values: values, intl: this.props.intl }));
-      _close(dispatch);
+      dispatch(unsetSpinning());
+      dispatch(enablePolling());
+      dispatch(hideForm());
+      dispatch(unsetActiveId());
     },
     handleClose: function () {
       _close(dispatch);
