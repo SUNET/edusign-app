@@ -326,11 +326,11 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
 const editInvitesPending = async (values, thunkAPI, intl) => {
   const documentKey = values.documentKey;
   const invitationText = values.invitationText;
-  const invitees = values.invitees.map((invitee) => {
+  const invitees = values.invitees.map((invitee) => ({
     name: invitee.name,
     email: invitee.email,
     lang: invitee.lang,
-  });
+  }));
 
   let state = thunkAPI.getState();
 
