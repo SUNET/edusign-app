@@ -753,7 +753,7 @@ class DocStore(object):
         return self.metadata.rm_invitation(invite_key, document_key)
 
     def update_invitations(
-        self, document_key: uuid.UUID, invitations: List[Dict[str, str]]
+        self, document_key: uuid.UUID, orig_pending, new_pending: List[Dict[str, str]]
     ) -> Dict[str, List[Dict[str, str]]]:
         """
         Update the list of pending invitations to sign a document.
@@ -763,43 +763,38 @@ class DocStore(object):
         :return: A dict with a `removed` key pointing to a list of removed invitations
                  and an `added` key pointing to added invitations
         """
-        current = self.metadata.get_invited(document_key)
-        pending = [invite for invite in current if not invite['signed'] and not invite['declined']]
         changed: Dict[str, List[Dict[str, str]]] = {'added': [], 'removed': []}
         ordered = self.get_ordered(document_key)
-        order = max([invite['order'] for invite in pending])
+        order = min([invite['order'] for invite in orig_pending])
 
-        for idx, old in enumerate(pending):
-            remove = True
-            for new in invitations:
-                if new['email'] == old['email'] and new['name'] == old['name']:
-                    remove = False
-                    break
+        for old in orig_pending:
+            if not ordered:
+                removed = True
+                for new in new_pending:
+                    if new['email'] == old['email'] and new['name'] == old['name'] and new['lang'] == old['lang']:
+                        removed = False
+                        break
 
-            if remove:
-                self.metadata.rm_invitation(uuid.UUID(old['key']), document_key)
-                # Who has to receive a declination email. If ordered invitations, only the next,
-                # if it has been removed, otherwise all.
-                if not ordered or idx == 0:
+                if removed:
                     changed['removed'].append(old)
 
-        for new in invitations:
-            add = True
-            invite_key = ''
-            for old in pending:
-                if new['email'] == old['email'] and new['name'] == old['name']:
-                    add = False
-                    break
-                elif new['email'] == old['email']:
-                    invite_key = old["key"]
+            self.metadata.rm_invitation(uuid.UUID(old['key']), document_key)
 
-            if add:
-                order += 1
-                self.metadata.add_invitation(
-                    document_key, new['name'], new['email'], new['lang'], invite_key=invite_key, order=order
-                )
-                if ordered and len(changed['removed']) > 0:
+        for new in new_pending:
+            if not ordered:
+                added = True
+                for old in orig_pending:
+                    if new['email'] == old['email'] and new['name'] == old['name'] and new['lang'] == old['lang']:
+                        added = False
+                        break
+
+                if added:
                     changed['added'].append(new)
+
+            self.metadata.add_invitation(
+                document_key, new['name'], new['email'], new['lang'], order=order
+            )
+            order += 1
 
         return changed
 

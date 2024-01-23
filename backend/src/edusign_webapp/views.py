@@ -1353,12 +1353,13 @@ def edit_multi_sign_request(data: dict) -> dict:
     current_app.extensions['doc_store'].unlock_document(key, mail_aliases)
 
     orig_invites = current_app.extensions['doc_store'].get_pending_invites(key)
+    orig_pending = [i for i in orig_invites if not i['signed'] and not i['declined']]
     current_pending = data['invites']
     for invite in current_pending:
         invite['email'] = invite['email'].lower()
 
     try:
-        changed = current_app.extensions['doc_store'].update_invitations(key, current_pending)
+        changed = current_app.extensions['doc_store'].update_invitations(key, orig_pending, current_pending)
         message = gettext("Success editing invitation to sign '%(docname)s'") % {'docname': docname}
     except Exception as e:
         current_app.logger.error(f"Problem editing the invitations for {key}: {e}")
@@ -1372,7 +1373,6 @@ def edit_multi_sign_request(data: dict) -> dict:
             current_next_invite = current_pending[0]
             current_next_recipient = f"{current_next_invite['name']} <{current_next_invite['email']}>"
 
-        orig_pending = [i for i in orig_invites if not i['signed'] and not i['declined']]
         orig_next_invite = orig_pending[0]
         orig_next_recipient = f"{orig_next_invite['name']} <{orig_next_invite['email']}>"
 
