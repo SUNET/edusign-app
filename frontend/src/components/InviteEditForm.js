@@ -164,6 +164,7 @@ InviteEditForm.propTypes = {
   show: PropTypes.bool,
   size: PropTypes.string,
   docKey: PropTypes.string,
+  docOrdered: PropTypes.bool,
   handleClose: PropTypes.func,
   handleSubmit: PropTypes.func,
 };

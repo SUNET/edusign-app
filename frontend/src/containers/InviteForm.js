@@ -52,6 +52,7 @@ const _close = (dispatch) => {
   dispatch(hideForm());
   dispatch(unsetActiveId());
   dispatch(isNotInviting());
+  dispatch(setOrdered(null));
 };
 
 const mapDispatchToProps = (dispatch, props) => {

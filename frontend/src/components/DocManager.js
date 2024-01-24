@@ -131,6 +131,7 @@ class DocManager extends React.Component {
                       <InviteFormContainer
                         docId={doc.id}
                         docName={doc.name}
+                        docOrdered={doc.ordered}
                         isTemplate={true}
                       />
                     </React.Fragment>
@@ -253,6 +254,7 @@ class DocManager extends React.Component {
                         <InviteFormContainer
                           docId={doc.id}
                           docName={doc.name}
+                          docOrdered={doc.ordered}
                         />
                       )}
                     </React.Fragment>

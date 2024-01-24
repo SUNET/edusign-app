@@ -23,10 +23,14 @@ import {
 
 const mapStateToProps = (state, props) => {
   let ordered;
-  if (state.inviteform.ordered === null) {
-    ordered = state.main.ui_defaults.ordered_invitations;
+  if (props.docOrdered === undefined || props.docOrdered === null) {
+    if (state.inviteform.ordered === null) {
+      ordered = state.main.ui_defaults.ordered_invitations;
+    } else {
+      ordered = state.inviteform.ordered;
+    }
   } else {
-    ordered = state.inviteform.ordered;
+    ordered = props.docOrdered;
   }
   return {
     ordered: ordered,

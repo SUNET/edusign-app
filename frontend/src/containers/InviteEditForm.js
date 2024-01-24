@@ -17,6 +17,7 @@ import { hideForm, hideEditInvitationForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { enablePolling } from "slices/Poll";
 import { unsetActiveId } from "slices/Overlay";
+import { isNotInviting, setOrdered } from "slices/InviteForm";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -52,6 +53,8 @@ const _close = (dispatch) => {
   dispatch(enablePolling());
   dispatch(hideEditInvitationForm());
   dispatch(unsetActiveId());
+  dispatch(isNotInviting());
+  dispatch(setOrdered(null));
 };
 
 const mapDispatchToProps = (dispatch, props) => {

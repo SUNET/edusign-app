@@ -73,7 +73,7 @@ const initialValues = (props) => {
     newnameInput: nameForCopy(props),
     loa: "low",
     documentId: props.docId,
-    orderedChoice: props.ui_defaults.ordered_invitations,
+    orderedChoice: (props.docOrdered === undefined || props.docOrdered === null) ? props.ordered : props.docOrdered,
     invitees: [
       {
         name: "",
@@ -408,6 +408,7 @@ InviteForm.propTypes = {
   size: PropTypes.string,
   docId: PropTypes.number,
   docName: PropTypes.string,
+  docOrdered: PropTypes.bool,
   isTemplate: PropTypes.bool,
   handleClose: PropTypes.func,
   handleSubmit: PropTypes.func,
