@@ -259,6 +259,9 @@ def get_invitations(remove_finished=False):
         else:
             newowned.append(doc)
 
+    # let's poll always
+    poll = True
+
     return {
         'owned_multisign': newowned,
         'pending_multisign': invited,
