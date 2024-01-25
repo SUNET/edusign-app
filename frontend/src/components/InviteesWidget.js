@@ -42,35 +42,61 @@ function _InviteesControl(props) {
   const arrayHelpers = props.arrayHelpers;
   const index = props.index;
   const invitee = props.invitee;
+  const inviteOrdinal = (
+    <div className="invite-ordinal">
+      <span className="">{getOrdinal(Cookies.get("lang") || "sv", index + 1)}</span>
+      &nbsp;
+      <FormattedMessage
+        defaultMessage="invitation"
+        key="invitation-for-ordinal"
+      />
+    </div>
+  );
+  const crossButton = (
+    <div className={"invite-cross-button invitee-form-dismiss " + props.ordered}>
+      <ESTooltip
+        helpId={"button-remove-entry-" + index}
+        inModal={true}
+        tooltip={
+          <FormattedMessage
+            defaultMessage="Remove this entry from invitation"
+            key="rm-invitation-tootip"
+          />
+        }
+      >
+        <BButton
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            arrayHelpers.remove(index);
+            window.setTimeout(() => {
+              document.getElementById("invitation-text-input").focus();
+              document.getElementById("invitation-text-input").blur();
+            }, 0);
+          }}
+        >
+          ×
+        </BButton>
+      </ESTooltip>
+    </div>
+  );
   return (
     <>
-      {index > 0 && (
-        <div className={"invitee-form-dismiss " + props.ordered}>
-          <ESTooltip
-            helpId={"button-remove-entry-" + index}
-            inModal={true}
-            tooltip={
-              <FormattedMessage
-                defaultMessage="Remove this entry from invitation"
-                key="rm-invitation-tootip"
-              />
-            }
-          >
-            <BButton
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                arrayHelpers.remove(index);
-                window.setTimeout(() => {
-                  document.getElementById("invitation-text-input").focus();
-                  document.getElementById("invitation-text-input").blur();
-                }, 0);
-              }}
-            >
-              ×
-            </BButton>
-          </ESTooltip>
-        </div>
+      {(index === 0 && props.ordered) && (
+        <>
+          {inviteOrdinal}
+        </>
+      )}
+      {(index > 0 && !props.ordered) && (
+        <>
+          {closeButton}
+        </>
+      )}
+      {(index > 0 && props.ordered) && (
+        <div className="invite-header">
+          {inviteOrdinal}
+          {closeButton}
+        </>
       )}
       <Field name="id" value={`invitees.${index}.id`} type="hidden" />
       <div className="invitee-form-row" key={index}>
@@ -255,18 +281,6 @@ function _InviteesArrayOrdered(props) {
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                           >
-                            {props.ordered && (
-                              <>
-                                <div className="invite-ordinal">
-                                  <span className="">{getOrdinal(Cookies.get("lang") || "sv", index + 1)}</span>
-                                  &nbsp;
-                                  <FormattedMessage
-                                    defaultMessage="invitation"
-                                    key="invitation-for-ordinal"
-                                  />
-                                </div>
-                              </>
-                            )}
                             <InviteesControl
                               invitee={invitee}
                               index={index}
