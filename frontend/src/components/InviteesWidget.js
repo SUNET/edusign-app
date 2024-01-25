@@ -53,7 +53,7 @@ function _InviteesControl(props) {
     </div>
   );
   const crossButton = (
-    <div className={"invite-cross-button invitee-form-dismiss " + props.ordered}>
+    <div className={"invitee-form-dismiss " + props.ordered}>
       <ESTooltip
         helpId={"button-remove-entry-" + index}
         inModal={true}
@@ -89,13 +89,13 @@ function _InviteesControl(props) {
       )}
       {(index > 0 && !props.ordered) && (
         <>
-          {closeButton}
+          {crossButton}
         </>
       )}
       {(index > 0 && props.ordered) && (
         <div className="invite-header">
           {inviteOrdinal}
-          {closeButton}
+          {crossButton}
         </div>
       )}
       <Field name="id" value={`invitees.${index}.id`} type="hidden" />

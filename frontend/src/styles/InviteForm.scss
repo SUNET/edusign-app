@@ -9,6 +9,11 @@
   border: 1px solid $orange-opaque;
   border-radius: 2px;
 
+  .invite-header {
+    display: flex;
+    justify-content: space-between;
+  }
+
   .invitee-form-dismiss {
     flex: 0 0 auto;
     display: flex;
@@ -22,7 +27,7 @@
   .invite-ordinal {
     font-size: 0.8rem;
     color: $darker-dark-grey;
-    padding: 3px;
+    padding: 5px;
   }
   .invitee-form-row {
     flex: none;
