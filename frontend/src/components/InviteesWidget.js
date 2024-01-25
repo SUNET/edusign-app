@@ -96,7 +96,7 @@ function _InviteesControl(props) {
         <div className="invite-header">
           {inviteOrdinal}
           {closeButton}
-        </>
+        </div>
       )}
       <Field name="id" value={`invitees.${index}.id`} type="hidden" />
       <div className="invitee-form-row" key={index}>
