@@ -326,6 +326,8 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
 const editInvitesPending = async (values, thunkAPI, intl) => {
   const documentKey = values.documentKey;
   const invitationText = values.invitationText;
+  const sendsigned = values.sendsignedChoice;
+  const skipfinal = values.skipfinalChoice;
   const invitees = values.invitees.map((invitee) => ({
     name: invitee.name,
     email: invitee.email,
@@ -338,6 +340,8 @@ const editInvitesPending = async (values, thunkAPI, intl) => {
   const dataToSend = {
     key: documentKey,
     text: invitationText,
+    sendsigned: sendsigned,
+    skipfinal: skipfinal,
     invites: invitees,
   };
   const body = preparePayload(state, dataToSend);

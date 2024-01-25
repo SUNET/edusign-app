@@ -78,7 +78,7 @@ class DocumentOwned extends Component {
     const editForm =
       (["loaded", "selected", "failed-signing", "incomplete"].includes(
         doc.state
-      ) && <InviteEditFormContainer docKey={doc.key} docOrdered={doc.ordered} />) ||
+      ) && <InviteEditFormContainer docKey={doc.key} docOrdered={doc.ordered} docSendSigned={doc.sendsigned} docSkipFinal={doc.skipfinal} />) ||
       "";
     const pending =
       (doc.state === "incomplete" && (

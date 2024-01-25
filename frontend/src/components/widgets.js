@@ -599,3 +599,71 @@ export const buttonClearPersonal = (
     </div>
   );
 };
+
+export const skipFinalControl = (
+  <div className="skipfinal-choice-holder">
+    <BForm.Group className="skipfinal-choice-group form-group">
+      <ESTooltip
+        helpId="skipfinal-choice-input"
+        inModal={true}
+        tooltip={
+          <FormattedMessage
+            defaultMessage="Finalize the signature flow automatically after the last person invited responds to the invitation."
+            key="skipfinal-choice-help"
+          />
+        }
+      >
+        <BForm.Label
+          className="skipfinal-choice-label"
+          htmlFor="skipfinal-choice-input"
+        >
+          <FormattedMessage
+            defaultMessage="Finalise signature flow automatically"
+            key="skipfinal-choice-field"
+          />
+        </BForm.Label>
+      </ESTooltip>
+      <Field
+        name="skipfinalChoice"
+        id="skipfinal-choice-input"
+        data-testid="skipfinal-choice-input"
+        className="skipfinal-choice"
+        type="checkbox"
+      />
+    </BForm.Group>
+  </div>
+);
+
+export const sendsignedControl = (
+  <div className="sendsigned-choice-holder">
+    <BForm.Group className="sendsigned-choice-group form-group">
+      <ESTooltip
+        helpId="sendsigned-choice-input"
+        inModal={true}
+        tooltip={
+          <FormattedMessage
+            defaultMessage="Send final signed document via email to all who signed it."
+            key="sendsigned-choice-help"
+          />
+        }
+      >
+        <BForm.Label
+          className="sendsigned-choice-label"
+          htmlFor="sendsigned-choice-input"
+        >
+          <FormattedMessage
+            defaultMessage="Send signed document in email"
+            key="sendsigned-choice-field"
+          />
+        </BForm.Label>
+      </ESTooltip>
+      <Field
+        name="sendsignedChoice"
+        id="sendsigned-choice-input"
+        data-testid="sendsigned-choice-input"
+        className="sendsigned-choice"
+        type="checkbox"
+      />
+    </BForm.Group>
+  </div>
+);

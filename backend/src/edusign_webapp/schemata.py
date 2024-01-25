@@ -87,6 +87,8 @@ class InvitationsSchema(Schema):
         loa = fields.String(dump_default="")
         created = fields.String(dump_default="")
         ordered = fields.Boolean()
+        sendsigned = fields.Boolean()
+        skipfinal = fields.Boolean()
 
     class SkippedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
@@ -304,6 +306,8 @@ class EditMultiSignSchema(Schema):
 
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     text = fields.String(dump_default="")
+    sendsigned = fields.Boolean()
+    skipfinal = fields.Boolean()
     invites = fields.List(fields.Nested(Invitee))
 
 

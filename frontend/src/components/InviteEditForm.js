@@ -9,6 +9,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
 import { InviteesWidget } from "components/InviteesWidget";
+import { sendsignedControl, skipFinalControl } from "components/widgets";
 import {
   validateEmail,
   validateName,
@@ -21,6 +22,8 @@ const initialValues = (props) => {
   const vals = {
     documentKey: props.docKey,
     invitationText: "",
+    sendsignedChoice: props.docSendSigned,
+    skipfinalChoice: props.docSkipFinal,
     invitees: [],
   };
   props.doc.pending.forEach((invite, i) => {
@@ -99,6 +102,8 @@ class InviteEditForm extends React.Component {
                       />
                     </BForm.Group>
                   </div>
+                  {sendsignedControl}
+                  {skipFinalControl}
                   <InviteesWidget {...this.props} />
                 </Modal.Body>
                 <Modal.Footer>
@@ -165,6 +170,8 @@ InviteEditForm.propTypes = {
   size: PropTypes.string,
   docKey: PropTypes.string,
   docOrdered: PropTypes.bool,
+  docSendSigned: PropTypes.bool,
+  docSkipFinal: PropTypes.bool,
   handleClose: PropTypes.func,
   handleSubmit: PropTypes.func,
 };

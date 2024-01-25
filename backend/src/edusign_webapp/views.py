@@ -1348,6 +1348,8 @@ def edit_multi_sign_request(data: dict) -> dict:
     owner = current_app.extensions['doc_store'].get_owner_data(key)
     owner_email = owner['email']
     text = data['text']
+    sendsigned = data['sendsigned']
+    skipfinal = data['skipfinal']
     mail_aliases = session["mail_aliases"]
 
     current_app.extensions['doc_store'].unlock_document(key, mail_aliases)
@@ -1359,6 +1361,8 @@ def edit_multi_sign_request(data: dict) -> dict:
         invite['email'] = invite['email'].lower()
 
     try:
+        current_app.extensions['doc_store'].set_sendsigned(key, sendsigned)
+        current_app.extensions['doc_store'].set_skipfinal(key, skipfinal)
         changed = current_app.extensions['doc_store'].update_invitations(key, orig_pending, current_pending)
         message = gettext("Success editing invitation to sign '%(docname)s'") % {'docname': docname}
     except Exception as e:
@@ -1392,7 +1396,6 @@ def edit_multi_sign_request(data: dict) -> dict:
                         'docname': docname
                     }
             else:
-                skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
                 if skipfinal:
                     try:
                         doc = current_app.extensions['doc_store'].get_signed_document(key)
@@ -1433,7 +1436,6 @@ def edit_multi_sign_request(data: dict) -> dict:
                 }
 
         if len(current_pending) == 0:
-            skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
             if skipfinal:
                 try:
                     doc = current_app.extensions['doc_store'].get_signed_document(key)

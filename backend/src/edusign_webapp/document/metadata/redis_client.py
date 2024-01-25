@@ -294,6 +294,7 @@ class RedisStorageBackend:
                 created=created,
                 skipfinal=bool(b_doc[b'skipfinal']),
                 ordered=bool(b_doc[b'ordered_invitations']),
+                sendsigned=bool(b_doc[b'sendsigned']),
             )
             docs.append(doc)
         return docs
@@ -318,6 +319,7 @@ class RedisStorageBackend:
                 created=created,
                 skipfinal=bool(b_doc[b'skipfinal']),
                 ordered=bool(b_doc[b'ordered_invitations']),
+                sendsigned=bool(b_doc[b'sendsigned']),
             )
             docs.append(doc)
         return docs
@@ -329,12 +331,22 @@ class RedisStorageBackend:
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         return bool(b_doc[b'sendsigned'])
 
+    def set_sendsigned(self, key, value):
+        doc_id = int(self.redis.get(f"doc:key:{key}"))
+        self.transaction.hset(f"doc:{doc_id}", mapping=dict(sendsigned=int(value)))
+        current_app.logger.debug(f"Set sendsigned in document with key {key} to {value}")
+
     def query_skipfinal(self, key):
         doc_id = self.query_document_id(str(key))
         if doc_id is None:
             return True
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         return bool(b_doc[b'skipfinal'])
+
+    def set_skipfinal(self, key, value):
+        doc_id = int(self.redis.get(f"doc:key:{key}"))
+        self.transaction.hset(f"doc:{doc_id}", mapping=dict(skipfinal=int(value)))
+        current_app.logger.debug(f"Set skipfinal in document with key {key} to {value}")
 
     def query_loa(self, key):
         doc_id = self.query_document_id(str(key))
@@ -862,6 +874,7 @@ class RedisMD(ABCMetadata):
                  + created: creation timestamp for the invitation
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
+                 + sendsigned: Whether to send signed documents in final email
         """
         documents = self.client.query_documents_from_owner(eppn)
         if documents is None or isinstance(documents, dict):
@@ -887,6 +900,7 @@ class RedisMD(ABCMetadata):
                  + created: creation timestamp for the invitation
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
+                 + sendsigned: Whether to send signed documents in final email
         """
         documents = self.client.query_documents_from_owner_by_email(email)
         if documents is None or isinstance(documents, dict):
@@ -1263,6 +1277,21 @@ class RedisMD(ABCMetadata):
         """
         return self.client.query_sendsigned(key)
 
+    def set_sendsigned(self, key: uuid.UUID, value: bool):
+        """
+        Set whether the final signed document should be sent by email to all signataries
+
+        :param key: The key identifying the document
+        :param value: whether to send emails
+        """
+        try:
+            self.client.pipeline()
+            self.client.set_sendsigned(key, value)
+            self.client.commit()
+        except Exception as e:
+            self.logger.error(f"Problem trying to set sendsigned: {e}")
+            raise
+
     def get_skipfinal(self, key: uuid.UUID) -> bool:
         """
         Whether the final signed document should be signed by the inviter
@@ -1271,6 +1300,21 @@ class RedisMD(ABCMetadata):
         :return: whether it should be signed by the owner
         """
         return self.client.query_skipfinal(key)
+
+    def set_skipfinal(self, key: uuid.UUID, value: bool):
+        """
+        Set whether the final signed document should be signed by the inviter
+
+        :param key: The key identifying the document
+        :param value: whether it should be signed by the owner
+        """
+        try:
+            self.client.pipeline()
+            self.client.set_skipfinal(key, value)
+            self.client.commit()
+        except Exception as e:
+            self.logger.error(f"Problem trying to set skipfinal: {e}")
+            raise
 
     def get_loa(self, key: uuid.UUID) -> str:
         """

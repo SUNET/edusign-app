@@ -96,10 +96,12 @@ DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id 
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created, ordered_invitations FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created, ordered_invitations, invitation_text FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations FROM Documents WHERE owner_eppn = ?;"
-DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations FROM Documents WHERE owner_email = ?;"
+DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned FROM Documents WHERE owner_eppn = ?;"
+DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned FROM Documents WHERE owner_email = ?;"
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
+DOCUMENT_SET_SENDSIGNED = "UPDATE Documents SET sendsigned = ? WHERE key = ?;"
 DOCUMENT_QUERY_SKIPFINAL = "SELECT skipfinal FROM Documents WHERE key = ?;"
+DOCUMENT_SET_SKIPFINAL = "UPDATE Documents SET skipfinal = ? WHERE key = ?;"
 DOCUMENT_QUERY_ORDERED = "SELECT ordered_invitations FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_INVITATION_TEXT = "SELECT invitation_text FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOA = "SELECT loa FROM Documents WHERE key = ?;"
@@ -692,6 +694,7 @@ class SqliteMD(ABCMetadata):
                  + created: creation timestamp for the invitation
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
+                 + sendsigned: Whether to send signed documents in final email
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (eppn,))
         if documents is None or isinstance(documents, dict):
@@ -718,6 +721,7 @@ class SqliteMD(ABCMetadata):
                  + created: creation timestamp for the invitation
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
+                 + sendsigned: Whether to send signed documents in final email
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL, (email,))
         if documents is None or isinstance(documents, dict):
@@ -1093,6 +1097,20 @@ class SqliteMD(ABCMetadata):
 
         return bool(document_result['sendsigned'])
 
+    def set_sendsigned(self, key: uuid.UUID, value: bool):
+        """
+        Set whether the final signed document should be sent by email to all signataries
+
+        :param key: The key identifying the document
+        :param value: whether to send emails
+        """
+        try:
+            self._db_execute(DOCUMENT_SET_SENDSIGNED, (value, key))
+            self._db_commit()
+        except Exception as e:
+            self.logger.error(f"Problem trying to set sendsigned: {e}")
+            raise
+
     def get_skipfinal(self, key: uuid.UUID) -> bool:
         """
         Whether the final signed document should be signed by the inviter
@@ -1106,6 +1124,20 @@ class SqliteMD(ABCMetadata):
             return True
 
         return bool(document_result['skipfinal'])
+
+    def set_skipfinal(self, key: uuid.UUID, value: bool):
+        """
+        Set whether the final signed document should be signed by the inviter
+
+        :param key: The key identifying the document
+        :param value: whether it should be signed by the owner
+        """
+        try:
+            self._db_execute(DOCUMENT_SET_SKIPFINAL, (value, key))
+            self._db_commit()
+        except Exception as e:
+            self.logger.error(f"Problem trying to set skipfinal: {e}")
+            raise
 
     def get_loa(self, key: uuid.UUID) -> str:
         """

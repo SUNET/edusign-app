@@ -255,6 +255,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + created: creation timestamp for the invitation
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
+                 + sendsigned: Whether to send signed documents in final email
         """
 
     @abc.abstractmethod
@@ -277,6 +278,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + created: creation timestamp for the invitation
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
+                 + sendsigned: Whether to send signed documents in final email
         """
 
     @abc.abstractmethod
@@ -442,12 +444,32 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def set_sendsigned(self, key: uuid.UUID, value: bool) -> bool:
+        """
+        Set whether the final signed document should be sent by email to all signataries
+
+        :param key: The key identifying the document
+        :param value: whether to send emails
+        :return: whether the key was set
+        """
+
+    @abc.abstractmethod
     def get_skipfinal(self, key: uuid.UUID) -> bool:
         """
         Whether the final signed document should be signed by the inviter
 
         :param key: The key identifying the document
         :return: whether it should be signed by the owner
+        """
+
+    @abc.abstractmethod
+    def set_skipfinal(self, key: uuid.UUID, value: bool) -> bool:
+        """
+        Set whether the final signed document should be signed by the inviter
+
+        :param key: The key identifying the document
+        :param value: whether it should be signed by the owner
+        :return: whether the key was set
         """
 
     @abc.abstractmethod
@@ -1007,6 +1029,15 @@ class DocStore(object):
         """
         return self.metadata.get_sendsigned(key)
 
+    def set_sendsigned(self, key: uuid.UUID, value: bool):
+        """
+        Set whether the final signed document should be sent by email to all signataries
+
+        :param key: The key identifying the document
+        :param value: whether to send emails
+        """
+        self.metadata.set_sendsigned(key, value)
+
     def get_skipfinal(self, key: uuid.UUID) -> bool:
         """
         Whether the final signed document should be signed by the inviter
@@ -1015,6 +1046,15 @@ class DocStore(object):
         :return: whether it should be signed by the owner
         """
         return self.metadata.get_skipfinal(key)
+
+    def set_skipfinal(self, key: uuid.UUID, value: bool):
+        """
+        Whether the final signed document should be signed by the inviter
+
+        :param key: The key identifying the document
+        :param value: whether it should be signed by the owner
+        """
+        self.metadata.set_skipfinal(key, value)
 
     def get_loa(self, key: uuid.UUID) -> str:
         """
