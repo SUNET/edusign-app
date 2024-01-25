@@ -67,7 +67,7 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
 
       const newInvitedNames = configData.payload.pending_multisign.map(invited => invited.name);
       const currentInvitedNames = [];
-      let allInvited = state.main.pending_multisign.filter(invited => {newInviteNames.includes(invited.name)});
+      let allInvited = state.main.pending_multisign.filter(invited => {newInvitedNames.includes(invited.name)});
       allInvited = allInvited.map(invited => {
         currentInvitedNames.push(invited.name);
         const invitedCopy = { ...invited };
