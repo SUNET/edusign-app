@@ -1105,7 +1105,7 @@ class SqliteMD(ABCMetadata):
         :param value: whether to send emails
         """
         try:
-            self._db_execute(DOCUMENT_SET_SENDSIGNED, (value, key))
+            self._db_execute(DOCUMENT_SET_SENDSIGNED, (value, str(key)))
             self._db_commit()
         except Exception as e:
             self.logger.error(f"Problem trying to set sendsigned: {e}")
@@ -1133,7 +1133,7 @@ class SqliteMD(ABCMetadata):
         :param value: whether it should be signed by the owner
         """
         try:
-            self._db_execute(DOCUMENT_SET_SKIPFINAL, (value, key))
+            self._db_execute(DOCUMENT_SET_SKIPFINAL, (value, str(key)))
             self._db_commit()
         except Exception as e:
             self.logger.error(f"Problem trying to set skipfinal: {e}")

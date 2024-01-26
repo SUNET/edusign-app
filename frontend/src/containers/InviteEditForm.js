@@ -45,6 +45,7 @@ const mapStateToProps = (state, props) => {
     max_signatures: state.main.max_signatures,
     ui_defaults: state.main.ui_defaults,
     ordered: ordered,
+    edit_form_timeout: state.main.edit_form_timeout,
   };
 };
 
@@ -65,6 +66,7 @@ const mapDispatchToProps = (dispatch, props) => {
       dispatch(enablePolling());
       dispatch(hideForm());
       dispatch(unsetActiveId());
+      setTimeout(_close, this.props.edit_form_timeout, dispatch);
     },
     handleClose: function () {
       _close(dispatch);

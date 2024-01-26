@@ -1286,7 +1286,7 @@ class RedisMD(ABCMetadata):
         """
         try:
             self.client.pipeline()
-            self.client.set_sendsigned(key, value)
+            self.client.set_sendsigned(str(key), value)
             self.client.commit()
         except Exception as e:
             self.logger.error(f"Problem trying to set sendsigned: {e}")
@@ -1310,7 +1310,7 @@ class RedisMD(ABCMetadata):
         """
         try:
             self.client.pipeline()
-            self.client.set_skipfinal(key, value)
+            self.client.set_skipfinal(str(key), value)
             self.client.commit()
         except Exception as e:
             self.logger.error(f"Problem trying to set skipfinal: {e}")

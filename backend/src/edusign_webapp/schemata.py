@@ -137,6 +137,7 @@ class ConfigSchema(InvitationsSchema):
     max_signatures = fields.String(required=True)
     company_link = fields.String(required=True)
     ui_defaults = fields.Nested(UIDefaults)
+    edit_form_timeout = fields.String(required=True)
 
 
 class DocumentSchema(_DocumentSchema):

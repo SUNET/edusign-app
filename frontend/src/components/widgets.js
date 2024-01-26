@@ -1,6 +1,8 @@
 import React from "react";
 import { FormattedMessage } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
+import BForm from "react-bootstrap/Form";
+import { Field } from "formik";
 
 import Button from "containers/Button";
 import { humanFileSize, getCreationDate } from "components/utils";

@@ -36,7 +36,7 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
     } else {
       const newOwnedNames = configData.payload.owned_multisign.map(owned => owned.name);
       const currentOwnedNames = [];
-      let allOwned = state.main.owned_multisign.filter(owned => {newOwnedNames.includes(owned.name)});
+      let allOwned = state.main.owned_multisign.filter(owned => newOwnedNames.includes(owned.name));
       allOwned = allOwned.map(owned => {
         currentOwnedNames.push(owned.name);
         if (owned.pending.length > 0) {
@@ -67,7 +67,7 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
 
       const newInvitedNames = configData.payload.pending_multisign.map(invited => invited.name);
       const currentInvitedNames = [];
-      let allInvited = state.main.pending_multisign.filter(invited => {newInvitedNames.includes(invited.name)});
+      let allInvited = state.main.pending_multisign.filter(invited => newInvitedNames.includes(invited.name) || invited.state === 'signed');
       allInvited = allInvited.map(invited => {
         currentInvitedNames.push(invited.name);
         const invitedCopy = { ...invited };
@@ -76,6 +76,8 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
             invitedCopy.pending = newInvited.pending;
             invitedCopy.signed = newInvited.signed;
             invitedCopy.declined = newInvited.declined;
+            invitedCopy.sendsigned = newInvited.sendsigned;
+            invitedCopy.skipfinal = newInvited.skipfinal;
           }
         });
         return invitedCopy;
