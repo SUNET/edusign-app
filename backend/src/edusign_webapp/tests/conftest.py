@@ -36,6 +36,7 @@ import tempfile
 import uuid
 from base64 import b64decode, b64encode
 from copy import copy, deepcopy
+from datetime import timedelta
 
 import pytest
 
@@ -57,7 +58,7 @@ config_dev = {
     'USER_WHITELIST': 'whitelisted@example.org',
     'MAIL_BACKEND': 'dummy',
     'BABEL_DEFAULT_LOCALE': 'en',
-    'DOC_LOCK_TIMEOUT': 300,
+    'DOC_LOCK_TIMEOUT': timedelta(seconds=300),
     'SESSION_COOKIE_SECURE': False,
     'SESSION_COOKIE_DOMAIN': 'test.localhost',
     'SERVER_NAME': 'test.localhost',
@@ -73,7 +74,7 @@ config_pro = {
     'USER_WHITELIST': 'whitelisted@example.org',
     'MAIL_BACKEND': 'dummy',
     'BABEL_DEFAULT_LOCALE': 'en',
-    'DOC_LOCK_TIMEOUT': 300,
+    'DOC_LOCK_TIMEOUT': timedelta(seconds=300),
     'SESSION_COOKIE_SECURE': False,
     'SESSION_COOKIE_DOMAIN': 'test.localhost',
     'SERVER_NAME': 'test.localhost',

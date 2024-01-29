@@ -88,6 +88,8 @@ def _test_edit_multi_sign_request(client, environ_base, monkeypatch, sample_doc_
             'payload': {
                 'key': sample_doc_1['key'],
                 'text': "Some invitation text",
+                'sendsigned': True,
+                'skipfinal': False,
                 'invites': [
                     {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
                     {'name': 'invite2', 'email': 'invite2@example.org', 'lang': 'en'},
