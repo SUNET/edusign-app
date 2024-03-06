@@ -522,21 +522,28 @@ def add_document(document: dict) -> dict:
     if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
         return {'error': True, 'message': gettext('Unauthorized')}
 
-    prepare_data = prepare_document(document)
-
-    if 'error' in prepare_data and prepare_data['error']:  # XXX update error message, translate
-        return prepare_data
-
-    if 'errorCode' in prepare_data:  # XXX update error message, translate
-        prepare_data['error'] = True
-        return prepare_data
-
-    doc_ref = prepare_data['updatedPdfDocumentReference']
-    sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])
     key = str(uuid.uuid4())
 
-    prev_signatures = get_previous_signatures(document)
-    has_form = has_pdf_form(document['blob'])
+    if document['type'] == 'application/pdf':
+        prepare_data = prepare_document(document)
+
+        if 'error' in prepare_data and prepare_data['error']:  # XXX update error message, translate
+            return prepare_data
+
+        if 'errorCode' in prepare_data:  # XXX update error message, translate
+            prepare_data['error'] = True
+            return prepare_data
+
+        doc_ref = prepare_data['updatedPdfDocumentReference']
+        sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])
+
+        prev_signatures = get_previous_signatures(document)
+        has_form = has_pdf_form(document['blob'])
+    else:
+        doc_ref = key
+        sign_req = 'not-needed-for-non-pdf'
+        prev_signatures = ''  # XXX check for XML signatures
+        has_form = False
 
     return {
         'payload': {
