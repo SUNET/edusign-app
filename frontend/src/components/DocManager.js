@@ -3,7 +3,9 @@ import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
 
 import ForcedPreviewContainer from "containers/ForcedPreview";
+import ForcedXMLPreviewContainer from "containers/ForcedXMLPreview";
 import DocPreviewContainer from "containers/DocPreview";
+import XMLPreviewContainer from "containers/XMLPreview";
 import InviteFormContainer from "containers/InviteForm";
 import OwnedContainer from "containers/Owned";
 import InvitedContainer from "containers/Invited";
@@ -190,11 +192,20 @@ class DocManager extends React.Component {
                             })}
                             confirm={this.props.handleSignedRemove(doc.name)}
                           />
-                          <DocPreviewContainer
-                            doc={doc}
-                            docFile={docFile}
-                            handleClose={this.props.handleClosePreview}
-                          />
+                          {doc.type.endsWith('/pdf') && (
+                            <DocPreviewContainer
+                              doc={doc}
+                              docFile={docFile}
+                              handleClose={this.props.handleClosePreview}
+                            />
+                          )}
+                          {doc.type.endsWith('/xml') && (
+                            <XMLPreviewContainer
+                              doc={doc}
+                              docFile={docFile}
+                              handleClose={this.props.handleClosePreview}
+                            />
+                          )}
                         </>
                       );
                     } else {
@@ -226,8 +237,20 @@ class DocManager extends React.Component {
                   return (
                     <React.Fragment key={index}>
                       {docRepr}
-                      {doc.state === "unconfirmed" && (
+                      {doc.state === "unconfirmed" && doc.type.endsWith('/pdf') && (
                         <ForcedPreviewContainer
+                          doc={doc}
+                          docFile={docFile}
+                          index={doc.name}
+                          handleClose={this.props.handleCloseForcedPreview}
+                          handleConfirm={this.props.handleConfirmForcedPreview}
+                          handleUnConfirm={
+                            this.props.handleUnConfirmForcedPreview
+                          }
+                        />
+                      )}
+                      {doc.state === "unconfirmed" && doc.type.endsWith('/xml') && (
+                        <ForcedXMLPreviewContainer
                           doc={doc}
                           docFile={docFile}
                           index={doc.name}
@@ -243,8 +266,20 @@ class DocManager extends React.Component {
                         "selected",
                         "failed-signing",
                         "signed",
-                      ].includes(doc.state) && (
+                      ].includes(doc.state) && doc.type.endsWith('/pdf') && (
                         <DocPreviewContainer
+                          doc={doc}
+                          docFile={docFile}
+                          handleClose={this.props.handleClosePreview}
+                        />
+                      )}
+                      {[
+                        "loaded",
+                        "selected",
+                        "failed-signing",
+                        "signed",
+                      ].includes(doc.state) && doc.type.endsWith('/xml') && (
+                        <XMLPreviewContainer
                           doc={doc}
                           docFile={docFile}
                           handleClose={this.props.handleClosePreview}

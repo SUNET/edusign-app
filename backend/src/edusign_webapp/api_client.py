@@ -367,14 +367,21 @@ class APIClient(object):
                 doc_with_id['size'] = document['size']
                 doc_with_id['type'] = document['type']
             documents_with_id.append(doc_with_id)
-            request_data['tbsDocuments'].append(
-                {
+            if document['type'] == 'application/pdf':
+                data = {
                     "id": str(document['key']),
                     "contentReference": document['ref'],
                     "mimeType": document['type'],
                     "visiblePdfSignatureRequirement": json.loads(document['sign_requirement']),
                 }
-            )
+            else:
+                data = {
+                    "id": str(document['key']),
+                    "content": document['blob'],
+                    "mimeType": document['type'],
+                }
+
+            request_data['tbsDocuments'].append(data)
         api_url = urljoin(self.api_base_url, f'create/{self.profile}')
 
         return self._post(api_url, request_data), documents_with_id

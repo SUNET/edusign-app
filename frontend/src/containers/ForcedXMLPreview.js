@@ -1,13 +1,13 @@
 /**
- * @module containers/DocPreview
- * @desc In this module we connect the ForcedPreview component with the Redux store.
+ * @module containers/ForcedXMLPreview
+ * @desc In this module we connect the ForcedXMLPreview component with the Redux store.
  *
  * in mapDispatchToProps we compose the handler to close the modal, making use
  * of the Redux dispatch function.
  */
 import { connect } from "react-redux";
 
-import ForcedPreview from "components/ForcedPreview";
+import ForcedXMLPreview from "components/ForcedXMLPreview";
 
 const mapStateToProps = (state) => {
   return {
@@ -20,4 +20,4 @@ const mapDispatchToProps = (dispatch) => {
   return {};
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ForcedPreview);
+export default connect(mapStateToProps, mapDispatchToProps)(ForcedXMLPreview);
