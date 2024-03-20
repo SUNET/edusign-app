@@ -38,9 +38,12 @@ from email.mime.base import MIMEBase
 from xml.etree import cElementTree as ET
 from zlib import error as zliberror
 
+
+from cryptography import x509
 from flask import current_app, request, session
 from flask_babel import gettext
 from flask_mailman import EmailMultiAlternatives
+from lxml import etree
 from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
 
 from edusign_webapp.mail_backend import ParallelEmailBackend
@@ -300,6 +303,39 @@ def get_previous_signatures(document: dict) -> str:
     except Exception as e:
         current_app.logger.error(f'Problem reading previous signatures: {e}')
         return ""
+
+
+def get_previous_signatures_xml(document: dict) -> str:
+    """
+    This function receives an XML document as a dict containing the metadata and the content,
+    and analyses the content to determine whether it contains any signatures made before
+    it was lodaded to eduSign.
+    :param document: document to inspect for signatures
+    :type document: dict
+    :return: a string with info on the previous signatures, or empty when there where none.
+    """
+    content = document['blob']
+    if "," in content:
+        content = content.split(",")[1]
+
+    cert_elem = "//{http://www.w3.org/2000/09/xmldsig#}X509Certificate"
+    certs = etree.fromstring(content).findall(cert_elem).text
+
+    prev_signatures = []
+
+    for cert in certs:
+
+        if "BEGIN CERTIFICATE" not in cert:
+            cert = f"-----BEGIN CERTIFICATE-----\n{cert}\n-----END CERTIFICATE-----"
+
+        decoded = x509.load_pem_x509_certificate(cert.encode('ascii'), default_backend())
+
+        prev_signatures.append(decoded)
+
+    if prev_signatures:
+        return '|'.join(prev_signatures)
+
+    return ""
 
 
 def is_whitelisted(app, eppn: str) -> bool:

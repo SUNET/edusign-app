@@ -74,6 +74,7 @@ from edusign_webapp.utils import (
     add_attributes_to_session,
     get_invitations,
     get_previous_signatures,
+    get_previous_signatures_xml,
     is_whitelisted,
     prepare_document,
     sendmail,
@@ -542,7 +543,7 @@ def add_document(document: dict) -> dict:
     else:
         doc_ref = key
         sign_req = 'not-needed-for-non-pdf'
-        prev_signatures = ''  # XXX check for XML signatures
+        prev_signatures = get_previous_signatures_xml(document)
         has_form = False
 
     return {
