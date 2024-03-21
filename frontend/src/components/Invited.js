@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { injectIntl } from "react-intl";
 
-import { docToFile } from "components/utils";
 import DocPreviewContainer from "containers/DocPreview";
 import ForcedPreviewContainer from "containers/ForcedPreview";
 import DocumentInvited from "components/DocumentInvited";
@@ -21,24 +20,18 @@ class Invited extends Component {
     return (
       <>
         {this.props.invited.map((doc, index) => {
-          let docFile = null;
-          if (doc.show || doc.showForced) {
-            docFile = docToFile(doc);
-          }
           return (
             <React.Fragment key={index}>
               <DocumentInvited key="0" doc={doc} {...this.props} />
               {doc.show && (
                 <DocPreviewContainer
                   doc={doc}
-                  docFile={docFile}
                   handleClose={this.props.handleClosePreview}
                 />
               )}
               {doc.state === "unconfirmed" && (
                 <ForcedPreviewContainer
                   doc={doc}
-                  docFile={docFile}
                   index={doc.name}
                   handleClose={this.props.handleCloseForcedPreview}
                   handleConfirm={this.props.handleConfirmForcedPreview}

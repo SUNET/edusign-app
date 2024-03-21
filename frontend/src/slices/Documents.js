@@ -34,7 +34,7 @@
  * again, it checks the data kept in local storage to update the state accordingly.
  */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { pdfjs } from "react-pdf/dist/esm/entry.webpack";
+import { pdfjs } from "react-pdf";
 import * as FileSaver from "file-saver";
 import JSZip from "jszip";
 
@@ -357,6 +357,7 @@ export const validateDoc = async (doc, intl, state) => {
       };
     })
     .catch((err) => {
+      console.log(`ERRRRRRRRRROOOOOOOOOOOORRRRRRRRRRRRRRRR ${err} frommmmmmmmmmmmmmmmmmmmmmmmmmm ${doc.toString()}`);
       return dealWithPDFError(doc, err, intl);
     });
 };

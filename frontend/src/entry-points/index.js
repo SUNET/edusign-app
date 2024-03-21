@@ -11,7 +11,7 @@ import React from "react";
 
 // PDF.js worker
 
-import { pdfjs } from "react-pdf/dist/esm/entry.webpack";
+import { pdfjs } from "react-pdf";
 
 pdfjs.GlobalWorkerOptions.workerSrc = "/js/pdf.worker.min.js";
 

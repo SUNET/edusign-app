@@ -5,7 +5,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
+import { Document, Page } from "react-pdf";
 import { nameForCopy } from "components/utils";
 import { validateNewname } from "components/validation";
 
