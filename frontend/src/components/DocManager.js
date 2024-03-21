@@ -9,13 +9,13 @@ import XMLPreviewContainer from "containers/XMLPreview";
 import InviteFormContainer from "containers/InviteForm";
 import OwnedContainer from "containers/Owned";
 import InvitedContainer from "containers/Invited";
-import { docToFile } from "components/utils";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 import DocumentLocal from "components/DocumentLocal";
 import DocumentTemplate from "components/DocumentTemplate";
 import DocumentOwned from "components/DocumentOwned";
 import * as widgets from "components/widgets";
 import PDFFormContainer from "containers/PDFForm";
+import { docToFile } from "components/utils";
 
 import "styles/DocManager.scss";
 import "styles/Invitation.scss";
@@ -105,7 +105,6 @@ class DocManager extends React.Component {
                   />
                 </legend>
                 {this.props.templates.map((doc, index) => {
-                  const docFile = docToFile(doc);
                   return (
                     <React.Fragment key={index}>
                       <DocumentTemplate key={index} doc={doc} {...this.props} />
@@ -127,7 +126,6 @@ class DocManager extends React.Component {
                       />
                       <DocPreviewContainer
                         doc={doc}
-                        docFile={docFile}
                         handleClose={this.props.handleCloseTemplatePreview}
                       />
                       <InviteFormContainer
@@ -195,14 +193,12 @@ class DocManager extends React.Component {
                           {doc.type.endsWith('/pdf') && (
                             <DocPreviewContainer
                               doc={doc}
-                              docFile={docFile}
                               handleClose={this.props.handleClosePreview}
                             />
                           )}
                           {doc.type.endsWith('/xml') && (
                             <XMLPreviewContainer
                               doc={doc}
-                              docFile={docFile}
                               handleClose={this.props.handleClosePreview}
                             />
                           )}
@@ -240,7 +236,6 @@ class DocManager extends React.Component {
                       {doc.state === "unconfirmed" && doc.type.endsWith('/pdf') && (
                         <ForcedPreviewContainer
                           doc={doc}
-                          docFile={docFile}
                           index={doc.name}
                           handleClose={this.props.handleCloseForcedPreview}
                           handleConfirm={this.props.handleConfirmForcedPreview}
@@ -252,7 +247,6 @@ class DocManager extends React.Component {
                       {doc.state === "unconfirmed" && doc.type.endsWith('/xml') && (
                         <ForcedXMLPreviewContainer
                           doc={doc}
-                          docFile={docFile}
                           index={doc.name}
                           handleClose={this.props.handleCloseForcedPreview}
                           handleConfirm={this.props.handleConfirmForcedPreview}
@@ -269,7 +263,6 @@ class DocManager extends React.Component {
                       ].includes(doc.state) && doc.type.endsWith('/pdf') && (
                         <DocPreviewContainer
                           doc={doc}
-                          docFile={docFile}
                           handleClose={this.props.handleClosePreview}
                         />
                       )}
@@ -281,7 +274,6 @@ class DocManager extends React.Component {
                       ].includes(doc.state) && doc.type.endsWith('/xml') && (
                         <XMLPreviewContainer
                           doc={doc}
-                          docFile={docFile}
                           handleClose={this.props.handleClosePreview}
                         />
                       )}
