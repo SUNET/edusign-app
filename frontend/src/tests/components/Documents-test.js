@@ -1359,8 +1359,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
       key: "dummy-ref",
     };
     fetchMock
-      .once(
-        { url: "/sign/add-doc", method: "POST" },
+      .post("/sign/add-doc",
         {
           message: "document added",
           payload: {
@@ -1369,8 +1368,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
           },
         }
       )
-      .once(
-        { url: "/sign/create-sign-request", method: "POST" },
+      .post("/sign/create-sign-request",
         {
           message: "dummy error in create-sign-request",
           error: true,
@@ -1452,6 +1450,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
           binding: "dummy binding",
           destination_url: "https://dummy.destination.url",
           documents: [{ name: "test.pdf", id: "dummy id" }],
+          failed: [],
         },
       });
 
