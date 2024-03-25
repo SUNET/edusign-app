@@ -17,7 +17,7 @@ class DnDArea extends Component {
   render() {
     return (
       <Dropzone
-        accept={{ "application/pdf": [".pdf"] }, { "application/xml": [".xml"] }}
+        accept={[{ "application/pdf": [".pdf"] }, { "application/xml": [".xml"] }]}
         onDrop={this.props.handleFileDrop(this.props.intl)}
         onDragEnter={this.props.handleDragEnter}
         onDragLeave={this.props.handleDragLeave}
