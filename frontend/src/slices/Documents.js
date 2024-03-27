@@ -347,19 +347,39 @@ export const validateDoc = async (doc, intl, state) => {
     };
   }
 
-  return pdfjs
-    .getDocument({ url: doc.blob, password: "", stopAtErrors: true })
-    .promise.then(() => {
+  if (doc.type === "application/pdf") {
+    return pdfjs
+      .getDocument({ url: doc.blob, password: "", stopAtErrors: true })
+      .promise.then(() => {
+        return {
+          ...doc,
+          show: false,
+          state: "loading",
+        };
+      })
+      .catch((err) => {
+        return dealWithPDFError(doc, err, intl);
+      });
+  } else {
+    const domParser = new DOMParser();
+    const xml = domParser.parse(doc.blob, 'application/xml');
+    if (xml.documentElement.nodeName === 'parsererror') {
+      return {
+        ...doc,
+        message: intl.formatMessage({
+          defaultMessage: "Document is unreadable",
+          id: "validate-problem-unreadable",
+        }),
+        state: "failed-loading",
+      };
+    } else {
       return {
         ...doc,
         show: false,
         state: "loading",
       };
-    })
-    .catch((err) => {
-      console.log(`ERRRRRRRRRROOOOOOOOOOOORRRRRRRRRRRRRRRR ${err} frommmmmmmmmmmmmmmmmmmmmmmmmmm ${doc.toString()}`);
-      return dealWithPDFError(doc, err, intl);
-    });
+    }
+  }
 };
 
 /**
