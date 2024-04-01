@@ -362,7 +362,13 @@ export const validateDoc = async (doc, intl, state) => {
       });
   } else {
     const domParser = new DOMParser();
-    const xml = domParser.parse(doc.blob, 'application/xml');
+
+    let xmlstr = doc.blob;
+    if (xmlstr.includes(',')) {
+      xmlstr = xmlstr.split(',')[1];
+    }
+    xmlstr = atob(xmlstr);
+    const xml = domParser.parseFromString(xmlstr, 'application/xml');
     if (xml.documentElement.nodeName === 'parsererror') {
       return {
         ...doc,

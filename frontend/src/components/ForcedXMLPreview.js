@@ -13,82 +13,80 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
  * @desc To show a modal dialog with an XML document.
  * @component
  */
-class ForcedXMLPreview extends React.Component {
+function ForcedXMLPreview(props) {
 
-  render() {
-    if (this.props.docFile === null) return "";
+  const docFile = useMemo(() => (docToFile(props.doc)), [props.doc]);
 
-    return (
-      <>
-        <Modal
-          show={this.props.doc.showForced}
-          onHide={this.props.handleClose(this.props.doc.name)}
-          size="lg"
-          centered
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>{this.props.doc.name}</Modal.Title>
-          </Modal.Header>
+  return (
+    <>
+      <Modal
+        show={props.doc.showForced}
+        onHide={props.handleClose(props.doc.name)}
+        size="lg"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{props.doc.name}</Modal.Title>
+        </Modal.Header>
 
-          <Modal.Body>
-            <iframe src ={`data:text/xml;charset=utf-8,${encodeURI(props.docFile)}`}>
-            </iframe>
-          </Modal.Body>
+        <Modal.Body>
+          <iframe src ={`data:text/xml;charset=utf-8,${encodeURI(docFile)}`}>
+          </iframe>
+        </Modal.Body>
 
-          <Modal.Footer>
-            <ESTooltip
-              helpId={"preview-button-dissaprove-" + this.props.index}
-              inModal={true}
-              tooltip={
-                <FormattedMessage
-                  defaultMessage="Click here to reject/remove the document"
-                  key="dissaprove-doc-tootip"
-                />
-              }
+        <Modal.Footer>
+          <ESTooltip
+            helpId={"preview-button-dissaprove-" + props.index}
+            inModal={true}
+            tooltip={
+              <FormattedMessage
+                defaultMessage="Click here to reject/remove the document"
+                key="dissaprove-doc-tootip"
+              />
+            }
+          >
+            <Button
+              variant="outline-danger"
+              disabling={true}
+              onClick={props.handleUnConfirm({
+                doc: props.doc,
+                intl: props.intl,
+              })}
+              id={"preview-button-dissaprove-" + props.index}
             >
+              <FormattedMessage
+                defaultMessage="Reject"
+                key="button-dissaprove"
+              />
+            </Button>
+          </ESTooltip>
+          <ESTooltip
+            helpId={"preview-button-confirm-" + props.index}
+            inModal={true}
+            tooltip={
+                <FormattedMessage
+                  defaultMessage="Click here to approve the document for signing"
+                  key="confirm-doc-tootip"
+                />
+            }
+          >
+            <span className="d-inline-block">
               <Button
-                variant="outline-danger"
-                disabling={true}
-                onClick={this.props.handleUnConfirm({
-                  doc: this.props.doc,
-                  intl: this.props.intl,
-                })}
-                id={"preview-button-dissaprove-" + this.props.index}
+                onClick={props.handleConfirm(props.doc.name)}
+                variant="outline-success"
+                id={"preview-button-confirm-" + props.index}
               >
                 <FormattedMessage
-                  defaultMessage="Reject"
-                  key="button-dissaprove"
+                  defaultMessage="Approve"
+                  key="button-confirm"
                 />
               </Button>
-            </ESTooltip>
-            <ESTooltip
-              helpId={"preview-button-confirm-" + this.props.index}
-              inModal={true}
-              tooltip={
-                  <FormattedMessage
-                    defaultMessage="Click here to approve the document for signing"
-                    key="confirm-doc-tootip"
-                  />
-              }
-            >
-              <span className="d-inline-block">
-                <Button
-                  onClick={this.props.handleConfirm(this.props.doc.name)}
-                  variant="outline-success"
-                  id={"preview-button-confirm-" + this.props.index}
-                >
-                  <FormattedMessage
-                    defaultMessage="Approve"
-                    key="button-confirm"
-                  />
-                </Button>
-              </span>
-            </ESTooltip>
-          </Modal.Footer>
-        </Modal>
-      </>
-    );
-  }
+            </span>
+          </ESTooltip>
+        </Modal.Footer>
+      </Modal>
+    </>
+  );
 }
 
 ForcedXMLPreview.propTypes = {

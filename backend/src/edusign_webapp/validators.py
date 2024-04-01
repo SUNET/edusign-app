@@ -60,7 +60,7 @@ def validate_doc_type(value):
 
     :raises ValidationError: if the value is not the string "application/pdf".
     """
-    if value != 'application/pdf':
+    if value not in ('application/pdf', 'application/xml', 'text/xml'):
         current_app.logger.debug(f'Validate doc type: wrong type {value}')
         raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
