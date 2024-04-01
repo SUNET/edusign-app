@@ -318,8 +318,8 @@ def get_previous_signatures_xml(document: dict) -> str:
     if "," in content:
         content = content.split(",")[1]
 
-    cert_elem = "//{http://www.w3.org/2000/09/xmldsig#}X509Certificate"
-    certs = etree.fromstring(content).findall(cert_elem).text
+    cert_search = ".//{http://www.w3.org/2000/09/xmldsig#}X509Certificate"
+    certs = [cert.text for cert in etree.fromstring(content).findall(cert_search)]
 
     prev_signatures = []
 
@@ -328,9 +328,9 @@ def get_previous_signatures_xml(document: dict) -> str:
         if "BEGIN CERTIFICATE" not in cert:
             cert = f"-----BEGIN CERTIFICATE-----\n{cert}\n-----END CERTIFICATE-----"
 
-        decoded = x509.load_pem_x509_certificate(cert.encode('ascii'), default_backend())
+        decoded = x509.load_pem_x509_certificate(cert.encode('ascii'))
 
-        prev_signatures.append(decoded)
+        prev_signatures.append(decoded.subject.rfc4514_string())
 
     if prev_signatures:
         return '|'.join(prev_signatures)
