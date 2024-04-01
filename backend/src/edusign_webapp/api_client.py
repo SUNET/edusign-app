@@ -112,6 +112,13 @@ class APIClient(object):
 
         pass
 
+    class UnknownDocType(Exception):
+        """
+        Trying to sign a document with an unsupported MIME type
+        """
+
+        pass
+
     def __init__(self, config: dict):
         """
         :param config: Dict containing the configuration parameters provided to Flask.
@@ -374,12 +381,17 @@ class APIClient(object):
                     "mimeType": document['type'],
                     "visiblePdfSignatureRequirement": json.loads(document['sign_requirement']),
                 }
-            else:
+            elif document['type'].endswith('/xml'):
+                content = document['blob']
+                if ',' in content:
+                    content = content.split(',')[1]
                 data = {
                     "id": str(document['key']),
-                    "content": document['blob'],
-                    "mimeType": document['type'],
+                    "content": content,
+                    "mimeType": 'application/xml',
                 }
+            else:
+                raise self.UnknownDocType(document['type'])
 
             request_data['tbsDocuments'].append(data)
         api_url = urljoin(self.api_base_url, f'create/{self.profile}')

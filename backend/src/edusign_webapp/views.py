@@ -596,6 +596,13 @@ def create_sign_request(documents: dict) -> dict:
         )
         return {'error': True, 'message': 'expired cache'}
 
+    except current_app.extensions['api_client'].UnknownDocType as e:
+        current_app.logger.error(f'Problem creating sign request, unsupported doc type: {e}')
+        return {
+            'error': True,
+            'message': gettext('There was an error signing docs: unsupported MIME type.'),
+        }
+
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
         return {
@@ -791,6 +798,13 @@ def recreate_sign_request(documents: dict) -> dict:
         try:
             current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
             create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request(new_docs)
+
+        except current_app.extensions['api_client'].UnknownDocType as e:
+            current_app.logger.error(f'Problem creating sign request, unsupported doc type: {e}')
+            return {
+                'error': True,
+                'message': gettext('There was an error signing docs: unsupported MIME type.'),
+            }
 
         except Exception as e:
             current_app.logger.error(f'Problem creating sign request: {e}')
