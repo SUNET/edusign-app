@@ -216,6 +216,7 @@ class ToSignSchema(Schema):
     class ToSignDocumentSchema(_ReferenceSchema):
         name = fields.String(required=True, validate=[validate_nonempty])
         type = fields.String(required=True, validate=[validate_nonempty, validate_doc_type])
+        blob = fields.Raw(required=False)
 
     documents = fields.List(fields.Nested(ToSignDocumentSchema))
 

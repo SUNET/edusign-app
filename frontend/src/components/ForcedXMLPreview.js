@@ -15,8 +15,6 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
  */
 function ForcedXMLPreview(props) {
 
-  const docFile = useMemo(() => (docToFile(props.doc)), [props.doc]);
-
   return (
     <>
       <Modal
@@ -30,7 +28,7 @@ function ForcedXMLPreview(props) {
         </Modal.Header>
 
         <Modal.Body>
-          <iframe src ={`data:text/xml;charset=utf-8,${encodeURI(docFile)}`}>
+          <iframe src={props.doc.blob}>
           </iframe>
         </Modal.Body>
 

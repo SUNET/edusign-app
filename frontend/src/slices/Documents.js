@@ -734,13 +734,17 @@ export const startSigningDocuments = createAsyncThunk(
     // the `create-sign-request` endpoint.
     await state.documents.documents.forEach(async (doc) => {
       if (doc.state === "signing") {
-        docsToSign.push({
+        const docToSign = {
           name: doc.name,
           type: doc.type,
           ref: doc.ref,
           key: doc.key,
           sign_requirement: doc.sign_requirement,
-        });
+        };
+        if (docToSign.type.endsWith('/xml')) {
+          docToSign.blob = doc.blob;
+        }
+        docsToSign.push(docToSign);
       }
     });
     const body = preparePayload(state, { documents: docsToSign });

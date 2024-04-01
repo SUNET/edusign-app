@@ -88,19 +88,20 @@ def validate_sign_requirement(value):
 
     :raises ValidationError: in case the value doesn't conform to the above.
     """
-    try:
-        val = json.loads(value)
-    except json.decoder.JSONDecodeError:
-        current_app.logger.debug(f'Validate sign request: invalid value {value}')
-        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+    if value != 'not-needed-for-non-pdf':
+        try:
+            val = json.loads(value)
+        except json.decoder.JSONDecodeError:
+            current_app.logger.debug(f'Validate sign request: invalid value {value}')
+            raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
-    if 'fieldValues' not in val:
-        current_app.logger.debug(f'Validate sign request: missing fieldValues {value}')
-        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+        if 'fieldValues' not in val:
+            current_app.logger.debug(f'Validate sign request: missing fieldValues {value}')
+            raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
-    if 'signerName' not in val:
-        current_app.logger.debug(f'Validate sign request: missing signerName {value}')
-        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+        if 'signerName' not in val:
+            current_app.logger.debug(f'Validate sign request: missing signerName {value}')
+            raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
 
 def validate_language(value):
