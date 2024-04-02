@@ -317,6 +317,7 @@ def get_previous_signatures_xml(document: dict) -> str:
     content = document['blob']
     if "," in content:
         content = content.split(",")[1]
+    content = b64decode(content)
 
     cert_search = ".//{http://www.w3.org/2000/09/xmldsig#}X509Certificate"
     certs = [cert.text for cert in etree.fromstring(content).findall(cert_search)]
