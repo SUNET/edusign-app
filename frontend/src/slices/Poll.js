@@ -104,10 +104,15 @@ export const configureSkipped = async (thunkAPI, configData, owned) => {
       if (doc.key === oldDoc.key) {
         let newSigned = [...doc.signed];
         let newDeclined = [...doc.declined];
+        let prefix = "data:application/xml;base64,";
+        if (oldDoc.type === 'application/pdf') {
+          prefix = "data:application/pdf;base64,";
+        }
+        const signedContent = prefix + doc.signed_content;
         let newDoc = {
           ...oldDoc,
-          signedContent: "data:application/pdf;base64," + doc.signed_content,
-          blob: "data:application/pdf;base64," + doc.signed_content,
+          signedContent: signedContent,
+          blob: signedContent,
           state: "signed",
           show: false,
           showForced: false,

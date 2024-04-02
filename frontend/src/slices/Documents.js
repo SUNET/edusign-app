@@ -1041,10 +1041,15 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
             name: state.main.signer_attributes.name,
             email: state.main.signer_attributes.mail,
           });
+          let prefix = "data:application/xml;base64,";
+          if (oldDoc.type === 'application/pdf') {
+            prefix = "data:application/pdf;base64,";
+          }
+          const signedContent = prefix + doc.signed_content;
           let newDoc = {
             ...oldDoc,
-            signedContent: "data:application/pdf;base64," + doc.signed_content,
-            blob: "data:application/pdf;base64," + doc.signed_content,
+            signedContent: signedContent,
+            blob: signedContent,
             state: "signed",
             show: false,
             showForced: false,
@@ -1184,14 +1189,14 @@ export const skipOwnedSignature = createAsyncThunk(
 
       // Reconstruct the representation of the document
       // with data kept locally and data (the signed document contents) received from the backend
+      let prefix = "data:application/xml;base64,";
+      if (owned.type === 'application/pdf') {
+        prefix = "data:application/pdf;base64,";
+      }
       const doc = {
         ...owned,
-        signedContent:
-          "data:application/pdf;base64," +
-          data.payload.documents[0].signed_content,
-        blob:
-          "data:application/pdf;base64," +
-          data.payload.documents[0].signed_content,
+        signedContent: prefix + data.payload.documents[0].signed_content,
+        blob: prefix + data.payload.documents[0].signed_content,
         state: "signed",
         show: false,
       };
@@ -1399,10 +1404,13 @@ const documentsSlice = createSlice({
      * @desc Redux action to update a document with the signed content
      */
     updateDocumentWithSignedContent(state, action) {
-      const signedContent =
-        "data:application/pdf;base64," + action.payload.signed_content;
       state.documents = state.documents.map((doc) => {
         if (doc.key === action.payload.id) {
+          let prefix = "data:application/xml;base64,";
+          if (doc.type === 'application/pdf') {
+            prefix = "data:application/pdf;base64,";
+          }
+          const signedContent = prefix + action.payload.signed_content;
           const document = {
             ...doc,
             signedContent: signedContent,

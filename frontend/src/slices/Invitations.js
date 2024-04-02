@@ -289,10 +289,14 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
   try {
     thunkAPI.dispatch(removeOwned(owned));
     // Now we add the document, first to the redux store, then to the IndexedDB database
+    let prefix = "data:application/xml;base64,";
+    if (doc.type === 'application/pdf') {
+      prefix = "data:application/pdf;base64,";
+    }
     let newDoc = {
       ...doc,
       state: "loaded",
-      blob: "data:application/pdf;base64," + contentData.payload.blob,
+      blob: prefix + contentData.payload.blob,
     };
     delete newDoc.pending;
     delete newDoc.signed;

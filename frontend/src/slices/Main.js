@@ -76,9 +76,12 @@ export const fetchConfig = createAsyncThunk(
         delete configData.payload.poll;
 
         await configData.payload.skipped.forEach(async (doc) => {
-          doc.signedContent =
-            "data:application/pdf;base64," + doc.signed_content;
-          doc.blob = "data:application/pdf;base64," + doc.signed_content;
+          let prefix = "data:application/xml;base64,";
+          if (doc.type === 'application/pdf') {
+            prefix = "data:application/pdf;base64,";
+          }
+          doc.signedContent = prefix + doc.signed_content;
+          doc.blob = prefix + doc.signed_content;
           doc.state = "signed";
           doc.show = false;
           doc.showForced = false;
@@ -402,12 +405,16 @@ const mainSlice = createSlice({
     finishInvited(state, action) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.key === action.payload.id) {
+          let prefix = "data:application/xml;base64,";
+          if (doc.type === 'application/pdf') {
+            prefix = "data:application/pdf;base64,";
+          }
           return {
             ...doc,
             state: "signed",
             message: "",
             signedContent:
-              "data:application/pdf;base64," + action.payload.signed_content,
+              prefix + action.payload.signed_content,
           };
         }
         return doc;
@@ -782,10 +789,12 @@ const mainSlice = createSlice({
                   ...doc,
                   ...action.payload.payload,
                 };
-                if (!newDoc.blob.startsWith("data:application/pdf;base64,")) {
-                  newDoc.blob =
-                    "data:application/pdf;base64," +
-                    action.payload.payload.blob;
+                if (!newDoc.blob.startsWith("data:")) {
+                  let prefix = "data:application/xml;base64,";
+                  if (newDoc.type === 'application/pdf') {
+                    prefix = "data:application/pdf;base64,";
+                  }
+                  newDoc.blob = prefix + action.payload.payload.blob;
                 }
               }
               return newDoc;
