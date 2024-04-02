@@ -500,10 +500,10 @@ class APIClient(object):
 
         def _validate(doc):
             try:
-                pdf = b64decode(doc['doc']['blob'])
+                content = b64decode(doc['doc']['blob'])
             except KeyError:
-                pdf = b64decode(doc['doc']['signedContent'])
-            resp = requests.post(url, data=pdf, headers={'Content-Type': 'application/pdf'})
+                content = b64decode(doc['doc']['signedContent'])
+            resp = requests.post(url, data=content, headers={'Content-Type': doc['type']})
             if resp.status_code == 200:
                 vpdf = resp.content
                 doc['doc']['signedContent'] = b64encode(vpdf).decode('utf8')
