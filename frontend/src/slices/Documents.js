@@ -1112,7 +1112,7 @@ export const downloadSigned = createAsyncThunk(
       return d.name === docname;
     })[0];
     const b64content = doc.signedContent.split(",")[1];
-    const blob = b64toBlob(b64content);
+    const blob = b64toBlob(b64content, doc.type);
     const newName = nameForDownload(doc.name, "signed");
     FileSaver.saveAs(blob, newName);
   }
@@ -1143,7 +1143,7 @@ export const downloadAllSigned = createAsyncThunk(
     const folder = await zip.folder("signed");
     await docs.forEach(async (doc) => {
       const b64content = doc.signedContent.split(",")[1];
-      const blob = b64toBlob(b64content);
+      const blob = b64toBlob(b64content, doc.type);
       const newName = nameForDownload(doc.name, "signed");
       await folder.file(newName, blob);
     });
