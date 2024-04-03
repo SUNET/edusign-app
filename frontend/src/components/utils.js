@@ -143,41 +143,16 @@ export const preparePrevSigs = (doc, size) => {
     const sigStrs = doc.prev_signatures
       .split("|")
       .filter((sig) => sig.length > 0);
-    const sigElems = sigStrs.map((sigStr, i) => {
-      let sigArr;
-      if (sigStr.includes(";")) {
-        sigArr = sigStr.split(";");
-      } else {
-        sigArr = sigStr.split(",");
-      }
-      let sig = {};
-      sigArr.forEach((segment) => {
-        const [k, v] = segment.split(":");
-        sig[k.trim()] = v.trim();
-      });
-      let mainVal = "";
-      if (sig.hasOwnProperty("Common Name")) {
-        mainVal = sig["Common Name"];
-        delete sig["Common Name"];
-      } else if (
-        sig.hasOwnProperty("Given Name") &&
-        sig.hasOwnProperty("Surname")
-      ) {
-        mainVal = `${sig["Given Name"]} ${sig["Surname"]}`;
-        delete sig["Given Name"];
-        delete sig["Surname"];
-      } else {
-        mainVal = sig["Serial Number"];
-        delete sig["Serial Number"];
-      }
-      let alt = Object.keys(sig)
-        .map((key) => {
-          return `${key}: ${sig[key]}`;
-        })
-        .join("; ");
+    let signatures;
+    if (doc.type === 'application/pdf') {
+      signatures = getPDFSignatures(sigStrs);
+    } else {
+      signatures = getXMLSignatures(sigStrs);
+    }
+    const sigElems = signatures.map((sig, i) => {
       return (
-        <span className="info-row-item" title={alt} key={i}>
-          {mainVal}
+        <span className="info-row-item" title={sig.alt} key={i}>
+          {sig.mainVal}
           {i < sigStrs.length - 1 ? "," : "."}
         </span>
       );
@@ -216,6 +191,89 @@ export const preparePrevSigs = (doc, size) => {
       </div>
     );
   }
+};
+
+const getPDFSignatures = (sigStrs) => {
+  return sigStrs.map((sigStr) => {
+    let sigArr;
+    if (sigStr.includes(";")) {
+      sigArr = sigStr.split(";");
+    } else {
+      sigArr = sigStr.split(",");
+    }
+    let sig = {};
+    sigArr.forEach((segment) => {
+      const [k, v] = segment.split(":");
+      sig[k.trim()] = v.trim();
+    });
+    let mainVal = "";
+    if (sig.hasOwnProperty("Common Name")) {
+      mainVal = sig["Common Name"];
+      delete sig["Common Name"];
+    } else if (
+      sig.hasOwnProperty("Given Name") &&
+      sig.hasOwnProperty("Surname")
+    ) {
+      mainVal = `${sig["Given Name"]} ${sig["Surname"]}`;
+      delete sig["Given Name"];
+      delete sig["Surname"];
+    } else {
+      mainVal = sig["Serial Number"];
+      delete sig["Serial Number"];
+    }
+    let alt = Object.keys(sig)
+      .map((key) => {
+        return `${key}: ${sig[key]}`;
+      })
+      .join("; ");
+    return {
+      mainVal: mainVal,
+      alt: alt,
+    };
+  });
+};
+
+const getXMLSignatures = (sigStrs) => {
+  return sigStrs.map((sigStr) => {
+    let sigArr;
+    if (sigStr.includes(";")) {
+      sigArr = sigStr.split(";");
+    } else {
+      sigArr = sigStr.split(",");
+    }
+    let sig = {};
+    sigArr.forEach((segment) => {
+      const [k, v] = segment.split("=");
+      sig[k.trim()] = v.trim();
+    });
+    let mainVal = "";
+    if (sig.hasOwnProperty("CN")) {
+      mainVal = sig["CN"];
+      delete sig["CN"];
+    } else if (
+      sig.hasOwnProperty("2.5.4.42") &&
+      sig.hasOwnProperty("2.5.4.4")
+    ) {
+      mainVal = `${sig["2.5.4.42"]} ${sig["2.5.4.4"]}`;
+      delete sig["2.5.4.42"];
+      delete sig["2.5.4.4"];
+    } else if (sig.hasOwnProperty('O')) {
+      mainVal = sig["O"];
+      delete sig["O"];
+    } else {
+      mainVal = sig["2.5.4.5"];
+      delete sig["2.5.4.5"];
+    }
+    let alt = Object.keys(sig)
+      .map((key) => {
+        return `${key}=${sig[key]}`;
+      })
+      .join("; ");
+    return {
+      mainVal: mainVal,
+      alt: alt,
+    };
+  });
 };
 
 /**
