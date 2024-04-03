@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { injectIntl } from "react-intl";
 
 import DocPreviewContainer from "containers/DocPreview";
+import XMLPreviewContainer from "containers/XMLPreview";
 import ReInviteFormContainer from "containers/ReInviteForm";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 import DocumentOwned from "components/DocumentOwned";
@@ -20,11 +21,12 @@ class Owned extends Component {
     return (
       <>
         {this.props.owned.map((doc, index) => {
+          const Preview = doc.type === 'application/pdf' ? DocPreviewContainer : XMLPreviewContainer;
           return (
             <React.Fragment key={index}>
               <DocumentOwned key="0" doc={doc} {...this.props} />
               {doc.show && (
-                <DocPreviewContainer
+                <Preview
                   doc={doc}
                   key="1"
                   handleClose={this.props.handleClosePreview}
