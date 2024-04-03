@@ -1045,6 +1045,8 @@ def _process_signed_documents(process_data):
     # Prepare emails to send
     for doc in process_data['signedDocuments']:
         key = doc['id']
+        mime_type = doc['mimeType']
+        doc['type'] = mime_type
         docname = current_app.extensions['doc_store'].get_document_name(key)
         ordered = current_app.extensions['doc_store'].get_ordered(key)
         owner = current_app.extensions['doc_store'].get_owner_data(key)
@@ -1054,14 +1056,14 @@ def _process_signed_documents(process_data):
         pending = len(pending_invites) > 1  # More than 1 since we still have not removed the currently addressed invite
         skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
         current_app.logger.debug(
-            f"Data for emails for signed docs - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}"
+            f"Data for emails for signed docs - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}, type: {mime_type}"
         )
 
         # this is an invitation to the current user
         if owner and 'email' in owner and owner['email'] not in mail_aliases:
             # Last person to sign this document
             if not pending and skipfinal:
-                current_app.logger.debug(f"Data for final email - key: {key}, owner: {owner}, sendsigned: {sendsigned}")
+                current_app.logger.debug(f"Data for final email - key: {key}, owner: {owner}, sendsigned: {sendsigned}, type: {mime_type}")
                 to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
 
             else:

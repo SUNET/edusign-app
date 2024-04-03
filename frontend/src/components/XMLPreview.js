@@ -12,7 +12,6 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
  * @component
  */
 function XMLPreview(props) {
-  if (props.docFile === null) return "";
 
   return (
     <>
@@ -27,7 +26,7 @@ function XMLPreview(props) {
         </Modal.Header>
 
         <Modal.Body>
-          <iframe src ={`data:text/xml;charset=utf-8,${encodeURI(props.docFile)}`}>
+          <iframe src ={props.doc.blob}>
           </iframe>
         </Modal.Body>
 
