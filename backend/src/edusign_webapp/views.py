@@ -723,13 +723,25 @@ def _ready_docs(
 
         current_app.logger.info(f"Re-prepared {doc['name']} for user {session['eppn']}")
 
+        doc_name = doc['name']
+        doc_type = doc['type']
+        doc_key = doc['key']
+
+        if doc_type == 'application/pdf':
+            ref = doc_data['updatedPdfDocumentReference']
+            sign_req = json.dumps(doc_data['visiblePdfSignatureRequirement'])
+
+        else:
+            ref = doc_key
+            sign_req = 'not-needed-for-non-pdf'
+
         new_docs.append(
             {
-                'name': doc['name'],
-                'type': doc['type'],
-                'key': doc['key'],
-                'ref': doc_data['updatedPdfDocumentReference'],
-                'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
+                'name': doc_name,
+                'type': doc_type,
+                'key': doc_key,
+                'ref': ref,
+                'sign_requirement': sign_req,
             }
         )
     return failed, new_docs
