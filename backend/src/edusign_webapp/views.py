@@ -1537,7 +1537,7 @@ def remove_multi_sign_request(data: dict) -> dict:
             lang = invite['lang']
             recipients[lang].append(f"{invite['name']} <{invite['email']}>")
 
-    message = gettext("Success removing invitation to sign")
+    message = gettext(f"Success removing invitation to sign for document {docname}")
 
     if len(recipients) > 0:
         sent = _send_cancellation_mail(docname, owner_email, recipients)
