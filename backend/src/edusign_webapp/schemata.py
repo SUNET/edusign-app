@@ -206,6 +206,7 @@ class ReferenceSchema(_ReferenceSchema):
 
     prev_signatures = fields.String(dump_default="")
     has_form = fields.Boolean(dump_default=False)
+    pprinted = fields.String(required=True, validate=[validate_nonempty])
 
 
 class ToSignSchema(Schema):
@@ -282,6 +283,7 @@ class SignedDocumentsSchema(Schema):
         id = fields.String(required=True, validate=[validate_nonempty])
         signed_content = fields.Raw(required=True, validate=[validate_nonempty])
         validated = fields.Boolean()
+        pprinted = fields.String(required=True, validate=[validate_nonempty])
 
     documents = fields.List(fields.Nested(SignedDocumentSchema))
 

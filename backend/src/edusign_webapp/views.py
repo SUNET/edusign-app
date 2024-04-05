@@ -77,6 +77,8 @@ from edusign_webapp.utils import (
     get_previous_signatures_xml,
     is_whitelisted,
     prepare_document,
+    pretty_print_any,
+    pretty_print_xml,
     sendmail,
     sendmail_bulk,
 )
@@ -540,11 +542,13 @@ def add_document(document: dict) -> dict:
 
         prev_signatures = get_previous_signatures(document)
         has_form = has_pdf_form(document['blob'])
+        pprinted = 'not-needed-for-pdf'
     else:
         doc_ref = key
         sign_req = 'not-needed-for-non-pdf'
         prev_signatures = get_previous_signatures_xml(document)
         has_form = False
+        pprinted = pretty_print_xml(document['blob'])
 
     return {
         'payload': {
@@ -553,6 +557,7 @@ def add_document(document: dict) -> dict:
             'sign_requirement': sign_req,
             'prev_signatures': prev_signatures,
             'has_form': has_form,
+            'pprinted': pprinted,
         }
     }
 
@@ -1182,6 +1187,9 @@ def get_signed_documents(sign_data: dict) -> dict:
     prepared_data = _prepare_signed_documents_data(process_data)
     docs.extend(prepared_data)
 
+    for doc in docs:
+        doc['pprinted'] = pretty_print_any(doc['signed_content'], uuid.UUID(doc['key']))
+
     return {
         'payload': {'documents': docs},
     }
@@ -1591,8 +1599,9 @@ def get_partially_signed_doc(data: dict) -> dict:
     :param data: The key of the document to get
     :return: A message about the result of the procedure
     """
+    key = uuid.UUID(data['key'])
     try:
-        doc = current_app.extensions['doc_store'].get_document_content(uuid.UUID(data['key']))
+        doc = current_app.extensions['doc_store'].get_document_content(key)
 
     except Exception as e:
         current_app.logger.error(f'Problem getting multi sign document: {e}')
@@ -1602,7 +1611,9 @@ def get_partially_signed_doc(data: dict) -> dict:
         current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
         return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
-    return {'message': 'Success', 'payload': {'blob': doc}}
+    pprinted = pretty_print_any(doc, key)
+
+    return {'message': 'Success', 'payload': {'blob': doc, 'pprinted': pprinted}}
 
 
 def _prepare_final_email_skipped(doc, key, sendsigned):
@@ -1703,6 +1714,9 @@ def skip_final_signature(data: dict) -> dict:
         [{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}]
     )
     newdoc = validated[0]
+    signed_content = newdoc['doc'].get('signedContent', newdoc['doc']['blob'])
+
+    pprinted = pretty_print_any(signed_content, key)
 
     return {
         'message': 'Success',
@@ -1710,8 +1724,9 @@ def skip_final_signature(data: dict) -> dict:
             'documents': [
                 {
                     'id': newdoc['key'],
-                    'signed_content': newdoc['doc'].get('signedContent', newdoc['doc']['blob']),
+                    'signed_content': signed_content,
                     'validated': newdoc['validated'],
+                    'pprinted': pprinted,
                 }
             ]
         },

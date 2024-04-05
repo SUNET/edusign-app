@@ -297,6 +297,7 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
       ...doc,
       state: "loaded",
       blob: prefix + contentData.payload.blob,
+      pprinted: contentData.payload.pprinted,
     };
     delete newDoc.pending;
     delete newDoc.signed;

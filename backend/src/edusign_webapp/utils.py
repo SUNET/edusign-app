@@ -32,7 +32,7 @@
 #
 import io
 import uuid
-from base64 import b64decode
+from base64 import b64decode, b64encode
 from email.encoders import encode_base64
 from email.mime.base import MIMEBase
 from xml.etree import cElementTree as ET
@@ -44,6 +44,9 @@ from flask import current_app, request, session
 from flask_babel import gettext
 from flask_mailman import EmailMultiAlternatives
 from lxml import etree
+from pygments import highlight
+from pygments.lexers import XmlLexer
+from pygments.formatters import HtmlFormatter
 from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
 
 from edusign_webapp.mail_backend import ParallelEmailBackend
@@ -463,3 +466,37 @@ def get_required_assurance(docs: list) -> str:
     current_app.logger.debug(f"Required assurance: {required_assurance}")
 
     return required_assurance
+
+
+def pretty_print_xml(content):
+    """
+    pretty print XML doc as HTML
+
+    :param content: XML doc base64 encoded
+    """
+    if "," in content:
+        content = content.split(",")[1]
+
+    xmlstr = b64decode(content)
+    xml = highlight(xmlstr, XmlLexer(), HtmlFormatter())
+
+    html = b64encode(xml)
+
+    return html
+
+
+def pretty_print_any(content, key):
+    """
+    pretty print XML doc as HTML only if the content is XML
+
+    :param content: XML doc base64 encoded
+    """
+
+    doctype = current_app.extensions['doc_store'].get_document_type(key)
+
+    if doctype == 'application/pdf':
+        pprinted = pretty_print_xml(content)
+    else:
+        pprinted = 'not-needed-for-pdf'
+
+    return pprinted

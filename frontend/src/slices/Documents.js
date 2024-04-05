@@ -1199,6 +1199,7 @@ export const skipOwnedSignature = createAsyncThunk(
         blob: prefix + data.payload.documents[0].signed_content,
         state: "signed",
         show: false,
+        pprinted: data.payload.documents[0].pprinted,
       };
 
       // Remove the document from the collection of invitations to the user in the redux store,
@@ -1417,6 +1418,7 @@ const documentsSlice = createSlice({
             blob: signedContent,
             state: "signed",
             validated: action.payload.validated,
+            pprinted: action.payload.pprinted,
           };
           return document;
         } else return doc;

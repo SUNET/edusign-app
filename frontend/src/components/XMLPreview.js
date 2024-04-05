@@ -27,8 +27,9 @@ function XMLPreview(props) {
         </Modal.Header>
 
         <Modal.Body>
-          <iframe src ={props.doc.blob}>
-          </iframe>
+          <div>
+            {props.doc.pprinted}
+          </div>
         </Modal.Body>
 
         <Modal.Footer>

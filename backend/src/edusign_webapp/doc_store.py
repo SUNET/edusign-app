@@ -960,6 +960,16 @@ class DocStore(object):
         doc = self.metadata.get_document(key)
         return int(doc['size'])
 
+    def get_document_type(self, key: uuid.UUID) -> str:
+        """
+        Get the mime type of the document identified by the provided key.
+
+        :param key: the key identifying the document
+        :return: the document mime type
+        """
+        doc = self.metadata.get_document(key)
+        return doc['type']
+
     def get_owner_data(self, key: uuid.UUID) -> Dict[str, Any]:
         """
         Get data on the owner of the document identified by the provided key.

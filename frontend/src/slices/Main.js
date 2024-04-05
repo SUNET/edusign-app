@@ -795,6 +795,7 @@ const mainSlice = createSlice({
                     prefix = "data:application/pdf;base64,";
                   }
                   newDoc.blob = prefix + action.payload.payload.blob;
+                  newDoc.pprinted = action.payload.payload.pprinted;
                 }
               }
               return newDoc;
