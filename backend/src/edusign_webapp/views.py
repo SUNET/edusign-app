@@ -735,15 +735,18 @@ def _ready_docs(
             ref = doc_key
             sign_req = 'not-needed-for-non-pdf'
 
-        new_docs.append(
-            {
-                'name': doc_name,
-                'type': doc_type,
-                'key': doc_key,
-                'ref': ref,
-                'sign_requirement': sign_req,
-            }
-        )
+        new_doc = {
+            'name': doc_name,
+            'type': doc_type,
+            'key': doc_key,
+            'ref': ref,
+            'sign_requirement': sign_req,
+        }
+        if 'blob' in doc:
+            new_doc['blob'] = doc['blob']
+
+        new_docs.append(new_doc)
+
     return failed, new_docs
 
 
@@ -794,6 +797,7 @@ def recreate_sign_request(documents: dict) -> dict:
     failed, invited_docs = _gather_invited_docs(documents['documents']['invited'])
 
     for doc in invited_docs:
+        doc['blob'] = current_app.extensions['doc_store'].get_document_content(doc['key'])
         tasks.append(loop.create_task(prepare(doc)))
 
     if len(tasks) > 0:

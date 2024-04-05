@@ -195,16 +195,19 @@ def prepare_document(document: dict) -> dict:
     :param document: a dict with metadata and contents of the document to be prepared.
     :return: a dict with the reponse obtained from the API, or with an error message.
     """
-    try:
-        current_app.logger.info(f"Sending document {document['name']} for preparation for user {session['eppn']}")
-        return current_app.extensions['api_client'].prepare_document(document)
+    if document['type'] == 'application/pdf':
+        try:
+            current_app.logger.info(f"Sending document {document['name']} for preparation for user {session['eppn']}")
+            return current_app.extensions['api_client'].prepare_document(document)
 
-    except Exception as e:
-        current_app.logger.error(f'Problem preparing document: {e}')
-        return {
-            'error': True,
-            'message': gettext('There was an error. Please try again, or contact the site administrator.'),
-        }
+        except Exception as e:
+            current_app.logger.error(f'Problem preparing document: {e}')
+            return {
+                'error': True,
+                'message': gettext('There was an error. Please try again, or contact the site administrator.'),
+            }
+    else:
+        return {}
 
 
 def get_invitations(remove_finished=False):
