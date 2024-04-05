@@ -1,12 +1,23 @@
 @import "./variables.scss";
 
-.modal-body {
-  align-self: center;
-  width: 90%;
-}
+.modal-dialog {
+  height: 80%;
+  min-height: 500px;
 
-iframe {
-  width: 100%;
+  .modal-contnt {
+    height: 100%;
+
+    .modal-body {
+      align-self: center;
+      width: 90%;
+      height: 100%;
+
+      iframe {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
 }
 
 #mock-disabled-confirm-button {
