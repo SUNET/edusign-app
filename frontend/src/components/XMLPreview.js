@@ -20,6 +20,7 @@ function XMLPreview(props) {
         onHide={props.handleClose(props.doc.name)}
         size="lg"
         centered
+        className="xml-preview-display"
       >
         <Modal.Header closeButton>
           <Modal.Title>{props.doc.name}</Modal.Title>
