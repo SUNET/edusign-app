@@ -238,6 +238,9 @@ def get_invitations(remove_finished=False):
         'high': gettext('High'),
     }
     for doc in invited:
+        key = uuid.UUID(str(doc['key']))
+        content = current_app.extensions['doc_store'].get_document_content(key)
+        doc['pprinted'] = pretty_print_any(content, key)
         loa = doc['loa']
         doc['loa'] = f"{loa},{display_levels[loa]}"
         required_level = levels[loa]
@@ -253,6 +256,9 @@ def get_invitations(remove_finished=False):
     newowned, skipped = [], []
     current_app.logger.debug(f"Start checking {len(owned)} owned docs")
     for doc in owned:
+        key = uuid.UUID(str(doc['key']))
+        content = current_app.extensions['doc_store'].get_document_content(key)
+        doc['pprinted'] = pretty_print_any(content, key)
         doc['loa'] = f"{doc['loa']},{display_levels[doc['loa']]}"
         current_app.logger.debug(f"Checking {doc['name']}, with {len(doc['pending'])} pending")
         if len(doc['pending']) > 0:
