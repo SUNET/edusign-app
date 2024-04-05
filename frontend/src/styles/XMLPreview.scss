@@ -1,21 +1,14 @@
 @import "./variables.scss";
 
-.xml-display-preview {
-  height: 100%;
+.xml-preview-display {
   min-height: 500px;
 
   .modal-content {
-    height: 100%;
 
     .modal-body {
       align-self: center;
-      width: 100%;
+      width: inherit;
       height: 100%;
-
-      iframe {
-        width: 100%;
-        height: 100%;
-      }
     }
   }
 }

@@ -27,8 +27,7 @@ function XMLPreview(props) {
         </Modal.Header>
 
         <Modal.Body>
-          <div>
-            {props.doc.pprinted}
+          <div dangerouslySetInnerHTML={{ __html: atob(props.doc.pprinted) }}>
           </div>
         </Modal.Body>
 
