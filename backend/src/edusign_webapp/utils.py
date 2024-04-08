@@ -240,7 +240,7 @@ def get_invitations(remove_finished=False):
     for doc in invited:
         key = uuid.UUID(str(doc['key']))
         content = current_app.extensions['doc_store'].get_document_content(key)
-        doc['pprinted'] = pretty_print_any(content, key)
+        doc['pprinted'] = pretty_print_any(content, doc['type'])
         loa = doc['loa']
         doc['loa'] = f"{loa},{display_levels[loa]}"
         required_level = levels[loa]
@@ -258,7 +258,7 @@ def get_invitations(remove_finished=False):
     for doc in owned:
         key = uuid.UUID(str(doc['key']))
         content = current_app.extensions['doc_store'].get_document_content(key)
-        doc['pprinted'] = pretty_print_any(content, key)
+        doc['pprinted'] = pretty_print_any(content, doc['type'])
         doc['loa'] = f"{doc['loa']},{display_levels[doc['loa']]}"
         current_app.logger.debug(f"Checking {doc['name']}, with {len(doc['pending'])} pending")
         if len(doc['pending']) > 0:
@@ -491,15 +491,12 @@ def pretty_print_xml(content):
     return html
 
 
-def pretty_print_any(content, key):
+def pretty_print_any(content, doctype):
     """
     pretty print XML doc as HTML only if the content is XML
 
     :param content: XML doc base64 encoded
     """
-
-    doctype = current_app.extensions['doc_store'].get_document_type(key)
-
     if doctype == 'application/pdf':
         pprinted = 'not-needed-for-pdf'
     else:

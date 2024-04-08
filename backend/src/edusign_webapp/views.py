@@ -1030,7 +1030,7 @@ def _prepare_signed_documents_data(process_data):
             skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
 
             if pending > 0 or not skipfinal:
-                docs.append({'id': key, 'signed_content': doc['signedContent'], 'validated': False})
+                docs.append({'id': key, 'signed_content': doc['signedContent'], 'validated': False, 'type': doc['mimeType']})
 
         elif owner:
             current_app.extensions['doc_store'].remove_document(key)
@@ -1085,7 +1085,7 @@ def _process_signed_documents(process_data):
             # Last person to sign this document
             if not pending and skipfinal:
                 current_app.logger.debug(f"Data for final email - key: {key}, owner: {owner}, sendsigned: {sendsigned}, type: {mime_type}")
-                to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
+                to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned, 'type': mime_type})
 
             else:
                 # More people pending to sign the document
@@ -1107,11 +1107,11 @@ def _process_signed_documents(process_data):
                     )
         # this is an invitation from the current user
         elif owner:
-            to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned})
+            to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned, 'type': mime_type})
 
         # this is not an invitation
         else:
-            to_validate.append({'key': key, 'owner': {}, 'doc': doc, 'sendsigned': False})
+            to_validate.append({'key': key, 'owner': {}, 'doc': doc, 'sendsigned': False, 'type': mime_type})
 
     return emails, to_validate
 
@@ -1179,7 +1179,7 @@ def get_signed_documents(sign_data: dict) -> dict:
                     f"Problem sending signed by all email to all invited for doc '{owner['docname']}': {e}"
                 )
 
-        docs.append({'id': doc['key'], 'signed_content': doc['doc']['signedContent'], 'validated': doc['validated']})
+        docs.append({'id': doc['key'], 'signed_content': doc['doc']['signedContent'], 'validated': doc['validated'], 'type': doc['type']})
 
     if len(emails) > 0:
         sendmail_bulk(emails)
@@ -1188,7 +1188,7 @@ def get_signed_documents(sign_data: dict) -> dict:
     docs.extend(prepared_data)
 
     for doc in docs:
-        doc['pprinted'] = pretty_print_any(doc['signed_content'], uuid.UUID(doc['key']))
+        doc['pprinted'] = pretty_print_any(doc['signed_content'], doc['type'])
 
     return {
         'payload': {'documents': docs},
@@ -1602,6 +1602,7 @@ def get_partially_signed_doc(data: dict) -> dict:
     key = uuid.UUID(data['key'])
     try:
         doc = current_app.extensions['doc_store'].get_document_content(key)
+        doctype = current_app.extensions['doc_store'].get_document_type(key)
 
     except Exception as e:
         current_app.logger.error(f'Problem getting multi sign document: {e}')
@@ -1611,7 +1612,7 @@ def get_partially_signed_doc(data: dict) -> dict:
         current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
         return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
-    pprinted = pretty_print_any(doc, key)
+    pprinted = pretty_print_any(doc, doctype)
 
     return {'message': 'Success', 'payload': {'blob': doc, 'pprinted': pprinted}}
 
@@ -1683,6 +1684,7 @@ def skip_final_signature(data: dict) -> dict:
     try:
         doc = current_app.extensions['doc_store'].get_signed_document(key)
         sendsigned = current_app.extensions['doc_store'].get_sendsigned(key)
+        doctype = current_app.extensions['doc_store'].get_document_type(key)
 
     except Exception as e:
         current_app.logger.error(f'Problem getting signed document: {e}')
@@ -1716,7 +1718,7 @@ def skip_final_signature(data: dict) -> dict:
     newdoc = validated[0]
     signed_content = newdoc['doc'].get('signedContent', newdoc['doc']['blob'])
 
-    pprinted = pretty_print_any(signed_content, key)
+    pprinted = pretty_print_any(signed_content, doctype)
 
     return {
         'message': 'Success',
