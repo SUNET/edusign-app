@@ -9,6 +9,11 @@
       align-self: center;
       width: inherit;
       height: 100%;
+
+      div > div.highlight > pre {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
     }
   }
 }

@@ -484,9 +484,9 @@ def pretty_print_xml(content):
         content = content.split(",")[1]
 
     xmlstr = b64decode(content)
-    xml = highlight(xmlstr, XmlLexer(), HtmlFormatter(full=True))
+    xml = highlight(xmlstr, XmlLexer(), HtmlFormatter(full=True, encoding='chardet', linenos='inline', classprefix="xml-preview"))
 
-    html = b64encode(xml.encode('utf8'))
+    html = b64encode(xml)
 
     return html
 

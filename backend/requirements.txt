@@ -18,3 +18,4 @@ cryptography==42.0.5
 fakeredis==2.21.3
 signxml==3.2.2
 pygments==2.17.2
+chardet==5.2.0
