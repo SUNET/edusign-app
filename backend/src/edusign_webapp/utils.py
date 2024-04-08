@@ -501,8 +501,8 @@ def pretty_print_any(content, key):
     doctype = current_app.extensions['doc_store'].get_document_type(key)
 
     if doctype == 'application/pdf':
-        pprinted = pretty_print_xml(content)
-    else:
         pprinted = 'not-needed-for-pdf'
+    else:
+        pprinted = pretty_print_xml(content)
 
     return pprinted
