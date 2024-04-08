@@ -400,9 +400,9 @@ export const saveDocument = createAsyncThunk(
   "documents/saveDocument",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const doc = state.documents.documents.filter((d) => {
+    const doc = state.documents.documents.find((d) => {
       return d.name === args.docName;
-    })[0];
+    });
     await dbSaveDocument(doc);
     return doc;
   }
@@ -432,9 +432,9 @@ export const removeDocument = createAsyncThunk(
   "documents/removeDocument",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const doc = state.documents.documents.filter((d) => {
+    const doc = state.documents.documents.find((d) => {
       return d.name === args.docName;
-    })[0];
+    });
     if (doc.id !== undefined) {
       await dbRemoveDocument(doc);
     }
@@ -1108,9 +1108,9 @@ export const downloadSigned = createAsyncThunk(
   "documents/downloadSigned",
   async (docname, thunkAPI) => {
     const state = thunkAPI.getState();
-    const doc = state.documents.documents.filter((d) => {
+    const doc = state.documents.documents.find((d) => {
       return d.name === docname;
-    })[0];
+    });
     const b64content = doc.signedContent.split(",")[1];
     const blob = b64toBlob(b64content, doc.type);
     const newName = nameForDownload(doc.name, "signed");
@@ -1183,9 +1183,9 @@ export const skipOwnedSignature = createAsyncThunk(
 
       // Get the data for the concerned document from the local redux store
       const key = data.payload.documents[0].id;
-      const owned = state.main.owned_multisign.filter((d) => {
+      const owned = state.main.owned_multisign.find((d) => {
         return d.key === key;
-      })[0];
+      });
 
       // Reconstruct the representation of the document
       // with data kept locally and data (the signed document contents) received from the backend

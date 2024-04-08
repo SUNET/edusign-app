@@ -53,13 +53,13 @@ export const sendInvites = createAsyncThunk(
 
     let document;
     if (isTemplate) {
-      document = state.template.documents.filter((doc) => {
+      document = state.template.documents.find((doc) => {
         return doc.id === documentId;
-      })[0];
+      });
     } else {
-      document = state.documents.documents.filter((doc) => {
+      document = state.documents.documents.find((doc) => {
         return doc.id === documentId;
-      })[0];
+      });
     }
 
     const owner = state.main.signer_attributes.mail;
@@ -72,9 +72,9 @@ export const sendInvites = createAsyncThunk(
         createDocument({ doc: document, intl: args.intl })
       );
       state = thunkAPI.getState();
-      document = state.documents.documents.filter((doc) => {
+      document = state.documents.documents.find((doc) => {
         return doc.name === document.name;
-      })[0];
+      });
     }
 
     if (isTemplate) {
@@ -94,9 +94,9 @@ export const sendInvites = createAsyncThunk(
 
       // The previously gotten state is out of date by now
       state = thunkAPI.getState();
-      const newDocument = state.documents.documents.filter((doc) => {
+      const newDocument = state.documents.documents.find((doc) => {
         return doc.name === docName;
-      })[0];
+      });
       thunkAPI.dispatch(setState({ name: docName, state: "loaded" }));
       document = newDocument;
     }
@@ -218,9 +218,9 @@ export const editInvites = createAsyncThunk(
     const documentKey = args.values.documentKey;
     const invitees = args.values.invitees;
 
-    const doc = state.main.owned_multisign.filter((doc) => {
+    const doc = state.main.owned_multisign.find((doc) => {
       return doc.key === documentKey;
-    })[0];
+    });
 
     if (invitees.length === 0) {
       if (doc.signed.length === 0) {

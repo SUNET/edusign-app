@@ -219,9 +219,9 @@ export const downloadInvitedDraft = createAsyncThunk(
   "main/downloadInvitedDraft",
   async (args, thunkAPI) => {
     let state = thunkAPI.getState();
-    let doc = state.main.pending_multisign.filter((d) => {
+    let doc = state.main.pending_multisign.find((d) => {
       return d.name === args.docName;
-    })[0];
+    });
     if (!doc.signedContent) {
       await thunkAPI.dispatch(
         getPartiallySignedDoc({
@@ -234,9 +234,9 @@ export const downloadInvitedDraft = createAsyncThunk(
       );
     }
     state = thunkAPI.getState();
-    doc = state.main.pending_multisign.filter((d) => {
+    doc = state.main.pending_multisign.find((d) => {
       return d.name === args.docName;
-    })[0];
+    });
     const b64content =
       doc.signedContent !== undefined
         ? doc.signedContent.split(",")[1]
