@@ -157,6 +157,7 @@ class BlobSchema(Schema):
     """
 
     blob = fields.Raw(required=True, validate=[validate_nonempty])
+    pprinted = fields.String(required=True, validate=[validate_nonempty])
 
 
 class _DocumentSchemaWithKey(_DocumentSchema):

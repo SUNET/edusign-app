@@ -148,6 +148,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
       if (data.error) {
         throw new Error(data.message);
       }
+
       data.key = args.key;
       data.stateKey = args.stateKey;
       data.payload.showForced = args.showForced;
@@ -795,8 +796,8 @@ const mainSlice = createSlice({
                     prefix = "data:application/pdf;base64,";
                   }
                   newDoc.blob = prefix + action.payload.payload.blob;
-                  newDoc.pprinted = action.payload.payload.pprinted;
                 }
+                newDoc.pprinted = action.payload.payload.pprinted;
               }
               return newDoc;
             } else return doc;
