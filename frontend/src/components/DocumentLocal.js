@@ -233,7 +233,7 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
                       <ESDropdown doc={doc}>
-                        {menu.createTemplateMenuItem(this.props, doc)}
+                        {doc.type === 'application/pdf' && menu.createTemplateMenuItem(this.props, doc)}
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
                       {widgets.multiSignButton(this.props, doc)}
@@ -375,7 +375,7 @@ class DocumentLocal extends React.Component {
                   </div>
                   <div className="doc-container-button-row">
                     <ESDropdown doc={doc}>
-                      {menu.createTemplateMenuItem(this.props, doc)}
+                      {doc.type === 'application/pdf' && menu.createTemplateMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
                     {widgets.multiSignButton(this.props, doc)}

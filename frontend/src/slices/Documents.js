@@ -621,6 +621,16 @@ export const prepareDocument = createAsyncThunk(
         ...postRequest,
         body: body,
       });
+      if (response.status === 413) {
+        return {
+          ...doc,
+          state: "failed-preparing",
+          message: args.intl.formatMessage({
+            defaultMessage: "Problem preparing document, it is too big",
+            id: "prepare-big-doc-problem",
+          }),
+        };
+      }
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {
