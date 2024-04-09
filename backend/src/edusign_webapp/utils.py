@@ -35,6 +35,7 @@ import uuid
 from base64 import b64decode, b64encode
 from email.encoders import encode_base64
 from email.mime.base import MIMEBase
+from lxml import etree
 from xml.etree import cElementTree as ET
 from zlib import error as zliberror
 
@@ -483,10 +484,13 @@ def pretty_print_xml(content):
     if "," in content:
         content = content.split(",")[1]
 
-    xmlstr = b64decode(content)
-    xml = highlight(xmlstr, XmlLexer(), HtmlFormatter(full=True, encoding='chardet', linenos='inline', classprefix="xml-preview"))
-
-    html = b64encode(xml)
+    xmlstr_pre = b64decode(content)
+    parser = etree.XMLParser(remove_blank_text=True)
+    root = etree.fromstring(xmlstr_pre, parser)
+    etree.indent(root)
+    xmlstr = etree.tounicode(root, pretty_print=True)
+    xml = highlight(xmlstr, XmlLexer(), HtmlFormatter(full=True, linenos='inline', classprefix="xml-preview-", prestyles="font-family: monospace;"))
+    html = b64encode(xml.encode('latin1'))
 
     return html
 

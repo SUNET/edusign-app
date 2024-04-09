@@ -1055,6 +1055,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
             showForced: false,
             signed: newSigned,
             validated: doc.validated,
+            pprinted: doc.pprinted,
           };
           thunkAPI.dispatch(removeOwned({ key: doc.id }));
           newDoc = await addDocumentToDb(

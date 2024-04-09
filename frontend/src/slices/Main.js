@@ -85,6 +85,7 @@ export const fetchConfig = createAsyncThunk(
           doc.state = "signed";
           doc.show = false;
           doc.showForced = false;
+          doc.pprinted = doc.pprinted;
           const newDoc = await addDocumentToDb(
             doc,
             state.main.signer_attributes.eppn
