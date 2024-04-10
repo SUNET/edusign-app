@@ -332,8 +332,15 @@ def get_previous_signatures_xml(document: dict) -> str:
         content = content.split(",")[1]
     content = b64decode(content)
 
+    signature_search = ".//{http://www.w3.org/2000/09/xmldsig#}Signature"
+    signatures = [cert.text for cert in etree.fromstring(content).findall(signature_search)]
+
     cert_search = ".//{http://www.w3.org/2000/09/xmldsig#}X509Certificate"
-    certs = [cert.text for cert in etree.fromstring(content).findall(cert_search)]
+    certs = []
+    for signature in signatures:
+        certs.extend([cert.text for cert in signature.findall(cert_search)])
+
+    certs = list(set(certs))
 
     prev_signatures = []
 

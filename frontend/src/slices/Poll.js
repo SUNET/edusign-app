@@ -78,6 +78,7 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
             invitedCopy.declined = newInvited.declined;
             invitedCopy.sendsigned = newInvited.sendsigned;
             invitedCopy.skipfinal = newInvited.skipfinal;
+            invitedCopy.pprinted = newInvited.pprinted;
           }
         });
         return invitedCopy;
@@ -119,6 +120,7 @@ export const configureSkipped = async (thunkAPI, configData, owned) => {
           signed: newSigned,
           declined: newDeclined,
           pending: doc.pending,
+          pprinted: doc.pprinted,
         };
         newDoc = await addDocumentToDb(
           newDoc,
