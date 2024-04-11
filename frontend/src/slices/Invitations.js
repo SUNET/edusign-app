@@ -48,6 +48,14 @@ export const sendInvites = createAsyncThunk(
       args.values.orderedChoice !== undefined
         ? args.values.orderedChoice
         : false;
+    const sendsigned =
+      args.values.sendsignedChoice !== undefined
+        ? args.values.sendsignedChoice
+        : false;
+    const skipfinal =
+      args.values.skipfinalChoice !== undefined
+        ? args.values.skipfinalChoice
+        : false;
 
     let state = thunkAPI.getState();
 
@@ -106,14 +114,8 @@ export const sendInvites = createAsyncThunk(
       owner: owner,
       invites: invitees,
       text: args.values.invitationText,
-      sendsigned:
-        args.values.sendsignedChoice !== undefined
-          ? args.values.sendsignedChoice
-          : false,
-      skipfinal:
-        args.values.skipfinalChoice !== undefined
-          ? args.values.skipfinalChoice
-          : false,
+      sendsigned: sendsigned,
+      skipfinal: skipfinal,
       loa: loa,
       ordered: ordered,
       document: {
@@ -194,8 +196,8 @@ export const sendInvites = createAsyncThunk(
       created: Date.now(),
       loa: `${loa},${display_loa}`,
       ordered: ordered,
-      skipfinal: document.skipfinal,
-      sendsigned: document.sendsigned,
+      skipfinal: skipfinal,
+      sendsigned: sendsigned,
     };
     await thunkAPI.dispatch(removeDocument({ docName: document.name }));
     thunkAPI.dispatch(addOwned(owned));

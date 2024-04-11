@@ -789,11 +789,10 @@ class DocStore(object):
         ordered = self.get_ordered(document_key)
         order = min([invite['order'] for invite in orig_pending])
 
-        kept = []
         for old in orig_pending:
             for new in new_pending:
                 if new['email'] == old['email'] and new['name'] == old['name'] and new['lang'] == old['lang']:
-                    kept.append(old['key'])
+                    new['key'] = old['key']
                     break
             else:
                 if not ordered:
@@ -806,7 +805,6 @@ class DocStore(object):
                 added = True
                 for old in orig_pending:
                     if new['email'] == old['email'] and new['name'] == old['name'] and new['lang'] == old['lang']:
-                        new['key'] = old['key']
                         added = False
                         break
 
@@ -815,14 +813,14 @@ class DocStore(object):
 
             if 'key' in new:
                 new_raw = {
-                    'user_name': new['name'],
-                    'user_email': new['email'],
-                    'user_lang': new['lang'],
+                    'name': new['name'],
+                    'email': new['email'],
+                    'lang': new['lang'],
                     'signed': False,
                     'declined': False,
                     'key': new['key'],
-                    'doc_id': document_key,
-                    'order': order,
+                    'doc_id': str(document_key),
+                    'order_invitation': order,
                 }
                 self.add_invite_raw(new_raw)
             else:
