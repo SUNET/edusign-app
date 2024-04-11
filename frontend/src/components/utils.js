@@ -234,7 +234,8 @@ const getPDFSignatures = (sigStrs) => {
 };
 
 const getXMLSignatures = (sigStrs) => {
-  return sigStrs.map((sigStr) => {
+  const sigs = [];
+  sigStrs.forEach((sigStr) => {
     let sigArr;
     if (sigStr.includes(";")) {
       sigArr = sigStr.split(";");
@@ -247,33 +248,25 @@ const getXMLSignatures = (sigStrs) => {
       sig[k.trim()] = v.trim();
     });
     let mainVal = "";
-    if (sig.hasOwnProperty("CN")) {
-      mainVal = sig["CN"];
-      delete sig["CN"];
-    } else if (
+    if (
       sig.hasOwnProperty("2.5.4.42") &&
       sig.hasOwnProperty("2.5.4.4")
     ) {
       mainVal = `${sig["2.5.4.42"]} ${sig["2.5.4.4"]}`;
-      delete sig["2.5.4.42"];
-      delete sig["2.5.4.4"];
-    } else if (sig.hasOwnProperty('O')) {
-      mainVal = sig["O"];
-      delete sig["O"];
-    } else {
-      mainVal = sig["2.5.4.5"];
-      delete sig["2.5.4.5"];
     }
-    let alt = Object.keys(sig)
-      .map((key) => {
-        return `${key}=${sig[key]}`;
-      })
-      .join("; ");
-    return {
-      mainVal: mainVal,
-      alt: alt,
-    };
+    if (mainVal) {
+      let alt = Object.keys(sig)
+        .map((key) => {
+          return `${key}=${sig[key]}`;
+        })
+        .join("; ");
+      sigs.push({
+        mainVal: mainVal,
+        alt: alt,
+      });
+    }
   });
+  return sigs;
 };
 
 /**

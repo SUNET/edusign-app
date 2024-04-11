@@ -190,18 +190,6 @@ class DocManager extends React.Component {
                             })}
                             confirm={this.props.handleSignedRemove(doc.name)}
                           />
-                          {doc.type.endsWith('/pdf') && (
-                            <DocPreviewContainer
-                              doc={doc}
-                              handleClose={this.props.handleClosePreview}
-                            />
-                          )}
-                          {doc.type.endsWith('/xml') && (
-                            <XMLPreviewContainer
-                              doc={doc}
-                              handleClose={this.props.handleClosePreview}
-                            />
-                          )}
                         </>
                       );
                     } else {
