@@ -335,7 +335,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def add_invitation(
-        self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = ''
+        self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = '', order: int = 0
     ) -> Dict[str, Any]:
         """
         Create a new invitation to sign
@@ -788,14 +788,11 @@ class DocStore(object):
         changed: Dict[str, List[Dict[str, str]]] = {'added': [], 'removed': []}
         ordered = self.get_ordered(document_key)
         order = min([invite['order'] for invite in orig_pending])
-        doc = self.metadata.get_document(document_key)
-        doc_id = doc['doc_id']
 
         for old in orig_pending:
             for new in new_pending:
                 if new['email'] == old['email'] and new['name'] == old['name'] and new['lang'] == old['lang']:
                     new['key'] = old['key']
-                    new['order'] = old['order']
                     break
             else:
                 if not ordered:
@@ -812,17 +809,9 @@ class DocStore(object):
                     changed['added'].append(new)
 
             if 'key' in new:
-                new_raw = {
-                    'name': new['name'],
-                    'email': new['email'],
-                    'lang': new['lang'],
-                    'signed': False,
-                    'declined': False,
-                    'key': new['key'],
-                    'doc_id': doc_id,
-                    'order_invitation': new['order'],
-                }
-                self.add_invite_raw(new_raw)
+                self.metadata.add_invitation(
+                    document_key, new['name'], new['email'], new['lang'], invite_key=new['key'], order=order
+                )
             else:
                 self.metadata.add_invitation(
                     document_key, new['name'], new['email'], new['lang'], order=order
