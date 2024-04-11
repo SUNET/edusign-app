@@ -788,11 +788,14 @@ class DocStore(object):
         changed: Dict[str, List[Dict[str, str]]] = {'added': [], 'removed': []}
         ordered = self.get_ordered(document_key)
         order = min([invite['order'] for invite in orig_pending])
+        doc = self.metadata.get_document(document_key)
+        doc_id = doc['doc_id']
 
         for old in orig_pending:
             for new in new_pending:
                 if new['email'] == old['email'] and new['name'] == old['name'] and new['lang'] == old['lang']:
                     new['key'] = old['key']
+                    new['order'] = old['order']
                     break
             else:
                 if not ordered:
@@ -802,13 +805,10 @@ class DocStore(object):
 
         for new in new_pending:
             if not ordered:
-                added = True
                 for old in orig_pending:
                     if new['email'] == old['email'] and new['name'] == old['name'] and new['lang'] == old['lang']:
-                        added = False
                         break
-
-                if added:
+                else:
                     changed['added'].append(new)
 
             if 'key' in new:
@@ -819,8 +819,8 @@ class DocStore(object):
                     'signed': False,
                     'declined': False,
                     'key': new['key'],
-                    'doc_id': str(document_key),
-                    'order_invitation': order,
+                    'doc_id': doc_id,
+                    'order_invitation': new['order'],
                 }
                 self.add_invite_raw(new_raw)
             else:
