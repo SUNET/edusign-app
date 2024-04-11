@@ -194,6 +194,8 @@ export const sendInvites = createAsyncThunk(
       created: Date.now(),
       loa: `${loa},${display_loa}`,
       ordered: ordered,
+      skipfinal: document.skipfinal,
+      sendsigned: document.sendsigned,
     };
     await thunkAPI.dispatch(removeDocument({ docName: document.name }));
     thunkAPI.dispatch(addOwned(owned));

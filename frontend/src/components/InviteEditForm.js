@@ -22,8 +22,8 @@ const initialValues = (props) => {
   const vals = {
     documentKey: props.docKey,
     invitationText: "",
-    sendsignedChoice: props.docSendSigned,
-    skipfinalChoice: props.docSkipFinal,
+    sendsignedChoice: props.doc.sendsigned,
+    skipfinalChoice: props.doc.skipfinal,
     invitees: [],
   };
   props.doc.pending.forEach((invite, i) => {

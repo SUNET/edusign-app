@@ -789,15 +789,14 @@ class DocStore(object):
         ordered = self.get_ordered(document_key)
         order = min([invite['order'] for invite in orig_pending])
 
+        kept = []
         for old in orig_pending:
-            if not ordered:
-                removed = True
-                for new in new_pending:
-                    if new['email'] == old['email'] and new['name'] == old['name'] and new['lang'] == old['lang']:
-                        removed = False
-                        break
-
-                if removed:
+            for new in new_pending:
+                if new['email'] == old['email'] and new['name'] == old['name'] and new['lang'] == old['lang']:
+                    kept.append(old['key'])
+                    break
+            else:
+                if not ordered:
                     changed['removed'].append(old)
 
             self.metadata.rm_invitation(uuid.UUID(old['key']), document_key)
@@ -807,15 +806,29 @@ class DocStore(object):
                 added = True
                 for old in orig_pending:
                     if new['email'] == old['email'] and new['name'] == old['name'] and new['lang'] == old['lang']:
+                        new['key'] = old['key']
                         added = False
                         break
 
                 if added:
                     changed['added'].append(new)
 
-            self.metadata.add_invitation(
-                document_key, new['name'], new['email'], new['lang'], order=order
-            )
+            if 'key' in new:
+                new_raw = {
+                    'user_name': new['name'],
+                    'user_email': new['email'],
+                    'user_lang': new['lang'],
+                    'signed': False,
+                    'declined': False,
+                    'key': new['key'],
+                    'doc_id': document_key,
+                    'order': order,
+                }
+                self.add_invite_raw(new_raw)
+            else:
+                self.metadata.add_invitation(
+                    document_key, new['name'], new['email'], new['lang'], order=order
+                )
             order += 1
 
         return changed
