@@ -46,6 +46,9 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
               ownedCopy.pending = newOwned.pending;
               ownedCopy.signed = newOwned.signed;
               ownedCopy.declined = newOwned.declined;
+              ownedCopy.sendsigned = newOwned.sendsigned;
+              ownedCopy.skipfinal = newOwned.skipfinal;
+              ownedCopy.pprinted = newOwned.pprinted;
             }
           });
           if (ownedCopy.pending.length === 0) ownedCopy.state = "loaded";
