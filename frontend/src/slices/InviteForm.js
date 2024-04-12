@@ -39,10 +39,7 @@ const inviteFormSlice = createSlice({
   },
 });
 
-export const {
-  isInviting,
-  isNotInviting,
-  setOrdered,
-} = inviteFormSlice.actions;
+export const { isInviting, isNotInviting, setOrdered } =
+  inviteFormSlice.actions;
 
 export default inviteFormSlice.reducer;

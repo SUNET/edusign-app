@@ -11,18 +11,17 @@ import "styles/DocPreview.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 
 const documentOptions = {
-              cMapUrl: "/js/cmaps/",
-              cMapPacked: true,
-              enableXfa: true,
-            }
+  cMapUrl: "/js/cmaps/",
+  cMapPacked: true,
+  enableXfa: true,
+};
 
 /**
  * @desc To show a modal dialog with a paginated view of a PDF, using PDF.js.
  * @component
  */
 function DocPreview(props) {
-
-  const docFile = useMemo(() => (docToFile(props.doc)), [props.doc]);
+  const docFile = useMemo(() => docToFile(props.doc), [props.doc]);
 
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);

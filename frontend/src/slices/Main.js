@@ -62,7 +62,7 @@ export const fetchConfig = createAsyncThunk(
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
       if (configData.error) {
         thunkAPI.dispatch(
-          addNotification({ level: "danger", message: configData.message })
+          addNotification({ level: "danger", message: configData.message }),
         );
         return thunkAPI.rejectWithValue(configData.message);
       } else {
@@ -70,14 +70,14 @@ export const fetchConfig = createAsyncThunk(
           loadDocuments({
             intl: intl,
             eppn: configData.payload.signer_attributes.eppn,
-          })
+          }),
         );
         thunkAPI.dispatch(setPolling(configData.payload.poll));
         delete configData.payload.poll;
 
         await configData.payload.skipped.forEach(async (doc) => {
           let prefix = "data:application/xml;base64,";
-          if (doc.type === 'application/pdf') {
+          if (doc.type === "application/pdf") {
             prefix = "data:application/pdf;base64,";
           }
           doc.signedContent = prefix + doc.signed_content;
@@ -88,7 +88,7 @@ export const fetchConfig = createAsyncThunk(
           doc.pprinted = doc.pprinted;
           const newDoc = await addDocumentToDb(
             doc,
-            state.main.signer_attributes.eppn
+            state.main.signer_attributes.eppn,
           );
           thunkAPI.dispatch(addDocument(newDoc));
         });
@@ -104,11 +104,11 @@ export const fetchConfig = createAsyncThunk(
             defaultMessage: "TODO",
             id: "main-todo",
           }),
-        })
+        }),
       );
       return thunkAPI.rejectWithValue(err.toString());
     }
-  }
+  },
 );
 
 /**
@@ -164,10 +164,10 @@ export const getPartiallySignedDoc = createAsyncThunk(
               "Problem fetching document from the backend, please try again",
             id: "problem-fetching-document",
           }),
-        })
+        }),
       );
     }
-  }
+  },
 );
 
 /**
@@ -205,10 +205,10 @@ export const declineSigning = createAsyncThunk(
             defaultMessage: "Problem declining signature",
             id: "problem-declining-document",
           }),
-        })
+        }),
       );
     }
-  }
+  },
 );
 
 /**
@@ -231,7 +231,7 @@ export const downloadInvitedDraft = createAsyncThunk(
           intl: args.intl,
           show: false,
           showForced: false,
-        })
+        }),
       );
     }
     state = thunkAPI.getState();
@@ -245,7 +245,7 @@ export const downloadInvitedDraft = createAsyncThunk(
     const blob = b64toBlob(b64content, doc.type);
     const newName = nameForDownload(doc.name, "draft");
     FileSaver.saveAs(blob, newName);
-  }
+  },
 );
 
 /**
@@ -278,7 +278,7 @@ export const delegateSignature = createAsyncThunk(
           addNotification({
             level: "success",
             message: data.message,
-          })
+          }),
         );
       }
       return { key: args.values.documentKey };
@@ -290,10 +290,10 @@ export const delegateSignature = createAsyncThunk(
             defaultMessage: "Problem delegating signature",
             id: "problem-delegating-document",
           }),
-        })
+        }),
       );
     }
-  }
+  },
 );
 
 const mainSlice = createSlice({
@@ -408,15 +408,14 @@ const mainSlice = createSlice({
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.key === action.payload.id) {
           let prefix = "data:application/xml;base64,";
-          if (doc.type === 'application/pdf') {
+          if (doc.type === "application/pdf") {
             prefix = "data:application/pdf;base64,";
           }
           return {
             ...doc,
             state: "signed",
             message: "",
-            signedContent:
-              prefix + action.payload.signed_content,
+            signedContent: prefix + action.payload.signed_content,
           };
         }
         return doc;
@@ -793,7 +792,7 @@ const mainSlice = createSlice({
                 };
                 if (!newDoc.blob.startsWith("data:")) {
                   let prefix = "data:application/xml;base64,";
-                  if (newDoc.type === 'application/pdf') {
+                  if (newDoc.type === "application/pdf") {
                     prefix = "data:application/pdf;base64,";
                   }
                   newDoc.blob = prefix + action.payload.payload.blob;
@@ -802,7 +801,7 @@ const mainSlice = createSlice({
               }
               return newDoc;
             } else return doc;
-          }
+          },
         );
       })
       .addCase(declineSigning.fulfilled, (state, action) => {

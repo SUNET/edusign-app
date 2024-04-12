@@ -51,7 +51,7 @@ class DelegateForm extends React.Component {
         <Formik
           initialValues={initialValues(
             this.props.doc.invite_key,
-            this.props.doc.key
+            this.props.doc.key,
           )}
           enableReinitialize={true}
           onSubmit={async (values) => {
@@ -140,7 +140,7 @@ class DelegateForm extends React.Component {
                         type="text"
                         validate={validateEmail(
                           this.props.email,
-                          this.props.mail_aliases
+                          this.props.mail_aliases,
                         )}
                         isValid={
                           fprops.touched.delegationEmail &&

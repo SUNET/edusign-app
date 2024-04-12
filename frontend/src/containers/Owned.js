@@ -65,7 +65,13 @@ const mapDispatchToProps = (dispatch, props) => {
         await dispatch(poll());
         dispatch(disablePolling());
         dispatch(setActiveId("dummy-help-id"));
-        dispatch(showEditInvitationForm({key: doc.key, form_id: doc.key + "-edit-invitations", intl: props.intl}));
+        dispatch(
+          showEditInvitationForm({
+            key: doc.key,
+            form_id: doc.key + "-edit-invitations",
+            intl: props.intl,
+          }),
+        );
         dispatch(unsetSpinning());
       };
     },
@@ -80,7 +86,7 @@ const mapDispatchToProps = (dispatch, props) => {
             intl: props.intl,
             show: true,
             showForced: false,
-          })
+          }),
         );
         dispatch(unsetSpinning());
       };

@@ -157,7 +157,7 @@ export const loadDocuments = createAsyncThunk(
                 await dbSaveDocument(failedDoc);
                 return failedDoc;
               } else return doc;
-            })
+            }),
           );
           thunkAPI.dispatch(
             updateInvitationsFailed({
@@ -166,7 +166,7 @@ export const loadDocuments = createAsyncThunk(
                   "The signing process was interrupted, please try again.",
                 id: "load-doc-interrupted-signing",
               }),
-            })
+            }),
           );
         }
       }
@@ -187,7 +187,7 @@ export const loadDocuments = createAsyncThunk(
             await dbSaveDocument(failedDoc);
             return failedDoc;
           } else return doc;
-        })
+        }),
       );
       // Add the documents obtained from the local IndexedDB to the Redux state,
       // and if we are loading the app after a signing procedure,
@@ -206,7 +206,7 @@ export const loadDocuments = createAsyncThunk(
         documents: [],
       };
     }
-  }
+  },
 );
 
 /**
@@ -250,7 +250,7 @@ export const checkStoredDocuments = createAsyncThunk(
       });
     }
     localStorage.removeItem(storedName);
-  }
+  },
 );
 
 /**
@@ -342,7 +342,7 @@ export const validateDoc = async (doc, intl, state) => {
           defaultMessage: "Document is too big (max size: {size})",
           id: "validate-too-big",
         },
-        { size: humanFileSize(state.main.max_file_size) }
+        { size: humanFileSize(state.main.max_file_size) },
       ),
     };
   }
@@ -364,12 +364,12 @@ export const validateDoc = async (doc, intl, state) => {
     const domParser = new DOMParser();
 
     let xmlstr = doc.blob;
-    if (xmlstr.includes(',')) {
-      xmlstr = xmlstr.split(',')[1];
+    if (xmlstr.includes(",")) {
+      xmlstr = xmlstr.split(",")[1];
     }
     xmlstr = atob(xmlstr);
-    const xml = domParser.parseFromString(xmlstr, 'application/xml');
-    if (xml.documentElement.nodeName === 'parsererror') {
+    const xml = domParser.parseFromString(xmlstr, "application/xml");
+    if (xml.documentElement.nodeName === "parsererror") {
       return {
         ...doc,
         message: intl.formatMessage({
@@ -405,7 +405,7 @@ export const saveDocument = createAsyncThunk(
     });
     await dbSaveDocument(doc);
     return doc;
-  }
+  },
 );
 
 /**
@@ -417,7 +417,7 @@ export const saveTemplate = async (thunkAPI, doc) => {
   const state = thunkAPI.getState();
   const newTemplate = await addDocumentToDb(
     doc,
-    state.main.signer_attributes.eppn
+    state.main.signer_attributes.eppn,
   );
   thunkAPI.dispatch(addTemplate(newTemplate));
   return doc;
@@ -439,7 +439,7 @@ export const removeDocument = createAsyncThunk(
       await dbRemoveDocument(doc);
     }
     thunkAPI.dispatch(documentsSlice.actions.rmDocument(doc.name));
-  }
+  },
 );
 
 /**
@@ -516,7 +516,7 @@ export const createDocument = createAsyncThunk(
             defaultMessage: "A document with that name has already been loaded",
             id: "save-doc-problem-dup",
           }),
-        })
+        }),
       );
       thunkAPI.dispatch(documentsSlice.actions.rmDup(doc));
       return;
@@ -535,7 +535,7 @@ export const createDocument = createAsyncThunk(
             defaultMessage: "Problem adding documents, please try again",
             id: "save-docs-problem-db",
           }),
-        })
+        }),
       );
       doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
@@ -550,7 +550,7 @@ export const createDocument = createAsyncThunk(
     // If this fails, the document is marked as failed, and the user is notified.
     try {
       await thunkAPI.dispatch(
-        prepareDocument({ doc: newDoc, intl: args.intl })
+        prepareDocument({ doc: newDoc, intl: args.intl }),
       );
     } catch (err) {
       thunkAPI.dispatch(
@@ -561,7 +561,7 @@ export const createDocument = createAsyncThunk(
               "Problem preparing document for signing. Please try again or contact the site administration.",
             id: "save-docs-problem-preparing",
           }),
-        })
+        }),
       );
       doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
@@ -584,7 +584,7 @@ export const createDocument = createAsyncThunk(
               "Problem saving document(s) in session. Please try again or contact the site administration.",
             id: "save-docs-problem-session",
           }),
-        })
+        }),
       );
       doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
@@ -593,7 +593,7 @@ export const createDocument = createAsyncThunk(
       });
       await setChangedDocument(thunkAPI, state, doc);
     }
-  }
+  },
 );
 
 /**
@@ -666,7 +666,7 @@ export const prepareDocument = createAsyncThunk(
       state: "failed-preparing",
       message: msg,
     };
-  }
+  },
 );
 
 /**
@@ -695,7 +695,7 @@ export const startSigning = createAsyncThunk(
     await state.documents.documents.forEach(async (doc) => {
       if (doc.state === "selected") {
         thunkAPI.dispatch(
-          documentsSlice.actions.startSigningDocument(doc.name)
+          documentsSlice.actions.startSigningDocument(doc.name),
         );
         await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
       }
@@ -717,7 +717,7 @@ export const startSigning = createAsyncThunk(
     } else {
       thunkAPI.dispatch(startSigningDocuments(args));
     }
-  }
+  },
 );
 
 /**
@@ -751,7 +751,7 @@ export const startSigningDocuments = createAsyncThunk(
           key: doc.key,
           sign_requirement: doc.sign_requirement,
         };
-        if (docToSign.type.endsWith('/xml')) {
+        if (docToSign.type.endsWith("/xml")) {
           docToSign.blob = doc.blob;
         }
         docsToSign.push(docToSign);
@@ -777,7 +777,7 @@ export const startSigningDocuments = createAsyncThunk(
                 defaultMessage: "Please wait...",
                 id: "start-signing-please-wait",
               }),
-            })
+            }),
           );
           await thunkAPI.dispatch(restartSigningDocuments({ intl: args.intl }));
           return;
@@ -800,7 +800,7 @@ export const startSigningDocuments = createAsyncThunk(
             defaultMessage: "Problem creating signature request",
             id: "problem-creating-sign-request",
           }),
-        })
+        }),
       );
       const message = args.intl.formatMessage({
         defaultMessage: "Problem signing the document",
@@ -814,7 +814,7 @@ export const startSigningDocuments = createAsyncThunk(
       }
       return thunkAPI.rejectWithValue(err.toString());
     }
-  }
+  },
 );
 
 /**
@@ -906,7 +906,7 @@ export const restartSigningDocuments = createAsyncThunk(
         data.payload.failed.forEach((failed) => {
           if (doc.key === failed.key) {
             thunkAPI.dispatch(
-              documentsSlice.actions.setState({ name: doc.name, ...failed })
+              documentsSlice.actions.setState({ name: doc.name, ...failed }),
             );
           }
         });
@@ -971,7 +971,7 @@ export const restartSigningDocuments = createAsyncThunk(
             defaultMessage: "Problem creating signature request",
             id: "problem-creating-sign-request",
           }),
-        })
+        }),
       );
       const message = args.intl.formatMessage({
         defaultMessage: "Problem signing the document",
@@ -988,7 +988,7 @@ export const restartSigningDocuments = createAsyncThunk(
         });
       }
     }
-  }
+  },
 );
 
 /**
@@ -1024,7 +1024,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       // Show the user any message received in the response
       const level = data.error ? "danger" : "success";
       thunkAPI.dispatch(
-        addNotification({ level: level, message: data.message })
+        addNotification({ level: level, message: data.message }),
       );
     }
     // Update the documents kept locally in IndexedDB with the signed content
@@ -1032,7 +1032,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       await state.documents.documents.forEach(async (oldDoc) => {
         if (doc.id === oldDoc.key) {
           thunkAPI.dispatch(
-            documentsSlice.actions.updateDocumentWithSignedContent(doc)
+            documentsSlice.actions.updateDocumentWithSignedContent(doc),
           );
           await thunkAPI.dispatch(saveDocument({ docName: oldDoc.name }));
         }
@@ -1052,7 +1052,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
             email: state.main.signer_attributes.mail,
           });
           let prefix = "data:application/xml;base64,";
-          if (oldDoc.type === 'application/pdf') {
+          if (oldDoc.type === "application/pdf") {
             prefix = "data:application/pdf;base64,";
           }
           const signedContent = prefix + doc.signed_content;
@@ -1070,7 +1070,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           thunkAPI.dispatch(removeOwned({ key: doc.id }));
           newDoc = await addDocumentToDb(
             newDoc,
-            state.main.signer_attributes.eppn
+            state.main.signer_attributes.eppn,
           );
           thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
         }
@@ -1087,7 +1087,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           defaultMessage: "Problem getting signed documents",
           id: "problem-getting-signed",
         }),
-      })
+      }),
     );
     let message;
     if (data && data.message) {
@@ -1126,7 +1126,7 @@ export const downloadSigned = createAsyncThunk(
     const blob = b64toBlob(b64content, doc.type);
     const newName = nameForDownload(doc.name, "signed");
     FileSaver.saveAs(blob, newName);
-  }
+  },
 );
 
 /**
@@ -1148,7 +1148,7 @@ export const downloadAllSigned = createAsyncThunk(
     docs = docs.concat(
       state.main.pending_multisign.filter((doc) => {
         return doc.state === "signed";
-      })
+      }),
     );
     const zip = await new JSZip();
     const folder = await zip.folder("signed");
@@ -1161,7 +1161,7 @@ export const downloadAllSigned = createAsyncThunk(
     await zip.generateAsync({ type: "blob" }).then(async function (content) {
       await FileSaver.saveAs(content, "signed.zip");
     });
-  }
+  },
 );
 
 /**
@@ -1201,7 +1201,7 @@ export const skipOwnedSignature = createAsyncThunk(
       // Reconstruct the representation of the document
       // with data kept locally and data (the signed document contents) received from the backend
       let prefix = "data:application/xml;base64,";
-      if (owned.type === 'application/pdf') {
+      if (owned.type === "application/pdf") {
         prefix = "data:application/pdf;base64,";
       }
       const doc = {
@@ -1219,7 +1219,7 @@ export const skipOwnedSignature = createAsyncThunk(
       thunkAPI.dispatch(removeOwned({ key: doc.key }));
       const newDoc = await addDocumentToDb(
         doc,
-        state.main.signer_attributes.eppn
+        state.main.signer_attributes.eppn,
       );
       thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
 
@@ -1233,10 +1233,10 @@ export const skipOwnedSignature = createAsyncThunk(
               "Problem skipping final signature, please try again",
             id: "problem-skipping-signature",
           }),
-        })
+        }),
       );
     }
-  }
+  },
 );
 
 const documentsSlice = createSlice({
@@ -1419,7 +1419,7 @@ const documentsSlice = createSlice({
       state.documents = state.documents.map((doc) => {
         if (doc.key === action.payload.id) {
           let prefix = "data:application/xml;base64,";
-          if (doc.type === 'application/pdf') {
+          if (doc.type === "application/pdf") {
             prefix = "data:application/pdf;base64,";
           }
           const signedContent = prefix + action.payload.signed_content;

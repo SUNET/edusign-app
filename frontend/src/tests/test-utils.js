@@ -111,7 +111,7 @@ export function setupReduxComponent(component) {
     updateIntl({
       locale: "en",
       messages: messages.en,
-    })
+    }),
   );
   const wrapped = <Provider store={store}>{component}</Provider>;
   const { rerender, unmount } = render(wrapped);

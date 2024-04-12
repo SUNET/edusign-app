@@ -37,7 +37,7 @@ const mapDispatchToProps = (dispatch) => {
         updateIntl({
           locale: lang,
           messages: msgs,
-        })
+        }),
       );
     },
     handleHelpControl: function (e) {

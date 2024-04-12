@@ -4,12 +4,7 @@ import { connect } from "react-redux";
 import Button from "containers/Button";
 import BButton from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
-import {
-  Field,
-  ErrorMessage,
-  FieldArray,
-  useFormikContext,
-} from "formik";
+import { Field, ErrorMessage, FieldArray, useFormikContext } from "formik";
 import { FormattedMessage } from "react-intl";
 import Cookies from "js-cookie";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -44,7 +39,9 @@ function _InviteesControl(props) {
   const invitee = props.invitee;
   const inviteOrdinal = (
     <div className="invite-ordinal">
-      <span className="">{getOrdinal(Cookies.get("lang") || "sv", index + 1)}</span>
+      <span className="">
+        {getOrdinal(Cookies.get("lang") || "sv", index + 1)}
+      </span>
       &nbsp;
       <FormattedMessage
         defaultMessage="invitation"
@@ -82,17 +79,9 @@ function _InviteesControl(props) {
   );
   return (
     <>
-      {(index === 0 && props.ordered) && (
-        <>
-          {inviteOrdinal}
-        </>
-      )}
-      {(index > 0 && !props.ordered) && (
-        <>
-          {crossButton}
-        </>
-      )}
-      {(index > 0 && props.ordered) && (
+      {index === 0 && props.ordered && <>{inviteOrdinal}</>}
+      {index > 0 && !props.ordered && <>{crossButton}</>}
+      {index > 0 && props.ordered && (
         <div className="invite-header">
           {inviteOrdinal}
           {crossButton}
@@ -163,7 +152,7 @@ function _InviteesControl(props) {
                 props,
                 [...fprops.values.invitees],
                 index,
-                fprops.status
+                fprops.status,
               )}
               isValid={
                 fprops.touched.invitees &&

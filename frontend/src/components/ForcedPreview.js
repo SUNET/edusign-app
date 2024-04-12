@@ -13,18 +13,17 @@ import "styles/DocPreview.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 
 const documentOptions = {
-              cMapUrl: "/js/cmaps/",
-              cMapPacked: true,
-              enableXfa: true,
-            }
+  cMapUrl: "/js/cmaps/",
+  cMapPacked: true,
+  enableXfa: true,
+};
 
 /**
  * @desc To show a modal dialog with a paginated view of a PDF, using PDF.js.
  * @component
  */
 function ForcedPreview(props) {
-
-  const docFile = useMemo(() => (docToFile(props.doc)), [props.doc]);
+  const docFile = useMemo(() => docToFile(props.doc), [props.doc]);
 
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
@@ -38,8 +37,7 @@ function ForcedPreview(props) {
   function changePage(offset) {
     const newPage = pageNumber + offset;
     setPageNumber(newPage);
-    if (newPage === numPages)
-      setReadyToConfirm(true);
+    if (newPage === numPages) setReadyToConfirm(true);
   }
 
   function firstPage() {
@@ -127,9 +125,7 @@ function ForcedPreview(props) {
             <BButton
               variant="outline"
               size="sm"
-              disabled={
-                Number(pageNumber) >= Number(numPages)
-              }
+              disabled={Number(pageNumber) >= Number(numPages)}
               onClick={nextPage}
               data-testid={"preview-button-next-" + props.index}
             >
@@ -138,9 +134,7 @@ function ForcedPreview(props) {
             <BButton
               variant="outline"
               size="sm"
-              disabled={
-                Number(pageNumber) >= Number(numPages)
-              }
+              disabled={Number(pageNumber) >= Number(numPages)}
               onClick={lastPage}
               data-testid={"preview-button-last-" + props.index}
             >
@@ -193,10 +187,7 @@ function ForcedPreview(props) {
               <Button
                 disabled={!readyToConfirm}
                 onClick={props.handleConfirm(props.doc.name)}
-                style={
-                  (!readyToConfirm && { pointerEvents: "none" }) ||
-                  {}
-                }
+                style={(!readyToConfirm && { pointerEvents: "none" }) || {}}
                 variant="outline-success"
                 id={"preview-button-confirm-" + props.index}
               >
@@ -211,7 +202,6 @@ function ForcedPreview(props) {
       </Modal>
     </>
   );
-  
 }
 
 ForcedPreview.propTypes = {

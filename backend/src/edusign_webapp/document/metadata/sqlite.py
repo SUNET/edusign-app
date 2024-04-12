@@ -40,7 +40,6 @@ from flask import Flask, current_app, g
 
 from edusign_webapp.doc_store import ABCMetadata
 
-
 DB_SCHEMA = """
 CREATE TABLE [Documents]
 (      [doc_id] INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -22,8 +22,14 @@ class Invited extends Component {
     return (
       <>
         {this.props.invited.map((doc, index) => {
-          const Preview = doc.type === 'application/pdf' ? DocPreviewContainer : XMLPreviewContainer;
-          const ForcedPreview = doc.type === 'application/pdf' ? ForcedPreviewContainer : ForcedXMLPreviewContainer;
+          const Preview =
+            doc.type === "application/pdf"
+              ? DocPreviewContainer
+              : XMLPreviewContainer;
+          const ForcedPreview =
+            doc.type === "application/pdf"
+              ? ForcedPreviewContainer
+              : ForcedXMLPreviewContainer;
           return (
             <React.Fragment key={index}>
               <DocumentInvited key="0" doc={doc} {...this.props} />

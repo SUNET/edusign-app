@@ -77,8 +77,15 @@ class DocumentOwned extends Component {
     const doc = this.props.doc;
     const editForm =
       (["loaded", "selected", "failed-signing", "incomplete"].includes(
-        doc.state
-      ) && <InviteEditFormContainer docKey={doc.key} docOrdered={doc.ordered} docSendSigned={doc.sendsigned} docSkipFinal={doc.skipfinal} />) ||
+        doc.state,
+      ) && (
+        <InviteEditFormContainer
+          docKey={doc.key}
+          docOrdered={doc.ordered}
+          docSendSigned={doc.sendsigned}
+          docSkipFinal={doc.skipfinal}
+        />
+      )) ||
       "";
     const pending =
       (doc.state === "incomplete" && (
@@ -183,7 +190,7 @@ class DocumentOwned extends Component {
                     </>
                   )}
                   {["loaded", "selected", "failed-signing"].includes(
-                    doc.state
+                    doc.state,
                   ) && (
                     <>
                       {widgets.selectDoc(this.props, doc)}
@@ -223,7 +230,7 @@ class DocumentOwned extends Component {
                       {widgets.removeConfirmButton(
                         this.props,
                         doc,
-                        "confirm-remove-signed-owned-" + doc.name
+                        "confirm-remove-signed-owned-" + doc.name,
                       )}
                     </>
                   )}
@@ -296,7 +303,7 @@ class DocumentOwned extends Component {
                     {widgets.removeConfirmButton(
                       this.props,
                       doc,
-                      "confirm-remove-signed-owned-" + doc.name
+                      "confirm-remove-signed-owned-" + doc.name,
                     )}
                   </div>
                 </>

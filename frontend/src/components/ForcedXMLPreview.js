@@ -14,7 +14,6 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
  * @component
  */
 function ForcedXMLPreview(props) {
-
   return (
     <>
       <Modal
@@ -29,8 +28,9 @@ function ForcedXMLPreview(props) {
         </Modal.Header>
 
         <Modal.Body>
-          <div dangerouslySetInnerHTML={{ __html: atob(props.doc.pprinted) }}>
-          </div>
+          <div
+            dangerouslySetInnerHTML={{ __html: atob(props.doc.pprinted) }}
+          ></div>
         </Modal.Body>
 
         <Modal.Footer>
@@ -63,10 +63,10 @@ function ForcedXMLPreview(props) {
             helpId={"preview-button-confirm-" + props.index}
             inModal={true}
             tooltip={
-                <FormattedMessage
-                  defaultMessage="Click here to approve the document for signing"
-                  key="confirm-doc-tootip"
-                />
+              <FormattedMessage
+                defaultMessage="Click here to approve the document for signing"
+                key="confirm-doc-tootip"
+              />
             }
           >
             <span className="d-inline-block">
@@ -101,4 +101,3 @@ ForcedXMLPreview.propTypes = {
 };
 
 export default injectIntl(ForcedXMLPreview);
-

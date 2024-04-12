@@ -206,7 +206,7 @@ export const clearDocStore = (dispatch, intl) => {
             defaultMessage: "problem clearing db, please try again",
             id: "problem-clearing-db",
           }),
-        })
+        }),
       );
     };
   } else {
@@ -217,7 +217,7 @@ export const clearDocStore = (dispatch, intl) => {
           defaultMessage: "no persistent state",
           id: "no-persistent-state",
         }),
-      })
+      }),
     );
   }
 };

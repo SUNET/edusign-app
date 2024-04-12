@@ -556,7 +556,7 @@ export const buttonClearPersonal = (
   disableClearButton,
   onClick,
   clearDb,
-  intl
+  intl,
 ) => {
   return (
     <div className="button-clear-flex-item">

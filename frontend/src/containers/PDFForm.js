@@ -60,7 +60,7 @@ const mapDispatchToProps = (dispatch, props) => {
           values: this.state.values,
           newname: newname,
           intl: this.props.intl,
-        })
+        }),
       );
       dispatch(unsetSpinning());
       this.restoreValues();

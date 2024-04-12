@@ -34,7 +34,7 @@ const mapStateToProps = (state, props) => {
     ordered = state.inviteform.ordered;
   }
   const doc = state.main.owned_multisign.filter(
-    (d) => d.key === props.docKey
+    (d) => d.key === props.docKey,
   )[0];
   return {
     size: state.main.size,

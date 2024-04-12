@@ -12,7 +12,6 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
  * @component
  */
 function XMLPreview(props) {
-
   return (
     <>
       <Modal
@@ -27,8 +26,9 @@ function XMLPreview(props) {
         </Modal.Header>
 
         <Modal.Body>
-          <div dangerouslySetInnerHTML={{ __html: atob(props.doc.pprinted) }}>
-          </div>
+          <div
+            dangerouslySetInnerHTML={{ __html: atob(props.doc.pprinted) }}
+          ></div>
         </Modal.Body>
 
         <Modal.Footer>
@@ -55,4 +55,3 @@ XMLPreview.propTypes = {
 };
 
 export default XMLPreview;
-

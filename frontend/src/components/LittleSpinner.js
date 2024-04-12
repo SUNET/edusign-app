@@ -33,7 +33,7 @@ const spinnerOpts = {
 class LittleSpinner extends Component {
   componentDidMount() {
     const anchor = document.getElementById(
-      "little-spinner-" + this.props.index
+      "little-spinner-" + this.props.index,
     );
     new Spinner(spinnerOpts).spin(anchor);
   }

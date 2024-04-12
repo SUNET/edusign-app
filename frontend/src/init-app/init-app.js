@@ -82,7 +82,7 @@ const init_app = function (target, component) {
     updateIntl({
       locale: lang,
       messages: msgs,
-    })
+    }),
   );
   store.dispatch(resizeWindow());
 

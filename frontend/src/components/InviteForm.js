@@ -3,12 +3,7 @@ import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 import Button from "containers/Button";
 import BForm from "react-bootstrap/Form";
-import {
-  Formik,
-  Form,
-  Field,
-  ErrorMessage,
-} from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
@@ -74,7 +69,10 @@ const initialValues = (props) => {
     newnameInput: nameForCopy(props),
     loa: "low",
     documentId: props.docId,
-    orderedChoice: (props.docOrdered === undefined || props.docOrdered === null) ? props.ordered : props.docOrdered,
+    orderedChoice:
+      props.docOrdered === undefined || props.docOrdered === null
+        ? props.ordered
+        : props.docOrdered,
     invitees: [
       {
         name: "",
@@ -154,10 +152,7 @@ class InviteForm extends React.Component {
                 key="loa-select-field"
               />
             </BForm.Label>
-            <div
-              id="loa-select-field"
-              data-testid="loa-select-field"
-            >
+            <div id="loa-select-field" data-testid="loa-select-field">
               {this.props.loas.map((level, i) => {
                 return (
                   <BForm.Label key={i} className="loa-checkbox">
@@ -293,7 +288,7 @@ class InviteForm extends React.Component {
                     <Button
                       variant="outline-secondary"
                       onClick={this.props.handleCloseResetting(
-                        fprops.resetForm
+                        fprops.resetForm,
                       )}
                     >
                       <FormattedMessage

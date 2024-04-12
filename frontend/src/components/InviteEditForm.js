@@ -120,7 +120,7 @@ class InviteEditForm extends React.Component {
                     <Button
                       variant="outline-secondary"
                       onClick={this.props.handleCloseResetting(
-                        fprops.resetForm
+                        fprops.resetForm,
                       )}
                     >
                       <FormattedMessage

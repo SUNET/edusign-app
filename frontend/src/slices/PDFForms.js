@@ -60,7 +60,7 @@ export const sendPDFForm = createAsyncThunk(
             defaultMessage: "Problem filling in PDF form, please try again",
             id: "problem-updating-pdf-form",
           }),
-        })
+        }),
       );
       return thunkAPI.rejectWithValue(doc);
     }
@@ -76,7 +76,7 @@ export const sendPDFForm = createAsyncThunk(
         addNotification({
           level: "danger",
           message: msg,
-        })
+        }),
       );
       return thunkAPI.rejectWithValue(doc);
     }
@@ -91,7 +91,7 @@ export const sendPDFForm = createAsyncThunk(
     };
     thunkAPI.dispatch(addDocument(newDoc));
     await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
-  }
+  },
 );
 
 const pdfFormSlice = createSlice({

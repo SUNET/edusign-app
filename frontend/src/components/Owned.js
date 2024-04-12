@@ -21,7 +21,10 @@ class Owned extends Component {
     return (
       <>
         {this.props.owned.map((doc, index) => {
-          const Preview = doc.type === 'application/pdf' ? DocPreviewContainer : XMLPreviewContainer;
+          const Preview =
+            doc.type === "application/pdf"
+              ? DocPreviewContainer
+              : XMLPreviewContainer;
           return (
             <React.Fragment key={index}>
               <DocumentOwned key="0" doc={doc} {...this.props} />

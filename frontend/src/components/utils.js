@@ -17,7 +17,7 @@ import { FormattedMessage } from "react-intl";
 export const b64toBlob = (
   b64Data,
   contentType = "application/pdf",
-  sliceSize = 512
+  sliceSize = 512,
 ) => {
   const byteCharacters = atob(b64Data);
   const byteArrays = [];
@@ -144,7 +144,7 @@ export const preparePrevSigs = (doc, size) => {
       .split("|")
       .filter((sig) => sig.length > 0);
     let signatures;
-    if (doc.type === 'application/pdf') {
+    if (doc.type === "application/pdf") {
       signatures = getPDFSignatures(sigStrs);
     } else {
       signatures = getXMLSignatures(sigStrs);
@@ -248,10 +248,7 @@ const getXMLSignatures = (sigStrs) => {
       sig[k.trim()] = v.trim();
     });
     let mainVal = "";
-    if (
-      sig.hasOwnProperty("2.5.4.42") &&
-      sig.hasOwnProperty("2.5.4.4")
-    ) {
+    if (sig.hasOwnProperty("2.5.4.42") && sig.hasOwnProperty("2.5.4.4")) {
       mainVal = `${sig["2.5.4.42"]} ${sig["2.5.4.4"]}`;
     }
     if (mainVal) {
@@ -343,7 +340,6 @@ export const getCreationDate = (doc) => {
 };
 
 export const getOrdinal = (lang, num) => {
-
   const ordinalRules = new Intl.PluralRules(lang, { type: "ordinal" });
   const formatOrdinals = (n, suffixes) => {
     const rule = ordinalRules.select(n);
@@ -352,14 +348,14 @@ export const getOrdinal = (lang, num) => {
   };
   let suffixes;
 
-  if (lang.startsWith('en')) {
+  if (lang.startsWith("en")) {
     suffixes = new Map([
       ["one", "st"],
       ["two", "nd"],
       ["few", "rd"],
       ["other", "th"],
     ]);
-  } else if (lang.startsWith('sv')) {
+  } else if (lang.startsWith("sv")) {
     suffixes = new Map([
       ["one", ":a"],
       ["other", ":e"],
@@ -373,4 +369,4 @@ export const getOrdinal = (lang, num) => {
     ]);
   }
   return formatOrdinals(num, suffixes);
-}
+};

@@ -34,10 +34,14 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
     if (configData.error) {
       return thunkAPI.rejectWithValue(configData.message);
     } else {
-      const newOwnedNames = configData.payload.owned_multisign.map(owned => owned.name);
+      const newOwnedNames = configData.payload.owned_multisign.map(
+        (owned) => owned.name,
+      );
       const currentOwnedNames = [];
-      let allOwned = state.main.owned_multisign.filter(owned => newOwnedNames.includes(owned.name));
-      allOwned = allOwned.map(owned => {
+      let allOwned = state.main.owned_multisign.filter((owned) =>
+        newOwnedNames.includes(owned.name),
+      );
+      allOwned = allOwned.map((owned) => {
         currentOwnedNames.push(owned.name);
         if (owned.pending.length > 0) {
           const ownedCopy = { ...owned };
@@ -68,10 +72,15 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
 
       delete configData.payload.owned_multisign;
 
-      const newInvitedNames = configData.payload.pending_multisign.map(invited => invited.name);
+      const newInvitedNames = configData.payload.pending_multisign.map(
+        (invited) => invited.name,
+      );
       const currentInvitedNames = [];
-      let allInvited = state.main.pending_multisign.filter(invited => newInvitedNames.includes(invited.name) || invited.state === 'signed');
-      allInvited = allInvited.map(invited => {
+      let allInvited = state.main.pending_multisign.filter(
+        (invited) =>
+          newInvitedNames.includes(invited.name) || invited.state === "signed",
+      );
+      allInvited = allInvited.map((invited) => {
         currentInvitedNames.push(invited.name);
         const invitedCopy = { ...invited };
         configData.payload.pending_multisign.forEach((newInvited) => {
@@ -109,7 +118,7 @@ export const configureSkipped = async (thunkAPI, configData, owned) => {
         let newSigned = [...doc.signed];
         let newDeclined = [...doc.declined];
         let prefix = "data:application/xml;base64,";
-        if (oldDoc.type === 'application/pdf') {
+        if (oldDoc.type === "application/pdf") {
           prefix = "data:application/pdf;base64,";
         }
         const signedContent = prefix + doc.signed_content;
@@ -127,7 +136,7 @@ export const configureSkipped = async (thunkAPI, configData, owned) => {
         };
         newDoc = await addDocumentToDb(
           newDoc,
-          state.main.signer_attributes.eppn
+          state.main.signer_attributes.eppn,
         );
         thunkAPI.dispatch(addDocument(newDoc));
         thunkAPI.dispatch(removeOwned({ key: doc.key }));

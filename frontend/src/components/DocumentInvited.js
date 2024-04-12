@@ -199,7 +199,7 @@ class DocumentInvited extends Component {
                     </>
                   )}
                   {["loaded", "selected", "failed-signing"].includes(
-                    doc.state
+                    doc.state,
                   ) && (
                     <>
                       {widgets.selectDoc(this.props, doc)}

@@ -25,7 +25,7 @@ export const addNotification = createAsyncThunk(
     }, 5000);
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     return arg;
-  }
+  },
 );
 
 const notificationsSlice = createSlice({

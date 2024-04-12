@@ -77,7 +77,7 @@ export const sendInvites = createAsyncThunk(
       await thunkAPI.dispatch(removeDocument({ docName: document.name }));
       thunkAPI.dispatch(addDocument(document));
       await thunkAPI.dispatch(
-        createDocument({ doc: document, intl: args.intl })
+        createDocument({ doc: document, intl: args.intl }),
       );
       state = thunkAPI.getState();
       document = state.documents.documents.find((doc) => {
@@ -205,7 +205,7 @@ export const sendInvites = createAsyncThunk(
     // Start polling the backend, to update the local state when users invited to sign do sign.
     thunkAPI.dispatch(setPolling(true));
     thunkAPI.dispatch(rmDocumentByKey(document.key));
-  }
+  },
 );
 
 /**
@@ -235,7 +235,7 @@ export const editInvites = createAsyncThunk(
     } else {
       await editInvitesPending(args.values, thunkAPI, args.intl);
     }
-  }
+  },
 );
 
 /**
@@ -294,7 +294,7 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
     thunkAPI.dispatch(removeOwned(owned));
     // Now we add the document, first to the redux store, then to the IndexedDB database
     let prefix = "data:application/xml;base64,";
-    if (doc.type === 'application/pdf') {
+    if (doc.type === "application/pdf") {
       prefix = "data:application/pdf;base64,";
     }
     let newDoc = {
@@ -450,7 +450,7 @@ export const removeInvites = createAsyncThunk(
     });
     thunkAPI.dispatch(addNotification({ level: "success", message: message }));
     return document.key;
-  }
+  },
 );
 
 /**
@@ -513,5 +513,5 @@ export const resendInvitations = createAsyncThunk(
     });
     thunkAPI.dispatch(addNotification({ level: "success", message: message }));
     return document.key;
-  }
+  },
 );

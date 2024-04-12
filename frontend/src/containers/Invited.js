@@ -42,7 +42,7 @@ const mapDispatchToProps = (dispatch, props) => {
       return () => {
         dispatch(setInvitedSigning(docRef));
         window.document.location.href = getLocation(
-          `/sign/invitation/${docRef}`
+          `/sign/invitation/${docRef}`,
         );
       };
     },
@@ -57,7 +57,7 @@ const mapDispatchToProps = (dispatch, props) => {
             intl: props.intl,
             showForced: false,
             show: true,
-          })
+          }),
         );
         dispatch(unsetSpinning());
       };
@@ -81,7 +81,7 @@ const mapDispatchToProps = (dispatch, props) => {
             intl: props.intl,
             showForced: true,
             show: false,
-          })
+          }),
         );
         dispatch(unsetSpinning());
       };
@@ -109,7 +109,7 @@ const mapDispatchToProps = (dispatch, props) => {
           declineSigning({
             key: args.doc.key,
             intl: args.intl,
-          })
+          }),
         );
         dispatch(enablePolling());
         dispatch(unsetSpinning());
@@ -123,7 +123,7 @@ const mapDispatchToProps = (dispatch, props) => {
           declineSigning({
             key: args.doc.key,
             intl: args.intl,
-          })
+          }),
         );
         dispatch(unsetSpinning());
       };

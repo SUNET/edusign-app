@@ -69,7 +69,7 @@ describe("Main Component", function () {
       await flushPromises(rerender, wrapped);
 
       const splash = await waitFor(() =>
-        screen.queryByTestId("edusign-splash-screen")
+        screen.queryByTestId("edusign-splash-screen"),
       );
       expect(splash).to.equal(null);
     } catch (err) {
@@ -200,7 +200,7 @@ describe("Main Component", function () {
       expect(svText).to.equal(null);
 
       const langInput = await waitFor(() =>
-        screen.getAllByTestId("language-selector")
+        screen.getAllByTestId("language-selector"),
       );
       expect(langInput.length).to.equal(1);
 
@@ -244,7 +244,7 @@ describe("Main Component", function () {
 
     try {
       const notificationsArea = screen.getAllByTestId(
-        "edusign-notifications-area"
+        "edusign-notifications-area",
       );
       expect(notificationsArea.length).to.equal(1);
     } catch (err) {
@@ -281,7 +281,7 @@ describe("Main Component", function () {
         addNotification({
           message: "ho ho ho",
           level: "danger",
-        })
+        }),
       );
       await flushPromises(rerender, wrapped);
 
@@ -303,14 +303,14 @@ describe("Main Component", function () {
         addNotification({
           message: "ho ho ho",
           level: "danger",
-        })
+        }),
       );
 
       store.dispatch(
         addNotification({
           message: "hi hi hi",
           level: "danger",
-        })
+        }),
       );
       await flushPromises(rerender, wrapped);
 

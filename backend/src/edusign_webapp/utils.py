@@ -35,10 +35,8 @@ import uuid
 from base64 import b64decode, b64encode
 from email.encoders import encode_base64
 from email.mime.base import MIMEBase
-from lxml import etree
 from xml.etree import cElementTree as ET
 from zlib import error as zliberror
-
 
 from cryptography import x509
 from flask import current_app, request, session
@@ -46,8 +44,8 @@ from flask_babel import gettext
 from flask_mailman import EmailMultiAlternatives
 from lxml import etree
 from pygments import highlight
-from pygments.lexers import XmlLexer
 from pygments.formatters import HtmlFormatter
+from pygments.lexers import XmlLexer
 from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
 
 from edusign_webapp.mail_backend import ParallelEmailBackend
@@ -102,10 +100,12 @@ def add_attributes_to_session(check_whitelisted=True):
             (attr, attr.lower().capitalize() + f'-{attr_schema}')
             for attr in current_app.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].values()
         ]
-        more_attrs.extend([
-            (attr, attr.lower().capitalize() + f'-{attr_schema}')
-            for attr in current_app.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].values()
-        ])
+        more_attrs.extend(
+            [
+                (attr, attr.lower().capitalize() + f'-{attr_schema}')
+                for attr in current_app.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].values()
+            ]
+        )
         for attr in more_attrs:
             if attr not in attrs and attr[0] != 'eduPersonPrincipalName':
                 attrs.append(attr)
@@ -495,7 +495,11 @@ def pretty_print_xml(content):
     root = etree.fromstring(xmlstr_pre, parser)
     etree.indent(root)
     xmlstr = etree.tounicode(root, pretty_print=True)
-    xml = highlight(xmlstr, XmlLexer(), HtmlFormatter(full=True, linenos='inline', classprefix="xml-preview-", prestyles="font-family: monospace;"))
+    xml = highlight(
+        xmlstr,
+        XmlLexer(),
+        HtmlFormatter(full=True, linenos='inline', classprefix="xml-preview-", prestyles="font-family: monospace;"),
+    )
     html = b64encode(xml.encode('latin1'))
 
     return html

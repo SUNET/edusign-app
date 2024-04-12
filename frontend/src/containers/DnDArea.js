@@ -60,7 +60,7 @@ const mapDispatchToProps = (dispatch) => {
                 defaultMessage: "Error loading {name}",
                 id: "containers.DnDArea.loading-error",
               },
-              { name: fileObj.name }
+              { name: fileObj.name },
             );
             dispatch(addNotification({ level: "danger", message: errorMsg }));
             file.state = "failed-loading";
@@ -86,7 +86,7 @@ const mapDispatchToProps = (dispatch) => {
               id: "containers.DnDArea.rejected-doc",
               defaultMessage: "Not a PDF: {name}",
             },
-            { name: rejected.file.name, type: rejected.file.type }
+            { name: rejected.file.name, type: rejected.file.type },
           );
           dispatch(addNotification({ level: "danger", message: errorMsg }));
         });

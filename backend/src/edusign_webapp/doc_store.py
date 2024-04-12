@@ -813,9 +813,7 @@ class DocStore(object):
                     document_key, new['name'], new['email'], new['lang'], invite_key=new['key'], order=order
                 )
             else:
-                self.metadata.add_invitation(
-                    document_key, new['name'], new['email'], new['lang'], order=order
-                )
+                self.metadata.add_invitation(document_key, new['name'], new['email'], new['lang'], order=order)
             order += 1
 
         return changed

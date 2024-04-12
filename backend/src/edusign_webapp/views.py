@@ -1030,7 +1030,9 @@ def _prepare_signed_documents_data(process_data):
             skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
 
             if pending > 0 or not skipfinal:
-                docs.append({'id': key, 'signed_content': doc['signedContent'], 'validated': False, 'type': doc['mimeType']})
+                docs.append(
+                    {'id': key, 'signed_content': doc['signedContent'], 'validated': False, 'type': doc['mimeType']}
+                )
 
         elif owner:
             current_app.extensions['doc_store'].remove_document(key)
@@ -1084,8 +1086,12 @@ def _process_signed_documents(process_data):
         if owner and 'email' in owner and owner['email'] not in mail_aliases:
             # Last person to sign this document
             if not pending and skipfinal:
-                current_app.logger.debug(f"Data for final email - key: {key}, owner: {owner}, sendsigned: {sendsigned}, type: {mime_type}")
-                to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned, 'type': mime_type})
+                current_app.logger.debug(
+                    f"Data for final email - key: {key}, owner: {owner}, sendsigned: {sendsigned}, type: {mime_type}"
+                )
+                to_validate.append(
+                    {'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned, 'type': mime_type}
+                )
 
             else:
                 # More people pending to sign the document
@@ -1179,7 +1185,14 @@ def get_signed_documents(sign_data: dict) -> dict:
                     f"Problem sending signed by all email to all invited for doc '{owner['docname']}': {e}"
                 )
 
-        docs.append({'id': doc['key'], 'signed_content': doc['doc']['signedContent'], 'validated': doc['validated'], 'type': doc['type']})
+        docs.append(
+            {
+                'id': doc['key'],
+                'signed_content': doc['doc']['signedContent'],
+                'validated': doc['validated'],
+                'type': doc['type'],
+            }
+        )
 
     if len(emails) > 0:
         sendmail_bulk(emails)

@@ -233,12 +233,16 @@ class RedisStorageBackend:
     def query_document_lock(self, doc_id):
         b_doc = self.redis.hgetall(f"doc:{doc_id}")
         doc = dict(
-            locked=None
-            if b'locked' not in b_doc or b_doc[b'locked'] is None
-            else datetime.fromtimestamp(float(b_doc[b'locked'])),
-            locking_email=None
-            if b'locking_email' not in b_doc or b_doc[b'locking_email'] is None
-            else b_doc[b'locking_email'].decode('utf8'),
+            locked=(
+                None
+                if b'locked' not in b_doc or b_doc[b'locked'] is None
+                else datetime.fromtimestamp(float(b_doc[b'locked']))
+            ),
+            locking_email=(
+                None
+                if b'locking_email' not in b_doc or b_doc[b'locking_email'] is None
+                else b_doc[b'locking_email'].decode('utf8')
+            ),
         )
         return doc
 
