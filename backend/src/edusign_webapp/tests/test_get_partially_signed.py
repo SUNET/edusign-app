@@ -62,6 +62,7 @@ def _test_get_partially_signed_doc(client, monkeypatch, sample_doc_1):
                 'text': 'Dummy invitation text',
                 'sendsigned': True,
                 'skipfinal': False,
+                'ordered': False,
                 'loa': '',
                 'invites': [
                     {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},

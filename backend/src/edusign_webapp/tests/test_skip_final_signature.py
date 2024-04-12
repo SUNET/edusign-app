@@ -65,18 +65,16 @@ def _test_skip_final_signature(client, monkeypatch, sample_doc_1):
 
         monkeypatch.setattr(APIClient, 'validate_signatures', mock_validate)
 
-        sample_doc = sample_doc_1.copy()
-        sample_doc['signedContent'] = sample_doc['blob']
-
         doc_data = {
             'csrf_token': csrf_token,
             'payload': {
-                'document': sample_doc,
+                'document': sample_doc_1,
                 'owner': 'tester@example.org',
                 'text': 'Dummy invitation text',
                 'sendsigned': True,
                 'skipfinal': False,
-                'loa': '',
+                'ordered': False,
+                'loa': 'low',
                 'invites': [
                     {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
                     {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
@@ -99,7 +97,7 @@ def _test_skip_final_signature(client, monkeypatch, sample_doc_1):
         skip_final_data = {
             'csrf_token': csrf_token,
             'payload': {
-                'key': sample_doc['key'],
+                'key': sample_doc_1['key'],
             },
         }
 
