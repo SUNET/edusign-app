@@ -107,7 +107,7 @@
   "components.widgets.button-download-partial-tootip": "Ladda ner dokument som inte nödvändigtvis är signerat av alla parter.",
   "components.widgets.button-download-tootip": "Ladda ner signerat dokument. Var uppmärksam på att spara orginalet snarare än en kopia.",
   "components.widgets.button-remove-tootip": "Ta bort dokument",
-  "components.widgets.button-sign-tootip": "Välj dokument ovan och klicka här för att signera dem.",
+  "components.widgets.button-sign-tootip": "Välj dokument ovan och klicka här för att signera dem. Du kommer bli omdirigerad att logga in igen för att autentisera dig när du signerar.",
   "components.widgets.clear-docs-tootip": "Ta bort alla dokument i \"Personliga dokument\" listan",
   "components.widgets.clear-session-button": "Rensa personlig dokumentlista",
   "components.widgets.creation-date-label": "Skapad:",

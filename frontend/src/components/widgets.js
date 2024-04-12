@@ -494,7 +494,7 @@ export const buttonSignSelected = (disableSigning, onClick) => {
         helpId="button-sign-selected"
         tooltip={
           <FormattedMessage
-            defaultMessage="Select documents above and click here to send them for signing."
+            defaultMessage="Select documents above and click here to send them for signing. You will be redirected to login again to authenticate yourself when signing."
             key="button-sign-tootip"
           />
         }

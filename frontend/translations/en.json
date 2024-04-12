@@ -107,7 +107,7 @@
   "components.widgets.button-download-partial-tootip": "Download partially signed document. Be sure to save the original rather than a copy.",
   "components.widgets.button-download-tootip": "Download signed document. Be sure to save the original rather than a copy.",
   "components.widgets.button-remove-tootip": "Discard document",
-  "components.widgets.button-sign-tootip": "Select documents above and click here to send them for signing.",
+  "components.widgets.button-sign-tootip": "Select documents above and click here to send them for signing. You will be redirected to login again to authenticate yourself when signing.",
   "components.widgets.clear-docs-tootip": "Discard all documents in the \"Personal documents\" list above",
   "components.widgets.clear-session-button": "Clear personal documents list",
   "components.widgets.creation-date-label": "Created:",
