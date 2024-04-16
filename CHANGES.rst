@@ -2,7 +2,10 @@
 In version 1.4.0:
 -----------------
 
-* Inviter can reuire LoA levels
+* Allow sining XML documents
+* Invitations in order
+* Ability to use 2 different sign service integration API profiles
+* Inviter can require LoA levels
 * customization of defaults in forms
 
 In version 1.3.0:
