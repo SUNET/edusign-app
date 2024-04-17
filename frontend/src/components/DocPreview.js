@@ -5,6 +5,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf";
 
+import Pagination from "components/Pagination";
 import { docToFile } from "components/utils";
 
 import "styles/DocPreview.scss";
@@ -90,49 +91,15 @@ function DocPreview(props) {
 
         <Modal.Footer>
           <div className="pdf-navigation">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) <= 1}
-              onClick={firstPage}
-              data-testid={"preview-button-first-" + props.doc.name}
-            >
-              &#x23EA;
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) <= 1}
-              onClick={previousPage}
-              data-testid={"preview-button-prev-" + props.doc.name}
-            >
-              &#x25C4;
-            </Button>
-            <span>
-              &nbsp;
-              {(pageNumber || (numPages ? 1 : "--")) +
-                " / " +
-                (numPages || "--")}
-              &nbsp;
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) >= Number(numPages)}
-              onClick={nextPage}
-              data-testid={"preview-button-next-" + props.doc.name}
-            >
-              &#x25BA;
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) >= Number(numPages)}
-              onClick={lastPage}
-              data-testid={"preview-button-last-" + props.doc.name}
-            >
-              &#x23E9;
-            </Button>
+            <Pagination
+              numPages={numPages}
+              pageNumber={pageNumber}
+              firstPage={firstPage}
+              previousPage={previousPage}
+              nextPage={nextPage}
+              lastPage={lastPage}
+              index={props.index}
+            />
           </div>
           <Button
             variant="outline-secondary"

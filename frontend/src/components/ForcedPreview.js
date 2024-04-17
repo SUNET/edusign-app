@@ -7,6 +7,7 @@ import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf";
 import { ESTooltip } from "containers/Overlay";
 
+import Pagination from "components/Pagination";
 import { docToFile } from "components/utils";
 
 import "styles/DocPreview.scss";
@@ -97,49 +98,15 @@ function ForcedPreview(props) {
 
         <Modal.Footer>
           <div className="pdf-navigation">
-            <BButton
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) <= 1}
-              onClick={firstPage}
-              data-testid={"preview-button-first-" + props.index}
-            >
-              &#x23EA;
-            </BButton>
-            <BButton
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) <= 1}
-              onClick={previousPage}
-              data-testid={"preview-button-prev-" + props.index}
-            >
-              &#x25C4;
-            </BButton>
-            <span>
-              &nbsp;
-              {(pageNumber || (numPages ? 1 : "--")) +
-                " / " +
-                (numPages || "--")}
-              &nbsp;
-            </span>
-            <BButton
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) >= Number(numPages)}
-              onClick={nextPage}
-              data-testid={"preview-button-next-" + props.index}
-            >
-              &#x25BA;
-            </BButton>
-            <BButton
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) >= Number(numPages)}
-              onClick={lastPage}
-              data-testid={"preview-button-last-" + props.index}
-            >
-              &#x23E9;
-            </BButton>
+            <Pagination
+              numPages={numPages}
+              pageNumber={pageNumber}
+              firstPage={firstPage}
+              previousPage={previousPage}
+              nextPage={nextPage}
+              lastPage={lastPage}
+              index={props.index}
+            />
           </div>
           <ESTooltip
             helpId={"preview-button-dissaprove-" + props.index}
