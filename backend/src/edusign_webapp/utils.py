@@ -39,7 +39,7 @@ from xml.etree import cElementTree as ET
 from zlib import error as zliberror
 
 from cryptography import x509
-from flask import current_app, request, session
+from flask import current_app, request, session, g
 from flask_babel import gettext
 from flask_mailman import EmailMultiAlternatives
 from lxml import etree
@@ -381,8 +381,8 @@ def compose_message(
     attachment: str = '',
 ):
     """
-    Compose a mail message, with subject and body in both Swedish and English,
-    and with the body in both plain text and html.
+    Compose a mail message,
+    with the body in both plain text and html.
 
     :param recipients: list of recipients of the email
     :param subject: subject
@@ -423,17 +423,20 @@ def sendmail_bulk(msgs_data: list):
 
     :param msgs: a list of arguments for `compose_message`.
     """
+    msgs = []
+
+    for args, kwargs in msgs_data:
+        msg = compose_message(*args, **kwargs)
+        msgs.append(msg)
+
+    if current_app.config['ENVIRONMENT'] == 'e2e':
+
     dummy = False
     if current_app.config['MAIL_BACKEND'] == 'dummy':
         dummy = True
         conn = current_app.extensions['mailer'].get_connection(backend='dummy')
     else:
         conn = current_app.extensions['mailer'].get_connection(backend=ParallelEmailBackend)
-    msgs = []
-
-    for args, kwargs in msgs_data:
-        msg = compose_message(*args, **kwargs)
-        msgs.append(msg)
 
     if dummy:
         conn.send_messages(msgs)
