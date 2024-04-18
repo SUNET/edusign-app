@@ -143,6 +143,16 @@ class ConfigSchema(InvitationsSchema):
     edit_form_timeout = fields.String(required=True)
 
 
+class EmailsSchema(Schema):
+    """
+    Schema to marshall emails in e2e tests
+    """
+    class EmailMsg(Schema):
+        message = fields.String(required=True)
+
+    messages = fields.List(fields.Nested(EmailMsg))
+
+
 class DocumentSchema(_DocumentSchema):
     """
     Schema to unmarshal a document's data sent from the frontend to be prepared for signing.
