@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
  * @desc Pagination controls
  * @component
  */
-function Navigation(props) {
+function Pagination(props) {
 
   return (
     <>
@@ -48,7 +48,7 @@ function Navigation(props) {
   );
 }
 
-Navigation.propTypes = {
+Pagination.propTypes = {
   numPages: PropTypes.number,
   pageNumber: PropTypes.number,
   firstPage: PropTypes.func,
@@ -58,4 +58,4 @@ Navigation.propTypes = {
   index: PropTypes.number,
 };
 
-export default Navigation;
+export default Pagination;
