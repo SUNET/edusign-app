@@ -39,7 +39,7 @@ from xml.etree import cElementTree as ET
 from zlib import error as zliberror
 
 from cryptography import x509
-from flask import current_app, request, session, g
+from flask import current_app, g, request, session
 from flask_babel import gettext
 from flask_mailman import EmailMultiAlternatives
 from lxml import etree
