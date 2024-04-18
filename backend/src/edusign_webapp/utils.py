@@ -414,7 +414,11 @@ def sendmail(*args, **kwargs):
 
     current_app.logger.debug(f"Email to be sent:\n\n{msg.message().as_string()}\n\n")
 
-    msg.send()
+    if current_app.config['ENVIRONMENT'] == 'e2e':
+        g.email_messages = [msg.message().as_string()]
+
+    else:
+        msg.send()
 
 
 def sendmail_bulk(msgs_data: list):
@@ -430,19 +434,21 @@ def sendmail_bulk(msgs_data: list):
         msgs.append(msg)
 
     if current_app.config['ENVIRONMENT'] == 'e2e':
+        g.email_messages = [msg.message().as_string() for msg in msgs]
 
-    dummy = False
-    if current_app.config['MAIL_BACKEND'] == 'dummy':
-        dummy = True
-        conn = current_app.extensions['mailer'].get_connection(backend='dummy')
     else:
-        conn = current_app.extensions['mailer'].get_connection(backend=ParallelEmailBackend)
+        dummy = False
+        if current_app.config['MAIL_BACKEND'] == 'dummy':
+            dummy = True
+            conn = current_app.extensions['mailer'].get_connection(backend='dummy')
+        else:
+            conn = current_app.extensions['mailer'].get_connection(backend=ParallelEmailBackend)
 
-    if dummy:
-        conn.send_messages(msgs)
-    else:
-        conn.send_messages_in_parallel(msgs)
-    conn.close()
+        if dummy:
+            conn.send_messages(msgs)
+        else:
+            conn.send_messages_in_parallel(msgs)
+        conn.close()
 
 
 def get_authn_context(docs: list) -> list:
