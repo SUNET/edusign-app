@@ -147,6 +147,7 @@ class EmailsSchema(Schema):
     """
     Schema to marshall emails in e2e tests
     """
+
     class EmailMsg(Schema):
         message = fields.String(required=True)
 

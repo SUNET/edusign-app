@@ -41,7 +41,7 @@ from typing import Any, Dict, List, Tuple, Union
 
 import pkg_resources
 import yaml
-from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for, g
+from flask import Blueprint, abort, current_app, g, make_response, redirect, render_template, request, session, url_for
 from flask_babel import force_locale, get_locale, gettext
 from werkzeug.wrappers.response import Response
 
