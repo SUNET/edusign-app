@@ -41,7 +41,7 @@ from typing import Any, Dict, List, Tuple, Union
 
 import pkg_resources
 import yaml
-from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for, g
 from flask_babel import force_locale, get_locale, gettext
 from werkzeug.wrappers.response import Response
 
@@ -55,6 +55,7 @@ from edusign_webapp.schemata import (
     DocSchema,
     DocumentSchema,
     EditMultiSignSchema,
+    EmailsSchema,
     FillFormSchema,
     InvitationsSchema,
     KeySchema,
@@ -402,7 +403,7 @@ def get_index() -> str:
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
 
     bundle_name = 'main-bundle'
-    if current_app.config['ENVIRONMENT'] == 'development':
+    if current_app.config['ENVIRONMENT'] in ('development', 'e2e'):
         bundle_name += '.dev'
 
     try:
@@ -410,6 +411,16 @@ def get_index() -> str:
     except AttributeError as e:
         current_app.logger.error(f'Template rendering failed: {e}')
         abort(500)
+
+
+@edusign_views.route('/', methods=['GET'])
+@edusign_views2.route('/', methods=['GET'])
+@Marshal(EmailsSchema)
+def emails():
+    if current_app.config['ENVIRONMENT'] != 'e2e':
+        abort(404)
+
+    return {'messages': g.email_messages}
 
 
 def _get_ui_defaults():
@@ -881,7 +892,7 @@ def sign_service_callback() -> Union[str, Response]:
         return redirect(url_for('edusign.get_index'))
 
     bundle_name = 'main-bundle'
-    if current_app.config['ENVIRONMENT'] == 'development':
+    if current_app.config['ENVIRONMENT'] in ('development', 'e2e'):
         bundle_name += '.dev'
 
     try:
