@@ -58,14 +58,14 @@ function Pagination(props) {
             onClick={props.firstPage}
             data-testid={"preview-button-first-" + props.index}
           >
-            &#x2AA6;
+            &#x003E;
           </span>
           <span
             className="go-to-last-page inactive"
             onClick={props.previousPage}
             data-testid={"preview-button-prev-" + props.index}
           >
-            &#x003C;
+            &#x2AA7;
           </span>
         </>
       ) || (
