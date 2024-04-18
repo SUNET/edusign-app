@@ -82,6 +82,9 @@ class EduSignApp(Flask):
 
         self.extensions['mailer'] = Mail(self)
 
+        if self.config['ENVIRONMENT'] == 'e2e':
+            self.extensions['email_msgs'] = {}
+
         from edusign_webapp.views import admin_edusign_views, anon_edusign_views, edusign_views
 
         self.register_blueprint(admin_edusign_views)

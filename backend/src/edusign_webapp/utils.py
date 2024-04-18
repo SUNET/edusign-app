@@ -418,7 +418,7 @@ def sendmail(*args, **kwargs):
     current_app.logger.debug(f"Email to be sent:\n\n{msg.message().as_string()}\n\n")
 
     if current_app.config['ENVIRONMENT'] == 'e2e':
-        g.email_messages = [msg.message().as_string()]
+        current_app.extensions['email_msgs'] = {'messages': [msg.message().as_string()]}
 
     else:
         msg.send()
@@ -437,7 +437,7 @@ def sendmail_bulk(msgs_data: list):
         msgs.append(msg)
 
     if current_app.config['ENVIRONMENT'] == 'e2e':
-        g.email_messages = [msg.message().as_string() for msg in msgs]
+        current_app.extensions['email_msgs'] = {'messages': [msg.message().as_string() for msg in msgs]}
 
     else:
         dummy = False
