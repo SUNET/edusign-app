@@ -5,6 +5,19 @@
   display: flex;
   justify-content: center;
   align-items: center;
+
+  a {
+    cursor: pointer
+  }
+  .go-to-first-page, .go-to-prev-page {
+    padding-right: 5px;
+  }
+  .go-to-last-page, .go-to-next-page {
+    padding-left: 5px;
+  }
+  .inactive {
+    color: #999;
+  }
 }
 
 .modal-body {
