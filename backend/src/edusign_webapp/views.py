@@ -420,7 +420,7 @@ def emails():
     if current_app.config['ENVIRONMENT'] != 'e2e':
         abort(404)
 
-    return current_app.extensions['email_msgs']
+    return {'payload': current_app.extensions['email_msgs']}
 
 
 def _get_ui_defaults():
