@@ -413,8 +413,8 @@ def get_index() -> str:
         abort(500)
 
 
-@edusign_views.route('/', methods=['GET'])
-@edusign_views2.route('/', methods=['GET'])
+@edusign_views.route('/emails', methods=['GET'])
+@edusign_views2.route('/emails', methods=['GET'])
 @Marshal(EmailsSchema)
 def emails():
     if current_app.config['ENVIRONMENT'] != 'e2e':
