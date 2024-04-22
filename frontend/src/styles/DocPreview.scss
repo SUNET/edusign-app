@@ -10,11 +10,15 @@
     cursor: pointer;
     text-decoration: none;
   }
-  .go-to-first-page, .go-to-prev-page {
-    padding-right: 5px;
+  .go-to-first-page, .go-to-last-page {
+    width: 2rem;
+    height: 1.5rem;
+    vertical-align: middle;
   }
-  .go-to-last-page, .go-to-next-page {
-    padding-left: 5px;
+  .go-to-prev-page, .go-to-next-page {
+    width: 1.5rem;
+    height: 1.5rem;
+    vertical-align: middle;
   }
   .inactive {
     color: #999;
