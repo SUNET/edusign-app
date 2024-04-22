@@ -9,7 +9,7 @@ import PropTypes from "prop-types";
 function GoFirst(props) {
   return (
       <svg
-         className="pagination-control got-to-first"
+         className="pagination-control go-to-first"
          version="1.1"
          xmlns="http://www.w3.org/2000/svg">
         <g
@@ -17,10 +17,10 @@ function GoFirst(props) {
            transform="rotate(90,12,12)">
           <path
              d="m 11.292,16.706 a 1,1 0 0 0 1.416,0 l 3,-3 A 1,1 0 0 0 14.294,12.292 L 13,13.586 V 4 a 1,1 0 0 0 -2,0 v 9.586 L 9.707,12.293 a 1,1 0 0 0 -1.414,1.414 z"
-             id="path1" />
+             id="arrowfirst-path1" />
           <path
              d="M 17,19 H 7 a 1,1 0 0 0 0,2 h 10 a 1,1 0 0 0 0,-2 z"
-             id="path2" />
+             id="arrowfirst-path2" />
         </g>
       </svg>
   );
@@ -29,7 +29,7 @@ function GoFirst(props) {
 function GoLast(props) {
   return (
       <svg
-         className="pagination-control got-to-last"
+         className="pagination-control go-to-last"
          version="1.1"
          xmlns="http://www.w3.org/2000/svg">
         <g
@@ -37,10 +37,10 @@ function GoLast(props) {
            transform="rotate(-90,12,12)">
           <path
              d="m 11.292,16.706 a 1,1 0 0 0 1.416,0 l 3,-3 A 1,1 0 0 0 14.294,12.292 L 13,13.586 V 4 a 1,1 0 0 0 -2,0 v 9.586 L 9.707,12.293 a 1,1 0 0 0 -1.414,1.414 z"
-             id="path1" />
+             id="arrowlast-path1" />
           <path
              d="M 17,19 H 7 a 1,1 0 0 0 0,2 h 10 a 1,1 0 0 0 0,-2 z"
-             id="path2" />
+             id="arrowlast-path2" />
         </g>
       </svg>
   );
@@ -49,11 +49,11 @@ function GoLast(props) {
 function GoPrev(props) {
   return (
       <svg
-         className="pagination-control got-to-prev"
+         className="pagination-control go-to-prev"
          xmlns="http://www.w3.org/2000/svg"
          version="1.1">
         <g
-           id="Left-4"
+           id="arrowprev"
            data-name="Left">
           <path
              d="M19,12a1,1,0,0,1-1,1H8.414l1.293,1.293a1,1,0,1,1-1.414,1.414l-3-3a1,1,0,0,1,0-1.414l3-3A1,1,0,0,1,9.707,9.707L8.414,11H18A1,1,0,0,1,19,12Z" />
@@ -65,11 +65,11 @@ function GoPrev(props) {
 function GoNext(props) {
   return (
       <svg
-         className="pagination-control got-to-next"
+         className="pagination-control go-to-next"
          xmlns="http://www.w3.org/2000/svg"
          version="1.1">
         <g
-           id="Right-4"
+           id="arrowlast"
            data-name="Right">
           <path
              d="M18.707,12.707l-3,3a1,1,0,0,1-1.414-1.414L15.586,13H6a1,1,0,0,1,0-2h9.586L14.293,9.707a1,1,0,0,1,1.414-1.414l3,3A1,1,0,0,1,18.707,12.707Z" />
@@ -86,14 +86,12 @@ function Pagination(props) {
         <>
           <span
             className="go-to-first-page inactive"
-            onClick={props.firstPage}
             data-testid={"preview-button-first-" + props.index}
           >
             <GoFirst />
           </span>
           <span
             className="go-to-prev-page inactive"
-            onClick={props.previousPage}
             data-testid={"preview-button-prev-" + props.index}
           >
             <GoPrev />
@@ -128,14 +126,12 @@ function Pagination(props) {
         <>
           <span
             className="go-to-next-page inactive"
-            onClick={props.firstPage}
             data-testid={"preview-button-first-" + props.index}
           >
-            <GoFirst />
+            <GoNext />
           </span>
           <span
             className="go-to-last-page inactive"
-            onClick={props.previousPage}
             data-testid={"preview-button-prev-" + props.index}
           >
             <GoLast />
@@ -148,7 +144,7 @@ function Pagination(props) {
             onClick={props.nextPage}
             data-testid={"preview-button-next-" + props.index}
           >
-            <GoFirst />
+            <GoNext />
           </a>
           <a
             className="go-to-last-page"
