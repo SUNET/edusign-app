@@ -179,7 +179,7 @@ ForcedPreview.propTypes = {
   handleConfirm: PropTypes.func,
   handleUnConfirm: PropTypes.func,
   doc: PropTypes.object,
-  index: PropTypes.string,
+  index: PropTypes.number,
 };
 
 export default injectIntl(ForcedPreview);

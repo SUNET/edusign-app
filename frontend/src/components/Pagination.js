@@ -172,7 +172,7 @@ Pagination.propTypes = {
   previousPage: PropTypes.func,
   nextPage: PropTypes.func,
   lastPage: PropTypes.func,
-  index: PropTypes.string,
+  index: PropTypes.number,
 };
 
 export default Pagination;

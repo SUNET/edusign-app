@@ -52,6 +52,7 @@ XMLPreview.propTypes = {
   handleClose: PropTypes.func,
   doc: PropTypes.object,
   docFile: PropTypes.object,
+  index: PropTypes.number,
 };
 
 export default XMLPreview;

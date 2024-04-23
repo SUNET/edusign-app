@@ -127,6 +127,7 @@ class DocManager extends React.Component {
                       <DocPreviewContainer
                         doc={doc}
                         handleClose={this.props.handleCloseTemplatePreview}
+                        index={Number(index)}
                       />
                       <InviteFormContainer
                         docId={doc.id}
@@ -225,7 +226,7 @@ class DocManager extends React.Component {
                         doc.type.endsWith("/pdf") && (
                           <ForcedPreviewContainer
                             doc={doc}
-                            index={doc.name}
+                            index={Number(index)}
                             handleClose={this.props.handleCloseForcedPreview}
                             handleConfirm={
                               this.props.handleConfirmForcedPreview
@@ -239,7 +240,7 @@ class DocManager extends React.Component {
                         doc.type.endsWith("/xml") && (
                           <ForcedXMLPreviewContainer
                             doc={doc}
-                            index={doc.name}
+                            index={Number(index)}
                             handleClose={this.props.handleCloseForcedPreview}
                             handleConfirm={
                               this.props.handleConfirmForcedPreview
@@ -259,6 +260,7 @@ class DocManager extends React.Component {
                           <DocPreviewContainer
                             doc={doc}
                             handleClose={this.props.handleClosePreview}
+                            index={Number(index)}
                           />
                         )}
                       {[
@@ -271,6 +273,7 @@ class DocManager extends React.Component {
                           <XMLPreviewContainer
                             doc={doc}
                             handleClose={this.props.handleClosePreview}
+                            index={Number(index)}
                           />
                         )}
                       {["loaded", "selected", "signed"].includes(doc.state) && (

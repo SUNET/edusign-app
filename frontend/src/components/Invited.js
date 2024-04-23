@@ -37,12 +37,13 @@ class Invited extends Component {
                 <Preview
                   doc={doc}
                   handleClose={this.props.handleClosePreview}
+                  index={Number(index)}
                 />
               )}
               {doc.state === "unconfirmed" && (
                 <ForcedPreview
                   doc={doc}
-                  index={doc.name}
+                  index={Number(index)}
                   handleClose={this.props.handleCloseForcedPreview}
                   handleConfirm={this.props.handleConfirmForcedPreview}
                   handleUnConfirm={this.props.handleUnConfirmForcedPreview}

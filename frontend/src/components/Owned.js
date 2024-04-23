@@ -33,6 +33,7 @@ class Owned extends Component {
                   doc={doc}
                   key="1"
                   handleClose={this.props.handleClosePreview}
+                  index={Number(index)}
                 />
               )}
               {doc.state === "incomplete" && (

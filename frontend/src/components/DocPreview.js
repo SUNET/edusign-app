@@ -120,6 +120,7 @@ DocPreview.propTypes = {
    */
   handleClose: PropTypes.func,
   doc: PropTypes.object,
+  index: PropTypes.number,
 };
 
 export default DocPreview;
