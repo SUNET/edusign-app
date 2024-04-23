@@ -167,7 +167,7 @@ function Pagination(props) {
 
 Pagination.propTypes = {
   numPages: PropTypes.number,
-  pageNumber: PropTypes.string,
+  pageNumber: PropTypes.number,
   firstPage: PropTypes.func,
   previousPage: PropTypes.func,
   nextPage: PropTypes.func,
