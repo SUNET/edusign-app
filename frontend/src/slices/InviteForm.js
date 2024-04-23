@@ -30,8 +30,8 @@ const inviteFormSlice = createSlice({
     },
     /**
      * @public
-     * @function isNotInviting
-     * @desc Redux action to indicate that the invite form is not submitting
+     * @function setOrdered
+     * @desc Redux action to indicate that the invitations are ordered
      */
     setOrdered(state, action) {
       state.ordered = action.payload;

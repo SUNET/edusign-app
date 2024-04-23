@@ -37,7 +37,8 @@ export const sendInvites = createAsyncThunk(
   "main/sendInvites",
   async (args, thunkAPI) => {
     thunkAPI.dispatch(isInviting());
-    const documentId = args.values.documentId;
+    let state = thunkAPI.getState();
+    const documentId = state.modals.form_id;
     const invitees = args.values.invitees.map((invitee) => ({
       name: invitee.name,
       email: invitee.email,
@@ -56,8 +57,6 @@ export const sendInvites = createAsyncThunk(
       args.values.skipfinalChoice !== undefined
         ? args.values.skipfinalChoice
         : false;
-
-    let state = thunkAPI.getState();
 
     let document;
     if (isTemplate) {
