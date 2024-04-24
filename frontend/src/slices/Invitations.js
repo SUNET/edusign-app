@@ -218,7 +218,7 @@ export const editInvites = createAsyncThunk(
   "main/editInvites",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const documentKey = args.values.documentKey;
+    const documentKey = state.modals.form_id;
     const invitees = args.values.invitees;
 
     const doc = state.main.owned_multisign.find((doc) => {
@@ -332,7 +332,6 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
  * This is called from the editInvites async thunk
  */
 const editInvitesPending = async (values, thunkAPI, intl) => {
-  const documentKey = values.documentKey;
   const invitationText = values.invitationText;
   const sendsigned = values.sendsignedChoice;
   const skipfinal = values.skipfinalChoice;
@@ -343,6 +342,7 @@ const editInvitesPending = async (values, thunkAPI, intl) => {
   }));
 
   let state = thunkAPI.getState();
+  const documentKey = state.modals.form_id;
 
   // We send the gathered data to the `edit-multi-sign` endpoint in the backend.
   const dataToSend = {
@@ -462,12 +462,12 @@ export const removeInvites = createAsyncThunk(
 export const resendInvitations = createAsyncThunk(
   "main/resendInvitations",
   async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
     // First we gather the data to send to the backend,
     // and send it to the `send-multisign-reminder` endpoint.
-    const docId = args.values.documentId;
+    const docId = state.modals.resend_id;
     const text = args.values["re-invitationText"];
 
-    const state = thunkAPI.getState();
 
     const documentList = state.main.owned_multisign.filter((doc) => {
       return docId === doc.key;

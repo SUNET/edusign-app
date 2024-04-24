@@ -47,7 +47,7 @@ export const showEditInvitationForm = createAsyncThunk(
           `Problem opening edit form: ${lockData.message}`,
         );
       } else {
-        thunkAPI.dispatch(modalsSlice.actions.showForm(args.form_id));
+        thunkAPI.dispatch(modalsSlice.actions.showForm(args.key));
       }
     } catch (err) {
       thunkAPI.dispatch(

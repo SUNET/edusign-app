@@ -68,7 +68,6 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(
           showEditInvitationForm({
             key: doc.key,
-            form_id: doc.key + "-edit-invitations",
             intl: props.intl,
           }),
         );
