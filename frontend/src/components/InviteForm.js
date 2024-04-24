@@ -68,6 +68,7 @@ const initialValues = (props) => {
     isTemplate: props.isTemplate,
     newnameInput: nameForCopy(props),
     loa: "low",
+    documentId: props.docId,
     orderedChoice:
       props.docOrdered === undefined || props.docOrdered === null
         ? props.ordered
@@ -228,6 +229,11 @@ class InviteForm extends React.Component {
               keyboard={false}
             >
               <Form id={formId} data-testid={formId}>
+                <Field
+                  type="hidden"
+                  name="documentId"
+                  value={fprops.values.documentId}
+                />
                 <Field type="hidden" name="isTemplate" />
                 <Modal.Header closeButton>
                   <Modal.Title>
@@ -328,6 +334,7 @@ class InviteForm extends React.Component {
 InviteForm.propTypes = {
   show: PropTypes.bool,
   size: PropTypes.string,
+  docId: PropTypes.number,
   docName: PropTypes.string,
   docOrdered: PropTypes.bool,
   isTemplate: PropTypes.bool,

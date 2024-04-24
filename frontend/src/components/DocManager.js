@@ -130,6 +130,7 @@ class DocManager extends React.Component {
                         index={Number(index)}
                       />
                       <InviteFormContainer
+                        docId={doc.id}
                         docName={doc.name}
                         docOrdered={doc.ordered}
                         isTemplate={true}
@@ -277,6 +278,7 @@ class DocManager extends React.Component {
                         )}
                       {["loaded", "selected", "signed"].includes(doc.state) && (
                         <InviteFormContainer
+                          docId={doc.id}
                           docName={doc.name}
                           docOrdered={doc.ordered}
                         />
