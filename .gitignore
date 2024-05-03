@@ -18,6 +18,7 @@ backend/.coverage
 backend/htmlcov/
 __pycache__
 .env
+users-env
 
 config-current/
 environment-current
