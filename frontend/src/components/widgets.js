@@ -141,7 +141,7 @@ export const forcedPreviewButton = (props, doc) => {
     <>
       <div className="button-forced-preview-flex-item">
         <ESTooltip
-          helpId={"button-forced-preview-" + doc.key}
+          helpId={"button-forced-preview-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="You need to approve all documents before they can be signed"
@@ -287,7 +287,7 @@ export const downloadSignedButton = (props, doc) => {
     <>
       <div className="button-download-flex-item">
         <ESTooltip
-          helpId={"button-download-signed-" + doc.key}
+          helpId={"button-download-signed-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Download signed document. Be sure to save the original rather than a copy."
