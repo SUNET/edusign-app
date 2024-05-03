@@ -1,7 +1,7 @@
 
-import { test, expect } from '@playwright/test';
+import { test as setup, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
+const _authenticate = async (page, username, password, filename, withKey=false) => {
   await page.goto('https://dev.edusign.sunet.se/');
   await expect(page.locator('#main-title')).toContainText('eduSign - Secure digital signature');
   await expect(page.locator('#edusign-logo').getByRole('img')).toBeVisible();
@@ -10,12 +10,30 @@ test('test', async ({ page }) => {
   await page.getByLabel('Find your institution,').fill('eduid');
   await page.getByLabel('Find your institution,').press('Enter');
   await page.locator('a').filter({ hasText: 'eduID Sweden eduid.se' }).click();
-  await page.getByPlaceholder('email or username').fill('enrique+4@cazalla.net');
+  await page.getByPlaceholder('email or username').fill(username);
   await page.getByPlaceholder('enter password').fill('');
-  await page.getByPlaceholder('enter password').fill('8pwr 3331 qwzl');
+  await page.getByPlaceholder('enter password').fill(password);
   await page.getByRole('button', { name: 'Log in' }).click();
-  //await page.getByRole('button', { name: 'Use my security key' }).click();
-  //await page.goto('https://dev.edusign.sunet.se/sign/');
-  await expect(page.getByTestId('edusign-logo').getByRole('img')).toBeVisible({ timeout: 15000 });
-  await expect(page.locator('#dnd-message-head-lg')).toContainText('Drag and drop files to be signed hereorclick here to choose files to be signed');
+  if (withKey) {
+    await page.getByRole('button', { name: 'Use my security key' }).click();
+  }
+  await expect(page.getByTestId('edusign-logo').getByRole('img')).toBeVisible({ timeout: 25000 });
+
+  await page.context().storageState({ path: filename });
+}
+
+setup('Authenticate as user 1', async ({ page }) => {
+  const username = process.env.USER1_NAME;
+  const password = process.env.USER1_PASS;
+  const filename = 'playwright/.auth/user1.json';
+
+  await _authenticate(page, username, password, filename, true);
+});
+
+setup('Authenticate as user 2', async ({ page }) => {
+  const username = process.env.USER2_NAME;
+  const password = process.env.USER2_PASS;
+  const filename = 'playwright/.auth/user2.json';
+
+  await _authenticate(page, username, password, filename);
 });
