@@ -23,9 +23,8 @@ users-env
 config-current/
 environment-current
 docker/test-idp/ldap/users.ldif
-/test-results/
-/tests-examples/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
-/playwright/.auth
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth
