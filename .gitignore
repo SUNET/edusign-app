@@ -27,3 +27,4 @@ docker/test-idp/ldap/users.ldif
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/playwright/.auth
