@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-06 10:34+0200\n"
+"POT-Creation-Date: 2024-05-06 10:54+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -186,12 +186,8 @@ msgstr ""
 msgid "Some users may not have been notified of the changes for '%(docname)s'"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1545
+#: src/edusign_webapp/views.py:1545 src/edusign_webapp/views.py:1549
 msgid "Problem removing the invitation, please try again"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1549
-msgid "Document has not been removed, please try again"
 msgstr ""
 
 #: src/edusign_webapp/views.py:1565

@@ -1546,7 +1546,7 @@ def remove_multi_sign_request(data: dict) -> dict:
 
     if not removed:
         current_app.logger.error(f'Could not remove the multi sign request corresponding to data: {data}')
-        return {'error': True, 'message': gettext('Document has not been removed, please try again')}
+        return {'error': True, 'message': gettext('Problem removing the invitation, please try again')}
 
     recipients = defaultdict(list)
     if not ordered:
