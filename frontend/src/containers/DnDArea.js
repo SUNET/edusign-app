@@ -84,7 +84,7 @@ const mapDispatchToProps = (dispatch) => {
           const errorMsg = intl.formatMessage(
             {
               id: "containers.DnDArea.rejected-doc",
-              defaultMessage: "Not a PDF: {name}",
+              defaultMessage: "Not a PDF or XML document: {name}",
             },
             { name: rejected.file.name, type: rejected.file.type },
           );

@@ -151,7 +151,7 @@ export const loadDocuments = createAsyncThunk(
                   state: "failed-signing",
                   message: args.intl.formatMessage({
                     defaultMessage: "There was a problem signing the document",
-                    id: "load-doc-problem-signing",
+                    id: "problem-signing-doc",
                   }),
                 };
                 await dbSaveDocument(failedDoc);
@@ -163,8 +163,8 @@ export const loadDocuments = createAsyncThunk(
             updateInvitationsFailed({
               message: args.intl.formatMessage({
                 defaultMessage:
-                  "The signing process was interrupted, please try again.",
-                id: "load-doc-interrupted-signing",
+                  "There was a problem signing the document",
+                id: "prepare-doc-problem",
               }),
             }),
           );
@@ -180,7 +180,7 @@ export const loadDocuments = createAsyncThunk(
               state: "failed-preparing",
               message: args.intl.formatMessage({
                 defaultMessage:
-                  "There was a problem preparing the document, please try again",
+                  "There was a problem preparing the document",
                 id: "load-doc-problem-preparing",
               }),
             };
@@ -565,8 +565,8 @@ export const createDocument = createAsyncThunk(
       );
       doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
-        defaultMessage: "Problem preparing document for signing",
-        id: "save-doc-problem-preparing",
+        defaultMessage: "There was a problem preparing the document",
+        id: "prepare-doc-problem",
       });
       await setChangedDocument(thunkAPI, state, doc);
       return;
@@ -638,7 +638,7 @@ export const prepareDocument = createAsyncThunk(
         ...doc,
         state: "failed-preparing",
         message: args.intl.formatMessage({
-          defaultMessage: "Problem preparing document, please try again",
+          defaultMessage: "There was a problem signing the document",
           id: "prepare-doc-problem",
         }),
       };
@@ -655,7 +655,7 @@ export const prepareDocument = createAsyncThunk(
       return updatedDoc;
     }
     let msg = args.intl.formatMessage({
-      defaultMessage: "Problem preparing document, please try again",
+      defaultMessage: "There was a problem signing the document",
       id: "prepare-doc-problem",
     });
     if ("message" in data) {
@@ -797,14 +797,14 @@ export const startSigningDocuments = createAsyncThunk(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
-            defaultMessage: "Problem creating signature request",
-            id: "problem-creating-sign-request",
+            defaultMessage: "There was a problem signing the document",
+            id: "problem-signing-doc",
           }),
         }),
       );
       const message = args.intl.formatMessage({
-        defaultMessage: "Problem signing the document",
-        id: "problem-signing",
+        defaultMessage: "There was a problem signing the document",
+        id: "problem-signing-doc",
       });
       thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
       if (data.payload.documents !== undefined) {
@@ -968,14 +968,14 @@ export const restartSigningDocuments = createAsyncThunk(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
-            defaultMessage: "Problem creating signature request",
-            id: "problem-creating-sign-request",
+            defaultMessage: "There was a problem signing the document",
+            id: "problem-signing-doc",
           }),
         }),
       );
       const message = args.intl.formatMessage({
-        defaultMessage: "Problem signing the document",
-        id: "problem-signing",
+        defaultMessage: "There was a problem signing the document",
+        id: "problem-signing-doc",
       });
       thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
       thunkAPI.dispatch(invitationsSignFailure(message));
@@ -1084,7 +1084,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       addNotification({
         level: "danger",
         message: intl.formatMessage({
-          defaultMessage: "Problem getting signed documents",
+          defaultMessage: "Problem getting signed documents, please try again later",
           id: "problem-getting-signed",
         }),
       }),
@@ -1094,8 +1094,8 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       message = data.message;
     } else {
       message = intl.formatMessage({
-        defaultMessage: "Problem signing the document",
-        id: "problem-signing",
+        defaultMessage: "There was a problem signing the document",
+        id: "problem-signing-doc",
       });
     }
     thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
