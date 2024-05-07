@@ -238,9 +238,7 @@ class _UnMarshal(object):
             except ValidationError as e:
                 error = e.normalized_messages()
                 current_app.logger.error(f"Errors Unmarshaling data for {session['eppn']}: {error}")
-                error_msg = gettext(
-                    "There were problems with the data you sent, please try again or contact your IT support"
-                )
+                error_msg = gettext('There was an error. Please try again, or contact the site administrator.')
                 data = {'error': True, 'message': error_msg}
                 return ResponseSchema().dump(data)
 

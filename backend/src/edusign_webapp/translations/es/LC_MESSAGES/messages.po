@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-06 19:54+0200\n"
+"POT-Creation-Date: 2024-05-07 12:14+0200\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -18,19 +18,13 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.14.0\n"
 
-#: src/edusign_webapp/marshal.py:241
-msgid ""
-"There were problems with the data you sent, please try again or contact "
-"your IT support"
-msgstr ""
-
-#: src/edusign_webapp/utils.py:211 src/edusign_webapp/validators.py:50
-#: src/edusign_webapp/validators.py:54 src/edusign_webapp/validators.py:65
-#: src/edusign_webapp/validators.py:78 src/edusign_webapp/validators.py:82
-#: src/edusign_webapp/validators.py:96 src/edusign_webapp/validators.py:100
-#: src/edusign_webapp/validators.py:104 src/edusign_webapp/validators.py:115
-#: src/edusign_webapp/views.py:615 src/edusign_webapp/views.py:834
-#: src/edusign_webapp/views.py:1152
+#: src/edusign_webapp/marshal.py:241 src/edusign_webapp/utils.py:211
+#: src/edusign_webapp/validators.py:50 src/edusign_webapp/validators.py:54
+#: src/edusign_webapp/validators.py:65 src/edusign_webapp/validators.py:78
+#: src/edusign_webapp/validators.py:82 src/edusign_webapp/validators.py:96
+#: src/edusign_webapp/validators.py:100 src/edusign_webapp/validators.py:104
+#: src/edusign_webapp/validators.py:115 src/edusign_webapp/views.py:615
+#: src/edusign_webapp/views.py:834 src/edusign_webapp/views.py:1152
 msgid "There was an error. Please try again, or contact the site administrator."
 msgstr ""
 "Ha habido un error. Por favor, inténtalo de nuevo, o ponte en contacto "
@@ -51,8 +45,8 @@ msgstr ""
 #: src/edusign_webapp/utils.py:251
 #, python-format
 msgid ""
-"You don't provide the required securiry level, please make sure to "
-"provide level %(level)slevel"
+"You don't provide the required security level, please make sure to "
+"provide level %(level)s"
 msgstr ""
 
 #: src/edusign_webapp/views.py:370
@@ -923,4 +917,22 @@ msgstr ""
 
 #~ msgid "Document has not been removed, please try again"
 #~ msgstr "El documento no se ha eliminado, por favor, intentalo de nuevo"
+
+#~ msgid ""
+#~ "There were problems with the data "
+#~ "you sent, please try again or "
+#~ "contact your IT support"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You don't provide the required securiry"
+#~ " level, please make sure to provide"
+#~ " level %(level)slevel"
+#~ msgstr ""
+
+#~ msgid ""
+#~ "You don't provide the required security"
+#~ " level, please make sure to provide"
+#~ " level %(level)slevel"
+#~ msgstr ""
 
