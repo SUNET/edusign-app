@@ -25,6 +25,10 @@ more than one message of this type for historical reasons.
 
     There was an error. Please try again, or contact the site administrator.
 
+1.5. Message shown to users who try to use the app and are not whitelisted:
+
+    Unauthorized
+
 1.2. This appears when a user has been invited to sign a document with a LoA
 requirement, and they don't provide it (this is checked via the SAML
 eduPersonAssurance attribute during ligin). It is shown in the box
@@ -50,44 +54,17 @@ description:
     Your should add your name to your account at your organization. Please
     contact your IT-support for assistance.
 
-1.5. Message shown to users who try to use the app and are not whitelisted:
-
-    Unauthorized
-
 1.6. This is shown in the notifications area when the backend receives a
 document that is neither a PDF or XML. This should be prevented by the frontend
 and thus should not happen.
 
     There was an error signing docs: unsupported MIME type.
 
-1.7. Message displayed in the notifications area when a user tries to sign an
-invitation, and there is another invited user signing the same document at the
-same time.
-
-    Document is being signed by another user, please try again in a few
-    minutes.
-
-1.8. These should never be seen, and correspond to impossible data while
-processing an invitation (e.g., the user sees an invitation in their UI but
-when they try to sign it, there is no invitation in the backend). If shown,
-they would appear in the notifications area. 
-
-    There doesn't seem to be an invitation for you to sign \"%(docname)s\".
-
-    The email %(email)s invited to sign \"%(docname)s\" does not coincide
-    with yours.
-
 1.9. This is shown in the notifications area when a user tries to sign a
 document and the signservice integration API return an error.
 
     Problem preparing document for signing. Please try again, or contact the
     site administrator.
-
-1.10. When a user tries to sign a document with a required LoA and they don't
-provide it. This should not happen, the UI should not allow the user to start
-signing if they don't provide the reduired LoA.
-
-    Could not provide the requested security level.
 
 1.11. This is shown in the notifications area when a user tries to create an
 invitation to sign and there is some error adding it to the invitations
@@ -105,6 +82,19 @@ invitation emails.
 reminder email for an invitation and there are problems sending the email.
 
     Problem sending the email, please try again
+
+1.7. Message displayed in the notifications area when a user tries to sign an
+invitation, and there is another invited user signing the same document at the
+same time.
+
+    Document is being signed by another user, please try again in a few
+    minutes.
+
+1.10. When a user tries to sign a document with a required LoA and they don't
+provide it. This should not happen, the UI should not allow the user to start
+signing if they don't provide the reduired LoA.
+
+    Could not provide the requested security level.
 
 1.14. This is shown in the notifications area when a user tries to edit an
 invitation to sign and there is some problem with the new data.
@@ -153,6 +143,16 @@ the invitation is shown this in the notifications area.
 
     The document is being signed by an invitee, please try again in a few
     minutes
+
+1.8. These should never be seen, and correspond to impossible data while
+processing an invitation (e.g., the user sees an invitation in their UI but
+when they try to sign it, there is no invitation in the backend). If shown,
+they would appear in the notifications area. 
+
+    There doesn't seem to be an invitation for you to sign \"%(docname)s\".
+
+    The email %(email)s invited to sign \"%(docname)s\" does not coincide
+    with yours.
 
 
 Origination in the frontend
@@ -302,7 +302,9 @@ fails, this is shown in the notifications area.
 
     Problem removing multi sign request, please try again
 
-2.22. If a user edits an invitation they have made, and removes all pending invites, and no one has yet signed it, the document is restored to the user's "personal" documents. If this fails, this is shown in the notifications area.
+2.22. If a user edits an invitation they have made, and removes all pending
+invites, and no one has yet signed it, the document is restored to the user's
+"personal" documents. If this fails, this is shown in the notifications area.
 
     Problem restoring document, please load it again
 
