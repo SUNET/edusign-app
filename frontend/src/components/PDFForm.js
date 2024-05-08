@@ -8,6 +8,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Document, Page } from "react-pdf";
 import { nameForCopy } from "components/utils";
 import { validateNewname } from "components/validation";
+import Pagination from "components/Pagination";
 
 import "styles/DocPreview.scss";
 import "styles/PDFForm.scss";
@@ -246,53 +247,15 @@ class PDFForm extends React.Component {
 
           <Modal.Footer>
             <div className="pdf-navigation">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={Number(this.state.pageNumber) <= 1}
-                onClick={this.firstPage.bind(this)}
-                data-testid={"preview-button-first-" + this.props.doc.name}
-              >
-                &#x23EA;
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={Number(this.state.pageNumber) <= 1}
-                onClick={this.previousPage.bind(this)}
-                data-testid={"preview-button-prev-" + this.props.doc.name}
-              >
-                &#x25C4;
-              </Button>
-              <span>
-                &nbsp;
-                {(this.state.pageNumber || (this.state.numPages ? 1 : "--")) +
-                  " / " +
-                  (this.state.numPages || "--")}
-                &nbsp;
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={
-                  Number(this.state.pageNumber) >= Number(this.state.numPages)
-                }
-                onClick={this.nextPage.bind(this)}
-                data-testid={"preview-button-next-" + this.props.doc.name}
-              >
-                &#x25BA;
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={
-                  Number(this.state.pageNumber) >= Number(this.state.numPages)
-                }
-                onClick={this.lastPage.bind(this)}
-                data-testid={"preview-button-last-" + this.props.doc.name}
-              >
-                &#x23E9;
-              </Button>
+              <Pagination
+                numPages={this.state.numPages}
+                pageNumber={this.state.pageNumber}
+                firstPage={this.firstPage}
+                previousPage={this.previousPage}
+                nextPage={this.nextPage}
+                lastPage={this.lastPage}
+                index={Number(0)}
+              />
             </div>
             <Button
               variant="outline-primary"
