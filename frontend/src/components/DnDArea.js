@@ -33,7 +33,10 @@ class DnDArea extends Component {
                     "data-testid": "edusign-dnd-area",
                   })}
                 >
-                  <input {...getInputProps()} />
+                  <input {...getInputProps({
+                    id: "edusign-dnd-input",
+                    "data-testid": "edusign-dnd-input",
+                  })} />
                   <div id="dnd-arrow-up" />
                   {this.props.size === "lg" ? (
                     <div id="dnd-message-head-lg">
