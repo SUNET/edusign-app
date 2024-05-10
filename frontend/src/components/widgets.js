@@ -151,7 +151,7 @@ export const forcedPreviewButton = (props, doc) => {
         >
           <Button
             variant="outline-dark"
-            id={"button-forced-preview-" + doc.key}
+            id={"button-forced-preview-" + doc.name}
             size="sm"
             disabling={true}
             onClick={props.handleForcedPreview(doc.key)}
@@ -172,7 +172,7 @@ export const multiSignButton = (props, doc) => {
     <>
       <div className="button-multisign-flex-item">
         <ESTooltip
-          helpId={"button-multisign-" + doc.key}
+          helpId={"button-multisign-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Click here to invite others to sign"
@@ -182,7 +182,7 @@ export const multiSignButton = (props, doc) => {
         >
           <Button
             variant="outline-dark"
-            id={"button-multisign-" + doc.key}
+            id={"button-multisign-" + doc.name}
             size="sm"
             disabling={true}
             onClick={props.openInviteForm(doc)}
@@ -218,7 +218,7 @@ export const removeConfirmButton = (props, doc, id) => {
             variant="outline-danger"
             size="sm"
             onClick={props.showConfirm(id)}
-            id={"button-rm-invitation-" + doc.key}
+            id={"button-rm-invitation-" + doc.name}
           >
             <FormattedMessage defaultMessage="Remove" key="remove-button" />
           </Button>
@@ -246,7 +246,7 @@ export const removeTemplate = (props, doc) => {
             variant="outline-danger"
             size="sm"
             onClick={props.showConfirm(id)}
-            id={"button-rm-template-" + doc.key}
+            id={"button-rm-template-" + doc.name}
           >
             <FormattedMessage defaultMessage="Remove" key="remove-button" />
           </Button>
@@ -298,7 +298,7 @@ export const downloadSignedButton = (props, doc) => {
           <Button
             variant="outline-success"
             size="sm"
-            id={"button-download-signed-" + doc.key}
+            id={"button-download-signed-" + doc.name}
             disabling={true}
             onClick={props.handleDlSigned({
               docName: doc.name,
@@ -321,7 +321,7 @@ export const downloadDraftButton = (props, doc) => {
     <>
       <div className="button-download-flex-item">
         <ESTooltip
-          helpId={"button-download-draft-" + doc.key}
+          helpId={"button-download-draft-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Download partially signed document. Be sure to save the original rather than a copy."
@@ -332,7 +332,7 @@ export const downloadDraftButton = (props, doc) => {
           <Button
             variant="outline-success"
             size="sm"
-            id={"button-download-draft-" + doc.key}
+            id={"button-download-draft-" + doc.name}
             disabling={true}
             onClick={props.handleDlDraft({
               docName: doc.name,
@@ -354,7 +354,7 @@ export const retryButton = (props, doc) => {
     <>
       <div className="button-retry-flex-item">
         <ESTooltip
-          helpId={"button-retry-" + doc.key}
+          helpId={"button-retry-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Try again to prepare the document for signing"
@@ -364,7 +364,7 @@ export const retryButton = (props, doc) => {
         >
           <Button
             variant="outline-success"
-            id={"button-retry-" + doc.key}
+            id={"button-retry-" + doc.name}
             disabling={true}
             size="sm"
             onClick={props.handleRetry(doc, props)}
@@ -392,7 +392,7 @@ export const skipSignatureButton = (props, doc) => {
     <>
       <div className="button-skip-flex-item">
         <ESTooltip
-          helpId={"button-skipping-" + doc.key}
+          helpId={"button-skipping-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="All requested users have answered your invitation to sign the document, click here to skip adding your final signature"
@@ -403,7 +403,7 @@ export const skipSignatureButton = (props, doc) => {
           <Button
             variant="outline-dark"
             size="sm"
-            id={"button-skipping-" + doc.key}
+            id={"button-skipping-" + doc.name}
             disabling={true}
             onClick={props.handleSkipSigning(doc, props)}
           >
@@ -423,7 +423,7 @@ export const declineSignatureButton = (props, doc) => {
     <>
       <div className="button-decline-flex-item">
         <ESTooltip
-          helpId={"button-decline-" + doc.key}
+          helpId={"button-decline-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Click here to decline your invitation to sign this document."
@@ -434,7 +434,7 @@ export const declineSignatureButton = (props, doc) => {
           <Button
             variant="outline-danger"
             size="sm"
-            id={"button-decline-" + doc.key}
+            id={"button-decline-" + doc.name}
             disabling={true}
             onClick={props.handleDeclineSigning({ doc: doc, intl: props.intl })}
           >
@@ -461,7 +461,7 @@ export const delegateButton = (props, doc) => {
     <>
       <div className="button-delegate-flex-item">
         <ESTooltip
-          helpId={"button-delegate-" + doc.key}
+          helpId={"button-delegate-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Click here to delegate the signature of this document to someone else."
@@ -472,7 +472,7 @@ export const delegateButton = (props, doc) => {
           <Button
             variant="outline-dark"
             size="sm"
-            id={"button-delegate-" + doc.key}
+            id={"button-delegate-" + doc.name}
             disabling={true}
             onClick={props.handleDelegateSigning(doc.key)}
           >
