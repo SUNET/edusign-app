@@ -11,6 +11,8 @@ FRONT_SOURCE=src/
 BACK_DIR=backend/
 BACK_SOURCE=src/
 
+E2E_DIR=e2e/
+
 DOCS_DIR=docs/
 
 # Get any extra command line arguments
@@ -146,6 +148,31 @@ back-test:
 	@cd $(BACK_DIR); \
 		pytest --log-cli-level DEBUG $(BACK_SOURCE) ; \
 		coverage html
+
+## Build e2e tests
+.PHONY: e2e-build
+e2e-build:
+	@cd $(E2E_DIR); \
+		npx playwright codegen dev.edusign.sunet.se
+
+## Run e2e tests with chromium
+.PHONY: e2e-chromium
+e2e-chromium:
+	@cd $(E2E_DIR); \
+		npx playwright test --headed  --project chromium
+
+## Run e2e tests with firefox
+.PHONY: e2e-firefox
+e2e-firefox:
+	@cd $(E2E_DIR); \
+		npx playwright test --headed  --project firefox
+
+## Run e2e tests
+.PHONY: e2e-all
+e2e-all:
+	@cd $(E2E_DIR); \
+		npx playwright test
+
 
 ## -- Misc --
 
