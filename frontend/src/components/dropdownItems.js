@@ -6,7 +6,7 @@ export const createTemplateMenuItem = (props, doc) => (
   <ESDropdownItem
     doc={doc}
     onClick={props.handleCreateTemplate(doc.key, props)}
-    id={"menu-item-create-template-" + doc.key}
+    id={"menu-item-create-template-" + doc.name}
   >
     <FormattedMessage
       defaultMessage="Create template"
@@ -18,7 +18,7 @@ export const createTemplateMenuItem = (props, doc) => (
 export const editInvitationMenuItem = (props, doc) => (
   <ESDropdownItem
     doc={doc}
-    id={"menu-item-edit-invitations-" + doc.key}
+    id={"menu-item-edit-invitations-" + doc.name}
     disabling={true}
     onClick={props.openEditInvitationForm(doc, props)}
   >
