@@ -141,6 +141,7 @@ class ConfigSchema(InvitationsSchema):
     company_link = fields.String(required=True)
     ui_defaults = fields.Nested(UIDefaults)
     edit_form_timeout = fields.String(required=True)
+    environment = fields.String(required=True)
 
 
 class EmailsSchema(Schema):

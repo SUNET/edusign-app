@@ -494,6 +494,7 @@ def get_config() -> dict:
     payload['max_file_size'] = current_app.config['MAX_CONTENT_LENGTH']
     payload['company_link'] = current_app.config['COMPANY_LINK']
     payload['edit_form_timeout'] = current_app.config['DOC_LOCK_TIMEOUT'].seconds * 1000
+    payload['environment'] = current_app.config['ENVIRONMENT']
 
     return {
         'payload': payload,
