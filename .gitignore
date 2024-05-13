@@ -19,12 +19,10 @@ backend/htmlcov/
 __pycache__
 .env
 users-env
-
 config-current/
 environment-current
 docker/test-idp/ldap/users.ldif
 test-results/
 playwright-report/
 blob-report/
-playwright/
 playwright/
