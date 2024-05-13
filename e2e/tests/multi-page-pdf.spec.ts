@@ -2,7 +2,7 @@
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
 
-test('Sign one test PDF document', async ({ browser }) => {
+test('Navigate preview of multi page PDF document', async ({ browser }) => {
   const user1Context = await browser.newContext({ storageState: 'playwright/.auth/user1.json' });
   const page = await user1Context.newPage();
 
