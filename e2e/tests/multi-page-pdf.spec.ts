@@ -51,6 +51,7 @@ test('Sign one test PDF document', async ({ browser }) => {
   await page.getByTestId('menu-item-preview-multi-page.pdf').click();
   await expect(page.getByRole('dialog')).toContainText('1 / 3');
   await page.getByTestId('preview-button-last-0').click();
+  await expect(page.getByRole('dialog')).toContainText('3 / 3');
   await expect(page.getByRole('dialog')).toContainText('Result page.');
   await expect(page.getByTestId('preview-button-close-multi-page.pdf')).toBeVisible();
   await page.getByTestId('preview-button-close-multi-page.pdf').click();
