@@ -17,7 +17,7 @@ const _authenticate = async (page, username, password, filename, withKey=false) 
   if (withKey) {
     await page.getByRole('button', { name: 'Use my security key' }).click();
   }
-  await expect(page.getByTestId('edusign-logo').getByRole('img')).toBeVisible({ timeout: 25000 });
+  await expect(page.getByTestId('edusign-logo').getByRole('img')).toBeVisible();
 
   await page.context().storageState({ path: filename });
 }

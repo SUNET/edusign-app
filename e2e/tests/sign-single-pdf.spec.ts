@@ -20,7 +20,7 @@ test('Sign one test PDF document', async ({ browser }) => {
   await page.getByPlaceholder('enter password').fill(process.env.USER1_PASS);
   await page.getByRole('button', { name: 'Log in' }).click();
   await page.getByRole('button', { name: 'Use my security key' }).click();
-  await expect(page.locator('[id="local-doc-test\\.pdf"]')).toContainText('Signed by:', { timeout: 25000 });
+  await expect(page.locator('[id="local-doc-test\\.pdf"]')).toContainText('Signed by:');
   await expect(page.locator('[id="local-doc-test\\.pdf"]')).toContainText('ENRIQUE PABLO PEREZ ARNAUD <enrique@cazalla.net>.');
   await expect(page.getByTestId('button-download-signed-test.pdf')).toBeVisible();
 
