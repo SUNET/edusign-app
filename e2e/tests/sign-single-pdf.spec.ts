@@ -6,6 +6,8 @@ test('Sign one test PDF document', async ({ browser }) => {
   const user1Context = await browser.newContext({ storageState: 'playwright/.auth/user1.json' });
   const page = await user1Context.newPage();
 
+  const withKey = process.env.USER1_SECURITY_KEY === "True";
+
   await page.goto('/sign');
 
   const fileChooserPromise = page.waitForEvent('filechooser');
@@ -19,9 +21,11 @@ test('Sign one test PDF document', async ({ browser }) => {
   await page.getByTestId('button-sign').click();
   await page.getByPlaceholder('enter password').fill(process.env.USER1_PASS);
   await page.getByRole('button', { name: 'Log in' }).click();
-  await page.getByRole('button', { name: 'Use my security key' }).click();
+  if (withKey) {
+    await page.getByRole('button', { name: 'Use my security key' }).click();
+  }
   await expect(page.locator('[id="local-doc-test\\.pdf"]')).toContainText('Signed by:');
-  await expect(page.locator('[id="local-doc-test\\.pdf"]')).toContainText('ENRIQUE PABLO PEREZ ARNAUD <enrique@cazalla.net>.');
+  await expect(page.locator('[id="local-doc-test\\.pdf"]')).toContainText('Enrique Pérez <enrique+5@cazalla.net>.');
   await expect(page.getByTestId('button-download-signed-test.pdf')).toBeVisible();
 
   await user1Context.close();
