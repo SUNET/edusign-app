@@ -1,0 +1,10 @@
+
+export USER1_NAME="jane@example.com"
+export USER1_PASS="dummy"
+export USER1_DISPLAY_NAME="Jane Doe"
+export USER1_SECURITY_KEY="False"
+
+export USER2_NAME="john@example.com"
+export USER2_PASS="dummy"
+export USER2_DISPLAY_NAME="John Doe"
+export USER2_SECURITY_KEY="False"
