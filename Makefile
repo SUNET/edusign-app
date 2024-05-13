@@ -159,18 +159,21 @@ e2e-build:
 .PHONY: e2e-chromium
 e2e-chromium:
 	@cd $(E2E_DIR); \
+		source users-env; \
 		npx playwright test --headed  --project chromium
 
 ## Run e2e tests with firefox
 .PHONY: e2e-firefox
 e2e-firefox:
 	@cd $(E2E_DIR); \
+		source users-env; \
 		npx playwright test --headed  --project firefox
 
 ## Run e2e tests
 .PHONY: e2e-all
 e2e-all:
 	@cd $(E2E_DIR); \
+		source users-env; \
 		npx playwright test
 
 
