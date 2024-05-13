@@ -19,6 +19,7 @@ const mapStateToProps = (state) => {
   return {
     status: state.dnd.state,
     size: state.main.size,
+    environment: state.main.environment,
   };
 };
 
