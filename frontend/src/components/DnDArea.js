@@ -22,6 +22,7 @@ class DnDArea extends Component {
         onDragEnter={this.props.handleDragEnter}
         onDragLeave={this.props.handleDragLeave}
         onDropRejected={this.props.handleRejected(this.props.intl)}
+        useFsAccessApi={this.props.environment !== "e2e"}
       >
         {({ getRootProps, getInputProps }) => {
           if (this.props.status === "waiting") {
