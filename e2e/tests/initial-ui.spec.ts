@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
+import { login } from './utils.ts';
 
 test('Initial UI with no documents', async ({ browser }) => {
-  const user1Context = await browser.newContext({ storageState: 'playwright/.auth/user1.json' });
+  const user1Context = await browser.newContext({ storageState: 'playwright/.auth/user0.json' });
   const page = await user1Context.newPage();
 
   await page.goto('/sign');
@@ -21,6 +22,4 @@ test('Initial UI with no documents', async ({ browser }) => {
   await expect(page.locator('label')).toContainText('Show contextual help');
   await expect(page.getByTestId('edusign-footer').locator('span')).toBeVisible();
   await expect(page.getByTestId('language-selector')).toBeVisible();
-
-  await user1Context.close();
 });
