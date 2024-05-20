@@ -1,21 +1,15 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
+import { login, addFile } from './utils.ts';
 
 test('Sign one test PDF document', async ({ browser }) => {
-  const user1Context = await browser.newContext({ storageState: 'playwright/.auth/user1.json' });
-  const page = await user1Context.newPage();
 
-  const withKey = process.env.USER1_SECURITY_KEY === "True";
+  const { user0 } = await login(browser, 1);
 
-  await page.goto('/sign');
+  await user0.page.goto('/sign');
 
-  const fileChooserPromise = page.waitForEvent('filechooser');
-  await page.getByTestId('edusign-dnd-area').click();
-  const fileChooser = await fileChooserPromise;
-  await fileChooser.setFiles(path.join(__dirname, 'fixtures/with-signature.pdf'));
+  await addFile(user0.page, 'with-signature.pdf');
 
-  await expect(page.locator('[id="local-doc-with-signature\\.pdf"]')).toContainText('Previously signed by:Quique Pérez.');
-
-  await user1Context.close();
+  await expect(user0.page.locator('[id="local-doc-with-signature\\.pdf"]')).toContainText('Previously signed by:Quique Pérez.');
 });
