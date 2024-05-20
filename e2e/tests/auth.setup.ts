@@ -23,21 +23,21 @@ const _authenticate = async (page, username, password, filename, withKey=false) 
 }
 
 setup('Authenticate as user 1', async ({ page }) => {
-  const username = process.env.USER1_NAME;
-  const password = process.env.USER1_PASS;
-  const filename = 'playwright/.auth/user1.json';
+  const username = process.env.USER0_EMAIL;
+  const password = process.env.USER0_PASS;
+  const filename = 'playwright/.auth/user0.json';
 
-  const withKey = process.env.USER1_SECURITY_KEY === "True";
+  const withKey = process.env.USER0_SECURITY_KEY === "True";
 
   await _authenticate(page, username, password, filename, withKey);
 });
 
 setup('Authenticate as user 2', async ({ page }) => {
-  const username = process.env.USER2_NAME;
-  const password = process.env.USER2_PASS;
-  const filename = 'playwright/.auth/user2.json';
+  const username = process.env.USER1_EMAIL;
+  const password = process.env.USER1_PASS;
+  const filename = 'playwright/.auth/user1.json';
 
-  const withKey = process.env.USER2_SECURITY_KEY === "True";
+  const withKey = process.env.USER1_SECURITY_KEY === "True";
 
   await _authenticate(page, username, password, filename, withKey);
 });
