@@ -1,22 +1,18 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
+import { login, addFile } from './utils.ts';
 
 test('Sign one test PDF document', async ({ browser }) => {
-  const user1Context = await browser.newContext({ storageState: 'playwright/.auth/user1.json' });
-  const page = await user1Context.newPage();
 
-  await page.goto('/sign');
+  const { user0 } = await login(browser, 1);
 
-  const fileChooserPromise = page.waitForEvent('filechooser');
-  await page.getByTestId('edusign-dnd-area').click();
-  const fileChooser = await fileChooserPromise;
-  await fileChooser.setFiles(path.join(__dirname, 'fixtures/test.pdf'));
+  await user0.page.goto('/sign');
 
-  await expect(page.locator('legend')).toContainText('Personal documents');
-  await page.getByTestId('button-forced-preview-test.pdf').click();
-  await page.getByTestId('preview-button-dissaprove-0').click();
+  await addFile(user0.page, 'test.pdf');
 
-  await user1Context.close();
+  await expect(user0.page.locator('legend')).toContainText('Personal documents');
+  await user0.page.getByTestId('button-forced-preview-test.pdf').click();
+  await user0.page.getByTestId('preview-button-dissaprove-0').click();
 });
 
