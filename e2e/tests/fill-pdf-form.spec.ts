@@ -1,14 +1,14 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
-import { login, addFile, approveForcedPreview } from './utils.ts';
+import { login, addFile, approveForcedPreview, startAtSignPage } from './utils.ts';
 
-test('Sign one test PDF document', async ({ browser }) => {
+test('Load and fill PDF form', async ({ browser }) => {
 
   const { user0 } = await login(browser, 1);
   const filename = 'with-form.pdf';
 
-  await user0.page.goto('/sign');
+  await startAtSignPage(user0.page);
 
   await addFile(user0.page, filename);
 
