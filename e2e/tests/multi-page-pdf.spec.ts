@@ -1,13 +1,13 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
-import { login, addFile } from './utils.ts';
+import { login, addFile, startAtSignPage } from './utils.ts';
 
 test('Navigate preview of multi page PDF document', async ({ browser }) => {
 
   const { user0 } = await login(browser, 1);
 
-  await user0.page.goto('/sign');
+  await startAtSignPage(user0.page);
 
   await addFile(user0.page, 'multi-page.pdf');
 
@@ -32,7 +32,7 @@ test('Navigate preview of multi page PDF document', async ({ browser }) => {
   await user0.page.getByTestId('preview-button-next-0').click();
   await expect(user0.page.getByRole('dialog')).toContainText('2 / 3');
   await user0.page.getByTestId('preview-button-next-0').click();
-  await expect(user0.page.getByRole('dialog')).toContainText('Result user0.page.');
+  await expect(user0.page.getByRole('dialog')).toContainText('Result page.');
   await expect(user0.page.getByRole('dialog')).toContainText('3 / 3');
   await user0.page.getByTestId('preview-button-first-0').first().click();
   await expect(user0.page.getByRole('dialog')).toContainText('1 / 3');
@@ -50,7 +50,7 @@ test('Navigate preview of multi page PDF document', async ({ browser }) => {
   await expect(user0.page.getByRole('dialog')).toContainText('1 / 3');
   await user0.page.getByTestId('preview-button-last-0').click();
   await expect(user0.page.getByRole('dialog')).toContainText('3 / 3');
-  await expect(user0.page.getByRole('dialog')).toContainText('Result user0.page.');
+  await expect(user0.page.getByRole('dialog')).toContainText('Result page.');
   await expect(user0.page.getByTestId('preview-button-close-multi-page.pdf')).toBeVisible();
   await user0.page.getByTestId('preview-button-close-multi-page.pdf').click();
   await expect(user0.page.getByText('14.9 KiBmulti-page.pdfOther')).toBeVisible();
