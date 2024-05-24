@@ -1,25 +1,25 @@
 import { test, expect } from '@playwright/test';
-import { login } from './utils.ts';
+import { login, startAtSignPage } from './utils.ts';
 
 test('Initial UI with no documents', async ({ browser }) => {
-  const user1Context = await browser.newContext({ storageState: 'playwright/.auth/user0.json' });
-  const page = await user1Context.newPage();
 
-  await page.goto('/sign');
+  const { user0 } = await login(browser, 1);
 
-  await expect(page).toHaveTitle(/eduSign/);
-  await expect(page.getByTestId('edusign-logo').getByRole('img')).toBeVisible();
-  await expect(page.locator('#signing-with-span')).toContainText('Signed in as Enrique Pérez');
-  await expect(page.getByTestId('button-logout')).toBeVisible();
-  await expect(page.getByRole('link')).toBeVisible();
-  await expect(page.locator('#dnd-area-head-1')).toContainText('Drag and drop files to be signed here');
-  await expect(page.locator('#dnd-area-head-2')).toContainText('or');
-  await expect(page.locator('#dnd-area-head-3')).toContainText('click here to choose files to be signed');
-  await expect(page.locator('#contact-local-it-msg')).toContainText('If you experience problems with eduSign contact your local IT-support');
-  await expect(page.locator('#button-sign-wrapper')).toBeVisible();
-  await expect(page.locator('#button-dlall-wrapper')).toBeVisible();
-  await expect(page.locator('#button-clear-wrapper')).toBeVisible();
-  await expect(page.locator('label')).toContainText('Show contextual help');
-  await expect(page.getByTestId('edusign-footer').locator('span')).toBeVisible();
-  await expect(page.getByTestId('language-selector')).toBeVisible();
+  await startAtSignPage(user0.page);
+
+  await expect(user0.page).toHaveTitle(/eduSign/);
+  await expect(user0.page.getByTestId('edusign-logo').getByRole('img')).toBeVisible();
+  await expect(user0.page.locator('#signing-with-span')).toContainText('Signed in as Enrique Pérez');
+  await expect(user0.page.getByTestId('button-logout')).toBeVisible();
+  await expect(user0.page.getByRole('link')).toBeVisible();
+  await expect(user0.page.locator('#dnd-area-head-1')).toContainText('Drag and drop files to be signed here');
+  await expect(user0.page.locator('#dnd-area-head-2')).toContainText('or');
+  await expect(user0.page.locator('#dnd-area-head-3')).toContainText('click here to choose files to be signed');
+  await expect(user0.page.locator('#contact-local-it-msg')).toContainText('If you experience problems with eduSign contact your local IT-support');
+  await expect(user0.page.locator('#button-sign-wrapper')).toBeVisible();
+  await expect(user0.page.locator('#button-dlall-wrapper')).toBeVisible();
+  await expect(user0.page.locator('#button-clear-wrapper')).toBeVisible();
+  await expect(user0.page.locator('label')).toContainText('Show contextual help');
+  await expect(user0.page.getByTestId('edusign-footer').locator('span')).toBeVisible();
+  await expect(user0.page.getByTestId('language-selector')).toBeVisible();
 });
