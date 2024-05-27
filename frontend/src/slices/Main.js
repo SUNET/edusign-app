@@ -248,6 +248,50 @@ export const downloadInvitedDraft = createAsyncThunk(
   },
 );
 
+
+/**
+ * @public
+ * @function finishInvited
+ * @desc Redux action to finish an invited multisign request
+ */
+export const finishInvited = createAsyncThunk(
+  "main/finishInvited",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const oldDoc = state.pending_multisign.find(doc => doc.key === args.doc.id);
+    state.pending_multisign = state.pending_multisign.filter(doc => doc.key !== args.doc.id);
+    let prefix = "data:application/xml;base64,";
+    if (args.doc.type === "application/pdf") {
+      prefix = "data:application/pdf;base64,";
+    }
+    const newDoc = {
+      ...oldDoc,
+      state: "signed",
+      message: "",
+      signedContent: prefix + args.doc.signed_content,
+    };
+    delete newDoc.pending;
+    delete newDoc.signed;
+    delete newDoc.declined;
+    try {
+      newDoc = await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
+      thunkAPI.dispatch(addDocument(newDoc));
+    } catch(err) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: intl.formatMessage({
+            defaultMessage: "TODO",
+            id: "main-todo",
+          }),
+        }),
+      );
+    }
+  },
+);
+
+
+
 /**
  * @public
  * @function delegateSignature
@@ -397,28 +441,6 @@ const mainSlice = createSlice({
             ...action.payload,
           };
         } else return doc;
-      });
-    },
-    /**
-     * @public
-     * @function finishInvited
-     * @desc Redux action to finish an invited multisign request
-     */
-    finishInvited(state, action) {
-      state.pending_multisign = state.pending_multisign.map((doc) => {
-        if (doc.key === action.payload.id) {
-          let prefix = "data:application/xml;base64,";
-          if (doc.type === "application/pdf") {
-            prefix = "data:application/pdf;base64,";
-          }
-          return {
-            ...doc,
-            state: "signed",
-            message: "",
-            signedContent: prefix + action.payload.signed_content,
-          };
-        }
-        return doc;
       });
     },
     /**
@@ -831,7 +853,6 @@ export const {
   addOwned,
   removeOwned,
   updateOwned,
-  finishInvited,
   setInvitedSigning,
   setOwnedSigning,
   hideInvitedPreview,
