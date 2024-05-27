@@ -280,7 +280,7 @@ export const finishInvited = createAsyncThunk(
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
-          message: intl.formatMessage({
+          message: args.intl.formatMessage({
             defaultMessage: "TODO",
             id: "main-todo",
           }),
