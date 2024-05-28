@@ -118,7 +118,7 @@
   "components.widgets.invited-delegate-button-help": "",
   "components.widgets.multisign-button": "Bjud in andra att signera",
   "components.widgets.multisign-button-tootip": "Klicka här för att bjuda in andra att underteckna detta dokument",
-  "components.widgets.multisign-loa": "Nödvändig säkerhetsnivå",
+  "components.widgets.multisign-loa": "Nödvändig säkerhetsnivå:",
   "components.widgets.multisign-owned-ordered": "Arbetsflödesinbjudan",
   "components.widgets.owned-remove-button-help": "Ta bort dokument",
   "components.widgets.owned-skip-button-help": "Alla personer har svarat på inbjudan att signera dokumentet, klicka här för att gå vidare utan att själv signera",
