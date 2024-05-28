@@ -262,7 +262,7 @@ export const finishInvited = createAsyncThunk(
     if (oldDoc === undefined) {
       return;
     }
-    thunkAPI.dispatch(mainSlice.actions.removeInvited(args.doc.id));
+    thunkAPI.dispatch(mainSlice.actions.removeInvited({key: args.doc.id}));
     let prefix = "data:application/xml;base64,";
     if (args.doc.type === "application/pdf") {
       prefix = "data:application/pdf;base64,";
