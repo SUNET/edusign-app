@@ -97,8 +97,10 @@ class DocumentInvited extends Component {
         <span className="info-row-label">
           <FormattedMessage defaultMessage="Invited by:" key="invited-by" />
         </span>
-        <span className="info-row-item">
-          {doc.owner.name} &lt;{doc.owner.email}&gt;.
+        <span className="info-row-items">
+          <span className="info-row-item">
+            {doc.owner.name} &lt;{doc.owner.email}&gt;.
+          </span>
         </span>
       </div>
     );
