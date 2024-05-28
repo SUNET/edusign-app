@@ -275,6 +275,10 @@ export const finishInvited = createAsyncThunk(
       message: "",
       blob: content,
       signedContent: content,
+      pprinted: args.doc.pprinted,
+      validated: args.doc.validated,
+      show: false,
+      showForced: false,
     };
     delete newDoc.pending;
     delete newDoc.signed;
