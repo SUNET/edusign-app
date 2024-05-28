@@ -219,7 +219,7 @@ RAW_UI_SEND_SIGNED = os.environ.get('UI_SEND_SIGNED', default=True)
 
 UI_SEND_SIGNED = get_boolean(RAW_UI_SEND_SIGNED)
 
-RAW_UI_SKIP_FINAL = os.environ.get('UI_SKIP_FINAL', default=True)
+RAW_UI_SKIP_FINAL = os.environ.get('UI_SKIP_FINAL', default=False)
 
 UI_SKIP_FINAL = get_boolean(RAW_UI_SKIP_FINAL)
 
