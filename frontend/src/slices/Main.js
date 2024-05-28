@@ -258,17 +258,23 @@ export const finishInvited = createAsyncThunk(
   "main/finishInvited",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const oldDoc = state.pending_multisign.find(doc => doc.key === args.doc.id);
-    state.pending_multisign = state.pending_multisign.filter(doc => doc.key !== args.doc.id);
+    const oldDoc = state.main.pending_multisign.find(doc => doc.key === args.doc.id);
+    if (oldDoc === undefined) {
+      return;
+    }
+    thunkAPI.dispatch(mainSlice.actions.removeInvited(args.doc.id));
     let prefix = "data:application/xml;base64,";
     if (args.doc.type === "application/pdf") {
       prefix = "data:application/pdf;base64,";
     }
-    const newDoc = {
+    const content = prefix + args.doc.signed_content;
+    let newDoc = {
       ...oldDoc,
+      name: nameForDownload(oldDoc.name, "draft"),
       state: "signed",
       message: "",
-      signedContent: prefix + args.doc.signed_content,
+      blob: content,
+      signedContent: content,
     };
     delete newDoc.pending;
     delete newDoc.signed;
@@ -289,8 +295,6 @@ export const finishInvited = createAsyncThunk(
     }
   },
 );
-
-
 
 /**
  * @public
@@ -425,6 +429,16 @@ const mainSlice = createSlice({
      */
     removeOwned(state, action) {
       state.owned_multisign = state.owned_multisign.filter((doc) => {
+        return doc.key !== action.payload.key;
+      });
+    },
+    /**
+     * @public
+     * @function removeInvited
+     * @desc Redux action to remove an invited multisign request
+     */
+    removeInvited(state, action) {
+      state.pending_multisign = state.pending_multisign.filter((doc) => {
         return doc.key !== action.payload.key;
       });
     },
@@ -852,6 +866,7 @@ export const {
   resizeWindow,
   addOwned,
   removeOwned,
+  removeInvited,
   updateOwned,
   setInvitedSigning,
   setOwnedSigning,
