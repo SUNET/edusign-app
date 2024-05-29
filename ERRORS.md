@@ -34,7 +34,7 @@ requirement, and they don't provide it (this is checked via the SAML
 eduPersonAssurance attribute during ligin). It is shown in the box
 corresponding to the invitation.
 
-    You don't provide the required securiry level, please make sure to
+    You don't provide the required security level, please make sure to
     provide level %(level)s
 
     Missing in Swedish
