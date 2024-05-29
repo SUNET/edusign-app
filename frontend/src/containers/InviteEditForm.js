@@ -68,9 +68,6 @@ const mapDispatchToProps = (dispatch, props) => {
       dispatch(unsetActiveId());
       setTimeout(_close, this.props.edit_form_timeout, dispatch);
     },
-    handleClose: function () {
-      _close(dispatch);
-    },
     handleCloseResetting: function (resetForm) {
       return () => {
         _close(dispatch);

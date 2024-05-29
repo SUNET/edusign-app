@@ -61,7 +61,7 @@ class InviteEditForm extends React.Component {
           {(fprops) => (
             <Modal
               show={this.props.show}
-              onHide={this.props.handleClose}
+              onHide={this.props.handleCloseResetting(fprops.resetForm)}
               size={this.props.size}
               keyboard={false}
             >
@@ -172,7 +172,7 @@ InviteEditForm.propTypes = {
   docOrdered: PropTypes.bool,
   docSendSigned: PropTypes.bool,
   docSkipFinal: PropTypes.bool,
-  handleClose: PropTypes.func,
+  handleCloseResetting: PropTypes.func,
   handleSubmit: PropTypes.func,
 };
 
