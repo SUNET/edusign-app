@@ -143,15 +143,26 @@ class InviteForm extends React.Component {
       <>
         <div className="loa-select-holder">
           <BForm.Group className="loa-select-group form-group">
-            <BForm.Label
-              className="loa-select-label"
-              htmlFor="loa-select-input"
+            <ESTooltip
+              helpId="loa-select-input"
+              inModal={true}
+              tooltip={
+                <FormattedMessage
+                  defaultMessage="How sure you can be on the identity of the person signing. Note that the Level of Assurance an identity can provide depends on the Identity provider. Read more about this on eduSign wiki."
+                  key="loa-select-help"
+                />
+              }
             >
-              <FormattedMessage
-                defaultMessage="Security level for signatures"
-                key="loa-select-field"
-              />
-            </BForm.Label>
+              <BForm.Label
+                className="loa-select-label"
+                htmlFor="loa-select-input"
+              >
+                <FormattedMessage
+                  defaultMessage="Level of Assurance for signatures"
+                  key="loa-select-field"
+                />
+              </BForm.Label>
+            </ESTooltip>
             <div id="loa-select-field" data-testid="loa-select-field">
               {this.props.loas.map((level, i) => {
                 return (

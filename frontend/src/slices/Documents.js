@@ -565,7 +565,7 @@ export const createDocument = createAsyncThunk(
       );
       doc.state = "failed-loading";
       doc.message = args.intl.formatMessage({
-        defaultMessage: "There was a problem preparing the document",
+        defaultMessage: "There was a problem signing the document",
         id: "prepare-doc-problem",
       });
       await setChangedDocument(thunkAPI, state, doc);

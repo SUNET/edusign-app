@@ -248,7 +248,7 @@ def get_invitations(remove_finished=False):
         required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
         if required_loa not in session['eduPersonAssurance']:
             doc['state'] = 'failed-loa'
-            doc['message'] = gettext("You don't provide the required security level, please make sure to provide level %(level)s") % {'level': required_loa}
+            doc['message'] = gettext("You don't provide the required security level, please make sure to provide '<a href='%(loa)s'>%(level)s</a>' level", {'loa': required_loa, 'level': required_level})
         if len(doc['pending']) > 0:
             poll = True
     newowned, skipped = [], []
