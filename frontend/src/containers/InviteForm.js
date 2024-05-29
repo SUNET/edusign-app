@@ -63,9 +63,6 @@ const mapDispatchToProps = (dispatch, props) => {
       actions.resetForm();
       _close(dispatch);
     },
-    handleClose: function () {
-      _close(dispatch);
-    },
     handleCloseResetting: function (resetForm) {
       return () => {
         _close(dispatch);

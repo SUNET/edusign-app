@@ -235,7 +235,7 @@ class InviteForm extends React.Component {
           {(fprops) => (
             <Modal
               show={this.props.show}
-              onHide={this.props.handleClose}
+              onHide={this.props.handleCloseResetting(fprops.resetForm)}
               size={this.props.size}
               keyboard={false}
             >
@@ -349,7 +349,7 @@ InviteForm.propTypes = {
   docName: PropTypes.string,
   docOrdered: PropTypes.bool,
   isTemplate: PropTypes.bool,
-  handleClose: PropTypes.func,
+  handleCloseResetting: PropTypes.func,
   handleSubmit: PropTypes.func,
 };
 
