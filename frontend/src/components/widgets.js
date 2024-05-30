@@ -381,7 +381,7 @@ export const showMessage = (doc) => {
   return (
     <>
       <div className="message-flex-item">
-        <span alt={doc.message}>{doc.message}</span>
+        <span alt={doc.message} dangerouslySetInnerHTML={{__html: doc.message}} />
       </div>
     </>
   );
