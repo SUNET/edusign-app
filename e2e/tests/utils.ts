@@ -17,12 +17,18 @@ export const login = async (browser, numUsers) => {
     const userEmail = process.env[`${userIdUpper}_EMAIL`];
     const userPass = process.env[`${userIdUpper}_PASS`];
     const withKey = process.env[`${userIdUpper}_SECURITY_KEY`] === "True";
+    const utf8Name = process.env[`${userIdUpper}_UTF8_NAME`] === "True";
+    let nameForMail = userName;
+    if (utf8Name) {
+      nameForMail = encodeWord(userName, 'q').replace('?UTF-8?Q?', '?utf-8?q?'); 
+    }
     const context = await browser.newContext({ storageState: `playwright/.auth/${userId}.json` });
     users[userId] = {
       context: context,
       page: await context.newPage(),
       name: userName,
-      nameMime: encodeWord(userName, 'q').replace('?UTF-8?Q?', '?utf-8?q?'),
+      utf8Name: utf8Name,
+      nameForMail: nameForMail,
       email: userEmail,
       pass: userPass,
       key: withKey,
@@ -71,3 +77,85 @@ export const checkEmails = async (page, emailTests) => {
   }
   await page.goBack();
 };
+
+export const makeInvitation = async (inviter, invitees, filename, options) => {
+
+  await startAtSignPage(inviter.page);
+
+  await addFile(inviter.page, filename);
+
+  await expect(inviter.page.locator('legend')).toContainText('Personal documents');
+
+  await approveForcedPreview(inviter.page, filename);
+
+  await inviter.page.getByTestId(`button-multisign-${filename}`).click();
+  await inviter.page.getByTestId('invitation-text-input').click();
+  await inviter.page.getByTestId('invitation-text-input').fill('This is a test invitation');
+  if (!options.sendSigned) {
+    await inviter.page.getByTestId('sendsigned-choice-input').check();
+  }
+  if (options.skipFinal) {
+    await inviter.page.getByTestId('skipfinal-choice-input').check();
+  }
+  if (options.ordered) {
+    await inviter.page.getByTestId('ordered-choice-input').check();
+  }
+  if (options.level) {
+    await inviter.page.getByTestId(`loa-radio-${options.level}`).check();
+  }
+  await inviter.page.getByTestId('invitees.0.name').click();
+  await inviter.page.getByTestId('invitees.0.name').fill(invitees[0].name);
+  await inviter.page.getByTestId('invitees.0.email').click();
+  await inviter.page.getByTestId('invitees.0.email').fill(invitees[0].email);
+  invitees.slice(1).forEach(async (invitee, i) => {
+    await inviter.page.getByTestId(`button-add-invitation-${filename}`).click();
+    await inviter.page.getByTestId(`invitees.${i+1}.name`).click();
+    await inviter.page.getByTestId(`invitees.${i+1}.name`).fill(invitee.name);
+    await inviter.page.getByTestId(`invitees.${i+1}.email`).click();
+    await inviter.page.getByTestId(`invitees.${i+1}.email`).fill(invitee.email);
+  });
+  await inviter.page.getByTestId(`button-send-invites-${filename}`).click();
+
+  let recipients = `${invitees[0].nameForMail} <${invitees[0].email}>`
+
+  invitees.slice(1).forEach(invitee => {
+    recipients += `,\n ${invitee.nameForMail} <${invitee.email}>`;
+  });
+
+  const emailTests = [
+    {
+      to: recipients,
+      subject: `You have been invited to sign "${filename}"`,
+      body: [
+        `You have been invited by ${inviter.name} <${inviter.email}>`,
+        `to digitally sign a document named "${filename}"`,
+        "Follow this link to preview and sign the document:",
+      ],
+    }
+  ];
+  await checkEmails(inviter.page, emailTests);
+};
+
+export const signInvitation = async (user, inviter, filename, draftFilename) => {
+
+  await user.page.goto('/sign');
+
+  await expect(user.page.locator('legend')).toContainText('Documents you are invited to sign');
+  await expect(user.page.getByRole('group')).toContainText(filename);
+  await expect(user.page.getByRole('group')).toContainText(`Invited by:${inviter.name} <${inviter.email}>.`);
+  await expect(user.page.getByRole('group')).toContainText('Required security level: Low');
+
+  await approveForcedPreview(user.page, filename);
+
+  await user.page.getByTestId('button-sign').click();
+
+  await user.page.getByPlaceholder('enter password').fill(user.pass);
+  await user.page.getByRole('button', { name: 'Log in' }).click();
+  if (user.key) {
+    await user.page.getByRole('button', { name: 'Use my security key' }).click();
+  }
+  if (draftFilename) {
+    await expect(user.page.locator(`[id="local-doc-${draftFilename}"]`)).toContainText(draftFilename);
+    await expect(user.page.getByTestId(`button-download-signed-${draftFilename}`)).toContainText('Download (signed)');
+  }
+}

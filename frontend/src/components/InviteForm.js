@@ -172,6 +172,7 @@ class InviteForm extends React.Component {
                       value={level.value}
                       className="loa-select"
                       type="radio"
+                      data-testid={`loa-radio-${level.value}`}
                     />
                     {level.name}
                   </BForm.Label>

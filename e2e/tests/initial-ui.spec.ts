@@ -9,7 +9,7 @@ test('Initial UI with no documents', async ({ browser }) => {
 
   await expect(user0.page).toHaveTitle(/eduSign/);
   await expect(user0.page.getByTestId('edusign-logo').getByRole('img')).toBeVisible();
-  await expect(user0.page.locator('#signing-with-span')).toContainText('Signed in as Enrique Pérez');
+  await expect(user0.page.locator('#signing-with-span')).toContainText(`Signed in as ${user0.name}`);
   await expect(user0.page.getByTestId('button-logout')).toBeVisible();
   await expect(user0.page.getByRole('link')).toBeVisible();
   await expect(user0.page.locator('#dnd-area-head-1')).toContainText('Drag and drop files to be signed here');

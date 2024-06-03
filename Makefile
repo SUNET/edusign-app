@@ -162,6 +162,13 @@ e2e-chromium:
 		source ./users-env; \
 		npx playwright test --headed  --project chromium
 
+## Run e2e quietly tests with chromium
+.PHONY: e2e-chromium-q
+e2e-chromium-q:
+	@cd $(E2E_DIR); \
+		source ./users-env; \
+		npx playwright test  --project chromium
+
 ## Run e2e tests with firefox
 .PHONY: e2e-firefox
 e2e-firefox:
