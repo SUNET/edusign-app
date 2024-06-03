@@ -34,10 +34,11 @@ requirement, and they don't provide it (this is checked via the SAML
 eduPersonAssurance attribute during ligin). It is shown in the box
 corresponding to the invitation.
 
-    You don't provide the required security level, please make sure to
+    You do not have the required level of assurance on your identity, please make sure to
     provide level %(level)s
 
-    Missing in Swedish
+    Du har inte tillräckligt hög tillitsnivå på din identitet, var vänlig höj den till
+    nivå %(level)s
 
 1.4. This appears when the IdP the user has used does not release the needed
 attributes. It is shown as an error page with a title and a description:
@@ -72,7 +73,7 @@ and thus should not happen.
 
     There was an error signing docs: unsupported MIME type.
 
-    Missing in Swedish
+    Ett fel uppstod vid signering: inte stöd för MIME typ.
 
 1.7. This is shown in the notifications area when a user tries to sign a
 document and the signservice integration API return an error.
@@ -120,9 +121,9 @@ same time.
 provide it. This should not happen, the UI should not allow the user to start
 signing if they don't provide the reduired LoA.
 
-    Could not provide the requested security level.
+    Could not provide the requested level of assurance.
 
-    Missing in Swedish
+    Kunde inte tillhandahålla den begärda tillitsnivån.
 
 1.13. This is shown in the notifications area when a user tries to edit an
 invitation to sign and there is some problem with the new data.
@@ -138,7 +139,7 @@ the invitation is shown this message in the notifications area.
 
     Some users may not have been notified of the changes for '%(docname)s'
 
-    Missing in Swedish
+    Vissa mottagare kanske inte blev notifierade gällande ändringarna för '%(docname)s'
 
 1.15. When a user tries to cancel an invitation they had made, and there is an
 error and it isn't removed, they are shown this message in the notifications
@@ -154,7 +155,7 @@ cancel is shown this message in the notifications area.
 
     Some users may have not been informed of the cancellation
 
-    Missing in Swedish
+    Vissa mottagare kanske inte blev notifierade gällande annuleringen
 
 1.17. When a user tries to preview a document they have been invited to sign,
 and the document is not found in the backend, they are shown this message in
@@ -257,7 +258,7 @@ in a different message shown in the box representing the document.
 
     Document is too big (max size: {size})
 
-    Missing in Swedish
+    Dokumentet är för stort (max storlek: {size})
 
     Document is unreadable
 
@@ -310,7 +311,7 @@ frontend should disallow the user from trying to sign.
 
     Problem preparing document, it is too big
 
-    Missing in Swedish
+    Problem att förbereda dokumentet, det är för stort
 
 2.12. When the procedure to read the previous signatures of a document fails,
 this message is shown where the previous signatures would have been shown.
@@ -398,7 +399,7 @@ exceeded, this message is shown over the extra invitee.
 
     It is only possible to invite at most {max_signatures} people
 
-    Missing in Swedish
+    Det är endast möjligt att bjuda in som mest {max_signatures} personer
 
 2.22. When a user tries to send invitations to sign, and the process fails,
 this is shown in the notifications area.
@@ -413,7 +414,7 @@ If this process fails, this is shown in the notifications area.
 
     Problem opening edit form, please try again later
 
-    Missing in Swedish
+    Problem att öppna formuläret, försök igen senare
 
 2.24. When a user tries to edit an invitation they had made and the procedure
 fails, this is shown in the notifications area.
@@ -428,7 +429,7 @@ invites, and no one has yet signed it, the document is restored to the user's
 
     Problem restoring document, please load it again
 
-    Missing in Swedish
+    Problem att ladda dokumentet, försök igen
 
 2.26. When a user tries to remove an invitation they have made, anthe process
 fails, this is shown in the notifications area.

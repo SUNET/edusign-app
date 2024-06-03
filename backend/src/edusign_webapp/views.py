@@ -1158,12 +1158,12 @@ def get_signed_documents(sign_data: dict) -> dict:
         if message == "Requested LoA does not match the Assertion LoA":
             return {
                 'error': True,
-                'message': gettext('Could not provide the requested security level.'),
+                'message': gettext("Could not provide the requested level of assurance."),
             }
         elif message == "Missing attributes in assertion":  # XXX use correct string
             return {
                 'error': True,
-                'message': gettext('Could not provide the requested security level.'),
+                'message': gettext("Could not provide the requested level of assurance."),
             }
         # XXX translate
         return {'error': True, 'message': message}

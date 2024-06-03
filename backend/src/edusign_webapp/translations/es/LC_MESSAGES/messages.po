@@ -45,8 +45,8 @@ msgstr ""
 #: src/edusign_webapp/utils.py:251
 #, python-format
 msgid ""
-"You don't provide the required security level, please make sure to "
-"provide '<a href='%(loa)s'>%(level)s</a>' level"
+"You do not have the required level of assurance on your identity, please make sure "
+"to provide '<a href='%(loa)s'>%(level)s</a>' level"
 msgstr ""
 
 #: src/edusign_webapp/views.py:371
@@ -130,7 +130,7 @@ msgid "You have been invited to sign \"%(document_name)s\""
 msgstr "Te han invitado a firmar '%(document_name)s'"
 
 #: src/edusign_webapp/views.py:1173 src/edusign_webapp/views.py:1178
-msgid "Could not provide the requested security level."
+msgid "Could not provide the requested level of assurance."
 msgstr "No fue posible proveer el nivel de seguridad requerido."
 
 #: src/edusign_webapp/views.py:1248
