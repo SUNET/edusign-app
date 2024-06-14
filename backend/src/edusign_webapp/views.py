@@ -421,7 +421,7 @@ def emails():
         abort(404)
 
     payload = current_app.extensions['email_msgs']
-    current_app.extensions['email_msgs'] = []
+    current_app.extensions['email_msgs'] = {}
     return {'payload': payload}
 
 
