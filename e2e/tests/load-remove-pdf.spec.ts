@@ -17,6 +17,6 @@ test('Load and remove document', async ({ browser }) => {
   await user0.page.getByTestId(`button-rm-invitation-${filename}`).click();
   await user0.page.getByTestId(`confirm-remove-document-${filename}-confirm-button`).click();
 
-  await expect(user0.page.locator('legend').all().length).toBe(0);
+  await expect(user0.page.getByRole('legend').count()).toBe(0);
 });
 

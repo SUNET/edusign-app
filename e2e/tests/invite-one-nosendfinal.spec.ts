@@ -3,14 +3,14 @@ import * as path from 'path';
 import { test, expect } from '@playwright/test';
 import { login, addFile, approveForcedPreview, checkEmails, startAtSignPage, makeInvitation, signInvitation } from './utils.ts';
 
-test('Make one invitation and sign it with skip final signature', async ({ browser }) => {
+test('Make one invitation and sign it without sending the signed PDF', async ({ browser }) => {
 
   const { user0, user1 } = await login(browser, 2);
   const filename = 'test.pdf';
   const signedFilename = 'test-signed.pdf';
   const draftFilename = 'test-draft.pdf';
 
-  await makeInvitation (user0, [user1], filename, {sendSigned: true, skipFinal: true, ordered: false, loa: 'low'});
+  await makeInvitation (user0, [user1], filename, {sendSigned: false, skipFinal: false, ordered: false, loa: 'low'});
 
   await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user1.name} <${user1.email}> .`)
 
@@ -21,8 +21,8 @@ test('Make one invitation and sign it with skip final signature', async ({ brows
       to: `${user0.nameForMail} <${user0.email}>,\n ${user1.nameForMail} <${user1.email}>`,
       subject: `'${filename}' is now signed`,
       body: [
-        `The document "${filename}" is now signed by all parties and attached to this email.`,
-        `Content-Disposition: attachment; filename="${signedFilename}"`,
+        `The document "${filename}" is now signed by all parties.`,
+        `not attached`,
       ],
     }
   ];
