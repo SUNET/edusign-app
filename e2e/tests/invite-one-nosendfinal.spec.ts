@@ -18,11 +18,11 @@ test('Make one invitation and sign it without sending the signed PDF', async ({ 
 
   const emailTests = [
     {
-      to: `${user0.nameForMail} <${user0.email}>,\n ${user1.nameForMail} <${user1.email}>`,
+      to: `${user0.nameForMail} <${user0.email}>`,
       subject: `'${filename}' is now signed`,
       body: [
-        `The document "${filename}" is now signed by all parties.`,
-        `not attached`,
+        `${user1.nameForMail} <${user1.email}> has signed the document "${filename}"`,
+        "This was the final reply to your invitation to sign this document.",
       ],
     }
   ];
