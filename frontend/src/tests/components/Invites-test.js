@@ -1163,7 +1163,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const confirmButton2 = await waitFor(() =>
-        screen.getAllByTestId("confirm-remove-owned-test1.pdf-confirm-button"),
+        screen.getAllByTestId("confirm-remove-test1.pdf-confirm-button"),
       );
       expect(confirmButton2.length).to.equal(1);
 
@@ -1243,7 +1243,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const confirmButton2 = await waitFor(() =>
-        screen.getAllByTestId("confirm-remove-owned-test1.pdf-cancel-button"),
+        screen.getAllByTestId("confirm-remove-test1.pdf-cancel-button"),
       );
       expect(confirmButton2.length).to.equal(1);
 

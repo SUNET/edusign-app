@@ -230,7 +230,7 @@ class DocumentOwned extends Component {
                       {widgets.removeConfirmButton(
                         this.props,
                         doc,
-                        "confirm-remove-signed-owned-" + doc.name,
+                        "confirm-remove-" + doc.name,
                       )}
                     </>
                   )}
@@ -303,7 +303,7 @@ class DocumentOwned extends Component {
                     {widgets.removeConfirmButton(
                       this.props,
                       doc,
-                      "confirm-remove-signed-owned-" + doc.name,
+                      "confirm-remove-" + doc.name,
                     )}
                   </div>
                 </>

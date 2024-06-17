@@ -190,7 +190,7 @@ class DocumentLocal extends React.Component {
                       {widgets.removeConfirmButton(
                         this.props,
                         doc,
-                        `confirm-remove-document-${doc.name}`,
+                        `confirm-remove-${doc.name}`,
                       )}
                     </div>
                   </>
@@ -206,7 +206,7 @@ class DocumentLocal extends React.Component {
                       {widgets.removeConfirmButton(
                         this.props,
                         doc,
-                        `confirm-remove-document-${doc.name}`,
+                        `confirm-remove-${doc.name}`,
                       )}
                     </div>
                   </>
@@ -221,7 +221,7 @@ class DocumentLocal extends React.Component {
                       {widgets.removeConfirmButton(
                         this.props,
                         doc,
-                        `confirm-remove-document-${doc.name}`,
+                        `confirm-remove-${doc.name}`,
                       )}
                     </div>
                   </>
@@ -241,7 +241,7 @@ class DocumentLocal extends React.Component {
                       {widgets.removeConfirmButton(
                         this.props,
                         doc,
-                        `confirm-remove-document-${doc.name}`,
+                        `confirm-remove-${doc.name}`,
                       )}
                     </div>
                   </>
@@ -270,7 +270,7 @@ class DocumentLocal extends React.Component {
                       {widgets.removeConfirmButton(
                         this.props,
                         doc,
-                        `confirm-remove-document-${doc.name}`,
+                        `confirm-remove-${doc.name}`,
                       )}
                     </div>
                   </>
@@ -288,7 +288,7 @@ class DocumentLocal extends React.Component {
                       {widgets.removeConfirmButton(
                         this.props,
                         doc,
-                        `confirm-remove-document-${doc.name}`,
+                        `confirm-remove-${doc.name}`,
                       )}
                     </div>
                   </>
@@ -325,7 +325,7 @@ class DocumentLocal extends React.Component {
                     {widgets.removeConfirmButton(
                       this.props,
                       doc,
-                      `confirm-remove-document-${doc.name}`,
+                      `confirm-remove-${doc.name}`,
                     )}
                   </div>
                 </>
@@ -345,7 +345,7 @@ class DocumentLocal extends React.Component {
                     {widgets.removeConfirmButton(
                       this.props,
                       doc,
-                      `confirm-remove-document-${doc.name}`,
+                      `confirm-remove-${doc.name}`,
                     )}
                   </div>
                 </>
@@ -362,7 +362,7 @@ class DocumentLocal extends React.Component {
                     {widgets.removeConfirmButton(
                       this.props,
                       doc,
-                      `confirm-remove-document-${doc.name}`,
+                      `confirm-remove-${doc.name}`,
                     )}
                   </div>
                 </>
@@ -384,7 +384,7 @@ class DocumentLocal extends React.Component {
                     {widgets.removeConfirmButton(
                       this.props,
                       doc,
-                      `confirm-remove-document-${doc.name}`,
+                      `confirm-remove-${doc.name}`,
                     )}
                   </div>
                 </>
@@ -417,7 +417,7 @@ class DocumentLocal extends React.Component {
                     {widgets.removeConfirmButton(
                       this.props,
                       doc,
-                      `confirm-remove-document-${doc.name}`,
+                      `confirm-remove-${doc.name}`,
                     )}
                   </div>
                 </>
@@ -439,7 +439,7 @@ class DocumentLocal extends React.Component {
                     {widgets.removeConfirmButton(
                       this.props,
                       doc,
-                      `confirm-remove-document-${doc.name}`,
+                      `confirm-remove-${doc.name}`,
                     )}
                   </div>
                 </>

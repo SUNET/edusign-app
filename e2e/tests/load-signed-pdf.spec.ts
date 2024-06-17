@@ -1,7 +1,7 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
-import { login, addFile, startAtSignPage } from './utils.ts';
+import { login, addFile, startAtSignPage, rmDocument } from './utils.ts';
 
 test('Load signed PDF document', async ({ browser }) => {
 
