@@ -1,12 +1,12 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
-import { login, addFile, startAtSignPage } from './utils.ts';
+import { login, addFile, startAtSignPage, approveForcedPreview } from './utils.ts';
 
 test('Load and remove document', async ({ browser }) => {
 
-  const filename = 'test.pdf';
   const { user0 } = await login(browser, 1);
+  const filename = 'test.pdf';
 
   await startAtSignPage(user0.page);
 
@@ -14,8 +14,9 @@ test('Load and remove document', async ({ browser }) => {
 
   await user0.page.getByTestId(`button-forced-preview-${filename}`).click();
   await user0.page.getByTestId('preview-button-confirm-0').click();
-  await user0.page.getByTestId(`button-rm-invitation-${filename}`).click();
-  await user0.page.getByTestId(`confirm-remove-document-${filename}-confirm-button`).click();
+
+  await approveForcedPreview(user0.page, filename);
+  await rmDocument(user0, filename, 'invitation');
 
   await expect(user0.page.getByRole('legend').count()).toBe(0);
 });

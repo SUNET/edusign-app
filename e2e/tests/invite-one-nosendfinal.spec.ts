@@ -1,7 +1,7 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
-import { login, addFile, approveForcedPreview, checkEmails, startAtSignPage, makeInvitation, signInvitation } from './utils.ts';
+import { login, addFile, approveForcedPreview, checkEmails, startAtSignPage, makeInvitation, signInvitation, encodeMailHeader } from './utils.ts';
 
 test('Make one invitation and sign it without sending the signed PDF', async ({ browser }) => {
 
@@ -16,12 +16,17 @@ test('Make one invitation and sign it without sending the signed PDF', async ({ 
 
   await signInvitation(user1, user0, filename, draftFilename)
 
+  let subject = `${user1.name} signed '${filename}'`;
+  if (user1.utf8Name) {
+    subject = encodeMailHeader(subject);
+  }
+
   const emailTests = [
     {
       to: `${user0.nameForMail} <${user0.email}>`,
-      subject: `'${filename}' is now signed`,
+      subject: subject,
       body: [
-        `${user1.nameForMail} <${user1.email}> has signed the document "${filename}"`,
+        `${user1.name} <${user1.email}> has signed the document "${filename}"`,
         "This was the final reply to your invitation to sign this document.",
       ],
     }
@@ -37,8 +42,6 @@ test('Make one invitation and sign it without sending the signed PDF', async ({ 
   await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');
   await expect(user0.page.getByTestId(`button-rm-invitation-${filename}`)).toContainText('Remove');
 
-  await user0.page.getByTestId(`button-rm-invitation-${filename}`).click();
-  await user0.page.getByTestId(`confirm-remove-signed-owned-${filename}-confirm-button`).click();
-  await expect(user0.page.locator('#contact-local-it-msg')).toContainText('If you experience problems with eduSign contact your local IT-support');
+  await rmDocument(user0, filename, 'invitation');
 });
 

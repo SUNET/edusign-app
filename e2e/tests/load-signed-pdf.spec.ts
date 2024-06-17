@@ -13,4 +13,6 @@ test('Load signed PDF document', async ({ browser }) => {
   await addFile(user0.page, filename);
 
   await expect(user0.page.locator(`[id="local-doc-with-${filename}"]`)).toContainText('Previously signed by:Quique Pérez.');
+
+  await rmDocument(user0, filename, 'invitation');
 });

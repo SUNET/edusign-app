@@ -6,6 +6,10 @@ import { encodeWord } from 'libmime';
 
 const users = {};
 
+export const encodeMailHeader = (header) => {
+  return encodeWord(header, 'q').replace('?UTF-8?Q?', '?utf-8?q?');
+}
+
 export const login = async (browser, numUsers) => {
   for (let i = 0; i < numUsers; i++) {
     const userId = `user${i}`;
@@ -20,7 +24,7 @@ export const login = async (browser, numUsers) => {
     const utf8Name = process.env[`${userIdUpper}_UTF8_NAME`] === "True";
     let nameForMail = userName;
     if (utf8Name) {
-      nameForMail = encodeWord(userName, 'q').replace('?UTF-8?Q?', '?utf-8?q?'); 
+      nameForMail = encodeMailHeader(userName); 
     }
     const context = await browser.newContext({ storageState: `playwright/.auth/${userId}.json` });
     users[userId] = {
@@ -158,4 +162,14 @@ export const signInvitation = async (user, inviter, filename, draftFilename) => 
     await expect(user.page.locator(`[id="local-doc-${draftFilename}"]`)).toContainText(draftFilename);
     await expect(user.page.getByTestId(`button-download-signed-${draftFilename}`)).toContainText('Download (signed)');
   }
+}
+
+export const rmDocument = async (user, filename, type) => {
+  await user.page.getByTestId(`button-rm-${type}-${filename}`).click();
+  if (type === 'invitation') {
+    await user.page.getByTestId(`confirm-remove-signed-owned-${filename}-confirm-button`).click();
+  } else if (type === 'template') {
+    await user.page.getByTestId(`confirm-remove-template-${filename}-confirm-button`).click();
+  }
+  await expect(user.page.locator('#contact-local-it-msg')).toContainText('If you experience problems with eduSign contact your local IT-support');
 }

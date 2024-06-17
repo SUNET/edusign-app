@@ -6,10 +6,13 @@ import { login, addFile, startAtSignPage } from './utils.ts';
 test('Load corrupted PDF document', async ({ browser }) => {
 
   const { user0 } = await login(browser, 1);
+  const filename = 'corrupted.pdf';
 
   await startAtSignPage(user0.page);
 
-  await addFile(user0.page, 'corrupted.pdf');
+  await addFile(user0.page, filename);
 
-  await expect(user0.page.locator('[id="local-doc-corrupted\\.pdf"]')).toContainText('Document seems corrupted');
+  await expect(user0.page.locator(`[id="local-doc-${filename}"]`)).toContainText('Document seems corrupted');
+
+  await rmDocument(user0, filename, 'invitation');
 });

@@ -1,8 +1,7 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
-import { encodeWord } from 'libmime';
-import { login, addFile, approveForcedPreview, checkEmails, startAtSignPage, makeInvitation, signInvitation } from './utils.ts';
+import { login, addFile, approveForcedPreview, checkEmails, startAtSignPage, makeInvitation, signInvitation, encodeMailHeader, rmDocument } from './utils.ts';
 
 test('Make one invitation and sign it with form defaults', async ({ browser }) => {
 
@@ -19,7 +18,7 @@ test('Make one invitation and sign it with form defaults', async ({ browser }) =
 
   let subject = `${user1.name} signed '${filename}'`
   if (user1.utf8Name) {
-    subject = encodeWord(subject, 'q').replace('?UTF-8?Q?', '?utf-8?q?')
+    subject = encodeMailHeader(subject)
   }
 
   const emailTests = [
@@ -54,7 +53,5 @@ test('Make one invitation and sign it with form defaults', async ({ browser }) =
   await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');
   await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toContainText('Download (signed)');
 
-  await user0.page.getByTestId(`button-rm-invitation-${filename}`).click();
-  await user0.page.getByTestId(`confirm-remove-signed-owned-${filename}-confirm-button`).click();
-  await expect(user0.page.locator('#contact-local-it-msg')).toContainText('If you experience problems with eduSign contact your local IT-support');
+  await rmDocument(user0, filename, 'invitation');
 });

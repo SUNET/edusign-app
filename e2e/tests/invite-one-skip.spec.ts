@@ -37,8 +37,6 @@ test('Make one invitation and sign it with skip final signature', async ({ brows
   await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');
   await expect(user0.page.getByTestId(`button-rm-invitation-${filename}`)).toContainText('Remove');
 
-  await user0.page.getByTestId(`button-rm-invitation-${filename}`).click();
-  await user0.page.getByTestId(`confirm-remove-signed-owned-${filename}-confirm-button`).click();
-  await expect(user0.page.locator('#contact-local-it-msg')).toContainText('If you experience problems with eduSign contact your local IT-support');
+  await rmDocument(user0, filename, 'invitation');
 });
 

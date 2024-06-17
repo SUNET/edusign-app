@@ -1,18 +1,19 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
-import { login, addFile, approveForcedPreview, startAtSignPage } from './utils.ts';
+import { login, addFile, approveForcedPreview, startAtSignPage, rmDocument } from './utils.ts';
 
 test('Load and fill PDF form', async ({ browser }) => {
 
   const { user0 } = await login(browser, 1);
   const filename = 'with-form.pdf';
+  const filename2 = 'with-form-1.pdf';
 
   await startAtSignPage(user0.page);
 
   await addFile(user0.page, filename);
 
-  await expect(user0.page.locator('[id="local-doc-with-form\\.pdf"]')).toContainText(filename);
+  await expect(user0.page.locator(`[id="local-doc-${filename}"]`)).toContainText(filename);
 
   await approveForcedPreview(user0.page, filename);
 
@@ -35,5 +36,8 @@ test('Load and fill PDF form', async ({ browser }) => {
   await user0.page.locator('#pdfjs_internal_id_13R').fill('London');
   await user0.page.locator('#pdfjs_internal_id_11R').selectOption('Britain');
   await user0.page.getByTestId(`pdfform-button-send-${filename}`).click();
-  await expect(user0.page.locator('[id="local-doc-with-form-1\\.pdf"]')).toContainText('with-form-1.pdf');
+  await expect(user0.page.locator(`[id="local-doc-${filename2}"]`)).toContainText('with-form-1.pdf');
+
+  await rmDocument(user0, filename, 'template');
+  await rmDocument(user0, filename2, 'invitation');
 });

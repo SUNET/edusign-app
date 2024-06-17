@@ -6,12 +6,13 @@ import { login, addFile, startAtSignPage } from './utils.ts';
 test('Navigate preview of multi page PDF document', async ({ browser }) => {
 
   const { user0 } = await login(browser, 1);
+  const filename = 'multi-page.pdf';
 
   await startAtSignPage(user0.page);
 
-  await addFile(user0.page, 'multi-page.pdf');
+  await addFile(user0.page, filename);
 
-  await expect(user0.page.locator('[id="local-doc-multi-page\\.pdf"]')).toContainText('multi-page.pdf');
+  await expect(user0.page.locator(`[id="local-doc-${filename}"]`)).toContainText('multi-page.pdf');
   await expect(user0.page.getByTestId('button-forced-preview-multi-page.pdf')).toBeVisible();
   await user0.page.getByTestId('button-forced-preview-multi-page.pdf').click();
   await expect(user0.page.getByRole('dialog')).toContainText('multi-page.pdf');
@@ -54,5 +55,7 @@ test('Navigate preview of multi page PDF document', async ({ browser }) => {
   await expect(user0.page.getByTestId('preview-button-close-multi-page.pdf')).toBeVisible();
   await user0.page.getByTestId('preview-button-close-multi-page.pdf').click();
   await expect(user0.page.getByText('14.9 KiBmulti-page.pdfOther')).toBeVisible();
+
+  await rmDocument(user0, filename, 'invitation');
 });
 
