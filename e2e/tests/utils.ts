@@ -166,10 +166,6 @@ export const signInvitation = async (user, inviter, filename, draftFilename) => 
 
 export const rmDocument = async (user, filename, type) => {
   await user.page.getByTestId(`button-rm-${type}-${filename}`).click();
-  if (type === 'invitation') {
-    await user.page.getByTestId(`confirm-remove-signed-owned-${filename}-confirm-button`).click();
-  } else if (type === 'template') {
-    await user.page.getByTestId(`confirm-remove-template-${filename}-confirm-button`).click();
-  }
+  await user.page.getByTestId(`confirm-remove-${filename}-confirm-button`).click();
   await expect(user.page.locator('#contact-local-it-msg')).toContainText('If you experience problems with eduSign contact your local IT-support');
 }

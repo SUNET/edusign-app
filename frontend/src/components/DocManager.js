@@ -109,7 +109,7 @@ class DocManager extends React.Component {
                     <React.Fragment key={index}>
                       <DocumentTemplate key={index} doc={doc} {...this.props} />
                       <ConfirmDialogContainer
-                        confirmId={"confirm-remove-template-" + doc.name}
+                        confirmId={"confirm-remove-" + doc.name}
                         title={this.props.intl.formatMessage({
                           defaultMessage: "Confirm Removal of template",
                           id: "header-confirm-remove-template-title",
@@ -177,7 +177,7 @@ class DocManager extends React.Component {
                           {_docRepr}
                           <ConfirmDialogContainer
                             confirmId={
-                              "confirm-remove-signed-owned-" + doc.name
+                              "confirm-remove-" + doc.name
                             }
                             title={this.props.intl.formatMessage({
                               defaultMessage:
@@ -201,7 +201,7 @@ class DocManager extends React.Component {
                       <>
                         <DocumentLocal key={index} doc={doc} {...this.props} />
                         <ConfirmDialogContainer
-                          confirmId={"confirm-remove-document-" + doc.name}
+                          confirmId={"confirm-remove-" + doc.name}
                           title={this.props.intl.formatMessage({
                             defaultMessage: "Confirm Removal of document",
                             id: "header-confirm-remove-document-title",

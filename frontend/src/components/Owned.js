@@ -40,7 +40,7 @@ class Owned extends Component {
                 <ReInviteFormContainer doc={doc} />
               )}
               <ConfirmDialogContainer
-                confirmId={"confirm-remove-owned-" + doc.name}
+                confirmId={"confirm-remove-" + doc.name}
                 title={this.props.intl.formatMessage({
                   defaultMessage: "Confirm Removal of invitation",
                   id: "header-confirm-remove-owned-title",
