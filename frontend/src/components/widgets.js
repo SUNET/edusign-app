@@ -200,7 +200,7 @@ export const multiSignButton = (props, doc) => {
 
 export const removeConfirmButton = (props, doc, id) => {
   if (id === undefined) {
-    id = "confirm-remove-owned-" + doc.name;
+    id = "confirm-remove-" + doc.name;
   }
   return (
     <>
@@ -229,7 +229,7 @@ export const removeConfirmButton = (props, doc, id) => {
 };
 
 export const removeTemplate = (props, doc) => {
-  const id = "confirm-remove-template-" + doc.name;
+  const id = "confirm-remove-" + doc.name;
   return (
     <>
       <div className="button-remove-flex-item">
