@@ -1,7 +1,8 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
-import { login, addFile, approveForcedPreview, checkEmails, startAtSignPage, makeInvitation, signInvitation, rmDocument } from './utils.ts';
+import { login, addFile, approveForcedPreview, startAtSignPage, makeInvitation, signInvitation, rmDocument } from './utils.ts';
+import { checkEmails } from './utils-emails.ts';
 
 test('Make one invitation and sign it with skip final signature', async ({ browser }) => {
 
@@ -12,26 +13,19 @@ test('Make one invitation and sign it with skip final signature', async ({ brows
 
   await makeInvitation (user0, [user1], filename, {sendSigned: true, skipFinal: true, ordered: false, loa: 'low'});
 
+  const spec1 = ['invitation', user0, [user1], filename];
+  await checkEmails(user0.page, [spec1]);
+
   await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user1.name} <${user1.email}> .`)
 
   await signInvitation(user1, user0, filename, draftFilename)
 
-  const emailTests = [
-    {
-      to: `${user0.nameForMail} <${user0.email}>,\n ${user1.nameForMail} <${user1.email}>`,
-      subject: `'${filename}' is now signed`,
-      body: [
-        `The document "${filename}" is now signed by all parties and attached to this email.`,
-        `Content-Disposition: attachment; filename="${signedFilename}"`,
-      ],
-    }
-  ];
-  await checkEmails(user1.page, emailTests);
+  const spec2 = ['final-attached', user0, [user1], filename, {signedFilename: signedFilename}];
+  await checkEmails(user0.page, [spec2]);
 
   await user0.page.goto('/sign');
   await expect(user0.page.locator('legend')).toContainText('Personal documents');
   await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> .`);
-  await user0.page.getByText('Required security level: Low').click();
   await expect(user0.page.getByRole('group')).toContainText('Required security level: Low');
   await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toContainText('Download (signed)');
   await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');

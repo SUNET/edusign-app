@@ -75,7 +75,7 @@ export const fetchConfig = createAsyncThunk(
         thunkAPI.dispatch(setPolling(configData.payload.poll));
         delete configData.payload.poll;
 
-        await configData.payload.skipped.forEach(async (doc) => {
+        for (const doc of configData.payload.skipped) {
           let prefix = "data:application/xml;base64,";
           if (doc.type === "application/pdf") {
             prefix = "data:application/pdf;base64,";
@@ -91,7 +91,7 @@ export const fetchConfig = createAsyncThunk(
             state.main.signer_attributes.eppn,
           );
           thunkAPI.dispatch(addDocument(newDoc));
-        });
+        }
 
         delete configData.payload.skipped;
         return configData;

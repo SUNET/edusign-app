@@ -36,7 +36,8 @@ const mapDispatchToProps = (dispatch) => {
       return async (fileObjs) => {
         dispatch(setLoading());
         const maxIndex = fileObjs.length - 1;
-        await fileObjs.forEach(async (fileObj, index) => {
+        let index = 0;
+        for (const fileObj of fileObjs) {
           const file = {
             name: fileObj.name,
             size: fileObj.size,
@@ -77,7 +78,8 @@ const mapDispatchToProps = (dispatch) => {
           };
           reader.readAsDataURL(fileObj);
           dispatch(setWaiting());
-        });
+          index++;
+        }
       };
     },
     handleRejected: function (intl) {

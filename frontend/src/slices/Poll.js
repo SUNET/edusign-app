@@ -112,8 +112,8 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
 
 export const configureSkipped = async (thunkAPI, configData, owned) => {
   const state = thunkAPI.getState();
-  await owned.forEach(async (oldDoc) => {
-    await configData.payload.skipped.forEach(async (doc) => {
+  for (const oldDoc of owned) {
+    for (const doc of configData.payload.skipped) {
       if (doc.key === oldDoc.key) {
         let newSigned = [...doc.signed];
         let newDeclined = [...doc.declined];
@@ -141,8 +141,8 @@ export const configureSkipped = async (thunkAPI, configData, owned) => {
         thunkAPI.dispatch(addDocument(newDoc));
         thunkAPI.dispatch(removeOwned({ key: doc.key }));
       }
-    });
-  });
+    }
+  }
 };
 
 const pollSlice = createSlice({

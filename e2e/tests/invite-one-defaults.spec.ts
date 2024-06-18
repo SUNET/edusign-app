@@ -1,7 +1,8 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
-import { login, addFile, approveForcedPreview, checkEmails, startAtSignPage, makeInvitation, signInvitation, encodeMailHeader, rmDocument } from './utils.ts';
+import { login, addFile, approveForcedPreview, startAtSignPage, makeInvitation, signInvitation, encodeMailHeader, rmDocument } from './utils.ts';
+import { checkEmails } from './utils-emails.ts';
 
 test('Make one invitation and sign it with form defaults', async ({ browser }) => {
 
@@ -12,28 +13,15 @@ test('Make one invitation and sign it with form defaults', async ({ browser }) =
 
   await makeInvitation(user0, [user1], filename, {sendSigned: true, skipFinal: false, ordered: false, loa: 'low'});
 
+  const spec1 = ['invitation', user0, [user1], filename];
+  await checkEmails(user0.page, [spec1]);
+
   await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user1.name} <${user1.email}> .`)
 
   await signInvitation(user1, user0, filename, draftFilename)
 
-  let subject = `${user1.name} signed '${filename}'`
-  if (user1.utf8Name) {
-    subject = encodeMailHeader(subject)
-  }
-
-  const emailTests = [
-    {
-      to: `${user0.nameForMail} <${user0.email}>`,
-      subject: subject,
-      body: [
-        `${user1.name} <${user1.email}> has signed the document "${filename}"`,
-        `This was the final reply to your invitation to sign this document.`,
-        `Please visit eduSign to finalize the signature process.`,
-        `This is an email from eduSign, a service for secure digital signatures, developed by Sunet.`,
-      ],
-    }
-  ];
-  await checkEmails(user1.page, emailTests);
+  const spec2 = ['signed-last', user0, [user1], filename];
+  await checkEmails(user1.page, [spec2]);
 
   await user0.page.goto('/sign');
   await expect(user0.page.locator('legend')).toContainText('Documents you have invited others to sign');
@@ -52,6 +40,9 @@ test('Make one invitation and sign it with form defaults', async ({ browser }) =
   }
   await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');
   await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toContainText('Download (signed)');
+
+  const spec3 = ['final-attached', user0, [user1], filename, {signedFilename: signedFilename}];
+  await checkEmails(user0.page, [spec3]);
 
   await rmDocument(user0, filename, 'invitation');
 });

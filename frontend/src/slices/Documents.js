@@ -692,14 +692,14 @@ export const startSigning = createAsyncThunk(
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     let invited = false;
-    await state.documents.documents.forEach(async (doc) => {
+    for (const doc of state.documents.documents) {
       if (doc.state === "selected") {
         thunkAPI.dispatch(
           documentsSlice.actions.startSigningDocument(doc.name),
         );
         await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
       }
-    });
+    }
     state.main.owned_multisign.forEach((doc) => {
       if (doc.state === "selected") {
         invited = true;
@@ -742,7 +742,7 @@ export const startSigningDocuments = createAsyncThunk(
     let data = null;
     // Get the documents to be signed and serialize their metadata to be sent to
     // the `create-sign-request` endpoint.
-    await state.documents.documents.forEach(async (doc) => {
+    for (const doc of state.documents.documents) {
       if (doc.state === "signing") {
         const docToSign = {
           name: doc.name,
@@ -756,7 +756,7 @@ export const startSigningDocuments = createAsyncThunk(
         }
         docsToSign.push(docToSign);
       }
-    });
+    }
     const body = preparePayload(state, { documents: docsToSign });
     try {
       const response = await esFetch("/sign/create-sign-request", {
@@ -808,9 +808,9 @@ export const startSigningDocuments = createAsyncThunk(
       });
       thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
       if (data.payload.documents !== undefined) {
-        await data.payload.documents.forEach(async (doc) => {
+        for (const doc of data.payload.documents) {
           await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
-        });
+        }
       }
       return thunkAPI.rejectWithValue(err.toString());
     }
@@ -983,9 +983,9 @@ export const restartSigningDocuments = createAsyncThunk(
         data.hasOwnProperty("payload") &&
         data.payload.hasOwnProperty("documents")
       ) {
-        await data.payload.documents.forEach(async (doc) => {
+        for (const doc of data.payload.documents) {
           await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
-        });
+        }
       }
     }
   },
@@ -1028,15 +1028,15 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       );
     }
     // Update the documents kept locally in IndexedDB with the signed content
-    await data.payload.documents.forEach(async (doc) => {
-      await state.documents.documents.forEach(async (oldDoc) => {
+    for (const doc of data.payload.documents) {
+      for (const oldDoc of state.documents.documents) {
         if (doc.id === oldDoc.key) {
           thunkAPI.dispatch(
             documentsSlice.actions.updateDocumentWithSignedContent(doc),
           );
           await thunkAPI.dispatch(saveDocument({ docName: oldDoc.name }));
         }
-      });
+      }
       // In the case of documents corresponding to invitations from the owner,
       // in which case all invited parties have signed
       // and the document has been removed from the backend database,
@@ -1044,7 +1044,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       // and also remove them from the collection (in the redux store)
       // of invitations pending to be signed, and add them to the collection
       // (in the redux store) of non-invitation documents.
-      await state.main.owned_multisign.forEach(async (oldDoc) => {
+      for (const oldDoc of state.main.owned_multisign) {
         if (doc.id === oldDoc.key) {
           let newSigned = [...oldDoc.signed];
           newSigned.push({
@@ -1074,9 +1074,9 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           );
           thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
         }
-      });
+      }
       thunkAPI.dispatch(finishInvited({doc: doc, intl: intl}));
-    });
+    }
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
     // In case of errors, notify the user, and update the state.
@@ -1101,9 +1101,9 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
     thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
     thunkAPI.dispatch(invitationsSignFailure(message));
     if (data && data.payload && data.payload.documents) {
-      await data.payload.documents.forEach(async (doc) => {
+      for (const doc of data.payload.documents) {
         await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
-      });
+      }
     }
   }
 };
@@ -1152,12 +1152,12 @@ export const downloadAllSigned = createAsyncThunk(
     );
     const zip = await new JSZip();
     const folder = await zip.folder("signed");
-    await docs.forEach(async (doc) => {
+    for (const doc of docs) {
       const b64content = doc.signedContent.split(",")[1];
       const blob = b64toBlob(b64content, doc.type);
       const newName = nameForDownload(doc.name, "signed");
       await folder.file(newName, blob);
-    });
+    }
     await zip.generateAsync({ type: "blob" }).then(async function (content) {
       await FileSaver.saveAs(content, "signed.zip");
     });

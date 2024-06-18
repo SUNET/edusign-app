@@ -62,26 +62,6 @@ export const approveForcedPreview = async (page, filename) => {
   await page.getByTestId('preview-button-confirm-0').click();
 };
 
-export const checkEmails = async (page, emailTests) => {
-  await page.goto('/sign/emails');
-  const json = await page.locator('pre').allInnerTexts();
-  const contents = JSON.parse(json);
-  await expect(contents.error).toBe(false);
-  const emails = contents.payload.messages;
-  await expect(emails.length).toBe(emailTests.length);
-  for (let i = 0; i < emails.length; i++) {
-    const email = emails[i].message;
-    const emailTest = emailTests[i];
-    await expect(email).toContain(`Subject: ${emailTest.subject}`);
-    await expect(email).toContain(`To: ${emailTest.to}`);
-    emailTest.body.forEach(async text => {
-      await expect(email).toContain(text);
-    });
-    await expect(email).toContain("This is an email from eduSign, a service for secure digital signatures, developed by Sunet.");
-  }
-  await page.goBack();
-};
-
 export const makeInvitation = async (inviter, invitees, filename, options) => {
 
   await startAtSignPage(inviter.page);
@@ -111,33 +91,16 @@ export const makeInvitation = async (inviter, invitees, filename, options) => {
   await inviter.page.getByTestId('invitees.0.name').fill(invitees[0].name);
   await inviter.page.getByTestId('invitees.0.email').click();
   await inviter.page.getByTestId('invitees.0.email').fill(invitees[0].email);
-  invitees.slice(1).forEach(async (invitee, i) => {
+  let i = 1;
+  for (const invitee of invitees.slice(1)) {
     await inviter.page.getByTestId(`button-add-invitation-${filename}`).click();
-    await inviter.page.getByTestId(`invitees.${i+1}.name`).click();
-    await inviter.page.getByTestId(`invitees.${i+1}.name`).fill(invitee.name);
-    await inviter.page.getByTestId(`invitees.${i+1}.email`).click();
-    await inviter.page.getByTestId(`invitees.${i+1}.email`).fill(invitee.email);
-  });
+    await inviter.page.getByTestId(`invitees.${i}.name`).click();
+    await inviter.page.getByTestId(`invitees.${i}.name`).fill(invitee.name);
+    await inviter.page.getByTestId(`invitees.${i}.email`).click();
+    await inviter.page.getByTestId(`invitees.${i}.email`).fill(invitee.email);
+    i++;
+  }
   await inviter.page.getByTestId(`button-send-invites-${filename}`).click();
-
-  let recipients = `${invitees[0].nameForMail} <${invitees[0].email}>`
-
-  invitees.slice(1).forEach(invitee => {
-    recipients += `,\n ${invitee.nameForMail} <${invitee.email}>`;
-  });
-
-  const emailTests = [
-    {
-      to: recipients,
-      subject: `You have been invited to sign "${filename}"`,
-      body: [
-        `You have been invited by ${inviter.name} <${inviter.email}>`,
-        `to digitally sign a document named "${filename}"`,
-        "Follow this link to preview and sign the document:",
-      ],
-    }
-  ];
-  await checkEmails(inviter.page, emailTests);
 };
 
 export const signInvitation = async (user, inviter, filename, draftFilename) => {
