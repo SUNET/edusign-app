@@ -98,7 +98,7 @@ class DocManager extends React.Component {
           <>
             {this.props.templates.length > 0 && (
               <fieldset className="local-template-container">
-                <legend>
+                <legend data-testid="legend-templates">
                   <FormattedMessage
                     defaultMessage="Templates"
                     key="local-templates-legend"
@@ -142,7 +142,7 @@ class DocManager extends React.Component {
             )}
             {this.props.documents.length > 0 && (
               <fieldset className="local-monosign-container">
-                <legend>
+                <legend data-testid="legend-personal">
                   <FormattedMessage
                     defaultMessage="Personal documents"
                     key="local-monosign-legend"
@@ -295,7 +295,7 @@ class DocManager extends React.Component {
             <>
               {this.props.owned.length > 0 && (
                 <fieldset className="owned-multisign-container">
-                  <legend>
+                  <legend data-testid="legend-inviter">
                     <FormattedMessage
                       defaultMessage="Documents you have invited others to sign"
                       key="owned-multisign-legend"
@@ -308,7 +308,7 @@ class DocManager extends React.Component {
           )}
           {this.props.pending.length > 0 && (
             <fieldset className="invited-multisign-container">
-              <legend>
+              <legend data-testid="legend-invited">
                 <FormattedMessage
                   defaultMessage="Documents you are invited to sign"
                   key="invited-multisign-legend"
