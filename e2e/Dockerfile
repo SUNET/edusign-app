@@ -13,6 +13,7 @@ WORKDIR /app
 COPY tests /app/tests
 COPY package.json /app/
 COPY playwright.config.ts /app/
+COPY users-env /app/
 # Install dependencies
 RUN npm cache clean --force
 RUN npm install -g playwright
