@@ -4,6 +4,8 @@ RUN apt-get update && apt-get install -y wget gnupg ca-certificates && \
    curl -sL https://deb.nodesource.com/setup_16.x | bash - && \
    apt install -y nodejs
 
+ENV PLAYWRIGHT_BASE_URL=https://dev.edusign.sunet.se
+
 # Set working directory
 WORKDIR /app
 
