@@ -18,3 +18,4 @@ COPY users-env /app/
 RUN npm cache clean --force
 RUN npm install -g playwright
 RUN npm install
+RUN npx playwright install-deps
