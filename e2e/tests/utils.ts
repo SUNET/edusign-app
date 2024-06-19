@@ -26,7 +26,7 @@ export const login = async (browser, numUsers) => {
     if (utf8Name) {
       nameForMail = encodeMailHeader(userName); 
     }
-    const context = await browser.newContext({ storageState: `playwright/.auth/${userId}.json` });
+    const context = await browser.newContext({ storageState: `playwright/.auth/${userId}.json`, ignoreHTTPSErrors: true });
     users[userId] = {
       context: context,
       page: await context.newPage(),

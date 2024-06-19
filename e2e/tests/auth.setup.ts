@@ -41,3 +41,33 @@ setup('Authenticate as user 2', async ({ page }) => {
 
   await _authenticate(page, username, password, filename, withKey);
 });
+
+setup('Authenticate as user 3', async ({ page }) => {
+  const username = process.env.USER2_EMAIL;
+  const password = process.env.USER2_PASS;
+  const filename = 'playwright/.auth/user2.json';
+
+  const withKey = process.env.USER2_SECURITY_KEY === "True";
+
+  await _authenticate(page, username, password, filename, withKey);
+});
+
+setup('Authenticate as user 4', async ({ page }) => {
+  const username = process.env.USER3_EMAIL;
+  const password = process.env.USER3_PASS;
+  const filename = 'playwright/.auth/user3.json';
+
+  const withKey = process.env.USER3_SECURITY_KEY === "True";
+
+  await _authenticate(page, username, password, filename, withKey);
+});
+
+setup('Authenticate as user 5', async ({ page }) => {
+  const username = process.env.USER4_EMAIL;
+  const password = process.env.USER4_PASS;
+  const filename = 'playwright/.auth/user4.json';
+
+  const withKey = process.env.USER4_SECURITY_KEY === "True";
+
+  await _authenticate(page, username, password, filename, withKey);
+});
