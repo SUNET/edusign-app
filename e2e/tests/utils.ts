@@ -68,7 +68,7 @@ export const makeInvitation = async (inviter, invitees, filename, options) => {
 
   await addFile(inviter.page, filename);
 
-  await expect(inviter.page.locator('legend')).toContainText('Personal documents');
+  await expect(inviter.page.getByTestId('legend-personal')).toContainText('Personal documents');
 
   await approveForcedPreview(inviter.page, filename);
 
@@ -107,7 +107,7 @@ export const signInvitation = async (user, inviter, filename, draftFilename) => 
 
   await user.page.goto('/sign');
 
-  await expect(user.page.locator('legend')).toContainText('Documents you are invited to sign');
+  await expect(user.page.getByTestId('legend-invited')).toContainText('Documents you are invited to sign');
   await expect(user.page.getByRole('group')).toContainText(filename);
   await expect(user.page.getByRole('group')).toContainText(`Invited by:${inviter.name} <${inviter.email}>.`);
   await expect(user.page.getByRole('group')).toContainText('Required security level: Low');

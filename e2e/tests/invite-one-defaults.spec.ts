@@ -24,7 +24,7 @@ test('Make one invitation and sign it with form defaults', async ({ browser }) =
   await checkEmails(user1.page, [spec2]);
 
   await user0.page.goto('/sign');
-  await expect(user0.page.locator('legend')).toContainText('Documents you have invited others to sign');
+  await expect(user0.page.getByTestId('legend-inviter')).toContainText('Documents you have invited others to sign');
   await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> .`);
   await expect(user0.page.getByRole('group')).toContainText('Required security level: Low');
   await expect(user0.page.getByTestId(`button-skipping-${filename}`)).toContainText('Skip Signature');

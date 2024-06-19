@@ -19,7 +19,7 @@ test('Load and fill PDF form', async ({ browser }) => {
 
   await user0.page.getByRole('button', { name: 'Other options' }).click();
   await user0.page.getByTestId(`menu-item-create-template-${filename}`).click();
-  await expect(user0.page.locator('legend')).toContainText('Templates');
+  await expect(user0.page.getByTestId('legend-templates')).toContainText('Templates');
   await user0.page.getByRole('button', { name: 'Other options' }).click();
   await user0.page.getByTestId(`menu-item-fillform-${filename}`).click();
   await user0.page.locator('#pdfjs_internal_id_5R').click();

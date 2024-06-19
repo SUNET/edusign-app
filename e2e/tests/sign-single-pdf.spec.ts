@@ -12,7 +12,7 @@ test('Sign one test PDF document', async ({ browser }) => {
 
   await addFile(user0.page, filename);
 
-  await expect(user0.page.locator('legend')).toContainText('Personal documents');
+  await expect(user0.page.getByTestId('legend-personal')).toContainText('Personal documents');
 
   await approveForcedPreview(user0.page, filename);
   

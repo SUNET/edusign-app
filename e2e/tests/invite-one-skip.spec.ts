@@ -23,9 +23,11 @@ test('Make one invitation and sign it with skip final signature', async ({ brows
   const spec2 = ['final-attached', user0, [user1], filename, {signedFilename: signedFilename}];
   await checkEmails(user0.page, [spec2]);
 
+  await user1.page.goto('/sign');
+  await expect(user1.page.getByTestId('legend-personal')).toContainText('Personal documents');
+
   await user0.page.goto('/sign');
-  await user0.page.goto('/sign');
-  await expect(user0.page.locator('legend')).toContainText('Personal documents');
+  await expect(user0.page.getByTestId('legend-personal')).toContainText('Personal documents');
   await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> .`);
   await expect(user0.page.getByRole('group')).toContainText('Required security level: Low');
   await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toContainText('Download (signed)');

@@ -12,7 +12,7 @@ test('Load and reject PDF document', async ({ browser }) => {
 
   await addFile(user0.page, filename);
 
-  await expect(user0.page.locator('legend')).toContainText('Personal documents');
+  await expect(user0.page.getByTestId('legend-personal')).toContainText('Personal documents');
   await user0.page.getByTestId(`button-forced-preview-${filename}`).click();
   await user0.page.getByTestId('preview-button-dissaprove-0').click();
 

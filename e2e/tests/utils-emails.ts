@@ -34,7 +34,7 @@ export const checkEmails = async (page, specs) => {
     }
     await expect(email).toContain("This is an email from eduSign, a service for secure digital signatures, developed by Sunet.");
   }
-  await page.goBack();
+  await page.goto('/sign');
 };
 
 const getRecipients = invitees => {
