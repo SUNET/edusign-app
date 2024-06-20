@@ -35,7 +35,7 @@ test('Make two invitations with form defaults and sign them', async ({ browser }
   const spec3 = ['signed-last', user0, [user2], filename];
   await checkEmails(user2.page, [spec3]);
 
-  await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}>, ${user2.name} <${user2.email}> .`);
+  await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> ,${user2.name} <${user2.email}> .`);
 
   await user0.page.getByTestId(`doc-selector-${filename}`).check();
   await user0.page.getByTestId('button-sign').click();
