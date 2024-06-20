@@ -2,4 +2,4 @@
 
 . users-env
 
-npx playwright test --project chromium "$@"
+npx playwright test --project=chromium "$@"
