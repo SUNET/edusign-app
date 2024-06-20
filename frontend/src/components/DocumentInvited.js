@@ -183,10 +183,13 @@ class DocumentInvited extends Component {
           body={this.getHelp(doc.state)}
         >
           {(this.props.size === "lg" && (
-            <div className={"invitation-multisign " + doc.state}>
+            <div
+              className={"invitation-multisign " + doc.state}
+            >
               <div className="invitation-multisign-request">
                 <div
                   className={"invitation-name-and-buttons-" + this.props.size}
+                  id={"invitee-doc-" + doc.name}
                 >
                   {doc.state === "unconfirmed" && (
                     <>
