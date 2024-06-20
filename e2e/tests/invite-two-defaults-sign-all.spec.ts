@@ -16,7 +16,7 @@ test('Make two invitations with form defaults and sign them', async ({ browser }
   const spec1 = ['invitation', user0, [user1, user2], filename];
   await checkEmails(user0.page, [spec1]);
 
-  await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user1.name} <${user1.email}>, ${user2.name} <${user2.email}> .`)
+  await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user1.name} <${user1.email}> ,${user2.name} <${user2.email}> .`)
 
   await signInvitation(user1, user0, filename, draftFilename)
 

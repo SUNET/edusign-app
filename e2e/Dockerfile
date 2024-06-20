@@ -14,8 +14,11 @@ COPY tests /app/tests
 COPY package.json /app/
 COPY playwright.config.ts /app/
 COPY users-env /app/
+COPY start.sh /app/
 # Install dependencies
 RUN npm cache clean --force
 RUN npm install -g playwright
 RUN npm install
 RUN npx playwright install-deps
+
+ENTRYPOINT ["start.sh"]

@@ -27,6 +27,7 @@ test('Make one invitation and sign it with skip final signature', async ({ brows
   await expect(user1.page.getByTestId('legend-personal')).toContainText('Personal documents');
 
   await user0.page.goto('/sign');
+  await user0.page.reload();
   await expect(user0.page.getByTestId('legend-personal')).toContainText('Personal documents');
   await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> .`);
   await expect(user0.page.getByRole('group')).toContainText('Required security level: Low');
