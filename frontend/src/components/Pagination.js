@@ -132,13 +132,13 @@ function Pagination(props) {
         <>
           <span
             className="go-to-next-page inactive"
-            data-testid={"preview-button-first-" + props.index}
+            data-testid={"preview-button-next-" + props.index}
           >
             <GoNext color="#aaa" />
           </span>
           <span
             className="go-to-last-page inactive"
-            data-testid={"preview-button-prev-" + props.index}
+            data-testid={"preview-button-last-" + props.index}
           >
             <GoLast color="#aaa" />
           </span>
