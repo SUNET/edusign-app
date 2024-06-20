@@ -21,4 +21,4 @@ RUN npm install -g playwright
 RUN npm install
 RUN npx playwright install-deps
 
-ENTRYPOINT ["start.sh"]
+ENTRYPOINT ["bash", "start.sh"]
