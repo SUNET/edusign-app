@@ -59,6 +59,7 @@ export const addFile = async (page, filename) => {
 export const approveForcedPreview = async (page, filename) => {
   await page.getByTestId(`button-forced-preview-${filename}`).click();
   await expect(page.getByRole('dialog')).toContainText(filename);
+  await page.getByTestId('preview-button-last-0').click();
   await page.getByTestId('preview-button-confirm-0').click();
 };
 
