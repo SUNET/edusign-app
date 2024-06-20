@@ -30,6 +30,8 @@ test('Make two invitations with form defaults and sign them', async ({ browser }
   await expect(user0.page.getByRole('group')).toContainText('Required security level: Low');
   await expect(user0.page.getByTestId(`button-rm-invitation-${filename}`)).toContainText('Remove');
 
+  await signInvitation(user2, user0, filename, draftFilename)
+
   const spec3 = ['signed-last', user0, [user2], filename];
   await checkEmails(user2.page, [spec3]);
 
