@@ -22,7 +22,10 @@ const _authenticate = async (page, username, password, filename, withKey=false) 
   await page.context().storageState({ path: filename });
 }
 
-setup('Authenticate as user 1', async ({ page }) => {
+setup('Authenticate as user 1', async ({ browser }) => {
+  const context = await browser.newContext({ ignoreHTTPSErrors: true });
+  const page = await context.newPage();
+
   const username = process.env.USER0_EMAIL;
   const password = process.env.USER0_PASS;
   const filename = 'playwright/.auth/user0.json';
@@ -32,7 +35,10 @@ setup('Authenticate as user 1', async ({ page }) => {
   await _authenticate(page, username, password, filename, withKey);
 });
 
-setup('Authenticate as user 2', async ({ page }) => {
+setup('Authenticate as user 2', async ({ browser }) => {
+  const context = await browser.newContext({ ignoreHTTPSErrors: true });
+  const page = await context.newPage();
+
   const username = process.env.USER1_EMAIL;
   const password = process.env.USER1_PASS;
   const filename = 'playwright/.auth/user1.json';
@@ -42,7 +48,10 @@ setup('Authenticate as user 2', async ({ page }) => {
   await _authenticate(page, username, password, filename, withKey);
 });
 
-setup('Authenticate as user 3', async ({ page }) => {
+setup('Authenticate as user 3', async ({ browser }) => {
+  const context = await browser.newContext({ ignoreHTTPSErrors: true });
+  const page = await context.newPage();
+
   const username = process.env.USER2_EMAIL;
   const password = process.env.USER2_PASS;
   const filename = 'playwright/.auth/user2.json';
@@ -52,7 +61,10 @@ setup('Authenticate as user 3', async ({ page }) => {
   await _authenticate(page, username, password, filename, withKey);
 });
 
-setup('Authenticate as user 4', async ({ page }) => {
+setup('Authenticate as user 4', async ({ browser }) => {
+  const context = await browser.newContext({ ignoreHTTPSErrors: true });
+  const page = await context.newPage();
+
   const username = process.env.USER3_EMAIL;
   const password = process.env.USER3_PASS;
   const filename = 'playwright/.auth/user3.json';
@@ -62,7 +74,10 @@ setup('Authenticate as user 4', async ({ page }) => {
   await _authenticate(page, username, password, filename, withKey);
 });
 
-setup('Authenticate as user 5', async ({ page }) => {
+setup('Authenticate as user 5', async ({ browser }) => {
+  const context = await browser.newContext({ ignoreHTTPSErrors: true });
+  const page = await context.newPage();
+
   const username = process.env.USER4_EMAIL;
   const password = process.env.USER4_PASS;
   const filename = 'playwright/.auth/user4.json';
