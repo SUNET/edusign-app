@@ -63,6 +63,12 @@ export const approveForcedPreview = async (page, filename) => {
   await page.getByTestId('preview-button-confirm-0').click();
 };
 
+export const declineForcedPreview = async (page, filename) => {
+  await page.getByTestId(`button-forced-preview-${filename}`).click();
+  await expect(page.getByRole('dialog')).toContainText(filename);
+  await page.getByTestId('preview-button-dissaprove-0').click();
+};
+
 export const makeInvitation = async (inviter, invitees, filename, options) => {
 
   await startAtSignPage(inviter.page);
@@ -104,17 +110,19 @@ export const makeInvitation = async (inviter, invitees, filename, options) => {
   await inviter.page.getByTestId(`button-send-invites-${filename}`).click();
 };
 
-export const signInvitation = async (user, inviter, filename, draftFilename) => {
-
+export const checkInvitation = async (user, inviter, filename) => {
   await user.page.goto('/sign');
 
   await expect(user.page.getByTestId('legend-invited')).toContainText('Documents you are invited to sign');
   await expect(user.page.getByRole('group')).toContainText(filename);
   await expect(user.page.getByRole('group')).toContainText(`Invited by:${inviter.name} <${inviter.email}>.`);
   await expect(user.page.getByRole('group')).toContainText('Required security level: Low');
+}
+
+export const signInvitation = async (user, inviter, filename, draftFilename) => {
+  await checkInvitation(user, inviter, filename);
 
   await approveForcedPreview(user.page, filename);
-
   await user.page.getByTestId('button-sign').click();
 
   await user.page.getByPlaceholder('enter password').fill(user.pass);
@@ -126,6 +134,12 @@ export const signInvitation = async (user, inviter, filename, draftFilename) => 
     await expect(user.page.locator(`[id="local-doc-${draftFilename}"]`)).toContainText(draftFilename);
     await expect(user.page.getByTestId(`button-download-signed-${draftFilename}`)).toContainText('Download (signed)');
   }
+}
+
+export const declineInvitation = async (user, inviter, filename) => {
+  await checkInvitation(user, inviter, filename);
+  await declineForcedPreview(user.page, filename);
+  await expect(user0.page.locator(`[id="local-doc-${filename}"]`)).toContainText('You have declined to sign this document');
 }
 
 export const rmDocument = async (user, filename, type) => {

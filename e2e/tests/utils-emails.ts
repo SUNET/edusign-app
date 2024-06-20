@@ -111,4 +111,23 @@ const emailSpecs = {
     };
     return emailTest;
   },
+  "declined": (inviter, invitees, filename, more) => {
+
+    const invitee = invitees[0];
+    let subject = `${invitee.name} declined to sign '${filename}'`;
+    if (invitee.utf8Name) {
+      subject = encodeMailHeader(subject);
+    }
+    const recipients = getRecipients([inviter]);
+    const emailTest = {
+      to: recipients,
+      subject: subject,
+      body: [
+        `${invitee.name} <${invitee.email}> has declined to sign document "${filename}".`,
+        "This was the final reply to your invitation to sign this document. Please visit eduSign to finalize the signature process.",
+        `Content-Disposition: attachment; filename="${more.signedFilename}"`,
+      ],
+    };
+    return emailTest;
+  },
 };
