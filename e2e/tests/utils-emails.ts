@@ -74,7 +74,6 @@ const emailSpecs = {
       subject: subject,
       body: [
         `${invitee.name} <${invitee.email}> has signed the document "${filename}"`,
-        "This was the final reply to your invitation to sign this document.",
       ],
     };
     return emailTest;
