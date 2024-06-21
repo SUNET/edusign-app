@@ -125,7 +125,6 @@ const emailSpecs = {
       body: [
         `${invitee.name} <${invitee.email}> has declined to sign document "${filename}".`,
         "This was the final reply to your invitation to sign this document. Please visit eduSign to finalize the signature process.",
-        `Content-Disposition: attachment; filename="${more.signedFilename}"`,
       ],
     };
     return emailTest;
