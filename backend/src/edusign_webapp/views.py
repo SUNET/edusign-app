@@ -1009,7 +1009,7 @@ def _prepare_all_signed_email(doc, mail_aliases):
     messages = []
     for lang in recipients:
         with force_locale(lang):
-            subject = gettext("'%(docname)s' is now signed") % {'docname': doc['owner']['docname']}
+            subject = gettext('"%(docname)s" is now signed') % {'docname': doc['owner']['docname']}
             if doc['sendsigned']:
                 body_txt = render_template('signed_all_email.txt.jinja2', **mail_context)
                 body_html = render_template('signed_all_email.html.jinja2', **mail_context)

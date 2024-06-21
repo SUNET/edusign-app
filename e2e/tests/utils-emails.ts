@@ -103,7 +103,7 @@ const emailSpecs = {
     const recipients = getRecipients([inviter, ...invitees]);
     const emailTest = {
       to: recipients,
-      subject: `'${filename}' is now signed`,
+      subject: `"${filename}" is now signed`,
       body: [
         `The document "${filename}" is now signed by all parties and attached to this email.`,
         `Content-Disposition: attachment; filename="${more.signedFilename}"`,
