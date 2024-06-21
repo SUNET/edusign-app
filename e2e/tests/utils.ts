@@ -139,7 +139,7 @@ export const signInvitation = async (user, inviter, filename, draftFilename) => 
 export const declineInvitation = async (user, inviter, filename) => {
   await checkInvitation(user, inviter, filename);
   await declineForcedPreview(user.page, filename);
-  await expect(user0.page.locator(`[id="invitee-doc-${filename}"]`)).toContainText('You have declined to sign this document');
+  await expect(user.page.locator(`[id="invitee-doc-${filename}"]`)).toContainText('You have declined to sign this document');
 }
 
 export const rmDocument = async (user, filename, type) => {
