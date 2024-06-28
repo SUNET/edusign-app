@@ -39,6 +39,9 @@ test('Make two invitations with form defaults and sign them', async ({ browser }
 
   await addFinalSignature(user0, filename);
 
+  const spec4 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];
+  await checkEmails(user0.page, [spec4]);
+
   await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');
   await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toContainText('Download (signed)');
 
