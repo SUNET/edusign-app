@@ -33,8 +33,8 @@ test('Make two invitations with form defaults and sign them', async ({ browser }
 
   await signInvitation(user2, user0, filename, draftFilename)
 
-  const spec3 = ['signed-last', user0, [user2], filename];
-  await checkEmails(user2.page, [spec3]);
+  const spec4 = ['signed-last', user0, [user2], filename];
+  await checkEmails(user2.page, [spec4]);
 
   await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> ,${user2.name} <${user2.email}> .`);
 
