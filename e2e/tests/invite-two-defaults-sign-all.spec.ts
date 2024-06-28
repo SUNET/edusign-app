@@ -1,7 +1,7 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
-import { login, addFile, approveForcedPreview, startAtSignPage, makeInvitation, signInvitation, encodeMailHeader, rmDocument } from './utils.ts';
+import { login, addFile, approveForcedPreview, startAtSignPage, makeInvitation, signInvitation, addFinalSignature, encodeMailHeader, rmDocument } from './utils.ts';
 import { checkEmails } from './utils-emails.ts';
 
 test('Make two invitations with form defaults and sign them', async ({ browser }) => {
@@ -37,16 +37,10 @@ test('Make two invitations with form defaults and sign them', async ({ browser }
 
   await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> ,${user2.name} <${user2.email}> .`);
 
-  await user0.page.getByTestId(`doc-selector-${filename}`).check();
-  await user0.page.getByTestId('button-sign').click();
-  await user0.page.getByPlaceholder('enter password').fill(user0.pass);
-  await user0.page.getByRole('button', { name: 'Log in' }).click();
-  if (user0.key) {
-    await user0.page.getByRole('button', { name: 'Use my security key' }).click();
-  }
+  await addFinalSignature(user0, filename);
+
   await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');
   await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toContainText('Download (signed)');
 
   await rmDocument(user0, filename, 'invitation');
 });
-

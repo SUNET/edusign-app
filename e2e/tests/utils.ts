@@ -136,6 +136,16 @@ export const signInvitation = async (user, inviter, filename, draftFilename) => 
   }
 }
 
+export const addFinalSignature = async (user, filename) => {
+  await user.page.getByTestId(`doc-selector-${filename}`).check();
+  await user.page.getByTestId('button-sign').click();
+  await user.page.getByPlaceholder('enter password').fill(user.pass);
+  await user.page.getByRole('button', { name: 'Log in' }).click();
+  if (user.key) {
+    await user.page.getByRole('button', { name: 'Use my security key' }).click();
+  }
+}
+
 export const declineInvitation = async (user, inviter, filename) => {
   await checkInvitation(user, inviter, filename);
   await declineForcedPreview(user.page, filename);
