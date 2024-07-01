@@ -12,10 +12,10 @@ test('Navigate preview of multi page PDF document', async ({ browser }) => {
 
   await addFile(user0.page, filename);
 
-  await expect(user0.page.locator(`[id="local-doc-${filename}"]`)).toContainText('multi-page.pdf');
-  await expect(user0.page.getByTestId('button-forced-preview-multi-page.pdf')).toBeVisible();
-  await user0.page.getByTestId('button-forced-preview-multi-page.pdf').click();
-  await expect(user0.page.getByRole('dialog')).toContainText('multi-page.pdf');
+  await expect(user0.page.locator(`[id="local-doc-${filename}"]`)).toContainText(filename);
+  await expect(user0.page.getByTestId(`button-forced-preview-${filename}`)).toBeVisible();
+  await user0.page.getByTestId(`button-forced-preview-${filename}`).click();
+  await expect(user0.page.getByRole('dialog')).toContainText(filename);
   await expect(user0.page.getByLabel('Close')).toBeVisible();
   await expect(user0.page.getByRole('dialog')).toContainText('Project description.');
   await expect(user0.page.locator('#arrowfirst-path1')).toBeVisible();
@@ -40,21 +40,21 @@ test('Navigate preview of multi page PDF document', async ({ browser }) => {
   await user0.page.getByTestId('preview-button-last-0').click();
   await expect(user0.page.getByRole('dialog')).toContainText('3 / 3');
   await user0.page.getByTestId('preview-button-confirm-0').click();
-  await expect(user0.page.locator('[id="local-doc-multi-page\\.pdf"]')).toContainText('multi-page.pdf');
-  await expect(user0.page.getByTestId('button-multisign-multi-page.pdf')).toBeVisible();
-  await expect(user0.page.getByTestId('button-rm-invitation-multi-page.pdf')).toBeVisible();
+  await expect(user0.page.locator(`[id="local-doc-${filename}"]`)).toContainText('multi-page.pdf');
+  await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toBeVisible();
+  await expect(user0.page.getByTestId(`button-rm-invitation-${filename}`)).toBeVisible();
   await expect(user0.page.getByRole('button', { name: 'Other options' })).toBeVisible();
   await user0.page.getByRole('button', { name: 'Other options' }).click();
-  await expect(user0.page.getByTestId('menu-item-create-template-multi-page.pdf')).toBeVisible();
-  await expect(user0.page.getByTestId('menu-item-preview-multi-page.pdf')).toBeVisible();
-  await user0.page.getByTestId('menu-item-preview-multi-page.pdf').click();
+  await expect(user0.page.getByTestId(`menu-item-create-template-${filename}`)).toBeVisible();
+  await expect(user0.page.getByTestId(`menu-item-preview-${filename}`)).toBeVisible();
+  await user0.page.getByTestId(`menu-item-preview-${filename}`).click();
   await expect(user0.page.getByRole('dialog')).toContainText('1 / 3');
   await user0.page.getByTestId('preview-button-last-0').click();
   await expect(user0.page.getByRole('dialog')).toContainText('3 / 3');
   await expect(user0.page.getByRole('dialog')).toContainText('Result page.');
-  await expect(user0.page.getByTestId('preview-button-close-multi-page.pdf')).toBeVisible();
-  await user0.page.getByTestId('preview-button-close-multi-page.pdf').click();
-  await expect(user0.page.getByText('14.9 KiBmulti-page.pdfOther')).toBeVisible();
+  await expect(user0.page.getByTestId(`preview-button-close-${filename}`)).toBeVisible();
+  await user0.page.getByTestId(`preview-button-close-${filename}`).click();
+  await expect(user0.page.getByText(`14.9 KiB${filename}Other`)).toBeVisible();
 
   await rmDocument(user0, filename, 'invitation');
 });
