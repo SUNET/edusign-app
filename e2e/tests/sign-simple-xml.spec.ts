@@ -26,6 +26,7 @@ test('Sign one test XML document', async ({ browser }) => {
   await user0.page.getByRole('button', { name: 'Other options' }).click();
   await user0.page.getByTestId(`menu-item-preview-${filename}`).click();
   await expect(user0.page.locator('pre')).toContainText('<ds:SignedInfo>');
+  await user0.page.getByTestId(`preview-button-close-${filename}`).click();
 
   await rmDocument(user0, filename, 'invitation');
 });
