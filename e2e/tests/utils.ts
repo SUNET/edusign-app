@@ -147,7 +147,6 @@ export const addFinalSignature = async (user, filename) => {
     await user.page.getByRole('button', { name: 'Use my security key' }).click();
   }
   await user.page.goto('/sign');
-  await user.page.reload();
 }
 
 export const declineInvitation = async (user, inviter, filename) => {
