@@ -24,7 +24,7 @@ test('Sign one test XML document', async ({ browser }) => {
   }
   await expect(user0.page.locator(`[id="local-doc-${filename}"]`)).toContainText(`Signed by:${user0.name} <${user0.email}>.`);
   await user0.page.getByRole('button', { name: 'Other options' }).click();
-  await user0.page.getByTestId(`menu-item-preview-${fulename}`).click();
+  await user0.page.getByTestId(`menu-item-preview-${filename}`).click();
   await expect(user0.page.locator('pre')).toContainText('<ds:SignedInfo>');
 
   await rmDocument(user0, filename, 'invitation');
