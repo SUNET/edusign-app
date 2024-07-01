@@ -6,12 +6,12 @@ import { login, addFile, startAtSignPage, approveForcedPreview, rmDocument } fro
 test('Sign one test PDF document', async ({ browser }) => {
   const filename = 'test.pdf';
   await signPDF(browser, filename);
-}
+});
 
 test('Sign one test PDF document with unicode name', async ({ browser }) => {
   const filename = 'test-äå.pdf';
   await signPDF(browser, filename);
-}
+});
 
 const signPDF = async (browser, filename) => {
 
