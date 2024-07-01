@@ -16,6 +16,7 @@ test('Load and reject PDF document', async ({ browser }) => {
   await user0.page.getByTestId(`button-forced-preview-${filename}`).click();
   await user0.page.getByTestId('preview-button-dissaprove-0').click();
 
-  await expect(user0.page.getByRole('legend').count()).toBe(0);
+  const legends = await user0.page.getByRole('legend');
+  await expect(legends).toHaveCount(0);
 });
 

@@ -15,6 +15,7 @@ test('Load and remove document', async ({ browser }) => {
   await approveForcedPreview(user0.page, filename);
   await rmDocument(user0, filename, 'invitation');
 
-  await expect(user0.page.getByRole('legend').count()).toBe(0);
+  const legends = await user0.page.getByRole('legend');
+  await expect(legends).toHaveCount(0);
 });
 
