@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 import { login, addFile, approveForcedPreview, startAtSignPage, makeInvitation, signInvitation, addFinalSignature, encodeMailHeader, rmDocument } from './utils.ts';
 import { checkEmails } from './utils-emails.ts';
 
-test('Make two invitations with form defaults and sign them', async ({ browser }) => {
+test('Make two ordered invitations and sign them', async ({ browser }) => {
 
   const { user0, user1, user2 } = await login(browser, 3);
   const filename = 'test.pdf';
@@ -20,8 +20,8 @@ test('Make two invitations with form defaults and sign them', async ({ browser }
 
   await signInvitation(user1, user0, filename, draftFilename)
 
-  const spec2 = ['signed', user0, [user1], filename];
-  const spec3 = ['invitation', user0, [user2], filename];
+  const spec2 = ['invitation', user0, [user2], filename];
+  const spec3 = ['signed', user0, [user1], filename];
   await checkEmails(user1.page, [spec2, spec3]);
 
   await user0.page.goto('/sign');
@@ -40,12 +40,12 @@ test('Make two invitations with form defaults and sign them', async ({ browser }
 
   await addFinalSignature(user0, filename);
 
-  const spec5 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];
-  await checkEmails(user0.page, [spec5]);
-
   await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');
   await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toContainText('Download (signed)');
 
   await rmDocument(user0, filename, 'invitation');
+
+  const spec5 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];
+  await checkEmails(user0.page, [spec5]);
 });
 

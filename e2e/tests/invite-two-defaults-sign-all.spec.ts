@@ -44,6 +44,6 @@ test('Make two invitations with form defaults and sign them', async ({ browser }
 
   await rmDocument(user0, filename, 'invitation');
 
-  //const spec4 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];
-  //await checkEmails(user0.page, [spec4]);
+  const spec4 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];
+  await checkEmails(user0.page, [spec4]);
 });
