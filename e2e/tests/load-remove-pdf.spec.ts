@@ -12,9 +12,6 @@ test('Load and remove document', async ({ browser }) => {
 
   await addFile(user0.page, filename);
 
-  await user0.page.getByTestId(`button-forced-preview-${filename}`).click();
-  await user0.page.getByTestId('preview-button-confirm-0').click();
-
   await approveForcedPreview(user0.page, filename);
   await rmDocument(user0, filename, 'invitation');
 
