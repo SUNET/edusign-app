@@ -4,9 +4,18 @@ import { test, expect } from '@playwright/test';
 import { login, addFile, startAtSignPage, approveForcedPreview, rmDocument } from './utils.ts';
 
 test('Sign one test PDF document', async ({ browser }) => {
+  const filename = 'test.pdf';
+  await signPDF(browser, filename);
+}
+
+test('Sign one test PDF document with unicode name', async ({ browser }) => {
+  const filename = 'test-äå.pdf';
+  await signPDF(browser, filename);
+}
+
+const signPDF = async (browser, filename) => {
 
   const { user0 } = await login(browser, 1);
-  const filename = 'test.pdf';
 
   await startAtSignPage(user0.page);
 
@@ -22,9 +31,9 @@ test('Sign one test PDF document', async ({ browser }) => {
   if (user0.key) {
     await user0.page.getByRole('button', { name: 'Use my security key' }).click();
   }
-  await expect(user0.page.locator('[id="local-doc-test\\.pdf"]')).toContainText('Signed by:');
-  await expect(user0.page.locator('[id="local-doc-test\\.pdf"]')).toContainText(`${user0.name} <${user0.email}>.`);
-  await expect(user0.page.getByTestId('button-download-signed-test.pdf')).toBeVisible();
+  await expect(user0.page.locator(`[id="local-doc-${filename}"]`)).toContainText('Signed by:');
+  await expect(user0.page.locator(`[id="local-doc-${filename}"]`)).toContainText(`${user0.name} <${user0.email}>.`);
+  await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toBeVisible();
 
   await rmDocument(user0, filename, 'invitation');
-});
+};
