@@ -100,7 +100,7 @@ export const makeInvitation = async (inviter, invitees, filename, options) => {
   await inviter.page.getByTestId('invitees.0.email').fill(invitees[0].email);
   let i = 1;
   for (const invitee of invitees.slice(1)) {
-    await inviter.page.getByTestId(`button-add-invitation-${filename}`).click();
+    await inviter.page.getByTestId("button-add-invitation").click();
     await inviter.page.getByTestId(`invitees.${i}.name`).click();
     await inviter.page.getByTestId(`invitees.${i}.name`).fill(invitee.name);
     await inviter.page.getByTestId(`invitees.${i}.email`).click();
