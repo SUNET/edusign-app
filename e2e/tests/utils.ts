@@ -129,7 +129,11 @@ export const moveInvitation = async (inviter, filename, ifrom, ito) => {
 
   const fromElem = await inviter.page.getByTestId(`draggable-invitation-field-${ifrom}`);
   const toElem = await inviter.page.getByTestId(`draggable-invitation-field-${ito}`);
-  await fromElem.dragTo(toElem);
+  //await fromElem.dragTo(toElem);
+  await fromElem.hover();
+  await page.mouse.down();
+  await toElem.hover();
+  await page.mouse.up();
 
   await inviter.page.getByTestId(`button-save-edit-invitation-${filename}`).click();
 
