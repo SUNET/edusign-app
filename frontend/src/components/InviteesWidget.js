@@ -265,6 +265,7 @@ function _InviteesArrayOrdered(props) {
                           <div
                             data-dummy={`dummy-${props.ordered}`}
                             className="invitation-fields"
+                            data-testid={`draggable-invitation-field-${index}`}
                             key={index}
                             ref={provided.innerRef}
                             {...provided.draggableProps}
@@ -310,6 +311,7 @@ function _InviteesArray(props) {
                 <div
                   data-dummy={`dummy-${props.ordered}`}
                   className="invitation-fields"
+                  data-testid={`invitation-field-${index}`}
                   key={index}
                 >
                   <InviteesControl
@@ -335,7 +337,7 @@ function _InviteesWidget(props) {
   const fprops = useFormikContext();
   const button = (arrayHelpers) => (
     <ESTooltip
-      helpId={"button-add-invitation-" + props.docName}
+      helpId="button-add-invitation"
       inModal={true}
       tooltip={
         <FormattedMessage
@@ -346,7 +348,7 @@ function _InviteesWidget(props) {
     >
       <Button
         variant="outline-secondary"
-        data-testid={"button-add-invitation-" + props.docName}
+        data-testid="button-add-invitation"
         onClick={() => {
           arrayHelpers.push({
             name: "",

@@ -114,9 +114,23 @@ export const addInvitation = async (inviter, invitee, filename, index) => {
 
   await inviter.page.getByRole('button', { name: 'Other options' }).click();
   await inviter.page.getByTestId(`menu-item-edit-invitations-${filename}`).click();
-  await inviter.page.getByTestId('button-add-invitation-undefined').click();
+  await inviter.page.getByTestId('button-add-invitation').click();
   await inviter.page.getByTestId(`invitees.${index}.name`).fill(invitee.name);
   await inviter.page.getByTestId(`invitees.${index}.email`).fill(invitee.email);
+  await inviter.page.getByTestId(`button-save-edit-invitation-${filename}`).click();
+
+  await inviter.page.goto('/sign');
+};
+
+export const moveInvitation = async (inviter, filename, ifrom, ito) => {
+
+  await inviter.page.getByRole('button', { name: 'Other options' }).click();
+  await inviter.page.getByTestId(`menu-item-edit-invitations-${filename}`).click();
+
+  const fromElem = await inviter.page.getByTestId(`draggable-invitation-field-${ifrom}`);
+  const toElem = await inviter.page.getByTestId(`draggable-invitation-field-${ito}`);
+  await fromElem.dragTo(toElem);
+
   await inviter.page.getByTestId(`button-save-edit-invitation-${filename}`).click();
 
   await inviter.page.goto('/sign');

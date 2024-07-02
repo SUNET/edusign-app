@@ -131,4 +131,17 @@ const emailSpecs = {
     }
     return emailTest;
   },
+  "cancellation": (inviter, invitees, filename, more) => {
+
+    const recipients = getRecipients(invitees);
+    const emailTest = {
+      to: recipients,
+      subject: `Cancellation of invitation to sign '${filename}'`,
+      body: [
+        `This is to inform you that ${inviter.name} <${inviter.email}>`,
+        `has cancelled an invitation to digitally sign a document named "${filename}".`,
+      ],
+    };
+    return emailTest;
+  },
 };
