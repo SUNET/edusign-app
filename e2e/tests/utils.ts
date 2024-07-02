@@ -91,8 +91,8 @@ export const makeInvitation = async (inviter, invitees, filename, options) => {
   if (options.ordered) {
     await inviter.page.getByTestId('ordered-choice-input').check();
   }
-  if (options.level) {
-    await inviter.page.getByTestId(`loa-radio-${options.level}`).click();
+  if (options.loa) {
+    await inviter.page.getByTestId(`loa-radio-${options.level}`).check();
   }
   await inviter.page.getByTestId('invitees.0.name').click();
   await inviter.page.getByTestId('invitees.0.name').fill(invitees[0].name);
