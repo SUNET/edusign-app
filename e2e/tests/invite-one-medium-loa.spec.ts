@@ -16,6 +16,7 @@ test('Make one invitation with medium loa required and cancel it', async ({ brow
 
   await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user1.name} <${user1.email}> .`)
 
+  await user1.page.goto('/sign');
   const inviteeDoc = await user1.page.locator(`[id="invitee-doc-${filename}"]`);
   await expect(inviteeDoc).toContainText('You do not have the required level of assurance on your identity, please make sure to provide \'Medium\' level');
 
