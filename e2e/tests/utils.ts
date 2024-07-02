@@ -1,5 +1,6 @@
 
 import * as path from 'path';
+import { Locator } from 'playwright';
 import { test, expect } from '@playwright/test';
 import { encodeWord } from 'libmime';
 
@@ -122,6 +123,38 @@ export const addInvitation = async (inviter, invitee, filename, index) => {
   await inviter.page.goto('/sign');
 };
 
+const dragAndDrop = async (page: Page, subjectElement: Locator, targetElement: Locator) => {
+  // see https://github.com/microsoft/playwright/issues/13855
+  //
+	// const subjectElement = await page.waitForSelector(subjectSelector);
+	// const targetElement = await page.waitForSelector(targetSelector);
+
+	const subjectElementBound = {
+		x: await subjectElement.boundingBox().then(bound => bound?.x ?? 0),
+		y: await subjectElement.boundingBox().then(bound => bound?.y ?? 0),
+		width: await subjectElement.boundingBox().then(bound => bound?.width ?? 0),
+		height: await subjectElement.boundingBox().then(bound => bound?.height ?? 0),
+	};
+
+	const targetElementBound = {
+		x: await targetElement.boundingBox().then(bound => bound?.x ?? 0),
+		y: await targetElement.boundingBox().then(bound => bound?.y ?? 0),
+		width: await targetElement.boundingBox().then(bound => bound?.width ?? 0),
+		height: await targetElement.boundingBox().then(bound => bound?.height ?? 0),
+	};
+
+	await page.mouse.move(subjectElementBound.x, subjectElementBound.y, { steps: 10 });
+
+	await page.dispatchEvent(subjectSelector, 'mousedown', { button: 0, force: true });
+
+	const x = targetElementBound.x + targetElementBound.width / 2;
+	const y = targetElementBound.y + targetElementBound.height / 2;
+
+	await page.mouse.move(x, y, { steps: 10 });
+
+	await page.dispatchEvent(targetSelector, 'mouseup', { button: 0 });
+}
+
 export const moveInvitation = async (inviter, filename, ifrom, ito) => {
 
   await inviter.page.getByRole('button', { name: 'Other options' }).click();
@@ -130,10 +163,11 @@ export const moveInvitation = async (inviter, filename, ifrom, ito) => {
   const fromElem = await inviter.page.getByTestId(`draggable-invitation-field-${ifrom}`);
   const toElem = await inviter.page.getByTestId(`draggable-invitation-field-${ito}`);
   //await fromElem.dragTo(toElem);
-  await fromElem.hover();
-  await inviter.page.mouse.down();
-  await toElem.hover();
-  await inviter.page.mouse.up();
+  //await fromElem.hover();
+  //await inviter.page.mouse.down();
+  //await toElem.hover();
+  //await inviter.page.mouse.up();
+  await dragAndDrop(inviter.page, fromElem, toElem);
 
   await inviter.page.getByTestId(`button-save-edit-invitation-${filename}`).click();
 
