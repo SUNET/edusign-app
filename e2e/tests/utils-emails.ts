@@ -124,9 +124,11 @@ const emailSpecs = {
       subject: subject,
       body: [
         `${invitee.name} <${invitee.email}> has declined to sign document "${filename}".`,
-        "This was the final reply to your invitation to sign this document. Please visit eduSign to finalize the signature process.",
       ],
     };
+    if (more.last) {
+      emailTest.body.push("This was the final reply to your invitation to sign this document. Please visit eduSign to finalize the signature process.");
+    }
     return emailTest;
   },
 };
