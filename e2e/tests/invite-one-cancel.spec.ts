@@ -19,6 +19,6 @@ test('Make one invitation and cancel it', async ({ browser }) => {
   await rmDocument(user0, filename, 'invitation');
 
   const spec2 = ['cancellation', user0, [user1], filename];
-  await checkEmails(user0.page, [spec1]);
+  await checkEmails(user0.page, [spec2]);
 });
 
