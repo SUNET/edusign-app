@@ -123,7 +123,7 @@ export const addInvitation = async (inviter, invitee, filename, index) => {
   await inviter.page.goto('/sign');
 };
 
-const dragAndDrop = async (page: Page, subjectSelector: string, targetElement: string) => {
+const dragAndDrop = async (page: Page, subjectSelector: string, targetSelector: string) => {
   // see https://github.com/microsoft/playwright/issues/13855
   //
 	const subjectElement = await page.waitForSelector(subjectSelector);
