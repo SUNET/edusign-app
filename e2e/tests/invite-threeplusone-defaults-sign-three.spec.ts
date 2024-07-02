@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 import { login, addFile, approveForcedPreview, startAtSignPage, makeInvitation, addInvitation, signInvitation, declineInvitation, addFinalSignature, encodeMailHeader, rmDocument } from './utils.ts';
 import { checkEmails } from './utils-emails.ts';
 
-test('Make two invitations with form defaults and sign them', async ({ browser }) => {
+test('Make three invitations with form defaults, sign and decline, and add new invitation, then sign all', async ({ browser }) => {
 
   const { user0, user1, user2, user3, user4 } = await login(browser, 5);
   const filename = 'test.pdf';

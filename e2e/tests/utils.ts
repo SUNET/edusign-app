@@ -115,8 +115,8 @@ export const addInvitation = async (inviter, invitee, filename, index) => {
   await inviter.page.getByRole('button', { name: 'Other options' }).click();
   await inviter.page.getByTestId(`menu-item-edit-invitations-${filename}`).click();
   await inviter.page.getByTestId('button-add-invitation-undefined').click();
-  await inviter.page.getByTestId(`invitees.${index}.email`).fill(invitee.name);
-  await inviter.page.getByTestId(`invitees.${index}.name`).fill(invitee.email);
+  await inviter.page.getByTestId(`invitees.${index}.name`).fill(invitee.name);
+  await inviter.page.getByTestId(`invitees.${index}.email`).fill(invitee.email);
   await inviter.page.getByTestId(`button-save-edit-invitation-${filename}`).click();
 
   await inviter.page.goto('/sign');
