@@ -1,7 +1,7 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
-import { login, addFile, approveForcedPreview, startAtSignPage, makeInvitation, addInvitation, signInvitation, addFinalSignature, encodeMailHeader, rmDocument } from './utils.ts';
+import { login, addFile, approveForcedPreview, startAtSignPage, makeInvitation, addInvitation, signInvitation, declineInvitation, addFinalSignature, encodeMailHeader, rmDocument } from './utils.ts';
 import { checkEmails } from './utils-emails.ts';
 
 test('Make two invitations with form defaults and sign them', async ({ browser }) => {
