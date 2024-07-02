@@ -20,8 +20,8 @@ test('Make four ordered invitations, sign one, reorder, then sign all', async ({
 
   await signInvitation(user1, user0, filename, draftFilename)
 
-  const spec2 = ['signed', user0, [user1], filename];
-  const spec3 = ['invitation', user0, [user2], filename];
+  const spec2 = ['invitation', user0, [user2], filename];
+  const spec3 = ['signed', user0, [user1], filename];
   await checkEmails(user0.page, [spec2, spec3]);
 
   await user0.page.goto('/sign');
@@ -33,20 +33,20 @@ test('Make four ordered invitations, sign one, reorder, then sign all', async ({
 
   await moveInvitation(user0, filename, 0, 2);
 
-  const spec4 = ['cancellation', user0, [user2], filename];
-  const spec5 = ['invitation', user0, [user4], filename];
+  const spec4 = ['invitation', user0, [user4], filename];
+  const spec5 = ['cancellation', user0, [user2], filename];
   await checkEmails(user0.page, [spec4, spec5]);
 
   await signInvitation(user4, user0, filename, draftFilename);
 
-  const spec6 = ['signed', user0, [user4], filename];
-  const spec7 = ['invitation', user0, [user3], filename];
+  const spec6 = ['invitation', user0, [user3], filename];
+  const spec7 = ['signed', user0, [user4], filename];
   await checkEmails(user0.page, [spec6, spec7]);
 
   await signInvitation(user3, user0, filename, draftFilename);
 
-  const spec8 = ['signed', user0, [user3], filename];
-  const spec9 = ['invitation', user0, [user2], filename];
+  const spec8 = ['invitation', user0, [user2], filename];
+  const spec9 = ['signed', user0, [user3], filename];
   await checkEmails(user0.page, [spec8, spec9]);
 
   await signInvitation(user2, user0, filename, draftFilename);
