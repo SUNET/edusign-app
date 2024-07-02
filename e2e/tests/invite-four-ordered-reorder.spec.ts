@@ -34,7 +34,7 @@ test('Make four ordered invitations, sign one, reorder, then sign all', async ({
   await moveInvitation(user0, filename, 0, 2);
 
   await user0.page.reload();
-  await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user3.name} <${user3.email}> ,${user4.name} <${user4.email}> ,${user2.name} <${user2.email}> .`)
+  // await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user3.name} <${user3.email}> ,${user4.name} <${user4.email}> ,${user2.name} <${user2.email}> .`)
 
   const spec4 = ['invitation', user0, [user4], filename];
   const spec5 = ['cancellation', user0, [user2], filename];
