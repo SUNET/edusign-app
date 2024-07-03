@@ -143,14 +143,19 @@ const dragAndDrop = async (page: Page, subjectSelector: string, targetSelector: 
 		height: await targetElement.boundingBox().then(bound => bound?.height ?? 0),
 	};
 
-	await page.mouse.move(subjectElementBound.x, subjectElementBound.y, { steps: 10 });
+  const startX = subjectElementBound.x + subjectElementBound.width / 2;
+  const startY = subjectElementBound.y + subjectElementBound.height / 2;
+
+	await page.mouse.move(startX, startY, { steps: 10 });
+  await page.locator(subjectSelector).hover();
 
 	await page.dispatchEvent(subjectSelector, 'mousedown', { button: 0, force: true });
 
-	const x = targetElementBound.x + targetElementBound.width / 2;
-	const y = targetElementBound.y + targetElementBound.height / 2;
+	const endX = targetElementBound.x + targetElementBound.width / 2;
+	const endY = targetElementBound.y + targetElementBound.height / 2;
 
-	await page.mouse.move(x, y, { steps: 10 });
+	await page.mouse.move(endX, endY, { steps: 10 });
+  await page.locator(targetSelector).hover();
 
 	await page.dispatchEvent(targetSelector, 'mouseup', { button: 0 });
 }
