@@ -132,8 +132,8 @@ const dragAndDrop = async (page: Page, subjectTestid: string, targetTestid: stri
   await expect(subjectLocator).toHaveCount(1);
   await expect(targetLocator).toHaveCount(1);
 
-  const subjectBox = subjectLocator.boundingBox();
-  const targetBox = targetLocator.boundingBox();
+  const subjectBox = await subjectLocator.boundingBox();
+  const targetBox = await targetLocator.boundingBox();
 
   const startX = subjectBox.x + subjectBox.width / 2;
   const startY = subjectBox.y + subjectBox.height / 2;
