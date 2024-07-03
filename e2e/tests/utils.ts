@@ -126,38 +126,38 @@ export const addInvitation = async (inviter, invitee, filename, index) => {
 const dragAndDrop = async (page: Page, subjectSelector: string, targetSelector: string) => {
   // see https://github.com/microsoft/playwright/issues/13855
   //
-	const subjectElement = await page.waitForSelector(subjectSelector);
-	const targetElement = await page.waitForSelector(targetSelector);
+  const subjectElement = await page.waitForSelector(subjectSelector);
+  const targetElement = await page.waitForSelector(targetSelector);
 
-	const subjectElementBound = {
-		x: await subjectElement.boundingBox().then(bound => bound?.x ?? 0),
-		y: await subjectElement.boundingBox().then(bound => bound?.y ?? 0),
-		width: await subjectElement.boundingBox().then(bound => bound?.width ?? 0),
-		height: await subjectElement.boundingBox().then(bound => bound?.height ?? 0),
-	};
+  const subjectElementBound = {
+    x: await subjectElement.boundingBox().then(bound => bound?.x ?? 0),
+    y: await subjectElement.boundingBox().then(bound => bound?.y ?? 0),
+    width: await subjectElement.boundingBox().then(bound => bound?.width ?? 0),
+    height: await subjectElement.boundingBox().then(bound => bound?.height ?? 0),
+  };
 
-	const targetElementBound = {
-		x: await targetElement.boundingBox().then(bound => bound?.x ?? 0),
-		y: await targetElement.boundingBox().then(bound => bound?.y ?? 0),
-		width: await targetElement.boundingBox().then(bound => bound?.width ?? 0),
-		height: await targetElement.boundingBox().then(bound => bound?.height ?? 0),
-	};
+  const targetElementBound = {
+    x: await targetElement.boundingBox().then(bound => bound?.x ?? 0),
+    y: await targetElement.boundingBox().then(bound => bound?.y ?? 0),
+    width: await targetElement.boundingBox().then(bound => bound?.width ?? 0),
+    height: await targetElement.boundingBox().then(bound => bound?.height ?? 0),
+  };
 
   const startX = subjectElementBound.x + subjectElementBound.width / 2;
   const startY = subjectElementBound.y + subjectElementBound.height / 2;
 
-	await page.mouse.move(startX, startY, { steps: 10 });
+  await page.mouse.move(startX, startY, { steps: 10 });
   await page.locator(subjectSelector).hover();
 
-	await page.dispatchEvent(subjectSelector, 'mousedown', { button: 0, force: true });
+  await page.dispatchEvent(subjectSelector, 'mousedown', { button: 0, force: true });
 
-	const endX = targetElementBound.x + targetElementBound.width / 2;
-	const endY = targetElementBound.y + targetElementBound.height / 2;
+  const endX = targetElementBound.x + targetElementBound.width / 2;
+  const endY = targetElementBound.y + targetElementBound.height / 2;
 
-	await page.mouse.move(endX, endY, { steps: 10 });
+  await page.mouse.move(endX, endY, { steps: 10 });
   await page.locator(targetSelector).hover();
 
-	await page.dispatchEvent(targetSelector, 'mouseup', { button: 0 });
+  await page.dispatchEvent(targetSelector, 'mouseup', { button: 0 });
 }
 
 export const moveInvitation = async (inviter, filename, ifrom, ito) => {
