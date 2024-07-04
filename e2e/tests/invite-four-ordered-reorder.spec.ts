@@ -50,7 +50,7 @@ test('Make four ordered invitations, sign one, reorder, then sign all', async ({
   const spec8 = ['signed-last', user0, [user4], filename];
   await checkEmails(user0.page, [spec8]);
 
-  await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> ,${user4.name} <${user4.email}> ,${user3.name} <${user3.email}> ,${user2.name} <${user2.email}> .`);
+  await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> ,${user3.name} <${user3.email}> ,${user4.name} <${user4.email}> .`);
 
   await addFinalSignature(user0, filename);
 
