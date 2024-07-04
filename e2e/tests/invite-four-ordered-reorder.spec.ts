@@ -36,18 +36,18 @@ test('Make four ordered invitations, sign one, reorder, then sign all', async ({
   await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user3.name} <${user3.email}> ,${user4.name} <${user4.email}> .`)
 
   const spec4 = ['cancellation', user0, [user2], filename];
-  const spec5 = ['invitation', user0, [user4], filename];
+  const spec5 = ['invitation', user0, [user3], filename];
   await checkEmails(user0.page, [spec4, spec5]);
-
-  await signInvitation(user4, user0, filename, draftFilename);
-
-  const spec6 = ['invitation', user0, [user3], filename];
-  const spec7 = ['signed', user0, [user4], filename];
-  await checkEmails(user0.page, [spec6, spec7]);
 
   await signInvitation(user3, user0, filename, draftFilename);
 
-  const spec8 = ['signed-last', user0, [user3], filename];
+  const spec6 = ['invitation', user0, [user4], filename];
+  const spec7 = ['signed', user0, [user3], filename];
+  await checkEmails(user0.page, [spec6, spec7]);
+
+  await signInvitation(user4, user0, filename, draftFilename);
+
+  const spec8 = ['signed-last', user0, [user4], filename];
   await checkEmails(user0.page, [spec8]);
 
   await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> ,${user4.name} <${user4.email}> ,${user3.name} <${user3.email}> ,${user2.name} <${user2.email}> .`);
