@@ -187,6 +187,19 @@ export const rmInvitation = async (inviter, filename, index) => {
   await inviter.page.goto('/sign');
 };
 
+export const editSendfinal = async (inviter, filename) => {
+
+  await inviter.page.getByRole('button', { name: 'Other options' }).click();
+  await inviter.page.getByTestId(`menu-item-edit-invitations-${filename}`).click();
+
+  const rmButton = await inviter.page.getByTestId(`button-rm-entry-${index}`);
+  await rmButton.click();
+
+  await inviter.page.getByTestId(`button-save-edit-invitation-${filename}`).click();
+
+  await inviter.page.goto('/sign');
+};
+
 export const checkInvitation = async (user, inviter, filename) => {
   await user.page.goto('/sign');
 

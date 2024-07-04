@@ -98,19 +98,6 @@ const emailSpecs = {
     }
     return emailTest;
   },
-  "final-attached": (inviter, invitees, filename, more) => {
-
-    const recipients = getRecipients([inviter, ...invitees]);
-    const emailTest = {
-      to: recipients,
-      subject: `"${filename}" is now signed`,
-      body: [
-        `The document "${filename}" is now signed by all parties and attached to this email.`,
-        `Content-Disposition: attachment; filename="${more.signedFilename}"`,
-      ],
-    };
-    return emailTest;
-  },
   "declined": (inviter, invitees, filename, more) => {
 
     const invitee = invitees[0];
@@ -140,6 +127,32 @@ const emailSpecs = {
       body: [
         `This is to inform you that ${inviter.name} <${inviter.email}>`,
         `has cancelled an invitation to digitally sign a document named "${filename}".`,
+      ],
+    };
+    return emailTest;
+  },
+  "final-attached": (inviter, invitees, filename, more) => {
+
+    const recipients = getRecipients([inviter, ...invitees]);
+    const emailTest = {
+      to: recipients,
+      subject: `"${filename}" is now signed`,
+      body: [
+        `The document "${filename}" is now signed by all parties and attached to this email.`,
+        `Content-Disposition: attachment; filename="${more.signedFilename}"`,
+      ],
+    };
+    return emailTest;
+  },
+  "final-not-attached": (inviter, invitees, filename, more) => {
+
+    const recipients = getRecipients([inviter, ...invitees]);
+    const emailTest = {
+      to: recipients,
+      subject: `"${filename}" is now signed`,
+      body: [
+        `The document "${filename}" is now signed by all parties.`,
+        `The person who invited you chose not to send out the signed document automatically from eduSign.`,
       ],
     };
     return emailTest;
