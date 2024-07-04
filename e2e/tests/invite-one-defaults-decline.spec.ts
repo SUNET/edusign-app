@@ -20,7 +20,7 @@ test('Make one invitation with form defaults and decline it', async ({ browser }
 
   await declineInvitation(user1, user0, filename, draftFilename)
 
-  const spec2 = ['declined', user0, [user1], filename];
+  const spec2 = ['declined', user0, [user1], filename, {last: true}];
   await checkEmails(user1.page, [spec2]);
 
   await user0.page.goto('/sign');
