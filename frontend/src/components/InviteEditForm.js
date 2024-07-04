@@ -104,7 +104,7 @@ class InviteEditForm extends React.Component {
                   </div>
                   {sendsignedControl}
                   {skipFinalControl}
-                  <InviteesWidget {...this.props} />
+                  <InviteesWidget parentForm="edit" {...this.props} />
                 </Modal.Body>
                 <Modal.Footer>
                   <ESTooltip

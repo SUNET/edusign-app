@@ -284,7 +284,7 @@ class InviteForm extends React.Component {
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
                   {loaControl}
-                  <InviteesWidget {...this.props} />
+                  <InviteesWidget parentForm="create" {...this.props} />
                 </Modal.Body>
                 <Modal.Footer>
                   <ESTooltip

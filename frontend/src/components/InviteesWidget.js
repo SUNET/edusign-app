@@ -77,16 +77,37 @@ function _InviteesControl(props) {
       </ESTooltip>
     </div>
   );
-  return (
-    <>
-      {index === 0 && props.ordered && <>{inviteOrdinal}</>}
-      {index > 0 && !props.ordered && <>{crossButton}</>}
-      {index > 0 && props.ordered && (
+  let heading = (<></>);
+  if (props.parentForm === 'create') {
+    if (props.ordered) {
+      if (index === 0) {
+        heading = (<>{inviteOrdinal}</>);
+      } else if (index > 0) {
+        heading = (
+          <div className="invite-header">
+            {inviteOrdinal}
+            {crossButton}
+          </div>
+        );
+      }
+    } else if (index > 0) {
+      heading = (<>{crossButton}</>);
+    }
+  } else if (props.parentForm === 'edit') {
+    if (props.ordered) {
+      heading = (
         <div className="invite-header">
           {inviteOrdinal}
           {crossButton}
         </div>
-      )}
+      );
+    } else {
+      heading = (<>{crossButton}</>);
+    }
+  }
+  return (
+    <>
+      {heading}
       <Field name="id" value={`invitees.${index}.id`} type="hidden" />
       <div className="invitee-form-row" key={index}>
         <div className="invitee-form-name">
