@@ -33,9 +33,18 @@ test('Make two invitations with form defaults, sign one, cancel the other', asyn
   await rmInvitation(user0, filename, 0);
 
   const spec3 = ['cancellation', user0, [user2], filename];
-  const spec4 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];
-  await checkEmails(user2.page, [spec3, spec4]);
+  await checkEmails(user2.page, [spec3]);
+
+  await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> .`);
+
+  await addFinalSignature(user0, filename);
+
+  await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');
+  await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toContainText('Download (signed)');
 
   await rmDocument(user0, filename, 'invitation');
+
+  const spec4 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];
+  await checkEmails(user0.page, [spec4]);
 });
 
