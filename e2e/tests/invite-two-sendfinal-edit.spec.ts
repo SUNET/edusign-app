@@ -16,7 +16,7 @@ test('Make two invitations, sign one, edit to avoid sending the signed PDF, sign
   const spec1 = ['invitation', user0, [user1, user2], filename];
   await checkEmails(user0.page, [spec1]);
 
-  await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user1.name} <${user1.email}> .`)
+  await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user1.name} <${user1.email}> ,${user2.name} <${user2.email}> .`)
 
   await signInvitation(user1, user0, filename, draftFilename)
 
@@ -33,6 +33,7 @@ test('Make two invitations, sign one, edit to avoid sending the signed PDF, sign
   await editSendfinal(user0, filename);
 
   await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> .`);
+  await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user2.name} <${user2.email}> .`)
 
   await signInvitation(user2, user0, filename, draftFilename)
 

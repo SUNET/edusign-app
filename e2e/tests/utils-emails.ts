@@ -113,7 +113,9 @@ const emailSpecs = {
         `${invitee.name} <${invitee.email}> has declined to sign document "${filename}".`,
       ],
     };
-    if (more.last) {
+    if (more.last && more.skip) {
+      emailTest.body.push("This was the final reply to your invitation to sign this document.");
+    } else if (more.last) {
       emailTest.body.push("This was the final reply to your invitation to sign this document. Please visit eduSign to finalize the signature process.");
     }
     return emailTest;
