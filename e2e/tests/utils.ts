@@ -192,8 +192,8 @@ export const editSendfinal = async (inviter, filename) => {
   await inviter.page.getByRole('button', { name: 'Other options' }).click();
   await inviter.page.getByTestId(`menu-item-edit-invitations-${filename}`).click();
 
-  const rmButton = await inviter.page.getByTestId(`button-rm-entry-${index}`);
-  await rmButton.click();
+  const sendsignedCheckbox = await inviter.page.getByTestId(`sendsigned-choice-input`);
+  await sendsignedCheckbox.click();
 
   await inviter.page.getByTestId(`button-save-edit-invitation-${filename}`).click();
 
