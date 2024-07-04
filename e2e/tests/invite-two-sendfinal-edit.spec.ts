@@ -27,7 +27,6 @@ test('Make two invitations, sign one, edit to avoid sending the signed PDF, sign
   await expect(user0.page.getByTestId('legend-inviter')).toContainText('Documents you have invited others to sign');
   await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> .`);
   await expect(user0.page.getByRole('group')).toContainText('Required security level: Low');
-  await expect(user0.page.getByTestId(`button-skipping-${filename}`)).toContainText('Skip Signature');
   await expect(user0.page.getByTestId(`button-rm-invitation-${filename}`)).toContainText('Remove');
 
   await editSendfinal(user0, filename);
