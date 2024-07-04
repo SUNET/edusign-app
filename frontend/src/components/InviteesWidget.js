@@ -64,6 +64,7 @@ function _InviteesControl(props) {
         <BButton
           variant="outline"
           size="sm"
+          data-helpid={`button-rm-entry-${index}`}
           onClick={() => {
             arrayHelpers.remove(index);
             window.setTimeout(() => {
