@@ -18,7 +18,7 @@ test('Make one invitation with form defaults and decline it', async ({ browser }
 
   await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user1.name} <${user1.email}> .`)
 
-  await declineInvitation(user1, user0, filename, draftFilename)
+  await declineInvitation(user1, user0, filename)
 
   const spec2 = ['declined', user0, [user1], filename, {last: true}];
   await checkEmails(user1.page, [spec2]);

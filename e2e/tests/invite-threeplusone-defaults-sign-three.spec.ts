@@ -30,7 +30,7 @@ test('Make three invitations with form defaults, sign and decline, and add new i
   await expect(user0.page.getByRole('group')).toContainText('Required security level: Low');
   await expect(user0.page.getByTestId(`button-rm-invitation-${filename}`)).toContainText('Remove');
 
-  await declineInvitation(user2, user0, filename, draftFilename)
+  await declineInvitation(user2, user0, filename)
 
   const spec3 = ['declined', user0, [user2], filename];
   await checkEmails(user0.page, [spec3]);
