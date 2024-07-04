@@ -125,7 +125,7 @@ export const addInvitation = async (inviter, invitee, filename, index) => {
 
 const dragAndDrop = async (page: Page, subjectTestid: string, targetTestid: string) => {
   // see https://github.com/microsoft/playwright/issues/13855
-  //
+  // XXX fixme not working
   const subjectLocator = await page.getByTestId(subjectTestid);
   const targetLocator = await page.getByTestId(targetTestid);
 
@@ -168,6 +168,19 @@ export const moveInvitation = async (inviter, filename, indexFrom, indexTo) => {
   const fromTestid = `draggable-invitation-field-${indexFrom}`;
   const toTestid = `draggable-invitation-field-${indexTo}`;
   await dragAndDrop(inviter.page, fromTestid, toTestid);
+
+  await inviter.page.getByTestId(`button-save-edit-invitation-${filename}`).click();
+
+  await inviter.page.goto('/sign');
+};
+
+export const rmInvitation = async (inviter, filename, index) => {
+
+  await inviter.page.getByRole('button', { name: 'Other options' }).click();
+  await inviter.page.getByTestId(`menu-item-edit-invitations-${filename}`).click();
+
+  const rmButton = await inviter.page.getByTestId(`button-rm-entry-${index}`);
+  await rmButton.click();
 
   await inviter.page.getByTestId(`button-save-edit-invitation-${filename}`).click();
 

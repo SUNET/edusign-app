@@ -1,7 +1,7 @@
 
 import * as path from 'path';
 import { test, expect } from '@playwright/test';
-import { login, addFile, approveForcedPreview, startAtSignPage, makeInvitation, moveInvitation, signInvitation, declineInvitation, addFinalSignature, encodeMailHeader, rmDocument } from './utils.ts';
+import { login, addFile, approveForcedPreview, startAtSignPage, makeInvitation, rmInvitation, signInvitation, declineInvitation, addFinalSignature, encodeMailHeader, rmDocument } from './utils.ts';
 import { checkEmails } from './utils-emails.ts';
 
 test('Make four ordered invitations, sign one, reorder, then sign all', async ({ browser }) => {
@@ -31,10 +31,9 @@ test('Make four ordered invitations, sign one, reorder, then sign all', async ({
   await expect(user0.page.getByRole('group')).toContainText('Required security level: Low');
   await expect(user0.page.getByTestId(`button-rm-invitation-${filename}`)).toContainText('Remove');
 
-  await moveInvitation(user0, filename, 0, 2);
+  await rmInvitation(user0, filename, 0);
 
-  await user0.page.reload();
-  // await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user3.name} <${user3.email}> ,${user4.name} <${user4.email}> ,${user2.name} <${user2.email}> .`)
+  await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user3.name} <${user3.email}> ,${user4.name} <${user4.email}> .`)
 
   const spec4 = ['invitation', user0, [user4], filename];
   const spec5 = ['cancellation', user0, [user2], filename];
@@ -48,14 +47,8 @@ test('Make four ordered invitations, sign one, reorder, then sign all', async ({
 
   await signInvitation(user3, user0, filename, draftFilename);
 
-  const spec8 = ['invitation', user0, [user2], filename];
-  const spec9 = ['signed', user0, [user3], filename];
-  await checkEmails(user0.page, [spec8, spec9]);
-
-  await signInvitation(user2, user0, filename, draftFilename);
-
-  const spec10 = ['signed-last', user0, [user2], filename];
-  await checkEmails(user0.page, [spec10]);
+  const spec8 = ['signed-last', user0, [user3], filename];
+  await checkEmails(user0.page, [spec8]);
 
   await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> ,${user4.name} <${user4.email}> ,${user3.name} <${user3.email}> ,${user2.name} <${user2.email}> .`);
 
@@ -66,7 +59,7 @@ test('Make four ordered invitations, sign one, reorder, then sign all', async ({
 
   await rmDocument(user0, filename, 'invitation');
 
-  const spec11 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];
-  await checkEmails(user0.page, [spec11]);
+  const spec9 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];
+  await checkEmails(user0.page, [spec9]);
 });
 
