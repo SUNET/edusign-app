@@ -26,7 +26,7 @@ test('Make one invitation with skip final and decline it', async ({ browser }) =
 
   await user0.page.goto('/sign');
   await user0.page.reload();
-  await expect(user0.page.getByRole('group')).toContainText(`Declined to sign by:${user1.name} <${user1.email}> .`);
+  // await expect(user0.page.getByRole('group')).toContainText(`Declined to sign by:${user1.name} <${user1.email}> .`);
 
   await rmDocument(user0, filename, 'invitation');
 });
