@@ -21,12 +21,10 @@ test('Make one invitation with skip final and decline it', async ({ browser }) =
   await declineInvitation(user1, user0, filename, draftFilename)
 
   const spec2 = ['declined', user0, [user1], filename, {last: true, skip: true}];
-  await checkEmails(user1.page, [spec2]);
+  const spec3 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];
+  await checkEmails(user1.page, [spec2, spec3]);
 
   await expect(user0.page.getByRole('group')).toContainText(`Declined by:${user1.name} <${user1.email}> .`);
 
   await rmDocument(user0, filename, 'invitation');
-
-  const spec3 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];
-  await checkEmails(user0.page, [spec3]);
 });
