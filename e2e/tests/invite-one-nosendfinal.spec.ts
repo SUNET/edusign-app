@@ -20,7 +20,7 @@ test('Make one invitation and sign it without sending the signed PDF', async ({ 
 
   await signInvitation(user1, user0, filename, draftFilename)
 
-  const spec2 = ['signed', user0, [user1], filename];
+  const spec2 = ['signed-last', user0, [user1], filename];
   await checkEmails(user1.page, [spec2]);
 
   await user0.page.goto('/sign');
@@ -29,6 +29,14 @@ test('Make one invitation and sign it without sending the signed PDF', async ({ 
   await expect(user0.page.getByRole('group')).toContainText('Required security level: Low');
   await expect(user0.page.getByTestId(`button-skipping-${filename}`)).toContainText('Skip Signature');
   await expect(user0.page.getByTestId(`button-rm-invitation-${filename}`)).toContainText('Remove');
+
+  await addFinalSignature(user0, filename);
+
+  await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');
+  await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toContainText('Download (signed)');
+
+  const spec3 = ['final-not-attached', user0, [user1], filename];
+  await checkEmails(user0.page, [spec3]);
 
   await rmDocument(user0, filename, 'invitation');
 });

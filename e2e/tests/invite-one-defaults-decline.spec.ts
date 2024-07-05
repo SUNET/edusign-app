@@ -34,9 +34,9 @@ test('Make one invitation with form defaults and decline it', async ({ browser }
 
   await expect(user0.page.getByTestId('legend-personal')).toContainText('Personal documents');
   await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');
-  await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toContainText('Download (signed)');  // XXX
+  await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toContainText('Download (signed)');  // XXX not signed
 
-  const spec3 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];  // XXX
+  const spec3 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];  // XXX not signed
   await checkEmails(user0.page, [spec3]);  // XXX
 
   await rmDocument(user0, filename, 'invitation');

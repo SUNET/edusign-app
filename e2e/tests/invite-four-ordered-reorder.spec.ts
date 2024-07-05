@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 import { login, addFile, approveForcedPreview, startAtSignPage, makeInvitation, rmInvitation, signInvitation, declineInvitation, addFinalSignature, encodeMailHeader, rmDocument } from './utils.ts';
 import { checkEmails } from './utils-emails.ts';
 
-test('Make four ordered invitations, sign one, reorder, then sign all', async ({ browser }) => {
+test('Make four ordered invitations, sign one, remove next, then sign all', async ({ browser }) => {
 
   const { user0, user1, user2, user3, user4 } = await login(browser, 5);
   const filename = 'test.pdf';
@@ -62,4 +62,3 @@ test('Make four ordered invitations, sign one, reorder, then sign all', async ({
   const spec9 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];
   await checkEmails(user0.page, [spec9]);
 });
-

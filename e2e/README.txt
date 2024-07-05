@@ -8,8 +8,8 @@ To run the e2e tests, you need 5 accounts at eduID.
 Run tests with Docker:
 
  $ docker build -t playwright-test .
- $ docker run --rm -ti playwright-test
+ $ docker run --rm -ti -v ./tests:/app/tests playwright-test
 
 Run single test:
 
- $ docker run --rm -ti playwright-test tests/invite-two-defaults-sign-all.spec.ts
+ $ docker run --rm -ti -v ./tests:/app/tests playwright-test tests/invite-two-defaults-sign-all.spec.ts
