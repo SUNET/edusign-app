@@ -167,7 +167,10 @@ class DocumentOwned extends Component {
           body={this.getHelp(doc.state)}
         >
           {(this.props.size === "lg" && (
-            <div className={"invitation-multisign " + doc.state}>
+            <div 
+              className={"invitation-multisign " + doc.state}
+              data-testid={`representation-for-doc-${doc.name}`}
+            >
               <div className="invitation-multisign-request">
                 <div
                   className={"invitation-name-and-buttons-" + this.props.size}

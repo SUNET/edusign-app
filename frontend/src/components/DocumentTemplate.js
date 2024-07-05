@@ -60,7 +60,11 @@ class DocumentTemplate extends React.Component {
           body={this.getHelp("template-body")}
         >
           {(this.props.size === "lg" && (
-            <div className={"doc-flex-container-local " + doc.state} key="0">
+            <div
+              className={"doc-flex-container-local " + doc.state}
+              data-testid={`representation-for-doc-${doc.name}`}
+              key="0"
+            >
               <div className="doc-flex-container">
                 {widgets.dummySelectDoc()}
                 {widgets.docSize(doc)}

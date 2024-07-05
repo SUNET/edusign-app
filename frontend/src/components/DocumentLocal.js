@@ -167,6 +167,7 @@ class DocumentLocal extends React.Component {
           {(this.props.size === "lg" && (
             <div
               className={"doc-flex-container-local " + doc.state}
+              data-testid={`representation-for-doc-${doc.name}`}
               id={"local-doc-" + doc.name}
               key="0"
             >

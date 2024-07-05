@@ -185,6 +185,7 @@ class DocumentInvited extends Component {
           {(this.props.size === "lg" && (
             <div
               className={"invitation-multisign " + doc.state}
+              data-testid={`representation-for-doc-${doc.name}`}
             >
               <div className="invitation-multisign-request">
                 <div
