@@ -22,7 +22,7 @@ test('Make one invitation with skip final and decline it', async ({ browser }) =
 
   const spec2 = ['declined', user0, [user1], filename, {last: true, skip: true}];
   const spec3 = ['final-attached', user0, [], filename, {signedFilename: signedFilename}];  // XXX Not signed
-  await checkEmails(user1.page, [spec2, spec3]);
+  await checkEmails(user0.page, [spec2, spec3]);
 
   await expect(user0.page.getByTestId(`representation-for-doc-${filename}`)).toContainText(`Declined to sign by:${user1.name} <${user1.email}> .`);
 
