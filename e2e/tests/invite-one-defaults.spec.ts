@@ -30,7 +30,6 @@ test('Make one invitation and sign it with form defaults', async ({ browser }) =
   await expect(user0.page.getByTestId(`button-skipping-${filename}`)).toContainText('Skip Signature');
   await expect(user0.page.getByTestId(`button-rm-invitation-${filename}`)).toContainText('Remove');
 
-
   await addFinalSignature(user0, filename);
 
   await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');
