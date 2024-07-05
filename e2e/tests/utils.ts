@@ -83,14 +83,20 @@ export const makeInvitation = async (inviter, invitees, filename, options) => {
   await inviter.page.getByTestId(`button-multisign-${filename}`).click();
   await inviter.page.getByTestId('invitation-text-input').click();
   await inviter.page.getByTestId('invitation-text-input').fill('This is a test invitation');
-  if (!options.sendSigned) {
+  if (options.sendSigned) {
     await inviter.page.getByTestId('sendsigned-choice-input').check();
+  } else {
+    await inviter.page.getByTestId('sendsigned-choice-input').uncheck();
   }
   if (options.skipFinal) {
     await inviter.page.getByTestId('skipfinal-choice-input').check();
+  } else {
+    await inviter.page.getByTestId('skipfinal-choice-input').uncheck();
   }
   if (options.ordered) {
     await inviter.page.getByTestId('ordered-choice-input').check();
+  } else {
+    await inviter.page.getByTestId('ordered-choice-input').uncheck();
   }
   if (options.loa) {
     await inviter.page.getByTestId(`loa-radio-${options.loa}`).check();
