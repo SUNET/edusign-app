@@ -11,7 +11,7 @@ test('Make two invitations, sign one, edit to avoid sending the signed PDF, sign
   const signedFilename = 'test-signed.pdf';
   const draftFilename = 'test-draft.pdf';
 
-  await makeInvitation (user0, [user1, user2], filename, {sendSigned: false, skipFinal: false, ordered: false, loa: 'low'});
+  await makeInvitation (user0, [user1, user2], filename, {sendSigned: true, skipFinal: false, ordered: false, loa: 'low'});
 
   const spec1 = ['invitation', user0, [user1, user2], filename];
   await checkEmails(user0.page, [spec1]);
