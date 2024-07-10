@@ -45,6 +45,7 @@ from flask import Blueprint, abort, current_app, g, make_response, redirect, ren
 from flask_babel import force_locale, get_locale, gettext
 from werkzeug.wrappers.response import Response
 
+from edusign_webapp.api import routing
 from edusign_webapp.doc_store import DocStore
 from edusign_webapp.forms import has_pdf_form, update_pdf_form
 from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
@@ -91,6 +92,8 @@ anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
 
 edusign_views2 = Blueprint('edusign2', __name__, url_prefix='/sign2', template_folder='templates')
+
+edusign_api_views = Blueprint('edusign_api', __name__, url_prefix='/api/v1', template_folder='templates')
 
 
 @admin_edusign_views.route('/cleanup', methods=['POST'])
@@ -786,6 +789,17 @@ def _ready_docs(
     return failed, new_docs
 
 
+@routing(
+    marshal=ReSignRequestSchema,
+    unmarshal=ToRestartSigningSchema,
+    web_views=[
+        {"views": edusign_views, "route": '/recreate-sign-request', "methods": ["POST"]},
+        {"views": edusign_views, "route": '/recreate-sign-request', "methods": ["POST"]},
+    ],
+    api_views=[
+        {"views": edusign_api_views, "route": '/create-sign-request', "methods": ["POST"]},
+    ],
+)
 @edusign_views.route('/recreate-sign-request', methods=['POST'])
 @edusign_views2.route('/recreate-sign-request', methods=['POST'])
 @UnMarshal(ToRestartSigningSchema)
