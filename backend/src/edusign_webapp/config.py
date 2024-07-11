@@ -54,6 +54,8 @@ DEBUG = get_boolean(DEBUG)
 
 ENVIRONMENT = os.environ.get('ENVIRONMENT', default='production')
 
+API_KEY = os.environ.get('API_KEY', default='dummy')
+
 SECRET_KEY = os.environ.get('SECRET_KEY', default='supersecret')
 
 SESSION_COOKIE_DOMAIN = os.environ.get('SP_HOSTNAME', default='edusign.sunet.se')
