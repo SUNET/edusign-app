@@ -120,6 +120,8 @@ class PersonalDataSchema(Schema):
     authn_context = fields.String(required=True, validate=[validate_nonempty])
     organization = fields.String(required=True, validate=[validate_nonempty])
     registration_authority = fields.String(required=True, validate=[validate_nonempty])
+    saml_attr_schema = fields.String(required=True, validate=[validate_nonempty])
+    invited_unauthn = fields.Boolean(dump_default=True)
 
 
 def add_to_session(personal_data):
@@ -134,6 +136,8 @@ def add_to_session(personal_data):
     session['authn_context'] = personal_data['authn_context']
     session['organizationName'] = personal_data['organization']
     session['registrationAuthority'] = personal_data['registration_authority']
+    session['saml-attr-schema'] = personal_data['saml_attr_schema']
+    session['invited-unauthn'] = personal_data['invited_unauthn']
 
 
 class APIRequestSchema(Schema):
