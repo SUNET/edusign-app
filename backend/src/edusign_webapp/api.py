@@ -39,6 +39,7 @@ from flask import abort, current_app, request, session
 from flask_babel import gettext
 from marshmallow import Schema, ValidationError, fields
 
+from edusign_webapp.marshal import Marshal, UnMarshal
 from edusign_webapp.validators import (
     validate_nonempty,
 )
@@ -111,13 +112,41 @@ class APIMarshal(object):
 
 class PersonalDataSchema(Schema):
     eppn = fields.String(required=True, validate=[validate_nonempty])
-    name = fields.String(required=True, validate=[validate_nonempty])
-    mail = fields.String(required=True, validate=[validate_nonempty])
+    display_name = fields.String(required=True, validate=[validate_nonempty])
+    mail = fields.List(fields.String())
+    assurance = fields.List(fields.String())
     idp = fields.String(required=True, validate=[validate_nonempty])
+    authn_method = fields.String(required=True, validate=[validate_nonempty])
+    authn_context = fields.String(required=True, validate=[validate_nonempty])
+    organization = fields.String(required=True, validate=[validate_nonempty])
+    registration_authority = fields.String(required=True, validate=[validate_nonempty])
 
 
 def add_to_session(personal_data):
-    pass
+    session['eppn'] = personal_data['eppn']
+    session['eduPersonPrincipalName'] = personal_data['eppn']
+    session['displayName'] = personal_data['display_name']
+    session['mail'] = personal_data['mail'][0]
+    session['mail_aliases'] = personal_data['mail']
+    session['eduPersonAssurance'] = personal_data['assurance']
+    session['idp'] = personal_data['idp']
+    session['authn_method'] = personal_data['authn_method']
+    session['authn_context'] = personal_data['authn_context']
+    session['organizationName'] = personal_data['organization']
+    session['registrationAuthority'] = personal_data['registration_authority']
+
+
+class APIRequestSchema(Schema):
+    """
+    Basic Schema to validate requests from the front side app,
+    that will acquire different payloads depending on the actual request being made.
+
+    The basic structure of this schema is:
+    * csrf_token: CSRF token sent from the front side app.
+    * payload: (optional) additional data sent from the frontend and specific to the request.
+    """
+    api_key = fields.String(required=True)
+    personal_data = fields.Nested(PersonalDataSchema)
 
 
 class APIUnMarshal(object):
@@ -127,7 +156,7 @@ class APIUnMarshal(object):
     and provide it to the views in the form of dicts and lists.
     """
 
-    def __init__(self, schema: Type[Schema]):
+    def __init__(self, schema: Optional[Type[Schema]] = None):
         """
         Instantiate the class with a view specific schema,
         that will parse and validate the request data that is specific to the decorated view,
@@ -136,12 +165,14 @@ class APIUnMarshal(object):
         :param schema: The schema detailing the expected structure and type of the received data.
         """
 
-        class APIUnMarshallingSchema(Schema):
-            api_key = fields.String(required=True)
-            personal_data = fields.Nested(PersonalDataSchema)
-            payload = fields.Nested(schema)  # type: ignore
+        if schema is None:
+            self.schema = APIRequestSchema
+        else:
 
-        self.schema = APIUnMarshallingSchema
+            class APIUnMarshallingSchema(APIRequestSchema):
+                payload = fields.Nested(schema)  # type: ignore
+
+            self.schema = APIUnMarshallingSchema
 
     def __call__(self, f: Callable) -> Callable:
         """
@@ -178,5 +209,42 @@ class APIUnMarshal(object):
         return unmarshal_decorator
 
 
-def routing(marshal=None, unmarshal=None, web_views=None, api_views=None):
-    pass
+class Routing(object):
+
+    def __init__(self, marshal=None, unmarshal=None, web_views=None, api_views=None):
+        self.marshal = Marshal(marshal)
+        self.unmarshal = UnMarshal(unmarshal)
+        self.api_marshal = APIMarshal(marshal)
+        self.api_unmarshal = APIUnMarshal(unmarshal)
+        self.web_views = web_views
+        self.api_views = api_views
+
+    def __call__(self, f: Callable):
+
+        if self.web_views is not None:
+            for view in self.web_views:
+
+                blueprint = view['blueprint']
+                route = view['route']
+                methods = view['methods']
+
+                routing = blueprint.route(route, methods=methods)
+
+                marshaled = self.marshal(f)
+                unmarshaled = self.unmarshal(marshaled)
+
+                routing(unmarshaled)
+
+        if self.api_views is not None:
+            for view in self.api_views:
+
+                blueprint = view['blueprint']
+                route = view['route']
+                methods = view['methods']
+
+                routing = blueprint.route(route, methods=methods)
+
+                marshaled = self.api_marshal(f)
+                unmarshaled = self.api_unmarshal(marshaled)
+
+                routing(unmarshaled)
