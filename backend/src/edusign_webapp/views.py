@@ -777,7 +777,7 @@ def _ready_docs(
     unmarshal=ToRestartSigningSchema,
     web_views=[
         {"blueprint": edusign_views, "route": '/recreate-sign-request', "methods": ["POST"]},
-        {"blueprint": edusign_views, "route": '/recreate-sign-request', "methods": ["POST"]},
+        {"blueprint": edusign_views2, "route": '/recreate-sign-request', "methods": ["POST"]},
     ],
     api_views=[
         {"blueprint": edusign_api_views, "route": '/create-sign-request', "methods": ["POST"]},
