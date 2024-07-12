@@ -45,7 +45,6 @@ def test_index(client):
     assert session.get('eppn') == 'dummy-eppn@example.org'
     assert session.get('mail') == 'tester@example.org'
     assert session.get('idp') == 'https://idp'
-    assert session.get('authn_method') == 'dummy'
     assert session.get('authn_context') == 'dummy'
 
 
@@ -63,5 +62,4 @@ def test_index_twice(client):
     assert session.get('eppn') == 'dummy-eppn@example.org'
     assert session.get('mail') == 'tester@example.org'
     assert session.get('idp') == 'https://idp'
-    assert session.get('authn_method') == 'dummy'
     assert session.get('authn_context') == 'dummy'

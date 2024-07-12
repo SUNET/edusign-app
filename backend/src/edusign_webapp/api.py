@@ -116,7 +116,6 @@ class PersonalDataSchema(Schema):
     mail = fields.List(fields.String())
     assurance = fields.List(fields.String())
     idp = fields.String(required=True, validate=[validate_nonempty])
-    authn_method = fields.String(required=True, validate=[validate_nonempty])
     authn_context = fields.String(required=True, validate=[validate_nonempty])
     organization = fields.String(required=True, validate=[validate_nonempty])
     registration_authority = fields.String(required=True, validate=[validate_nonempty])
@@ -133,7 +132,6 @@ def add_to_session(personal_data):
     session['mail_aliases'] = personal_data['mail']
     session['eduPersonAssurance'] = personal_data['assurance']
     session['idp'] = personal_data['idp']
-    session['authn_method'] = personal_data['authn_method']
     session['authn_context'] = personal_data['authn_context']
     session['organizationName'] = personal_data['organization']
     session['registrationAuthority'] = personal_data['registration_authority']
