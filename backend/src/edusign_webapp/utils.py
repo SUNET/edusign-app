@@ -161,11 +161,6 @@ def add_attributes_to_session(check_whitelisted=True):
             current_app.logger.error('Missing Identity Provider from request')
             raise
         try:
-            session['authn_method'] = request.headers.get('Shib-Authentication-Method')
-        except KeyError:
-            current_app.logger.error('Missing Authentication Method from request')
-            raise
-        try:
             session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
         except KeyError:
             current_app.logger.error('Missing AuthnContext Class from request')
