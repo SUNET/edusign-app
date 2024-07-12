@@ -122,6 +122,7 @@ class PersonalDataSchema(Schema):
     registration_authority = fields.String(required=True, validate=[validate_nonempty])
     saml_attr_schema = fields.String(required=True, validate=[validate_nonempty])
     invited_unauthn = fields.Boolean(dump_default=True)
+    return_url = fields.String(required=True, validate=[validate_nonempty])
 
 
 def add_to_session(personal_data):
@@ -138,6 +139,7 @@ def add_to_session(personal_data):
     session['registrationAuthority'] = personal_data['registration_authority']
     session['saml-attr-schema'] = personal_data['saml_attr_schema']
     session['invited-unauthn'] = personal_data['invited_unauthn']
+    session['api_return_url'] = personal_data['return_url']
 
 
 class APIRequestSchema(Schema):
