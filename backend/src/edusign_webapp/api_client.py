@@ -357,10 +357,14 @@ class APIClient(object):
         if assurance_attr_name not in used_attr_names:
             attrs.append({'name': assurance_attr_name, 'value': loa})
 
-        scheme = self.config['PREFERRED_URL_SCHEME']
-        return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
-        if request.path.startswith('/sign2'):
-            return_url = url_for('edusign2.sign_service_callback', _external=True, _scheme=scheme)
+        if 'api_return_url' in session and session['api_return_url']:
+            return_url = session['api_return_url']
+        else:
+            scheme = self.config['PREFERRED_URL_SCHEME']
+            return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
+
+            if request.path.startswith('/sign2'):
+                return_url = url_for('edusign2.sign_service_callback', _external=True, _scheme=scheme)
 
         request_data = {
             "correlationId": correlation_id,
