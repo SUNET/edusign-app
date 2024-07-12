@@ -940,6 +940,29 @@ def sign_service_callback() -> Union[str, Response]:
         abort(500)
 
 
+@edusign_views.route('/test-api-callback', methods=['POST', 'GET'])
+def test_api_sign_service_callback() -> Union[str, Response]:
+    """
+    This is just to be able to test the API for the nextcloud app,
+    it will receive the sign response and just log it,
+    so that it can be picked from the logs and used to
+    retrieve the signed docs from the API.
+    """
+    if not current_app.config['DEBUG']:
+        abort(404)
+
+    if current_app.config['ENVIRONMENT'] not in ('development', 'e2e'):
+        abort(404)
+
+    sign_response = request.form['EidSignResponse']
+    current_app.logger.debug(f"Sign response: {sign_response}")
+
+    relay_state = request.form['RelayState']
+    current_app.logger.debug(f"Relay state: {relay_state}")
+
+    return 'OK'
+
+
 def _prepare_signed_by_email(key, owner):
     """
     Prepare emails to send informing the inviter user
@@ -1146,10 +1169,17 @@ def _process_signed_documents(process_data):
     return emails, to_validate
 
 
-@edusign_views.route('/get-signed', methods=['POST'])
-@edusign_views2.route('/get-signed', methods=['POST'])
-@UnMarshal(SigningSchema)
-@Marshal(SignedDocumentsSchema)
+@Routing(
+    marshal=SignedDocumentsSchema,
+    unmarshal=SigningSchema,
+    web_views=[
+        {"blueprint": edusign_views, "route": '/get-signed', "methods": ["POST"]},
+        {"blueprint": edusign_views2, "route": '/get-signed', "methods": ["POST"]},
+    ],
+    api_views=[
+        {"blueprint": edusign_api_views, "route": '/get-signed', "methods": ["POST"]},
+    ],
+)
 def get_signed_documents(sign_data: dict) -> dict:
     """
     View to get the signed documents from the API.
