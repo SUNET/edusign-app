@@ -940,7 +940,7 @@ def sign_service_callback() -> Union[str, Response]:
         abort(500)
 
 
-@edusign_views.route('/test-api-callback', methods=['POST', 'GET'])
+@anon_edusign_views.route('/test-api-callback', methods=['POST', 'GET'])
 def test_api_sign_service_callback() -> Union[str, Response]:
     """
     This is just to be able to test the API for the nextcloud app,
