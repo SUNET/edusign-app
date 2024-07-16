@@ -111,32 +111,31 @@ class APIMarshal(object):
 
 
 class PersonalDataSchema(Schema):
+    idp = fields.String(required=True, validate=[validate_nonempty])
     eppn = fields.String(required=True, validate=[validate_nonempty])
     display_name = fields.String(required=True, validate=[validate_nonempty])
     mail = fields.List(fields.String())
     assurance = fields.List(fields.String())
-    idp = fields.String(required=True, validate=[validate_nonempty])
     authn_context = fields.String(required=True, validate=[validate_nonempty])
     organization = fields.String(required=True, validate=[validate_nonempty])
     registration_authority = fields.String(required=True, validate=[validate_nonempty])
     saml_attr_schema = fields.String(required=True, validate=[validate_nonempty])
-    invited_unauthn = fields.Boolean(dump_default=True)
     return_url = fields.String(required=True, validate=[validate_nonempty])
 
 
 def add_to_session(personal_data):
+    session['idp'] = personal_data['idp']
     session['eppn'] = personal_data['eppn']
     session['eduPersonPrincipalName'] = personal_data['eppn']
     session['displayName'] = personal_data['display_name']
     session['mail'] = personal_data['mail'][0]
     session['mail_aliases'] = personal_data['mail']
-    session['eduPersonAssurance'] = personal_data['assurance']
-    session['idp'] = personal_data['idp']
     session['authn_context'] = personal_data['authn_context']
     session['organizationName'] = personal_data['organization']
+    session['eduPersonAssurance'] = personal_data['assurance']
     session['registrationAuthority'] = personal_data['registration_authority']
     session['saml-attr-schema'] = personal_data['saml_attr_schema']
-    session['invited-unauthn'] = personal_data['invited_unauthn']
+    session['invited-unauthn'] = False
     session['api_return_url'] = personal_data['return_url']
 
 
