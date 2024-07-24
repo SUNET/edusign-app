@@ -39,7 +39,7 @@
     "react-dropzone": "14.2.3",
     "react-intl": "5.25.1",
     "react-intl-redux": "2.3.0",
-    "react-pdf": "7.7.3",
+    "react-pdf": "9.1.0",
     "react-redux": "7.2.9",
     "redux": "4.2.0",
     "sass": "1.56.1",
