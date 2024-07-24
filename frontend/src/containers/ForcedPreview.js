@@ -1,6 +1,6 @@
 /**
  * @module containers/DocPreview
- * @desc In this module we connect the DocPreview component with the Redux store.
+ * @desc In this module we connect the ForcedPreview component with the Redux store.
  *
  * in mapDispatchToProps we compose the handler to close the modal, making use
  * of the Redux dispatch function.

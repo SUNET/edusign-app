@@ -3,10 +3,6 @@
 </head>
 <body>
 
-<p><strong>
-{% trans %}Message in English:{% endtrans %}
-</strong></p>
-
 <p>
 {% trans invited_email=invited_email, invited_name=invited_name, document_name=document_name %}
 {{ invited_name }} &lt;{{ invited_email }}&gt; has declined to sign document "{{ document_name }}".

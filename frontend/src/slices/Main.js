@@ -33,10 +33,11 @@ import {
   checkStatus,
   extractCsrfToken,
   preparePayload,
+  esFetch,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { loadDocuments } from "slices/Documents";
-import { setPolling } from "slices/Poll";
+import { loadDocuments, addDocumentToDb, addDocument } from "slices/Documents";
+import { setPolling, configureSkipped } from "slices/Poll";
 import { b64toBlob, nameForDownload } from "components/utils";
 
 /**
@@ -47,21 +48,21 @@ import { b64toBlob, nameForDownload } from "components/utils";
 export const fetchConfig = createAsyncThunk(
   "main/fetchConfig",
   async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
     let intl;
     if (args === undefined) {
-      const state = thunkAPI.getState();
       intl = createIntl(state.intl);
     } else {
       intl = args.intl;
     }
     try {
-      const response = await fetch("/sign/config", getRequest);
+      const response = await esFetch("/sign/config", getRequest);
       const configData = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, configData);
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
       if (configData.error) {
         thunkAPI.dispatch(
-          addNotification({ level: "danger", message: configData.message })
+          addNotification({ level: "danger", message: configData.message }),
         );
         return thunkAPI.rejectWithValue(configData.message);
       } else {
@@ -69,10 +70,30 @@ export const fetchConfig = createAsyncThunk(
           loadDocuments({
             intl: intl,
             eppn: configData.payload.signer_attributes.eppn,
-          })
+          }),
         );
         thunkAPI.dispatch(setPolling(configData.payload.poll));
         delete configData.payload.poll;
+
+        for (const doc of configData.payload.skipped) {
+          let prefix = "data:application/xml;base64,";
+          if (doc.type === "application/pdf") {
+            prefix = "data:application/pdf;base64,";
+          }
+          doc.signedContent = prefix + doc.signed_content;
+          doc.blob = prefix + doc.signed_content;
+          doc.state = "signed";
+          doc.show = false;
+          doc.showForced = false;
+          doc.pprinted = doc.pprinted;
+          const newDoc = await addDocumentToDb(
+            doc,
+            state.main.signer_attributes.eppn,
+          );
+          thunkAPI.dispatch(addDocument(newDoc));
+        }
+
+        delete configData.payload.skipped;
         return configData;
       }
     } catch (err) {
@@ -83,11 +104,11 @@ export const fetchConfig = createAsyncThunk(
             defaultMessage: "TODO",
             id: "main-todo",
           }),
-        })
+        }),
       );
       return thunkAPI.rejectWithValue(err.toString());
     }
-  }
+  },
 );
 
 /**
@@ -100,20 +121,26 @@ export const getPartiallySignedDoc = createAsyncThunk(
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     const oldDocs = state.main[args.stateKey].filter((doc) => {
-      doc.key === args.key;
+      return doc.key === args.key;
     });
     if (oldDocs.length == 1 && oldDocs[0].blob) {
       args.payload = oldDocs[0];
-      if (args.hasOwnProperty("showForced")) {
-        args.payload.showForced = true;
-      } else {
-        args.payload.show = true;
+      if (args.showForced) {
+        args.payload = {
+          ...args.payload,
+          showForced: true,
+        };
+      } else if (args.show) {
+        args.payload = {
+          ...args.payload,
+          show: true,
+        };
       }
       return args;
     }
     const body = preparePayload(state, { key: args.key });
     try {
-      const response = await fetch("/sign/get-partially-signed", {
+      const response = await esFetch("/sign/get-partially-signed", {
         ...postRequest,
         body: body,
       });
@@ -122,6 +149,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
       if (data.error) {
         throw new Error(data.message);
       }
+
       data.key = args.key;
       data.stateKey = args.stateKey;
       data.payload.showForced = args.showForced;
@@ -136,10 +164,10 @@ export const getPartiallySignedDoc = createAsyncThunk(
               "Problem fetching document from the backend, please try again",
             id: "problem-fetching-document",
           }),
-        })
+        }),
       );
     }
-  }
+  },
 );
 
 /**
@@ -153,7 +181,7 @@ export const declineSigning = createAsyncThunk(
     const state = thunkAPI.getState();
     const body = preparePayload(state, { key: args.key });
     try {
-      const response = await fetch("/sign/decline-invitation", {
+      const response = await esFetch("/sign/decline-invitation", {
         ...postRequest,
         body: body,
       });
@@ -177,10 +205,10 @@ export const declineSigning = createAsyncThunk(
             defaultMessage: "Problem declining signature",
             id: "problem-declining-document",
           }),
-        })
+        }),
       );
     }
-  }
+  },
 );
 
 /**
@@ -191,10 +219,10 @@ export const declineSigning = createAsyncThunk(
 export const downloadInvitedDraft = createAsyncThunk(
   "main/downloadInvitedDraft",
   async (args, thunkAPI) => {
-    const state = thunkAPI.getState();
-    const doc = state.main.pending_multisign.filter((d) => {
+    let state = thunkAPI.getState();
+    let doc = state.main.pending_multisign.find((d) => {
       return d.name === args.docName;
-    })[0];
+    });
     if (!doc.signedContent) {
       await thunkAPI.dispatch(
         getPartiallySignedDoc({
@@ -203,17 +231,73 @@ export const downloadInvitedDraft = createAsyncThunk(
           intl: args.intl,
           show: false,
           showForced: false,
-        })
+        }),
       );
     }
+    state = thunkAPI.getState();
+    doc = state.main.pending_multisign.find((d) => {
+      return d.name === args.docName;
+    });
     const b64content =
       doc.signedContent !== undefined
         ? doc.signedContent.split(",")[1]
         : doc.blob.split(",")[1];
-    const blob = b64toBlob(b64content);
+    const blob = b64toBlob(b64content, doc.type);
     const newName = nameForDownload(doc.name, "draft");
     FileSaver.saveAs(blob, newName);
-  }
+  },
+);
+
+
+/**
+ * @public
+ * @function finishInvited
+ * @desc Redux action to finish an invited multisign request
+ */
+export const finishInvited = createAsyncThunk(
+  "main/finishInvited",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    const oldDoc = state.main.pending_multisign.find(doc => doc.key === args.doc.id);
+    if (oldDoc === undefined) {
+      return;
+    }
+    thunkAPI.dispatch(mainSlice.actions.removeInvited({key: args.doc.id}));
+    let prefix = "data:application/xml;base64,";
+    if (args.doc.type === "application/pdf") {
+      prefix = "data:application/pdf;base64,";
+    }
+    const content = prefix + args.doc.signed_content;
+    let newDoc = {
+      ...oldDoc,
+      name: nameForDownload(oldDoc.name, "draft"),
+      state: "signed",
+      message: "",
+      blob: content,
+      signedContent: content,
+      pprinted: args.doc.pprinted,
+      validated: args.doc.validated,
+      show: false,
+      showForced: false,
+    };
+    delete newDoc.pending;
+    delete newDoc.signed;
+    delete newDoc.declined;
+    try {
+      newDoc = await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
+      thunkAPI.dispatch(addDocument(newDoc));
+    } catch(err) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: args.intl.formatMessage({
+            defaultMessage: "TODO",
+            id: "main-todo",
+          }),
+        }),
+      );
+    }
+  },
 );
 
 /**
@@ -232,7 +316,7 @@ export const delegateSignature = createAsyncThunk(
       email: args.values.delegationEmail,
     });
     try {
-      const response = await fetch("/sign/delegate-invitation", {
+      const response = await esFetch("/sign/delegate-invitation", {
         ...postRequest,
         body: body,
       });
@@ -246,7 +330,7 @@ export const delegateSignature = createAsyncThunk(
           addNotification({
             level: "success",
             message: data.message,
-          })
+          }),
         );
       }
       return { key: args.values.documentKey };
@@ -258,10 +342,10 @@ export const delegateSignature = createAsyncThunk(
             defaultMessage: "Problem delegating signature",
             id: "problem-delegating-document",
           }),
-        })
+        }),
       );
     }
-  }
+  },
 );
 
 const mainSlice = createSlice({
@@ -273,6 +357,7 @@ const mainSlice = createSlice({
     signer_attributes: {
       eppn: "",
       name: "",
+      mail: "",
       mail_aliases: [],
     },
     owned_multisign: [],
@@ -282,6 +367,15 @@ const mainSlice = createSlice({
     width: 0,
     multisign_buttons: "yes",
     showHelp: true,
+    max_file_size: 20971520,
+    max_signatures: 10,
+    company_link: "https://sunet.se",
+    available_loas: [],
+    ui_defaults: {
+      skip_final: false,
+      send_signed: true,
+      ordered_invitations: false,
+    },
   },
   reducers: {
     /**
@@ -344,6 +438,16 @@ const mainSlice = createSlice({
     },
     /**
      * @public
+     * @function removeInvited
+     * @desc Redux action to remove an invited multisign request
+     */
+    removeInvited(state, action) {
+      state.pending_multisign = state.pending_multisign.filter((doc) => {
+        return doc.key !== action.payload.key;
+      });
+    },
+    /**
+     * @public
      * @function updateOwned
      * @desc Redux action to update an owned multisign request
      */
@@ -355,25 +459,6 @@ const mainSlice = createSlice({
             ...action.payload,
           };
         } else return doc;
-      });
-    },
-    /**
-     * @public
-     * @function finishInvited
-     * @desc Redux action to finish an invited multisign request
-     */
-    finishInvited(state, action) {
-      state.pending_multisign = state.pending_multisign.map((doc) => {
-        if (doc.key === action.payload.id) {
-          return {
-            ...doc,
-            state: "signed",
-            message: "",
-            signedContent:
-              "data:application/pdf;base64," + action.payload.signed_content,
-          };
-        }
-        return doc;
       });
     },
     /**
@@ -721,53 +806,60 @@ const mainSlice = createSlice({
       });
     },
   },
-  extraReducers: {
-    [fetchConfig.fulfilled]: (state, action) => {
-      return {
-        ...state,
-        ...action.payload.payload,
-      };
-    },
-    [fetchConfig.rejected]: (state, action) => {
-      return {
-        ...state,
-        signer_attributes: null,
-      };
-    },
-    [getPartiallySignedDoc.fulfilled]: (state, action) => {
-      state[action.payload.stateKey] = state[action.payload.stateKey].map(
-        (doc) => {
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchConfig.fulfilled, (state, action) => {
+        return {
+          ...state,
+          ...action.payload.payload,
+        };
+      })
+      .addCase(fetchConfig.rejected, (state, action) => {
+        return {
+          ...state,
+          signer_attributes: null,
+        };
+      })
+      .addCase(getPartiallySignedDoc.fulfilled, (state, action) => {
+        state[action.payload.stateKey] = state[action.payload.stateKey].map(
+          (doc) => {
+            if (doc.key === action.payload.key) {
+              let newDoc = { ...doc };
+              if (action.payload.payload) {
+                newDoc = {
+                  ...doc,
+                  ...action.payload.payload,
+                };
+                if (!newDoc.blob.startsWith("data:")) {
+                  let prefix = "data:application/xml;base64,";
+                  if (newDoc.type === "application/pdf") {
+                    prefix = "data:application/pdf;base64,";
+                  }
+                  newDoc.blob = prefix + action.payload.payload.blob;
+                }
+                newDoc.pprinted = action.payload.payload.pprinted;
+              }
+              return newDoc;
+            } else return doc;
+          },
+        );
+      })
+      .addCase(declineSigning.fulfilled, (state, action) => {
+        state.pending_multisign = state.pending_multisign.map((doc) => {
           if (doc.key === action.payload.key) {
-            let newDoc = { ...doc };
-            if (action.payload.payload) {
-              newDoc = {
-                ...doc,
-                ...action.payload.payload,
-              };
-              newDoc.blob =
-                "data:application/pdf;base64," + action.payload.payload.blob;
-            }
-            return newDoc;
+            return {
+              ...doc,
+              state: "declined",
+              message: action.payload.message,
+            };
           } else return doc;
-        }
-      );
-    },
-    [declineSigning.fulfilled]: (state, action) => {
-      state.pending_multisign = state.pending_multisign.map((doc) => {
-        if (doc.key === action.payload.key) {
-          return {
-            ...doc,
-            state: "declined",
-            message: action.payload.message,
-          };
-        } else return doc;
+        });
+      })
+      .addCase(delegateSignature.fulfilled, (state, action) => {
+        state.pending_multisign = state.pending_multisign.filter((doc) => {
+          return doc.key !== action.payload.key;
+        });
       });
-    },
-    [delegateSignature.fulfilled]: (state, action) => {
-      state.pending_multisign = state.pending_multisign.filter((doc) => {
-        return doc.key !== action.payload.key;
-      });
-    },
   },
 });
 
@@ -778,8 +870,8 @@ export const {
   resizeWindow,
   addOwned,
   removeOwned,
+  removeInvited,
   updateOwned,
-  finishInvited,
   setInvitedSigning,
   setOwnedSigning,
   hideInvitedPreview,

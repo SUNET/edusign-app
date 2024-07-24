@@ -1,7 +1,11 @@
+import os.path
 from base64 import b64decode, b64encode
+from tempfile import TemporaryDirectory
 
 import fitz
 from flask import current_app
+from ocrmypdf import ocr
+from ocrmypdf.pdfa import file_claims_pdfa
 
 
 def _load_b64_pdf(b64_pdf):
@@ -52,6 +56,27 @@ def update_pdf_form(b64_pdf, fields):
             field.field_flags = fitz.PDF_FIELD_IS_READ_ONLY
             field.update()
 
+    orig_doc = _load_b64_pdf(b64_pdf)
+
+    try:
+        doc = try_pdfa(orig_doc, doc)
+    except Exception as e:
+        current_app.logger.info(f"Problem ensuring PDF/A: {e}")
+
     doc_bytes = doc.tobytes()
     newpdf = b64encode(doc_bytes)
     return newpdf
+
+
+def try_pdfa(orig_doc, doc):
+    with TemporaryDirectory() as dirname:
+        orig_fname = os.path.join(dirname, 'orig.pdf')
+        orig_doc.save(orig_fname)
+        if file_claims_pdfa(orig_fname):
+            fname = os.path.join(dirname, 'filled.pdf')
+            doc.save(fname)
+            fname_a = os.path.join(dirname, 'filled-a.pdf')
+            ocr(input_file=fname, output_file=fname_a, output_type='pdfa', skip_text=True)
+            new_doc = fitz.open(fname_a)
+            return new_doc
+    return doc

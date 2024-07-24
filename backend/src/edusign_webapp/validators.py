@@ -60,7 +60,7 @@ def validate_doc_type(value):
 
     :raises ValidationError: if the value is not the string "application/pdf".
     """
-    if value != 'application/pdf':
+    if value not in ('application/pdf', 'application/xml', 'text/xml'):
         current_app.logger.debug(f'Validate doc type: wrong type {value}')
         raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
@@ -88,16 +88,28 @@ def validate_sign_requirement(value):
 
     :raises ValidationError: in case the value doesn't conform to the above.
     """
-    try:
-        val = json.loads(value)
-    except json.decoder.JSONDecodeError:
-        current_app.logger.debug(f'Validate sign request: invalid value {value}')
-        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+    if value != 'not-needed-for-non-pdf':
+        try:
+            val = json.loads(value)
+        except json.decoder.JSONDecodeError:
+            current_app.logger.debug(f'Validate sign request: invalid value {value}')
+            raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
-    if 'fieldValues' not in val:
-        current_app.logger.debug(f'Validate sign request: missing fieldValues {value}')
-        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+        if 'fieldValues' not in val:
+            current_app.logger.debug(f'Validate sign request: missing fieldValues {value}')
+            raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
-    if 'signerName' not in val:
-        current_app.logger.debug(f'Validate sign request: missing signerName {value}')
+        if 'signerName' not in val:
+            current_app.logger.debug(f'Validate sign request: missing signerName {value}')
+            raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+
+
+def validate_language(value):
+    """
+    Validate that the concerned value is a language code present in the SUPPORTED_LANGUAGES config setting.
+
+    :raises ValidationError: in case the value doesn't conform to the above.
+    """
+    if value not in current_app.config['SUPPORTED_LANGUAGES']:
+        current_app.logger.debug(f'Validate language: unknown language {value}')
         raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))

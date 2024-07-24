@@ -11,7 +11,6 @@ import {
   hideInvitedPreview,
   setInvitedSigning,
   selectInvitedDoc,
-  showForcedInvitedPreview,
   hideForcedInvitedPreview,
   confirmForcedInvitedPreview,
   declineSigning,
@@ -21,6 +20,7 @@ import {
 import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
 import { setActiveId, unsetActiveId } from "slices/Overlay";
+import { getLocation } from "slices/fetch-utils";
 
 const mapStateToProps = (state) => {
   return {
@@ -41,7 +41,9 @@ const mapDispatchToProps = (dispatch, props) => {
     startMultiSigning: (docRef) => {
       return () => {
         dispatch(setInvitedSigning(docRef));
-        window.document.location.href = "/sign/invitation/" + docRef;
+        window.document.location.href = getLocation(
+          `/sign/invitation/${docRef}`,
+        );
       };
     },
     handlePreview: (docKey) => {
@@ -55,7 +57,7 @@ const mapDispatchToProps = (dispatch, props) => {
             intl: props.intl,
             showForced: false,
             show: true,
-          })
+          }),
         );
         dispatch(unsetSpinning());
       };
@@ -79,7 +81,7 @@ const mapDispatchToProps = (dispatch, props) => {
             intl: props.intl,
             showForced: true,
             show: false,
-          })
+          }),
         );
         dispatch(unsetSpinning());
       };
@@ -107,7 +109,7 @@ const mapDispatchToProps = (dispatch, props) => {
           declineSigning({
             key: args.doc.key,
             intl: args.intl,
-          })
+          }),
         );
         dispatch(enablePolling());
         dispatch(unsetSpinning());
@@ -121,7 +123,7 @@ const mapDispatchToProps = (dispatch, props) => {
           declineSigning({
             key: args.doc.key,
             intl: args.intl,
-          })
+          }),
         );
         dispatch(unsetSpinning());
       };

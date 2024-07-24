@@ -2,7 +2,6 @@ import React from "react";
 import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { expect } from "chai";
 import fetchMock from "fetch-mock";
-import JSZip from "jszip";
 import * as FileSaver from "file-saver";
 import sinon from "sinon";
 
@@ -57,10 +56,11 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
-
   it("It shows the document after createDocument action - sm", async () => {
     await showsTheDocumentAfterCreateDocumentAction({
       payload: {
@@ -72,6 +72,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -87,6 +89,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -102,6 +106,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -117,6 +123,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -132,6 +140,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -146,6 +156,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -161,6 +173,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -175,6 +189,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -190,6 +206,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -206,6 +224,8 @@ describe("Document representations", function () {
         },
         owned_multisign: [],
         pending_multisign: [],
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -223,6 +243,8 @@ describe("Document representations", function () {
         },
         owned_multisign: [],
         pending_multisign: [],
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -239,6 +261,8 @@ describe("Document representations", function () {
         },
         owned_multisign: [],
         pending_multisign: [],
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -256,6 +280,8 @@ describe("Document representations", function () {
         },
         owned_multisign: [],
         pending_multisign: [],
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -273,10 +299,12 @@ describe("Document representations", function () {
           },
           owned_multisign: [],
           pending_multisign: [],
+          skipped: [],
+          ui_defaults: { sendsigned: true, skip_final: true },
         },
       },
       "first",
-      "last"
+      "last",
     );
   });
 
@@ -294,10 +322,12 @@ describe("Document representations", function () {
           },
           owned_multisign: [],
           pending_multisign: [],
+          skipped: [],
+          ui_defaults: { sendsigned: true, skip_final: true },
         },
       },
       "first",
-      "last"
+      "last",
     );
   });
 
@@ -313,6 +343,8 @@ describe("Document representations", function () {
         },
         owned_multisign: [],
         pending_multisign: [],
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -330,6 +362,8 @@ describe("Document representations", function () {
         },
         owned_multisign: [],
         pending_multisign: [],
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -344,6 +378,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -359,6 +395,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -373,6 +411,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -388,6 +428,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -402,6 +444,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -417,6 +461,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -431,6 +477,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -446,6 +494,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -460,6 +510,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -475,6 +527,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -489,6 +543,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -504,6 +560,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -519,6 +577,8 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
@@ -535,16 +595,18 @@ describe("Document representations", function () {
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        skipped: [],
+        ui_defaults: { sendsigned: true, skip_final: true },
       },
     });
   });
 });
 
 const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
-    store.dispatch(fetchConfig());
+    await store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
     let filename = screen.queryByText(/test.pdf/i);
@@ -553,7 +615,7 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     let buttonPreview = screen.queryByTestId("button-forced-preview-dummy-ref");
     expect(buttonPreview).to.equal(null);
 
-    let buttonRemove = screen.queryByTestId("rm-button-test.pdf");
+    let buttonRemove = screen.queryByTestId("button-forced-preview-dummy-ref");
     expect(buttonRemove).to.equal(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -577,7 +639,7 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
@@ -585,12 +647,12 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     expect(filename.length).to.equal(1);
 
     buttonPreview = await waitFor(() =>
-      screen.getAllByTestId("button-forced-preview-dummy-ref")
+      screen.getAllByTestId("button-forced-preview-dummy-ref"),
     );
     expect(buttonPreview.length).to.equal(1);
 
     buttonRemove = await waitFor(() =>
-      screen.getAllByTestId("rm-button-test.pdf")
+      screen.getAllByTestId("button-rm-invitation-dummy-ref"),
     );
     expect(buttonRemove.length).to.equal(1);
   } catch (err) {
@@ -604,14 +666,14 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
 
 const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
   async (payload) => {
+    fetchMock.get("/sign/config", payload);
     const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
     try {
-      fetchMock.get("/sign/config", payload);
       store.dispatch(fetchConfig());
       await flushPromises(rerender, wrapped);
 
       let warning = screen.queryByText(
-        /Please do not supply a password protected document/
+        /Please do not supply a password protected document/,
       );
       expect(warning).to.equal(null);
 
@@ -620,7 +682,7 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
         "test-password.pdf",
         {
           type: "application/pdf",
-        }
+        },
       );
       const file = {
         name: fileObj.name,
@@ -635,12 +697,12 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
       const doc = await validateDoc(
         file,
         { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-        store.getState()
+        store.getState(),
       );
 
       expect(doc.state).to.equal("failed-loading");
       expect(doc.message).to.equal(
-        "Please do not supply a password protected document"
+        "Please do not supply a password protected document",
       );
 
       // there is a bug in the stesting framework where Promise.catch clears the redux store
@@ -690,9 +752,9 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
   };
 
 const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -702,7 +764,7 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     let buttonPreview = screen.queryByTestId("button-preview-dummy-ref");
     expect(buttonPreview).to.equal(null);
 
-    let buttonRemove = screen.queryByTestId("rm-button-test.pdf");
+    let buttonRemove = screen.queryByTestId("button-forced-preview-dummy-ref");
     expect(buttonRemove).to.equal(null);
 
     let file = {
@@ -718,7 +780,7 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     const doc = await validateDoc(
       file,
       { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      store.getState()
+      store.getState(),
     );
 
     expect(doc.state).to.equal("failed-loading");
@@ -757,7 +819,7 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     // await flushPromises(rerender, wrapped);
     //
     // buttonRemove = await waitFor(() =>
-    //   screen.getAllByTestId("rm-button-test.pdf")
+    //   screen.getAllByTestId("button-rm-invitation-dummy-ref")
     // );
     // expect(buttonRemove.length).to.equal(1);
     //
@@ -773,11 +835,11 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
 };
 
 const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
-  payload
+  payload,
 ) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -787,7 +849,7 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
     let buttonRetry = screen.queryByTestId("button-retry-dummy-ref");
     expect(buttonRetry).to.equal(null);
 
-    let buttonRemove = screen.queryByTestId("rm-button-test.pdf");
+    let buttonRemove = screen.queryByTestId("button-rm-invitation-dummy-ref");
     expect(buttonRemove).to.equal(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -808,17 +870,17 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
     buttonRetry = await waitFor(() =>
-      screen.getAllByTestId("button-retry-dummy-ref")
+      screen.getAllByTestId("button-retry-dummy-ref"),
     );
     expect(buttonRetry.length).to.equal(1);
 
     buttonRemove = await waitFor(() =>
-      screen.getAllByTestId("rm-button-test.pdf")
+      screen.getAllByTestId("button-rm-invitation-dummy-ref"),
     );
     expect(buttonRemove.length).to.equal(1);
   } catch (err) {
@@ -831,13 +893,13 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
 };
 
 const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    let rmButton = screen.queryByTestId("rm-button-test.pdf");
+    let rmButton = screen.queryByTestId("button-forced-preview-dummy-ref");
     expect(rmButton).to.equal(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -861,11 +923,13 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
-    rmButton = await waitFor(() => screen.getAllByTestId("rm-button-test.pdf"));
+    rmButton = await waitFor(() =>
+      screen.getAllByTestId("button-rm-invitation-dummy-ref"),
+    );
     expect(rmButton.length).to.equal(1);
 
     fireEvent.click(rmButton[0]);
@@ -879,16 +943,18 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     // expect(filesize).to.equal(null);
 
     const previewButton = await waitFor(() =>
-      screen.queryByTestId("button-preview-dummy-ref")
+      screen.queryByTestId("button-preview-dummy-ref"),
     );
     expect(previewButton).to.equal(null);
 
     const downloadButton = await waitFor(() =>
-      screen.queryByTestId("button-dlsigned-dummy-ref")
+      screen.queryByTestId("button-dlsigned-dummy-ref"),
     );
     expect(downloadButton).to.equal(null);
 
-    rmButton = await waitFor(() => screen.queryByText("rm-button-test.pdf"));
+    rmButton = await waitFor(() =>
+      screen.queryByText("button-rm-invitation-dummy-ref"),
+    );
     expect(rmButton).to.equal(null);
   } catch (err) {
     unmount();
@@ -900,9 +966,9 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
 };
 
 const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -934,14 +1000,14 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
     await store.dispatch(
       createDocument({
         doc: file2,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
@@ -952,7 +1018,7 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const dropdownButton = await waitFor(() =>
-      screen.getAllByText(/Other options/)
+      screen.getAllByText(/Other options/),
     );
     expect(dropdownButton.length).to.equal(1);
 
@@ -960,7 +1026,7 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const previewButton = await waitFor(() =>
-      screen.getAllByTestId("menu-item-preview-test.pdf")
+      screen.getAllByTestId("menu-item-preview-test.pdf"),
     );
     expect(previewButton.length).to.equal(1);
 
@@ -968,27 +1034,27 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const fstButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-first-test.pdf")
+      screen.getAllByTestId("preview-button-first-test.pdf"),
     );
     expect(fstButton.length).to.equal(1);
 
     const prevButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-prev-test.pdf")
+      screen.getAllByTestId("preview-button-prev-test.pdf"),
     );
     expect(prevButton.length).to.equal(1);
 
     const nextButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-next-test.pdf")
+      screen.getAllByTestId("preview-button-next-test.pdf"),
     );
     expect(nextButton.length).to.equal(1);
 
     const lastButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-last-test.pdf")
+      screen.getAllByTestId("preview-button-last-test.pdf"),
     );
     expect(lastButton.length).to.equal(1);
 
     const closeButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-close-test.pdf")
+      screen.getAllByTestId("preview-button-close-test.pdf"),
     );
     expect(closeButton.length).to.equal(1);
   } catch (err) {
@@ -1003,11 +1069,11 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
 const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
   payload,
   fst = "prev",
-  lst = "next"
+  lst = "next",
 ) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1032,7 +1098,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
@@ -1046,7 +1112,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     await flushPromises(rerender, wrapped);
 
     const dropdownButton = await waitFor(() =>
-      screen.getAllByText(/Other options/)
+      screen.getAllByText(/Other options/),
     );
     expect(dropdownButton.length).to.equal(1);
 
@@ -1054,7 +1120,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     await flushPromises(rerender, wrapped);
 
     const previewButton = await waitFor(() =>
-      screen.getAllByTestId("menu-item-preview-test.pdf")
+      screen.getAllByTestId("menu-item-preview-test.pdf"),
     );
     expect(previewButton.length).to.equal(1);
 
@@ -1068,7 +1134,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     expect(pdf2).to.equal(null);
 
     const nextButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-" + lst + "-test.pdf")
+      screen.getAllByTestId("preview-button-" + lst + "-test.pdf"),
     );
     expect(nextButton.length).to.equal(1);
 
@@ -1082,7 +1148,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     expect(pdf2.length).to.equal(1);
 
     const prevButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-" + fst + "-test.pdf")
+      screen.getAllByTestId("preview-button-" + fst + "-test.pdf"),
     );
     expect(prevButton.length).to.equal(1);
 
@@ -1104,9 +1170,9 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
 };
 
 const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1138,14 +1204,14 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
     await store.dispatch(
       createDocument({
         doc: file2,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
@@ -1156,7 +1222,7 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const dropdownButton = await waitFor(() =>
-      screen.getAllByText(/Other options/)
+      screen.getAllByText(/Other options/),
     );
     expect(dropdownButton.length).to.equal(1);
 
@@ -1164,7 +1230,7 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const previewButton = await waitFor(() =>
-      screen.getAllByTestId("menu-item-preview-test.pdf")
+      screen.getAllByTestId("menu-item-preview-test.pdf"),
     );
     expect(previewButton.length).to.equal(1);
 
@@ -1172,12 +1238,12 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     let nextButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-next-test.pdf")
+      screen.getAllByTestId("preview-button-next-test.pdf"),
     );
     expect(nextButton.length).to.equal(1);
 
     const closeButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-close-test.pdf")
+      screen.getAllByTestId("preview-button-close-test.pdf"),
     );
     expect(closeButton.length).to.equal(1);
 
@@ -1196,9 +1262,9 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
 };
 
 const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1221,7 +1287,7 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
             ref: "dummy-ref",
             sign_requirement: "dummy sign requirement",
           },
-        }
+        },
       )
       .once(
         { url: "/sign/create-sign-request", method: "POST" },
@@ -1233,14 +1299,14 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
             destination_url: "https://dummy.destination.url",
             documents: [{ name: "test.pdf", id: "dummy id" }],
           },
-        }
+        },
       );
 
     await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
@@ -1248,12 +1314,12 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf")
+      screen.getAllByTestId("doc-selector-test.pdf"),
     );
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents")
+      screen.getAllByText("Sign selected documents"),
     );
     expect(signButton.length).to.equal(1);
 
@@ -1261,7 +1327,7 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const spinner = await waitFor(() =>
-      screen.getAllByTestId("little-spinner-test.pdf")
+      screen.getAllByTestId("little-spinner-test.pdf"),
     );
     expect(spinner.length).to.equal(1);
   } catch (err) {
@@ -1274,11 +1340,11 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
 };
 
 const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
-  payload
+  payload,
 ) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1293,29 +1359,23 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
       key: "dummy-ref",
     };
     fetchMock
-      .once(
-        { url: "/sign/add-doc", method: "POST" },
-        {
-          message: "document added",
-          payload: {
-            ref: "dummy-ref",
-            sign_requirement: "dummy sign requirement",
-          },
-        }
-      )
-      .once(
-        { url: "/sign/create-sign-request", method: "POST" },
-        {
-          message: "dummy error in create-sign-request",
-          error: true,
-        }
-      );
+      .post("/sign/add-doc", {
+        message: "document added",
+        payload: {
+          ref: "dummy-ref",
+          sign_requirement: "dummy sign requirement",
+        },
+      })
+      .post("/sign/create-sign-request", {
+        message: "dummy error in create-sign-request",
+        error: true,
+      });
 
     await store.dispatch(
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
@@ -1323,12 +1383,12 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf")
+      screen.getAllByTestId("doc-selector-test.pdf"),
     );
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents")
+      screen.getAllByText("Sign selected documents"),
     );
     expect(signButton.length).to.equal(1);
 
@@ -1336,7 +1396,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     await flushPromises(rerender, wrapped);
 
     const text = await waitFor(() =>
-      screen.getAllByText("Problem creating signature request")
+      screen.getAllByText("Problem creating signature request"),
     );
     expect(text.length).to.equal(1);
   } catch (err) {
@@ -1349,11 +1409,11 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
 };
 
 const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
-  payload
+  payload,
 ) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1386,6 +1446,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
           binding: "dummy binding",
           destination_url: "https://dummy.destination.url",
           documents: [{ name: "test.pdf", id: "dummy id" }],
+          failed: [],
         },
       });
 
@@ -1393,7 +1454,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
@@ -1401,12 +1462,12 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf")
+      screen.getAllByTestId("doc-selector-test.pdf"),
     );
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents")
+      screen.getAllByText("Sign selected documents"),
     );
     expect(signButton.length).to.equal(1);
 
@@ -1414,7 +1475,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     await flushPromises(rerender, wrapped);
 
     const spinner = await waitFor(() =>
-      screen.getAllByTestId("little-spinner-test.pdf")
+      screen.getAllByTestId("little-spinner-test.pdf"),
     );
     expect(spinner.length).to.equal(1);
   } catch (err) {
@@ -1427,11 +1488,11 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
 };
 
 const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
-  payload
+  payload,
 ) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1466,7 +1527,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
@@ -1474,12 +1535,12 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf")
+      screen.getAllByTestId("doc-selector-test.pdf"),
     );
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents")
+      screen.getAllByText("Sign selected documents"),
     );
     expect(signButton.length).to.equal(1);
 
@@ -1487,7 +1548,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     await flushPromises(rerender, wrapped);
 
     const text = await waitFor(() =>
-      screen.getAllByText("Problem creating signature request")
+      screen.getAllByText("Problem creating signature request"),
     );
     expect(text.length).to.equal(1);
   } catch (err) {
@@ -1500,9 +1561,9 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
 };
 
 const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1554,7 +1615,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
@@ -1562,12 +1623,12 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf")
+      screen.getAllByTestId("doc-selector-test.pdf"),
     );
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents")
+      screen.getAllByText("Sign selected documents"),
     );
     expect(signButton.length).to.equal(1);
 
@@ -1584,11 +1645,11 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     await store.dispatch(
       loadDocuments({
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
 
     const buttonSigned = await waitFor(() =>
-      screen.getAllByTestId("button-download-signed-dummy-key")
+      screen.getAllByTestId("button-download-signed-dummy-key"),
     );
     expect(buttonSigned.length).to.equal(1);
   } catch (err) {
@@ -1601,9 +1662,9 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
 };
 
 const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1643,7 +1704,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
@@ -1651,12 +1712,12 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf")
+      screen.getAllByTestId("doc-selector-test.pdf"),
     );
     expect(selector.length).to.equal(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents")
+      screen.getAllByText("Sign selected documents"),
     );
     expect(signButton.length).to.equal(1);
 
@@ -1673,21 +1734,21 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     await store.dispatch(
       loadDocuments({
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
 
     const buttonDropdown = await waitFor(() =>
-      screen.getAllByText(/Other options/)
+      screen.getAllByText(/Other options/),
     );
     expect(buttonDropdown.length).to.equal(1);
 
     const buttonRemove = await waitFor(() =>
-      screen.getAllByTestId("rm-button-test.pdf")
+      screen.getAllByTestId("button-rm-invitation-dummy-ref"),
     );
     expect(buttonRemove.length).to.equal(1);
 
     const errorMsg = await waitFor(() =>
-      screen.getAllByText(/Problem getting signed documents/i)
+      screen.getAllByText(/Problem getting signed documents/i),
     );
     expect(errorMsg.length).to.equal(1);
   } catch (err) {
@@ -1700,9 +1761,9 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
 };
 
 const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
+  fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
@@ -1758,7 +1819,7 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
       createDocument({
         doc: file,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
@@ -1766,7 +1827,7 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
       createDocument({
         doc: file2,
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-      })
+      }),
     );
     await flushPromises(rerender, wrapped);
 
@@ -1774,7 +1835,7 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const buttonDlAll = await waitFor(() =>
-      screen.getAllByTestId("button-dlall")
+      screen.getAllByTestId("button-dlall"),
     );
     expect(buttonDlAll.length).to.equal(1);
 

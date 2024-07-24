@@ -143,10 +143,6 @@
   .doc-container-md-row,
   .doc-container-msg-row {
     line-height: 1.4rem;
-  }
-
-  .doc-container-md-row,
-  .doc-container-msg-row {
     margin-bottom: 0.5rem;
     flex: none;
     display: flex;
@@ -198,7 +194,6 @@
   line-height: 1.2rem;
 
   .info-row-label {
-    margin-right: 0.2rem;
     color: $darker-dark-grey;
     font-size: 0.8rem;
   }
@@ -211,7 +206,6 @@
     }
   }
   .info-row-item {
-    margin-left: 0.3rem;
     font-size: 0.8rem;
     display: inline-block;
   }
@@ -324,4 +318,13 @@ div.invited-unauthn-title {
   font-size: 2rem;
   margin-top: 3rem;
   margin-bottom: 4rem;
+}
+
+div.doc-info-line {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  .info-line {
+    padding-right: 1rem;
+  }
 }

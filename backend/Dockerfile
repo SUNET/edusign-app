@@ -1,10 +1,8 @@
-FROM debian:buster
+FROM debian:11
 
 MAINTAINER eperez@emergya.com
 
 ENV DEBIAN_FRONTEND noninteractive
-
-RUN /bin/sed -i s/deb.debian.org/ftp.se.debian.org/g /etc/apt/sources.list
 
 RUN apt-get -y update && apt-get -y upgrade && \
     apt-get -y install libffi-dev libfreetype6-dev libjpeg62-turbo-dev libssl-dev \

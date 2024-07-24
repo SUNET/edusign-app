@@ -30,11 +30,13 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+from base64 import b64encode
 
 
 def _test_multisign_sevice_callback(client, monkeypatch, data, mock_locked=True):
-
     from edusign_webapp.api_client import APIClient
+
+    signed_content = b64encode(b'Dummy signed content').decode('utf8')
 
     def mock_post(*args, **kwargs):
         return {
@@ -44,7 +46,7 @@ def _test_multisign_sevice_callback(client, monkeypatch, data, mock_locked=True)
                 {
                     'id': '6e46692d-7d34-4954-b760-96ee6ce48f61',
                     'mimeType': 'application/pdf',
-                    'signedContent': 'Dummy signed content',
+                    'signedContent': signed_content,
                 }
             ],
             'signerAssertionInformation': {
@@ -116,25 +118,27 @@ def _test_multisign_sevice_callback(client, monkeypatch, data, mock_locked=True)
 
 
 def test_multisign_sevice_callback(client, monkeypatch):
+    sign_response = b64encode(b'Dummy Sign Response')
 
     data = {
         'Binding': 'POST/XML/1.0',
         'RelayState': '09d91b6f-199c-4388-a4e5-230807dd4ac4',
-        'EidSignResponse': 'Dummy Sign Response',
+        'EidSignResponse': sign_response.decode('utf8'),
     }
     response = _test_multisign_sevice_callback(client, monkeypatch, data)
 
     assert response.status == '200 OK'
 
     assert b"<title>eduSign</title>" in response.data
-    assert b"Dummy Sign Response" in response.data
+    assert sign_response in response.data
 
 
 def test_multisign_sevice_callback_no_relay_state(client, monkeypatch):
+    sign_response = b64encode(b'Dummy Sign Response')
 
     data = {
         'Binding': 'POST/XML/1.0',
-        'EidSignResponse': 'Dummy Sign Response',
+        'EidSignResponse': sign_response.decode('utf8'),
     }
     response = _test_multisign_sevice_callback(client, monkeypatch, data)
 
@@ -142,7 +146,6 @@ def test_multisign_sevice_callback_no_relay_state(client, monkeypatch):
 
 
 def test_multisign_sevice_callback_no_sign_response(client, monkeypatch):
-
     data = {
         'Binding': 'POST/XML/1.0',
         'RelayState': '09d91b6f-199c-4388-a4e5-230807dd4ac4',

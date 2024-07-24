@@ -15,8 +15,8 @@ import InviteForm from "components/InviteForm";
 import { sendInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
-import { disablePolling, enablePolling } from "slices/Poll";
-import { toggleLoa, isNotInviting } from "slices/InviteForm";
+import { enablePolling } from "slices/Poll";
+import { isNotInviting, setOrdered } from "slices/InviteForm";
 import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {
@@ -24,17 +24,25 @@ const mapStateToProps = (state, props) => {
   if (state.modals.show_form && state.modals.form_id === props.docId) {
     show = true;
   }
+  let ordered;
+  if (state.inviteform.ordered === null) {
+    ordered = state.main.ui_defaults.ordered_invitations;
+  } else {
+    ordered = state.inviteform.ordered;
+  }
   return {
     size: state.main.size,
     show: show,
     mail: state.main.signer_attributes.mail,
     mail_aliases: state.main.signer_attributes.mail_aliases,
     loas: state.main.available_loas,
-    show_loa: state.inviteform.show_loa_selection,
     inviting: state.inviteform.inviting,
     templates: state.template.documents,
     documents: state.documents.documents,
     owned: state.main.owned_multisign,
+    max_signatures: state.main.max_signatures,
+    ui_defaults: state.main.ui_defaults,
+    ordered: ordered,
   };
 };
 
@@ -44,15 +52,15 @@ const _close = (dispatch) => {
   dispatch(hideForm());
   dispatch(unsetActiveId());
   dispatch(isNotInviting());
+  dispatch(setOrdered(null));
 };
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: async function (values, actions) {
       await dispatch(sendInvites({ values: values, intl: this.props.intl }));
-      _close(dispatch);
-    },
-    handleClose: function () {
+      actions.setSubmitting(false);
+      actions.resetForm();
       _close(dispatch);
     },
     handleCloseResetting: function (resetForm) {
@@ -61,8 +69,8 @@ const mapDispatchToProps = (dispatch, props) => {
         resetForm();
       };
     },
-    handleToggleLoa: function () {
-      dispatch(toggleLoa());
+    handleSetOrdered: function (ordered) {
+      dispatch(setOrdered(ordered));
     },
   };
 };

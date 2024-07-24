@@ -3,8 +3,12 @@
 set -e
 set -x
 
-rm -rf /opt/jsbuild/*
+echo "Start building js bundle..."
 
-cp -R /opt/frontend/build/* /opt/jsbuild/
+npm install
 
-echo "Built js bundle, stopping container..."
+mkdir -p build
+
+cp node_modules/pdfjs-dist/build/pdf.worker.* build
+
+npm start

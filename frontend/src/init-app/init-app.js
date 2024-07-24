@@ -8,7 +8,6 @@
  */
 
 import React from "react";
-import ReactDOM from "react-dom";
 import { createRoot } from "react-dom/client";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
@@ -45,8 +44,8 @@ const store = edusignStore();
  * <br />&nbsp;
  * It will trigger retrieving configuration parameters from the backend and loading documents from the IndeedBD db.
  */
-export const appIsRendered = function () {
-  store.dispatch(fetchConfig());
+export const appIsRendered = async function () {
+  await store.dispatch(fetchConfig());
 };
 
 /**
@@ -76,13 +75,14 @@ const init_app = function (target, component) {
   if (supported.includes(language)) {
     lang = language;
   }
+  Cookies.set("lang", lang);
   const msgs = messages[lang];
 
   store.dispatch(
     updateIntl({
       locale: lang,
       messages: msgs,
-    })
+    }),
   );
   store.dispatch(resizeWindow());
 

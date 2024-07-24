@@ -1,19 +1,28 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import { Document, Page } from "react-pdf/dist/esm/entry.webpack";
+import { Document, Page } from "react-pdf";
+
+import Pagination from "components/Pagination";
+import { docToFile } from "components/utils";
 
 import "styles/DocPreview.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+
+const documentOptions = {
+  cMapUrl: "/js/cmaps/",
+  cMapPacked: true,
+  enableXfa: true,
+};
 
 /**
  * @desc To show a modal dialog with a paginated view of a PDF, using PDF.js.
  * @component
  */
 function DocPreview(props) {
-  if (props.docFile === null) return "";
+  const docFile = useMemo(() => docToFile(props.doc), [props.doc]);
 
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
@@ -56,16 +65,12 @@ function DocPreview(props) {
 
         <Modal.Body>
           <Document
-            file={props.docFile}
+            file={docFile}
             onLoadSuccess={onDocumentLoadSuccess}
             onPassword={(c) => {
               throw new Error("Never password");
             }}
-            options={{
-              cMapUrl: "/js/cmaps/",
-              cMapPacked: true,
-              enableXfa: true,
-            }}
+            options={documentOptions}
           >
             {(props.width < 550 && (
               <Page
@@ -86,49 +91,15 @@ function DocPreview(props) {
 
         <Modal.Footer>
           <div className="pdf-navigation">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) <= 1}
-              onClick={firstPage}
-              data-testid={"preview-button-first-" + props.doc.name}
-            >
-              &#x23EA;
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) <= 1}
-              onClick={previousPage}
-              data-testid={"preview-button-prev-" + props.doc.name}
-            >
-              &#x25C4;
-            </Button>
-            <span>
-              &nbsp;
-              {(pageNumber || (numPages ? 1 : "--")) +
-                " / " +
-                (numPages || "--")}
-              &nbsp;
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) >= Number(numPages)}
-              onClick={nextPage}
-              data-testid={"preview-button-next-" + props.doc.name}
-            >
-              &#x25BA;
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={Number(pageNumber) >= Number(numPages)}
-              onClick={lastPage}
-              data-testid={"preview-button-last-" + props.doc.name}
-            >
-              &#x23E9;
-            </Button>
+            <Pagination
+              numPages={numPages}
+              pageNumber={pageNumber}
+              firstPage={firstPage}
+              previousPage={previousPage}
+              nextPage={nextPage}
+              lastPage={lastPage}
+              index={props.index}
+            />
           </div>
           <Button
             variant="outline-secondary"
@@ -149,7 +120,7 @@ DocPreview.propTypes = {
    */
   handleClose: PropTypes.func,
   doc: PropTypes.object,
-  docFile: PropTypes.object,
+  index: PropTypes.number,
 };
 
 export default DocPreview;

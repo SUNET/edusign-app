@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
-import { ESPopover } from "containers/Overlay";
-import { ESTooltip } from "containers/Overlay";
+import { ESPopover, ESTooltip } from "containers/Overlay";
 import ESDropdown from "components/Dropdown";
 import * as menu from "components/dropdownItems";
 
@@ -78,8 +77,15 @@ class DocumentOwned extends Component {
     const doc = this.props.doc;
     const editForm =
       (["loaded", "selected", "failed-signing", "incomplete"].includes(
-        doc.state
-      ) && <InviteEditFormContainer docKey={doc.key} />) ||
+        doc.state,
+      ) && (
+        <InviteEditFormContainer
+          docKey={doc.key}
+          docOrdered={doc.ordered}
+          docSendSigned={doc.sendsigned}
+          docSkipFinal={doc.skipfinal}
+        />
+      )) ||
       "";
     const pending =
       (doc.state === "incomplete" && (
@@ -150,29 +156,8 @@ class DocumentOwned extends Component {
         {doc.declined !== undefined && doc.declined.length > 0 && (
           <>{declined}</>
         )}
-        {editForm}
       </>
     );
-    let requiredLoa = "";
-    if (doc.loa !== undefined && !("", "none").includes(doc.loa)) {
-      const loa = doc.loa.split(",");
-      const loaName = loa[1];
-      const loaValue = loa[0];
-      requiredLoa = (
-        <div className={"doc-container-info-row-" + this.props.size}>
-          <span className="info-row-label">
-            <FormattedMessage
-              defaultMessage="Required security level:"
-              key="multisign-loa"
-            />
-          </span>
-          &nbsp;
-          <ESTooltip tooltip={loaValue} helpId={"invited-" + loaValue}>
-            <span className="info-row-item">{loaName}</span>
-          </ESTooltip>
-        </div>
-      );
-    }
     return (
       <>
         <ESPopover
@@ -182,7 +167,10 @@ class DocumentOwned extends Component {
           body={this.getHelp(doc.state)}
         >
           {(this.props.size === "lg" && (
-            <div className={"invitation-multisign " + doc.state}>
+            <div 
+              className={"invitation-multisign " + doc.state}
+              data-testid={`representation-for-doc-${doc.name}`}
+            >
               <div className="invitation-multisign-request">
                 <div
                   className={"invitation-name-and-buttons-" + this.props.size}
@@ -205,7 +193,7 @@ class DocumentOwned extends Component {
                     </>
                   )}
                   {["loaded", "selected", "failed-signing"].includes(
-                    doc.state
+                    doc.state,
                   ) && (
                     <>
                       {widgets.selectDoc(this.props, doc)}
@@ -238,22 +226,21 @@ class DocumentOwned extends Component {
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
                       <ESDropdown doc={doc}>
-                        {menu.multiSignMenuItem(this.props, doc)}
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
+                      {widgets.multiSignButton(this.props, doc)}
                       {widgets.downloadSignedButton(this.props, doc)}
                       {widgets.removeConfirmButton(
                         this.props,
                         doc,
-                        "confirm-remove-signed-owned-" + doc.name
+                        "confirm-remove-" + doc.name,
                       )}
                     </>
                   )}
                 </div>
-                {widgets.docCreated(this.props)}
-                {requiredLoa}
                 {invites}
                 {preparePrevSigs(doc, this.props.size)}
+                {widgets.infoLine(doc, this.props.size)}
               </div>
             </div>
           )) || (
@@ -319,18 +306,18 @@ class DocumentOwned extends Component {
                     {widgets.removeConfirmButton(
                       this.props,
                       doc,
-                      "confirm-remove-signed-owned-" + doc.name
+                      "confirm-remove-" + doc.name,
                     )}
                   </div>
                 </>
               )}
-              {widgets.docCreated(this.props)}
-              {requiredLoa}
               {invites}
               {preparePrevSigs(doc, this.props.size)}
+              {widgets.infoLine(doc, this.props.size)}
             </div>
           )}
         </ESPopover>
+        {editForm}
       </>
     );
   }

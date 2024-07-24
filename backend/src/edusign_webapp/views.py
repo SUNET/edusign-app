@@ -36,12 +36,14 @@ import json
 import os
 import uuid
 from base64 import b64decode
+from collections import defaultdict
 from typing import Any, Dict, List, Tuple, Union
 
 import pkg_resources
-from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for
+import yaml
+from flask import Blueprint, abort, current_app, g, make_response, redirect, render_template, request, session, url_for
 from flask_babel import force_locale, get_locale, gettext
-from werkzeug.wrappers import Response
+from werkzeug.wrappers.response import Response
 
 from edusign_webapp.doc_store import DocStore
 from edusign_webapp.forms import has_pdf_form, update_pdf_form
@@ -53,10 +55,10 @@ from edusign_webapp.schemata import (
     DocSchema,
     DocumentSchema,
     EditMultiSignSchema,
+    EmailsSchema,
     FillFormSchema,
-    FormSchema,
     InvitationsSchema,
-    KeyedMultiSignSchema,
+    KeySchema,
     MultiSignSchema,
     ReferenceSchema,
     ResendMultiSignSchema,
@@ -69,10 +71,15 @@ from edusign_webapp.schemata import (
 )
 from edusign_webapp.utils import (
     MissingDisplayName,
+    NonWhitelisted,
     add_attributes_to_session,
     get_invitations,
     get_previous_signatures,
+    get_previous_signatures_xml,
+    is_whitelisted,
     prepare_document,
+    pretty_print_any,
+    pretty_print_xml,
     sendmail,
     sendmail_bulk,
 )
@@ -83,6 +90,8 @@ anon_edusign_views = Blueprint('edusign_anon', __name__, url_prefix='', template
 
 edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_folder='templates')
 
+edusign_views2 = Blueprint('edusign2', __name__, url_prefix='/sign2', template_folder='templates')
+
 
 @admin_edusign_views.route('/cleanup', methods=['POST'])
 def cleanup():
@@ -92,13 +101,13 @@ def cleanup():
 
     :return: the number of documents removed
     """
-    keys = current_app.doc_store.get_old_documents(current_app.config['MAX_DOCUMENT_AGE'])
+    keys = current_app.extensions['doc_store'].get_old_documents(current_app.config['MAX_DOCUMENT_AGE'])
     current_app.logger.info(f'Purging old documents form db with keys: {keys}')
     total = len(keys)
     removed = 0
     for key in keys:
         try:
-            current_app.doc_store.remove_document(key, force=True)
+            current_app.extensions['doc_store'].remove_document(key, force=True)
             removed += 1
         except Exception as e:
             current_app.logger.error(f'Problem removing old document {key}: {e}')
@@ -151,14 +160,14 @@ def migrate_to_redis_and_s3():
             current_app.logger.info(f"    Document with key {doc_key} has no invitations, skipping")
             continue
 
-        doc_id = current_app.doc_store.add_document_raw(old_document, content)
+        doc_id = current_app.extensions['doc_store'].add_document_raw(old_document, content)
         migrated_docs += 1
         current_app.logger.info(f"    Document with key {doc_key} added to db and storage")
 
         current_app.logger.info(f"Going to migrate {len(old_invites)} invites for document with key {doc_key}")
         for invite in old_invites:
             invite['doc_id'] = doc_id
-            current_app.doc_store.add_invite_raw(invite)
+            current_app.extensions['doc_store'].add_invite_raw(invite)
             migrated_invites += 1
 
     return f'OK, migrated {migrated_docs} documents and {migrated_invites} invitations'
@@ -171,25 +180,64 @@ def metrics():
 
     :return: the number of documents removed
     """
-    keys = current_app.doc_store.get_old_documents(0)
+    keys = current_app.extensions['doc_store'].get_old_documents(0)
     report = f"Number of documents: {len(keys)}\n"
     weight = 0
     for key in keys:
-        weight += current_app.doc_store.get_document_size(key)
+        weight += current_app.extensions['doc_store'].get_document_size(key)
 
     report += f"Total bytes: {weight}\n"
 
-    old_keys = current_app.doc_store.get_old_documents(current_app.config['MAX_DOCUMENT_AGE'])
+    old_keys = current_app.extensions['doc_store'].get_old_documents(current_app.config['MAX_DOCUMENT_AGE'])
     report += f"Number of documents to purge: {len(old_keys)}\n"
     weight = 0
     for key in old_keys:
-        weight += current_app.doc_store.get_document_size(key)
+        weight += current_app.extensions['doc_store'].get_document_size(key)
 
     report += f"Total bytes to purge: {weight}\n"
 
     response = make_response(report)
     response.mimetype = "text/plain"
     return response
+
+
+@anon_edusign_views.route('/metadata.xml', methods=['GET'])
+def metadata():
+    """
+    Serve the SAML2 SP metadata
+    """
+    context = {
+        'entity_id': current_app.config['MD_ENTITY_ID'],
+        'entity_categories': current_app.config['MD_ENTITY_CATEGORIES'],
+        'display_names': current_app.config['MD_DISPLAY_NAMES'],
+        'descriptions': current_app.config['MD_DESCRIPTIONS'],
+        'information_urls': current_app.config['MD_INFORMATION_URLS'],
+        'privacy_statement_urls': current_app.config['MD_PRIVACY_STATEMENT_URLS'],
+        'shibboleth_location': current_app.config['MD_SHIBBOLETH_LOCATION'],
+        'domain': current_app.config['SERVER_NAME'],
+        'signing_certificate': current_app.config['MD_SIGNING_CERTIFICATE'],
+        'encryption_certificate': current_app.config['MD_ENCRYPTION_CERTIFICATE'],
+        'service_names': current_app.config['MD_SERVICE_NAMES'],
+        'attributes': current_app.config['MD_ATTRIBUTES'],
+        'organization_names': current_app.config['MD_ORGANIZATION_NAMES'],
+        'organization_display_names': current_app.config['MD_ORGANIZATION_DISPLAY_NAMES'],
+        'organization_urls': current_app.config['MD_ORGANIZATION_URLS'],
+        'technical_contact_name': current_app.config['MD_TECHNICAL_CONTACT_NAME'],
+        'technical_contact_email': current_app.config['MD_TECHNICAL_CONTACT_EMAIL'],
+        'administrative_contact_name': current_app.config['MD_ADMINISTRATIVE_CONTACT_NAME'],
+        'administrative_contact_email': current_app.config['MD_ADMINISTRATIVE_CONTACT_EMAIL'],
+        'support_contact_name': current_app.config['MD_SUPPORT_CONTACT_NAME'],
+        'support_contact_email': current_app.config['MD_SUPPORT_CONTACT_EMAIL'],
+        'security_contact_name': current_app.config['MD_SECURITY_CONTACT_NAME'],
+        'security_contact_email': current_app.config['MD_SECURITY_CONTACT_EMAIL'],
+    }
+    try:
+        xml = render_template('metadata.jinja2', **context)
+    except AttributeError as e:
+        current_app.logger.error(f'Template rendering failed: {e}')
+        abort(500)
+
+    return Response(xml, mimetype='text/xml')
 
 
 @anon_edusign_views.route('/', methods=['GET'])
@@ -204,9 +252,13 @@ def get_home():
     """
     current_lang = str(get_locale())
     md_name = f"home-{current_lang}.md"
-    md_etc = os.path.join('/etc/edusign/', md_name)
-    if os.path.exists(md_etc):
-        md_file = md_etc
+    base_dir = current_app.config['CUSTOMIZATION_DIR']
+    md_custom = os.path.join(base_dir, 'md', md_name)
+    old_md_custom = os.path.join(base_dir, md_name)
+    if os.path.exists(md_custom):
+        md_file = md_custom
+    elif os.path.exists(old_md_custom):
+        md_file = old_md_custom
     else:
         md_file = os.path.join(current_app.config['HERE'], 'md', md_name)
 
@@ -215,16 +267,16 @@ def get_home():
 
     base_url = f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}"
 
-    other_lang = 'en' if current_lang == 'sv' else 'sv'
-
     version = pkg_resources.require('edusign-webapp')[0].version
 
+    company_link = current_app.config['COMPANY_LINK']
     context = {
         'body': body,
         'login_initiator': f'{base_url}/Shibboleth.sso/Login?target=/sign',
-        'other_lang': other_lang,
-        'other_lang_name': current_app.config['SUPPORTED_LANGUAGES'][other_lang],
+        'current_lang': current_lang,
+        'langs': current_app.config['SUPPORTED_LANGUAGES'],
         'version': version,
+        'company_link': company_link,
     }
 
     try:
@@ -246,24 +298,28 @@ def get_help_page():
     """
     current_lang = str(get_locale())
     md_name = f"faq-{current_lang}.md"
-    md_etc = os.path.join('/etc/edusign/', md_name)
-    if os.path.exists(md_etc):
-        md_file = md_etc
+    base_dir = current_app.config['CUSTOMIZATION_DIR']
+    md_custom = os.path.join(base_dir, 'md', md_name)
+    old_md_custom = os.path.join(base_dir, md_name)
+    if os.path.exists(md_custom):
+        md_file = md_custom
+    elif os.path.exists(old_md_custom):
+        md_file = old_md_custom
     else:
         md_file = os.path.join(current_app.config['HERE'], 'md', md_name)
 
     with open(md_file) as f:
         body = f.read()
 
-    other_lang = 'en' if current_lang == 'sv' else 'sv'
-
     version = pkg_resources.require('edusign-webapp')[0].version
 
+    company_link = current_app.config['COMPANY_LINK']
     context = {
         'body': body,
-        'other_lang': other_lang,
-        'other_lang_name': current_app.config['SUPPORTED_LANGUAGES'][other_lang],
+        'current_lang': current_lang,
+        'langs': current_app.config['SUPPORTED_LANGUAGES'],
         'version': version,
+        'company_link': company_link,
     }
 
     try:
@@ -274,6 +330,7 @@ def get_help_page():
 
 
 @edusign_views.route('/logout', methods=['GET'])
+@edusign_views2.route('/logout', methods=['GET'])
 def logout() -> Response:
     """
     View to log out of the app.
@@ -290,6 +347,7 @@ def logout() -> Response:
 
 
 @edusign_views.route('/', methods=['GET'])
+@edusign_views2.route('/', methods=['GET'])
 def get_index() -> str:
     """
     View to get the index html that loads the frontside app.
@@ -307,9 +365,11 @@ def get_index() -> str:
 
     :return: the rendered `index.jinja2` template as a string (or `error-generic.jinja2` in case of errors)
     """
+    company_link = current_app.config['COMPANY_LINK']
     context = {
         'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}",
         'back_button_text': gettext("Back"),
+        'company_link': company_link,
     }
     unauthn = False
     try:
@@ -324,19 +384,17 @@ def get_index() -> str:
         )
         return render_template('error-generic.jinja2', **context)
     except MissingDisplayName:
-        current_app.logger.error(
-            'There is some misconfiguration and the IdP does not seem to provide the displayName.'
-        )
+        current_app.logger.error('There is some misconfiguration and the IdP does not seem to provide the displayName.')
         context['title'] = gettext("Missing displayName")
         context['message'] = gettext(
             'Your should add your name to your account at your organization. Please contact your IT-support for assistance.'
         )
         return render_template('error-generic.jinja2', **context)
-    except ValueError:
+    except NonWhitelisted:
         current_app.logger.debug("Authorizing non-whitelisted user")
         unauthn = True
 
-    if 'invited-unauthn' in session:
+    if 'invited-unauthn' in session and session['invited-unauthn']:
         invites = get_invitations()
         if len(invites['pending_multisign']) > 0:
             unauthn = True
@@ -345,7 +403,7 @@ def get_index() -> str:
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
 
     bundle_name = 'main-bundle'
-    if current_app.config['ENVIRONMENT'] == 'development':
+    if current_app.config['ENVIRONMENT'] in ('development', 'e2e'):
         bundle_name += '.dev'
 
     try:
@@ -355,7 +413,47 @@ def get_index() -> str:
         abort(500)
 
 
+@edusign_views.route('/emails', methods=['GET'])
+@edusign_views2.route('/emails', methods=['GET'])
+@Marshal(EmailsSchema)
+def emails():
+    if current_app.config['ENVIRONMENT'] != 'e2e':
+        abort(404)
+
+    payload = current_app.extensions['email_msgs']
+    current_app.extensions['email_msgs'] = {}
+    return {'payload': payload}
+
+
+def _get_ui_defaults():
+    ui_defaults = {
+        'send_signed': current_app.config['UI_SEND_SIGNED'],
+        'skip_final': current_app.config['UI_SKIP_FINAL'],
+        'ordered_invitations': current_app.config['UI_ORDERED_INVITATIONS'],
+    }
+    form_config_file = current_app.config['CUSTOM_FORMS_DEFAULTS_FILE']
+    if os.path.exists(form_config_file):
+        config = None
+        with open(form_config_file, 'r') as f:
+            try:
+                config = yaml.safe_load(f)
+            except yaml.YAMLError as e:
+                current_app.logger.info(f"Cannot read YAML file at {form_config_file}: {e}")
+
+        if config is not None:
+            idp = session['idp']
+            if idp in config:
+                idp_config = config[idp]
+                ui_defaults = {
+                    'send_signed': idp_config['send_signed'],
+                    'skip_final': idp_config['skip_final'],
+                    'ordered_invitations': idp_config['ordered_invitations'],
+                }
+    return ui_defaults
+
+
 @edusign_views.route('/config', methods=['GET'])
+@edusign_views2.route('/config', methods=['GET'])
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """
@@ -371,12 +469,14 @@ def get_config() -> dict:
 
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
-    payload = get_invitations()
+    payload = get_invitations(remove_finished=True)
 
-    if 'eppn' in session and current_app.is_whitelisted(session['eppn']):
+    if 'eppn' in session and is_whitelisted(current_app, session['eppn']):
         payload['unauthn'] = False
     else:
         payload['unauthn'] = True
+
+    payload['ui_defaults'] = _get_ui_defaults()
 
     attrs = {
         'eppn': session['eppn'],
@@ -387,10 +487,16 @@ def get_config() -> dict:
 
     payload['signer_attributes'] = attrs
     payload['multisign_buttons'] = current_app.config['MULTISIGN_BUTTONS']
-    payload['available_loas'] = []
-    for uri, name in current_app.config['AVAILABLE_LOAS'].items():
-        payload['available_loas'].append({'uri': uri, 'name': name})
+    payload['max_signatures'] = current_app.config['MAX_SIGNATURES']
+    payload['available_loas'] = [
+        {'name': gettext('Low'), 'value': 'low'},
+        {'name': gettext('Medium'), 'value': 'medium'},
+        {'name': gettext('High'), 'value': 'high'},
+    ]
     payload['max_file_size'] = current_app.config['MAX_CONTENT_LENGTH']
+    payload['company_link'] = current_app.config['COMPANY_LINK']
+    payload['edit_form_timeout'] = current_app.config['DOC_LOCK_TIMEOUT'].seconds * 1000
+    payload['environment'] = current_app.config['ENVIRONMENT']
 
     return {
         'payload': payload,
@@ -398,6 +504,7 @@ def get_config() -> dict:
 
 
 @edusign_views.route('/poll', methods=['GET'])
+@edusign_views2.route('/poll', methods=['GET'])
 @Marshal(InvitationsSchema)
 def poll() -> dict:
     """
@@ -408,7 +515,7 @@ def poll() -> dict:
 
     :return: A dict with the invitation data.
     """
-    payload = get_invitations()
+    payload = get_invitations(remove_finished=True)
 
     return {
         'payload': payload,
@@ -416,6 +523,7 @@ def poll() -> dict:
 
 
 @edusign_views.route('/add-doc', methods=['POST'])
+@edusign_views2.route('/add-doc', methods=['POST'])
 @UnMarshalNoCSRF(DocumentSchema)
 @Marshal(ReferenceSchema)
 def add_document(document: dict) -> dict:
@@ -428,24 +536,33 @@ def add_document(document: dict) -> dict:
     :return: a dict with the data returned from the API after preparing the document,
              or with eerror information in case of some error.
     """
-    if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
+    if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
         return {'error': True, 'message': gettext('Unauthorized')}
 
-    prepare_data = prepare_document(document)
-
-    if 'error' in prepare_data and prepare_data['error']:  # XXX update error message, translate
-        return prepare_data
-
-    if 'errorCode' in prepare_data:  # XXX update error message, translate
-        prepare_data['error'] = True
-        return prepare_data
-
-    doc_ref = prepare_data['updatedPdfDocumentReference']
-    sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])
     key = str(uuid.uuid4())
 
-    prev_signatures = get_previous_signatures(document)
-    has_form = has_pdf_form(document['blob'])
+    if document['type'] == 'application/pdf':
+        prepare_data = prepare_document(document)
+
+        if 'error' in prepare_data and prepare_data['error']:  # XXX update error message, translate
+            return prepare_data
+
+        if 'errorCode' in prepare_data:  # XXX update error message, translate
+            prepare_data['error'] = True
+            return prepare_data
+
+        doc_ref = prepare_data['updatedPdfDocumentReference']
+        sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])
+
+        prev_signatures = get_previous_signatures(document)
+        has_form = has_pdf_form(document['blob'])
+        pprinted = 'not-needed-for-pdf'
+    else:
+        doc_ref = key
+        sign_req = 'not-needed-for-non-pdf'
+        prev_signatures = get_previous_signatures_xml(document)
+        has_form = False
+        pprinted = pretty_print_xml(document['blob'])
 
     return {
         'payload': {
@@ -454,11 +571,13 @@ def add_document(document: dict) -> dict:
             'sign_requirement': sign_req,
             'prev_signatures': prev_signatures,
             'has_form': has_form,
+            'pprinted': pprinted,
         }
     }
 
 
 @edusign_views.route('/create-sign-request', methods=['POST'])
+@edusign_views2.route('/create-sign-request', methods=['POST'])
 @UnMarshal(ToSignSchema)
 @Marshal(SignRequestSchema)
 def create_sign_request(documents: dict) -> dict:
@@ -479,19 +598,29 @@ def create_sign_request(documents: dict) -> dict:
     :return: A dict with either the relevant information returned by the API,
              or information about some error obtained in the process.
     """
-    if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
-        return {'error': True, 'message': gettext('Unauthorized')}
+    if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
+        if not session['invited-unauthn']:
+            return {'error': True, 'message': gettext('Unauthorized')}
 
     current_app.logger.debug(f'Data gotten in create view: {documents}')
     try:
         current_app.logger.info(f"Creating signature request for user {session['eppn']}")
-        create_data, documents_with_id = current_app.api_client.create_sign_request(documents['documents'])
+        create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request(
+            documents['documents']
+        )
 
-    except current_app.api_client.ExpiredCache:
+    except current_app.extensions['api_client'].ExpiredCache:
         current_app.logger.info(
             f"Some document(s) have expired for {session['eppn']} in the API's cache, restarting process..."
         )
         return {'error': True, 'message': 'expired cache'}
+
+    except current_app.extensions['api_client'].UnknownDocType as e:
+        current_app.logger.error(f'Problem creating sign request, unsupported doc type: {e}')
+        return {
+            'error': True,
+            'message': gettext('There was an error signing docs: unsupported MIME type.'),
+        }
 
     except Exception as e:
         current_app.logger.error(f'Problem creating sign request: {e}')
@@ -533,8 +662,8 @@ def _gather_invited_docs(docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any
     for doc in docs:
         current_app.logger.debug(f"Re-preparing invited document {doc['name']}")
         try:
-            stored = current_app.doc_store.get_invitation(doc['invite_key'])
-        except current_app.doc_store.DocumentLocked:
+            stored = current_app.extensions['doc_store'].get_invitation(doc['invite_key'])
+        except current_app.extensions['doc_store'].DocumentLocked:
             current_app.logger.debug(f"Invited document {doc['name']} is locked")
             failedDoc = {
                 'key': doc['key'],
@@ -596,7 +725,6 @@ def _ready_docs(
     new_docs = []
     failed = []
     for doc_data, doc in zip(docs_data, all_docs):
-
         if 'error' in doc_data and doc_data['error']:
             current_app.logger.error(f"Problem re-preparing document for user {session['eppn']}: {doc['name']}")
             failedDoc = {
@@ -614,19 +742,35 @@ def _ready_docs(
 
         current_app.logger.info(f"Re-prepared {doc['name']} for user {session['eppn']}")
 
-        new_docs.append(
-            {
-                'name': doc['name'],
-                'type': doc['type'],
-                'key': doc['key'],
-                'ref': doc_data['updatedPdfDocumentReference'],
-                'sign_requirement': json.dumps(doc_data['visiblePdfSignatureRequirement']),
-            }
-        )
+        doc_name = doc['name']
+        doc_type = doc['type']
+        doc_key = doc['key']
+
+        if doc_type == 'application/pdf':
+            ref = doc_data['updatedPdfDocumentReference']
+            sign_req = json.dumps(doc_data['visiblePdfSignatureRequirement'])
+
+        else:
+            ref = doc_key
+            sign_req = 'not-needed-for-non-pdf'
+
+        new_doc = {
+            'name': doc_name,
+            'type': doc_type,
+            'key': doc_key,
+            'ref': ref,
+            'sign_requirement': sign_req,
+        }
+        if 'blob' in doc:
+            new_doc['blob'] = doc['blob']
+
+        new_docs.append(new_doc)
+
     return failed, new_docs
 
 
 @edusign_views.route('/recreate-sign-request', methods=['POST'])
+@edusign_views2.route('/recreate-sign-request', methods=['POST'])
 @UnMarshal(ToRestartSigningSchema)
 @Marshal(ReSignRequestSchema)
 def recreate_sign_request(documents: dict) -> dict:
@@ -652,7 +796,7 @@ def recreate_sign_request(documents: dict) -> dict:
     :return: A dict with either the relevant information returned by the API's `create` sign request endpoint,
              or information about some error obtained in the process.
     """
-    if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
+    if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
         if not session['invited-unauthn']:
             return {'error': True, 'message': gettext('Unauthorized')}
 
@@ -666,12 +810,13 @@ def recreate_sign_request(documents: dict) -> dict:
     tasks = [loop.create_task(prepare(doc)) for doc in documents['documents']['local']]
 
     for doc in documents['documents']['owned']:
-        doc['blob'] = current_app.doc_store.get_document_content(doc['key'])
+        doc['blob'] = current_app.extensions['doc_store'].get_document_content(doc['key'])
         tasks.append(loop.create_task(prepare(doc)))
 
     failed, invited_docs = _gather_invited_docs(documents['documents']['invited'])
 
     for doc in invited_docs:
+        doc['blob'] = current_app.extensions['doc_store'].get_document_content(doc['key'])
         tasks.append(loop.create_task(prepare(doc)))
 
     if len(tasks) > 0:
@@ -687,7 +832,14 @@ def recreate_sign_request(documents: dict) -> dict:
     if len(new_docs) > 0:
         try:
             current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
-            create_data, documents_with_id = current_app.api_client.create_sign_request(new_docs)
+            create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request(new_docs)
+
+        except current_app.extensions['api_client'].UnknownDocType as e:
+            current_app.logger.error(f'Problem creating sign request, unsupported doc type: {e}')
+            return {
+                'error': True,
+                'message': gettext('There was an error signing docs: unsupported MIME type.'),
+            }
 
         except Exception as e:
             current_app.logger.error(f'Problem creating sign request: {e}')
@@ -723,6 +875,7 @@ def recreate_sign_request(documents: dict) -> dict:
 
 
 @edusign_views.route('/callback', methods=['POST', 'GET'])
+@edusign_views2.route('/callback', methods=['POST', 'GET'])
 def sign_service_callback() -> Union[str, Response]:
     """
     After the user has used the sign request to go through the sign service and IdP to sign the documents,
@@ -742,7 +895,7 @@ def sign_service_callback() -> Union[str, Response]:
         return redirect(url_for('edusign.get_index'))
 
     bundle_name = 'main-bundle'
-    if current_app.config['ENVIRONMENT'] == 'development':
+    if current_app.config['ENVIRONMENT'] in ('development', 'e2e'):
         bundle_name += '.dev'
 
     try:
@@ -783,93 +936,90 @@ def _prepare_signed_by_email(key, owner):
     that one invited user (perhaps the last remaining one)
     has signed the document.
     """
-    pending = current_app.doc_store.get_pending_invites(key, exclude=session.get('mail_aliases', [session['mail']]))
+    skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
+    pending = current_app.extensions['doc_store'].get_pending_invites(
+        key, exclude=session.get('mail_aliases', [session['mail']])
+    )
     pending = [p for p in pending if not p['signed'] and not p['declined']]
 
     if len(pending) > 0:
         template = 'signed_by_email'
     else:
-        template = 'final_signed_by_email'
+        if skipfinal:
+            template = 'final_signed_by_email_skip'
+        else:
+            template = 'final_signed_by_email'
 
     mail_context = {
         'document_name': owner['docname'],
         'invited_name': session['displayName'],
         'invited_email': session['mail'],
     }
+    lang = owner['lang']
     recipients = [f"{owner['name']} <{owner['email']}>"]
-    with force_locale('en'):
-        subject_en = gettext("%(name)s signed '%(docname)s'") % {
+    with force_locale(lang):
+        subject = gettext("%(name)s signed '%(docname)s'") % {
             'name': session['displayName'],
             'docname': owner['docname'],
         }
-        body_txt_en = render_template(f'{template}.txt.jinja2', **mail_context)
-        body_html_en = render_template(f'{template}.html.jinja2', **mail_context)
-    with force_locale('sv'):
-        subject_sv = gettext("%(name)s signed '%(docname)s'") % {
-            'name': session['displayName'],
-            'docname': owner['docname'],
-        }
-        body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
-        body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
+        body_txt = render_template(f'{template}.txt.jinja2', **mail_context)
+        body_html = render_template(f'{template}.html.jinja2', **mail_context)
 
-    return (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+    return (recipients, subject, body_txt, body_html)
 
 
-def _prepare_all_signed_email(key, owner, doc, sendsigned):
+def _prepare_all_signed_email(doc, mail_aliases):
     """
     Prepare email to send to all users that have signed the document,
     possibly with the final signed PDF attached.
     This is sent when the inviter user adds the final signature.
     """
-    recipients = [f"{owner['name']} <{owner['email']}>"]
-    recipients.extend(
-        [
-            f"{invited['name']} <{invited['email']}>"
-            for invited in current_app.doc_store.get_pending_invites(key)
-            if invited['signed']
-        ]
-    )
-    mail_context = {
-        'document_name': owner['docname'],
-    }
-    with force_locale('en'):
-        subject_en = gettext("'%(docname)s' is now signed") % {'docname': owner['docname']}
-        if sendsigned:
-            body_txt_en = render_template('signed_all_email.txt.jinja2', **mail_context)
-            body_html_en = render_template('signed_all_email.html.jinja2', **mail_context)
-        else:
-            body_txt_en = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
-            body_html_en = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
-    with force_locale('sv'):
-        subject_sv = gettext("'%(docname)s' is now signed") % {'docname': owner['docname']}
-        if sendsigned:
-            body_txt_sv = render_template('signed_all_email.txt.jinja2', **mail_context)
-            body_html_sv = render_template('signed_all_email.html.jinja2', **mail_context)
-        else:
-            body_txt_sv = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
-            body_html_sv = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
+    current_lang = str(get_locale())
+    recipients = []
+    recipients = defaultdict(list)
+    recipients[current_lang].append(f"{doc['owner']['name']} <{doc['owner']['email']}>")
+    for invited in current_app.extensions['doc_store'].get_pending_invites(doc['key']):
+        if not invited['signed'] and invited['email'] not in mail_aliases:
+            continue
+        lang = invited['lang']
+        recipients[lang].append(f"{invited['name']} <{invited['email']}>")
 
-    email_args = (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+    mail_context = {
+        'document_name': doc['owner']['docname'],
+    }
     # attach PDF
-    if sendsigned:
-        doc_name = current_app.doc_store.get_document_name(key)
+    if doc['sendsigned']:
+        suffix = 'signed'
+        doc_name = current_app.extensions['doc_store'].get_document_name(doc['key'])
         if '.' in doc_name:
             splitted = doc_name.split('.')
             ext = splitted[-1]
             prename = '.'.join(splitted[:-1])
-            signed_doc_name = f"{prename}-signed.{ext}"
+            signed_doc_name = f"{prename}-{suffix}.{ext}"
         else:
-            signed_doc_name = doc_name + '-signed'
-        pdf_bytes = b64decode(doc['signedContent'], validate=True)
+            signed_doc_name = f"{doc_name}-{suffix}"
+        pdf_bytes = b64decode(doc['doc'].get('signedContent', doc['doc'].get('blob')))
+        email_kwargs = dict(
+            attachment_name=signed_doc_name,
+            attachment=pdf_bytes,
+        )
     else:
-        signed_doc_name = ''
-        pdf_bytes = ''
+        email_kwargs = {}
 
-    email_kwargs = dict(
-        attachment_name=signed_doc_name,
-        attachment=pdf_bytes,
-    )
-    return email_args, email_kwargs
+    messages = []
+    for lang in recipients:
+        with force_locale(lang):
+            subject = gettext('"%(docname)s" is now signed') % {'docname': doc['owner']['docname']}
+            if doc['sendsigned']:
+                body_txt = render_template('signed_all_email.txt.jinja2', **mail_context)
+                body_html = render_template('signed_all_email.html.jinja2', **mail_context)
+            else:
+                body_txt = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
+                body_html = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
+
+        messages.append(((recipients[lang], subject, body_txt, body_html), email_kwargs))
+
+    return messages
 
 
 def _prepare_signed_documents_data(process_data):
@@ -879,25 +1029,115 @@ def _prepare_signed_documents_data(process_data):
     docs = []
     for doc in process_data['signedDocuments']:
         key = doc['id']
-        owner = current_app.doc_store.get_owner_data(key)
+        owner = current_app.extensions['doc_store'].get_owner_data(key)
         current_app.logger.debug(f"Post-processing {key} for {owner}")
 
         # migration to mail_aliases
         mail_aliases = session.get('mail_aliases', [session['mail']])
 
         if 'email' in owner and owner['email'] not in mail_aliases:
-            current_app.doc_store.update_document(key, doc['signedContent'], mail_aliases)
-            current_app.doc_store.unlock_document(key, mail_aliases)
+            current_app.extensions['doc_store'].update_document(key, doc['signedContent'], mail_aliases)
+            current_app.extensions['doc_store'].unlock_document(key, mail_aliases)
+
+            pending_invites = current_app.extensions['doc_store'].get_pending_invites(key)
+            pending = sum([1 for p in pending_invites if not p['signed'] and not p['declined']])
+            skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
+
+            if pending > 0 or not skipfinal:
+                docs.append(
+                    {'id': key, 'signed_content': doc['signedContent'], 'validated': False, 'type': doc['mimeType']}
+                )
 
         elif owner:
-            current_app.doc_store.remove_document(key)
-
-        docs.append({'id': key, 'signed_content': doc['signedContent']})
+            current_app.extensions['doc_store'].remove_document(key)
 
     return docs
 
 
+def _next_ordered_invitation_mail(doc_key, docname, invite, owner):
+    lang = invite['lang']
+    recipients = [f"{invite['name']} <{invite['email']}>"]
+    custom_text = current_app.extensions['doc_store'].get_invitation_text(doc_key)
+    invited_link = url_for('edusign.get_index', _external=True)
+    mail_context = {
+        'document_name': docname,
+        'inviter_email': f"{owner['email']}",
+        'inviter_name': f"{owner['name']}",
+        'invited_link': invited_link,
+        'text': custom_text,
+    }
+    with force_locale(lang):
+        subject = gettext('You have been invited to sign "%(document_name)s"') % {'document_name': docname}
+        body_txt = render_template('invitation_email.txt.jinja2', **mail_context)
+        body_html = render_template('invitation_email.html.jinja2', **mail_context)
+
+    return ((recipients, subject, body_txt, body_html), {})
+
+
+def _process_signed_documents(process_data):
+    emails = []
+    to_validate = []
+    # migration to mail_aliases
+    mail_aliases = session.get('mail_aliases', [session['mail']])
+    # Prepare emails to send
+    for doc in process_data['signedDocuments']:
+        key = doc['id']
+        mime_type = doc['mimeType']
+        doc['type'] = mime_type
+        docname = current_app.extensions['doc_store'].get_document_name(key)
+        ordered = current_app.extensions['doc_store'].get_ordered(key)
+        owner = current_app.extensions['doc_store'].get_owner_data(key)
+        sendsigned = current_app.extensions['doc_store'].get_sendsigned(key)
+        pending_invites = current_app.extensions['doc_store'].get_pending_invites(key)
+        pending_invites = [p for p in pending_invites if not p['signed'] and not p['declined']]
+        pending = len(pending_invites) > 1  # More than 1 since we still have not removed the currently addressed invite
+        skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
+        current_app.logger.debug(
+            f"Data for emails for signed docs - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}, type: {mime_type}"
+        )
+
+        # this is an invitation to the current user
+        if owner and 'email' in owner and owner['email'] not in mail_aliases:
+            # Last person to sign this document
+            if not pending and skipfinal:
+                current_app.logger.debug(
+                    f"Data for final email - key: {key}, owner: {owner}, sendsigned: {sendsigned}, type: {mime_type}"
+                )
+                to_validate.append(
+                    {'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned, 'type': mime_type}
+                )
+
+            else:
+                # More people pending to sign the document
+                if pending:
+                    # Next invitation email to send, if ordered
+                    if ordered:
+                        # We still haven't removed the invitation currently being addressed,
+                        # thus the index 1
+                        invite = pending_invites[1]
+                        next_invitation_mail = _next_ordered_invitation_mail(key, docname, invite, owner)
+                        emails.append(next_invitation_mail)
+                try:
+                    email_args = _prepare_signed_by_email(key, owner)
+                    emails.append((email_args, {}))
+
+                except Exception as e:
+                    current_app.logger.error(
+                        f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}"
+                    )
+        # this is an invitation from the current user
+        elif owner:
+            to_validate.append({'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned, 'type': mime_type})
+
+        # this is not an invitation
+        else:
+            to_validate.append({'key': key, 'owner': {}, 'doc': doc, 'sendsigned': False, 'type': mime_type})
+
+    return emails, to_validate
+
+
 @edusign_views.route('/get-signed', methods=['POST'])
+@edusign_views2.route('/get-signed', methods=['POST'])
 @UnMarshal(SigningSchema)
 @Marshal(SignedDocumentsSchema)
 def get_signed_documents(sign_data: dict) -> dict:
@@ -912,8 +1152,12 @@ def get_signed_documents(sign_data: dict) -> dict:
     :return: A dict with the signed documents, or with error information if some error has ocurred.
     """
     try:
-        current_app.logger.info(f"Processing signature for {sign_data['sign_response'][:50]} for user {session['eppn']}")
-        process_data = current_app.api_client.process_sign_request(sign_data['sign_response'], sign_data['relay_state'])
+        current_app.logger.info(
+            f"Processing signature for {sign_data['sign_response'][:50]} for user {session['eppn']}"
+        )
+        process_data = current_app.extensions['api_client'].process_sign_request(
+            sign_data['sign_response'], sign_data['relay_state']
+        )
 
     except Exception as e:
         current_app.logger.error(f'Problem processing sign request: {e}')
@@ -928,43 +1172,50 @@ def get_signed_documents(sign_data: dict) -> dict:
         if message == "Requested LoA does not match the Assertion LoA":
             return {
                 'error': True,
-                'message': gettext('Could not provide the requested security level.'),
+                'message': gettext("Could not provide the requested level of assurance."),
+            }
+        elif message == "Missing attributes in assertion":  # XXX use correct string
+            return {
+                'error': True,
+                'message': gettext("Could not provide the requested level of assurance."),
             }
         # XXX translate
         return {'error': True, 'message': message}
 
-    emails = []
-    # Prepare emails to send
-    for doc in process_data['signedDocuments']:
-        key = doc['id']
-        owner = current_app.doc_store.get_owner_data(key)
-        sendsigned = current_app.doc_store.get_sendsigned(key)
+    emails, to_validate = _process_signed_documents(process_data)
 
-        # migration to mail_aliases
-        mail_aliases = session.get('mail_aliases', [session['mail']])
+    validated = current_app.extensions['api_client'].validate_signatures(to_validate)
 
-        # this is an invitation to the current user
-        if 'email' in owner and owner['email'] not in mail_aliases:
+    mail_aliases = session.get('mail_aliases', [session['mail']])
+    docs = []
+    for doc in validated:
+        owner = doc['owner']
+        if owner:
             try:
-                email_args = _prepare_signed_by_email(key, owner)
-                emails.append((email_args, {}))
-
+                messages = _prepare_all_signed_email(doc, mail_aliases)
+                emails.extend(messages)
             except Exception as e:
-                current_app.logger.error(f"Problem sending signed by {session['mail']} email to {owner['email']}: {e}")
+                current_app.logger.error(
+                    f"Problem sending signed by all email to all invited for doc '{owner['docname']}': {e}"
+                )
 
-        # this is an invitation from the current user
-        elif owner:
-            try:
-                email_args, email_kwargs = _prepare_all_signed_email(key, owner, doc, sendsigned)
-                emails.append((email_args, email_kwargs))
-
-            except Exception as e:
-                current_app.logger.error(f"Problem sending signed by {owner['email']} email to all invited: {e}")
+        docs.append(
+            {
+                'id': doc['key'],
+                'signed_content': doc['doc']['signedContent'],
+                'validated': doc['validated'],
+                'type': doc['type'],
+            }
+        )
 
     if len(emails) > 0:
         sendmail_bulk(emails)
 
-    docs = _prepare_signed_documents_data(process_data)
+    prepared_data = _prepare_signed_documents_data(process_data)
+    docs.extend(prepared_data)
+
+    for doc in docs:
+        doc['pprinted'] = pretty_print_any(doc['signed_content'], doc['type'])
 
     return {
         'payload': {'documents': docs},
@@ -972,6 +1223,7 @@ def get_signed_documents(sign_data: dict) -> dict:
 
 
 @edusign_views.route('/create-multi-sign', methods=['POST'])
+@edusign_views2.route('/create-multi-sign', methods=['POST'])
 @UnMarshal(MultiSignSchema)
 @Marshal()
 def create_multi_sign_request(data: dict) -> dict:
@@ -987,7 +1239,7 @@ def create_multi_sign_request(data: dict) -> dict:
                  and the emails of the users invited to sign the doc.
     :return: A message about the result of the procedure
     """
-    if 'mail' not in session or not current_app.is_whitelisted(session['eppn']):
+    if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
         return {'error': True, 'message': gettext('Unauthorized')}
 
     # migration to mail_aliases
@@ -1002,25 +1254,48 @@ def create_multi_sign_request(data: dict) -> dict:
 
     try:
         current_app.logger.info(f"Creating multi signature request for user {session['eppn']}")
-        owner = {'name': session['displayName'], 'email': data['owner'], 'eppn': session['eppn']}
+        owner = {
+            'name': session['displayName'],
+            'email': data['owner'],
+            'eppn': session['eppn'],
+            'lang': str(get_locale()),
+        }
         current_app.logger.debug(f"Adding document with required loa {data['loa']}")
-        invites = current_app.doc_store.add_document(
-            data['document'], owner, data['invites'], data['sendsigned'], data['loa']
+        invites = current_app.extensions['doc_store'].add_document(
+            data['document'],
+            owner,
+            data['invites'],
+            data['sendsigned'],
+            data['loa'],
+            data['skipfinal'],
+            data['ordered'],
+            data['text'],
         )
 
     except Exception as e:
         current_app.logger.error(f'Problem processing multi sign request: {e}')
         return {'error': True, 'message': gettext('Problem creating invitation to sign, please try again')}
 
-    recipients = [f"{invite['name']} <{invite['email']}>" for invite in invites]
-    if len(recipients) > 0:
+    ordered = data['ordered']
+
+    if len(invites) > 0:
+        recipients = defaultdict(list)
+        if ordered:
+            invite = invites[0]
+            lang = invite['lang']
+            recipients[lang].append(f"{invite['name']} <{invite['email']}>")
+        else:
+            for invite in invites:
+                lang = invite['lang']
+                recipients[lang].append(f"{invite['name']} <{invite['email']}>")
+
         docname = data['document']['name']
         custom_text = data['text']
         try:
             _send_invitation_mail(docname, owner, custom_text, recipients)
 
         except Exception:
-            current_app.doc_store.remove_document(uuid.UUID(data['document']['key']), force=True)
+            current_app.extensions['doc_store'].remove_document(uuid.UUID(data['document']['key']), force=True)
             return {'error': True, 'message': gettext('There was a problem and the invitation email(s) were not sent')}
 
     message = gettext("Success sending invitations to sign")
@@ -1038,16 +1313,16 @@ def _send_invitation_mail(docname, owner, custom_text, recipients):
             'invited_link': invited_link,
             'text': custom_text,
         }
-        with force_locale('en'):
-            subject_en = gettext("You have been invited to sign '%(document_name)s'") % {'document_name': docname}
-            body_txt_en = render_template('invitation_email.txt.jinja2', **mail_context)
-            body_html_en = render_template('invitation_email.html.jinja2', **mail_context)
-        with force_locale('sv'):
-            subject_sv = gettext("You have been invited to sign '%(document_name)s'") % {'document_name': docname}
-            body_txt_sv = render_template('invitation_email.txt.jinja2', **mail_context)
-            body_html_sv = render_template('invitation_email.html.jinja2', **mail_context)
+        messages = []
+        for lang in recipients:
+            with force_locale(lang):
+                subject = gettext('You have been invited to sign "%(document_name)s"') % {'document_name': docname}
+                body_txt = render_template('invitation_email.txt.jinja2', **mail_context)
+                body_html = render_template('invitation_email.html.jinja2', **mail_context)
 
-        sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+                messages.append(((recipients[lang], subject, body_txt, body_html), {}))
+
+        sendmail_bulk(messages)
 
     except Exception as e:
         current_app.logger.error(f'Problem sending invitation email: {e}: {type(e)}')
@@ -1055,6 +1330,7 @@ def _send_invitation_mail(docname, owner, custom_text, recipients):
 
 
 @edusign_views.route('/send-multisign-reminder', methods=['POST'])
+@edusign_views2.route('/send-multisign-reminder', methods=['POST'])
 @UnMarshal(ResendMultiSignSchema)
 @Marshal()
 def send_multisign_reminder(data: dict) -> dict:
@@ -1068,9 +1344,10 @@ def send_multisign_reminder(data: dict) -> dict:
     :return: A message about the result of the procedure
     """
     try:
-        pending = current_app.doc_store.get_pending_invites(uuid.UUID(data['key']))
-        docname = current_app.doc_store.get_document_name(uuid.UUID(data['key']))
-        owner_email = current_app.doc_store.get_document_email(uuid.UUID(data['key']))
+        pending = current_app.extensions['doc_store'].get_pending_invites(uuid.UUID(data['key']))
+        docname = current_app.extensions['doc_store'].get_document_name(uuid.UUID(data['key']))
+        owner_email = current_app.extensions['doc_store'].get_document_email(uuid.UUID(data['key']))
+        ordered = current_app.extensions['doc_store'].get_ordered(uuid.UUID(data['key']))
 
     except Exception as e:
         current_app.logger.error(f'Problem finding users pending to multi sign: {e}')
@@ -1084,9 +1361,20 @@ def send_multisign_reminder(data: dict) -> dict:
         current_app.logger.error(f"Could not find document {data['key']} pending signing the multi sign request")
         return {'error': True, 'message': gettext('Could not find the document')}
 
-    recipients = [
-        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
-    ]
+    recipients = defaultdict(list)
+    invites = [i for i in pending if not i['signed'] and not i['declined']]
+    invites.sort(key=lambda i: i['order'])
+    if ordered:
+        invite = invites[0]
+        lang = invite['lang']
+        recipient = f"{invite['name']} <{invite['email']}>"
+        recipients[lang].append(recipient)
+    else:
+        for invite in invites:
+            lang = invite['lang']
+            recipient = f"{invite['name']} <{invite['email']}>"
+            recipients[lang].append(recipient)
+
     if len(recipients) > 0:
         try:
             invited_link = url_for('edusign.get_index', _external=True)
@@ -1097,16 +1385,16 @@ def send_multisign_reminder(data: dict) -> dict:
                 'invited_link': invited_link,
                 'text': 'text' in data and data['text'] or "",
             }
-            with force_locale('en'):
-                subject_en = gettext("A reminder to sign '%(document_name)s'") % {'document_name': docname}
-                body_txt_en = render_template('reminder_email.txt.jinja2', **mail_context)
-                body_html_en = render_template('reminder_email.html.jinja2', **mail_context)
-            with force_locale('sv'):
-                subject_sv = gettext("A reminder to sign '%(document_name)s'") % {'document_name': docname}
-                body_txt_sv = render_template('reminder_email.txt.jinja2', **mail_context)
-                body_html_sv = render_template('reminder_email.html.jinja2', **mail_context)
+            messages: List[tuple] = []
+            for lang in recipients:
+                with force_locale(lang):
+                    subject = gettext("A reminder to sign '%(document_name)s'") % {'document_name': docname}
+                    body_txt = render_template('reminder_email.txt.jinja2', **mail_context)
+                    body_html = render_template('reminder_email.html.jinja2', **mail_context)
 
-            sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+                    messages.append(((recipients[lang], subject, body_txt, body_html), {}))
+
+            sendmail_bulk(messages)
 
         except Exception as e:
             current_app.logger.error(f'Problem sending reminder email: {e}')
@@ -1118,6 +1406,7 @@ def send_multisign_reminder(data: dict) -> dict:
 
 
 @edusign_views.route('/edit-multi-sign', methods=['POST'])
+@edusign_views2.route('/edit-multi-sign', methods=['POST'])
 @UnMarshal(EditMultiSignSchema)
 @Marshal()
 def edit_multi_sign_request(data: dict) -> dict:
@@ -1130,39 +1419,115 @@ def edit_multi_sign_request(data: dict) -> dict:
     :return: A message about the result of the procedure
     """
     key = uuid.UUID(data['key'])
+    docname = current_app.extensions['doc_store'].get_document_name(key)
+    ordered = current_app.extensions['doc_store'].get_ordered(key)
+    owner = current_app.extensions['doc_store'].get_owner_data(key)
+    owner_email = owner['email']
+    text = data['text']
+    sendsigned = data['sendsigned']
+    skipfinal = data['skipfinal']
+    mail_aliases = session["mail_aliases"]
+
+    current_app.extensions['doc_store'].unlock_document(key, mail_aliases)
+
+    orig_invites = current_app.extensions['doc_store'].get_pending_invites(key)
+    orig_pending = [i for i in orig_invites if not i['signed'] and not i['declined']]
+    current_pending = data['invites']
+    for invite in current_pending:
+        invite['email'] = invite['email'].lower()
+
     try:
-        changed = current_app.doc_store.update_invitations(key, data['invites'])
+        current_app.extensions['doc_store'].set_sendsigned(key, sendsigned)
+        current_app.extensions['doc_store'].set_skipfinal(key, skipfinal)
+        changed = current_app.extensions['doc_store'].update_invitations(key, orig_pending, current_pending)
+        message = gettext("Success editing invitation to sign '%(docname)s'") % {'docname': docname}
     except Exception as e:
         current_app.logger.error(f"Problem editing the invitations for {key}: {e}")
         return {'error': True, 'message': gettext('Problem editing the invitations')}
 
-    recipients_added = [f"{invite['name']} <{invite['email']}>" for invite in changed['added']]
-    docname = current_app.doc_store.get_document_name(key)
-    owner_email = current_app.doc_store.get_document_email(key)
-    owner = {'name': session['displayName'], 'email': owner_email}
-    text = data['text']
+    if ordered:
+        if len(current_pending) == 0:
+            current_next_invite = None
+            current_next_recipient = ''
+        else:
+            current_next_invite = current_pending[0]
+            current_next_recipient = f"{current_next_invite['name']} <{current_next_invite['email']}>"
 
-    message = gettext("Success editing invitation to sign '%(docname)s'") % {'docname': docname}
+        orig_next_invite = orig_pending[0]
+        orig_next_recipient = f"{orig_next_invite['name']} <{orig_next_invite['email']}>"
 
-    try:
-        _send_invitation_mail(docname, owner, text, recipients_added)
-    except Exception:
-        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
-            'docname': docname
-        }
+        if orig_next_recipient != current_next_recipient:
+            recipient = {orig_next_invite['lang']: [orig_next_recipient]}
+            sent = _send_cancellation_mail(docname, owner_email, recipient)
+            if not sent:
+                message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+                    'docname': docname
+                }
+            if current_next_invite is not None:
+                recipient = {current_next_invite['lang']: [current_next_recipient]}
+                try:
+                    _send_invitation_mail(docname, owner, text, recipient)
+                except Exception:
+                    message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+                        'docname': docname
+                    }
+            else:
+                if skipfinal:
+                    try:
+                        doc = current_app.extensions['doc_store'].get_signed_document(key)
+                        messages = _prepare_all_signed_email(doc, mail_aliases)
+                        sendmail_bulk(messages)
+                    except Exception:
+                        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+                            'docname': docname
+                        }
 
-    recipients_removed = [f"{invite['name']} <{invite['email']}>" for invite in changed['removed']]
-    sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
-    if not sent:
-        message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
-            'docname': docname
-        }
+    else:
+        recipients_removed = defaultdict(list)
+        recipients_added = defaultdict(list)
+
+        for invite in changed['added']:
+            lang = invite['lang']
+            recipient = f"{invite['name']} <{invite['email']}>"
+            recipients_added[lang].append(recipient)
+
+        for invite in changed['removed']:
+            lang = invite['lang']
+            recipient = f"{invite['name']} <{invite['email']}>"
+            recipients_removed[lang].append(recipient)
+
+        if len(recipients_added) > 0:
+            try:
+                _send_invitation_mail(docname, owner, text, recipients_added)
+            except Exception:
+                message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+                    'docname': docname
+                }
+
+        if len(recipients_removed) > 0:
+            sent = _send_cancellation_mail(docname, owner_email, recipients_removed)
+            if not sent:
+                message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+                    'docname': docname
+                }
+
+        if len(current_pending) == 0:
+            if skipfinal:
+                try:
+                    doc = current_app.extensions['doc_store'].get_signed_document(key)
+                    messages = _prepare_all_signed_email(doc, mail_aliases)
+                    sendmail_bulk(messages)
+                except Exception:
+                    message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+                        'docname': docname
+                    }
 
     return {'message': message}
 
 
 @edusign_views.route('/remove-multi-sign', methods=['POST'])
-@UnMarshal(KeyedMultiSignSchema)
+@edusign_views2.route('/remove-multi-sign', methods=['POST'])
+@UnMarshal(KeySchema)
 @Marshal()
 def remove_multi_sign_request(data: dict) -> dict:
     """
@@ -1175,17 +1540,19 @@ def remove_multi_sign_request(data: dict) -> dict:
     """
     key = uuid.UUID(data['key'])
     try:
-        pending = current_app.doc_store.get_pending_invites(key)
-        docname = current_app.doc_store.get_document_name(key)
-        owner_email = current_app.doc_store.get_document_email(key)
+        pending = current_app.extensions['doc_store'].get_pending_invites(key)
+        docname = current_app.extensions['doc_store'].get_document_name(key)
+        owner_email = current_app.extensions['doc_store'].get_document_email(key)
+        ordered = current_app.extensions['doc_store'].get_ordered(key)
     except Exception as e:
         current_app.logger.error(f'Problem getting info about document {key}: {e}')
         pending = []
         docname = ''
         owner_email = session['mail']
+        ordered = False
 
     try:
-        removed = current_app.doc_store.remove_document(key, force=True)
+        removed = current_app.extensions['doc_store'].remove_document(key, force=True)
 
     except Exception as e:
         current_app.logger.error(f'Problem removing multi sign request: {e}')
@@ -1193,12 +1560,24 @@ def remove_multi_sign_request(data: dict) -> dict:
 
     if not removed:
         current_app.logger.error(f'Could not remove the multi sign request corresponding to data: {data}')
-        return {'error': True, 'message': gettext('Document has not been removed, please try again')}
+        return {'error': True, 'message': gettext('Problem removing the invitation, please try again')}
 
-    recipients = [
-        f"{invite['name']} <{invite['email']}>" for invite in pending if not invite['signed'] and not invite['declined']
-    ]
+    recipients = defaultdict(list)
+    if not ordered:
+        for invite in pending:
+            if invite['signed'] or invite['declined']:
+                continue
+            lang = invite['lang']
+            recipients[lang].append(f"{invite['name']} <{invite['email']}>")
+    else:
+        npending = sum([1 for i in pending if not i['signed'] and not i['declined']])
+        if npending > 0:
+            invite = pending[len(pending) - npending]
+            lang = invite['lang']
+            recipients[lang].append(f"{invite['name']} <{invite['email']}>")
+
     message = gettext("Success removing invitation to sign")
+    current_app.logger.info(f"Success removing invitation to sign for document {docname}")
 
     if len(recipients) > 0:
         sent = _send_cancellation_mail(docname, owner_email, recipients)
@@ -1215,16 +1594,16 @@ def _send_cancellation_mail(docname, owner_email, recipients):
             'inviter_email': owner_email,
             'inviter_name': f"{session['displayName']}",
         }
-        with force_locale('en'):
-            subject_en = gettext("Cancellation of invitation to sign '%(document_name)s'") % {'document_name': docname}
-            body_txt_en = render_template('cancellation_email.txt.jinja2', **mail_context)
-            body_html_en = render_template('cancellation_email.html.jinja2', **mail_context)
-        with force_locale('sv'):
-            subject_sv = gettext("Cancellation of invitation to sign '%(document_name)s'") % {'document_name': docname}
-            body_txt_sv = render_template('cancellation_email.txt.jinja2', **mail_context)
-            body_html_sv = render_template('cancellation_email.html.jinja2', **mail_context)
+        messages = []
+        for lang in recipients:
+            with force_locale(lang):
+                subject = gettext("Cancellation of invitation to sign '%(document_name)s'") % {'document_name': docname}
+                body_txt = render_template('cancellation_email.txt.jinja2', **mail_context)
+                body_html = render_template('cancellation_email.html.jinja2', **mail_context)
 
-        sendmail(recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+                messages.append(((recipients[lang], subject, body_txt, body_html), {}))
+
+        sendmail_bulk(messages)
 
     except Exception as e:
         current_app.logger.error(f'Problem sending cancellation email: {e}')
@@ -1234,7 +1613,8 @@ def _send_cancellation_mail(docname, owner_email, recipients):
 
 
 @edusign_views.route('/get-partially-signed', methods=['POST'])
-@UnMarshal(KeyedMultiSignSchema)
+@edusign_views2.route('/get-partially-signed', methods=['POST'])
+@UnMarshal(KeySchema)
 @Marshal(BlobSchema)
 def get_partially_signed_doc(data: dict) -> dict:
     """
@@ -1246,8 +1626,10 @@ def get_partially_signed_doc(data: dict) -> dict:
     :param data: The key of the document to get
     :return: A message about the result of the procedure
     """
+    key = uuid.UUID(data['key'])
     try:
-        doc = current_app.doc_store.get_document_content(uuid.UUID(data['key']))
+        doc = current_app.extensions['doc_store'].get_document_content(key)
+        doctype = current_app.extensions['doc_store'].get_document_type(key)
 
     except Exception as e:
         current_app.logger.error(f'Problem getting multi sign document: {e}')
@@ -1257,43 +1639,27 @@ def get_partially_signed_doc(data: dict) -> dict:
         current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
         return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
-    return {'message': 'Success', 'payload': {'blob': doc}}
+    pprinted = pretty_print_any(doc, doctype)
+
+    return {'message': 'Success', 'payload': {'blob': doc, 'pprinted': pprinted}}
 
 
 def _prepare_final_email_skipped(doc, key, sendsigned):
-    owner = current_app.doc_store.get_owner_data(key)
-    recipients = [f"{owner['name']} <{owner['email']}>"]
-    recipients.extend(
-        [
-            f"{invited['name']} <{invited['email']}>"
-            for invited in current_app.doc_store.get_pending_invites(key)
-            if invited['signed']
-        ]
-    )
+    owner = current_app.extensions['doc_store'].get_owner_data(key)
+    recipients = defaultdict(list)
+    recipients[owner['lang']].append(f"{owner['name']} <{owner['email']}>")
+    for invited in current_app.extensions['doc_store'].get_pending_invites(key):
+        if not invited['signed']:
+            continue
+        lang = invited['lang']
+        recipients[lang].append(f"{invited['name']} <{invited['email']}>")
 
     mail_context = {
-        'document_name': doc['name'],
+        'document_name': doc['doc']['name'],
     }
-    with force_locale('en'):
-        subject_en = gettext("'%(docname)s' is now signed") % {'docname': doc['name']}
-        if sendsigned:
-            body_txt_en = render_template('signed_all_email.txt.jinja2', **mail_context)
-            body_html_en = render_template('signed_all_email.html.jinja2', **mail_context)
-        else:
-            body_txt_en = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
-            body_html_en = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
-    with force_locale('sv'):
-        subject_sv = gettext("'%(docname)s' is now signed") % {'docname': doc['name']}
-        if sendsigned:
-            body_txt_sv = render_template('signed_all_email.txt.jinja2', **mail_context)
-            body_html_sv = render_template('signed_all_email.html.jinja2', **mail_context)
-        else:
-            body_txt_sv = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
-            body_html_sv = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
-
     # attach PDF
     if sendsigned:
-        doc_name = current_app.doc_store.get_document_name(key)
+        doc_name = current_app.extensions['doc_store'].get_document_name(key)
         if '.' in doc_name:
             splitted = doc_name.split('.')
             ext = splitted[-1]
@@ -1301,22 +1667,34 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
             signed_doc_name = f"{prename}-signed.{ext}"
         else:
             signed_doc_name = doc_name + '-signed'
-        pdf_bytes = b64decode(doc['blob'], validate=True)
+        pdf_bytes = b64decode(doc['doc']['signedContent'], validate=True)
+
+        kwargs = dict(
+            attachment_name=signed_doc_name,
+            attachment=pdf_bytes,
+        )
     else:
-        signed_doc_name = ''
-        pdf_bytes = ''
+        kwargs = {}
 
-    args = (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+    messages = []
+    for lang in recipients:
+        with force_locale(lang):
+            subject = gettext('"%(docname)s" is now signed') % {'docname': doc['doc']['name']}
+            if sendsigned:
+                body_txt = render_template('signed_all_email.txt.jinja2', **mail_context)
+                body_html = render_template('signed_all_email.html.jinja2', **mail_context)
+            else:
+                body_txt = render_template('signed_all_email_no_pdf.txt.jinja2', **mail_context)
+                body_html = render_template('signed_all_email_no_pdf.html.jinja2', **mail_context)
 
-    kwargs = dict(
-        attachment_name=signed_doc_name,
-        attachment=pdf_bytes,
-    )
-    return args, kwargs
+        messages.append(((recipients[lang], subject, body_txt, body_html), kwargs))
+
+    return messages
 
 
 @edusign_views.route('/skip-final-signature', methods=['POST'])
-@UnMarshal(KeyedMultiSignSchema)
+@edusign_views2.route('/skip-final-signature', methods=['POST'])
+@UnMarshal(KeySchema)
 @Marshal(SignedDocumentsSchema)
 def skip_final_signature(data: dict) -> dict:
     """
@@ -1331,8 +1709,9 @@ def skip_final_signature(data: dict) -> dict:
 
     key = uuid.UUID(data['key'])
     try:
-        doc = current_app.doc_store.get_signed_document(key)
-        sendsigned = current_app.doc_store.get_sendsigned(key)
+        doc = current_app.extensions['doc_store'].get_signed_document(key)
+        sendsigned = current_app.extensions['doc_store'].get_sendsigned(key)
+        doctype = current_app.extensions['doc_store'].get_document_type(key)
 
     except Exception as e:
         current_app.logger.error(f'Problem getting signed document: {e}')
@@ -1342,66 +1721,117 @@ def skip_final_signature(data: dict) -> dict:
         current_app.logger.error(f"Problem getting multisigned document with key : {data['key']}")
         return {'error': True, 'message': gettext('Cannot find the document being signed')}
 
+    validated = current_app.extensions['api_client'].validate_signatures(
+        [{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}]
+    )
+    newdoc = validated[0]
+
     try:
-        args, kwargs = _prepare_final_email_skipped(doc, key, sendsigned)
-        sendmail(*args, **kwargs)
+        messages = _prepare_final_email_skipped(newdoc, key, sendsigned)
+        sendmail_bulk(messages)
 
     except Exception as e:
         current_app.logger.error(f'Problem sending signed document to invited users: {e}')
 
     try:
-        current_app.doc_store.remove_document(key)
+        current_app.extensions['doc_store'].remove_document(key)
 
     except Exception as e:
         current_app.logger.warning(f'Problem removing doc skipping final signature: {e}')
 
+    validated = current_app.extensions['api_client'].validate_signatures(
+        [{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}]
+    )
+    newdoc = validated[0]
+    signed_content = newdoc['doc'].get('signedContent', newdoc['doc']['blob'])
+
+    pprinted = pretty_print_any(signed_content, doctype)
+
     return {
         'message': 'Success',
-        'payload': {'documents': [{'id': doc['key'], 'signed_content': doc['blob']}]},
+        'payload': {
+            'documents': [
+                {
+                    'id': newdoc['key'],
+                    'signed_content': signed_content,
+                    'validated': newdoc['validated'],
+                    'pprinted': pprinted,
+                }
+            ]
+        },
     }
 
 
-def _prepare_declined_email(key, owner_data):
+def _prepare_declined_emails(key, owner_data):
     """
     Prepare email to inviter user informing about an invited user
     that has declined to sign the document.
     """
-    # migration to mail_aliases
+    docname = owner_data['docname']
+    ordered = current_app.extensions['doc_store'].get_ordered(key)
+    pending_invites = current_app.extensions['doc_store'].get_pending_invites(key)
+    pending = sum([1 for i in pending_invites if not i['signed'] and not i['declined']])
     mail_aliases = session.get('mail_aliases', [session['mail']])
 
-    pending = current_app.doc_store.get_pending_invites(key, exclude=mail_aliases)
-    pending = [p for p in pending if not p['signed'] and not p['declined']]
+    skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
+    pending_invites = current_app.extensions['doc_store'].get_pending_invites(key, exclude=mail_aliases)
+    pending = [p for p in pending_invites if not p['signed'] and not p['declined']]
     if len(pending) > 0:
         template = 'declined_by_email'
     else:
-        template = 'final_declined_by_email'
+        if skipfinal:
+            template = 'final_declined_by_email_skip'
+        else:
+            template = 'final_declined_by_email'
 
     recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
     mail_context = {
-        'document_name': owner_data['docname'],
+        'document_name': docname,
         'invited_name': session['displayName'],
         'invited_email': session['mail'],
     }
-    with force_locale('en'):
-        subject_en = gettext("%(name)s declined to sign '%(docname)s'") % {
+    with force_locale(owner_data['lang']):
+        subject = gettext("%(name)s declined to sign '%(docname)s'") % {
             'name': session['displayName'],
             'docname': owner_data['docname'],
         }
-        body_txt_en = render_template(f'{template}.txt.jinja2', **mail_context)
-        body_html_en = render_template(f'{template}.html.jinja2', **mail_context)
-    with force_locale('sv'):
-        subject_sv = gettext("%(name)s declined to sign '%(docname)s'") % {
-            'name': session['displayName'],
-            'docname': owner_data['docname'],
-        }
-        body_txt_sv = render_template(f'{template}.txt.jinja2', **mail_context)
-        body_html_sv = render_template(f'{template}.html.jinja2', **mail_context)
+        body_txt = render_template(f'{template}.txt.jinja2', **mail_context)
+        body_html = render_template(f'{template}.html.jinja2', **mail_context)
 
-    return (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+    emails = [((recipients, subject, body_txt, body_html), {})]
+
+    if len(pending) == 0 and skipfinal:
+        try:
+            doc = current_app.extensions['doc_store'].get_signed_document(key)
+            sendsigned = current_app.extensions['doc_store'].get_sendsigned(key)
+
+        except Exception as e:
+            current_app.logger.error(f'Problem getting signed document: {e}')
+            return {'error': True, 'message': gettext('Cannot find the document being signed')}
+
+        validated = current_app.extensions['api_client'].validate_signatures(
+            [{'key': key, 'owner': 'dummy', 'doc': doc, 'sendsigned': sendsigned}]
+        )
+        newdoc = validated[0]
+
+        try:
+            emails_more = _prepare_final_email_skipped(newdoc, key, sendsigned)
+            emails.extend(emails_more)
+
+        except Exception as e:
+            current_app.logger.error(f'Problem preparing declined signed by all document to invited users: {e}')
+
+    if len(pending) > 0 and ordered:
+        invite = pending_invites[0]
+        next_invitation_mail = _next_ordered_invitation_mail(key, docname, invite, owner_data)
+        emails.append(next_invitation_mail)
+
+    return emails
 
 
 @edusign_views.route('/decline-invitation', methods=['POST'])
-@UnMarshal(KeyedMultiSignSchema)
+@edusign_views2.route('/decline-invitation', methods=['POST'])
+@UnMarshal(KeySchema)
 @Marshal()
 def decline_invitation(data):
     """
@@ -1417,21 +1847,24 @@ def decline_invitation(data):
     mail_aliases = session.get('mail_aliases', [session['mail']])
 
     try:
-        current_app.doc_store.decline_document(key, mail_aliases)
+        current_app.extensions['doc_store'].decline_document(key, mail_aliases)
     except Exception as e:
         current_app.logger.error(f'Problem declining signature of document: {e}')
         return {'error': True, 'message': gettext('Problem declining signature, please try again')}
 
     try:
-        owner_data = current_app.doc_store.get_owner_data(key)
+        owner_data = current_app.extensions['doc_store'].get_owner_data(key)
+
         if not owner_data:
             current_app.logger.error(
                 f"Problem sending email about {session['mail']} declining document {key} with no owner data"
             )
 
         else:
-            args = _prepare_declined_email(key, owner_data)
-            sendmail(*args)
+            emails = _prepare_declined_emails(key, owner_data)
+
+            if len(emails) > 0:
+                sendmail_bulk(emails)
 
     except Exception as e:
         current_app.logger.error(f'Problem sending email of declination: {e}')
@@ -1441,7 +1874,7 @@ def decline_invitation(data):
     return {'message': message}
 
 
-def _prepare_delegation_email(owner_data, name, email):
+def _prepare_delegation_email(owner_data, name, email, lang):
     """
     Prepare email to inform some user that a user invited to sign a document
     has delegeted the responsibility to them.
@@ -1454,25 +1887,19 @@ def _prepare_delegation_email(owner_data, name, email):
         'owner_name': owner_data['name'],
         'owner_email': owner_data['email'],
     }
-    with force_locale('en'):
-        subject_en = gettext("%(name)s has delegated signature of '%(docname)s' to you") % {
+    with force_locale(lang):
+        subject = gettext('%(name)s has delegated signature of "%(docname)s" to you') % {
             'name': owner_data['name'],
             'docname': owner_data['docname'],
         }
-        body_txt_en = render_template('delegation_email.txt.jinja2', **mail_context)
-        body_html_en = render_template('delegation_email.html.jinja2', **mail_context)
-    with force_locale('sv'):
-        subject_sv = gettext("%(name)s has delegated signature of '%(docname)s' to you") % {
-            'name': owner_data['name'],
-            'docname': owner_data['docname'],
-        }
-        body_txt_sv = render_template('delegation_email.txt.jinja2', **mail_context)
-        body_html_sv = render_template('delegation_email.html.jinja2', **mail_context)
+        body_txt = render_template('delegation_email.txt.jinja2', **mail_context)
+        body_html = render_template('delegation_email.html.jinja2', **mail_context)
 
-    return (recipients, subject_en, subject_sv, body_txt_en, body_html_en, body_txt_sv, body_html_sv)
+    return (recipients, subject, body_txt, body_html)
 
 
 @edusign_views.route('/delegate-invitation', methods=['POST'])
+@edusign_views2.route('/delegate-invitation', methods=['POST'])
 @UnMarshal(DelegationSchema)
 @Marshal()
 def delegate_invitation(data):
@@ -1489,21 +1916,22 @@ def delegate_invitation(data):
     document_key = uuid.UUID(data['document_key'])
     name = data['name']
     email = data['email']
+    lang = data['lang']
     try:
-        current_app.doc_store.delegate(invite_key, document_key, name, email)
+        current_app.extensions['doc_store'].delegate(invite_key, document_key, name, email, lang)
 
     except Exception as e:
         current_app.logger.error(f'Problem delegating invitation: {e}')
         return {'error': True, 'message': gettext('There was a problem delegating the invitation')}
     try:
-        owner_data = current_app.doc_store.get_owner_data(document_key)
+        owner_data = current_app.extensions['doc_store'].get_owner_data(document_key)
         if not owner_data:
             current_app.logger.error(
                 f"Problem sending email about {session['mail']} delegating signature of document {document_key} with no owner data"
             )
 
         else:
-            args = _prepare_delegation_email(owner_data, name, email)
+            args = _prepare_delegation_email(owner_data, name, email, lang)
             sendmail(*args)
 
     except Exception as e:
@@ -1515,11 +1943,12 @@ def delegate_invitation(data):
 
 
 @edusign_views.route('/update-form', methods=['POST'])
+@edusign_views2.route('/update-form', methods=['POST'])
 @UnMarshal(FillFormSchema)
 @Marshal(DocSchema)
 def update_form(data):
     pdf = data['document']
-    fields = data['fields']
+    fields = data['form_fields']
     try:
         updated = update_pdf_form(pdf, fields)
     except Exception as e:
@@ -1527,3 +1956,39 @@ def update_form(data):
         return {'error': True, 'message': gettext('Problem filling in form in PDF, please try again')}
 
     return {'message': 'Success', 'payload': {'document': updated}}
+
+
+@edusign_views.route('/lock-doc', methods=['POST'])
+@edusign_views2.route('/lock-doc', methods=['POST'])
+@UnMarshal(KeySchema)
+@Marshal()
+def lock_document(data):
+    key = data['key']
+    email = session["mail"]
+    locked = current_app.extensions['doc_store'].lock_document(key, email)
+
+    if not locked:
+        message = gettext('The document is being signed by an invitee, please try again in a few minutes')
+        return {'error': True, 'message': message}
+
+    message = gettext("Success locking document")
+
+    return {'message': message}
+
+
+@edusign_views.route('/unlock-doc', methods=['POST'])
+@edusign_views2.route('/unlock-doc', methods=['POST'])
+@UnMarshal(KeySchema)
+@Marshal()
+def unlock_document(data):
+    key = data['key']
+    emails = session["mail_aliases"]
+    unlocked = current_app.extensions['doc_store'].unlock_document(key, emails)
+
+    if not unlocked:
+        message = gettext('There was a problem unlocking the document')
+        return {'error': True, 'message': message}
+
+    message = gettext("Success unlocking document")
+
+    return {'message': message}

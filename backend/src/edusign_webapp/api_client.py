@@ -62,16 +62,18 @@ There are 4 basic steps to complete a signature procedure:
 
 1.- https://github.com/idsec-solutions/signservice-integration-rest/blob/master/docs/sample-flow.md
 """
+import asyncio
 import json
 import uuid
+from base64 import b64decode, b64encode
 from pprint import pformat
 from urllib.parse import urljoin
 
 import requests
-from flask import current_app, session, url_for
+from flask import current_app, request, session, url_for
 from requests.auth import HTTPBasicAuth
 
-from edusign_webapp.utils import get_authn_context
+from edusign_webapp.utils import get_authn_context, get_required_assurance
 
 
 def pretty_print_req(req: requests.PreparedRequest) -> str:
@@ -85,7 +87,7 @@ def pretty_print_req(req: requests.PreparedRequest) -> str:
         '-----------START-----------',
         str(req.method) + ' ' + str(req.url),
         '\r\n'.join('{}: {}'.format(k, v) for k, v in req.headers.items()),
-        str(req.body)[:100],
+        str(req.body),
     )
 
 
@@ -110,21 +112,34 @@ class APIClient(object):
 
         pass
 
+    class UnknownDocType(Exception):
+        """
+        Trying to sign a document with an unsupported MIME type
+        """
+
+        pass
+
     def __init__(self, config: dict):
         """
+        :param config: Dict containing the configuration parameters provided to Flask.
+        """
+        self.config = config
+
+    def initialize_credentials(self):
+        """
         Initialize the client object with configuration gathered by flask.
-        We need 3 parameters here:
+        We need 3 things here:
 
         + The base URL of the signature service / API
         + The profile in the API to use - for which we have credentials (HTTP Basic Auth)
         + The HTTP Basic Auth credentials.
-
-        :param config: Dict containing the configuration parameters provided to Flask.
         """
-        self.api_base_url = config['EDUSIGN_API_BASE_URL']
-        self.profile = config['EDUSIGN_API_PROFILE']
-        self.basic_auth = HTTPBasicAuth(config['EDUSIGN_API_USERNAME'], config['EDUSIGN_API_PASSWORD'])
-        self.config = config
+        attr_schema = session['saml-attr-schema']
+        self.api_base_url = self.config['EDUSIGN_API_BASE_URL']
+        self.profile = self.config[f'EDUSIGN_API_PROFILE_{attr_schema}']
+        self.basic_auth = HTTPBasicAuth(
+            self.config[f'EDUSIGN_API_USERNAME_{attr_schema}'], self.config[f'EDUSIGN_API_PASSWORD_{attr_schema}']
+        )
 
     def _post(self, url: str, request_data: dict) -> dict:
         """
@@ -143,7 +158,7 @@ class APIClient(object):
 
         settings = requests_session.merge_environment_settings(prepped.url, {}, None, None, None)
         response = requests_session.send(prepped, **settings)
-        current_app.logger.debug(f"Response from the API's {url} method: {response}")
+        current_app.logger.debug(f"Response from the API's {url} method: {response.json()}")
         return response.json()
 
     def prepare_document(self, document: dict) -> dict:
@@ -190,15 +205,14 @@ class APIClient(object):
         :param document: Dict holding the PDF (data and metadata) to prepare for signing.
         :return: Flask representation of the HTTP response from the API.
         """
+        self.initialize_credentials()
         idp = session['idp']
-        if self.config['ENVIRONMENT'] == 'development':
-            # This is only to test the app in a development environment.
-            idp = self.config['DEBUG_IDP']
+        attr_schema = session['saml-attr-schema']
 
         if session.get('organizationName', None) is not None:
             idp = session['organizationName']
 
-        attrs = [{'name': attr} for attr in self.config['SIGNER_ATTRIBUTES'].keys()]
+        attrs = [{'name': attr} for attr in self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].keys()]
         current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
 
         doc_data = document['blob']
@@ -305,14 +319,40 @@ class APIClient(object):
                  and list of mappings linking the documents' names with the generated ids.
         """
         idp = session['idp']
-        if self.config['ENVIRONMENT'] == 'development':
-            idp = self.config['DEBUG_IDP']
-
+        attr_schema = session['saml-attr-schema']
         authn_context = get_authn_context(documents)
-
+        assurance = get_required_assurance(documents)
         correlation_id = str(uuid.uuid4())
-        return_url = url_for('edusign.sign_service_callback', _external=True, _scheme='https')
-        attrs = [{'name': attr, 'value': session[name]} for attr, name in self.config['SIGNER_ATTRIBUTES'].items()]
+        attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
+        attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]
+        used_attr_names = tuple(friendly_name for _, friendly_name in attr_names)
+        more_attr_names = [
+            attr_names
+            for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items()
+            if attr_names[1] not in used_attr_names
+        ]
+        more_attrs = [
+            {'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in more_attr_names
+        ]
+        more_used_attr_names = tuple(friendly_name for _, friendly_name in more_attr_names)
+        used_attr_names += more_used_attr_names
+        attrs.extend(more_attrs)
+        assurances = self.config['AVAILABLE_LOAS'].get(
+            session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']
+        )
+        levels = {'low': 0, 'medium': 1, 'high': 2}
+        loa = assurances[levels[assurance]]
+        if attr_schema == '11':
+            assurance_attr_name = 'urn:mace:dir:attribute-def:eduPersonAssurance'
+        else:
+            assurance_attr_name = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
+        if assurance_attr_name not in used_attr_names:
+            attrs.append({'name': assurance_attr_name, 'value': loa})
+
+        scheme = self.config['PREFERRED_URL_SCHEME']
+        return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
+        if request.path.startswith('/sign2'):
+            return_url = url_for('edusign2.sign_service_callback', _external=True, _scheme=scheme)
 
         request_data = {
             "correlationId": correlation_id,
@@ -334,14 +374,26 @@ class APIClient(object):
                 doc_with_id['size'] = document['size']
                 doc_with_id['type'] = document['type']
             documents_with_id.append(doc_with_id)
-            request_data['tbsDocuments'].append(
-                {
+            if document['type'] == 'application/pdf':
+                data = {
                     "id": str(document['key']),
                     "contentReference": document['ref'],
                     "mimeType": document['type'],
                     "visiblePdfSignatureRequirement": json.loads(document['sign_requirement']),
                 }
-            )
+            elif document['type'].endswith('/xml'):
+                content = document['blob']
+                if ',' in content:
+                    content = content.split(',')[1]
+                data = {
+                    "id": str(document['key']),
+                    "content": content,
+                    "mimeType": 'application/xml',
+                }
+            else:
+                raise self.UnknownDocType(document['type'])
+
+            request_data['tbsDocuments'].append(data)
         api_url = urljoin(self.api_base_url, f'create/{self.profile}')
 
         return self._post(api_url, request_data), documents_with_id
@@ -367,6 +419,7 @@ class APIClient(object):
                  and a list of mappings linking the documents' names with the generated ids (sent to
                  the API as tbsDocuments.N.id).
         """
+        self.initialize_credentials()
         response_data, documents_with_id = self._try_creating_sign_request(documents, add_blob=add_blob)
 
         if (
@@ -375,7 +428,6 @@ class APIClient(object):
             and 'message' in response_data
             and 'not found in cache' in response_data['message']
         ):
-
             raise self.ExpiredCache()
 
         if current_app.logger.level == 'DEBUG':
@@ -385,7 +437,7 @@ class APIClient(object):
 
         return response_data, documents_with_id
 
-    def process_sign_request(self, sign_response: dict, relay_state: str) -> requests.Response:
+    def process_sign_request(self, sign_response: dict, relay_state: str) -> dict:
         """
         This method is meant to be called after the user has completed the sgnature process, through the
         sign service and the IdP. At this point, the documents are signed and kept in the API's cache.
@@ -415,6 +467,7 @@ class APIClient(object):
         :return: Data (containing the signed documents in successful requests) received in the HTTP response
                  from the API.
         """
+        self.initialize_credentials()
         request_data = {"signResponse": sign_response, "relayState": relay_state, "state": {"id": relay_state}}
         api_url = urljoin(self.api_base_url, 'process')
 
@@ -427,3 +480,49 @@ class APIClient(object):
             current_app.logger.debug(f"Data returned from the API's process endpoint: {pformat(tolog)}")
 
         return response
+
+    def validate_signatures(self, to_validate: list) -> list:
+        """
+        This method is called once a bunch of documents have been signed,
+        in order to add proof of validation to them.
+
+        :param to_validate: list in which each entry is a dict that corresponds to a signed document to validate, with keys:
+            * key: key for the document
+            * owner: owner of document
+            * doc: document contents
+            * sendsigned: sendsigned flag
+
+        :return: a list like the to_validate param, in which the document contents may have been substituted
+            by the one with validation proof, and with an additional boolean key validated indicating whether the contents
+            have been substituted with a validated signature.
+        """
+        url = current_app.config['VALIDATOR_API_BASE_URL'] + 'issue-svt'
+
+        def _validate(doc):
+            try:
+                content = b64decode(doc['doc']['blob'])
+            except KeyError:
+                content = b64decode(doc['doc']['signedContent'])
+            resp = requests.post(url, data=content, headers={'Content-Type': doc['doc']['type']})
+            if resp.status_code == 200:
+                vpdf = resp.content
+                doc['doc']['signedContent'] = b64encode(vpdf).decode('utf8')
+                doc['validated'] = True
+            else:
+                if 'signedContent' not in doc['doc']:
+                    doc['doc']['signedContent'] = doc['doc']['blob']
+                doc['validated'] = False
+
+            return doc
+
+        async def validate(doc):
+            return _validate(doc)
+
+        loop = asyncio.new_event_loop()
+        tasks = [loop.create_task(validate(doc)) for doc in to_validate]
+
+        if len(tasks) > 0:
+            loop.run_until_complete(asyncio.wait(tasks))
+        loop.close()
+
+        return [task.result() for task in tasks]

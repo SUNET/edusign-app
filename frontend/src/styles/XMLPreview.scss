@@ -1,0 +1,27 @@
+@import "./variables.scss";
+
+.xml-preview-display {
+  min-height: 500px;
+
+  .modal-content {
+    .modal-body {
+      align-self: center;
+      width: inherit;
+      height: 100%;
+
+      div > div.highlight > pre {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+    }
+  }
+}
+
+#mock-disabled-confirm-button {
+  cursor: default;
+  font-size: 1rem;
+  line-height: 1.5;
+  border: solid 1px;
+  border-radius: 0.25rem;
+  padding: 0.375rem 0.75rem;
+}

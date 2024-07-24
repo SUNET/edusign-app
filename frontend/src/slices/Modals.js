@@ -3,7 +3,90 @@
  * @desc Here we define the initial state for the Modals key of the Redux state,
  * and the actions and reducers to manipulate it.
  */
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
+import { addNotification } from "slices/Notifications";
+import {
+  postRequest,
+  checkStatus,
+  extractCsrfToken,
+  esFetch,
+  preparePayload,
+} from "slices/fetch-utils";
+
+/**
+ * @public
+ * @function showEditInvitationForm
+ * @desc Redux async thunk to open the form to edit an invitation to sign.
+ *       We need to lock the document in the backend so that no invitee
+ *       can sign while it is being edited.
+ */
+export const showEditInvitationForm = createAsyncThunk(
+  "main/showEditInvitationForm",
+  async (args, thunkAPI) => {
+    try {
+      const state = thunkAPI.getState();
+      const toSend = {
+        key: args.key,
+      };
+      const body = preparePayload(state, toSend);
+      const response = await esFetch("/sign/lock-doc", {
+        ...postRequest,
+        body: body,
+      });
+      const lockData = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, lockData);
+      if (lockData.error) {
+        thunkAPI.dispatch(
+          addNotification({
+            level: "danger",
+            message: lockData.message,
+          }),
+        );
+        return thunkAPI.rejectWithValue(
+          `Problem opening edit form: ${lockData.message}`,
+        );
+      } else {
+        thunkAPI.dispatch(modalsSlice.actions.showForm(args.form_id));
+      }
+    } catch (err) {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: args.intl.formatMessage({
+            defaultMessage: "Problem opening edit form, please try again later",
+            id: "problem-opening-edit-form",
+          }),
+        }),
+      );
+      return thunkAPI.rejectWithValue(`Problem opening edit form: ${err}`);
+    }
+  },
+);
+
+export const hideEditInvitationForm = createAsyncThunk(
+  "main/hideEditInvitationForm",
+  async (args, thunkAPI) => {
+    try {
+      const state = thunkAPI.getState();
+      const form_id = state.modals.form_id;
+      const key = form_id.split("-edit-invitations")[0];
+      const toSend = {
+        key: key,
+      };
+      const body = preparePayload(state, toSend);
+      const response = await esFetch("/sign/unlock-doc", {
+        ...postRequest,
+        body: body,
+      });
+      const lockData = await checkStatus(response);
+      extractCsrfToken(thunkAPI.dispatch, lockData);
+      thunkAPI.dispatch(modalsSlice.actions.hideForm());
+    } catch (err) {
+      thunkAPI.dispatch(modalsSlice.actions.hideForm());
+    }
+  },
+);
 
 const modalsSlice = createSlice({
   name: "modals",
@@ -70,6 +153,11 @@ const modalsSlice = createSlice({
       state.show_preview = false;
       state.preview_id = null;
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(showEditInvitationForm.rejected, (state, action) => {
+      console.log(action.payload);
+    });
   },
 });
 

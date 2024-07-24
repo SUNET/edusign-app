@@ -25,7 +25,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     changeLanguage: function (e) {
-      const lang = e.target.closest(".lang-selected").dataset.lang;
+      const lang = e.target.value;
       Cookies.remove("lang");
       Cookies.set("lang", lang, {
         expires: 365,
@@ -37,7 +37,7 @@ const mapDispatchToProps = (dispatch) => {
         updateIntl({
           locale: lang,
           messages: msgs,
-        })
+        }),
       );
     },
     handleHelpControl: function (e) {

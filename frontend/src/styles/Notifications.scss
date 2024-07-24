@@ -41,7 +41,7 @@ section#edusign-banner-sm {
   display: flex;
   flex-direction: row-reverse;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   &.alert-danger {
     color: $white;
     background-color: $error-red;

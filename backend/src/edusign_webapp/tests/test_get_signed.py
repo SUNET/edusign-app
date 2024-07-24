@@ -31,18 +31,22 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import json
+from base64 import b64encode
 
 from edusign_webapp import run
 from edusign_webapp.marshal import ResponseSchema
 
 
 def _test_get_signed_documents(client, monkeypatch, process_data=None):
-
     from edusign_webapp.api_client import APIClient
+
+    signed_content = b64encode(b'Dummy signed content').decode('ascii')
 
     def mock_post(*args, **kwargs):
         if process_data is not None:
             return process_data
+
+        signed_content = b64encode(b'Dummy signed content').decode('utf8')
 
         return {
             'correlationId': '2a08e13e-8719-4b53-8586-662037f153ec',
@@ -51,7 +55,7 @@ def _test_get_signed_documents(client, monkeypatch, process_data=None):
                 {
                     'id': '6e46692d-7d34-4954-b760-96ee6ce48f61',
                     'mimeType': 'application/pdf',
-                    'signedContent': 'Dummy signed content',
+                    'signedContent': signed_content,
                 }
             ],
             'signerAssertionInformation': {
@@ -134,53 +138,63 @@ def _test_get_signed_documents(client, monkeypatch, process_data=None):
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
 
+    def mock_validate(self, to_validate):
+        for doc in to_validate:
+            doc['validated'] = True
+            if 'blob' in doc['doc']:
+                doc['doc']['signedContent'] = doc['doc']['blob']
+
+        return to_validate
+
+    monkeypatch.setattr(APIClient, 'validate_signatures', mock_validate)
+
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+        sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
-    }
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {'sign_response': sign_response, 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
+        }
 
-    from flask.sessions import SecureCookieSession
+        from flask.sessions import SecureCookieSession
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    return client.post(
-        '/sign/get-signed',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        return client.post(
+            '/sign/get-signed',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
 
 def test_get_signed_documents(client, monkeypatch):
-
     response = _test_get_signed_documents(client, monkeypatch)
 
     assert response.status == '200 OK'
 
-    assert b'Dummy signed content' in response.data
+    signed_content = b64encode(b'Dummy signed content')
+
+    assert signed_content in response.data
 
 
 def test_get_signed_documents_process_error(client, monkeypatch):
-
     process_data = {'errorCode': 'error.dss', 'message': 'dummy message'}
 
     response = _test_get_signed_documents(client, monkeypatch, process_data=process_data)
@@ -191,7 +205,6 @@ def test_get_signed_documents_process_error(client, monkeypatch):
 
 
 def test_get_signed_documents_post_raises(client, monkeypatch):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -199,93 +212,143 @@ def test_get_signed_documents_post_raises(client, monkeypatch):
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
 
+    def mock_validate(self, to_validate):
+        for doc in to_validate:
+            doc['validated'] = True
+            doc['doc']['signedContent'] = doc['doc']['blob']
+
+        return to_validate
+
+    monkeypatch.setattr(APIClient, 'validate_signatures', mock_validate)
+
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+        sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
-    }
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {'sign_response': sign_response, 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'},
+        }
 
-    from flask.sessions import SecureCookieSession
+        from flask.sessions import SecureCookieSession
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    response = client.post(
-        '/sign/get-signed',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        response = client.post(
+            '/sign/get-signed',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
-    assert response.status == '200 OK'
+        assert response.status == '200 OK'
 
-    resp_data = json.loads(response.data)
+        resp_data = json.loads(response.data)
 
-    assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
+        assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
 def _get_signed_documents(client, monkeypatch, data_payload, csrf_token=None):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
 
+    from edusign_webapp.api_client import APIClient
+
+    def mock_validate(self, to_validate):
+        for doc in to_validate:
+            doc['validated'] = True
+            doc['doc']['signedContent'] = doc['doc']['blob']
+
+        return to_validate
+
+    monkeypatch.setattr(APIClient, 'validate_signatures', mock_validate)
+
     if csrf_token is None:
-        with run.app.test_request_context():
-            with client.session_transaction() as sess:
+        with client.session_transaction() as sess:
+            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+            user_key = sess['user_key']
 
-                csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-                user_key = sess['user_key']
+            doc_data = {
+                'csrf_token': csrf_token,
+                'payload': data_payload,
+            }
+            if csrf_token == 'rm':
+                del doc_data['csrf_token']
+
+            from flask.sessions import SecureCookieSession
+
+            def mock_getitem(self, key):
+                if key == 'user_key':
+                    return user_key
+                self.accessed = True
+                return super(SecureCookieSession, self).__getitem__(key)
+
+            monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+
+            response = client.post(
+                '/sign/get-signed',
+                headers={
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Origin': 'https://test.localhost',
+                    'X-Forwarded-Host': 'test.localhost',
+                },
+                json=doc_data,
+            )
+
+            assert response.status == '200 OK'
+
+            return json.loads(response.data)
+
     else:
-        user_key = 'dummy key'
+        with client.session_transaction():
+            user_key = 'dummy key'
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': data_payload,
-    }
-    if csrf_token == 'rm':
-        del doc_data['csrf_token']
+            doc_data = {
+                'csrf_token': csrf_token,
+                'payload': data_payload,
+            }
+            if csrf_token == 'rm':
+                del doc_data['csrf_token']
 
-    from flask.sessions import SecureCookieSession
+            from flask.sessions import SecureCookieSession
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+            def mock_getitem(self, key):
+                if key == 'user_key':
+                    return user_key
+                self.accessed = True
+                return super(SecureCookieSession, self).__getitem__(key)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+            monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    response = client.post(
-        '/sign/get-signed',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+            response = client.post(
+                '/sign/get-signed',
+                headers={
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Origin': 'https://test.localhost',
+                    'X-Forwarded-Host': 'test.localhost',
+                },
+                json=doc_data,
+            )
 
-    assert response.status == '200 OK'
+            assert response.status == '200 OK'
 
-    return json.loads(response.data)
+            return json.loads(response.data)
 
 
 def test_get_signed_documents_no_sign_response(client, monkeypatch):
@@ -293,7 +356,10 @@ def test_get_signed_documents_no_sign_response(client, monkeypatch):
     resp_data = _get_signed_documents(client, monkeypatch, data)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'sign_response: Required'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_get_signed_documents_empty_sign_response(client, monkeypatch):
@@ -302,39 +368,54 @@ def test_get_signed_documents_empty_sign_response(client, monkeypatch):
 
     assert resp_data['error']
     assert (
-        resp_data['message'] == 'sign_response: There was an error. Please try again, or contact the site administrator'
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
     )
 
 
 def test_get_signed_documents_no_relay_state(client, monkeypatch):
-    data = {'sign_response': 'Dummy Sign Response'}
-    resp_data = _get_signed_documents(client, monkeypatch, data)
-
-    assert resp_data['error']
-    assert resp_data['message'] == 'relay_state: Required'
-
-
-def test_get_signed_documents_empty_relay_state(client, monkeypatch):
-    data = {'sign_response': 'Dummy Sign Response', 'relay_state': ''}
+    sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
+    data = {'sign_response': sign_response}
     resp_data = _get_signed_documents(client, monkeypatch, data)
 
     assert resp_data['error']
     assert (
-        resp_data['message'] == 'relay_state: There was an error. Please try again, or contact the site administrator'
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
+
+
+def test_get_signed_documents_empty_relay_state(client, monkeypatch):
+    sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
+    data = {'sign_response': sign_response, 'relay_state': ''}
+    resp_data = _get_signed_documents(client, monkeypatch, data)
+
+    assert resp_data['error']
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
     )
 
 
 def test_get_signed_documents_no_csrf(client, monkeypatch):
-    data = {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'}
+    sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
+    data = {'sign_response': sign_response, 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'}
     resp_data = _get_signed_documents(client, monkeypatch, data, csrf_token='rm')
 
     assert resp_data['error']
-    assert resp_data['message'] == 'csrf_token: Required'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_get_signed_documents_wrong_csrf(client, monkeypatch):
-    data = {'sign_response': 'Dummy Sign Response', 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'}
+    sign_response = b64encode(b'Dummy Sign Response').decode('utf8')
+    data = {'sign_response': sign_response, 'relay_state': '09d91b6f-199c-4388-a4e5-230807dd4ac4'}
     resp_data = _get_signed_documents(client, monkeypatch, data, csrf_token='wrong csrf token')
 
     assert resp_data['error']
-    assert resp_data['message'] == 'csrf_token: There was an error. Please try again, or contact the site administrator'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )

@@ -8,12 +8,13 @@ the sign service and API `documented here
 to provide a web interface for signing PDF documents.
 
 There is a `sister repo <https://github.com/SUNET/docker-edusign-app>`_ that
-contains code to deploy such webn applications, using the code in this repo.
+contains code to deploy such web applications, using the code in this repo.
+For deployment instructions please see the README in this repo.
 
 eduSign web application overview
 --------------------------------
 
-To use the aplication, users have to identify themselves. To this end, the
+To use the app, users have to identify themselves. To this end, the
 application has to be integrated in some SAML2 environment, as a service
 provider (SP). Once a user is identified via some SAML IdP, and some SAML
 attributes pertaining that identity have been retrieved from the IdP and stored

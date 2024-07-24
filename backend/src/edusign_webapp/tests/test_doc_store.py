@@ -37,19 +37,25 @@ import uuid
 
 from edusign_webapp import run
 
+invitation_flags = [
+    True,  # sendsigned
+    'any',  # loa
+    False,  # skipfinal
+    False,  # ordered
+    'Invitation text',  # invitation_text
+]
+
 
 def test_add(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
-    assert len(os.listdir(doc_store.storage.base_dir)) == 2
-    assert 'test.db' in os.listdir(doc_store.storage.base_dir)
+    assert len(os.listdir(doc_store.storage.base_dir)) == 1
+    assert 'test.db' in os.listdir('/tmp')
 
-    db_path = os.path.join(tempdir.name, 'test.db')
+    db_path = os.path.join('/tmp/test.db')
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
     cur.execute("SELECT * FROM Documents")
@@ -62,11 +68,9 @@ def test_add(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invite
 
 def test_add_and_get_pending(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
         pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
 
     assert len(pending) == 1
@@ -78,12 +82,10 @@ def test_add_and_get_pending(doc_store_local_sqlite, sample_doc_1, sample_owner_
 
 def test_add_two_and_get_pending(doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, sendsigned, loa)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
+        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, *invitation_flags)
         pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
 
     assert len(pending) == 2
@@ -99,11 +101,9 @@ def test_add_two_and_get_pending(doc_store_local_sqlite, sample_doc_1, sample_do
 
 def test_add_and_get_content(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
         pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
         content = doc_store.get_document_content(pending[0]['key'])
 
@@ -114,11 +114,9 @@ def test_add_and_update_and_get_content(
     doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1
 ):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
         pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
         doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], [sample_invites_1[1]['email']])
         content = doc_store.get_document_content(pending[0]['key'])
@@ -141,11 +139,9 @@ def test_add_and_update_and_get_owned(
     doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1
 ):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
         pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
         doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], [sample_invites_1[1]['email']])
         content = doc_store.get_document_content(pending[0]['key'])
@@ -167,12 +163,10 @@ def test_add_two_and_update_and_get_owned(
     doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1
 ):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, sendsigned, loa)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
+        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, *invitation_flags)
         pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
         doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], [sample_invites_1[1]['email']])
         content = doc_store.get_document_content(pending[0]['key'])
@@ -204,12 +198,10 @@ def test_add_two_and_remove_not_one_and_get_owned(
     doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1
 ):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, sendsigned, loa)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
+        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, *invitation_flags)
         owned = doc_store.get_owned_documents(sample_owner_1['eppn'], [sample_owner_1['email']])
         doc_store.remove_document(owned[0]['key'])
         reowned = doc_store.get_owned_documents(sample_owner_1['eppn'], [sample_owner_1['email']])
@@ -230,12 +222,10 @@ def test_add_two_and_remove_force_one_and_get_owned(
     doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1
 ):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, sendsigned, loa)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
+        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, *invitation_flags)
         owned = doc_store.get_owned_documents(sample_owner_1['eppn'], [sample_owner_1['email']])
         doc_store.remove_document(owned[0]['key'], force=True)
         reowned = doc_store.get_owned_documents(sample_owner_1['eppn'], [sample_owner_1['email']])
@@ -250,12 +240,10 @@ def test_add_two_and_remove_one_and_get_owned(
     doc_store_local_sqlite, sample_doc_1, sample_doc_2, sample_owner_1, sample_invites_1
 ):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
-        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, sendsigned, loa)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
+        doc_store.add_document(sample_doc_2, sample_owner_1, sample_invites_1, *invitation_flags)
         pending = doc_store.get_pending_documents([sample_invites_1[1]['email']])
         doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], [sample_invites_1[0]['email']])
         doc_store.update_document(pending[0]['key'], sample_doc_2['blob'], [sample_invites_1[1]['email']])
@@ -274,11 +262,9 @@ def test_add_two_and_remove_one_and_get_owned(
 
 def test_add_and_get_invitation(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
         invitation = doc_store.get_invitation(invites[0]['key'])
 
     assert len(invites) == 2
@@ -287,11 +273,9 @@ def test_add_and_get_invitation(doc_store_local_sqlite, sample_doc_1, sample_own
 
 def test_add_and_get_invitation_twice(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
         doc_store.get_invitation(invites[0]['key'])
         try:
             doc_store.get_invitation(invites[1]['key'])
@@ -310,11 +294,9 @@ def test_get_invitation_none(doc_store_local_sqlite):
 
 def test_add_and_get_invitation_twice_unlocking(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
         doc_store.get_invitation(invites[0]['key'])
         doc_store.unlock_document(sample_doc_1['key'], invites[0]['email'])
         invitation = doc_store.get_invitation(invites[1]['key'])
@@ -324,11 +306,9 @@ def test_add_and_get_invitation_twice_unlocking(doc_store_local_sqlite, sample_d
 
 def test_add_and_get_invitation_and_check_lock(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
         doc_store.get_invitation(invites[0]['key'])
 
         assert doc_store.check_document_locked(sample_doc_1['key'], invites[0]['email'])
@@ -346,11 +326,9 @@ def test_add_and_get_invitation_twice_unlocking_check(
     doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
 ):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
         doc_store.get_invitation(invites[0]['key'])
         doc_store.unlock_document(sample_doc_1['key'], invites[0]['email'])
         doc_store.get_invitation(invites[1]['key'])
@@ -361,11 +339,9 @@ def test_add_and_get_invitation_twice_unlocking_check(
 
 def test_add_and_sign_and_get_signed(doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        invites = doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
         content_1 = base64.b64encode(b"dummy content 1").decode('utf8')
         content_2 = base64.b64encode(b"dummy content 2").decode('utf8')
@@ -382,11 +358,9 @@ def test_add_and_get_invitation_and_get_owner_data(
     doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
 ):
     tempdir, doc_store = doc_store_local_sqlite
-    sendsigned = True
-    loa = ''
 
     with run.app.app_context():
-        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, sendsigned, loa)
+        doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
         owner = doc_store.get_owner_data(sample_doc_1['key'])
 
     assert owner['email'] == sample_owner_1['email']

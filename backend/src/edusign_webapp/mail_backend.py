@@ -18,6 +18,7 @@ class ParallelEmailBackend(EmailBackend):
         with self._lock:
             new_conn_created = self.open()
             if not self.connection or new_conn_created is None:
+                current_app.logger.error(f"Emails not sent: no SMTP connection")
                 # We failed silently on open().
                 # Trying to send would be pointless.
                 return 0
@@ -26,6 +27,7 @@ class ParallelEmailBackend(EmailBackend):
             tasks = []
 
             for message in email_messages:
+                current_app.logger.debug(f"Message to send: {str(message)}")
                 task = loop.create_task(send_email(message))
                 tasks.append(task)
 

@@ -1,0 +1,699 @@
+%PDF-1.4
+%“Œ‹ž ReportLab Generated PDF document http://www.reportlab.com
+1 0 obj
+<<
+/F1 2 0 R /F2 3 0 R
+>>
+endobj
+2 0 obj
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
+endobj
+3 0 obj
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
+endobj
+4 0 obj
+<<
+/Contents 30 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 29 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
+endobj
+5 0 obj
+<<
+/Contents 31 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 29 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
+endobj
+6 0 obj
+<<
+/Contents 32 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 29 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
+
+>> 
+  /Type /Page
+>>
+endobj
+7 0 obj
+<<
+/Outlines 9 0 R /PageLabels 33 0 R /PageMode /UseNone /Pages 29 0 R /Type /Catalog
+>>
+endobj
+8 0 obj
+<<
+/Author () /CreationDate (D:20200930104204-01'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20200930104204-01'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
+  /Subject (\(unspecified\)) /Title () /Trapped /False
+>>
+endobj
+9 0 obj
+<<
+/Count 21 /First 10 0 R /Last 17 0 R /Type /Outlines
+>>
+endobj
+10 0 obj
+<<
+/Dest [ 4 0 R /XYZ 62.69291 765.0236 0 ] /Next 11 0 R /Parent 9 0 R /Title (Project description.)
+>>
+endobj
+11 0 obj
+<<
+/Count 5 /Dest [ 4 0 R /XYZ 62.69291 613.6772 0 ] /First 12 0 R /Last 16 0 R /Next 17 0 R /Parent 9 0 R 
+  /Prev 10 0 R /Title (Done so far.)
+>>
+endobj
+12 0 obj
+<<
+/Dest [ 4 0 R /XYZ 62.69291 580.6772 0 ] /Next 13 0 R /Parent 11 0 R /Title (Frontend development infrastructure.)
+>>
+endobj
+13 0 obj
+<<
+/Dest [ 4 0 R /XYZ 62.69291 436.6772 0 ] /Next 14 0 R /Parent 11 0 R /Prev 12 0 R /Title (React infrastructure.)
+>>
+endobj
+14 0 obj
+<<
+/Dest [ 4 0 R /XYZ 62.69291 388.6772 0 ] /Next 15 0 R /Parent 11 0 R /Prev 13 0 R /Title (Docker environment.)
+>>
+endobj
+15 0 obj
+<<
+/Dest [ 4 0 R /XYZ 62.69291 298.6772 0 ] /Next 16 0 R /Parent 11 0 R /Prev 14 0 R /Title (Testing infrastructure.)
+>>
+endobj
+16 0 obj
+<<
+/Dest [ 4 0 R /XYZ 62.69291 172.6772 0 ] /Parent 11 0 R /Prev 15 0 R /Title (Makefile.)
+>>
+endobj
+17 0 obj
+<<
+/Count 11 /Dest [ 5 0 R /XYZ 62.69291 765.0236 0 ] /First 18 0 R /Last 28 0 R /Parent 9 0 R /Prev 11 0 R 
+  /Title (Still to do.)
+>>
+endobj
+18 0 obj
+<<
+/Dest [ 5 0 R /XYZ 62.69291 714.0236 0 ] /Next 19 0 R /Parent 17 0 R /Title (Redux infrastructure.)
+>>
+endobj
+19 0 obj
+<<
+/Dest [ 5 0 R /XYZ 62.69291 636.0236 0 ] /Next 20 0 R /Parent 17 0 R /Prev 18 0 R /Title (i18n infrastructure.)
+>>
+endobj
+20 0 obj
+<<
+/Dest [ 5 0 R /XYZ 62.69291 570.0236 0 ] /Next 21 0 R /Parent 17 0 R /Prev 19 0 R /Title (Authn mechanism.)
+>>
+endobj
+21 0 obj
+<<
+/Dest [ 5 0 R /XYZ 62.69291 492.0236 0 ] /Next 22 0 R /Parent 17 0 R /Prev 20 0 R /Title (Main container, header and footer components.)
+>>
+endobj
+22 0 obj
+<<
+/Dest [ 5 0 R /XYZ 62.69291 426.0236 0 ] /Next 23 0 R /Parent 17 0 R /Prev 21 0 R /Title (Infrastructure for notifications to the user.)
+>>
+endobj
+23 0 obj
+<<
+/Dest [ 5 0 R /XYZ 62.69291 360.0236 0 ] /Next 24 0 R /Parent 17 0 R /Prev 22 0 R /Title ("Fetching" infrastructure.)
+>>
+endobj
+24 0 obj
+<<
+/Dest [ 5 0 R /XYZ 62.69291 282.0236 0 ] /Next 25 0 R /Parent 17 0 R /Prev 23 0 R /Title (Splash screen.)
+>>
+endobj
+25 0 obj
+<<
+/Dest [ 5 0 R /XYZ 62.69291 216.0236 0 ] /Next 26 0 R /Parent 17 0 R /Prev 24 0 R /Title (Form infrastructure.)
+>>
+endobj
+26 0 obj
+<<
+/Dest [ 5 0 R /XYZ 62.69291 150.0236 0 ] /Next 27 0 R /Parent 17 0 R /Prev 25 0 R /Title (PDF uploading form.)
+>>
+endobj
+27 0 obj
+<<
+/Dest [ 6 0 R /XYZ 62.69291 765.0236 0 ] /Next 28 0 R /Parent 17 0 R /Prev 26 0 R /Title (Result page.)
+>>
+endobj
+28 0 obj
+<<
+/Dest [ 6 0 R /XYZ 62.69291 687.0236 0 ] /Parent 17 0 R /Prev 27 0 R /Title (Documentation.)
+>>
+endobj
+29 0 obj
+<<
+/Count 3 /Kids [ 4 0 R 5 0 R 6 0 R ] /Type /Pages
+>>
+endobj
+30 0 obj
+<<
+/Length 4772
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+1 0 0 1 62.69291 744.0236 cm
+q
+BT 1 0 0 1 0 3.5 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Project description.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 726.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Front side web app that will use an API for signing documents.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 684.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 26 Tm /F1 10 Tf 12 TL .18683 Tw (In essence, the app will be able to authenticate users with federated identities, will be able to show a form) Tj T* 0 Tw 1.399431 Tw (to authenticated users that they can use to sign documents, and will be able to hand back the signed) Tj T* 0 Tw (documents to the users.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 654.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL 2.727633 Tw (The app will be developed in modern JS with React and Redux. This app will be responsive and) Tj T* 0 Tw (internationalized, and fully tested and documented.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 625.6772 cm
+n 0 14.17323 m 469.8898 14.17323 l S
+Q
+q
+1 0 0 1 62.69291 592.6772 cm
+q
+BT 1 0 0 1 0 3.5 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Done so far.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 562.6772 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (Frontend development infrastructure.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 544.6772 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Built around Webpack and Babel.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 526.6772 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (The frontend code is not plain JS that a browser can understand. This is due to 2 different factors:) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 520.6772 cm
+Q
+q
+1 0 0 1 62.69291 520.6772 cm
+Q
+q
+1 0 0 1 62.69291 508.6772 cm
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 -3 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 -3 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (It uses React's JSX and ES6 APIs, not understood by the browsers;) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 502.6772 cm
+Q
+q
+1 0 0 1 62.69291 490.6772 cm
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 -3 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL 10.5 0 Td (\177) Tj T* -10.5 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 -3 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (It is modularized in the style of ES6.) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 490.6772 cm
+Q
+q
+1 0 0 1 62.69291 448.6772 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 26 Tm /F1 10 Tf 12 TL 1.973516 Tw (Babel is a transpiler that can turn JSX and ES6 code into JS code understandabe by the browsers.) Tj T* 0 Tw .481988 Tw (Webpack is a bundler, that can gather all the modules used by the app and bundle them into a single JS) Tj T* 0 Tw (file.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 418.6772 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (React infrastructure.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 400.6772 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (We use React to develop the front app in terms of composable components.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 370.6772 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (Docker environment.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 340.6772 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .321098 Tw (We use Docker to deploy a local development environment, that allows us to test the integration of all the) Tj T* 0 Tw (different pieces.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 310.6772 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .079398 Tw (So far this environment just spawns a single container, with an NGINX process that serves the index page) Tj T* 0 Tw (and the bundles built by webpack.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 280.6772 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (Testing infrastructure.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 262.6772 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (All the JS code will be unit tested.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 232.6772 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .514751 Tw (We use Karma as a test runner. Jest seems more popular, but Karma allows us to run the tests in a real) Tj T* 0 Tw (browser.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 214.6772 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (As testing framework, we use Mocha, with Chai as assertions library.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 184.6772 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .506098 Tw (Also, we use React Testing Library to mount React components in the tests, and to deal with events and) Tj T* 0 Tw (the lifecycles of the components.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 154.6772 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (Makefile.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 136.6772 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (We will use a Makefile to hold all the scripts needed for development and deployment.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 108.3307 cm
+n 0 14.17323 m 469.8898 14.17323 l S
+Q
+ 
+endstream
+endobj
+31 0 obj
+<<
+/Length 4269
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+1 0 0 1 62.69291 744.0236 cm
+q
+BT 1 0 0 1 0 3.5 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Still to do.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 726.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (The total estimated effort to complete the pending tasks are 26 developer days.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 696.0236 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (Redux infrastructure.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 666.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .221894 Tw (We will use Redux to keep all the state of the front app in a central store, and to communicate changes in) Tj T* 0 Tw (the central state to the appropriate React components.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 648.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (estimated effort: 3 d.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 618.0236 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (i18n infrastructure.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 600.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (We will use react-intl to internationalize and localize the front app.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 582.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (estimated effort: 2 d.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 552.0236 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (Authn mechanism.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 522.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL 2.088409 Tw (When a user loads the front app, the app will check that there is an authn token \(probably a JWT\)) Tj T* 0 Tw (available, and in case there isn't, it will direct the user to some authn service.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 504.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (estimated effort: task still not clear enough to make estimations.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 474.0236 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (Main container, header and footer components.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 456.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (The markup and style common to all pages in the app. This must be responsive.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 438.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (estimated effort: 5 d.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 408.0236 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (Infrastructure for notifications to the user.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 390.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Whenever the user interacts with the app, it will need to inform the user about the result of the interaction.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 372.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (estimated effort: 1 d.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 342.0236 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg ("Fetching" infrastructure.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 312.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL 1.02186 Tw (Whenever the app is waiting for some request, we need to disable controls to avoid further interactions) Tj T* 0 Tw (from the user.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 294.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (estimated effort: 1 d.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 264.0236 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (Splash screen.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 246.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (A React component to be shown while the app loads.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 228.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (estimated effort: 1 d.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 198.0236 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (Form infrastructure.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 180.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (We will use redux-form to develop the needed forms.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 162.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (estimated effort: 2 d.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 132.0236 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (PDF uploading form.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 114.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Once the user is authenticated, she will be shown a form from which she can upload PDFs to be signed.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 96.02362 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (estimated effort: 5 d.) Tj T* ET
+Q
+Q
+ 
+endstream
+endobj
+32 0 obj
+<<
+/Length 861
+>>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+1 0 0 1 62.69291 747.0236 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (Result page.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 717.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .566488 Tw (After uploading the PDF, the user will land in a page that allows her to get the signed PDF, and possibly) Tj T* 0 Tw (access other documents previously signed.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 699.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (estimated effort: 3 d.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 669.0236 cm
+q
+BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (Documentation.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 651.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (For any future developer.) Tj T* ET
+Q
+Q
+q
+1 0 0 1 62.69291 633.0236 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Estimated effort: 3 d.) Tj T* ET
+Q
+Q
+ 
+endstream
+endobj
+33 0 obj
+<<
+/Nums [ 0 34 0 R 1 35 0 R 2 36 0 R ]
+>>
+endobj
+34 0 obj
+<<
+/S /D /St 1
+>>
+endobj
+35 0 obj
+<<
+/S /D /St 2
+>>
+endobj
+36 0 obj
+<<
+/S /D /St 3
+>>
+endobj
+xref
+0 37
+0000000000 65535 f 
+0000000073 00000 n 
+0000000114 00000 n 
+0000000221 00000 n 
+0000000333 00000 n 
+0000000538 00000 n 
+0000000743 00000 n 
+0000000948 00000 n 
+0000001052 00000 n 
+0000001309 00000 n 
+0000001383 00000 n 
+0000001503 00000 n 
+0000001667 00000 n 
+0000001804 00000 n 
+0000001939 00000 n 
+0000002072 00000 n 
+0000002209 00000 n 
+0000002319 00000 n 
+0000002471 00000 n 
+0000002593 00000 n 
+0000002727 00000 n 
+0000002857 00000 n 
+0000003016 00000 n 
+0000003175 00000 n 
+0000003315 00000 n 
+0000003443 00000 n 
+0000003577 00000 n 
+0000003710 00000 n 
+0000003836 00000 n 
+0000003951 00000 n 
+0000004023 00000 n 
+0000008847 00000 n 
+0000013168 00000 n 
+0000014080 00000 n 
+0000014139 00000 n 
+0000014173 00000 n 
+0000014207 00000 n 
+trailer
+<<
+/ID 
+[<fda5d4044c22a522ec52e4ca2dfe65c8><fda5d4044c22a522ec52e4ca2dfe65c8>]
+% ReportLab generated PDF document -- digest (http://www.reportlab.com)
+
+/Info 8 0 R
+/Root 7 0 R
+/Size 37
+>>
+startxref
+14241
+%%EOF

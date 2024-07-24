@@ -13,17 +13,22 @@ import { connect } from "react-redux";
 import Header from "components/Header";
 
 const mapStateToProps = (state) => {
+  const common = {
+    size: state.main.size,
+    company_link: state.main.company_link,
+  };
   if (state.main.signer_attributes === undefined) {
     return {
       loading: true,
-      size: state.main.size,
+      ...common,
+    };
+  } else {
+    return {
+      loading: false,
+      signer_attributes: state.main.signer_attributes,
+      ...common,
     };
   }
-  return {
-    loading: false,
-    signer_attributes: state.main.signer_attributes,
-    size: state.main.size,
-  };
 };
 
 const mapDispatchToProps = (dispatch, props) => {

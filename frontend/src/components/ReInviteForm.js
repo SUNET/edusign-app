@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 import Button from "containers/Button";
 import BForm from "react-bootstrap/Form";
-import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
+import { Formik, Form, Field } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
 
@@ -41,7 +41,7 @@ class ReInviteForm extends React.Component {
                 <Modal.Header closeButton>
                   <Modal.Title>
                     <FormattedMessage
-                      defaultMessage={`Send reminders to people pending to sign '{docName}'`}
+                      defaultMessage={`Send reminders to people pending to sign {docName}`}
                       key="re-invite-people"
                       values={{ docName: this.props.doc.name }}
                     />

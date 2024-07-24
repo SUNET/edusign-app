@@ -13,10 +13,11 @@ import { connect } from "react-redux";
 import InviteEditForm from "components/InviteEditForm";
 
 import { editInvites } from "slices/Invitations";
-import { hideForm } from "slices/Modals";
+import { hideForm, hideEditInvitationForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
-import { disablePolling, enablePolling } from "slices/Poll";
+import { enablePolling } from "slices/Poll";
 import { unsetActiveId } from "slices/Overlay";
+import { isNotInviting, setOrdered } from "slices/InviteForm";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -26,8 +27,14 @@ const mapStateToProps = (state, props) => {
   ) {
     show = true;
   }
+  let ordered;
+  if (state.inviteform.ordered === null) {
+    ordered = state.main.ui_defaults.ordered_invitations;
+  } else {
+    ordered = state.inviteform.ordered;
+  }
   const doc = state.main.owned_multisign.filter(
-    (d) => d.key === props.docKey
+    (d) => d.key === props.docKey,
   )[0];
   return {
     size: state.main.size,
@@ -35,24 +42,31 @@ const mapStateToProps = (state, props) => {
     doc: doc,
     mail: state.main.signer_attributes.mail,
     mail_aliases: state.main.signer_attributes.mail_aliases,
+    max_signatures: state.main.max_signatures,
+    ui_defaults: state.main.ui_defaults,
+    ordered: ordered,
+    edit_form_timeout: state.main.edit_form_timeout,
   };
 };
 
 const _close = (dispatch) => {
   dispatch(unsetSpinning());
   dispatch(enablePolling());
-  dispatch(hideForm());
+  dispatch(hideEditInvitationForm());
   dispatch(unsetActiveId());
+  dispatch(isNotInviting());
+  dispatch(setOrdered(null));
 };
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSubmit: async function (values) {
       await dispatch(editInvites({ values: values, intl: this.props.intl }));
-      _close(dispatch);
-    },
-    handleClose: function () {
-      _close(dispatch);
+      dispatch(unsetSpinning());
+      dispatch(enablePolling());
+      dispatch(hideForm());
+      dispatch(unsetActiveId());
+      setTimeout(_close, this.props.edit_form_timeout, dispatch);
     },
     handleCloseResetting: function (resetForm) {
       return () => {

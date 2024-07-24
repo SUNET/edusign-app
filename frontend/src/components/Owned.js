@@ -3,10 +3,10 @@ import PropTypes from "prop-types";
 import { injectIntl } from "react-intl";
 
 import DocPreviewContainer from "containers/DocPreview";
+import XMLPreviewContainer from "containers/XMLPreview";
 import ReInviteFormContainer from "containers/ReInviteForm";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 import DocumentOwned from "components/DocumentOwned";
-import { docToFile } from "components/utils";
 
 import "styles/Invitation.scss";
 
@@ -21,26 +21,26 @@ class Owned extends Component {
     return (
       <>
         {this.props.owned.map((doc, index) => {
-          let docFile = null;
-          if (doc.show) {
-            docFile = docToFile(doc);
-          }
+          const Preview =
+            doc.type === "application/pdf"
+              ? DocPreviewContainer
+              : XMLPreviewContainer;
           return (
             <React.Fragment key={index}>
               <DocumentOwned key="0" doc={doc} {...this.props} />
               {doc.show && (
-                <DocPreviewContainer
+                <Preview
                   doc={doc}
-                  docFile={docFile}
                   key="1"
                   handleClose={this.props.handleClosePreview}
+                  index={Number(index)}
                 />
               )}
               {doc.state === "incomplete" && (
                 <ReInviteFormContainer doc={doc} />
               )}
               <ConfirmDialogContainer
-                confirmId={"confirm-remove-owned-" + doc.name}
+                confirmId={"confirm-remove-" + doc.name}
                 title={this.props.intl.formatMessage({
                   defaultMessage: "Confirm Removal of invitation",
                   id: "header-confirm-remove-owned-title",

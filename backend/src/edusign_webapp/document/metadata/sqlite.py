@@ -40,7 +40,6 @@ from flask import Flask, current_app, g
 
 from edusign_webapp.doc_store import ABCMetadata
 
-
 DB_SCHEMA = """
 CREATE TABLE [Documents]
 (      [doc_id] INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -53,20 +52,26 @@ CREATE TABLE [Documents]
        [owner_eppn] VARCHAR(255) NOT NULL,
        [owner_email] VARCHAR(255) NOT NULL,
        [owner_name] VARCHAR(255) NOT NULL,
+       [owner_lang] VARCHAR(2) NOT NULL,
        [prev_signatures] TEXT,
        [sendsigned] INTEGER DEFAULT 1,
-       [loa] VARCHAR(255) DEFAULT "none",
+       [loa] VARCHAR(255) DEFAULT "low",
+       [skipfinal] INTEGER DEFAULT 0,
        [locked] TIMESTAMP DEFAULT NULL,
-       [locking_email] VARCHAR(255) DEFAULT NULL
+       [locking_email] VARCHAR(255) DEFAULT NULL,
+       [ordered_invitations] INTEGER DEFAULT 0,
+       [invitation_text] TEXT
 );
 CREATE TABLE [Invites]
 (      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
        [key] VARCHAR(255) NOT NULL,
        [user_email] VARCHAR(255) NOT NULL,
        [user_name] VARCHAR(255) NOT NULL,
+       [user_lang] VARCHAR(2) NOT NULL,
        [doc_id] INTEGER NOT NULL,
        [signed] INTEGER DEFAULT 0,
        [declined] INTEGER DEFAULT 0,
+       [order_invitation] INTEGER DEFAULT 0,
             FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -76,38 +81,45 @@ CREATE INDEX IF NOT EXISTS [OwnerEppnIX] ON [Documents] ([owner_eppn]);
 CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
 CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-PRAGMA user_version = 5;
+PRAGMA user_version = 9;
 """
 
 
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_ALL = "SELECT key, name, size, type, doc_id, owner_email, owner_name FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_ALL = (
+    "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
+)
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, loa, created FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_eppn, prev_signatures, sendsigned, loa, updated, created FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created, ordered_invitations FROM Documents WHERE doc_id = ?;"
+DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created, ordered_invitations, invitation_text FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
-DOCUMENT_QUERY_FROM_OWNER = (
-    "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_eppn = ?;"
-)
-DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = (
-    "SELECT doc_id, key, name, size, type, prev_signatures, loa, created FROM Documents WHERE owner_email = ?;"
-)
+DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned FROM Documents WHERE owner_eppn = ?;"
+DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned FROM Documents WHERE owner_email = ?;"
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
+DOCUMENT_SET_SENDSIGNED = "UPDATE Documents SET sendsigned = ? WHERE key = ?;"
+DOCUMENT_QUERY_SKIPFINAL = "SELECT skipfinal FROM Documents WHERE key = ?;"
+DOCUMENT_SET_SKIPFINAL = "UPDATE Documents SET skipfinal = ? WHERE key = ?;"
+DOCUMENT_QUERY_ORDERED = "SELECT ordered_invitations FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_INVITATION_TEXT = "SELECT invitation_text FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOA = "SELECT loa FROM Documents WHERE key = ?;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locking_email = '' WHERE doc_id = ?;"
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
-INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name) VALUES (?, ?, ?, ?)"
-INVITE_INSERT_RAW = (
-    "INSERT INTO Invites (key, doc_id, user_email, user_name, signed, declined) VALUES (?, ?, ?, ?, ?, ?)"
+INVITE_INSERT = (
+    "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, order_invitation) VALUES (?, ?, ?, ?, ?, ?)"
 )
-INVITE_QUERY_FROM_EMAIL = "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0;"
-INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, signed, declined, key FROM Invites WHERE doc_id = ?;"
-INVITE_QUERY_UNSIGNED_FROM_DOC = "SELECT inviteID FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0;"
-INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, doc_id FROM Invites WHERE key = ?;"
+INVITE_INSERT_RAW = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, signed, declined, order_invitation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+INVITE_QUERY_FROM_EMAIL = (
+    "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0 ORDER BY order_invitation;"
+)
+INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, user_lang, signed, declined, key, order_invitation FROM Invites WHERE doc_id = ? ORDER BY order_invitation;"
+INVITE_QUERY_UNSIGNED_FROM_DOC = (
+    "SELECT inviteID FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0 ORDER BY order_invitation;"
+)
+INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, user_lang, doc_id FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_email IN (%s) and doc_id = ?;"
 INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_email IN (%s) and doc_id = ?;"
 INVITE_DELETE = "DELETE FROM Invites WHERE user_id = ? and doc_id = ?;"
@@ -210,6 +222,38 @@ def upgrade(db):
         cur.execute("CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);")
 
         cur.execute("PRAGMA user_version = 5;")
+        cur.close()
+        db.commit()
+
+    if version == 5:
+        cur = db.cursor()
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [owner_lang] VARCHAR(2) DEFAULT \"sv\";")
+        cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_lang] VARCHAR(2) DEFAULT \"sv\";")
+        cur.execute("PRAGMA user_version = 6;")
+        cur.close()
+        db.commit()
+
+    if version == 6:
+        cur = db.cursor()
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [skipfinal] INTEGER DEFAULT 0;")
+        cur.execute("PRAGMA user_version = 7;")
+        cur.close()
+        db.commit()
+
+    if version == 7:
+        cur = db.cursor()
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [ordered_invitations] INTEGER DEFAULT 0;")
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [invitation_text] TEXT DEFAULT \"\";")
+        cur.execute("ALTER TABLE [Invites] ADD COLUMN [order_invitation] INTEGER DEFAULT 0;")
+        cur.execute("PRAGMA user_version = 8;")
+        cur.close()
+        db.commit()
+
+    if version == 8:
+        cur = db.cursor()
+        cur.execute("ALTER TABLE [Documents] DROP COLUMN [loa];")
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [loa] VARCHAR(255) DEFAULT \"low\";")
+        cur.execute("PRAGMA user_version = 9;")
         cur.close()
         db.commit()
 
@@ -323,6 +367,9 @@ class SqliteMD(ABCMetadata):
         invites: List[Dict[str, Any]],
         sendsigned: bool,
         loa: str,
+        skipfinal: bool,
+        ordered: bool,
+        invitation_text: str,
     ):
         """
         Store metadata for a new document.
@@ -333,11 +380,14 @@ class SqliteMD(ABCMetadata):
                          + size: Size of the doc
                          + type: Content type of the doc
                          + prev_signatures: previous signatures
-        :param owner: Name and email address and eppn of the user that has uploaded the document.
-        :param invites: List of the names and emails of the users that have been invited to sign the document.
+        :param owner: Name and email address and language and eppn of the user that has uploaded the document.
+        :param invites: List of the names and emails and languages of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
-        :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
+        :param skipfinal: Whether to request signature from the user who is inviting.
+        :param ordered: Whether to send invitations in order.
+        :param invitation_text: The custom text to send in the invitation email
+        :return: The list of invitations as dicts with 5 keys: name, email, lang, order, and generated key (UUID)
         """
         prev_sigs = document.get("prev_signatures", "")
 
@@ -350,10 +400,14 @@ class SqliteMD(ABCMetadata):
                 document['type'],
                 owner['email'],
                 owner['name'],
+                owner['lang'],
                 owner['eppn'],
                 prev_sigs,
                 sendsigned,
                 loa,
+                skipfinal,
+                ordered,
+                invitation_text,
             ),
         )
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
@@ -368,11 +422,11 @@ class SqliteMD(ABCMetadata):
 
         updated_invites = []
 
-        for user in invites:
+        for order, user in enumerate(invites):
             invite_key = str(uuid.uuid4())
-            self._db_execute(INVITE_INSERT, (invite_key, document_id, user['email'], user['name']))
+            self._db_execute(INVITE_INSERT, (invite_key, document_id, user['email'], user['name'], user['lang'], order))
 
-            updated_invite = {'key': invite_key}
+            updated_invite = {'key': invite_key, 'order': order}
             updated_invite.update(user)
             updated_invites.append(updated_invite)
 
@@ -394,12 +448,16 @@ class SqliteMD(ABCMetadata):
                  + size: Size of the doc
                  + owner_email: Email of owner
                  + owner_name: Display name of owner
+                 + owner_lang: Language of owner
                  + owner_eppn: eppn of owner
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
+                 + skipfinal: whether to send the signed document by mail
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
+                 + ordered_invitations: Whether to send invitations in order.
+                 + invitation_text: The custom text to send in the invitation email
         :return:
         """
         self._db_execute(
@@ -414,10 +472,14 @@ class SqliteMD(ABCMetadata):
                 document['updated'],
                 document['owner_email'],
                 document['owner_name'],
+                document['owner_lang'],
                 document['owner_eppn'],
                 document['prev_signatures'],
                 document['sendsigned'],
                 document['loa'],
+                document['skipfinal'],
+                document['ordered_invitations'],
+                document['invitation_text'],
             ),
         )
 
@@ -426,12 +488,14 @@ class SqliteMD(ABCMetadata):
         Add invitation.
 
         :param invite: invitation data, with keys:
-                 + user_name: The name of the user
-                 + user_email: The email of the user
+                 + name: The name of the user
+                 + email: The email of the user
+                 + lang: The language of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + doc_id: the id of the document.
+                 + order_invitation: the order of the invitation.
         :return:
         """
         self._db_execute(
@@ -439,10 +503,12 @@ class SqliteMD(ABCMetadata):
             (
                 str(invite['key']),
                 invite['doc_id'],
-                invite['user_email'],
-                invite['user_name'],
+                invite['email'],
+                invite['name'],
+                invite['lang'],
                 invite['signed'],
                 invite['declined'],
+                invite['order_invitation'],
             ),
         )
 
@@ -474,15 +540,15 @@ class SqliteMD(ABCMetadata):
                  + name: The name of the document
                  + size: Size of the doc
                  + type: Content type of the doc
-                 + owner_email: Email of the user requesting the signature
-                 + owner_name: Display name of the user requesting the signature
+                 + owner: Dict with name, email, eppn and language of the user requesting the signature
                  + state: the state of the invitation
-                 + pending: List of emails of the users invited to sign the document who have not yet done so.
-                 + signed: List of emails of the users invited to sign the document who have already done so.
-                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + pending: List of emails, names, and languages of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails, names, and languages of the users invited to sign the document who have already done so.
+                 + declined: List of emails, names, and languages of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
+                 + ordered: Whether to send invitations in order.
         """
         pending = []
         doc_ids = []
@@ -510,6 +576,7 @@ class SqliteMD(ABCMetadata):
                 document['owner'] = {
                     'email': document['owner_email'],
                     'name': document['owner_name'],
+                    'lang': document['owner_lang'],
                     'eppn': document['owner_eppn'],
                 }
                 document['key'] = uuid.UUID(document['key'])
@@ -519,12 +586,28 @@ class SqliteMD(ABCMetadata):
                 document['declined'] = []
                 document['state'] = "unconfirmed"
                 document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
+                document['ordered'] = document['ordered_invitations']
 
                 subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
 
                 if subinvites is not None and not isinstance(subinvites, dict):
+                    if document["ordered"]:
+                        subinvites.sort(key=lambda i: i["order_invitation"])
+                        is_next = False
+                        for subinvite in subinvites:
+                            if not subinvite['signed'] and not subinvite['declined']:
+                                if subinvite['user_email'] == email:
+                                    is_next = True
+                                break
+                        if not is_next:
+                            continue
                     for subinvite in subinvites:
-                        subemail_result = {'email': subinvite['user_email'], 'name': subinvite['user_name']}
+                        subemail_result = {
+                            'email': subinvite['user_email'],
+                            'name': subinvite['user_name'],
+                            'lang': subinvite['user_lang'],
+                            'order': int(subinvite['order_invitation']),
+                        }
                         if subemail_result['email'] == email:
                             continue
                         if subinvite['declined'] == 1:
@@ -601,13 +684,16 @@ class SqliteMD(ABCMetadata):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + pending: List of emails of the users invited to sign the document who have not yet done so.
-                 + signed: List of emails of the users invited to sign the document who have already done so.
                  + state: the state of the invitation
-                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + pending: List of emails, names and languages of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails, names and languages of the users invited to sign the document who have already done so.
+                 + declined: List of emails, names and languages of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
+                 + skipfinal: whether to skip the final signature by the inviter user
+                 + ordered: Whether to send invitations in order.
+                 + sendsigned: Whether to send signed documents in final email
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (eppn,))
         if documents is None or isinstance(documents, dict):
@@ -625,12 +711,16 @@ class SqliteMD(ABCMetadata):
                  + name: The name of the document
                  + type: Content type of the doc
                  + size: Size of the doc
-                 + pending: List of emails of the users invited to sign the document who have not yet done so.
-                 + signed: List of emails of the users invited to sign the document who have already done so.
-                 + declined: List of emails of the users invited to sign the document who have declined to do so.
+                 + state: the state of the invitation
+                 + pending: List of emails, names and languages of the users invited to sign the document who have not yet done so.
+                 + signed: List of emails, names and languages of the users invited to sign the document who have already done so.
+                 + declined: List of emails, names and languages of the users invited to sign the document who have declined to do so.
                  + prev_signatures: previous signatures
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
+                 + skipfinal: whether to skip the final signature by the inviter user
+                 + ordered: Whether to send invitations in order.
+                 + sendsigned: Whether to send signed documents in final email
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL, (email,))
         if documents is None or isinstance(documents, dict):
@@ -646,6 +736,7 @@ class SqliteMD(ABCMetadata):
             document['declined'] = []
             document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
             state = 'loaded'
+            document['ordered'] = document['ordered_invitations']
             document_id = document['doc_id']
             invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
             del document['doc_id']
@@ -653,7 +744,7 @@ class SqliteMD(ABCMetadata):
                 document['state'] = state
                 continue
             for invite in invites:
-                email_result = {'email': invite['user_email'], 'name': invite['user_name']}
+                email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'lang': invite['user_lang']}
                 if invite['declined'] == 1:
                     document['declined'].append(email_result)
                 elif invite['signed'] == 1:
@@ -662,6 +753,8 @@ class SqliteMD(ABCMetadata):
                     state = 'incomplete'
                     document['pending'].append(email_result)
 
+            if state == 'loaded' and document['skipfinal'] == 1:
+                state = 'signed'
             document['state'] = state
 
         return documents
@@ -674,10 +767,12 @@ class SqliteMD(ABCMetadata):
         :return: A list of dictionaries with information about the users, each of them with keys:
                  + name: The name of the user
                  + email: The email of the user
+                 + lang: The lang of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + doc_id: the id of the invited document
+                 + order: the order of the invitation
         """
         invitees: List[Dict[str, Any]] = []
 
@@ -694,11 +789,12 @@ class SqliteMD(ABCMetadata):
             return invitees
 
         for invite in invites:
-            email_result = {'email': invite['user_email'], 'name': invite['user_name']}
+            email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'lang': invite['user_lang']}
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
             email_result['doc_id'] = doc_id
+            email_result['order'] = int(invite['order_invitation'])
             invitees.append(email_result)
 
         return invitees
@@ -711,9 +807,11 @@ class SqliteMD(ABCMetadata):
         :return: A list of dictionaries with information about the users, each of them with keys:
                  + name: The name of the user
                  + email: The email of the user
+                 + lang: The language of the user
                  + signed: Whether the user has already signed the document
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
+                 + order: the order of the invitation
         """
         invitees: List[Dict[str, Any]] = []
 
@@ -728,10 +826,11 @@ class SqliteMD(ABCMetadata):
             return invitees
 
         for invite in invites:
-            email_result = {'email': invite['user_email'], 'name': invite['user_name']}
+            email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'lang': invite['user_lang']}
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
+            email_result['order'] = int(invite['order_invitation'])
             invitees.append(email_result)
 
         return invitees
@@ -786,18 +885,22 @@ class SqliteMD(ABCMetadata):
             return {}
 
         doc['doc_id'] = invite['doc_id']
-        user = {'name': invite['user_name'], 'email': invite['user_email']}
+        user = {'name': invite['user_name'], 'email': invite['user_email'], 'lang': invite['user_lang']}
 
         return {'document': doc, 'user': user}
 
-    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, invite_key: str = '') -> Dict[str, Any]:
+    def add_invitation(
+        self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = '', order: int = 0
+    ) -> Dict[str, Any]:
         """
         Create a new invitation to sign
 
         :param document_key: The key identifying the document to sign
         :param name: The name for the new invitation
         :param email: The email for the new invitation
+        :param lang: The language for the new invitation
         :param invite_key: The invite key for the new invitation
+        :param order: The order for the new invitation
         :return: data on the new invitation
         """
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(document_key),), one=True)
@@ -810,7 +913,7 @@ class SqliteMD(ABCMetadata):
         if invite_key == '':
             invite_key = str(uuid.uuid4())
 
-        self._db_execute(INVITE_INSERT, (invite_key, document_id, email, name))
+        self._db_execute(INVITE_INSERT, (invite_key, document_id, email, name, lang, order))
         self._db_commit()
 
         return {'key': invite_key, 'name': name, 'email': email}
@@ -840,16 +943,20 @@ class SqliteMD(ABCMetadata):
                  + size: Size of the doc
                  + owner_email: Email of inviter user
                  + owner_name: Name of inviter user
+                 + owner_lang: Language of inviter user
                  + owner_eppn: Eppn of inviter user
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
+                 + skipfinal: whether to skip the final signature by the inviter user
+                 + ordered_invitations: send invitations in order
+                 + invitation_text: The custom text to send in the invitation email
         """
         document_result = self._db_query(DOCUMENT_QUERY_FULL, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
-            self.logger.debug(f"Trying to find a non-existing document with key {key}")
+            self.logger.debug(f"Trying to find a non-existing full document with key {key}")
             return {}
 
         return document_result
@@ -867,6 +974,7 @@ class SqliteMD(ABCMetadata):
                  + size: Size of the doc
                  + owner_email: Email of owner
                  + owner_name: Display name of owner
+                 + owner_lang: Language of owner
         """
         document_result = self._db_query(DOCUMENT_QUERY_ALL, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
@@ -983,10 +1091,52 @@ class SqliteMD(ABCMetadata):
         """
         document_result = self._db_query(DOCUMENT_QUERY_SENDSIGNED, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
-            self.logger.debug(f"Trying to find a non-existing document with key {key}")
+            self.logger.debug(f"Trying to get sendsigned from a non-existing document with key {key}")
             return True
 
         return bool(document_result['sendsigned'])
+
+    def set_sendsigned(self, key: uuid.UUID, value: bool):
+        """
+        Set whether the final signed document should be sent by email to all signataries
+
+        :param key: The key identifying the document
+        :param value: whether to send emails
+        """
+        try:
+            self._db_execute(DOCUMENT_SET_SENDSIGNED, (value, str(key)))
+            self._db_commit()
+        except Exception as e:
+            self.logger.error(f"Problem trying to set sendsigned: {e}")
+            raise
+
+    def get_skipfinal(self, key: uuid.UUID) -> bool:
+        """
+        Whether the final signed document should be signed by the inviter
+
+        :param key: The key identifying the document
+        :return: whether it should be signed by the owner
+        """
+        document_result = self._db_query(DOCUMENT_QUERY_SKIPFINAL, (str(key),), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.debug(f"Trying to get skipfinal from a non-existing document with key {key}")
+            return True
+
+        return bool(document_result['skipfinal'])
+
+    def set_skipfinal(self, key: uuid.UUID, value: bool):
+        """
+        Set whether the final signed document should be signed by the inviter
+
+        :param key: The key identifying the document
+        :param value: whether it should be signed by the owner
+        """
+        try:
+            self._db_execute(DOCUMENT_SET_SKIPFINAL, (value, str(key)))
+            self._db_commit()
+        except Exception as e:
+            self.logger.error(f"Problem trying to set skipfinal: {e}")
+            raise
 
     def get_loa(self, key: uuid.UUID) -> str:
         """
@@ -998,6 +1148,34 @@ class SqliteMD(ABCMetadata):
         document_result = self._db_query(DOCUMENT_QUERY_LOA, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.debug(f"Trying to find loa for a non-existing document with key {key}")
-            return "none"
+            return "low"
 
         return str(document_result['loa'])
+
+    def get_ordered(self, key: uuid.UUID) -> bool:
+        """
+        Whether the invitations for the document are ordered
+
+        :param key: The key identifying the document
+        :return: whether the invitations for signing the document are ordered
+        """
+        document_result = self._db_query(DOCUMENT_QUERY_ORDERED, (str(key),), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.debug(f"Trying to get ordered from a non-existing document with key {key}")
+            return False
+
+        return bool(document_result['ordered_invitations'])
+
+    def get_invitation_text(self, key: uuid.UUID) -> str:
+        """
+        Get the custom text to send in the invitation email
+
+        :param key: The key identifying the document
+        :return: The invitation text
+        """
+        document_result = self._db_query(DOCUMENT_QUERY_INVITATION_TEXT, (str(key),), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.debug(f"Trying to get invitation text from a non-existing document with key {key}")
+            return ''
+
+        return str(document_result['invitation_text'])

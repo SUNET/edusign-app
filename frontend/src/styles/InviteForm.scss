@@ -9,6 +9,11 @@
   border: 1px solid $orange-opaque;
   border-radius: 2px;
 
+  .invite-header {
+    display: flex;
+    justify-content: space-between;
+  }
+
   .invitee-form-dismiss {
     flex: 0 0 auto;
     display: flex;
@@ -18,6 +23,11 @@
       flex: none;
       color: $orange-highlight;
     }
+  }
+  .invite-ordinal {
+    font-size: 0.8rem;
+    color: $darker-dark-grey;
+    padding: 5px;
   }
   .invitee-form-row {
     flex: none;
@@ -62,7 +72,9 @@
     color: $form-field-text;
     border: 1px solid $form-field-border-unfocused;
     border-radius: 0.25rem;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    transition:
+      border-color 0.15s ease-in-out,
+      box-shadow 0.15s ease-in-out;
   }
 
   .invitation-text:focus {
@@ -72,25 +84,35 @@
   }
 }
 
-.sendsigned-choice-group {
+.sendsigned-choice-group,
+.skipfinal-choice-group,
+.ordered-choice-group {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   margin-right: 10%;
   margin-left: 10%;
 
-  .sendsigned-choice-label {
+  .sendsigned-choice-label,
+  .skipfinal-choice-label,
+  .ordered-choice-label {
     padding-right: 1rem;
   }
-  .sendsigned-choice {
+  .sendsigned-choice,
+  .skipfinal-choice,
+  .ordered-choice {
     color: $form-field-text;
     border: 1px solid $form-field-border-unfocused;
     border-radius: 0.25rem;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    transition:
+      border-color 0.15s ease-in-out,
+      box-shadow 0.15s ease-in-out;
     margin-bottom: 0.5rem;
   }
 
-  .sendsigned-choice:focus {
+  .sendsigned-choice:focus,
+  .skipfinal-choice:focus,
+  .ordered-choice:focus {
     border-color: $form-field-border;
     box-shadow: 0 0 0 0.2rem rgb(0 123 255 / 25%);
     outline: 0;
@@ -109,7 +131,9 @@
     color: $form-field-text;
     border: 1px solid $form-field-border-unfocused;
     border-radius: 0.25rem;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    transition:
+      border-color 0.15s ease-in-out,
+      box-shadow 0.15s ease-in-out;
   }
 
   .makecopy-choice:focus {
@@ -150,18 +174,13 @@
       cursor: pointer;
     }
   }
-
-  .hidden {
-    visibility: hidden;
-    height: 0;
-  }
   #loa-select-field {
     flex: none;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
 
     .loa-checkbox {
-      height: 1.5rem;
+      margin-right: 2rem;
 
       .loa-select {
         color: $form-field-text;

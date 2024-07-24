@@ -15,7 +15,7 @@ import { setCsrfToken } from "slices/Main";
  */
 export const checkStatus = async function (response) {
   if (response.status >= 200 && response.status < 300) {
-    return await response.json();
+    return response.json();
   } else if (response.status === 0) {
     const next = document.location.href;
     document.location.assign(next);
@@ -88,4 +88,18 @@ export const preparePayload = (state, payload) => {
     payload: payload,
   };
   return JSON.stringify(data);
+};
+
+export const esFetch = async (resource, options) => {
+  if (window.document.location.pathname.includes("/sign2/")) {
+    resource.replace("/sign/", "/sign2/");
+  }
+  return await fetch(resource, options);
+};
+
+export const getLocation = (resource) => {
+  if (window.document.location.pathname.includes("/sign2/")) {
+    resource.replace("/sign/", "/sign2/");
+  }
+  return resource;
 };

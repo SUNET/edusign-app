@@ -9,11 +9,10 @@ import {
   checkStatus,
   extractCsrfToken,
   preparePayload,
+  esFetch,
 } from "slices/fetch-utils";
-import { setState, createDocument, addDocument } from "slices/Documents";
-import { setTemplateFormSchema } from "slices/Templates";
+import { createDocument, addDocument } from "slices/Documents";
 import { showForm } from "slices/Modals";
-import { unsetSpinning } from "slices/Button";
 import { addNotification } from "slices/Notifications";
 
 /**
@@ -42,12 +41,12 @@ export const sendPDFForm = createAsyncThunk(
     }
     const dataToSend = {
       document: doc.blob,
-      fields: fields,
+      form_fields: fields,
     };
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await fetch("/sign/update-form", {
+      const response = await esFetch("/sign/update-form", {
         ...postRequest,
         body: body,
       });
@@ -61,7 +60,7 @@ export const sendPDFForm = createAsyncThunk(
             defaultMessage: "Problem filling in PDF form, please try again",
             id: "problem-updating-pdf-form",
           }),
-        })
+        }),
       );
       return thunkAPI.rejectWithValue(doc);
     }
@@ -77,7 +76,7 @@ export const sendPDFForm = createAsyncThunk(
         addNotification({
           level: "danger",
           message: msg,
-        })
+        }),
       );
       return thunkAPI.rejectWithValue(doc);
     }
@@ -92,7 +91,7 @@ export const sendPDFForm = createAsyncThunk(
     };
     thunkAPI.dispatch(addDocument(newDoc));
     await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
-  }
+  },
 );
 
 const pdfFormSlice = createSlice({
@@ -118,7 +117,7 @@ const pdfFormSlice = createSlice({
       state.document = null;
     },
   },
-  extraReducers: {},
+  extraReducers: (builder) => {},
 });
 
 export const { showPDFForm, hidePDFForm } = pdfFormSlice.actions;

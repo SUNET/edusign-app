@@ -1,7 +1,6 @@
 import { connect } from "react-redux";
 
 import { DropdownButton } from "components/Button";
-import { setSpinning, unsetSpinning } from "slices/Button";
 
 const mapStateToProps = (state) => {
   return {

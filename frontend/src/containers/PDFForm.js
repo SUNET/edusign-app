@@ -13,10 +13,8 @@ import { connect } from "react-redux";
 import PDFForm from "components/PDFForm";
 
 import { unsetSpinning } from "slices/Button";
-import { sendPDFForm } from "slices/PDFForms";
+import { sendPDFForm, hidePDFForm } from "slices/PDFForms";
 import { disablePolling, enablePolling } from "slices/Poll";
-import { hidePDFForm } from "slices/PDFForms";
-import { setActiveId } from "slices/Overlay";
 import { isNotInviting } from "slices/InviteForm";
 import { docToFile } from "components/utils";
 
@@ -62,10 +60,10 @@ const mapDispatchToProps = (dispatch, props) => {
           values: this.state.values,
           newname: newname,
           intl: this.props.intl,
-        })
+        }),
       );
       dispatch(unsetSpinning());
-      this.resetValues();
+      this.restoreValues();
     },
     handleClose: function () {
       dispatch(hidePDFForm());

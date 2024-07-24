@@ -34,10 +34,10 @@ async function _getDb(name) {
 }
 async function getNewDb(name) {
   const newname = "eduSignDB-" + hashCode(name);
-  return await _getDb(newname);
+  return _getDb(newname);
 }
 async function getOldDb() {
-  return await _getDb("eduSignDB");
+  return _getDb("eduSignDB");
 }
 
 /**
@@ -98,7 +98,7 @@ export async function getDb(name) {
 export async function resetDb() {
   require("fake-indexeddb/auto");
   const FDBFactory = require("fake-indexeddb/lib/FDBFactory");
-  return await new Promise((resolve) => {
+  return new Promise((resolve) => {
     const iDB = new FDBFactory();
     const request = iDB.open("eduSignDB", 1);
     request.onsuccess = () => {
@@ -206,7 +206,7 @@ export const clearDocStore = (dispatch, intl) => {
             defaultMessage: "problem clearing db, please try again",
             id: "problem-clearing-db",
           }),
-        })
+        }),
       );
     };
   } else {
@@ -217,7 +217,7 @@ export const clearDocStore = (dispatch, intl) => {
           defaultMessage: "no persistent state",
           id: "no-persistent-state",
         }),
-      })
+      }),
     );
   }
 };

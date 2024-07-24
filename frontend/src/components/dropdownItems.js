@@ -6,7 +6,7 @@ export const createTemplateMenuItem = (props, doc) => (
   <ESDropdownItem
     doc={doc}
     onClick={props.handleCreateTemplate(doc.key, props)}
-    id={"menu-item-create-template-" + doc.key}
+    id={"menu-item-create-template-" + doc.name}
   >
     <FormattedMessage
       defaultMessage="Create template"
@@ -18,9 +18,9 @@ export const createTemplateMenuItem = (props, doc) => (
 export const editInvitationMenuItem = (props, doc) => (
   <ESDropdownItem
     doc={doc}
-    id={"menu-item-edit-invitations-" + doc.key}
+    id={"menu-item-edit-invitations-" + doc.name}
     disabling={true}
-    onClick={props.openEditInvitationForm(doc)}
+    onClick={props.openEditInvitationForm(doc, props)}
   >
     <FormattedMessage
       defaultMessage="Edit invitations"
@@ -62,20 +62,6 @@ export const previewTemplateMenuItem = (props, doc) => (
     onClick={props.handleTemplatePreview(doc.key)}
   >
     <FormattedMessage defaultMessage="Preview" key="preview-button" />
-  </ESDropdownItem>
-);
-
-export const multiSignMenuItem = (props, doc) => (
-  <ESDropdownItem
-    doc={doc}
-    id={"menu-item-multisign-" + doc.name}
-    disabling={true}
-    onClick={props.openInviteForm(doc)}
-  >
-    <FormattedMessage
-      defaultMessage="Invite others to sign"
-      key="multisign-button"
-    />
   </ESDropdownItem>
 );
 

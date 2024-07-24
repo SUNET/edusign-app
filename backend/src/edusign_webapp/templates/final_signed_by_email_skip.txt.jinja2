@@ -1,0 +1,13 @@
+
+{% trans invited_email=invited_email, invited_name=invited_name, document_name=document_name %}
+{{invited_name}} <{{invited_email}}> has signed the document "{{document_name}}".
+{% endtrans %}
+
+
+{% trans %}
+This was the final reply to your invitation to sign this document.
+{% endtrans %}
+{% trans %}
+This is an email from eduSign, a service for secure digital signatures, developed by Sunet.
+{% endtrans %}
+

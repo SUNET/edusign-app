@@ -1,16 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { FormattedMessage, injectIntl } from "react-intl";
-import Button from "react-bootstrap/Button";
+import { injectIntl } from "react-intl";
 
-import { docToFile, humanFileSize } from "components/utils";
-import DocPreviewContainer from "containers/DocPreview";
-import LittleSpinner from "components/LittleSpinner";
 import ForcedPreviewContainer from "containers/ForcedPreview";
+import ForcedXMLPreviewContainer from "containers/ForcedXMLPreview";
+import DocPreviewContainer from "containers/DocPreview";
+import XMLPreviewContainer from "containers/XMLPreview";
 import DocumentInvited from "components/DocumentInvited";
 import DelegateFormContainer from "containers/DelegateForm";
-import * as widgets from "components/widgets";
-import { preparePrevSigs } from "components/utils";
 
 import "styles/Invitation.scss";
 
@@ -25,25 +22,28 @@ class Invited extends Component {
     return (
       <>
         {this.props.invited.map((doc, index) => {
-          let docFile = null;
-          if (doc.show || doc.showForced) {
-            docFile = docToFile(doc);
-          }
+          const Preview =
+            doc.type === "application/pdf"
+              ? DocPreviewContainer
+              : XMLPreviewContainer;
+          const ForcedPreview =
+            doc.type === "application/pdf"
+              ? ForcedPreviewContainer
+              : ForcedXMLPreviewContainer;
           return (
             <React.Fragment key={index}>
               <DocumentInvited key="0" doc={doc} {...this.props} />
               {doc.show && (
-                <DocPreviewContainer
+                <Preview
                   doc={doc}
-                  docFile={docFile}
                   handleClose={this.props.handleClosePreview}
+                  index={Number(index)}
                 />
               )}
               {doc.state === "unconfirmed" && (
-                <ForcedPreviewContainer
+                <ForcedPreview
                   doc={doc}
-                  docFile={docFile}
-                  index={doc.name}
+                  index={Number(index)}
                   handleClose={this.props.handleCloseForcedPreview}
                   handleConfirm={this.props.handleConfirmForcedPreview}
                   handleUnConfirm={this.props.handleUnConfirmForcedPreview}

@@ -1,20 +1,21 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
-import Button from "react-bootstrap/Button";
 
 import ForcedPreviewContainer from "containers/ForcedPreview";
+import ForcedXMLPreviewContainer from "containers/ForcedXMLPreview";
 import DocPreviewContainer from "containers/DocPreview";
+import XMLPreviewContainer from "containers/XMLPreview";
 import InviteFormContainer from "containers/InviteForm";
 import OwnedContainer from "containers/Owned";
 import InvitedContainer from "containers/Invited";
-import { docToFile } from "components/utils";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
 import DocumentLocal from "components/DocumentLocal";
 import DocumentTemplate from "components/DocumentTemplate";
 import DocumentOwned from "components/DocumentOwned";
 import * as widgets from "components/widgets";
 import PDFFormContainer from "containers/PDFForm";
+import { docToFile } from "components/utils";
 
 import "styles/DocManager.scss";
 import "styles/Invitation.scss";
@@ -97,19 +98,18 @@ class DocManager extends React.Component {
           <>
             {this.props.templates.length > 0 && (
               <fieldset className="local-template-container">
-                <legend>
+                <legend data-testid="legend-templates">
                   <FormattedMessage
                     defaultMessage="Templates"
                     key="local-templates-legend"
                   />
                 </legend>
                 {this.props.templates.map((doc, index) => {
-                  const docFile = docToFile(doc);
                   return (
                     <React.Fragment key={index}>
                       <DocumentTemplate key={index} doc={doc} {...this.props} />
                       <ConfirmDialogContainer
-                        confirmId={"confirm-remove-template-" + doc.name}
+                        confirmId={"confirm-remove-" + doc.name}
                         title={this.props.intl.formatMessage({
                           defaultMessage: "Confirm Removal of template",
                           id: "header-confirm-remove-template-title",
@@ -121,17 +121,18 @@ class DocManager extends React.Component {
                         })}
                         confirm={this.props.handleTemplateRemove(
                           doc.id,
-                          this.props
+                          this.props,
                         )}
                       />
                       <DocPreviewContainer
                         doc={doc}
-                        docFile={docFile}
                         handleClose={this.props.handleCloseTemplatePreview}
+                        index={Number(index)}
                       />
                       <InviteFormContainer
                         docId={doc.id}
                         docName={doc.name}
+                        docOrdered={doc.ordered}
                         isTemplate={true}
                       />
                     </React.Fragment>
@@ -141,7 +142,7 @@ class DocManager extends React.Component {
             )}
             {this.props.documents.length > 0 && (
               <fieldset className="local-monosign-container">
-                <legend>
+                <legend data-testid="legend-personal">
                   <FormattedMessage
                     defaultMessage="Personal documents"
                     key="local-monosign-legend"
@@ -176,7 +177,7 @@ class DocManager extends React.Component {
                           {_docRepr}
                           <ConfirmDialogContainer
                             confirmId={
-                              "confirm-remove-signed-owned-" + doc.name
+                              "confirm-remove-" + doc.name
                             }
                             title={this.props.intl.formatMessage({
                               defaultMessage:
@@ -190,11 +191,6 @@ class DocManager extends React.Component {
                             })}
                             confirm={this.props.handleSignedRemove(doc.name)}
                           />
-                          <DocPreviewContainer
-                            doc={doc}
-                            docFile={docFile}
-                            handleClose={this.props.handleClosePreview}
-                          />
                         </>
                       );
                     } else {
@@ -202,40 +198,89 @@ class DocManager extends React.Component {
                     }
                   } else {
                     docRepr = (
-                      <DocumentLocal key={index} doc={doc} {...this.props} />
+                      <>
+                        <DocumentLocal key={index} doc={doc} {...this.props} />
+                        <ConfirmDialogContainer
+                          confirmId={"confirm-remove-" + doc.name}
+                          title={this.props.intl.formatMessage({
+                            defaultMessage: "Confirm Removal of document",
+                            id: "header-confirm-remove-document-title",
+                          })}
+                          mainText={this.props.intl.formatMessage({
+                            defaultMessage:
+                              'Clicking "Confirm" will remove the document',
+                            id: "header-confirm-remove-document-text",
+                          })}
+                          confirm={this.props.handleRemoveDocument(
+                            doc,
+                            this.props,
+                          )}
+                        />
+                      </>
                     );
                   }
                   return (
                     <React.Fragment key={index}>
                       {docRepr}
-                      {doc.state === "unconfirmed" && (
-                        <ForcedPreviewContainer
-                          doc={doc}
-                          docFile={docFile}
-                          index={doc.name}
-                          handleClose={this.props.handleCloseForcedPreview}
-                          handleConfirm={this.props.handleConfirmForcedPreview}
-                          handleUnConfirm={
-                            this.props.handleUnConfirmForcedPreview
-                          }
-                        />
-                      )}
+                      {doc.state === "unconfirmed" &&
+                        doc.type.endsWith("/pdf") && (
+                          <ForcedPreviewContainer
+                            doc={doc}
+                            index={Number(index)}
+                            handleClose={this.props.handleCloseForcedPreview}
+                            handleConfirm={
+                              this.props.handleConfirmForcedPreview
+                            }
+                            handleUnConfirm={
+                              this.props.handleUnConfirmForcedPreview
+                            }
+                          />
+                        )}
+                      {doc.state === "unconfirmed" &&
+                        doc.type.endsWith("/xml") && (
+                          <ForcedXMLPreviewContainer
+                            doc={doc}
+                            index={Number(index)}
+                            handleClose={this.props.handleCloseForcedPreview}
+                            handleConfirm={
+                              this.props.handleConfirmForcedPreview
+                            }
+                            handleUnConfirm={
+                              this.props.handleUnConfirmForcedPreview
+                            }
+                          />
+                        )}
                       {[
                         "loaded",
                         "selected",
                         "failed-signing",
                         "signed",
-                      ].includes(doc.state) && (
-                        <DocPreviewContainer
-                          doc={doc}
-                          docFile={docFile}
-                          handleClose={this.props.handleClosePreview}
-                        />
-                      )}
+                      ].includes(doc.state) &&
+                        doc.type.endsWith("/pdf") && (
+                          <DocPreviewContainer
+                            doc={doc}
+                            handleClose={this.props.handleClosePreview}
+                            index={Number(index)}
+                          />
+                        )}
+                      {[
+                        "loaded",
+                        "selected",
+                        "failed-signing",
+                        "signed",
+                      ].includes(doc.state) &&
+                        doc.type.endsWith("/xml") && (
+                          <XMLPreviewContainer
+                            doc={doc}
+                            handleClose={this.props.handleClosePreview}
+                            index={Number(index)}
+                          />
+                        )}
                       {["loaded", "selected", "signed"].includes(doc.state) && (
                         <InviteFormContainer
                           docId={doc.id}
                           docName={doc.name}
+                          docOrdered={doc.ordered}
                         />
                       )}
                     </React.Fragment>
@@ -250,7 +295,7 @@ class DocManager extends React.Component {
             <>
               {this.props.owned.length > 0 && (
                 <fieldset className="owned-multisign-container">
-                  <legend>
+                  <legend data-testid="legend-inviter">
                     <FormattedMessage
                       defaultMessage="Documents you have invited others to sign"
                       key="owned-multisign-legend"
@@ -263,7 +308,7 @@ class DocManager extends React.Component {
           )}
           {this.props.pending.length > 0 && (
             <fieldset className="invited-multisign-container">
-              <legend>
+              <legend data-testid="legend-invited">
                 <FormattedMessage
                   defaultMessage="Documents you are invited to sign"
                   key="invited-multisign-legend"
@@ -277,19 +322,19 @@ class DocManager extends React.Component {
         <div id="global-buttons-wrapper">
           {widgets.buttonSignSelected(
             disableSigning,
-            this.props.handleSubmitToSign.bind(this)
+            this.props.handleSubmitToSign.bind(this),
           )}
           {!this.props.unauthn && (
             <>
               {widgets.buttonDownloadAll(
                 disableDlAllButton,
-                this.props.handleDownloadAll.bind(this)
+                this.props.handleDownloadAll.bind(this),
               )}
               {widgets.buttonClearPersonal(
                 disableClearButton,
                 this.props.showConfirm("confirm-clear-session"),
                 this.props.clearDb,
-                this.props.intl
+                this.props.intl,
               )}
             </>
           )}

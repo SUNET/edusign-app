@@ -25,7 +25,7 @@ export const addNotification = createAsyncThunk(
     }, 5000);
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     return arg;
-  }
+  },
 );
 
 const notificationsSlice = createSlice({
@@ -44,10 +44,10 @@ const notificationsSlice = createSlice({
       state.message = null;
     },
   },
-  extraReducers: {
-    [addNotification.fulfilled]: (state, action) => {
+  extraReducers: (builder) => {
+    builder.addCase(addNotification.fulfilled, (state, action) => {
       state.message = action.payload;
-    },
+    });
   },
 });
 

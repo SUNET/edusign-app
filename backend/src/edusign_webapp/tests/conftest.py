@@ -35,7 +35,8 @@ import os
 import tempfile
 import uuid
 from base64 import b64decode, b64encode
-from copy import deepcopy
+from copy import copy, deepcopy
+from datetime import timedelta
 
 import pytest
 
@@ -57,7 +58,11 @@ config_dev = {
     'USER_WHITELIST': 'whitelisted@example.org',
     'MAIL_BACKEND': 'dummy',
     'BABEL_DEFAULT_LOCALE': 'en',
-    'DOC_LOCK_TIMEOUT': 300,
+    'DOC_LOCK_TIMEOUT': timedelta(seconds=300),
+    'SESSION_COOKIE_SECURE': False,
+    'SESSION_COOKIE_DOMAIN': 'test.localhost',
+    'SERVER_NAME': 'test.localhost',
+    'SQLITE_MD_DB_PATH': '/tmp/test.db',
 }
 
 
@@ -69,30 +74,57 @@ config_pro = {
     'USER_WHITELIST': 'whitelisted@example.org',
     'MAIL_BACKEND': 'dummy',
     'BABEL_DEFAULT_LOCALE': 'en',
-    'DOC_LOCK_TIMEOUT': 300,
+    'DOC_LOCK_TIMEOUT': timedelta(seconds=300),
+    'SESSION_COOKIE_SECURE': False,
+    'SESSION_COOKIE_DOMAIN': 'test.localhost',
+    'SERVER_NAME': 'test.localhost',
+    'SQLITE_MD_DB_PATH': '/tmp/test.db',
 }
 
 
 _environ_base = {
     "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
-    "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn@example.org',
-    "HTTP_DISPLAYNAME": b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8")),
-    "HTTP_MAIL": b64encode(b'<Attribute>tester@example.org</Attribute>'),
+    "HTTP_MD_REGISTRATIONAUTHORITY": 'http://www.swamid.se/',
+    "HTTP_EDUPERSONPRINCIPALNAME_20": 'dummy-eppn@example.org',
+    "HTTP_DISPLAYNAME_20": b64encode('<Attribute>Tëster Kid</Attribute>'.encode("utf-8")).decode('ascii'),
+    "HTTP_MAIL_20": b64encode(b'<Attribute>tester@example.org</Attribute>').decode('ascii'),
     "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
     "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
     "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
+    "HTTP_EDUPERSONASSURANCE_20": b';'.join(
+        [
+            b64encode(b'<AttributeValue>http://www.swamid.se/policy/assurance/al1</AttributeValue>'),
+            b64encode(b'<AttributeValue>https://refeds.org/assurance/IAP/low</AttributeValue>'),
+            b64encode(b'<AttributeValue>https://refeds.org/assurance</AttributeValue>'),
+        ]
+    ).decode('ascii'),
 }
 
 
 _environ_base_2 = {
     "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
-    "HTTP_EDUPERSONPRINCIPALNAME": 'dummy-eppn-2@example.org',
-    "HTTP_DISPLAYNAME": b64encode('<Attribute>Invited Kid</Attribute>'.encode("utf-8")),
-    "HTTP_MAIL": b64encode(b'<Attribute>invited0@example.org</Attribute>'),
+    "HTTP_MD_REGISTRATIONAUTHORITY": 'http://www.swamid.se/',
+    "HTTP_EDUPERSONPRINCIPALNAME_20": 'dummy-eppn-2@example.org',
+    "HTTP_DISPLAYNAME_20": b64encode('<Attribute>Invited Kid</Attribute>'.encode("utf-8")).decode('ascii'),
+    "HTTP_MAIL_20": b64encode(b'<Attribute>invite0@example.org</Attribute>').decode('ascii'),
     "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
     "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
     "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
+    "HTTP_EDUPERSONASSURANCE_20": b';'.join(
+        [
+            b64encode(b'<AttributeValue>http://www.swamid.se/policy/assurance/al1</AttributeValue>'),
+            b64encode(b'<AttributeValue>https://refeds.org/assurance/IAP/low</AttributeValue>'),
+            b64encode(b'<AttributeValue>https://refeds.org/assurance</AttributeValue>'),
+        ]
+    ).decode('ascii'),
 }
+
+
+@pytest.fixture(autouse=True)
+def run_around_tests():
+    if os.path.exists('/tmp/test.db'):
+        os.unlink('/tmp/test.db')
+    yield
 
 
 @pytest.fixture
@@ -108,25 +140,66 @@ def environ_base_2():
 @pytest.fixture(params=[config_dev, config_pro])
 def client(request):
     app = run.edusign_init_app('testing', request.param)
+    app.testing = True
     app.config.update(request.param)
-    app.api_client.api_base_url = 'https://dummy.edusign.api'
+    app.extensions['api_client'].api_base_url = 'https://test.localhost'
 
     with app.test_client() as client:
         client.environ_base.update(_environ_base)
+
+        app.extensions['doc_store'] = DocStore(app)
 
         yield client
 
 
 @pytest.fixture(params=[config_dev, config_pro])
+def client_custom(request):
+    config_custom = copy(request.param)
+    config_custom['UI_SEND_SIGNED'] = False
+    config_custom['UI_SKIP_FINAL'] = False
+    config_custom['CUSTOM_FORMS_DEFAULTS_FILE'] = '/tmp/edusign-forms.yaml'
+
+    app = run.edusign_init_app('testing', config_custom)
+    app.testing = True
+    app.config.update(config_custom)
+    app.extensions['api_client'].api_base_url = 'https://test.localhost'
+
+    with app.test_client() as client:
+        client.environ_base.update(_environ_base)
+
+        app.extensions['doc_store'] = DocStore(app)
+
+        yield client
+
+
+@pytest.fixture(params=[config_dev, config_pro])
+def app_and_client(request):
+    app = run.edusign_init_app('testing', request.param)
+    app.testing = True
+    app.config.update(request.param)
+    app.extensions['api_client'].api_base_url = 'https://test.localhost'
+
+    with app.test_client() as client:
+        client.environ_base.update(_environ_base)
+
+        app.extensions['doc_store'] = DocStore(app)
+
+        yield app, client
+
+
+@pytest.fixture(params=[config_dev, config_pro])
 def client_non_whitelisted(request):
     app = run.edusign_init_app('testing')
+    app.testing = True
     app.config.update(request.param)
-    app.api_client.api_base_url = 'https://dummy.edusign.api'
+    app.extensions['api_client'].api_base_url = 'https://test.localhost'
 
     with app.test_client() as client:
         environ = deepcopy(_environ_base)
-        environ['HTTP_EDUPERSONPRINCIPALNAME'] = b'tester@example.com'
+        environ['HTTP_EDUPERSONPRINCIPALNAME_20'] = b'tester@example.com'
         client.environ_base.update(environ)
+
+        app.extensions['doc_store'] = DocStore(app)
 
         yield client
 
@@ -137,13 +210,13 @@ def _get_test_app(config):
     more_config = {'LOCAL_STORAGE_BASE_DIR': tempdir.name, 'SQLITE_MD_DB_PATH': db_path}
     more_config.update(config)
     app = run.edusign_init_app('testing', more_config)
-    app.api_client.api_base_url = 'https://dummy.edusign.api'
+    app.testing = True
+    app.extensions['api_client'].api_base_url = 'https://test.localhost'
     return tempdir, app
 
 
 @pytest.fixture(params=[config_dev, config_pro])
 def app(request):
-
     yield _get_test_app(request.param)
 
 
@@ -151,13 +224,13 @@ def _get_test_s3_app(config):
     more_config = {'STORAGE_CLASS_PATH': 'edusign_webapp.document.storage.s3.S3Storage', 'AWS_REGION_NAME': 'us-east-1'}
     more_config.update(config)
     app = run.edusign_init_app('testing', more_config)
-    app.api_client.api_base_url = 'https://dummy.edusign.api'
+    app.testing = True
+    app.extensions['api_client'].api_base_url = 'https://test.localhost'
     return app
 
 
 @pytest.fixture(params=[config_dev, config_pro])
 def s3_app(request):
-
     yield _get_test_s3_app(request.param)
 
 
@@ -177,6 +250,7 @@ def sqlite_md():
     config = {'SQLITE_MD_DB_PATH': db_path}
     config.update(config_dev)
     app = run.edusign_init_app('testing', config)
+    app.testing = True
     # return tempdir, since once it goes out of scope, it is removed
     yield tempdir, SqliteMD(app)
 
@@ -188,6 +262,7 @@ def redis_md():
     config = {'SQLITE_MD_DB_PATH': db_path}
     config.update(config_dev)
     app = run.edusign_init_app('testing', config)
+    app.testing = True
     # return tempdir, since once it goes out of scope, it is removed
     yield tempdir, RedisMD(app)
 
@@ -204,6 +279,7 @@ def doc_store_local_sqlite():
     }
     config.update(config_dev)
     app = run.edusign_init_app('testing', config)
+    app.testing = True
     # return tempdir, since once it goes out of scope, it is removed
     yield tempdir, DocStore(app)
 
@@ -218,6 +294,7 @@ def doc_store_local_redis():
     }
     config.update(config_dev)
     app = run.edusign_init_app('testing', config)
+    app.testing = True
     # return tempdir, since once it goes out of scope, it is removed
     yield tempdir, DocStore(app)
 
@@ -278,22 +355,28 @@ def sample_doc_2():
 
 @pytest.fixture
 def sample_invites_1():
-    yield [{'name': 'invite0', 'email': 'invite0@example.org'}, {'name': 'invite1', 'email': 'invite1@example.org'}]
+    yield [
+        {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
+        {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
+    ]
 
 
 @pytest.fixture
 def sample_invites_2():
-    yield [{'name': 'invite0', 'email': 'invite0@example.org'}, {'name': 'invite2', 'email': 'invite2@example.org'}]
+    yield [
+        {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
+        {'name': 'invite2', 'email': 'invite2@example.org', 'lang': 'en'},
+    ]
 
 
 @pytest.fixture
 def sample_owner_1():
-    yield {'name': 'owner', 'email': 'owner@example.org', 'eppn': 'owner-eppn@example.org'}
+    yield {'name': 'owner', 'email': 'owner@example.org', 'eppn': 'owner-eppn@example.org', 'lang': 'en'}
 
 
 @pytest.fixture
 def sample_owner_2():
-    yield {'name': 'owner2', 'email': 'owner2@example.org', 'eppn': 'owner2-eppn@example.org'}
+    yield {'name': 'owner2', 'email': 'owner2@example.org', 'eppn': 'owner2-eppn@example.org', 'lang': 'en'}
 
 
 _sample_metadata_1 = {'name': 'test1.pdf', 'size': 1500000, 'type': 'application/pdf', 'key': str(uuid.uuid4())}

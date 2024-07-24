@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage, injectIntl } from "react-intl";
-import { ESPopover } from "containers/Overlay";
-import { ESTooltip } from "containers/Overlay";
+import { ESPopover, ESTooltip } from "containers/Overlay";
 import ESDropdown from "components/Dropdown";
 import * as menu from "components/dropdownItems";
 
@@ -79,6 +78,15 @@ class DocumentInvited extends Component {
           "You have declined to sign this document. It will dissapear from here if you reload the app.",
         id: "docmanager-help-declined-invited",
       }),
+      "failed-loa-title": this.props.intl.formatMessage({
+        defaultMessage: "Insufficient security level",
+        id: "docmanager-help-failed-loa-title",
+      }),
+      "failed-loa": this.props.intl.formatMessage({
+        defaultMessage:
+          "Your account does not provide the required security level. Please take the steps to provide it.",
+        id: "docmanager-help-failed-loa-invited",
+      }),
     };
     return msgs[msg];
   }
@@ -89,8 +97,10 @@ class DocumentInvited extends Component {
         <span className="info-row-label">
           <FormattedMessage defaultMessage="Invited by:" key="invited-by" />
         </span>
-        <span className="info-row-item">
-          {doc.owner.name} &lt;{doc.owner.email}&gt;.
+        <span className="info-row-items">
+          <span className="info-row-item">
+            {doc.owner.name} &lt;{doc.owner.email}&gt;.
+          </span>
         </span>
       </div>
     );
@@ -164,26 +174,6 @@ class DocumentInvited extends Component {
         )}
       </>
     );
-    let requiredLoa = "";
-    if (doc.loa !== undefined && !("", "none").includes(doc.loa)) {
-      const loa = doc.loa.split(",");
-      const loaName = loa[1];
-      const loaValue = loa[0];
-      requiredLoa = (
-        <div className={"doc-container-info-row-" + this.props.size}>
-          <span className="info-row-label">
-            <FormattedMessage
-              defaultMessage="Required security level:"
-              key="multisign-loa"
-            />
-          </span>
-          &nbsp;
-          <ESTooltip tooltip={loaValue} helpId={"tooltip-" + loaValue}>
-            <span className="info-row-item">{loaName}</span>
-          </ESTooltip>
-        </div>
-      );
-    }
     return (
       <>
         <ESPopover
@@ -193,22 +183,29 @@ class DocumentInvited extends Component {
           body={this.getHelp(doc.state)}
         >
           {(this.props.size === "lg" && (
-            <div className={"invitation-multisign " + doc.state}>
+            <div
+              className={"invitation-multisign " + doc.state}
+              data-testid={`representation-for-doc-${doc.name}`}
+            >
               <div className="invitation-multisign-request">
                 <div
                   className={"invitation-name-and-buttons-" + this.props.size}
+                  id={"invitee-doc-" + doc.name}
                 >
                   {doc.state === "unconfirmed" && (
                     <>
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
+                      <ESDropdown doc={doc}>
+                        {menu.downloadDraftMenuItem(this.props, doc)}
+                      </ESDropdown>
                       {widgets.forcedPreviewButton(this.props, doc)}
                       {widgets.declineSignatureButton(this.props, doc)}
                     </>
                   )}
                   {["loaded", "selected", "failed-signing"].includes(
-                    doc.state
+                    doc.state,
                   ) && (
                     <>
                       {widgets.selectDoc(this.props, doc)}
@@ -247,11 +244,19 @@ class DocumentInvited extends Component {
                       {widgets.dummyButton()}
                     </>
                   )}
+                  {doc.state === "failed-loa" && (
+                    <>
+                      {widgets.dummySelectDoc()}
+                      {widgets.docSize(doc)}
+                      {widgets.docName(doc)}
+                      {widgets.showMessage(doc)}
+                      {widgets.dummyButton()}
+                    </>
+                  )}
                 </div>
-                {widgets.docCreated(this.props)}
-                {requiredLoa}
                 {invites}
                 {preparePrevSigs(doc, this.props.size)}
+                {widgets.infoLine(doc, this.props.size)}
               </div>
             </div>
           )) || (
@@ -264,6 +269,9 @@ class DocumentInvited extends Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
+                    <ESDropdown doc={doc}>
+                      {menu.downloadDraftMenuItem(this.props, doc)}
+                    </ESDropdown>
                     {widgets.forcedPreviewButton(this.props, doc)}
                     {widgets.declineSignatureButton(this.props, doc)}
                   </div>
@@ -327,10 +335,24 @@ class DocumentInvited extends Component {
                   </div>
                 </>
               )}
-              {widgets.docCreated(this.props)}
-              {requiredLoa}
+              {doc.state === "failed-loa" && (
+                <>
+                  <div className="doc-container-md-row">
+                    {widgets.dummySelectDoc()}
+                    {widgets.docSize(doc)}
+                    {widgets.docName(doc)}
+                  </div>
+                  <div className="doc-container-msg-row">
+                    {widgets.showMessage(doc)}
+                  </div>
+                  <div className="doc-container-button-row">
+                    {widgets.dummyButton()}
+                  </div>
+                </>
+              )}
               {invites}
               {preparePrevSigs(doc, this.props.size)}
+              {widgets.infoLine(doc, this.props.size)}
             </div>
           )}
         </ESPopover>

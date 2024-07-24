@@ -1,13 +1,14 @@
 import React from "react";
-import { Provider } from "react-intl-redux";
-import { act, render, fireEvent, waitFor } from "@testing-library/react";
+import { Provider, updateIntl } from "react-intl-redux";
+import { render, fireEvent, waitFor } from "@testing-library/react";
 import configureStore from "redux-mock-store";
-import { updateIntl } from "react-intl-redux";
+import rootReducer from "init-app/store";
 import { edusignStore } from "init-app/init-app";
 
 const messages = {
   en: require("../../translations/en.json"),
   sv: require("../../translations/sv.json"),
+  es: require("../../translations/es.json"),
 };
 
 const middlewares = [];
@@ -75,6 +76,12 @@ const initialState = {
   },
 };
 
+const edusignTestStore = (state) => {
+  let storeObj = { reducer: rootReducer };
+  const testStore = configureStore(storeObj);
+  return testStore(state);
+};
+
 /**
  * @public
  * @function setupComponent
@@ -104,7 +111,7 @@ export function setupReduxComponent(component) {
     updateIntl({
       locale: "en",
       messages: messages.en,
-    })
+    }),
   );
   const wrapped = <Provider store={store}>{component}</Provider>;
   const { rerender, unmount } = render(wrapped);

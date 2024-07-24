@@ -1,124 +1,38 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 import Button from "containers/Button";
-import BButton from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
-import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
+import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
+import { InviteesWidget } from "components/InviteesWidget";
 import { nameForCopy } from "components/utils";
+import { sendsignedControl, skipFinalControl } from "components/widgets";
+import {
+  validateEmail,
+  validateName,
+  validateLang,
+  validateBody,
+  validateSendsigned,
+  validateSkipfinal,
+  validateOrdered,
+  validateNewname,
+} from "components/validation";
 
 import "styles/InviteForm.scss";
-
-export const validateEmail = (mail, mail_aliases, allValues, idx) => {
-  return (value) => {
-    let error;
-
-    if (!value) {
-      error = (
-        <FormattedMessage defaultMessage="Required" key="required-field" />
-      );
-    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
-      error = (
-        <FormattedMessage defaultMessage="Invalid email" key="invalid-email" />
-      );
-    } else if (
-      value === mail ||
-      (mail_aliases !== undefined && mail_aliases.includes(value))
-    ) {
-      error = (
-        <FormattedMessage
-          defaultMessage="Do not invite yourself"
-          key="do-no-invite-yourself"
-        />
-      );
-    } else {
-      let count = 0;
-      allValues.forEach((val, i) => {
-        if (idx > i && val.email === value) {
-          count += 1;
-        }
-      });
-      if (count > 0) {
-        error = (
-          <FormattedMessage
-            defaultMessage="That email has already been invited"
-            key="email-problem-dup"
-          />
-        );
-      }
-    }
-    return error;
-  };
-};
-
-export const validateName = (value) => {
-  let error;
-
-  if (!value) {
-    error = <FormattedMessage defaultMessage="Required" key="required-field" />;
-  }
-  return error;
-};
-
-const validateBody = (value) => {
-  return undefined;
-};
-
-const validateSendsigned = (value) => {
-  return undefined;
-};
-
-export const validateNewname = (props) => {
-  return (value) => {
-    let error;
-
-    if (!value) {
-      error = (
-        <FormattedMessage defaultMessage="Required" key="required-field" />
-      );
-    } else {
-      const dupError = (
-        <FormattedMessage
-          defaultMessage="A document with that name has already been loaded"
-          key="save-doc-problem-dup"
-        />
-      );
-      props.templates.forEach((document) => {
-        if (document.name === value) {
-          error = dupError;
-        }
-      });
-
-      props.documents.forEach((document) => {
-        if (document.name === value) {
-          error = dupError;
-        }
-      });
-
-      props.owned.forEach((document) => {
-        if (document.name === value) {
-          error = dupError;
-        }
-      });
-    }
-    return error;
-  };
-};
 
 const validate = (props) => {
   return (values) => {
     let errors = {};
-    const emails = [];
+    let emails = [];
     values.invitees.forEach((val, i) => {
-      const nameError = validateName(val.name);
-      const emailError = validateEmail(
-        props.mail,
-        props.mail_aliases,
-        values.invitees,
-        i
-      )(val.email);
+      const nameError = validateName(props, i)(val.name);
+      const emailError = validateEmail(props, values.invitees, i, {
+        validate: true,
+      })(val.email);
+      const langError = validateLang(val.lang);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
       if (emailError !== undefined) {
         errors[`invitees.${i}.email`] = emailError;
@@ -135,6 +49,7 @@ const validate = (props) => {
           emails.push(val.email);
         }
       }
+      if (langError !== undefined) errors[`invitees.${i}.lang`] = langError;
     });
     if (values.makecopyChoice) {
       const newNameError = validateNewname(props)(values.newnameInput);
@@ -144,221 +59,79 @@ const validate = (props) => {
   };
 };
 
-const initialValues = (props) => ({
-  invitationText: "",
-  sendsignedChoice: true,
-  makecopyChoice: false,
-  isTemplate: props.isTemplate,
-  newnameInput: nameForCopy(props),
-  loa: "none",
-  documentId: props.docId,
-  invitees: [
-    {
-      name: "",
-      email: "",
-    },
-  ],
-});
+const initialValues = (props) => {
+  const values = {
+    invitationText: "",
+    sendsignedChoice: props.ui_defaults.send_signed,
+    skipfinalChoice: props.ui_defaults.skip_final,
+    makecopyChoice: false,
+    isTemplate: props.isTemplate,
+    newnameInput: nameForCopy(props),
+    loa: "low",
+    documentId: props.docId,
+    orderedChoice:
+      props.docOrdered === undefined || props.docOrdered === null
+        ? props.ordered
+        : props.docOrdered,
+    invitees: [
+      {
+        name: "",
+        email: "",
+        lang: Cookies.get("lang") || "en",
+        id: "id0",
+      },
+    ],
+  };
+  return values;
+};
 
 class InviteForm extends React.Component {
-  inviteeControl(fprops) {
-    return (
-      <FieldArray name="invitees" validateOnChange={true}>
-        {(arrayHelpers) => (
-          <div>
-            {fprops.values.invitees.length > 0 &&
-              fprops.values.invitees.map((invitee, index) => (
-                <div className="invitation-fields" key={index}>
-                  {index > 0 && (
-                    <div className="invitee-form-dismiss">
-                      <ESTooltip
-                        inModal={true}
-                        tooltip={
-                          <FormattedMessage
-                            defaultMessage="Remove this entry from invitation"
-                            key="rm-invitation-tootip"
-                          />
-                        }
-                      >
-                        <BButton
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            arrayHelpers.remove(index);
-                            window.setTimeout(() => {
-                              document
-                                .getElementById("invitation-text-input")
-                                .focus();
-                              document
-                                .getElementById("invitation-text-input")
-                                .blur();
-                            }, 0);
-                          }}
-                        >
-                          ×
-                        </BButton>
-                      </ESTooltip>
-                    </div>
-                  )}
-                  <div className="invitee-form-row" key={index}>
-                    <div className="invitee-form-name">
-                      <BForm.Group className="form-group">
-                        <BForm.Label htmlFor={`invitees.${index}.name`}>
-                          <FormattedMessage
-                            defaultMessage="Name"
-                            key="name-input-field"
-                          />
-                        </BForm.Label>
-                        <ErrorMessage
-                          name={`invitees.${index}.name`}
-                          component="div"
-                          className="field-error"
-                        />
-                        <Field
-                          name={`invitees.${index}.name`}
-                          data-testid={`invitees.${index}.name`}
-                          value={invitee.name}
-                          placeholder="Jane Doe"
-                          as={BForm.Control}
-                          type="text"
-                          validate={validateName}
-                          isValid={
-                            fprops.touched.invitees &&
-                            fprops.touched.invitees[index] &&
-                            fprops.touched.invitees[index].name &&
-                            (!fprops.errors.invitees ||
-                              (fprops.errors.invitees &&
-                                (!fprops.errors.invitees[index] ||
-                                  (fprops.errors.invitees[index] &&
-                                    !fprops.errors.invitees[index].name))))
-                          }
-                          isInvalid={
-                            fprops.touched.invitees &&
-                            fprops.touched.invitees[index] &&
-                            fprops.touched.invitees[index].name &&
-                            fprops.errors.invitees &&
-                            fprops.errors.invitees[index] &&
-                            fprops.errors.invitees[index].name
-                          }
-                        />
-                      </BForm.Group>
-                    </div>
-                    <div className="invitee-form-email">
-                      <BForm.Group className="form-group">
-                        <BForm.Label htmlFor={`invitees.${index}.email`}>
-                          <FormattedMessage
-                            defaultMessage="Email"
-                            key="email-input-field"
-                          />
-                        </BForm.Label>
-                        <ErrorMessage
-                          name={`invitees.${index}.email`}
-                          component="div"
-                          className="field-error"
-                        />
-                        <Field
-                          name={`invitees.${index}.email`}
-                          data-testid={`invitees.${index}.email`}
-                          value={invitee.email}
-                          placeholder="jane@example.com"
-                          as={BForm.Control}
-                          type="email"
-                          validate={validateEmail(
-                            this.props.mail,
-                            this.props.mail_aliases,
-                            fprops.values.invitees,
-                            index
-                          )}
-                          isValid={
-                            fprops.touched.invitees &&
-                            fprops.touched.invitees[index] &&
-                            fprops.touched.invitees[index].email &&
-                            (!fprops.errors.invitees ||
-                              (fprops.errors.invitees &&
-                                (!fprops.errors.invitees[index] ||
-                                  (fprops.errors.invitees[index] &&
-                                    !fprops.errors.invitees[index].email))))
-                          }
-                          isInvalid={
-                            fprops.touched.invitees &&
-                            fprops.touched.invitees[index] &&
-                            fprops.touched.invitees[index].email &&
-                            fprops.errors.invitees &&
-                            fprops.errors.invitees[index] &&
-                            fprops.errors.invitees[index].email
-                          }
-                        />
-                      </BForm.Group>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            <ESTooltip
-              helpId={"button-add-invitation-" + this.props.docName}
-              inModal={true}
-              tooltip={
-                <FormattedMessage
-                  defaultMessage="Invite one more person to sign this document"
-                  key="add-invitation-tootip"
-                />
-              }
-            >
-              <Button
-                variant="outline-secondary"
-                data-testid={"button-add-invitation-" + this.props.docName}
-                onClick={() => arrayHelpers.push({ name: "", email: "" })}
-              >
-                <FormattedMessage
-                  defaultMessage="Invite more people"
-                  key="add-invite"
-                />
-              </Button>
-            </ESTooltip>
-          </div>
-        )}
-      </FieldArray>
-    );
-  }
-
   shouldComponentUpdate(nextProps) {
     return !nextProps.inviting;
   }
 
   render() {
-    const sendsignedControl = (
-      <div className="sendsigned-choice-holder">
-        <BForm.Group className="sendsigned-choice-group form-group">
-          <ESTooltip
-            helpId="sendsigned-choice-input"
-            inModal={true}
-            tooltip={
-              <FormattedMessage
-                defaultMessage="Send final signed document via email to all who signed it."
-                key="sendsigned-choice-help"
-              />
-            }
-          >
-            <BForm.Label
-              className="sendsigned-choice-label"
-              htmlFor="sendsigned-choice-input"
+    const orderedControl = (fprops) => {
+      return (
+        <div className="ordered-choice-holder">
+          <BForm.Group className="ordered-choice-group form-group">
+            <ESTooltip
+              helpId="ordered-choice-input"
+              inModal={true}
+              tooltip={
+                <FormattedMessage
+                  defaultMessage="Invited persons will be asked to sign document in a given order."
+                  key="ordered-choice-help"
+                />
+              }
             >
-              <FormattedMessage
-                defaultMessage="Send signed document in email"
-                key="sendsigned-choice-field"
-              />
-            </BForm.Label>
-          </ESTooltip>
-          <Field
-            name="sendsignedChoice"
-            id="sendsigned-choice-input"
-            data-testid="sendsigned-choice-input"
-            className="sendsigned-choice"
-            validate={validateSendsigned}
-            type="checkbox"
-          />
-        </BForm.Group>
-      </div>
-    );
+              <BForm.Label
+                className="ordered-choice-label"
+                htmlFor="ordered-choice-input"
+              >
+                <FormattedMessage
+                  defaultMessage="Use workflow for signatures"
+                  key="ordered-choice-field"
+                />
+              </BForm.Label>
+            </ESTooltip>
+            <Field
+              name="orderedChoice"
+              id="ordered-choice-input"
+              data-testid="ordered-choice-input"
+              className="ordered-choice"
+              validate={validateOrdered}
+              type="checkbox"
+              onChange={(e) => {
+                fprops.setFieldValue("orderedChoice", e.target.checked);
+                this.props.handleSetOrdered(e.target.checked);
+                fprops.validateForm();
+              }}
+            />
+          </BForm.Group>
+        </div>
+      );
+    };
     const makecopyControl = (props) => {
       if (!props.isTemplate) {
         return <Field name="makecopyChoice" value={false} type="hidden" />;
@@ -370,32 +143,36 @@ class InviteForm extends React.Component {
       <>
         <div className="loa-select-holder">
           <BForm.Group className="loa-select-group form-group">
-            <BForm.Label
-              className="loa-select-label"
-              htmlFor="loa-select-input"
-              onClick={this.props.handleToggleLoa}
+            <ESTooltip
+              helpId="loa-select-input"
+              inModal={true}
+              tooltip={
+                <FormattedMessage
+                  defaultMessage="How sure you can be on the identity of the person signing. Note that the Level of Assurance an identity can provide depends on the Identity provider. Read more about this on eduSign wiki."
+                  key="loa-select-help"
+                />
+              }
             >
-              {(!this.props.show_loa && (
-                <span className="security-level-sign">+</span>
-              )) || <span className="security-level-sign">-</span>}
-              <FormattedMessage
-                defaultMessage="Security level for the signature"
-                key="loa-select-field"
-              />
-            </BForm.Label>
-            <div
-              id="loa-select-field"
-              data-testid="loa-select-field"
-              className={(!this.props.show_loa && "hidden") || ""}
-            >
+              <BForm.Label
+                className="loa-select-label"
+                htmlFor="loa-select-input"
+              >
+                <FormattedMessage
+                  defaultMessage="Level of Assurance for signatures"
+                  key="loa-select-field"
+                />
+              </BForm.Label>
+            </ESTooltip>
+            <div id="loa-select-field" data-testid="loa-select-field">
               {this.props.loas.map((level, i) => {
                 return (
                   <BForm.Label key={i} className="loa-checkbox">
                     <Field
                       name="loa"
-                      value={level.uri}
+                      value={level.value}
                       className="loa-select"
-                      type="checkbox"
+                      type="radio"
+                      data-testid={`loa-radio-${level.value}`}
                     />
                     {level.name}
                   </BForm.Label>
@@ -443,7 +220,7 @@ class InviteForm extends React.Component {
         return <Field name="newnameInput" value="" type="hidden" />;
       }
     };
-    const loaControlHidden = <Field name="loa" value="none" type="hidden" />;
+    const loaControlHidden = <Field name="loa" value="low" type="hidden" />;
     const formId = "invite-form-" + this.props.docName;
     return (
       <>
@@ -451,7 +228,7 @@ class InviteForm extends React.Component {
           initialValues={initialValues(this.props)}
           onSubmit={this.props.handleSubmit.bind(this)}
           validate={validate(this.props)}
-          enableReinitialize={true}
+          enableReinitialize={false}
           validateOnBlur={true}
           validateOnChange={true}
           validateOnMount={true}
@@ -459,7 +236,7 @@ class InviteForm extends React.Component {
           {(fprops) => (
             <Modal
               show={this.props.show}
-              onHide={this.props.handleClose}
+              onHide={this.props.handleCloseResetting(fprops.resetForm)}
               size={this.props.size}
               keyboard={false}
             >
@@ -502,10 +279,12 @@ class InviteForm extends React.Component {
                     </BForm.Group>
                   </div>
                   {sendsignedControl}
+                  {skipFinalControl}
+                  {orderedControl(fprops)}
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
-                  {loaControlHidden}
-                  {this.inviteeControl(fprops)}
+                  {loaControl}
+                  <InviteesWidget parentForm="create" {...this.props} />
                 </Modal.Body>
                 <Modal.Footer>
                   <ESTooltip
@@ -521,7 +300,7 @@ class InviteForm extends React.Component {
                     <Button
                       variant="outline-secondary"
                       onClick={this.props.handleCloseResetting(
-                        fprops.resetForm
+                        fprops.resetForm,
                       )}
                     >
                       <FormattedMessage
@@ -569,8 +348,9 @@ InviteForm.propTypes = {
   size: PropTypes.string,
   docId: PropTypes.number,
   docName: PropTypes.string,
+  docOrdered: PropTypes.bool,
   isTemplate: PropTypes.bool,
-  handleClose: PropTypes.func,
+  handleCloseResetting: PropTypes.func,
   handleSubmit: PropTypes.func,
 };
 

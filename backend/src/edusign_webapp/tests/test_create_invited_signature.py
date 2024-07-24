@@ -32,71 +32,25 @@
 #
 import json
 from copy import deepcopy
+from datetime import timedelta
 
 from edusign_webapp.doc_store import DocStore
 from edusign_webapp.marshal import ResponseSchema
 
 
 def _test_create_invited_signature(
-    app,
+    app_and_client,
     environ_base,
     monkeypatch,
     sample_doc_1,
     sample_invites_1,
-    mock_invitation,
-    doc_is_locked=False,
+    loa,
 ):
-
-    _, app = app
-
-    client = app.test_client()
-    client.environ_base.update(environ_base)
-
-    response1 = client.get("/sign/")
-
-    assert response1.status == "200 OK"
+    app, client = app_and_client
 
     new_doc = deepcopy(sample_doc_1)
 
-    with app.test_request_context():
-        with client.session_transaction() as sess:
-
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)["csrf_token"]
-            user_key = sess["user_key"]
-
-    from flask.sessions import SecureCookieSession
-
-    def mock_getitem(self, key):
-        if key == "user_key":
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
-
-    monkeypatch.setattr(SecureCookieSession, "__getitem__", mock_getitem)
-
-    doc_data = {
-        "csrf_token": csrf_token,
-        "payload": {
-            "document": new_doc,
-            "owner": "tester@example.org",
-            "invites": sample_invites_1,
-            "text": "text to send",
-            "sendsigned": True,
-            "loa": '',
-        },
-    }
-
-    response = client.post(
-        "/sign/create-multi-sign",
-        headers={
-            "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://test.localhost",
-            "X-Forwarded-Host": "test.localhost",
-        },
-        json=doc_data,
-    )
-
-    assert response.status == "200 OK"
+    app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=1)
 
     from edusign_webapp.api_client import APIClient
 
@@ -133,23 +87,77 @@ def _test_create_invited_signature(
 
     monkeypatch.setattr(APIClient, "_post", mock_post)
 
-    return client.get(
-        '/sign/config',
-        headers={
-            "X-Requested-With": "XMLHttpRequest",
-            "Origin": "https://test.localhost",
-            "X-Forwarded-Host": "test.localhost",
-        },
-    )
+    client.environ_base.update(environ_base)
+
+    response1 = client.get("/sign/")
+
+    assert response1.status == "200 OK"
+
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)["csrf_token"]
+        user_key = sess["user_key"]
+
+        from flask.sessions import SecureCookieSession
+
+        def mock_getitem(self, key):
+            if key == "user_key":
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
+
+        monkeypatch.setattr(SecureCookieSession, "__getitem__", mock_getitem)
+
+        doc_data = {
+            "csrf_token": csrf_token,
+            "payload": {
+                "document": new_doc,
+                "owner": "tester@example.org",
+                "invites": sample_invites_1,
+                "text": "text to send",
+                "sendsigned": True,
+                "skipfinal": True,
+                "loa": loa,
+                "ordered": False,
+            },
+        }
+
+        response = client.post(
+            "/sign/create-multi-sign",
+            headers={
+                "X-Requested-With": "XMLHttpRequest",
+                "Origin": "https://test.localhost",
+                "X-Forwarded-Host": "test.localhost",
+            },
+            json=doc_data,
+        )
+
+        assert response.status == "200 OK"
+
+        return client.get(
+            '/sign/config',
+            headers={
+                "X-Requested-With": "XMLHttpRequest",
+                "Origin": "https://test.localhost",
+                "X-Forwarded-Host": "test.localhost",
+            },
+        )
 
 
-def test_create_invited_signature(app, environ_base, monkeypatch, sample_doc_1, sample_owned_doc_1, sample_invites_1):
-    mock_invitation = {
-        "document": sample_owned_doc_1,
-        "user": sample_invites_1[0],
-    }
+def test_create_invited_signature(app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1):
     response = _test_create_invited_signature(
-        app, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, mock_invitation
+        app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, 'low'
     )
 
     assert 'test1.pdf' == json.loads(response.data)['payload']['owned_multisign'][0]['name']
+    assert 'low,Low' == json.loads(response.data)['payload']['owned_multisign'][0]['loa']
+
+
+def test_create_invited_signature_insifficient_loa(
+    app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1
+):
+    response = _test_create_invited_signature(
+        app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, 'high'
+    )
+
+    assert 'test1.pdf' == json.loads(response.data)['payload']['owned_multisign'][0]['name']
+    assert 'high,High' == json.loads(response.data)['payload']['owned_multisign'][0]['loa']

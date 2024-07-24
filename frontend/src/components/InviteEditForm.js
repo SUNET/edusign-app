@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 import Button from "containers/Button";
@@ -6,9 +6,15 @@ import BButton from "react-bootstrap/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
+import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
-import { nameForCopy } from "components/utils";
-import { validateEmail } from "components/InviteForm";
+import { InviteesWidget } from "components/InviteesWidget";
+import { sendsignedControl, skipFinalControl } from "components/widgets";
+import {
+  validateEmail,
+  validateName,
+  validateLang,
+} from "components/validation";
 
 import "styles/InviteForm.scss";
 
@@ -16,10 +22,13 @@ const initialValues = (props) => {
   const vals = {
     documentKey: props.docKey,
     invitationText: "",
+    sendsignedChoice: props.doc.sendsigned,
+    skipfinalChoice: props.doc.skipfinal,
     invitees: [],
   };
-  props.doc.pending.forEach((invite) => {
+  props.doc.pending.forEach((invite, i) => {
     vals.invitees.push({
+      id: `id${i}`,
       ...invite,
     });
   });
@@ -34,171 +43,9 @@ const validateBody = (value) => {
   return undefined;
 };
 
-export const validateName = (value) => {
-  let error;
-
-  if (!value) {
-    error = <FormattedMessage defaultMessage="Required" key="required-field" />;
-  }
-  return error;
-};
-
 class InviteEditForm extends React.Component {
-  inviteeControl(fprops) {
-    return (
-      <FieldArray name="invitees" validateOnChange={false}>
-        {(arrayHelpers) => (
-          <div>
-            {fprops.values.invitees.length > 0 &&
-              fprops.values.invitees.map((invitee, index) => (
-                <div className="invitation-fields" key={index}>
-                  <div className="invitee-form-dismiss">
-                    <ESTooltip
-                      tooltip={
-                        <FormattedMessage
-                          defaultMessage="Remove this entry from invitation"
-                          key="rm-invitation-tootip"
-                        />
-                      }
-                    >
-                      <BButton
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          arrayHelpers.remove(index);
-                          window.setTimeout(() => {
-                            document
-                              .getElementById("invitation-text-input")
-                              .focus();
-                            document
-                              .getElementById("invitation-text-input")
-                              .blur();
-                          }, 0);
-                        }}
-                      >
-                        ×
-                      </BButton>
-                    </ESTooltip>
-                  </div>
-                  <div className="invitee-form-row" key={index}>
-                    <div className="invitee-form-name">
-                      <BForm.Group className="form-group">
-                        <BForm.Label htmlFor={`invitees.${index}.name`}>
-                          <FormattedMessage
-                            defaultMessage="Name"
-                            key="name-input-field"
-                          />
-                        </BForm.Label>
-                        <ErrorMessage
-                          name={`invitees.${index}.name`}
-                          component="div"
-                          className="field-error"
-                        />
-                        <Field
-                          name={`invitees.${index}.name`}
-                          data-testid={`invitees.${index}.name`}
-                          value={invitee.name}
-                          placeholder="Jane Doe"
-                          as={BForm.Control}
-                          type="text"
-                          validate={validateName}
-                          isValid={
-                            fprops.touched.invitees &&
-                            fprops.touched.invitees[index] &&
-                            fprops.touched.invitees[index].name &&
-                            (!fprops.errors.invitees ||
-                              (fprops.errors.invitees &&
-                                (!fprops.errors.invitees[index] ||
-                                  (fprops.errors.invitees[index] &&
-                                    !fprops.errors.invitees[index].name))))
-                          }
-                          isInvalid={
-                            fprops.touched.invitees &&
-                            fprops.touched.invitees[index] &&
-                            fprops.touched.invitees[index].name &&
-                            fprops.errors.invitees &&
-                            fprops.errors.invitees[index] &&
-                            fprops.errors.invitees[index].name
-                          }
-                        />
-                      </BForm.Group>
-                    </div>
-                    <div className="invitee-form-email">
-                      <BForm.Group className="form-group">
-                        <BForm.Label htmlFor={`invitees.${index}.email`}>
-                          <FormattedMessage
-                            defaultMessage="Email"
-                            key="email-input-field"
-                          />
-                        </BForm.Label>
-                        <ErrorMessage
-                          name={`invitees.${index}.email`}
-                          component="div"
-                          className="field-error"
-                        />
-                        <Field
-                          name={`invitees.${index}.email`}
-                          data-testid={`invitees.${index}.email`}
-                          value={invitee.email}
-                          placeholder="jane@example.com"
-                          as={BForm.Control}
-                          type="email"
-                          validate={validateEmail(
-                            this.props.mail,
-                            this.props.mail_aliases,
-                            fprops.values.invitees,
-                            index
-                          )}
-                          isValid={
-                            fprops.touched.invitees &&
-                            fprops.touched.invitees[index] &&
-                            fprops.touched.invitees[index].email &&
-                            (!fprops.errors.invitees ||
-                              (fprops.errors.invitees &&
-                                (!fprops.errors.invitees[index] ||
-                                  (fprops.errors.invitees[index] &&
-                                    !fprops.errors.invitees[index].email))))
-                          }
-                          isInvalid={
-                            fprops.touched.invitees &&
-                            fprops.touched.invitees[index] &&
-                            fprops.touched.invitees[index].email &&
-                            fprops.errors.invitees &&
-                            fprops.errors.invitees[index] &&
-                            fprops.errors.invitees[index].email
-                          }
-                        />
-                      </BForm.Group>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            <ESTooltip
-              tooltip={
-                <FormattedMessage
-                  defaultMessage="Invite one more person to sign this document"
-                  key="add-invitation-tootip"
-                />
-              }
-            >
-              <Button
-                variant="outline-secondary"
-                data-testid={"button-add-invitation-" + this.props.docName}
-                onClick={() => arrayHelpers.push({ name: "", email: "" })}
-              >
-                <FormattedMessage
-                  defaultMessage="Invite more people"
-                  key="add-invite"
-                />
-              </Button>
-            </ESTooltip>
-          </div>
-        )}
-      </FieldArray>
-    );
-  }
   render() {
-    const formId = "invite-form-" + this.props.docName;
+    const formId = "invite-form-" + this.props.doc.name;
     return (
       <>
         <Formik
@@ -214,7 +61,7 @@ class InviteEditForm extends React.Component {
           {(fprops) => (
             <Modal
               show={this.props.show}
-              onHide={this.props.handleClose}
+              onHide={this.props.handleCloseResetting(fprops.resetForm)}
               size={this.props.size}
               keyboard={false}
             >
@@ -229,7 +76,7 @@ class InviteEditForm extends React.Component {
                     <FormattedMessage
                       defaultMessage={`Edit invitations for {docName}`}
                       key="edit-invitation"
-                      values={{ docName: this.props.docName }}
+                      values={{ docName: this.props.doc.name }}
                     />
                   </Modal.Title>
                 </Modal.Header>
@@ -255,10 +102,14 @@ class InviteEditForm extends React.Component {
                       />
                     </BForm.Group>
                   </div>
-                  {this.inviteeControl(fprops)}
+                  {sendsignedControl}
+                  {skipFinalControl}
+                  <InviteesWidget parentForm="edit" {...this.props} />
                 </Modal.Body>
                 <Modal.Footer>
                   <ESTooltip
+                    helpId="button-cancel-edit-form"
+                    inModal={true}
                     tooltip={
                       <FormattedMessage
                         defaultMessage="Dismiss edit form"
@@ -269,7 +120,7 @@ class InviteEditForm extends React.Component {
                     <Button
                       variant="outline-secondary"
                       onClick={this.props.handleCloseResetting(
-                        fprops.resetForm
+                        fprops.resetForm,
                       )}
                     >
                       <FormattedMessage
@@ -279,6 +130,8 @@ class InviteEditForm extends React.Component {
                     </Button>
                   </ESTooltip>
                   <ESTooltip
+                    helpId="button-save-edit-form"
+                    inModal={true}
                     tooltip={
                       <FormattedMessage
                         defaultMessage="Save changes to invitation"
@@ -289,11 +142,11 @@ class InviteEditForm extends React.Component {
                     <Button
                       variant="outline-success"
                       onClick={fprops.submitForm}
-                      id={"button-save-edit-invitation-" + this.props.docName}
+                      id={"button-save-edit-invitation-" + this.props.doc.name}
                       disabling={true}
                       disabled={!fprops.isValid}
                       data-testid={
-                        "button-save-edit-invitation-" + this.props.docName
+                        "button-save-edit-invitation-" + this.props.doc.name
                       }
                     >
                       <FormattedMessage
@@ -316,8 +169,10 @@ InviteEditForm.propTypes = {
   show: PropTypes.bool,
   size: PropTypes.string,
   docKey: PropTypes.string,
-  docName: PropTypes.string,
-  handleClose: PropTypes.func,
+  docOrdered: PropTypes.bool,
+  docSendSigned: PropTypes.bool,
+  docSkipFinal: PropTypes.bool,
+  handleCloseResetting: PropTypes.func,
   handleSubmit: PropTypes.func,
 };
 

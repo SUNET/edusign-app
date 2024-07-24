@@ -1,6 +1,8 @@
 import React from "react";
-import { FormattedMessage, injectIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
+import BForm from "react-bootstrap/Form";
+import { Field } from "formik";
 
 import Button from "containers/Button";
 import { humanFileSize, getCreationDate } from "components/utils";
@@ -30,6 +32,67 @@ export const docCreated = (props) => {
       </div>
     );
   } else return "";
+};
+
+export const infoLine = (doc, size) => {
+  const creationDate = getCreationDate(doc);
+  let created = "";
+  if (creationDate !== null) {
+    created = (
+      <div className={"info-line info-line-1 doc-container-info-row-" + size}>
+        <span className="info-row-label">
+          <FormattedMessage
+            defaultMessage="Created:"
+            key="creation-date-label"
+          />
+        </span>
+        <span className="info-row-items">
+          <span className="info-row-item">{creationDate.toLocaleString()}</span>
+        </span>
+      </div>
+    );
+  }
+  let requiredLoa = "";
+  if (doc.loa !== undefined) {
+    const loa = doc.loa.split(",");
+    const loaName = loa[1];
+    const loaValue = loa[0];
+    requiredLoa = (
+      <div className={"info-line info-line-2 doc-container-info-row-" + size}>
+        <span className="info-row-label">
+          <FormattedMessage
+            defaultMessage="Required security level:"
+            key="multisign-loa"
+          />
+        </span>
+        &nbsp;
+        <ESTooltip tooltip={loaValue} helpId={"invited-" + loaValue}>
+          <span className="info-row-item">{loaName}</span>
+        </ESTooltip>
+      </div>
+    );
+  }
+
+  let ordered = "";
+  if (doc.ordered) {
+    ordered = (
+      <div className={"info-line info-line-3 doc-container-info-row-" + size}>
+        <span className="info-row-label">
+          <FormattedMessage
+            defaultMessage="Workflow invitation"
+            key="multisign-owned-ordered"
+          />
+        </span>
+      </div>
+    );
+  }
+  return (
+    <div className="doc-info-line">
+      {created}
+      {requiredLoa}
+      {ordered}
+    </div>
+  );
 };
 
 export const namedSpinner = (index, name) => {
@@ -78,7 +141,7 @@ export const forcedPreviewButton = (props, doc) => {
     <>
       <div className="button-forced-preview-flex-item">
         <ESTooltip
-          helpId={"button-forced-preview-" + doc.key}
+          helpId={"button-forced-preview-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="You need to approve all documents before they can be signed"
@@ -88,7 +151,7 @@ export const forcedPreviewButton = (props, doc) => {
         >
           <Button
             variant="outline-dark"
-            id={"button-forced-preview-" + doc.key}
+            id={"button-forced-preview-" + doc.name}
             size="sm"
             disabling={true}
             onClick={props.handleForcedPreview(doc.key)}
@@ -104,9 +167,40 @@ export const forcedPreviewButton = (props, doc) => {
   );
 };
 
+export const multiSignButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-multisign-flex-item">
+        <ESTooltip
+          helpId={"button-multisign-" + doc.name}
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Click here to invite others to sign"
+              key="multisign-button-tootip"
+            />
+          }
+        >
+          <Button
+            variant="outline-dark"
+            id={"button-multisign-" + doc.name}
+            size="sm"
+            disabling={true}
+            onClick={props.openInviteForm(doc)}
+          >
+            <FormattedMessage
+              defaultMessage="Invite others to sign"
+              key="multisign-button"
+            />
+          </Button>
+        </ESTooltip>
+      </div>
+    </>
+  );
+};
+
 export const removeConfirmButton = (props, doc, id) => {
   if (id === undefined) {
-    id = "confirm-remove-owned-" + doc.name;
+    id = "confirm-remove-" + doc.name;
   }
   return (
     <>
@@ -124,7 +218,7 @@ export const removeConfirmButton = (props, doc, id) => {
             variant="outline-danger"
             size="sm"
             onClick={props.showConfirm(id)}
-            id={"button-rm-invitation-" + doc.key}
+            id={"button-rm-invitation-" + doc.name}
           >
             <FormattedMessage defaultMessage="Remove" key="remove-button" />
           </Button>
@@ -135,7 +229,7 @@ export const removeConfirmButton = (props, doc, id) => {
 };
 
 export const removeTemplate = (props, doc) => {
-  const id = "confirm-remove-template-" + doc.name;
+  const id = "confirm-remove-" + doc.name;
   return (
     <>
       <div className="button-remove-flex-item">
@@ -152,7 +246,7 @@ export const removeTemplate = (props, doc) => {
             variant="outline-danger"
             size="sm"
             onClick={props.showConfirm(id)}
-            id={"button-rm-template-" + doc.key}
+            id={"button-rm-template-" + doc.name}
           >
             <FormattedMessage defaultMessage="Remove" key="remove-button" />
           </Button>
@@ -193,7 +287,7 @@ export const downloadSignedButton = (props, doc) => {
     <>
       <div className="button-download-flex-item">
         <ESTooltip
-          helpId={"button-download-signed-" + doc.key}
+          helpId={"button-download-signed-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Download signed document. Be sure to save the original rather than a copy."
@@ -204,7 +298,7 @@ export const downloadSignedButton = (props, doc) => {
           <Button
             variant="outline-success"
             size="sm"
-            id={"button-download-signed-" + doc.key}
+            id={"button-download-signed-" + doc.name}
             disabling={true}
             onClick={props.handleDlSigned({
               docName: doc.name,
@@ -227,7 +321,7 @@ export const downloadDraftButton = (props, doc) => {
     <>
       <div className="button-download-flex-item">
         <ESTooltip
-          helpId={"button-download-draft-" + doc.key}
+          helpId={"button-download-draft-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Download partially signed document. Be sure to save the original rather than a copy."
@@ -238,7 +332,7 @@ export const downloadDraftButton = (props, doc) => {
           <Button
             variant="outline-success"
             size="sm"
-            id={"button-download-draft-" + doc.key}
+            id={"button-download-draft-" + doc.name}
             disabling={true}
             onClick={props.handleDlDraft({
               docName: doc.name,
@@ -260,7 +354,7 @@ export const retryButton = (props, doc) => {
     <>
       <div className="button-retry-flex-item">
         <ESTooltip
-          helpId={"button-retry-" + doc.key}
+          helpId={"button-retry-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Try again to prepare the document for signing"
@@ -270,7 +364,7 @@ export const retryButton = (props, doc) => {
         >
           <Button
             variant="outline-success"
-            id={"button-retry-" + doc.key}
+            id={"button-retry-" + doc.name}
             disabling={true}
             size="sm"
             onClick={props.handleRetry(doc, props)}
@@ -287,7 +381,7 @@ export const showMessage = (doc) => {
   return (
     <>
       <div className="message-flex-item">
-        <span alt={doc.message}>{doc.message}</span>
+        <span alt={doc.message} dangerouslySetInnerHTML={{__html: doc.message}} />
       </div>
     </>
   );
@@ -298,7 +392,7 @@ export const skipSignatureButton = (props, doc) => {
     <>
       <div className="button-skip-flex-item">
         <ESTooltip
-          helpId={"button-skipping-" + doc.key}
+          helpId={"button-skipping-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="All requested users have answered your invitation to sign the document, click here to skip adding your final signature"
@@ -309,7 +403,7 @@ export const skipSignatureButton = (props, doc) => {
           <Button
             variant="outline-dark"
             size="sm"
-            id={"button-skipping-" + doc.key}
+            id={"button-skipping-" + doc.name}
             disabling={true}
             onClick={props.handleSkipSigning(doc, props)}
           >
@@ -329,7 +423,7 @@ export const declineSignatureButton = (props, doc) => {
     <>
       <div className="button-decline-flex-item">
         <ESTooltip
-          helpId={"button-decline-" + doc.key}
+          helpId={"button-decline-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Click here to decline your invitation to sign this document."
@@ -340,7 +434,7 @@ export const declineSignatureButton = (props, doc) => {
           <Button
             variant="outline-danger"
             size="sm"
-            id={"button-decline-" + doc.key}
+            id={"button-decline-" + doc.name}
             disabling={true}
             onClick={props.handleDeclineSigning({ doc: doc, intl: props.intl })}
           >
@@ -367,7 +461,7 @@ export const delegateButton = (props, doc) => {
     <>
       <div className="button-delegate-flex-item">
         <ESTooltip
-          helpId={"button-delegate-" + doc.key}
+          helpId={"button-delegate-" + doc.name}
           tooltip={
             <FormattedMessage
               defaultMessage="Click here to delegate the signature of this document to someone else."
@@ -378,7 +472,7 @@ export const delegateButton = (props, doc) => {
           <Button
             variant="outline-dark"
             size="sm"
-            id={"button-delegate-" + doc.key}
+            id={"button-delegate-" + doc.name}
             disabling={true}
             onClick={props.handleDelegateSigning(doc.key)}
           >
@@ -400,7 +494,7 @@ export const buttonSignSelected = (disableSigning, onClick) => {
         helpId="button-sign-selected"
         tooltip={
           <FormattedMessage
-            defaultMessage="Select documents above and click here to send them for signing."
+            defaultMessage="Select documents above and click here to send them for signing. You will be redirected to login again to authenticate yourself when signing."
             key="button-sign-tootip"
           />
         }
@@ -462,7 +556,7 @@ export const buttonClearPersonal = (
   disableClearButton,
   onClick,
   clearDb,
-  intl
+  intl,
 ) => {
   return (
     <div className="button-clear-flex-item">
@@ -507,3 +601,71 @@ export const buttonClearPersonal = (
     </div>
   );
 };
+
+export const skipFinalControl = (
+  <div className="skipfinal-choice-holder">
+    <BForm.Group className="skipfinal-choice-group form-group">
+      <ESTooltip
+        helpId="skipfinal-choice-input"
+        inModal={true}
+        tooltip={
+          <FormattedMessage
+            defaultMessage="Finalize the signature flow automatically after the last person invited responds to the invitation."
+            key="skipfinal-choice-help"
+          />
+        }
+      >
+        <BForm.Label
+          className="skipfinal-choice-label"
+          htmlFor="skipfinal-choice-input"
+        >
+          <FormattedMessage
+            defaultMessage="Finalise signature flow automatically"
+            key="skipfinal-choice-field"
+          />
+        </BForm.Label>
+      </ESTooltip>
+      <Field
+        name="skipfinalChoice"
+        id="skipfinal-choice-input"
+        data-testid="skipfinal-choice-input"
+        className="skipfinal-choice"
+        type="checkbox"
+      />
+    </BForm.Group>
+  </div>
+);
+
+export const sendsignedControl = (
+  <div className="sendsigned-choice-holder">
+    <BForm.Group className="sendsigned-choice-group form-group">
+      <ESTooltip
+        helpId="sendsigned-choice-input"
+        inModal={true}
+        tooltip={
+          <FormattedMessage
+            defaultMessage="Send final signed document via email to all who signed it."
+            key="sendsigned-choice-help"
+          />
+        }
+      >
+        <BForm.Label
+          className="sendsigned-choice-label"
+          htmlFor="sendsigned-choice-input"
+        >
+          <FormattedMessage
+            defaultMessage="Send signed document in email"
+            key="sendsigned-choice-field"
+          />
+        </BForm.Label>
+      </ESTooltip>
+      <Field
+        name="sendsignedChoice"
+        id="sendsigned-choice-input"
+        data-testid="sendsigned-choice-input"
+        className="sendsigned-choice"
+        type="checkbox"
+      />
+    </BForm.Group>
+  </div>
+);

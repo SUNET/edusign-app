@@ -35,91 +35,86 @@ import json
 from edusign_webapp.marshal import ResponseSchema
 
 
-def _test_decline_invitation(app, environ_base, environ_base_2, monkeypatch, sample_doc_1, mock_get_owner_data=None):
-
-    _, app = app
-
-    client = app.test_client()
-    client.environ_base.update(environ_base)
+def _test_decline_invitation(
+    app_and_client, environ_base, environ_base_2, monkeypatch, sample_doc_1, mock_get_owner_data=None
+):
+    app, client = app_and_client
 
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
 
-    with app.test_request_context():
-        with client.session_transaction() as sess:
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+        from flask.sessions import SecureCookieSession
 
-    from flask.sessions import SecureCookieSession
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'document': sample_doc_1,
+                'owner': 'tester@example.org',
+                'text': 'Dummy invitation text',
+                'invites': [
+                    {'name': 'invite0', 'email': 'invite0@example.org'},
+                    {'name': 'invite1', 'email': 'invite1@example.org'},
+                ],
+            },
+        }
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'document': sample_doc_1,
-            'owner': 'tester@example.org',
-            'text': 'Dummy invitation text',
-            'invites': [
-                {'name': 'invite0', 'email': 'invite0@example.org'},
-                {'name': 'invite1', 'email': 'invite1@example.org'},
-            ],
-        },
-    }
+        response = client.post(
+            '/sign/create-multi-sign',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
-    response = client.post(
-        '/sign/create-multi-sign',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        assert response.status == '200 OK'
 
-    assert response.status == '200 OK'
+        if mock_get_owner_data is not None:
+            monkeypatch.setattr(app.extensions['doc_store'], 'get_owner_data', mock_get_owner_data)
 
-    if mock_get_owner_data is not None:
-        monkeypatch.setattr(app.doc_store, 'get_owner_data', mock_get_owner_data)
+        get_doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'key': sample_doc_1['key'],
+            },
+        }
 
-    get_doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'key': sample_doc_1['key'],
-        },
-    }
+        client.environ_base.update(environ_base_2)
 
-    client.environ_base.update(environ_base_2)
+        response = client.post(
+            '/sign/decline-invitation',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=get_doc_data,
+        )
 
-    response = client.post(
-        '/sign/decline-invitation',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=get_doc_data,
-    )
-
-    return json.loads(response.data)
+        return json.loads(response.data)
 
 
-def test_decline_invitation(app, environ_base, environ_base_2, monkeypatch, sample_doc_1):
-
-    resp_data = _test_decline_invitation(app, environ_base, environ_base_2, monkeypatch, sample_doc_1)
+def test_decline_invitation(app_and_client, environ_base, environ_base_2, monkeypatch, sample_doc_1):
+    resp_data = _test_decline_invitation(app_and_client, environ_base, environ_base_2, monkeypatch, sample_doc_1)
 
     assert resp_data['message'] == 'Success declining signature'
 
 
-def test_decline_invitation_raises(app, environ_base, environ_base_2, monkeypatch, sample_doc_1):
+def test_decline_invitation_raises(app_and_client, environ_base, environ_base_2, monkeypatch, sample_doc_1):
     def mock_decline_document(*args, **kwargs):
         raise Exception()
 
@@ -127,28 +122,28 @@ def test_decline_invitation_raises(app, environ_base, environ_base_2, monkeypatc
 
     monkeypatch.setattr(DocStore, 'decline_document', mock_decline_document)
 
-    resp_data = _test_decline_invitation(app, environ_base, environ_base_2, monkeypatch, sample_doc_1)
+    resp_data = _test_decline_invitation(app_and_client, environ_base, environ_base_2, monkeypatch, sample_doc_1)
 
     assert resp_data['message'] == 'Problem declining signature, please try again'
 
 
-def test_decline_invitation_get_owner_raises(app, environ_base, environ_base_2, monkeypatch, sample_doc_1):
+def test_decline_invitation_get_owner_raises(app_and_client, environ_base, environ_base_2, monkeypatch, sample_doc_1):
     def mock_get_owner_data(*args, **kwargs):
         raise Exception()
 
     resp_data = _test_decline_invitation(
-        app, environ_base, environ_base_2, monkeypatch, sample_doc_1, mock_get_owner_data
+        app_and_client, environ_base, environ_base_2, monkeypatch, sample_doc_1, mock_get_owner_data
     )
 
     assert resp_data['message'] == "Success declining signature"
 
 
-def test_decline_invitation_no_owner(app, environ_base, environ_base_2, monkeypatch, sample_doc_1):
+def test_decline_invitation_no_owner(app_and_client, environ_base, environ_base_2, monkeypatch, sample_doc_1):
     def mock_get_owner_data(*args, **kwargs):
         return None
 
     resp_data = _test_decline_invitation(
-        app, environ_base, environ_base_2, monkeypatch, sample_doc_1, mock_get_owner_data
+        app_and_client, environ_base, environ_base_2, monkeypatch, sample_doc_1, mock_get_owner_data
     )
 
     assert resp_data['message'] == "Success declining signature"

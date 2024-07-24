@@ -64,10 +64,14 @@ class Header extends Component {
           data-testid="edusign-banner-lg"
         >
           <div id="logos-and-name">
-            <div id="edusign-logo" data-testid="edusign-logo" />
+            <div id="edusign-logo" data-testid="edusign-logo">
+              <img src="/assets/app-logo.png" />
+            </div>
             <div id="header-right" data-testid="header-right">
-              <a href="https://sunet.se">
-                <div id="sunet-logo" data-testid="sunet-logo" />
+              <a href={this.props.company_link}>
+                <div id="sunet-logo" data-testid="sunet-logo">
+                  <img src="/assets/company-logo.png" />
+                </div>
               </a>
               {name}
             </div>
@@ -83,9 +87,13 @@ class Header extends Component {
           data-testid="edusign-banner-sm"
         >
           <div id="edusign-logos" data-testid="edusign-logos">
-            <div id="edusign-logo" data-testid="edusign-logo" />
-            <a href="https://sunet.se">
-              <div id="sunet-logo" data-testid="sunet-logo" />
+            <div id="edusign-logo" data-testid="edusign-logo">
+              <img src="/assets/app-logo.png" />
+            </div>
+            <a href={this.props.company_link}>
+              <div id="sunet-logo" data-testid="sunet-logo">
+                <img src="/assets/company-logo.png" />
+              </div>
             </a>
           </div>
           {name}

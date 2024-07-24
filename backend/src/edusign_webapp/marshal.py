@@ -81,7 +81,7 @@ class ResponseSchema(Schema):
     """
 
     message = fields.String(required=False)
-    error = fields.Boolean(default=False)
+    error = fields.Boolean(dump_default=False)
     csrf_token = fields.String(required=True)
 
     @pre_dump
@@ -102,7 +102,7 @@ class ResponseSchema(Schema):
         else:
             sess['user_key'] = user_key
         token_hash = generate_password_hash(user_key + secret, method=method, salt_length=salt_length)
-        token = token_hash.replace(method + '$', '')
+        token = token_hash.replace(method + ':', '')
         out_data['csrf_token'] = token
         return out_data
 
@@ -143,7 +143,6 @@ class Marshal(object):
 
         @wraps(f)
         def marshal_decorator(*args, **kwargs):
-
             resp_data = f(*args, **kwargs)
 
             if isinstance(resp_data, WerkzeugResponse):
@@ -186,7 +185,7 @@ class RequestSchema(Schema):
         csrf_check_headers()
 
         method = current_app.config['HASH_METHOD']
-        token = f'{method}${value}'
+        token = f'{method}:{value}'
 
         secret = current_app.config['SECRET_KEY']
         key = session['user_key'] + secret
@@ -239,9 +238,7 @@ class _UnMarshal(object):
             except ValidationError as e:
                 error = e.normalized_messages()
                 current_app.logger.error(f"Errors Unmarshaling data for {session['eppn']}: {error}")
-                error_msg = gettext(
-                    "There were problems with the data you sent, please try again or contact your IT support"
-                )
+                error_msg = gettext('There was an error. Please try again, or contact the site administrator.')
                 data = {'error': True, 'message': error_msg}
                 return ResponseSchema().dump(data)
 

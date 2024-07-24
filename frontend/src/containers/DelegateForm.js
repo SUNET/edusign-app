@@ -8,7 +8,7 @@ import DelegateForm from "components/DelegateForm";
 
 import { delegateSignature, stopDelegating } from "slices/Main";
 import { unsetSpinning } from "slices/Button";
-import { disablePolling, enablePolling } from "slices/Poll";
+import { enablePolling } from "slices/Poll";
 import { unsetActiveId } from "slices/Overlay";
 
 const mapStateToProps = (state, props) => {
@@ -20,6 +20,7 @@ const mapStateToProps = (state, props) => {
     size: state.main.size,
     show: show,
     mail: state.main.signer_attributes.mail,
+    mail_aliases: state.main.signer_attributes.mail_aliases,
   };
 };
 

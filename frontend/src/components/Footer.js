@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
+import Form from "react-bootstrap/Form";
 
 import "styles/Footer.scss";
 
@@ -14,13 +15,16 @@ class Footer extends Component {
       if (lang[0] === this.props.language) {
         // sets the < html lang=""> to the interface language
         document.documentElement.lang = this.props.language;
+        return (
+          <option value={lang[0]} key={index}>
+            {lang[1]}
+          </option>
+        );
       } else {
         return (
-          <p key="0" className="lang-selected" data-lang={lang[0]} key={index}>
-            <a key="0" onClick={this.props.changeLanguage}>
-              {lang[1]}
-            </a>
-          </p>
+          <option value={lang[0]} key={index}>
+            {lang[1]}
+          </option>
         );
       }
     });
@@ -44,11 +48,13 @@ class Footer extends Component {
           </label>
         </div>
         <nav key="1">
-          <ul>
-            <li key="1" id="language-selector">
-              {langElems}
-            </li>
-          </ul>
+          <Form.Select
+            onChange={this.props.changeLanguage}
+            value={this.props.language}
+            data-testid="language-selector"
+          >
+            {langElems}
+          </Form.Select>
         </nav>
       </footer>
     );

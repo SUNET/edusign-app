@@ -8,34 +8,10 @@ import { createSlice } from "@reduxjs/toolkit";
 const inviteFormSlice = createSlice({
   name: "inviteform",
   initialState: {
-    show_loa_selection: false,
     inviting: false,
+    ordered: null,
   },
   reducers: {
-    /**
-     * @public
-     * @function toggleLoa
-     * @desc Redux action to show the widget to select required loa
-     */
-    toggleLoa(state) {
-      state.show_loa_selection = !state.show_loa_selection;
-    },
-    /**
-     * @public
-     * @function showLoa
-     * @desc Redux action to show the widget to select required loa
-     */
-    showLoa(state) {
-      state.show_loa_selection = true;
-    },
-    /**
-     * @public
-     * @function hideLoa
-     * @desc Redux action to hide the widget to select required loa
-     */
-    hideLoa(state) {
-      state.show_loa_selection = false;
-    },
     /**
      * @public
      * @function isInviting
@@ -52,10 +28,18 @@ const inviteFormSlice = createSlice({
     isNotInviting(state) {
       state.inviting = false;
     },
+    /**
+     * @public
+     * @function setOrdered
+     * @desc Redux action to indicate that the invitations are ordered
+     */
+    setOrdered(state, action) {
+      state.ordered = action.payload;
+    },
   },
 });
 
-export const { toggleLoa, showLoa, hideLoa, isInviting, isNotInviting } =
+export const { isInviting, isNotInviting, setOrdered } =
   inviteFormSlice.actions;
 
 export default inviteFormSlice.reducer;

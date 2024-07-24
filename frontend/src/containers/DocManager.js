@@ -95,6 +95,14 @@ const mapDispatchToProps = (dispatch, props) => {
         await dispatch(removeDocument({ docName: name }));
       };
     },
+    handleRemoveDocument: function (doc, props) {
+      return async () => {
+        dispatch(disablePolling());
+        await dispatch(removeDocument({ docName: doc.name }));
+        dispatch(unsetSpinning());
+        dispatch(enablePolling());
+      };
+    },
     handleSignedRemove: function (name) {
       return async () => {
         await dispatch(removeDocument({ docName: name }));

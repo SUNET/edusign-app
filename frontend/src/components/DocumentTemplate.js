@@ -60,18 +60,22 @@ class DocumentTemplate extends React.Component {
           body={this.getHelp("template-body")}
         >
           {(this.props.size === "lg" && (
-            <div className={"doc-flex-container-local " + doc.state} key="0">
+            <div
+              className={"doc-flex-container-local " + doc.state}
+              data-testid={`representation-for-doc-${doc.name}`}
+              key="0"
+            >
               <div className="doc-flex-container">
                 {widgets.dummySelectDoc()}
                 {widgets.docSize(doc)}
                 {widgets.docName(doc)}
                 <div className="doc-manager-buttons">
                   <ESDropdown doc={doc}>
-                    {menu.multiSignMenuItem(this.props, doc)}
                     {(doc.has_form && menu.fillFormMenuItem(this.props, doc)) ||
                       ""}
                     {menu.previewTemplateMenuItem(this.props, doc)}
                   </ESDropdown>
+                  {widgets.multiSignButton(this.props, doc)}
                   {widgets.removeTemplate(this.props, doc)}
                 </div>
               </div>
@@ -90,12 +94,12 @@ class DocumentTemplate extends React.Component {
                   </div>
                   <div className="doc-container-button-row">
                     <ESDropdown doc={doc}>
-                      {menu.multiSignMenuItem(this.props, doc)}
                       {(doc.has_form &&
                         menu.fillFormMenuItem(this.props, doc)) ||
                         ""}
                       {menu.previewTemplateMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.multiSignButton(this.props, doc)}
                     {widgets.removeTemplate(this.props, doc)}
                   </div>
                 </>

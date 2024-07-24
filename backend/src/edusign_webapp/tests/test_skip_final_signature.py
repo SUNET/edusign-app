@@ -35,106 +35,109 @@ import json
 from edusign_webapp.marshal import ResponseSchema
 
 
-def _test_skip_final_signature(app, environ_base, monkeypatch, sample_doc_1):
-
-    _, app = app
-
-    client = app.test_client()
-    client.environ_base.update(environ_base)
-
+def _test_skip_final_signature(client, monkeypatch, sample_doc_1):
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
 
-    with app.test_request_context():
-        with client.session_transaction() as sess:
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+        from flask.sessions import SecureCookieSession
 
-    from flask.sessions import SecureCookieSession
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        from edusign_webapp.api_client import APIClient
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'document': sample_doc_1,
-            'owner': 'tester@example.org',
-            'text': 'Dummy invitation text',
-            'sendsigned': True,
-            'loa': '',
-            'invites': [
-                {'name': 'invite0', 'email': 'invite0@example.org'},
-                {'name': 'invite1', 'email': 'invite1@example.org'},
-            ],
-        },
-    }
+        def mock_validate(self, to_validate):
+            for doc in to_validate:
+                doc['validated'] = True
+                doc['doc']['signedContent'] = doc['doc']['blob']
 
-    response = client.post(
-        '/sign/create-multi-sign',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+            return to_validate
 
-    assert response.status == '200 OK'
+        monkeypatch.setattr(APIClient, 'validate_signatures', mock_validate)
 
-    skip_final_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'key': sample_doc_1['key'],
-        },
-    }
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'document': sample_doc_1,
+                'owner': 'tester@example.org',
+                'text': 'Dummy invitation text',
+                'sendsigned': True,
+                'skipfinal': False,
+                'ordered': False,
+                'loa': 'low',
+                'invites': [
+                    {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
+                    {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
+                ],
+            },
+        }
 
-    response = client.post(
-        '/sign/skip-final-signature',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=skip_final_data,
-    )
+        response = client.post(
+            '/sign/create-multi-sign',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
-    return json.loads(response.data)
+        assert response.status == '200 OK'
+
+        skip_final_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'key': sample_doc_1['key'],
+            },
+        }
+
+        response = client.post(
+            '/sign/skip-final-signature',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=skip_final_data,
+        )
+
+        return json.loads(response.data)
 
 
-def test_skip_final_signature(app, environ_base, monkeypatch, sample_doc_1):
-
-    resp_data = _test_skip_final_signature(app, environ_base, monkeypatch, sample_doc_1)
+def test_skip_final_signature(client, monkeypatch, sample_doc_1):
+    resp_data = _test_skip_final_signature(client, monkeypatch, sample_doc_1)
 
     assert resp_data['payload']['documents'][0]['id'] == sample_doc_1['key']
 
 
-def _test_skip_final_signature_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_get_signed):
-
+def _test_skip_final_signature_with_problem(client, monkeypatch, sample_doc_1, mock_get_signed):
     from edusign_webapp.doc_store import DocStore
 
     monkeypatch.setattr(DocStore, 'get_signed_document', mock_get_signed)
 
-    return _test_skip_final_signature(app, environ_base, monkeypatch, sample_doc_1)
+    return _test_skip_final_signature(client, monkeypatch, sample_doc_1)
 
 
-def test_get_partially_signed_raises_getting(app, environ_base, monkeypatch, sample_doc_1):
+def test_get_partially_signed_raises_getting(client, monkeypatch, sample_doc_1):
     def mock_get_signed(*args, **kwargs):
         raise Exception()
 
-    resp_data = _test_skip_final_signature_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_get_signed)
+    resp_data = _test_skip_final_signature_with_problem(client, monkeypatch, sample_doc_1, mock_get_signed)
 
     assert resp_data['message'] == 'Cannot find the document being signed'
 
 
-def test_get_partially_signed_raises_removing(app, environ_base, monkeypatch, sample_doc_1):
+def test_get_partially_signed_raises_removing(client, monkeypatch, sample_doc_1):
     def mock_get_signed(*args, **kwargs):
         raise Exception()
 
@@ -142,15 +145,15 @@ def test_get_partially_signed_raises_removing(app, environ_base, monkeypatch, sa
 
     monkeypatch.setattr(DocStore, 'remove_document', mock_get_signed)
 
-    resp_data = _test_skip_final_signature(app, environ_base, monkeypatch, sample_doc_1)
+    resp_data = _test_skip_final_signature(client, monkeypatch, sample_doc_1)
 
     assert resp_data['message'] == 'Success'
 
 
-def test_get_partially_signed_doesnt(app, environ_base, monkeypatch, sample_doc_1):
+def test_get_partially_signed_doesnt(client, monkeypatch, sample_doc_1):
     def mock_get_signed(*args, **kwargs):
         return False
 
-    resp_data = _test_skip_final_signature_with_problem(app, environ_base, monkeypatch, sample_doc_1, mock_get_signed)
+    resp_data = _test_skip_final_signature_with_problem(client, monkeypatch, sample_doc_1, mock_get_signed)
 
     assert resp_data['message'] == 'Cannot find the document being signed'

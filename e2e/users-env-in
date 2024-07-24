@@ -1,0 +1,30 @@
+
+export USER0_EMAIL="jane@example.com"
+export USER0_PASS="dummy"
+export USER0_DISPLAY_NAME="Jane Doe"
+export USER0_UTF8_NAME="False"
+export USER0_SECURITY_KEY="False"
+
+export USER1_EMAIL="john@example.com"
+export USER1_PASS="dummy"
+export USER1_DISPLAY_NAME="John Doe"
+export USER1_UTF8_NAME="False"
+export USER1_SECURITY_KEY="False"
+
+export USER2_EMAIL="sue@example.com"
+export USER2_PASS="dummy"
+export USER2_DISPLAY_NAME="Sue Doe"
+export USER2_UTF8_NAME="False"
+export USER2_SECURITY_KEY="False"
+
+export USER3_EMAIL="joe@example.com"
+export USER3_PASS="dummy"
+export USER3_DISPLAY_NAME="Joe Doe"
+export USER3_UTF8_NAME="False"
+export USER3_SECURITY_KEY="False"
+
+export USER4_EMAIL="mary@example.com"
+export USER4_PASS="dummy"
+export USER4_DISPLAY_NAME="Mary Doe"
+export USER4_UTF8_NAME="False"
+export USER4_SECURITY_KEY="False"

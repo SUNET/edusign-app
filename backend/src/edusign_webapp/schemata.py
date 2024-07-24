@@ -33,7 +33,13 @@
 
 from marshmallow import Schema, fields
 
-from edusign_webapp.validators import validate_doc_type, validate_nonempty, validate_sign_requirement, validate_uuid4
+from edusign_webapp.validators import (
+    validate_doc_type,
+    validate_language,
+    validate_nonempty,
+    validate_sign_requirement,
+    validate_uuid4,
+)
 
 
 class _DocumentSchema(Schema):
@@ -49,6 +55,7 @@ class _DocumentSchema(Schema):
 class Invitee(Schema):
     email = fields.Email(required=True, validate=[validate_nonempty])
     name = fields.String(required=True, validate=[validate_nonempty])
+    lang = fields.String(required=True, validate=[validate_nonempty, validate_language])
 
 
 class InvitationsSchema(Schema):
@@ -64,9 +71,12 @@ class InvitationsSchema(Schema):
         signed = fields.List(fields.Nested(Invitee))
         declined = fields.List(fields.Nested(Invitee))
         state = fields.String(required=True, validate=[validate_nonempty])
-        prev_signatures = fields.String(default="")
-        loa = fields.String(default="")
-        created = fields.String(default="")
+        prev_signatures = fields.String(dump_default="")
+        loa = fields.String(dump_default="")
+        created = fields.String(dump_default="")
+        message = fields.String(dump_default="")
+        ordered = fields.Boolean()
+        pprinted = fields.String(required=True, validate=[validate_nonempty])
 
     class OwnedDocument(_DocumentSchema):
         key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
@@ -74,13 +84,32 @@ class InvitationsSchema(Schema):
         signed = fields.List(fields.Nested(Invitee))
         declined = fields.List(fields.Nested(Invitee))
         state = fields.String(required=True, validate=[validate_nonempty])
-        prev_signatures = fields.String(default="")
-        loa = fields.String(default="")
-        created = fields.String(default="")
+        prev_signatures = fields.String(dump_default="")
+        loa = fields.String(dump_default="")
+        created = fields.String(dump_default="")
+        ordered = fields.Boolean()
+        sendsigned = fields.Boolean()
+        skipfinal = fields.Boolean()
+        pprinted = fields.String(required=True, validate=[validate_nonempty])
+
+    class SkippedDocument(_DocumentSchema):
+        key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
+        pending = fields.List(fields.Nested(Invitee))
+        signed = fields.List(fields.Nested(Invitee))
+        declined = fields.List(fields.Nested(Invitee))
+        state = fields.String(required=True, validate=[validate_nonempty])
+        prev_signatures = fields.String(dump_default="")
+        loa = fields.String(dump_default="")
+        created = fields.String(dump_default="")
+        blob = fields.Raw(required=True, validate=[validate_nonempty])
+        signed_content = fields.Raw(required=True, validate=[validate_nonempty])
+        ordered = fields.Boolean()
+        pprinted = fields.String(required=True, validate=[validate_nonempty])
 
     pending_multisign = fields.List(fields.Nested(PendingDocument))
     owned_multisign = fields.List(fields.Nested(OwnedDocument))
-    poll = fields.Boolean(default=False)
+    skipped = fields.List(fields.Nested(SkippedDocument))
+    poll = fields.Boolean(dump_default=False)
 
 
 class ConfigSchema(InvitationsSchema):
@@ -96,13 +125,34 @@ class ConfigSchema(InvitationsSchema):
 
     class AvailableLoa(Schema):
         name = fields.String(required=True, validate=[validate_nonempty])
-        uri = fields.String(required=True, validate=[validate_nonempty])
+        value = fields.String(required=True, validate=[validate_nonempty])
+
+    class UIDefaults(Schema):
+        send_signed = fields.Boolean(dump_default=True)
+        skip_final = fields.Boolean(dump_default=True)
+        ordered_invitations = fields.Boolean(dump_default=False)
 
     signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)
     available_loas = fields.List(fields.Nested(AvailableLoa))
-    unauthn = fields.Boolean(default=True)
+    unauthn = fields.Boolean(dump_default=True)
     max_file_size = fields.String(required=True)
+    max_signatures = fields.String(required=True)
+    company_link = fields.String(required=True)
+    ui_defaults = fields.Nested(UIDefaults)
+    edit_form_timeout = fields.String(required=True)
+    environment = fields.String(required=True)
+
+
+class EmailsSchema(Schema):
+    """
+    Schema to marshall emails in e2e tests
+    """
+
+    class EmailMsg(Schema):
+        message = fields.String(required=True)
+
+    messages = fields.List(fields.Nested(EmailMsg))
 
 
 class DocumentSchema(_DocumentSchema):
@@ -119,6 +169,7 @@ class BlobSchema(Schema):
     """
 
     blob = fields.Raw(required=True, validate=[validate_nonempty])
+    pprinted = fields.String(required=True, validate=[validate_nonempty])
 
 
 class _DocumentSchemaWithKey(_DocumentSchema):
@@ -169,8 +220,9 @@ class ReferenceSchema(_ReferenceSchema):
     referencing a document just prepared for signing.
     """
 
-    prev_signatures = fields.String(default="")
-    has_form = fields.Boolean(default=False)
+    prev_signatures = fields.String(dump_default="")
+    has_form = fields.Boolean(dump_default=False)
+    pprinted = fields.String(required=True, validate=[validate_nonempty])
 
 
 class ToSignSchema(Schema):
@@ -181,6 +233,7 @@ class ToSignSchema(Schema):
     class ToSignDocumentSchema(_ReferenceSchema):
         name = fields.String(required=True, validate=[validate_nonempty])
         type = fields.String(required=True, validate=[validate_nonempty, validate_doc_type])
+        blob = fields.Raw(required=False)
 
     documents = fields.List(fields.Nested(ToSignDocumentSchema))
 
@@ -245,6 +298,8 @@ class SignedDocumentsSchema(Schema):
     class SignedDocumentSchema(Schema):
         id = fields.String(required=True, validate=[validate_nonempty])
         signed_content = fields.Raw(required=True, validate=[validate_nonempty])
+        validated = fields.Boolean()
+        pprinted = fields.String(required=True, validate=[validate_nonempty])
 
     documents = fields.List(fields.Nested(SignedDocumentSchema))
 
@@ -257,9 +312,11 @@ class MultiSignSchema(Schema):
     document = fields.Nested(DocumentSchemaWithKey, many=False)
     text = fields.String()
     sendsigned = fields.Boolean()
+    skipfinal = fields.Boolean()
     invites = fields.List(fields.Nested(Invitee))
     owner = fields.Email(required=True)
     loa = fields.String()
+    ordered = fields.Boolean()
 
 
 class EditMultiSignSchema(Schema):
@@ -268,11 +325,13 @@ class EditMultiSignSchema(Schema):
     """
 
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
-    text = fields.String(default="")
+    text = fields.String(dump_default="")
+    sendsigned = fields.Boolean()
+    skipfinal = fields.Boolean()
     invites = fields.List(fields.Nested(Invitee))
 
 
-class KeyedMultiSignSchema(Schema):
+class KeySchema(Schema):
     """
     Schema to unmarshal requests for removing multi signatures.
     """
@@ -280,12 +339,12 @@ class KeyedMultiSignSchema(Schema):
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
 
 
-class ResendMultiSignSchema(KeyedMultiSignSchema):
+class ResendMultiSignSchema(KeySchema):
     """
     Schema to unmarshal requests for re-sending invitations for multi signatures.
     """
 
-    text = fields.String(default="")
+    text = fields.String(dump_default="")
 
 
 class DelegationSchema(Invitee):
@@ -298,20 +357,11 @@ class DelegationSchema(Invitee):
 
 
 class Field(Schema):
-
     name = fields.String(required=True, validate=[validate_nonempty])
     type = fields.String(required=False, validate=[validate_nonempty])
     label = fields.String(required=False)
     value = fields.Raw(required=False)
     choices = fields.List(fields.String)
-
-
-class FormSchema(Schema):
-    """
-    Schema to marshall PDF forms.
-    """
-
-    fields = fields.List(fields.Nested(Field))
 
 
 class DocSchema(Schema):
@@ -325,4 +375,4 @@ class DocSchema(Schema):
 
 class FillFormSchema(Schema):
     document = fields.String(required=True, validate=[validate_nonempty])
-    fields = fields.List(fields.Nested(Field))
+    form_fields = fields.List(fields.Nested(Field))

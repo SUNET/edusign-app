@@ -46,6 +46,14 @@ When a new version is released, the code in the `staging` branch is merged to
 the master branch, all the dedicated branches that are now behind master are
 deleted, and the corresponding issues closed.
 
+New Version
+-----------
+
+* documentation
+* translations
+* changes
+* errors
+
 
 .. [1] https://semver.org
 .. [2] https://pypi.org/project/tbump/

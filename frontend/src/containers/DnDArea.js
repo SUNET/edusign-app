@@ -19,6 +19,8 @@ const mapStateToProps = (state) => {
   return {
     status: state.dnd.state,
     size: state.main.size,
+    configured: Boolean(state.main.environment !== undefined),
+    useFsAccessApi: Boolean(state.main.environment !== "e2e"),
   };
 };
 
@@ -34,7 +36,8 @@ const mapDispatchToProps = (dispatch) => {
       return async (fileObjs) => {
         dispatch(setLoading());
         const maxIndex = fileObjs.length - 1;
-        await fileObjs.forEach(async (fileObj, index) => {
+        let index = 0;
+        for (const fileObj of fileObjs) {
           const file = {
             name: fileObj.name,
             size: fileObj.size,
@@ -60,7 +63,7 @@ const mapDispatchToProps = (dispatch) => {
                 defaultMessage: "Error loading {name}",
                 id: "containers.DnDArea.loading-error",
               },
-              { name: fileObj.name }
+              { name: fileObj.name },
             );
             dispatch(addNotification({ level: "danger", message: errorMsg }));
             file.state = "failed-loading";
@@ -73,9 +76,10 @@ const mapDispatchToProps = (dispatch) => {
             await dispatch(createDocument({ doc: file, intl: intl }));
             dispatch(setWaiting());
           };
-          await reader.readAsDataURL(fileObj);
+          reader.readAsDataURL(fileObj);
           dispatch(setWaiting());
-        });
+          index++;
+        }
       };
     },
     handleRejected: function (intl) {
@@ -84,9 +88,9 @@ const mapDispatchToProps = (dispatch) => {
           const errorMsg = intl.formatMessage(
             {
               id: "containers.DnDArea.rejected-doc",
-              defaultMessage: "Not a PDF: {name}",
+              defaultMessage: "Not a PDF or XML document: {name}",
             },
-            { name: rejected.file.name, type: rejected.file.type }
+            { name: rejected.file.name, type: rejected.file.type },
           );
           dispatch(addNotification({ level: "danger", message: errorMsg }));
         });

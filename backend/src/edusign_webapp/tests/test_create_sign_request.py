@@ -38,7 +38,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def test_create_sign_request(client, monkeypatch):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -56,57 +55,54 @@ def test_create_sign_request(client, monkeypatch):
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+        from flask.sessions import SecureCookieSession
 
-    from flask.sessions import SecureCookieSession
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'documents': [
+                    {
+                        'key': str(uuid.uuid4()),
+                        'name': 'test.pdf',
+                        'type': 'application/pdf',
+                        'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
+                        'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
+                    }
+                ]
+            },
+        }
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'documents': [
-                {
-                    'key': str(uuid.uuid4()),
-                    'name': 'test.pdf',
-                    'type': 'application/pdf',
-                    'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
-                    'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
-                }
-            ]
-        },
-    }
+        response = client.post(
+            '/sign/create-sign-request',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
-    response = client.post(
-        '/sign/create-sign-request',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        assert response.status == '200 OK'
 
-    assert response.status == '200 OK'
+        resp_data = json.loads(response.data)
 
-    resp_data = json.loads(response.data)
-
-    assert resp_data['payload']['documents'][0]['name'] == 'test.pdf'
-    assert resp_data['payload']['relay_state'] == '31dc573b-ab7d-496c-845e-cae8792ba063'
+        assert resp_data['payload']['documents'][0]['name'] == 'test.pdf'
+        assert resp_data['payload']['relay_state'] == '31dc573b-ab7d-496c-845e-cae8792ba063'
 
 
 def test_create_sign_request_post_raises(client, monkeypatch):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -118,100 +114,129 @@ def test_create_sign_request_post_raises(client, monkeypatch):
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+        from flask.sessions import SecureCookieSession
 
-    from flask.sessions import SecureCookieSession
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'documents': [
+                    {
+                        'key': str(uuid.uuid4()),
+                        'name': 'test.pdf',
+                        'type': 'application/pdf',
+                        'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
+                        'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
+                    }
+                ]
+            },
+        }
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'documents': [
-                {
-                    'key': str(uuid.uuid4()),
-                    'name': 'test.pdf',
-                    'type': 'application/pdf',
-                    'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
-                    'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
-                }
-            ]
-        },
-    }
+        response = client.post(
+            '/sign/create-sign-request',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
-    response = client.post(
-        '/sign/create-sign-request',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        assert response.status == '200 OK'
 
-    assert response.status == '200 OK'
+        resp_data = json.loads(response.data)
 
-    resp_data = json.loads(response.data)
-
-    assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
+        assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
 def _create_sign_request(client, monkeypatch, data_payload, csrf_token=None):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
 
     if csrf_token is None:
-        with run.app.test_request_context():
-            with client.session_transaction() as sess:
+        with client.session_transaction() as sess:
+            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+            user_key = sess['user_key']
 
-                csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-                user_key = sess['user_key']
+            from flask.sessions import SecureCookieSession
+
+            def mock_getitem(self, key):
+                if key == 'user_key':
+                    return user_key
+                self.accessed = True
+                return super(SecureCookieSession, self).__getitem__(key)
+
+            monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+
+            doc_data = {
+                'csrf_token': csrf_token,
+                'payload': data_payload,
+            }
+
+            if csrf_token == 'rm':
+                del doc_data['csrf_token']
+
+            response = client.post(
+                '/sign/create-sign-request',
+                headers={
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Origin': 'https://test.localhost',
+                    'X-Forwarded-Host': 'test.localhost',
+                },
+                json=doc_data,
+            )
+
+            assert response.status == '200 OK'
+
+            return json.loads(response.data)
+
     else:
-        user_key = 'dummy key'
+        with client.session_transaction():
+            user_key = 'dummy-key'
 
-    from flask.sessions import SecureCookieSession
+            from flask.sessions import SecureCookieSession
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+            def mock_getitem(self, key):
+                if key == 'user_key':
+                    return user_key
+                self.accessed = True
+                return super(SecureCookieSession, self).__getitem__(key)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+            monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': data_payload,
-    }
+            doc_data = {
+                'csrf_token': csrf_token,
+                'payload': data_payload,
+            }
 
-    if csrf_token == 'rm':
-        del doc_data['csrf_token']
+            if csrf_token == 'rm':
+                del doc_data['csrf_token']
 
-    response = client.post(
-        '/sign/create-sign-request',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+            response = client.post(
+                '/sign/create-sign-request',
+                headers={
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Origin': 'https://test.localhost',
+                    'X-Forwarded-Host': 'test.localhost',
+                },
+                json=doc_data,
+            )
 
-    assert response.status == '200 OK'
+            assert response.status == '200 OK'
 
-    return json.loads(response.data)
+            return json.loads(response.data)
 
 
 def test_create_sign_request_doc_no_name(client, monkeypatch):
@@ -228,7 +253,10 @@ def test_create_sign_request_doc_no_name(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_create_sign_request_doc_no_ref(client, monkeypatch):
@@ -245,7 +273,10 @@ def test_create_sign_request_doc_no_ref(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_create_sign_request_doc_invalid_ref_1(client, monkeypatch):
@@ -263,7 +294,10 @@ def test_create_sign_request_doc_invalid_ref_1(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_create_sign_request_doc_invalid_ref_2(client, monkeypatch):
@@ -281,7 +315,10 @@ def test_create_sign_request_doc_invalid_ref_2(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_create_sign_request_doc_invalid_sign_req_1(client, monkeypatch):
@@ -299,7 +336,10 @@ def test_create_sign_request_doc_invalid_sign_req_1(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_create_sign_request_doc_invalid_sign_req_2(client, monkeypatch):
@@ -317,7 +357,10 @@ def test_create_sign_request_doc_invalid_sign_req_2(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_create_sign_request_doc_invalid_sign_req_3(client, monkeypatch):
@@ -335,7 +378,10 @@ def test_create_sign_request_doc_invalid_sign_req_3(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_create_sign_request_doc_no_csrf(client, monkeypatch):
@@ -353,7 +399,10 @@ def test_create_sign_request_doc_no_csrf(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload, csrf_token='rm')
 
     assert resp_data['error']
-    assert resp_data['message'] == "csrf_token: Required"
+    assert (
+        resp_data['message']
+        == "There were problems with the data you sent, please try again or contact your IT support"
+    )
 
 
 def test_create_sign_request_doc_wrong_csrf(client, monkeypatch):
@@ -371,11 +420,13 @@ def test_create_sign_request_doc_wrong_csrf(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload, csrf_token='wrong csrf token')
 
     assert resp_data['error']
-    assert resp_data['message'] == 'csrf_token: There was an error. Please try again, or contact the site administrator'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_create_sign_request_expired(client, monkeypatch):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -390,53 +441,51 @@ def test_create_sign_request_expired(client, monkeypatch):
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+        from flask.sessions import SecureCookieSession
 
-    from flask.sessions import SecureCookieSession
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'documents': [
+                    {
+                        'key': str(uuid.uuid4()),
+                        'name': 'test.pdf',
+                        'type': 'application/pdf',
+                        'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
+                        'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
+                    }
+                ]
+            },
+        }
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'documents': [
-                {
-                    'key': str(uuid.uuid4()),
-                    'name': 'test.pdf',
-                    'type': 'application/pdf',
-                    'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
-                    'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
-                }
-            ]
-        },
-    }
+        response = client.post(
+            '/sign/create-sign-request',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
-    response = client.post(
-        '/sign/create-sign-request',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        assert response.status == '200 OK'
 
-    assert response.status == '200 OK'
+        resp_data = json.loads(response.data)
 
-    resp_data = json.loads(response.data)
-
-    assert resp_data['error']
-    assert resp_data['message'] == 'expired cache'
+        assert resp_data['error']
+        assert resp_data['message'] == 'expired cache'
 
 
 def test_create_sign_request_doc_no_key(client, monkeypatch):
@@ -453,7 +502,10 @@ def test_create_sign_request_doc_no_key(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_create_sign_request_doc_invalid_key(client, monkeypatch):
@@ -471,11 +523,13 @@ def test_create_sign_request_doc_invalid_key(client, monkeypatch):
     resp_data = _create_sign_request(client, monkeypatch, data_payload)
 
     assert resp_data['error']
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_create_sign_request_bad_api_response(client, monkeypatch):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(*args, **kwargs):
@@ -487,50 +541,48 @@ def test_create_sign_request_bad_api_response(client, monkeypatch):
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+        from flask.sessions import SecureCookieSession
 
-    from flask.sessions import SecureCookieSession
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'documents': [
+                    {
+                        'key': str(uuid.uuid4()),
+                        'name': 'test.pdf',
+                        'type': 'application/pdf',
+                        'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
+                        'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
+                    }
+                ]
+            },
+        }
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'documents': [
-                {
-                    'key': str(uuid.uuid4()),
-                    'name': 'test.pdf',
-                    'type': 'application/pdf',
-                    'ref': 'd2a05a27-6913-47ed-82f5-fd0e89ee5f07',
-                    'sign_requirement': '{"fieldValues": {"idp": "https://login.idp.eduid.se/idp.xml"}, "page": 2, "scale": -74, "signerName": {"formatting": null, "signerAttributes": [{"name": "urn:oid:2.5.4.42"}, {"name": "urn:oid:2.5.4.4"}, {"name": "urn:oid:0.9.2342.19200300.100.1.3"}]}, "templateImageRef": "eduSign-image", "xposition": 37, "yposition": 165}',
-                }
-            ]
-        },
-    }
+        response = client.post(
+            '/sign/create-sign-request',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
-    response = client.post(
-        '/sign/create-sign-request',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        assert response.status == '200 OK'
 
-    assert response.status == '200 OK'
+        resp_data = json.loads(response.data)
 
-    resp_data = json.loads(response.data)
-
-    assert resp_data['message'] == 'dummy message'
-    assert resp_data['error']
+        assert resp_data['message'] == 'dummy message'
+        assert resp_data['error']

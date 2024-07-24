@@ -35,83 +35,76 @@ import json
 from edusign_webapp.marshal import ResponseSchema
 
 
-def _test_send_reminders(app, environ_base, monkeypatch, sample_doc_1):
-
-    _, app = app
-
-    client = app.test_client()
-    client.environ_base.update(environ_base)
-
+def _test_send_reminders(client, monkeypatch, sample_doc_1):
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
 
-    with app.test_request_context():
-        with client.session_transaction() as sess:
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+        from flask.sessions import SecureCookieSession
 
-    from flask.sessions import SecureCookieSession
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'document': sample_doc_1,
+                'owner': 'tester@example.org',
+                'text': 'Dummy invitation text',
+                'sendsigned': True,
+                'skipfinal': False,
+                'loa': 'low',
+                'ordered': False,
+                'invites': [
+                    {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
+                    {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
+                ],
+            },
+        }
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'document': sample_doc_1,
-            'owner': 'tester@example.org',
-            'text': 'Dummy invitation text',
-            'sendsigned': True,
-            'loa': '',
-            'invites': [
-                {'name': 'invite0', 'email': 'invite0@example.org'},
-                {'name': 'invite1', 'email': 'invite1@example.org'},
-            ],
-        },
-    }
+        response = client.post(
+            '/sign/create-multi-sign',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
-    response = client.post(
-        '/sign/create-multi-sign',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        assert response.status == '200 OK'
 
-    assert response.status == '200 OK'
+        reminder_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'text': 'Test text',
+                'key': sample_doc_1['key'],
+            },
+        }
 
-    reminder_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'text': 'Test text',
-            'key': sample_doc_1['key'],
-        },
-    }
+        response = client.post(
+            '/sign/send-multisign-reminder',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=reminder_data,
+        )
 
-    response = client.post(
-        '/sign/send-multisign-reminder',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=reminder_data,
-    )
-
-    return json.loads(response.data)
+        return json.loads(response.data)
 
 
-def test_remove_multi_sign_request(app, environ_base, monkeypatch, sample_doc_1):
-
-    resp_data = _test_send_reminders(app, environ_base, monkeypatch, sample_doc_1)
+def test_remove_multi_sign_request(client, monkeypatch, sample_doc_1):
+    resp_data = _test_send_reminders(client, monkeypatch, sample_doc_1)
 
     assert resp_data['message'] == 'Success sending reminder email to pending users'

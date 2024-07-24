@@ -21,7 +21,7 @@ module.exports = {
   },
   output: {
     path: path.join(__dirname, "build"),
-    publicPath: "https://sp.edusign.docker/js/",
+    publicPath: "/js/",
     filename: "[name]-bundle.dev.js"
   },
   devtool: "eval-source-map",

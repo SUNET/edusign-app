@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 
 import { FormattedMessage } from "react-intl";
 
@@ -17,7 +17,7 @@ import { FormattedMessage } from "react-intl";
 export const b64toBlob = (
   b64Data,
   contentType = "application/pdf",
-  sliceSize = 512
+  sliceSize = 512,
 ) => {
   const byteCharacters = atob(b64Data);
   const byteArrays = [];
@@ -98,7 +98,7 @@ export function docToFile(doc) {
  *
  */
 export const hashCode = function (s) {
-  var hash = 0,
+  let hash = 0,
     i,
     chr;
   if (s.length === 0) return hash;
@@ -143,41 +143,16 @@ export const preparePrevSigs = (doc, size) => {
     const sigStrs = doc.prev_signatures
       .split("|")
       .filter((sig) => sig.length > 0);
-    const sigElems = sigStrs.map((sigStr, i) => {
-      let sigArr;
-      if (sigStr.includes(";")) {
-        sigArr = sigStr.split(";");
-      } else {
-        sigArr = sigStr.split(",");
-      }
-      let sig = {};
-      sigArr.forEach((segment) => {
-        const [k, v] = segment.split(":");
-        sig[k.trim()] = v.trim();
-      });
-      let mainVal = "";
-      if (sig.hasOwnProperty("Common Name")) {
-        mainVal = sig["Common Name"];
-        delete sig["Common Name"];
-      } else if (
-        sig.hasOwnProperty("Given Name") &&
-        sig.hasOwnProperty("Surname")
-      ) {
-        mainVal = `${sig["Given Name"]} ${sig["Surname"]}`;
-        delete sig["Given Name"];
-        delete sig["Surname"];
-      } else {
-        mainVal = sig["Serial Number"];
-        delete sig["Serial Number"];
-      }
-      let alt = Object.keys(sig)
-        .map((key) => {
-          return `${key}: ${sig[key]}`;
-        })
-        .join("; ");
+    let signatures;
+    if (doc.type === "application/pdf") {
+      signatures = getPDFSignatures(sigStrs);
+    } else {
+      signatures = getXMLSignatures(sigStrs);
+    }
+    const sigElems = signatures.map((sig, i) => {
       return (
-        <span className="info-row-item" title={alt} key={i}>
-          {mainVal}
+        <span className="info-row-item" title={sig.alt} key={i}>
+          {sig.mainVal}
           {i < sigStrs.length - 1 ? "," : "."}
         </span>
       );
@@ -216,6 +191,79 @@ export const preparePrevSigs = (doc, size) => {
       </div>
     );
   }
+};
+
+const getPDFSignatures = (sigStrs) => {
+  return sigStrs.map((sigStr) => {
+    let sigArr;
+    if (sigStr.includes(";")) {
+      sigArr = sigStr.split(";");
+    } else {
+      sigArr = sigStr.split(",");
+    }
+    let sig = {};
+    sigArr.forEach((segment) => {
+      const [k, v] = segment.split(":");
+      sig[k.trim()] = v.trim();
+    });
+    let mainVal = "";
+    if (sig.hasOwnProperty("Common Name")) {
+      mainVal = sig["Common Name"];
+      delete sig["Common Name"];
+    } else if (
+      sig.hasOwnProperty("Given Name") &&
+      sig.hasOwnProperty("Surname")
+    ) {
+      mainVal = `${sig["Given Name"]} ${sig["Surname"]}`;
+      delete sig["Given Name"];
+      delete sig["Surname"];
+    } else {
+      mainVal = sig["Serial Number"];
+      delete sig["Serial Number"];
+    }
+    let alt = Object.keys(sig)
+      .map((key) => {
+        return `${key}: ${sig[key]}`;
+      })
+      .join("; ");
+    return {
+      mainVal: mainVal,
+      alt: alt,
+    };
+  });
+};
+
+const getXMLSignatures = (sigStrs) => {
+  const sigs = [];
+  sigStrs.forEach((sigStr) => {
+    let sigArr;
+    if (sigStr.includes(";")) {
+      sigArr = sigStr.split(";");
+    } else {
+      sigArr = sigStr.split(",");
+    }
+    let sig = {};
+    sigArr.forEach((segment) => {
+      const [k, v] = segment.split("=");
+      sig[k.trim()] = v.trim();
+    });
+    let mainVal = "";
+    if (sig.hasOwnProperty("2.5.4.42") && sig.hasOwnProperty("2.5.4.4")) {
+      mainVal = `${sig["2.5.4.42"]} ${sig["2.5.4.4"]}`;
+    }
+    if (mainVal) {
+      let alt = Object.keys(sig)
+        .map((key) => {
+          return `${key}=${sig[key]}`;
+        })
+        .join("; ");
+      sigs.push({
+        mainVal: mainVal,
+        alt: alt,
+      });
+    }
+  });
+  return sigs;
 };
 
 /**
@@ -289,4 +337,36 @@ export const getCreationDate = (doc) => {
     creationDate = new Date(ts);
   }
   return creationDate;
+};
+
+export const getOrdinal = (lang, num) => {
+  const ordinalRules = new Intl.PluralRules(lang, { type: "ordinal" });
+  const formatOrdinals = (n, suffixes) => {
+    const rule = ordinalRules.select(n);
+    const suffix = suffixes.get(rule);
+    return `${n}${suffix}`;
+  };
+  let suffixes;
+
+  if (lang.startsWith("en")) {
+    suffixes = new Map([
+      ["one", "st"],
+      ["two", "nd"],
+      ["few", "rd"],
+      ["other", "th"],
+    ]);
+  } else if (lang.startsWith("sv")) {
+    suffixes = new Map([
+      ["one", ":a"],
+      ["other", ":e"],
+    ]);
+  } else {
+    suffixes = new Map([
+      ["one", "ª"],
+      ["two", "ª"],
+      ["few", "ª"],
+      ["other", "ª"],
+    ]);
+  }
+  return formatOrdinals(num, suffixes);
 };

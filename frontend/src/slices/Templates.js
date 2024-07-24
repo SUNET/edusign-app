@@ -30,10 +30,10 @@ export const removeTemplate = createAsyncThunk(
           defaultMessage: "Template successfully removed",
           id: "template-removed-globalmsg",
         }),
-      })
+      }),
     );
     return doc;
-  }
+  },
 );
 
 /**
@@ -68,9 +68,9 @@ export const createTemplate = createAsyncThunk(
           defaultMessage: "Template successfully created",
           id: "template-created-globalmsg",
         }),
-      })
+      }),
     );
-  }
+  },
 );
 
 const templateSlice = createSlice({
@@ -102,7 +102,7 @@ const templateSlice = createSlice({
      */
     rmTemplate(state, action) {
       state.documents = state.documents.filter(
-        (doc) => doc.id !== action.payload
+        (doc) => doc.id !== action.payload,
       );
     },
     /**
@@ -138,12 +138,12 @@ const templateSlice = createSlice({
       });
     },
   },
-  extraReducers: {
-    [removeTemplate.fulfilled]: (state, action) => {
+  extraReducers: (builder) => {
+    builder.addCase(removeTemplate.fulfilled, (state, action) => {
       state.documents = state.documents.filter((doc) => {
         return doc.id !== action.payload.id;
       });
-    },
+    });
   },
 });
 

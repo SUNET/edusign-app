@@ -38,7 +38,6 @@ from edusign_webapp.marshal import ResponseSchema
 
 
 def test_recreate_sign_request(client, monkeypatch, sample_doc_1):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(self, url, *args, **kwargs):
@@ -78,61 +77,58 @@ def test_recreate_sign_request(client, monkeypatch, sample_doc_1):
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+        from flask.sessions import SecureCookieSession
 
-    from flask.sessions import SecureCookieSession
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'documents': {
+                    'local': [
+                        {
+                            'name': 'test.pdf',
+                            'size': 100,
+                            'type': 'application/pdf',
+                            'blob': sample_doc_1['blob'],
+                            'key': sample_doc_1['key'],
+                        }
+                    ],
+                    'owned': [],
+                    'invited': [],
+                }
+            },
+        }
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'documents': {
-                'local': [
-                    {
-                        'name': 'test.pdf',
-                        'size': 100,
-                        'type': 'application/pdf',
-                        'blob': sample_doc_1['blob'],
-                        'key': sample_doc_1['key'],
-                    }
-                ],
-                'owned': [],
-                'invited': [],
-            }
-        },
-    }
+        response = client.post(
+            '/sign/recreate-sign-request',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
-    response = client.post(
-        '/sign/recreate-sign-request',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        assert response.status == '200 OK'
 
-    assert response.status == '200 OK'
+        resp_data = json.loads(response.data)
 
-    resp_data = json.loads(response.data)
-
-    assert resp_data['payload']['documents'][0]['name'] == 'test.pdf'
-    assert resp_data['payload']['relay_state'] == '31dc573b-ab7d-496c-845e-cae8792ba063'
+        assert resp_data['payload']['documents'][0]['name'] == 'test.pdf'
+        assert resp_data['payload']['relay_state'] == '31dc573b-ab7d-496c-845e-cae8792ba063'
 
 
 def _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_on_prepare=True):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(self, url, *args, **kwargs):
@@ -169,58 +165,55 @@ def _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+        from flask.sessions import SecureCookieSession
 
-    from flask.sessions import SecureCookieSession
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'documents': {
+                    'local': [
+                        {
+                            'name': 'test.pdf',
+                            'size': 100,
+                            'type': 'application/pdf',
+                            'blob': sample_doc_1['blob'],
+                            'key': sample_doc_1['key'],
+                        }
+                    ],
+                    'owned': [],
+                    'invited': [],
+                }
+            },
+        }
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'documents': {
-                'local': [
-                    {
-                        'name': 'test.pdf',
-                        'size': 100,
-                        'type': 'application/pdf',
-                        'blob': sample_doc_1['blob'],
-                        'key': sample_doc_1['key'],
-                    }
-                ],
-                'owned': [],
-                'invited': [],
-            }
-        },
-    }
+        response = client.post(
+            '/sign/recreate-sign-request',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
-    response = client.post(
-        '/sign/recreate-sign-request',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        assert response.status == '200 OK'
 
-    assert response.status == '200 OK'
-
-    return json.loads(response.data)
+        return json.loads(response.data)
 
 
 def test_recreate_sign_request_post_raises_on_prepare(client, monkeypatch, sample_doc_1):
-
     resp_data = _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_on_prepare=True)
 
     assert (
@@ -230,57 +223,86 @@ def test_recreate_sign_request_post_raises_on_prepare(client, monkeypatch, sampl
 
 
 def test_recreate_sign_request_post_raises_on_create(client, monkeypatch, sample_doc_1):
-
     resp_data = _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_on_prepare=False)
 
     assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
 def _recreate_sign_request(client, monkeypatch, payload_data, csrf_token=None):
-
     response1 = client.get('/sign/')
 
     assert response1.status == '200 OK'
 
     if csrf_token is None:
-        with run.app.test_request_context():
-            with client.session_transaction() as sess:
+        with client.session_transaction() as sess:
+            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+            user_key = sess['user_key']
 
-                csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-                user_key = sess['user_key']
+            from flask.sessions import SecureCookieSession
+
+            def mock_getitem(self, key):
+                if key == 'user_key':
+                    return user_key
+                self.accessed = True
+                return super(SecureCookieSession, self).__getitem__(key)
+
+            monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+
+            doc_data = {
+                'csrf_token': csrf_token,
+                'payload': payload_data,
+            }
+            if csrf_token == 'rm':
+                del doc_data['csrf_token']
+
+            response = client.post(
+                '/sign/recreate-sign-request',
+                headers={
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Origin': 'https://test.localhost',
+                    'X-Forwarded-Host': 'test.localhost',
+                },
+                json=doc_data,
+            )
+
+            assert response.status == '200 OK'
+
+            return json.loads(response.data)
+
     else:
-        user_key = "dummy key"
+        with client.session_transaction():
+            user_key = "dummy key"
 
-    from flask.sessions import SecureCookieSession
+            from flask.sessions import SecureCookieSession
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+            def mock_getitem(self, key):
+                if key == 'user_key':
+                    return user_key
+                self.accessed = True
+                return super(SecureCookieSession, self).__getitem__(key)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+            monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': payload_data,
-    }
-    if csrf_token == 'rm':
-        del doc_data['csrf_token']
+            doc_data = {
+                'csrf_token': csrf_token,
+                'payload': payload_data,
+            }
+            if csrf_token == 'rm':
+                del doc_data['csrf_token']
 
-    response = client.post(
-        '/sign/recreate-sign-request',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+            response = client.post(
+                '/sign/recreate-sign-request',
+                headers={
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Origin': 'https://test.localhost',
+                    'X-Forwarded-Host': 'test.localhost',
+                },
+                json=doc_data,
+            )
 
-    assert response.status == '200 OK'
+            assert response.status == '200 OK'
 
-    return json.loads(response.data)
+            return json.loads(response.data)
 
 
 def test_recreate_sign_request_no_name(client, monkeypatch, sample_doc_1):
@@ -295,7 +317,10 @@ def test_recreate_sign_request_no_name(client, monkeypatch, sample_doc_1):
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_empty_name(client, monkeypatch):
@@ -306,7 +331,10 @@ def test_recreate_sign_request_empty_name(client, monkeypatch):
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_no_size(client, monkeypatch):
@@ -315,7 +343,10 @@ def test_recreate_sign_request_no_size(client, monkeypatch):
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_invalid_size(client, monkeypatch):
@@ -332,14 +363,20 @@ def test_recreate_sign_request_invalid_size(client, monkeypatch):
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_no_type(client, monkeypatch):
     payload_data = {'documents': [{'name': 'test.pdf', 'size': 100, 'blob': 'dummy,dummy', 'key': str(uuid.uuid4())}]}
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_empty_type(client, monkeypatch):
@@ -348,7 +385,10 @@ def test_recreate_sign_request_empty_type(client, monkeypatch):
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_invalid_type(client, monkeypatch):
@@ -359,7 +399,10 @@ def test_recreate_sign_request_invalid_type(client, monkeypatch):
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_no_blob(client, monkeypatch):
@@ -368,7 +411,10 @@ def test_recreate_sign_request_no_blob(client, monkeypatch):
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_empty_blob(client, monkeypatch):
@@ -379,7 +425,10 @@ def test_recreate_sign_request_empty_blob(client, monkeypatch):
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_no_csrf(client, monkeypatch, sample_doc_1, csrf_token='rm'):
@@ -400,7 +449,10 @@ def test_recreate_sign_request_no_csrf(client, monkeypatch, sample_doc_1, csrf_t
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data, csrf_token='rm')
 
-    assert resp_data['message'] == 'csrf_token: Required'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_wrong_csrf(client, monkeypatch, sample_doc_1, csrf_token='rm'):
@@ -421,14 +473,20 @@ def test_recreate_sign_request_wrong_csrf(client, monkeypatch, sample_doc_1, csr
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data, csrf_token='wrong token')
 
-    assert resp_data['message'] == 'csrf_token: There was an error. Please try again, or contact the site administrator'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_no_key(client, monkeypatch):
     payload_data = {'documents': [{'name': 'test.pdf', 'size': 100, 'type': 'application/pdf', 'blob': 'dummy,dummy'}]}
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_invalid_key(client, monkeypatch):
@@ -439,11 +497,13 @@ def test_recreate_sign_request_invalid_key(client, monkeypatch):
     }
     resp_data = _recreate_sign_request(client, monkeypatch, payload_data)
 
-    assert resp_data['message'] == 'Document data seems corrupted'
+    assert (
+        resp_data['message']
+        == 'There were problems with the data you sent, please try again or contact your IT support'
+    )
 
 
 def test_recreate_sign_request_bad_api_response(client, monkeypatch, sample_doc_1):
-
     from edusign_webapp.api_client import APIClient
 
     def mock_post(self, url, *args, **kwargs):
@@ -477,54 +537,52 @@ def test_recreate_sign_request_bad_api_response(client, monkeypatch, sample_doc_
 
     assert response1.status == '200 OK'
 
-    with run.app.test_request_context():
-        with client.session_transaction() as sess:
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
 
-            csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
-            user_key = sess['user_key']
+        from flask.sessions import SecureCookieSession
 
-    from flask.sessions import SecureCookieSession
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
 
-    def mock_getitem(self, key):
-        if key == 'user_key':
-            return user_key
-        self.accessed = True
-        return super(SecureCookieSession, self).__getitem__(key)
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
 
-    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'documents': {
+                    'local': [
+                        {
+                            'name': 'test.pdf',
+                            'size': 100,
+                            'type': 'application/pdf',
+                            'blob': sample_doc_1['blob'],
+                            'key': sample_doc_1['key'],
+                        }
+                    ],
+                    'owned': [],
+                    'invited': [],
+                }
+            },
+        }
 
-    doc_data = {
-        'csrf_token': csrf_token,
-        'payload': {
-            'documents': {
-                'local': [
-                    {
-                        'name': 'test.pdf',
-                        'size': 100,
-                        'type': 'application/pdf',
-                        'blob': sample_doc_1['blob'],
-                        'key': sample_doc_1['key'],
-                    }
-                ],
-                'owned': [],
-                'invited': [],
-            }
-        },
-    }
+        response = client.post(
+            '/sign/recreate-sign-request',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
 
-    response = client.post(
-        '/sign/recreate-sign-request',
-        headers={
-            'X-Requested-With': 'XMLHttpRequest',
-            'Origin': 'https://test.localhost',
-            'X-Forwarded-Host': 'test.localhost',
-        },
-        json=doc_data,
-    )
+        assert response.status == '200 OK'
 
-    assert response.status == '200 OK'
+        resp_data = json.loads(response.data)
 
-    resp_data = json.loads(response.data)
-
-    assert resp_data['error']
-    assert resp_data['message'] == 'dummy message'
+        assert resp_data['error']
+        assert resp_data['message'] == 'dummy message'

@@ -38,10 +38,19 @@ from flask_babel import Babel
 from flask_cors import CORS
 from flask_mailman import Mail
 from flask_misaka import Misaka
-from werkzeug.wrappers import Response
+from werkzeug.wrappers import Request, Response
 
 from edusign_webapp.api_client import APIClient
 from edusign_webapp.doc_store import DocStore
+
+
+def get_locale():
+    """
+    get locale, from cookie or from config
+    """
+    if 'lang' in request.cookies:
+        return request.cookies.get('lang')
+    return request.accept_languages.best_match(app.config.get('SUPPORTED_LANGUAGES'))
 
 
 class EduSignApp(Flask):
@@ -49,7 +58,7 @@ class EduSignApp(Flask):
     Edusign's Flask app, with blueprints with the views needed by the eduSign app.
     """
 
-    def __init__(self, name: str, **kwargs):
+    def __init__(self, name: str, config: Optional[dict] = None, **kwargs):
         """
         :param name: Name for the Flask app
         """
@@ -58,20 +67,34 @@ class EduSignApp(Flask):
         if not self.testing:
             self.url_map.host_matching = False
 
-    def is_whitelisted(self, eppn: str) -> bool:
-        """
-        Check whether a given email address is whitelisted for starting sign processes
+        CORS(self, origins=[])
+        Misaka(self)
 
-        :param eppn: the eduPersonPrincipalName
-        :return: whether it is whitelisted
-        """
-        if eppn in self.config['USER_BLACKLIST']:
-            return False
+        self.config.from_object('edusign_webapp.config')
+        if config is not None:
+            self.config.update(config)
 
-        elif eppn in self.config['USER_WHITELIST']:
-            return True
+        self.extensions['api_client'] = APIClient(self.config)
 
-        return eppn.split('@')[1] in self.config['SCOPE_WHITELIST']
+        Babel(self, locale_selector=get_locale)
+
+        self.extensions['doc_store'] = DocStore(self)
+
+        self.extensions['mailer'] = Mail(self)
+
+        if self.config['ENVIRONMENT'] == 'e2e':
+            self.extensions['email_msgs'] = {}
+
+        from edusign_webapp.views import admin_edusign_views, anon_edusign_views, edusign_views
+
+        self.register_blueprint(admin_edusign_views)
+        self.register_blueprint(anon_edusign_views)
+        self.register_blueprint(edusign_views)
+
+        if self.config['APP_IN_TWO_PATHS']:
+            from edusign_webapp.views import edusign_views2
+
+            self.register_blueprint(edusign_views2)
 
 
 def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
@@ -87,28 +110,10 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
     :param config: To update the config, mainly used in tests
     :return: The Flask app.
     """
-    app = EduSignApp(name)
-
-    CORS(app, origins=[])
-    Misaka(app)
-
-    app.config.from_object('edusign_webapp.config')
     if config is not None:
-        app.config.update(config)
-
-    app.api_client = APIClient(app.config)
-
-    app.babel = Babel(app)
-
-    app.doc_store = DocStore(app)
-
-    app.mailer = Mail(app)
-
-    from edusign_webapp.views import admin_edusign_views, anon_edusign_views, edusign_views
-
-    app.register_blueprint(admin_edusign_views)
-    app.register_blueprint(anon_edusign_views)
-    app.register_blueprint(edusign_views)
+        app = EduSignApp(name, config)
+    else:
+        app = EduSignApp(name)
 
     to_tear_down = app.config['TO_TEAR_DOWN_WITH_APP_CONTEXT']
     for func_path in to_tear_down:
@@ -122,17 +127,7 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
     return app
 
 
-app = edusign_init_app('edusign')
-
-
-@app.babel.localeselector
-def get_locale():
-    """
-    get locale, from cookie or from config
-    """
-    if 'lang' in request.cookies:
-        return request.cookies.get('lang')
-    return request.accept_languages.best_match(app.config.get('SUPPORTED_LANGUAGES'))
+app: EduSignApp = edusign_init_app('edusign')
 
 
 class LoggingMiddleware(object):
@@ -163,6 +158,13 @@ class LoggingMiddleware(object):
             return resp(status, headers, *args)
 
         return self._app(env, log_response)
+
+
+@app.before_request
+def set_cookie_path():
+    segment1 = request.path.split('/')[1]
+    current_app.config["SESSION_COOKIE_PATH"] = f"/{segment1}"
+    current_app.logger.debug(f"SESSION COOKIE PATH set to {segment1} from {request.path}")
 
 
 if __name__ == '__main__':

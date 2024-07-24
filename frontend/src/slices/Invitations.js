@@ -5,6 +5,7 @@ import {
   checkStatus,
   extractCsrfToken,
   preparePayload,
+  esFetch,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 import { addOwned, removeOwned, updateOwned } from "slices/Main";
@@ -36,21 +37,36 @@ export const sendInvites = createAsyncThunk(
   "main/sendInvites",
   async (args, thunkAPI) => {
     thunkAPI.dispatch(isInviting());
-    const documentId = args.values.documentId;
-    const invitees = args.values.invitees;
-    const isTemplate = args.values.isTemplate;
-
     let state = thunkAPI.getState();
+    const documentId = state.modals.form_id;
+    const invitees = args.values.invitees.map((invitee) => ({
+      name: invitee.name,
+      email: invitee.email,
+      lang: invitee.lang,
+    }));
+    const isTemplate = args.values.isTemplate;
+    const ordered =
+      args.values.orderedChoice !== undefined
+        ? args.values.orderedChoice
+        : false;
+    const sendsigned =
+      args.values.sendsignedChoice !== undefined
+        ? args.values.sendsignedChoice
+        : false;
+    const skipfinal =
+      args.values.skipfinalChoice !== undefined
+        ? args.values.skipfinalChoice
+        : false;
 
     let document;
     if (isTemplate) {
-      document = state.template.documents.filter((doc) => {
+      document = state.template.documents.find((doc) => {
         return doc.id === documentId;
-      })[0];
+      });
     } else {
-      document = state.documents.documents.filter((doc) => {
+      document = state.documents.documents.find((doc) => {
         return doc.id === documentId;
-      })[0];
+      });
     }
 
     const owner = state.main.signer_attributes.mail;
@@ -60,12 +76,12 @@ export const sendInvites = createAsyncThunk(
       await thunkAPI.dispatch(removeDocument({ docName: document.name }));
       thunkAPI.dispatch(addDocument(document));
       await thunkAPI.dispatch(
-        createDocument({ doc: document, intl: args.intl })
+        createDocument({ doc: document, intl: args.intl }),
       );
       state = thunkAPI.getState();
-      document = state.documents.documents.filter((doc) => {
+      document = state.documents.documents.find((doc) => {
         return doc.name === document.name;
-      })[0];
+      });
     }
 
     if (isTemplate) {
@@ -85,32 +101,22 @@ export const sendInvites = createAsyncThunk(
 
       // The previously gotten state is out of date by now
       state = thunkAPI.getState();
-      const newDocument = state.documents.documents.filter((doc) => {
+      const newDocument = state.documents.documents.find((doc) => {
         return doc.name === docName;
-      })[0];
+      });
       thunkAPI.dispatch(setState({ name: docName, state: "loaded" }));
-      if (!isTemplate) {
-        thunkAPI.dispatch(rmDocument(document.name));
-        if (document.id !== undefined) {
-          await dbRemoveDocument(document);
-        }
-        const newTemplate = {
-          ...document,
-          state: "loaded",
-          isTemplate: true,
-        };
-        await saveTemplate(thunkAPI, newTemplate);
-      }
       document = newDocument;
     }
+    const loa = args.values.loa !== undefined ? args.values.loa : "low";
     // We send the gathered data to the `create-multi-sign` endpoint in the backend.
     const dataToSend = {
       owner: owner,
       invites: invitees,
       text: args.values.invitationText,
-      sendsigned: args.values.sendsignedChoice,
-      loa:
-        args.values.loa.join !== undefined ? args.values.loa.join(";") : "none",
+      sendsigned: sendsigned,
+      skipfinal: skipfinal,
+      loa: loa,
+      ordered: ordered,
       document: {
         key: document.key,
         name: document.name,
@@ -123,7 +129,7 @@ export const sendInvites = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await fetch("/sign/create-multi-sign", {
+      const response = await esFetch("/sign/create-multi-sign", {
         ...postRequest,
         body: body,
       });
@@ -135,7 +141,7 @@ export const sendInvites = createAsyncThunk(
           key: document.key,
         };
         const body_rm = preparePayload(state, dataToSend_rm);
-        const response = await fetch("/sign/remove-multi-sign", {
+        const response = await esFetch("/sign/remove-multi-sign", {
           ...postRequest,
           body: body_rm,
         });
@@ -158,6 +164,22 @@ export const sendInvites = createAsyncThunk(
       thunkAPI.dispatch(addNotification({ level: "danger", message: message }));
       return thunkAPI.rejectWithValue(null);
     }
+
+    let display_loa = args.intl.formatMessage({
+      defaultMessage: "Low",
+      id: "loa-name-low",
+    });
+    if (loa === "medium") {
+      display_loa = args.intl.formatMessage({
+        defaultMessage: "Medium",
+        id: "loa-name-medium",
+      });
+    } else if (loa === "high") {
+      display_loa = args.intl.formatMessage({
+        defaultMessage: "High",
+        id: "loa-name-high",
+      });
+    }
     // If there are no errors, remove the original document from the collection (in the redux state)
     // of non-invitation documents, and add it to the collection of documents invited by the user.
     const owned = {
@@ -167,10 +189,14 @@ export const sendInvites = createAsyncThunk(
       type: document.type,
       prev_signatures: document.prev_signatures,
       state: "incomplete",
-      pending: invitees,
+      pending: args.values.invitees,
       signed: [],
       declined: [],
       created: Date.now(),
+      loa: `${loa},${display_loa}`,
+      ordered: ordered,
+      skipfinal: skipfinal,
+      sendsigned: sendsigned,
     };
     await thunkAPI.dispatch(removeDocument({ docName: document.name }));
     thunkAPI.dispatch(addOwned(owned));
@@ -178,7 +204,7 @@ export const sendInvites = createAsyncThunk(
     // Start polling the backend, to update the local state when users invited to sign do sign.
     thunkAPI.dispatch(setPolling(true));
     thunkAPI.dispatch(rmDocumentByKey(document.key));
-  }
+  },
 );
 
 /**
@@ -195,9 +221,9 @@ export const editInvites = createAsyncThunk(
     const documentKey = args.values.documentKey;
     const invitees = args.values.invitees;
 
-    const doc = state.main.owned_multisign.filter((doc) => {
+    const doc = state.main.owned_multisign.find((doc) => {
       return doc.key === documentKey;
-    })[0];
+    });
 
     if (invitees.length === 0) {
       if (doc.signed.length === 0) {
@@ -208,7 +234,7 @@ export const editInvites = createAsyncThunk(
     } else {
       await editInvitesPending(args.values, thunkAPI, args.intl);
     }
-  }
+  },
 );
 
 /**
@@ -231,7 +257,7 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
   let contentData;
   let data;
   try {
-    const response1 = await fetch("/sign/get-partially-signed", {
+    const response1 = await esFetch("/sign/get-partially-signed", {
       ...postRequest,
       body: body,
     });
@@ -242,7 +268,7 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
     }
     state = thunkAPI.getState();
     body = preparePayload(state, owned);
-    const response2 = await fetch("/sign/remove-multi-sign", {
+    const response2 = await esFetch("/sign/remove-multi-sign", {
       ...postRequest,
       body: body,
     });
@@ -266,10 +292,15 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
   try {
     thunkAPI.dispatch(removeOwned(owned));
     // Now we add the document, first to the redux store, then to the IndexedDB database
+    let prefix = "data:application/xml;base64,";
+    if (doc.type === "application/pdf") {
+      prefix = "data:application/pdf;base64,";
+    }
     let newDoc = {
       ...doc,
       state: "loaded",
-      blob: "data:application/pdf;base64," + contentData.payload.blob,
+      blob: prefix + contentData.payload.blob,
+      pprinted: contentData.payload.pprinted,
     };
     delete newDoc.pending;
     delete newDoc.signed;
@@ -303,7 +334,13 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
 const editInvitesPending = async (values, thunkAPI, intl) => {
   const documentKey = values.documentKey;
   const invitationText = values.invitationText;
-  const invitees = values.invitees;
+  const sendsigned = values.sendsignedChoice;
+  const skipfinal = values.skipfinalChoice;
+  const invitees = values.invitees.map((invitee) => ({
+    name: invitee.name,
+    email: invitee.email,
+    lang: invitee.lang,
+  }));
 
   let state = thunkAPI.getState();
 
@@ -311,12 +348,14 @@ const editInvitesPending = async (values, thunkAPI, intl) => {
   const dataToSend = {
     key: documentKey,
     text: invitationText,
+    sendsigned: sendsigned,
+    skipfinal: skipfinal,
     invites: invitees,
   };
   const body = preparePayload(state, dataToSend);
   let data = null;
   try {
-    const response = await fetch("/sign/edit-multi-sign", {
+    const response = await esFetch("/sign/edit-multi-sign", {
       ...postRequest,
       body: body,
     });
@@ -341,7 +380,7 @@ const editInvitesPending = async (values, thunkAPI, intl) => {
   // If there are no errors, update the pending key in the concerned document
   const newOwned = {
     key: documentKey,
-    pending: invitees,
+    pending: values.invitees,
   };
   if (invitees.length === 0) {
     newOwned.state = "loaded";
@@ -379,7 +418,7 @@ export const removeInvites = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await fetch("/sign/remove-multi-sign", {
+      const response = await esFetch("/sign/remove-multi-sign", {
         ...postRequest,
         body: body,
       });
@@ -410,7 +449,7 @@ export const removeInvites = createAsyncThunk(
     });
     thunkAPI.dispatch(addNotification({ level: "success", message: message }));
     return document.key;
-  }
+  },
 );
 
 /**
@@ -447,7 +486,7 @@ export const resendInvitations = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await fetch("/sign/send-multisign-reminder", {
+      const response = await esFetch("/sign/send-multisign-reminder", {
         ...postRequest,
         body: body,
       });
@@ -473,5 +512,5 @@ export const resendInvitations = createAsyncThunk(
     });
     thunkAPI.dispatch(addNotification({ level: "success", message: message }));
     return document.key;
-  }
+  },
 );

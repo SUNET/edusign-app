@@ -2,56 +2,10 @@
 version: '3.8'
 services:
 
-  httpd-proxy:
-    build: ./test-idp/httpd-proxy/
-    networks:
-      edusign-dev:
-        ipv4_address: 172.20.10.200
-      edusign-back:
-        ipv4_address: 172.19.10.200
-    ports:
-     - "80:80"
-     - "443:443"
-
-  idp:
-    build: ./test-idp/idp/
-    depends_on: 
-     - ldap
-    environment:
-     - JETTY_MAX_HEAP=64m
-     - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
-     - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
-    expose: 
-     - "4443"
-    networks:
-      edusign-back:
-        ipv4_address: 172.19.10.201
-    secrets:
-     - source: idp_backchannel
-     - source: idp_browser
-     - source: idp_encryption
-     - source: idp_signing
-     - source: idp_sealer     
-   
-  ldap:
-    build: ./test-idp/ldap/
-    networks:
-      edusign-back:
-        ipv4_address: 172.19.10.202
-    ports:
-     - "9830:9830"
-
-  redis:
-    image: redis:latest
-    networks:
-      edusign-dev:
-        ipv4_address: 172.20.10.205
-
   sp:
-    build: ./edusign/
-    expose:
-      - 80
-      - 443
+    build: .
+    ports:
+      - 80:80
     networks:
       edusign-dev:
         ipv4_address: 172.20.10.203
@@ -59,9 +13,15 @@ services:
       - edusignlogs:/var/log/edusign:rw
       - ../frontend/build:/opt/edusign/jsbuild:ro
     environment:
-      - "HOSTNAME=${SERVER_NAME}"
+      - "HOSTNAME=sp.edusign.docker"
     depends_on:
-      - idp
+      - www
+
+  redis:
+    image: redis:latest
+    networks:
+      edusign-dev:
+        ipv4_address: 172.20.10.205
 
   www:
     build: ../backend/.
@@ -73,23 +33,29 @@ services:
     volumes:
       - edusignlogs:/var/log/edusign:rw
       - ../backend:/opt/edusign/edusign-webapp:ro
+      - ../../docker-edusign-app/example-customization:/etc/edusign:ro
     environment:
       - "PYTHONPATH=/opt/edusign/edusign-webapp/src"
-      - "HOSTNAME=${WEBAPP_HOSTNAME}"
-    env_file: .env
+      - "HOSTNAME=sp.edusign.docker"
+      - "SP_HOSTNAME=sp.edusign.docker"
+      - "DEBUG=True"
+      - "ENVIRONMENT=development"
+      - "SESSION_COOKIE_SECURE=False"
+      - "PREFERRED_URL_SCHEME=http"
+      - "EDUSIGN_API_PROFILE=edusign-test"
+      - "MAIL_SUPPRESS_SEND=True"
+      - "MAIL_BACKEND=dummy"
+      - "APP_IN_TWO_PATHS=True"
+    env_file:
+      - .env
     depends_on:
-      - sp
       - redis
 
+volumes:
+  edusignlogs:
+    name: edusignlogs
+
 networks:
-  edusign-back:
-    driver: bridge
-    driver_opts:
-      com.docker.network.bridge.name: br-edusign-back
-    ipam:
-      driver: default
-      config:
-      - subnet: 172.19.10.0/24
   edusign-dev:
     driver: bridge
     driver_opts:
@@ -98,20 +64,3 @@ networks:
       driver: default
       config:
       - subnet: 172.20.10.0/24
-
-volumes:
-  edusignlogs:
-    name: edusignlogs
-
-secrets:
-  idp_backchannel:
-    file: ./test-idp/idp/secrets/idp-backchannel.p12
-  idp_browser:
-    file: ./test-idp/idp/secrets/idp-browser.p12
-  idp_encryption:
-    file: ./test-idp/idp/secrets/idp-encryption.key
-  idp_signing:
-    file: ./test-idp/idp/secrets/idp-signing.key
-  idp_sealer:
-    file: ./test-idp/idp/secrets/sealer.jks
-
