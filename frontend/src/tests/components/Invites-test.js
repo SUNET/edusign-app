@@ -169,7 +169,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const buttonAdd = await waitFor(() =>
-        screen.getAllByTestId("button-add-invitation-test.pdf"),
+        screen.getAllByTestId("button-add-invitation"),
       );
       expect(buttonAdd.length).to.equal(1);
 
@@ -1154,7 +1154,7 @@ describe("Multi sign invitations", function () {
 
       const rmButton = await waitFor(() =>
         screen.getAllByTestId(
-          "button-rm-invitation-11111111-1111-1111-1111-111111111111",
+          "button-rm-invitation-test1.pdf",
         ),
       );
       expect(rmButton.length).to.equal(1);
@@ -1234,7 +1234,7 @@ describe("Multi sign invitations", function () {
 
       const rmButton = await waitFor(() =>
         screen.getAllByTestId(
-          "button-rm-invitation-11111111-1111-1111-1111-111111111111",
+          "button-rm-invitation-test1.pdf",
         ),
       );
       expect(rmButton.length).to.equal(1);
@@ -1652,7 +1652,7 @@ describe("Multi sign invitations", function () {
 
       const dlButton = await waitFor(() =>
         screen.getAllByTestId(
-          "button-download-signed-11111111-1111-1111-1111-111111111111",
+          "button-download-signed-test1.pdf",
         ),
       );
       expect(dlButton.length).to.equal(1);

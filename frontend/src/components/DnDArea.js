@@ -111,7 +111,7 @@ class DnDArea extends Component {
         </Dropzone>
       ) || (
         <section id={"edusign-dnd-wrapper-" + this.props.size}>
-          <div id="edusign-dnd-area">
+          <div id="edusign-dnd-area" data-testid="edusign-dnd-area">
             <span id="dnd-message-dropping">
               <FormattedMessage
                 defaultMessage="Drop documents here"
