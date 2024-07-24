@@ -319,7 +319,7 @@ def test_recreate_sign_request_no_name(client, monkeypatch, sample_doc_1):
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -333,7 +333,7 @@ def test_recreate_sign_request_empty_name(client, monkeypatch):
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -345,7 +345,7 @@ def test_recreate_sign_request_no_size(client, monkeypatch):
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -365,7 +365,7 @@ def test_recreate_sign_request_invalid_size(client, monkeypatch):
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -375,7 +375,7 @@ def test_recreate_sign_request_no_type(client, monkeypatch):
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -387,7 +387,7 @@ def test_recreate_sign_request_empty_type(client, monkeypatch):
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -401,7 +401,7 @@ def test_recreate_sign_request_invalid_type(client, monkeypatch):
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -413,7 +413,7 @@ def test_recreate_sign_request_no_blob(client, monkeypatch):
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -427,7 +427,7 @@ def test_recreate_sign_request_empty_blob(client, monkeypatch):
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -451,7 +451,7 @@ def test_recreate_sign_request_no_csrf(client, monkeypatch, sample_doc_1, csrf_t
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -475,7 +475,7 @@ def test_recreate_sign_request_wrong_csrf(client, monkeypatch, sample_doc_1, csr
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -485,7 +485,7 @@ def test_recreate_sign_request_no_key(client, monkeypatch):
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -499,7 +499,7 @@ def test_recreate_sign_request_invalid_key(client, monkeypatch):
 
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+    == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 

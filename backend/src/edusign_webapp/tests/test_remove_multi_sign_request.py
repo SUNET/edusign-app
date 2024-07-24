@@ -132,4 +132,4 @@ def test_remove_multi_sign_request_doesnt(client, monkeypatch, sample_doc_1):
 
     resp_data = _test_remove_multi_sign_request_with_problem(client, monkeypatch, sample_doc_1, mock_remove)
 
-    assert resp_data['message'] == 'Document has not been removed, please try again'
+    assert resp_data['message'] == 'Problem removing the invitation, please try again'

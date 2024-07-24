@@ -358,7 +358,7 @@ def test_get_signed_documents_no_sign_response(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -369,7 +369,7 @@ def test_get_signed_documents_empty_sign_response(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -381,7 +381,7 @@ def test_get_signed_documents_no_relay_state(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -393,7 +393,7 @@ def test_get_signed_documents_empty_relay_state(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -405,7 +405,7 @@ def test_get_signed_documents_no_csrf(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -417,5 +417,5 @@ def test_get_signed_documents_wrong_csrf(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )

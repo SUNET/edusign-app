@@ -255,7 +255,7 @@ def test_create_sign_request_doc_no_name(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -275,7 +275,7 @@ def test_create_sign_request_doc_no_ref(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -296,7 +296,7 @@ def test_create_sign_request_doc_invalid_ref_1(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -317,7 +317,7 @@ def test_create_sign_request_doc_invalid_ref_2(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -338,7 +338,7 @@ def test_create_sign_request_doc_invalid_sign_req_1(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -359,7 +359,7 @@ def test_create_sign_request_doc_invalid_sign_req_2(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -380,7 +380,7 @@ def test_create_sign_request_doc_invalid_sign_req_3(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -401,7 +401,7 @@ def test_create_sign_request_doc_no_csrf(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == "There were problems with the data you sent, please try again or contact your IT support"
+        == "There was an error. Please try again, or contact the site administrator."
     )
 
 
@@ -422,7 +422,7 @@ def test_create_sign_request_doc_wrong_csrf(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -504,7 +504,7 @@ def test_create_sign_request_doc_no_key(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
@@ -525,7 +525,7 @@ def test_create_sign_request_doc_invalid_key(client, monkeypatch):
     assert resp_data['error']
     assert (
         resp_data['message']
-        == 'There were problems with the data you sent, please try again or contact your IT support'
+        == 'There was an error. Please try again, or contact the site administrator.'
     )
 
 
