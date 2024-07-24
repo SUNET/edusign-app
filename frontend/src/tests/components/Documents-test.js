@@ -612,10 +612,10 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     let filename = screen.queryByText(/test.pdf/i);
     expect(filename).to.equal(null);
 
-    let buttonPreview = screen.queryByTestId("button-forced-preview-dummy-ref");
+    let buttonPreview = screen.queryByTestId("button-forced-preview-test.pdf");
     expect(buttonPreview).to.equal(null);
 
-    let buttonRemove = screen.queryByTestId("button-forced-preview-dummy-ref");
+    let buttonRemove = screen.queryByTestId("button-forced-preview-test.pdf");
     expect(buttonRemove).to.equal(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -647,12 +647,12 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     expect(filename.length).to.equal(1);
 
     buttonPreview = await waitFor(() =>
-      screen.getAllByTestId("button-forced-preview-dummy-ref"),
+      screen.getAllByTestId("button-forced-preview-test.pdf"),
     );
     expect(buttonPreview.length).to.equal(1);
 
     buttonRemove = await waitFor(() =>
-      screen.getAllByTestId("button-rm-invitation-dummy-ref"),
+      screen.getAllByTestId("button-rm-invitation-test.pdf"),
     );
     expect(buttonRemove.length).to.equal(1);
   } catch (err) {
@@ -764,7 +764,7 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     let buttonPreview = screen.queryByTestId("button-preview-dummy-ref");
     expect(buttonPreview).to.equal(null);
 
-    let buttonRemove = screen.queryByTestId("button-forced-preview-dummy-ref");
+    let buttonRemove = screen.queryByTestId("button-forced-preview-test.pdf");
     expect(buttonRemove).to.equal(null);
 
     let file = {
@@ -819,7 +819,7 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     // await flushPromises(rerender, wrapped);
     //
     // buttonRemove = await waitFor(() =>
-    //   screen.getAllByTestId("button-rm-invitation-dummy-ref")
+    //   screen.getAllByTestId("button-rm-invitation-test.pdf")
     // );
     // expect(buttonRemove.length).to.equal(1);
     //
@@ -846,10 +846,10 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
     let filename = screen.queryByText("test.pdf");
     expect(filename).to.equal(null);
 
-    let buttonRetry = screen.queryByTestId("button-retry-dummy-ref");
+    let buttonRetry = screen.queryByTestId("button-retry-test.pdf");
     expect(buttonRetry).to.equal(null);
 
-    let buttonRemove = screen.queryByTestId("button-rm-invitation-dummy-ref");
+    let buttonRemove = screen.queryByTestId("button-rm-invitation-test.pdf");
     expect(buttonRemove).to.equal(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -875,12 +875,12 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
     await flushPromises(rerender, wrapped);
 
     buttonRetry = await waitFor(() =>
-      screen.getAllByTestId("button-retry-dummy-ref"),
+      screen.getAllByTestId("button-retry-test.pdf"),
     );
     expect(buttonRetry.length).to.equal(1);
 
     buttonRemove = await waitFor(() =>
-      screen.getAllByTestId("button-rm-invitation-dummy-ref"),
+      screen.getAllByTestId("button-rm-invitation-test.pdf"),
     );
     expect(buttonRemove.length).to.equal(1);
   } catch (err) {
@@ -899,7 +899,7 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
-    let rmButton = screen.queryByTestId("button-forced-preview-dummy-ref");
+    let rmButton = screen.queryByTestId("button-forced-preview-test.pdf");
     expect(rmButton).to.equal(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -928,7 +928,7 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     rmButton = await waitFor(() =>
-      screen.getAllByTestId("button-rm-invitation-dummy-ref"),
+      screen.getAllByTestId("button-rm-invitation-test.pdf"),
     );
     expect(rmButton.length).to.equal(1);
 
@@ -953,7 +953,7 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     expect(downloadButton).to.equal(null);
 
     rmButton = await waitFor(() =>
-      screen.queryByText("button-rm-invitation-dummy-ref"),
+      screen.queryByText("button-rm-invitation-test.pdf"),
     );
     expect(rmButton).to.equal(null);
   } catch (err) {
@@ -1034,22 +1034,22 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const fstButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-first-test.pdf"),
+      screen.getAllByTestId("preview-button-first-0"),
     );
     expect(fstButton.length).to.equal(1);
 
     const prevButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-prev-test.pdf"),
+      screen.getAllByTestId("preview-button-prev-0"),
     );
     expect(prevButton.length).to.equal(1);
 
     const nextButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-next-test.pdf"),
+      screen.getAllByTestId("preview-button-next-0"),
     );
     expect(nextButton.length).to.equal(1);
 
     const lastButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-last-test.pdf"),
+      screen.getAllByTestId("preview-button-last-0"),
     );
     expect(lastButton.length).to.equal(1);
 
@@ -1134,7 +1134,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     expect(pdf2).to.equal(null);
 
     const nextButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-" + lst + "-test.pdf"),
+      screen.getAllByTestId("preview-button-" + lst + "-0"),
     );
     expect(nextButton.length).to.equal(1);
 
@@ -1148,7 +1148,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     expect(pdf2.length).to.equal(1);
 
     const prevButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-" + fst + "-test.pdf"),
+      screen.getAllByTestId("preview-button-" + fst + "-0"),
     );
     expect(prevButton.length).to.equal(1);
 
@@ -1238,7 +1238,7 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     let nextButton = await waitFor(() =>
-      screen.getAllByTestId("preview-button-next-test.pdf"),
+      screen.getAllByTestId("preview-button-next-0"),
     );
     expect(nextButton.length).to.equal(1);
 
@@ -1396,7 +1396,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     await flushPromises(rerender, wrapped);
 
     const text = await waitFor(() =>
-      screen.getAllByText("Problem creating signature request"),
+      screen.getAllByText("There was a problem signing the document"),
     );
     expect(text.length).to.equal(1);
   } catch (err) {
@@ -1548,7 +1548,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     await flushPromises(rerender, wrapped);
 
     const text = await waitFor(() =>
-      screen.getAllByText("Problem creating signature request"),
+      screen.getAllByText("There was a problem signing the document"),
     );
     expect(text.length).to.equal(1);
   } catch (err) {
@@ -1649,7 +1649,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     );
 
     const buttonSigned = await waitFor(() =>
-      screen.getAllByTestId("button-download-signed-dummy-key"),
+      screen.getAllByTestId("button-download-signed-test.pdf"),
     );
     expect(buttonSigned.length).to.equal(1);
   } catch (err) {
@@ -1743,7 +1743,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     expect(buttonDropdown.length).to.equal(1);
 
     const buttonRemove = await waitFor(() =>
-      screen.getAllByTestId("button-rm-invitation-dummy-ref"),
+      screen.getAllByTestId("button-rm-invitation-test.pdf"),
     );
     expect(buttonRemove.length).to.equal(1);
 

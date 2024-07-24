@@ -34,7 +34,7 @@ describe("DnDArea Component", function () {
 
     try {
       const dndArea1 = screen.getAllByText(
-        "Drag and drop files to be signed here",
+        "Drop documents here",
       );
       expect(dndArea1.length).to.equal(1);
 
