@@ -29,12 +29,13 @@ describe("DnDArea Component", function () {
 
   it("Shows dnd area ready to accept documents", function () {
     const { unmount } = setupComponent(<DnDAreaContainer />, {
-      main: { loading: false, size: "lg" },
+      main: { loading: false, size: "lg", environment: 'testing' },
+      dnd: { state: "waiting" },
     });
 
     try {
       const dndArea1 = screen.getAllByText(
-        "Drop documents here",
+        "Drag and drop files to be signed here",
       );
       expect(dndArea1.length).to.equal(1);
 

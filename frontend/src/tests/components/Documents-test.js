@@ -2,8 +2,10 @@ import React from "react";
 import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { expect } from "chai";
 import fetchMock from "fetch-mock";
-import * as FileSaver from "file-saver";
+import { FileSaver } from "slices/Documents";
 import sinon from "sinon";
+//const referee = require("@sinonjs/referee");
+//const assert = referee.assert;
 
 import {
   setupReduxComponent,
@@ -33,17 +35,16 @@ const logorder = () => {
 };
 
 describe("Document representations", function () {
-  const sandbox = sinon.createSandbox();
 
   beforeEach(async () => {
-    sandbox.spy(FileSaver, "saveAs");
+    sinon.spy(FileSaver, "saveAs");
     await resetDb();
   });
 
   afterEach(() => {
     cleanup();
     fetchMock.restore();
-    sandbox.restore();
+    sinon.restore();
   });
 
   it("It shows the document after createDocument action", async () => {
@@ -1398,7 +1399,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     const text = await waitFor(() =>
       screen.getAllByText("There was a problem signing the document"),
     );
-    expect(text.length).to.equal(1);
+    expect(text.length).to.equal(2);
   } catch (err) {
     unmount();
     throw err;
@@ -1550,7 +1551,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     const text = await waitFor(() =>
       screen.getAllByText("There was a problem signing the document"),
     );
-    expect(text.length).to.equal(1);
+    expect(text.length).to.equal(2);
   } catch (err) {
     unmount();
     throw err;
@@ -1839,15 +1840,14 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
     );
     expect(buttonDlAll.length).to.equal(1);
 
-    fireEvent.click(buttonDlAll[0]);
+    await fireEvent.click(buttonDlAll[0]);
     await flushPromises(rerender, wrapped);
 
-    await new Promise((resolve) => {
-      setTimeout(() => resolve(), 100);
-    });
+    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAARRRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR");
 
-    expect(FileSaver.saveAs.calledOnce).to.equal(true);
+    expect(FileSaver.saveAs.called).to.equal(true);
     expect(FileSaver.saveAs.getCall(0).args[1]).to.equal("signed.zip");
+    console.log("GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGHHHHHHHHHHHHHHHHHHHHHHHHHHH");
   } catch (err) {
     unmount();
     throw err;

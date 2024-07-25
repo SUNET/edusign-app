@@ -38,6 +38,8 @@ import { pdfjs } from "react-pdf";
 import * as FileSaver from "file-saver";
 import JSZip from "jszip";
 
+export { FileSaver };
+
 import {
   postRequest,
   checkStatus,
@@ -1141,25 +1143,42 @@ export const downloadSigned = createAsyncThunk(
 export const downloadAllSigned = createAsyncThunk(
   "documents/downloadAllSigned",
   async (args, thunkAPI) => {
+      console.log("1111111111111111111111111111111111111111111111111111");
     const state = thunkAPI.getState();
     let docs = state.documents.documents.filter((doc) => {
       return doc.state === "signed";
     });
+      console.log("2222222222222222222222222222222222222222222222222222");
     docs = docs.concat(
       state.main.pending_multisign.filter((doc) => {
         return doc.state === "signed";
       }),
     );
     const zip = await new JSZip();
+      console.log("33333333333333333333333333333333333333333333333333333");
     const folder = await zip.folder("signed");
-    for (const doc of docs) {
-      const b64content = doc.signedContent.split(",")[1];
+      console.log("4444444444444444444444444444444444444444444444444", docs.length, typeof(docs));
+    for await (const doc of docs) {
+      console.log("55555555555555555555555555444444444444444444444444444");
+      //const b64content = await doc.signedContent.split(",")[1];
+      const b64content1 = await doc.signedContent;
+      console.log("llllllllllllllllllllllllllllllllllllllllll");
+      const b64content2 = await b64content1.split(",");
+      console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+      const b64content = await b64content2[1];
+      console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
       const blob = b64toBlob(b64content, doc.type);
+      console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
       const newName = nameForDownload(doc.name, "signed");
+      console.log("5555555555555555555555555555555555555555555555555555");
       await folder.file(newName, blob);
+      console.log("66666666666666666666666666666666666666666666666666666");
     }
+      console.log("777777777777777777777777777777777777777777777777777");
     await zip.generateAsync({ type: "blob" }).then(async function (content) {
+      console.log("FFFFFFFFFFFFFFFFFFFFFFFFFUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
       await FileSaver.saveAs(content, "signed.zip");
+      console.log("CCCCCCCCCCCCCCCCCCCCCCCCCCCKKKKKKKKKKKKKKKKKKKKKKKKKK");
     });
   },
 );

@@ -30,7 +30,7 @@ const initialState = {
     },
     available_loas: [],
     max_file_size: 20000000,
-    environment: 'e2e',
+    environment: 'testing',
   },
   notifications: {
     message: null,

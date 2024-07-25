@@ -376,6 +376,7 @@ const mainSlice = createSlice({
       send_signed: true,
       ordered_invitations: false,
     },
+    environment: 'production',
   },
   reducers: {
     /**
