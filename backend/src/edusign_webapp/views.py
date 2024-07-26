@@ -1214,9 +1214,15 @@ def get_signed_documents(sign_data: dict) -> dict:
     prepared_data = _prepare_signed_documents_data(process_data)
     docs.extend(prepared_data)
 
+    doc_names = []
+
     for doc in docs:
         doc['pprinted'] = pretty_print_any(doc['signed_content'], doc['type'])
+        doc_names.append(doc["name"])
 
+    current_app.logger.info(
+        f"Handing over signed documents to {session['eppn']}: {', '.join(doc_names)}"
+    )
     return {
         'payload': {'documents': docs},
     }
