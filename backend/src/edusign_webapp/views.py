@@ -1031,6 +1031,7 @@ def _prepare_signed_documents_data(process_data):
         key = doc['id']
         owner = current_app.extensions['doc_store'].get_owner_data(key)
         current_app.logger.debug(f"Post-processing {key} for {owner}")
+        docname = current_app.extensions['doc_store'].get_document_name(key)
 
         # migration to mail_aliases
         mail_aliases = session.get('mail_aliases', [session['mail']])
@@ -1045,7 +1046,7 @@ def _prepare_signed_documents_data(process_data):
 
             if pending > 0 or not skipfinal:
                 docs.append(
-                    {'id': key, 'signed_content': doc['signedContent'], 'validated': False, 'type': doc['mimeType']}
+                    {'id': key, 'name': docname, 'signed_content': doc['signedContent'], 'validated': False, 'type': doc['mimeType']}
                 )
 
         elif owner:
@@ -1085,6 +1086,7 @@ def _process_signed_documents(process_data):
         mime_type = doc['mimeType']
         doc['type'] = mime_type
         docname = current_app.extensions['doc_store'].get_document_name(key)
+        doc['name'] = docname
         ordered = current_app.extensions['doc_store'].get_ordered(key)
         owner = current_app.extensions['doc_store'].get_owner_data(key)
         sendsigned = current_app.extensions['doc_store'].get_sendsigned(key)
@@ -1205,6 +1207,7 @@ def get_signed_documents(sign_data: dict) -> dict:
                 'signed_content': doc['doc']['signedContent'],
                 'validated': doc['validated'],
                 'type': doc['type'],
+                'name': doc['doc']['name'],
             }
         )
 
