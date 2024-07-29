@@ -112,7 +112,6 @@ class APIMarshal(object):
 
 class PersonalDataSchema(Schema):
     idp = fields.String(required=True, validate=[validate_nonempty])
-    eppn = fields.String(required=True, validate=[validate_nonempty])
     display_name = fields.String(required=True, validate=[validate_nonempty])
     mail = fields.List(fields.String())
     assurance = fields.List(fields.String())
@@ -121,12 +120,12 @@ class PersonalDataSchema(Schema):
     registration_authority = fields.String(required=True, validate=[validate_nonempty])
     saml_attr_schema = fields.String(required=True, validate=[validate_nonempty])
     return_url = fields.String(required=True, validate=[validate_nonempty])
+    authn_attr_name = fields.String(required=True, validate=[validate_nonempty])
+    authn_attr_value = fields.String(required=True, validate=[validate_nonempty])
 
 
 def add_to_session(personal_data):
     session['idp'] = personal_data['idp']
-    session['eppn'] = personal_data['eppn']
-    session['eduPersonPrincipalName'] = personal_data['eppn']
     session['displayName'] = personal_data['display_name']
     session['mail'] = personal_data['mail'][0]
     session['mail_aliases'] = personal_data['mail']
@@ -137,6 +136,15 @@ def add_to_session(personal_data):
     session['saml-attr-schema'] = personal_data['saml_attr_schema']
     session['invited-unauthn'] = False
     session['api_return_url'] = personal_data['return_url']
+    session['authn_attr_name'] = personal_data['authn_attr_name']
+    session['authn_attr_value'] = personal_data['authn_attr_value']
+    session['api_call'] = True
+    if session['authn_attr_name'] in ('urn:mace:dir:attribute-def:eduPersonPrincipalName', 'urn:oid:1.3.6.1.4.1.5923.1.1.1.6'):
+        session['eppn'] = personal_data['authn_attr_value']
+        session['eduPersonPrincipalName'] = personal_data['authn_attr_value']
+    else:
+        session['eppn'] = 'dummy@dummy'
+        session['eduPersonPrincipalName'] = 'dummy@dummy'
 
 
 class APIRequestSchema(Schema):
