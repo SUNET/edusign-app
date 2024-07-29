@@ -325,17 +325,25 @@ class APIClient(object):
         correlation_id = str(uuid.uuid4())
         attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
         attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]
-        used_attr_names = tuple(friendly_name for _, friendly_name in attr_names)
-        more_attr_names = [
-            attr_names
-            for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items()
-            if attr_names[1] not in used_attr_names
-        ]
-        more_attrs = [
-            {'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in more_attr_names
-        ]
-        more_used_attr_names = tuple(friendly_name for _, friendly_name in more_attr_names)
-        used_attr_names += more_used_attr_names
+        used_attr_names = tuple(saml_name for saml_name, _ in attr_names)
+        if 'api_call' in session and session['api_call']:
+            more_attr_names = []
+            more_attrs = []
+            if session['authn_attr_name'] not in used_attr_names:
+                more_attr_names.append(session['authn_attr_name'])
+                more_attrs = [{'name': session['authn_attr_name'], 'value': session['authn_attr_value']}]
+                used_attr_names += tuple([session['authn_attr_name']])
+        else:
+            more_attr_names = [
+                attr_names
+                for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items()
+                if attr_names[0] not in used_attr_names
+            ]
+            more_attrs = [
+                {'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in more_attr_names
+            ]
+            more_used_attr_names = tuple(saml_name for saml_name, _ in more_attr_names)
+            used_attr_names += more_used_attr_names
         attrs.extend(more_attrs)
         assurances = self.config['AVAILABLE_LOAS'].get(
             session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']

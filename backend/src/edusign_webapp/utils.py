@@ -356,12 +356,15 @@ def get_previous_signatures_xml(document: dict) -> str:
 
 def is_whitelisted(app, eppn: str) -> bool:
     """
-    Check whether a given email address is whitelisted for starting sign processes
+    Check whether a given eppn is whitelisted for starting sign processes
 
     :param app: the Flask app
     :param eppn: the eduPersonPrincipalName
     :return: whether it is whitelisted
     """
+    if 'api_call' in session and session['api_call']:
+        return True
+
     if eppn.lower() in app.config['USER_BLACKLIST']:
         return False
 
