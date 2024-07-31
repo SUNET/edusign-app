@@ -255,3 +255,11 @@ export const rmDocument = async (user, filename, type) => {
   await user.page.getByTestId(`confirm-remove-${filename}-confirm-button`).click();
   await expect(user.page.locator('#contact-local-it-msg')).toContainText('If you experience problems with eduSign contact your local IT-support');
 }
+
+export const checkTooltip = async (user, hoverSelector, helpId, text) => {
+  const element = user.page.locator(hoverSelector);
+  await expect(element).toBeVisible();
+  await element.hover();
+  const tooltip = await user.page.getByTestId(helpId);
+  await expect(tooltip).toContainText(text);
+}

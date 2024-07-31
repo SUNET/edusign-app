@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { login, startAtSignPage } from './utils.ts';
+import { login, startAtSignPage, checkTooltip } from './utils.ts';
 
 test('Initial UI with no documents', async ({ browser }) => {
 
@@ -16,7 +16,10 @@ test('Initial UI with no documents', async ({ browser }) => {
   await expect(user0.page.locator('#dnd-area-head-2')).toContainText('or');
   await expect(user0.page.locator('#dnd-area-head-3')).toContainText('click here to choose files to be signed');
   await expect(user0.page.locator('#contact-local-it-msg')).toContainText('If you experience problems with eduSign contact your local IT-support');
-  await expect(user0.page.locator('#button-sign-wrapper')).toBeVisible();
+
+  const helpText = 'Select documents above and click here to send them for signing. You will be redirected to login again to authenticate yourself when signing.';
+  await checkTooltip(user0, '#button-sign-wrapper', 'button-sign-selected', helpText);
+
   await expect(user0.page.locator('#button-dlall-wrapper')).toBeVisible();
   await expect(user0.page.locator('#button-clear-wrapper')).toBeVisible();
   await expect(user0.page.locator('label')).toContainText('Show contextual help');
