@@ -17,11 +17,15 @@ test('Initial UI with no documents', async ({ browser }) => {
   await expect(user0.page.locator('#dnd-area-head-3')).toContainText('click here to choose files to be signed');
   await expect(user0.page.locator('#contact-local-it-msg')).toContainText('If you experience problems with eduSign contact your local IT-support');
 
-  const helpText = 'Select documents above and click here to send them for signing. You will be redirected to login again to authenticate yourself when signing.';
+  let helpText = 'Select documents above and click here to send them for signing. You will be redirected to login again to authenticate yourself when signing.';
   await checkTooltip(user0, '#button-sign-wrapper', 'button-sign-selected', helpText);
 
-  await expect(user0.page.locator('#button-dlall-wrapper')).toBeVisible();
-  await expect(user0.page.locator('#button-clear-wrapper')).toBeVisible();
+  helpText = 'Download all signed documents.';
+  await checkTooltip(user0, '#button-dlall-wrapper', 'button-dlall', helpText);
+
+  helpText = 'Discard all documents in the "Personal documents" list above';
+  await checkTooltip(user0, '#button-clear-wrapper', 'clear-session-button', helpText);
+
   await expect(user0.page.locator('label')).toContainText('Show contextual help');
   await expect(user0.page.getByTestId('edusign-footer').locator('span')).toBeVisible();
   await expect(user0.page.getByTestId('language-selector')).toBeVisible();
