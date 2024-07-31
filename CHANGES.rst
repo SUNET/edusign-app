@@ -2,11 +2,16 @@
 In version 1.4.0:
 -----------------
 
+* Add e2e tests
+* Keep partially signed docs locally
+* Review of error messages
+* Better pagination controls
 * Allow sining XML documents
 * Invitations in order
 * Ability to use 2 different sign service integration API profiles
 * Inviter can require LoA levels
 * customization of defaults in forms
+* A few bugfixes
 
 In version 1.3.0:
 -----------------
