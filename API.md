@@ -66,7 +66,7 @@ Keys in the JSON sent to the `create-sign-request` endpoint:
 - `personal_data.saml_attr_schema`: Some (very few) IdPs do not release attributes in the SAML2.0 format (`urn:oid:` followed by some numbers) but in the SAML1.1 format (`urn:mace:dir:attribute-def:` followed by the friendly name of the attribute). If the chosen IdP releases the attributes in the SAML2.0 format, this key should be set as "20", otherwise it should be set as "11". This will almost always be "20".
 - `personal_data.return_url`: URL in the app using the API to which the sign service will send the user once it has signed the document.
 - `personal_data.authn_attr_name`: Attribute used as unique identifier of the signing party in the chosen IdP, provided in the AttributeStatement in the SAML authentication assertion. In the example we use the eppn, `urn:oid:1.3.6.1.4.1.5923.1.1.1.6`.
-- `personal_data.authn_attr_name`: Value of the attribute used as unique identifier of the signing party in the chosen IdP, provided in the AttributeStatement in the SAML authentication assertion. It will be required to coincide with the attribute value in the SAML authn assertion for the signature.
+- `personal_data.authn_attr_value`: Value of the attribute used as unique identifier of the signing party in the chosen IdP, provided in the AttributeStatement in the SAML authentication assertion. It will be required to coincide with the attribute value in the SAML authn assertion for the signature.
 - `payload.documents.local`: List of documents to be signed. Each document is characterized by the following keys:
   - `name`: Name of the document.
   - `type`: MIME type of the document. Either `application/pdf` or `application/xml`.
@@ -204,16 +204,14 @@ To achieve that, it has to POST to `/api/v1/get-signed` with a JSON body with th
     {
       "api_key": "dummy",
       "personal_data": {
-        "idp": "https://login.idp.eduid.se/idp.xml",
-        "eppn": "pugoj-hutat@eduid.se",
         "display_name": "ENRIQUE PABLO PEREZ ARNAUD",
         "mail": ["enrique@cazalla.net"],
-        "authn_context": "https://refeds.org/profile/mfa",
         "organization": "eduID Sweden",
         "assurance": ["http://www.swamid.se/policy/assurance/al1"],
         "registration_authority": "http://www.swamid.se/",
         "saml_attr_schema": "20",
-        "return_url": "https://dev.drive.sunet.se/edusign-test-api-callback"
+        "authn_attr_name": "urn:oid:1.3.6.1.4.1.5923.1.1.1.6",
+        "authn_attr_value": "pugoj-hutat@eduid.se",
       },
       "payload": {
         "sign_response": "PD94bWwgdmV [...] c3BvbnNlPg==",

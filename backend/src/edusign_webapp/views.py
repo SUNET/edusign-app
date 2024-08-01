@@ -799,6 +799,7 @@ def _ready_docs(
     api_views=[
         {"blueprint": edusign_api_views, "route": '/create-sign-request', "methods": ["POST"]},
     ],
+    authn_request=True
 )
 def recreate_sign_request(documents: dict) -> dict:
     """
