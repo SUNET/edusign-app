@@ -224,14 +224,17 @@ The response from the API will have the form of the following example:
 
 ```json
     {
-        "documents": [
-            {
-                "id": "ca954d99-29c9-405f-ae35-ddd93e61f00d",
-                "signed_content": "JVBERi0xLjQKJZOMi [...] CjEwNzYKJSVFT0YK",
-                "validated": true,
-                "pprinted": "[...]"
-            }
-        ]
+        "error": false,
+        "payload": {
+            "documents": [
+                {
+                    "id": "ca954d99-29c9-405f-ae35-ddd93e61f00d",
+                    "signed_content": "JVBERi0xLjQKJZOMi [...] CjEwNzYKJSVFT0YK",
+                    "validated": true,
+                    "pprinted": "[...]"
+                }
+            ]
+        }
     }
 ```
 
