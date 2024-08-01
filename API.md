@@ -200,8 +200,23 @@ To achieve that, it has to POST to `/api/v1/get-signed` with a JSON body with th
 
 ```json
     {
+      "api_key": "dummy",
+      "personal_data": {
+        "idp": "https://login.idp.eduid.se/idp.xml",
+        "eppn": "pugoj-hutat@eduid.se",
+        "display_name": "ENRIQUE PABLO PEREZ ARNAUD",
+        "mail": ["enrique@cazalla.net"],
+        "authn_context": "https://refeds.org/profile/mfa",
+        "organization": "eduID Sweden",
+        "assurance": ["http://www.swamid.se/policy/assurance/al1"],
+        "registration_authority": "http://www.swamid.se/",
+        "saml_attr_schema": "20",
+        "return_url": "https://dev.drive.sunet.se/edusign-test-api-callback"
+      },
+      "payload": {
         "sign_response": "PD94bWwgdmV [...] c3BvbnNlPg==",
         "relay_state": "2f725211-d572-4979-8fd4-678918136103"
+      }
     }
 ```
 
