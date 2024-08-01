@@ -244,3 +244,12 @@ For each signed document, the keys in the response are:
 - `signed_content`: the base64 encoded signed document.
 - `validated`: whether the document has been validated by the validator configured in the API.
 - `pprinted`: In the case of an XML document, this key carries an HTML representation of the document.
+
+In case of error, the response from the API would be someting like:
+
+```json
+    {
+        "error": true,
+        "message": "User identity does not match requested identity attributes"
+    }
+```
