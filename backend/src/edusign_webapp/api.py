@@ -111,31 +111,31 @@ class APIMarshal(object):
 
 
 class PersonalDataSchema(Schema):
-    idp = fields.String(required=True, validate=[validate_nonempty])
     display_name = fields.String(required=True, validate=[validate_nonempty])
     mail = fields.List(fields.String())
     assurance = fields.List(fields.String())
-    authn_context = fields.String(required=True, validate=[validate_nonempty])
     organization = fields.String(required=True, validate=[validate_nonempty])
     registration_authority = fields.String(required=True, validate=[validate_nonempty])
     saml_attr_schema = fields.String(required=True, validate=[validate_nonempty])
-    return_url = fields.String(required=True, validate=[validate_nonempty])
     authn_attr_name = fields.String(required=True, validate=[validate_nonempty])
     authn_attr_value = fields.String(required=True, validate=[validate_nonempty])
 
 
+class AuthnDataSchema(PersonalDataSchema):
+    idp = fields.String(required=True, validate=[validate_nonempty])
+    authn_context = fields.String(required=True, validate=[validate_nonempty])
+    return_url = fields.String(required=True, validate=[validate_nonempty])
+
+
 def add_to_session(personal_data):
-    session['idp'] = personal_data['idp']
     session['displayName'] = personal_data['display_name']
     session['mail'] = personal_data['mail'][0]
     session['mail_aliases'] = personal_data['mail']
-    session['authn_context'] = personal_data['authn_context']
     session['organizationName'] = personal_data['organization']
     session['eduPersonAssurance'] = personal_data['assurance']
     session['registrationAuthority'] = personal_data['registration_authority']
     session['saml-attr-schema'] = personal_data['saml_attr_schema']
     session['invited-unauthn'] = False
-    session['api_return_url'] = personal_data['return_url']
     session['authn_attr_name'] = personal_data['authn_attr_name']
     session['authn_attr_value'] = personal_data['authn_attr_value']
     session['api_call'] = True
@@ -146,6 +146,13 @@ def add_to_session(personal_data):
         session['eppn'] = 'dummy@dummy'
         session['eduPersonPrincipalName'] = 'dummy@dummy'
 
+    if 'idp' in personal_data:
+        session['idp'] = personal_data['idp']
+    if 'authn_context' in personal_data:
+        session['authn_context'] = personal_data['authn_context']
+    if 'return_url' in personal_data:
+        session['api_return_url'] = personal_data['return_url']
+
 
 class APIRequestSchema(Schema):
     """
@@ -153,11 +160,24 @@ class APIRequestSchema(Schema):
     that will acquire different payloads depending on the actual request being made.
 
     The basic structure of this schema is:
-    * csrf_token: CSRF token sent from the front side app.
-    * payload: (optional) additional data sent from the frontend and specific to the request.
+    * api_key: API key for the eduSign app.
+    * personal_data: Data about the principal signing the document.
     """
     api_key = fields.String(required=True)
     personal_data = fields.Nested(PersonalDataSchema)
+
+
+class AuthnAPIRequestSchema(Schema):
+    """
+    Basic Schema to validate requests from the front side app,
+    that will acquire different payloads depending on the actual request being made.
+
+    The basic structure of this schema is:
+    * api_key: API key for the eduSign app.
+    * personal_data: Data about the principal signing the document.
+    """
+    api_key = fields.String(required=True)
+    personal_data = fields.Nested(AuthnDataSchema)
 
 
 class APIUnMarshal(object):
@@ -166,6 +186,8 @@ class APIUnMarshal(object):
     That will extract data from the requests, validate it,
     and provide it to the views in the form of dicts and lists.
     """
+
+    request_schema = APIRequestSchema
 
     def __init__(self, schema: Optional[Type[Schema]] = None):
         """
@@ -177,10 +199,10 @@ class APIUnMarshal(object):
         """
 
         if schema is None:
-            self.schema = APIRequestSchema
+            self.schema = self.request_schema
         else:
 
-            class APIUnMarshallingSchema(APIRequestSchema):
+            class APIUnMarshallingSchema(self.request_schema):
                 payload = fields.Nested(schema)  # type: ignore
 
             self.schema = APIUnMarshallingSchema
@@ -220,13 +242,26 @@ class APIUnMarshal(object):
         return unmarshal_decorator
 
 
+class AuthnAPIUnMarshal(APIUnMarshal):
+    """
+    Decorator class for Flask views,
+    That will extract data from the requests, validate it,
+    and provide it to the views in the form of dicts and lists.
+    """
+
+    request_schema = AuthnAPIRequestSchema
+
+
 class Routing(object):
 
-    def __init__(self, marshal=None, unmarshal=None, web_views=None, api_views=None):
+    def __init__(self, marshal=None, unmarshal=None, web_views=None, api_views=None, authn_request=False):
         self.marshal = Marshal(marshal)
         self.unmarshal = UnMarshal(unmarshal)
         self.api_marshal = APIMarshal(marshal)
-        self.api_unmarshal = APIUnMarshal(unmarshal)
+        if authn_request:
+            self.api_unmarshal = APIUnMarshal(unmarshal)
+        else:
+            self.api_unmarshal = AuthnAPIUnMarshal(unmarshal)
         self.web_views = web_views
         self.api_views = api_views
 
