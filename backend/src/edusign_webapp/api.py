@@ -148,6 +148,7 @@ def add_to_session(personal_data):
         else:
             organization = personal_data['organization'].replace(' ', '')
             eppn = f"{personal_data['authn_attr_value']}@{organization}"
+
         session['eppn'] = eppn
         session['eduPersonPrincipalName'] = eppn
 
