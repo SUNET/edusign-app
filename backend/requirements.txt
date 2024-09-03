@@ -6,7 +6,7 @@ requests==2.31.0
 Flask-Mailman==1.0.0
 boto3==1.34.86
 flask-redis==0.4.0
-flask-cors==4.0.0
+flask-cors==5.0.0
 flask-misaka==1.0.1
 reportlab<4.0.0
 pyHanko==0.23.2
