@@ -265,9 +265,9 @@ class Routing(object):
         self.unmarshal = UnMarshal(unmarshal)
         self.api_marshal = APIMarshal(marshal)
         if authn_request:
-            self.api_unmarshal = APIUnMarshal(unmarshal)
-        else:
             self.api_unmarshal = AuthnAPIUnMarshal(unmarshal)
+        else:
+            self.api_unmarshal = APIUnMarshal(unmarshal)
         self.web_views = web_views
         self.api_views = api_views
 
