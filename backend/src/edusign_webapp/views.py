@@ -435,6 +435,9 @@ def receive_sign_request():
     if current_app.config['ENVIRONMENT'].startswith('pro'):
         abort(404)
 
+    if request.method == "GET":
+        return render_template('test-api.jinja2')
+
     current_app.logger.debug('################################################################################\n\n')
     current_app.logger.debug(f'Binding:\n{request.values['Binding']}')
     current_app.logger.debug(f'RelayState:\n{request.values['RelayState']}')
