@@ -428,6 +428,22 @@ def emails():
     return {'payload': payload}
 
 
+@edusign_views.route('/receive-sign-request', methods=['GET', 'POST'])
+@edusign_views2.route('/receive-sign-request', methods=['GET', 'POST'])
+@Marshal(EmailsSchema)
+def receive_sign_request():
+    if current_app.config['ENVIRONMENT'].startswith('pro'):
+        abort(404)
+
+    current_app.logger.debug('################################################################################\n\n')
+    current_app.logger.debug(f'Binding:\n{request.values['Binding']}')
+    current_app.logger.debug(f'RelayState:\n{request.values['RelayState']}')
+    current_app.logger.debug(f'EidSignResponse:\n{request.values['EidSignResponse']}')
+    current_app.logger.debug('\n\n################################################################################')
+
+    return {'message': 'OK'}
+
+
 def _get_ui_defaults():
     ui_defaults = {
         'send_signed': current_app.config['UI_SEND_SIGNED'],
