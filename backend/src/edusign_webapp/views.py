@@ -439,9 +439,9 @@ def receive_sign_request():
         return render_template('test-api.jinja2')
 
     current_app.logger.debug('################################################################################\n\n')
-    current_app.logger.debug(f'Binding:\n{request.values['Binding']}')
-    current_app.logger.debug(f'RelayState:\n{request.values['RelayState']}')
-    current_app.logger.debug(f'EidSignResponse:\n{request.values['EidSignResponse']}')
+    current_app.logger.debug(f"Binding:\n{request.values['Binding']}")
+    current_app.logger.debug(f"RelayState:\n{request.values['RelayState']}")
+    current_app.logger.debug(f"EidSignResponse:\n{request.values['EidSignResponse']}")
     current_app.logger.debug('\n\n################################################################################')
 
     return {'message': 'OK'}
