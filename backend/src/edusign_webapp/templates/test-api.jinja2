@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<body>
+  <form action="#" method="POST">
+    <div>
+      Binding: <input type="text" name="Binding"/><br/>
+      Relay State: <input type="text" name="RelayState"/><br/>
+      Sign Request: <input type="text" name="EidSignRequest"/><br/>
+    </div>
+  </form>
+  <div>
+    <input type="text" id="form-action"/>
+    <button id="form-submit">
+      Submit
+    </button>
+  </div>
+  <sript type="text/javascript">
+    window.onload = function() {
+      const button = document.getElementById("form-submit");
+      button.addEventListener("click", (e) => {
+        const actionHolder = document.getElementById("form-action");
+        const action = actionHolder.value;
+        const form = document.forms[0];
+        form.action = action;
+        form.submit();
+      });
+    }
+  </script>
+</body>
