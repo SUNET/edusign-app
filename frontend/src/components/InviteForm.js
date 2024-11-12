@@ -183,9 +183,11 @@ class InviteForm extends React.Component {
             >
               <>
                 {this.props.loas.map((level, i) => {
-                  <option key={i} value={level.value}>
-                    {level.name}
-                  </option>
+                  return (
+                    <option key={i} value={level.value}>
+                      {level.name}
+                    </option>
+                  )
                 })}
               </>
             </Field>
