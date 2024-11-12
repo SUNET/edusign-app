@@ -156,13 +156,22 @@
 
 .loa-select-group {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: baseline;
   margin-right: 10%;
   margin-left: 10%;
 
   .loa-select-label {
     margin-bottom: 1rem;
+    margin-right: 1rem;
+    display: flex;
+    flex-direction: column;
+
+    a {
+      margin-top: .5rem;
+      font-size: .9rem;
+    }
 
     .security-level-sign {
       display: inline-block;

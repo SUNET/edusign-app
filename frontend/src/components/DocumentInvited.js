@@ -248,8 +248,10 @@ class DocumentInvited extends Component {
                     <>
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                      {widgets.showMessage(doc)}
+                      <div className="docname-plus-message">
+                        {widgets.docName(doc)}
+                        {widgets.showMessage(doc)}
+                      </div>
                       {widgets.declineSignatureButton(this.props, doc)}
                     </>
                   )}

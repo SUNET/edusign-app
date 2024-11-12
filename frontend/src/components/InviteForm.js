@@ -159,41 +159,38 @@ class InviteForm extends React.Component {
                 className="loa-select-label"
                 htmlFor="loa-select-input"
               >
+                <span>
                 <FormattedMessage
                   defaultMessage="Level of Assurance for signatures"
                   key="loa-select-field"
                 />
+                </span>
+                <a href="https://wiki.sunet.se/display/EDUSIGN/eduSign+Assurance+Levels">
+                  <FormattedMessage
+                    defaultMessage="More info about assurance levels"
+                    key="loa-info-link"
+                  />
+                </a>
               </BForm.Label>
             </ESTooltip>
-      
-            <BDropdownButton
+
+            <Field
+              name="loa"
               data-testid="loa-select-input"
               id="loa-select-input"
-              name="loa"
+              value={this.props.loas[0].value}
+              as={BForm.Select}
             >
               {this.props.loas.map((level, i) => {
-                return (
-                  <Dropdown.Item
-                    data-testid={`loa-item-${level.value}`}
-                    id={`loa-item-${level.value}`}
-                    parentid="loa-select-input"
-                    value={level.value}
-                  >
-                    {level.name}
-                  </Dropdown.Item>
-                );
+                <option key={i} value={level.value}>
+                  {level.name}
+                </option>
               })}
-            </BDropdownButton>
-            
+            </Field>
+      
           </BForm.Group>
         </div>
         <div className="loa-select-holder">
-          <a href="https://wiki.sunet.se/display/EDUSIGN/eduSign+Assurance+Levels">
-            <FormattedMessage
-              defaultMessage="More info about assurance levels"
-              key="loa-info-link"
-            />
-          </a>
         </div>
       </>
     );
