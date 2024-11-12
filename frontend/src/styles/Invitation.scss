@@ -24,6 +24,11 @@
       flex-wrap: wrap;
       width: 100%;
 
+      .docname-plus-message {
+        display: flex;
+        flex-direction: column;
+      }
+
       .doc-selector-flex-item {
         flex: none;
         width: 2rem;
