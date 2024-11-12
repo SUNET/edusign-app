@@ -181,11 +181,13 @@ class InviteForm extends React.Component {
               value={this.props.loas[0].value}
               as={BForm.Select}
             >
-              {this.props.loas.map((level, i) => {
-                <option key={i} value={level.value}>
-                  {level.name}
-                </option>
-              })}
+              <>
+                {this.props.loas.map((level, i) => {
+                  <option key={i} value={level.value}>
+                    {level.name}
+                  </option>
+                })}
+              </>
             </Field>
       
           </BForm.Group>
