@@ -250,7 +250,7 @@ class DocumentInvited extends Component {
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
                       {widgets.showMessage(doc)}
-                      {widgets.dummyButton()}
+                      {widgets.declineSignatureButton(this.props, doc)}
                     </>
                   )}
                 </div>
@@ -346,7 +346,7 @@ class DocumentInvited extends Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.dummyButton()}
+                    {widgets.declineSignatureButton(this.props, doc)}
                   </div>
                 </>
               )}

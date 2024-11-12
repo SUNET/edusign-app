@@ -248,7 +248,7 @@ def get_invitations(remove_finished=False):
         required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
         if required_loa not in session['eduPersonAssurance']:
             doc['state'] = 'failed-loa'
-            doc['message'] = gettext("You do not have the required level of assurance on your identity, please make sure to provide '<a href='%(loa)s'>%(level)s</a>' level") % {'loa': required_loa, 'level': display_levels[loa]}
+            doc['message'] = gettext("You do not fullfil required Assurance level for your user account")
         if len(doc['pending']) > 0:
             poll = True
     newowned, skipped = [], []
@@ -261,10 +261,6 @@ def get_invitations(remove_finished=False):
         current_app.logger.debug(f"Checking {doc['name']}, with {len(doc['pending'])} pending")
         if len(doc['pending']) > 0:
             poll = True
-
-
-
-
 
         if doc['skipfinal'] and len(doc['pending']) == 0:
             current_app.logger.debug(f"Skipping {doc['name']}")

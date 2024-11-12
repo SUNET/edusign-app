@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
 import Button from "containers/Button";
 import BForm from "react-bootstrap/Form";
+import BDropdownButton from "react-bootstrap/DropdownButton";
+import Dropdown from "react-bootstrap/Dropdown";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Cookies from "js-cookie";
@@ -110,7 +112,7 @@ class InviteForm extends React.Component {
                 htmlFor="ordered-choice-input"
               >
                 <FormattedMessage
-                  defaultMessage="Use workflow for signatures"
+                  defaultMessage="Use sequential workflow for signatures"
                   key="ordered-choice-field"
                 />
               </BForm.Label>
@@ -163,23 +165,35 @@ class InviteForm extends React.Component {
                 />
               </BForm.Label>
             </ESTooltip>
-            <div id="loa-select-field" data-testid="loa-select-field">
+      
+            <BDropdownButton
+              data-testid="loa-select-input"
+              id="loa-select-input"
+              name="loa"
+            >
               {this.props.loas.map((level, i) => {
                 return (
-                  <BForm.Label key={i} className="loa-checkbox">
-                    <Field
-                      name="loa"
-                      value={level.value}
-                      className="loa-select"
-                      type="radio"
-                      data-testid={`loa-radio-${level.value}`}
-                    />
+                  <Dropdown.Item
+                    data-testid={`loa-item-${level.value}`}
+                    id={`loa-item-${level.value}`}
+                    parentid="loa-select-input"
+                    value={level.value}
+                  >
                     {level.name}
-                  </BForm.Label>
+                  </Dropdown.Item>
                 );
               })}
-            </div>
+            </BDropdownButton>
+            
           </BForm.Group>
+        </div>
+        <div className="loa-select-holder">
+          <a href="https://wiki.sunet.se/display/EDUSIGN/eduSign+Assurance+Levels">
+            <FormattedMessage
+              defaultMessage="More info about assurance levels"
+              key="loa-info-link"
+            />
+          </a>
         </div>
       </>
     );

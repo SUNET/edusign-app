@@ -8,251 +8,243 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-06-03 11:55+0200\n"
+"POT-Creation-Date: 2024-11-12 17:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.14.0\n"
+"Generated-By: Babel 2.15.0\n"
 
 #: src/edusign_webapp/marshal.py:241 src/edusign_webapp/utils.py:211
 #: src/edusign_webapp/validators.py:50 src/edusign_webapp/validators.py:54
 #: src/edusign_webapp/validators.py:65 src/edusign_webapp/validators.py:78
 #: src/edusign_webapp/validators.py:82 src/edusign_webapp/validators.py:96
 #: src/edusign_webapp/validators.py:100 src/edusign_webapp/validators.py:104
-#: src/edusign_webapp/validators.py:115 src/edusign_webapp/views.py:615
-#: src/edusign_webapp/views.py:834 src/edusign_webapp/views.py:1152
+#: src/edusign_webapp/validators.py:115 src/edusign_webapp/views.py:629
+#: src/edusign_webapp/views.py:848 src/edusign_webapp/views.py:1168
 msgid "There was an error. Please try again, or contact the site administrator."
 msgstr ""
 
-#: src/edusign_webapp/utils.py:237 src/edusign_webapp/views.py:479
+#: src/edusign_webapp/utils.py:237 src/edusign_webapp/views.py:492
 msgid "Low"
 msgstr ""
 
-#: src/edusign_webapp/utils.py:238 src/edusign_webapp/views.py:480
+#: src/edusign_webapp/utils.py:238 src/edusign_webapp/views.py:493
 msgid "Medium"
 msgstr ""
 
-#: src/edusign_webapp/utils.py:239 src/edusign_webapp/views.py:481
+#: src/edusign_webapp/utils.py:239 src/edusign_webapp/views.py:494
 msgid "High"
 msgstr ""
 
 #: src/edusign_webapp/utils.py:251
-#, python-format
-msgid ""
-"You do not have the required level of assurance on your identity, please "
-"make sure to provide '<a href='%(loa)s'>%(level)s</a>' level"
+msgid "You do not fullfil required Assurance level for your user account"
 msgstr ""
 
-#: src/edusign_webapp/views.py:370
+#: src/edusign_webapp/views.py:371
 msgid "Back"
 msgstr ""
 
-#: src/edusign_webapp/views.py:380
+#: src/edusign_webapp/views.py:381
 msgid "Missing information"
 msgstr ""
 
-#: src/edusign_webapp/views.py:381
+#: src/edusign_webapp/views.py:382
 msgid ""
 "Your organization did not provide the correct information during login. "
 "Please contact your IT-support for assistance."
 msgstr ""
 
-#: src/edusign_webapp/views.py:387
+#: src/edusign_webapp/views.py:388
 msgid "Missing displayName"
 msgstr ""
 
-#: src/edusign_webapp/views.py:388
+#: src/edusign_webapp/views.py:389
 msgid ""
 "Your should add your name to your account at your organization. Please "
 "contact your IT-support for assistance."
 msgstr ""
 
-#: src/edusign_webapp/views.py:526 src/edusign_webapp/views.py:589
-#: src/edusign_webapp/views.py:787 src/edusign_webapp/views.py:1229
+#: src/edusign_webapp/views.py:540 src/edusign_webapp/views.py:603
+#: src/edusign_webapp/views.py:801 src/edusign_webapp/views.py:1252
 msgid "Unauthorized"
 msgstr ""
 
-#: src/edusign_webapp/views.py:608 src/edusign_webapp/views.py:827
+#: src/edusign_webapp/views.py:622 src/edusign_webapp/views.py:841
 msgid "There was an error signing docs: unsupported MIME type."
 msgstr ""
 
-#: src/edusign_webapp/views.py:657
+#: src/edusign_webapp/views.py:671
 msgid ""
 "Document is being signed by another user, please try again in a few "
 "minutes."
 msgstr ""
 
-#: src/edusign_webapp/views.py:667
+#: src/edusign_webapp/views.py:681
 #, python-format
 msgid "There doesn't seem to be an invitation for you to sign \"%(docname)s\"."
 msgstr ""
 
-#: src/edusign_webapp/views.py:683
+#: src/edusign_webapp/views.py:697
 #, python-format
 msgid ""
 "The email %(email)s invited to sign \"%(docname)s\" does not coincide "
 "with yours."
 msgstr ""
 
-#: src/edusign_webapp/views.py:721
+#: src/edusign_webapp/views.py:735
 msgid ""
 "Problem preparing document for signing. Please try again, or contact the "
 "site administrator."
 msgstr ""
 
-#: src/edusign_webapp/views.py:947
+#: src/edusign_webapp/views.py:961
 #, python-format
 msgid "%(name)s signed '%(docname)s'"
 msgstr ""
 
-#: src/edusign_webapp/views.py:998
-#, python-format
-msgid "'%(docname)s' is now signed"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1056 src/edusign_webapp/views.py:1305
-#, python-format
-msgid "You have been invited to sign \"%(document_name)s\""
-msgstr ""
-
-#: src/edusign_webapp/views.py:1161 src/edusign_webapp/views.py:1166
-msgid "Could not provide the requested level of assurance."
-msgstr ""
-
-#: src/edusign_webapp/views.py:1236
-#, python-format
-msgid "You cannot invite as %(owner)s"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1263
-msgid "Problem creating invitation to sign, please try again"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1285
-msgid "There was a problem and the invitation email(s) were not sent"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1287
-msgid "Success sending invitations to sign"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1340
-msgid "Problem finding the users pending to multi sign"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1344
-msgid "Problem finding the users pending to sign"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1348
-msgid "Could not find the document"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1377
-#, python-format
-msgid "A reminder to sign '%(document_name)s'"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1387
-msgid "Problem sending the email, please try again"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1389
-msgid "Success sending reminder email to pending users"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1429
-#, python-format
-msgid "Success editing invitation to sign '%(docname)s'"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1432
-msgid "Problem editing the invitations"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1449 src/edusign_webapp/views.py:1457
-#: src/edusign_webapp/views.py:1467 src/edusign_webapp/views.py:1489
-#: src/edusign_webapp/views.py:1496 src/edusign_webapp/views.py:1507
-#, python-format
-msgid "Some users may not have been notified of the changes for '%(docname)s'"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1545 src/edusign_webapp/views.py:1549
-msgid "Problem removing the invitation, please try again"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1565
-msgid "Success removing invitation to sign"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1571
-msgid "Some users may have not been informed of the cancellation"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1586
-#, python-format
-msgid "Cancellation of invitation to sign '%(document_name)s'"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1622 src/edusign_webapp/views.py:1626
-#: src/edusign_webapp/views.py:1704 src/edusign_webapp/views.py:1708
-#: src/edusign_webapp/views.py:1796
-msgid "Cannot find the document being signed"
-msgstr ""
-
-#: src/edusign_webapp/views.py:1668
+#: src/edusign_webapp/views.py:1012 src/edusign_webapp/views.py:1691
 #, python-format
 msgid "\"%(docname)s\" is now signed"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1780
+#: src/edusign_webapp/views.py:1071 src/edusign_webapp/views.py:1328
+#, python-format
+msgid "You have been invited to sign \"%(document_name)s\""
+msgstr ""
+
+#: src/edusign_webapp/views.py:1177 src/edusign_webapp/views.py:1182
+msgid "Could not provide the requested level of assurance."
+msgstr ""
+
+#: src/edusign_webapp/views.py:1259
+#, python-format
+msgid "You cannot invite as %(owner)s"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1286
+msgid "Problem creating invitation to sign, please try again"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1308
+msgid "There was a problem and the invitation email(s) were not sent"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1310
+msgid "Success sending invitations to sign"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1363
+msgid "Problem finding the users pending to multi sign"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1367
+msgid "Problem finding the users pending to sign"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1371
+msgid "Could not find the document"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1400
+#, python-format
+msgid "A reminder to sign '%(document_name)s'"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1410
+msgid "Problem sending the email, please try again"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1412
+msgid "Success sending reminder email to pending users"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1452
+#, python-format
+msgid "Success editing invitation to sign '%(docname)s'"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1455
+msgid "Problem editing the invitations"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1472 src/edusign_webapp/views.py:1480
+#: src/edusign_webapp/views.py:1490 src/edusign_webapp/views.py:1512
+#: src/edusign_webapp/views.py:1519 src/edusign_webapp/views.py:1530
+#, python-format
+msgid "Some users may not have been notified of the changes for '%(docname)s'"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1568 src/edusign_webapp/views.py:1572
+msgid "Problem removing the invitation, please try again"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1588
+msgid "Success removing invitation to sign"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1594
+msgid "Some users may have not been informed of the cancellation"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1609
+#, python-format
+msgid "Cancellation of invitation to sign '%(document_name)s'"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1645 src/edusign_webapp/views.py:1649
+#: src/edusign_webapp/views.py:1727 src/edusign_webapp/views.py:1731
+#: src/edusign_webapp/views.py:1819
+msgid "Cannot find the document being signed"
+msgstr ""
+
+#: src/edusign_webapp/views.py:1803
 #, python-format
 msgid "%(name)s declined to sign '%(docname)s'"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1839
+#: src/edusign_webapp/views.py:1862
 msgid "Problem declining signature, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1858
+#: src/edusign_webapp/views.py:1881
 msgid "Success declining signature"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1877
+#: src/edusign_webapp/views.py:1900
 #, python-format
 msgid "%(name)s has delegated signature of \"%(docname)s\" to you"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1911
+#: src/edusign_webapp/views.py:1934
 msgid "There was a problem delegating the invitation"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1926
+#: src/edusign_webapp/views.py:1949
 msgid "Success delegating signature"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1942
+#: src/edusign_webapp/views.py:1965
 msgid "Problem filling in form in PDF, please try again"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1957
+#: src/edusign_webapp/views.py:1980
 msgid ""
 "The document is being signed by an invitee, please try again in a few "
 "minutes"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1960
+#: src/edusign_webapp/views.py:1983
 msgid "Success locking document"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1975
+#: src/edusign_webapp/views.py:1998
 msgid "There was a problem unlocking the document"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1978
+#: src/edusign_webapp/views.py:2001
 msgid "Success unlocking document"
 msgstr ""
 

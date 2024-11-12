@@ -59,6 +59,7 @@
   "components.InviteForm.email-problem-dup": "",
   "components.InviteForm.invitation-text-field": "Añade un mensaje para enviar a todos los invitados",
   "components.InviteForm.invite-people": "Invita gente a firmar: {docName}",
+  "components.InviteForm.loa-info-link": "",
   "components.InviteForm.loa-select-field": "Nivel de seguridad para la firma",
   "components.InviteForm.loa-select-help": "",
   "components.InviteForm.newname-text-field": "Nuevo nombre para el documento que va a ser firmado:",
