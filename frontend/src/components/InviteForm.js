@@ -178,7 +178,6 @@ class InviteForm extends React.Component {
               name="loa"
               data-testid="loa-select-input"
               id="loa-select-input"
-              value={this.props.loas[0].value}
               as={BForm.Select}
             >
               <>
