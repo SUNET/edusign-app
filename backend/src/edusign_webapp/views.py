@@ -1476,7 +1476,8 @@ def edit_multi_sign_request(data: dict) -> dict:
                 recipient = {current_next_invite['lang']: [current_next_recipient]}
                 try:
                     _send_invitation_mail(docname, owner, text, recipient)
-                except Exception:
+                except Exception as e:
+                    current_app.logger.error(f"Problem sending invitation emails {e}")
                     message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
                         'docname': docname
                     }
@@ -1484,9 +1485,12 @@ def edit_multi_sign_request(data: dict) -> dict:
                 if skipfinal:
                     try:
                         doc = current_app.extensions['doc_store'].get_signed_document(key)
-                        messages = _prepare_all_signed_email(doc, mail_aliases)
+                        doc = {'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned, 'type': doc['type']}
+                        validated = current_app.extensions['api_client'].validate_signatures([doc])[0]
+                        messages = _prepare_all_signed_email(validated, mail_aliases)
                         sendmail_bulk(messages)
-                    except Exception:
+                    except Exception as e:
+                        current_app.logger.error(f"Problem sending all signed emails {e}")
                         message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
                             'docname': docname
                         }
@@ -1508,7 +1512,8 @@ def edit_multi_sign_request(data: dict) -> dict:
         if len(recipients_added) > 0:
             try:
                 _send_invitation_mail(docname, owner, text, recipients_added)
-            except Exception:
+            except Exception as e:
+                current_app.logger.error(f"Problem sending invitation emails {e}")
                 message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
                     'docname': docname
                 }
@@ -1524,9 +1529,12 @@ def edit_multi_sign_request(data: dict) -> dict:
             if skipfinal:
                 try:
                     doc = current_app.extensions['doc_store'].get_signed_document(key)
-                    messages = _prepare_all_signed_email(doc, mail_aliases)
+                    doc = {'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned, 'type': doc['type']}
+                    validated = current_app.extensions['api_client'].validate_signatures([doc])[0]
+                    messages = _prepare_all_signed_email(validated, mail_aliases)
                     sendmail_bulk(messages)
-                except Exception:
+                except Exception as e:
+                    current_app.logger.error(f"Problem sending all signed emails {e}")
                     message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
                         'docname': docname
                     }
