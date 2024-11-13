@@ -184,7 +184,7 @@ class DocumentInvited extends Component {
         >
           {(this.props.size === "lg" && (
             <div
-              className={"invitation-multisign " + doc.state}
+              className={"doc-flex-container invitation-multisign " + doc.state}
               data-testid={`representation-for-doc-${doc.name}`}
             >
               <div className="invitation-multisign-request">
@@ -252,7 +252,9 @@ class DocumentInvited extends Component {
                         {widgets.docName(doc)}
                         {widgets.showMessage(doc)}
                       </div>
-                      {widgets.declineSignatureButton(this.props, doc)}
+                      <div className="doc-manager-buttons">
+                        {widgets.declineSignatureButton(this.props, doc)}
+                      </div>
                     </>
                   )}
                 </div>
