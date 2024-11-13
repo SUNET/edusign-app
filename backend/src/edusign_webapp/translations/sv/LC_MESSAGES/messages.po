@@ -41,7 +41,7 @@ msgid "High"
 msgstr "Hög"
 
 #: src/edusign_webapp/utils.py:251
-msgid "You do not fullfil required Assurance level for your user account"
+msgid "You do not fullfil required assurance level for your user account"
 msgstr "Du har inte tillräckligt hög tillitsnivå på ditt användarkonto"
 
 #: src/edusign_webapp/views.py:371

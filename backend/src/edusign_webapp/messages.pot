@@ -40,7 +40,7 @@ msgid "High"
 msgstr ""
 
 #: src/edusign_webapp/utils.py:251
-msgid "You do not fullfil required Assurance level for your user account"
+msgid "You do not fullfil required assurance level for your user account"
 msgstr ""
 
 #: src/edusign_webapp/views.py:371
