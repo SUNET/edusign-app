@@ -150,7 +150,7 @@ class InviteForm extends React.Component {
               inModal={true}
               tooltip={
                 <FormattedMessage
-                  defaultMessage="How sure you can be on the identity of the person signing. Note that the Level of Assurance an identity can provide depends on the Identity provider. Read more about this on eduSign wiki."
+                  defaultMessage="How sure you can be on the identity of the person signing. Note that the assurance level an identity can provide depends on the Identity provider. Read more about this on eduSign wiki."
                   key="loa-select-help"
                 />
               }
@@ -161,11 +161,11 @@ class InviteForm extends React.Component {
               >
                 <span>
                 <FormattedMessage
-                  defaultMessage="Level of Assurance for signatures"
+                  defaultMessage="Assurance level for signatures"
                   key="loa-select-field"
                 />
                 </span>
-                <a href="https://wiki.sunet.se/display/EDUSIGN/eduSign+Assurance+Levels">
+                <a href="https://wiki.sunet.se/display/EDUSIGN/eduSign+Assurance+Levels" target="_blank">
                   <FormattedMessage
                     defaultMessage="More info about assurance levels"
                     key="loa-info-link"

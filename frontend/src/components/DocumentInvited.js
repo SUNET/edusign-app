@@ -174,6 +174,11 @@ class DocumentInvited extends Component {
         )}
       </>
     );
+    const failedLoA = (doc.state === "failed-loa") && (
+      <>
+        {widgets.showMessage(doc)}
+      </>
+    ) || "";
     return (
       <>
         <ESPopover
@@ -248,16 +253,14 @@ class DocumentInvited extends Component {
                     <>
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
-                      <div className="docname-plus-message">
-                        {widgets.docName(doc)}
-                        {widgets.showMessage(doc)}
-                      </div>
+                      {widgets.docName(doc)}
                       <div className="doc-manager-buttons">
                         {widgets.declineSignatureButton(this.props, doc)}
                       </div>
                     </>
                   )}
                 </div>
+                {failedLoA}
                 {invites}
                 {preparePrevSigs(doc, this.props.size)}
                 {widgets.infoLine(doc, this.props.size)}
