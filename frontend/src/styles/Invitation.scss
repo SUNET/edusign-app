@@ -17,6 +17,10 @@
     align-items: flex-start;
     line-height: 1.5rem;
 
+    .message-flex-item {
+      color: $error-red;
+    }
+
     .invitation-name-and-buttons-lg {
       padding: 0.5rem;
       flex: none;
