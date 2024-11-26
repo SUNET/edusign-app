@@ -1036,19 +1036,24 @@ def _prepare_signed_documents_data(process_data):
         # migration to mail_aliases
         mail_aliases = session.get('mail_aliases', [session['mail']])
 
+        # invitation to self
         if 'email' in owner and owner['email'] not in mail_aliases:
             current_app.extensions['doc_store'].update_document(key, doc['signedContent'], mail_aliases)
             current_app.extensions['doc_store'].unlock_document(key, mail_aliases)
 
-            pending_invites = current_app.extensions['doc_store'].get_pending_invites(key)
-            pending = sum([1 for p in pending_invites if not p['signed'] and not p['declined']])
+            all_invites = current_app.extensions['doc_store'].get_pending_invites(key)
+            pending_invites = [p for p in all_invites if not p['signed'] and not p['declined']]
+            pending = len(pending_invites)
+            signed_invites = [p for p in all_invites if p['signed']]
             skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
 
             if pending > 0 or not skipfinal:
                 docs.append(
-                    {'id': key, 'name': docname, 'signed_content': doc['signedContent'], 'validated': False, 'type': doc['mimeType']}
+                    {'id': key, 'name': docname, 'signed_content': doc['signedContent'],
+                     'validated': False, 'type': doc['mimeType'], 'pending': pending_invites, 'signed': signed_invites}
                 )
 
+        # invitation from self
         elif owner:
             current_app.extensions['doc_store'].remove_document(key)
 

@@ -297,9 +297,13 @@ class SignedDocumentsSchema(Schema):
 
     class SignedDocumentSchema(Schema):
         id = fields.String(required=True, validate=[validate_nonempty])
+        name = fields.String(required=True, validate=[validate_nonempty])
+        type = fields.String(required=True, validate=[validate_nonempty, validate_doc_type])
         signed_content = fields.Raw(required=True, validate=[validate_nonempty])
         validated = fields.Boolean()
         pprinted = fields.String(required=True, validate=[validate_nonempty])
+        pending = fields.List(fields.Nested(Invitee))
+        signed = fields.List(fields.Nested(Invitee))
 
     documents = fields.List(fields.Nested(SignedDocumentSchema))
 

@@ -112,26 +112,50 @@ class DocumentLocal extends React.Component {
 
   render() {
     const doc = this.props.doc;
-    const signed =
-      (doc.state === "signed" && (
-        <div
-          className={"doc-container-info-row-" + this.props.size}
-          key={doc.name}
-        >
+    let signed;
+    if (doc.signed) {
+      signed = (
+        <div className={"doc-container-info-row-" + this.props.size}>
           <span className="info-row-label">
             <FormattedMessage
               defaultMessage="Signed by:"
-              key="multisign-owned-signed"
+              key="multisign-signed"
             />
           </span>
           <span className="info-row-items">
-            <span className="info-row-item">
-              {this.props.name} &lt;{this.props.mail}&gt;.
-            </span>
+            {doc.signed.map((invite, index) => {
+              return (
+                <span className="info-row-item" key={index}>
+                  {invite.name} &lt;{invite.email}&gt;{" "}
+                  {index < doc.signed.length - 1 ? "," : "."}
+                </span>
+              );
+            })}
           </span>
         </div>
-      )) ||
-      "";
+      );
+    } else {
+      signed =
+        (doc.state === "signed" && (
+          <div
+            className={"doc-container-info-row-" + this.props.size}
+            key={doc.name}
+          >
+            <span className="info-row-label">
+              <FormattedMessage
+                defaultMessage="Signed by:"
+                key="multisign-owned-signed"
+              />
+            </span>
+            <span className="info-row-items">
+              <span className="info-row-item">
+                {this.props.name} &lt;{this.props.mail}&gt;.
+              </span>
+            </span>
+          </div>
+        )) ||
+        "";
+    }
     // validated is unused for now
     const validated =
       (doc.state === "signed" && (
