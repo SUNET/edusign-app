@@ -276,7 +276,7 @@ def test_get_config_with_invitations_insufficient_loa(
     )
     assert 'failed-loa' == json.loads(response.data)['payload']['pending_multisign'][0]['state']
     assert json.loads(response.data)['payload']['pending_multisign'][0]['message'].startswith(
-        "You do not have the required level of assurance on your identity"
+        "You do not fullfil required assurance level for your user account"
     )
 
 

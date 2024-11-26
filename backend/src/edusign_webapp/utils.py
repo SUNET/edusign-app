@@ -31,6 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import io
+import re
 import uuid
 from base64 import b64decode, b64encode
 from email.encoders import encode_base64
@@ -372,6 +373,18 @@ def is_whitelisted(app, eppn: str) -> bool:
     return eppn.lower().split('@')[1] in app.config['SCOPE_WHITELIST']
 
 
+def fix_recipients(recipients):
+    reg = re.compile("^([^<]*)<([^>]*)>$")
+    for i, recipient in enumerate(recipients):
+        m = reg.match(recipient)
+        if m is not None:
+            name = m.group(1).strip()
+            mail = m.group(2).strip()
+            if name == mail:
+                recipients[i] = mail
+    return recipients
+
+
 def compose_message(
     recipients: list,
     subject: str,
@@ -391,6 +404,7 @@ def compose_message(
     :param attachment_name: the file name of the PDF to attach
     :param attachment: the contents of the PDF to attach to the message
     """
+    recipients = fix_recipients(recipients)
     current_app.logger.debug(f"message to send: {recipients} -- {subject}")
     msg = EmailMultiAlternatives(subject, body_txt, current_app.config['MAIL_DEFAULT_SENDER'], recipients)
     msg.attach_alternative(body_html, 'text/html')
