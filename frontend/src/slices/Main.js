@@ -281,7 +281,6 @@ export const finishInvited = createAsyncThunk(
       showForced: false,
     };
     delete newDoc.pending;
-    delete newDoc.signed;
     delete newDoc.declined;
     try {
       newDoc = await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
