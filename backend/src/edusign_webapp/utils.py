@@ -186,7 +186,7 @@ def add_attributes_to_session(check_whitelisted=True):
 
         if check_whitelisted:
             if not is_whitelisted(current_app, eppn):
-                current_app.logger.info(f"Rejecting user with {eppn} address")
+                current_app.logger.info(f"User with eppn {eppn} not whitelisted")
                 raise NonWhitelisted('Unauthorized user')
 
 

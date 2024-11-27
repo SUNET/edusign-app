@@ -113,9 +113,11 @@ class DocumentLocal extends React.Component {
   render() {
     const doc = this.props.doc;
     let signed;
-    if (doc.signed) {
+    if (doc.signed && doc.signed.length > 0) {
       signed = (
-        <div className={"doc-container-info-row-" + this.props.size}>
+        <div className={"doc-container-info-row-" + this.props.size}
+          key={doc.name}
+        >
           <span className="info-row-label">
             <FormattedMessage
               defaultMessage="Signed by:"
