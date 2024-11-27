@@ -14,3 +14,4 @@ pyHanko==0.18.1
 PyMuPDF==1.22.3
 pytz>=2023.3
 ocrmypdf==14.2.1
+pikepdf==8.11.0
