@@ -232,6 +232,7 @@ def get_invitations(remove_finished=False):
     mail_addresses = session.get('mail_aliases')
     if mail_addresses is None:
         mail_addresses = [session['mail']]
+    mail_addresses = list(set(mail_addresses))
     owned = current_app.extensions['doc_store'].get_owned_documents(session['eppn'], mail_addresses)
     invited = current_app.extensions['doc_store'].get_pending_documents(mail_addresses)
     poll = False
