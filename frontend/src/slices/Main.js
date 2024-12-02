@@ -279,6 +279,7 @@ export const finishInvited = createAsyncThunk(
       validated: args.doc.validated,
       show: false,
       showForced: false,
+      signed: args.doc.signed,
     };
     delete newDoc.pending;
     delete newDoc.declined;

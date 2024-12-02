@@ -1095,8 +1095,9 @@ def _process_signed_documents(process_data):
         ordered = current_app.extensions['doc_store'].get_ordered(key)
         owner = current_app.extensions['doc_store'].get_owner_data(key)
         sendsigned = current_app.extensions['doc_store'].get_sendsigned(key)
-        pending_invites = current_app.extensions['doc_store'].get_pending_invites(key)
-        pending_invites = [p for p in pending_invites if not p['signed'] and not p['declined']]
+        all_invites = current_app.extensions['doc_store'].get_pending_invites(key)
+        pending_invites = [p for p in all_invites if not p['signed'] and not p['declined']]
+        signed_invites = [p for p in all_invites if p['signed']]
         pending = len(pending_invites) > 1  # More than 1 since we still have not removed the currently addressed invite
         skipfinal = current_app.extensions['doc_store'].get_skipfinal(key)
         current_app.logger.debug(
@@ -1111,7 +1112,7 @@ def _process_signed_documents(process_data):
                     f"Data for final email - key: {key}, owner: {owner}, sendsigned: {sendsigned}, type: {mime_type}"
                 )
                 to_validate.append(
-                    {'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned, 'type': mime_type}
+                    {'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned, 'type': mime_type, 'signed': signed_invites}
                 )
 
             else:
@@ -1193,8 +1194,9 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     validated = current_app.extensions['api_client'].validate_signatures(to_validate)
 
+    docs = _prepare_signed_documents_data(process_data)
+
     mail_aliases = session.get('mail_aliases', [session['mail']])
-    docs = []
     for doc in validated:
         owner = doc['owner']
         if owner:
@@ -1206,21 +1208,22 @@ def get_signed_documents(sign_data: dict) -> dict:
                     f"Problem sending signed by all email to all invited for doc '{owner['docname']}': {e}"
                 )
 
-        docs.append(
-            {
-                'id': doc['key'],
-                'signed_content': doc['doc']['signedContent'],
-                'validated': doc['validated'],
-                'type': doc['type'],
-                'name': doc['doc']['name'],
-            }
-        )
+        new_doc = {
+            'id': doc['key'],
+            'signed_content': doc['doc']['signedContent'],
+            'validated': doc['validated'],
+            'type': doc['type'],
+            'name': doc['doc']['name'],
+        }
+        all_invites = current_app.extensions['doc_store'].get_pending_invites(doc['key'])
+        signed_invites = [p for p in all_invites if p['signed']]
+        if signed_invites:
+            new_doc['signed'] = signed_invites
+
+        docs.append(new_doc)
 
     if len(emails) > 0:
         sendmail_bulk(emails)
-
-    prepared_data = _prepare_signed_documents_data(process_data)
-    docs.extend(prepared_data)
 
     doc_names = []
 
