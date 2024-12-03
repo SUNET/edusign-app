@@ -39,7 +39,7 @@ from base64 import b64decode
 from collections import defaultdict
 from typing import Any, Dict, List, Tuple, Union
 
-import pkg_resources
+import importlib
 import yaml
 from flask import Blueprint, abort, current_app, g, make_response, redirect, render_template, request, session, url_for
 from flask_babel import force_locale, get_locale, gettext
@@ -267,7 +267,7 @@ def get_home():
 
     base_url = f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}"
 
-    version = pkg_resources.require('edusign-webapp')[0].version
+    version = importlib.metadata.version('edusign-webapp')
 
     company_link = current_app.config['COMPANY_LINK']
     context = {
@@ -311,7 +311,7 @@ def get_help_page():
     with open(md_file) as f:
         body = f.read()
 
-    version = pkg_resources.require('edusign-webapp')[0].version
+    version = importlib.metadata.version('edusign-webapp')
 
     company_link = current_app.config['COMPANY_LINK']
     context = {
