@@ -33,7 +33,7 @@
 import os
 import sqlite3
 import uuid
-from datetime import datetime
+from datetime import datetime, date
 from typing import Any, Dict, List, Union
 
 from flask import Flask, current_app, g
@@ -125,6 +125,26 @@ INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_email IN (%s) and d
 INVITE_DELETE = "DELETE FROM Invites WHERE user_id = ? and doc_id = ?;"
 INVITE_DELETE_FROM_KEY = "DELETE FROM Invites WHERE key = ?;"
 INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
+
+
+def convert_date(val):
+    """Convert ISO 8601 date to datetime.date object."""
+    return date.fromisoformat(val.decode())
+
+
+def convert_datetime(val):
+    """Convert ISO 8601 datetime to datetime.datetime object."""
+    return datetime.fromisoformat(val.decode())
+
+
+def convert_timestamp(val):
+    """Convert Unix epoch timestamp to datetime.datetime object."""
+    return datetime.fromtimestamp(int(val))
+
+
+sqlite3.register_converter("date", convert_date)
+sqlite3.register_converter("datetime", convert_datetime)
+sqlite3.register_converter("timestamp", convert_timestamp)
 
 
 def make_dicts(cursor, row):
