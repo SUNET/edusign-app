@@ -308,6 +308,7 @@ export const nameForCopy = (props) => {
  */
 export const nameForDownload = (name, suffix, state = null) => {
   let tmpName = name;
+  let finalName;
   let ext = "";
   if (tmpName.includes(".")) {
     const split = tmpName.split(".");
@@ -315,9 +316,9 @@ export const nameForDownload = (name, suffix, state = null) => {
     ext = split[split.length - 1];
   }
   if (ext !== "") {
-    tmpName = `${tmpName}-${suffix}.${ext}`;
+    finalName = `${tmpName}-${suffix}.${ext}`;
   } else {
-    tmpName = `${tmpName}-${suffix}`;
+    finalName = `${tmpName}-${suffix}`;
   }
   let number = 0;
   if (state !== null) {
@@ -329,14 +330,14 @@ export const nameForDownload = (name, suffix, state = null) => {
         let found = false;
         if (docs) {
           for (const doc of docs) {
-            if (doc.name === tmpName) {
+            if (doc.name === finalName) {
               found = true;
               finished = false;
               number++;
               if (ext !== "") {
-                tmpName = `${tmpName}-${suffix}-${number}.${ext}`;
+                finalName = `${tmpName}-${suffix}-${number}.${ext}`;
               } else {
-                tmpName = `${tmpName}-${suffix}-${number}`;
+                finalName = `${tmpName}-${suffix}-${number}`;
               }
               break;
             }
@@ -348,7 +349,7 @@ export const nameForDownload = (name, suffix, state = null) => {
       }
     }
   }
-  return tmpName;
+  return finalName;
 };
 
 /**
