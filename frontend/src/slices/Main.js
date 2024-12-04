@@ -243,7 +243,7 @@ export const downloadInvitedDraft = createAsyncThunk(
         ? doc.signedContent.split(",")[1]
         : doc.blob.split(",")[1];
     const blob = b64toBlob(b64content, doc.type);
-    const newName = nameForDownload(doc.name, "draft");
+    const newName = nameForDownload(doc.name, "draft", state);
     FileSaver.saveAs(blob, newName);
   },
 );
@@ -270,7 +270,7 @@ export const finishInvited = createAsyncThunk(
     const content = prefix + args.doc.signed_content;
     let newDoc = {
       ...oldDoc,
-      name: nameForDownload(oldDoc.name, "draft"),
+      name: nameForDownload(oldDoc.name, "draft", state),
       state: "signed",
       message: "",
       blob: content,

@@ -306,7 +306,7 @@ export const nameForCopy = (props) => {
  * @desc Create name for signed document download
  *
  */
-export const nameForDownload = (name, suffix) => {
+export const nameForDownload = (name, suffix, state = null) => {
   let tmpName = name;
   let ext = "";
   if (tmpName.includes(".")) {
@@ -315,9 +315,40 @@ export const nameForDownload = (name, suffix) => {
     ext = split[split.length - 1];
   }
   if (ext !== "") {
-    return `${tmpName}-${suffix}.${ext}`;
+    tmpName = `${tmpName}-${suffix}.${ext}`;
+  } else {
+    tmpName = `${tmpName}-${suffix}`;
   }
-  return `${tmpName}-${suffix}`;
+  let number = 0;
+  if (state !== null) {
+    const docCollections = [state.template.documents, state.documents.documents, state.main.owned_multisign, state.main.pending_multisign];
+    let finished = false;
+    while (!finished) {
+      finished = true;
+      for (const docs of docCollections) {
+        let found = false;
+        if (docs) {
+          for (const doc of docs) {
+            if (doc.name === tmpName) {
+              found = true;
+              finished = false;
+              number++;
+              if (ext !== "") {
+                tmpName = `${tmpName}-${suffix}-${number}.${ext}`;
+              } else {
+                tmpName = `${tmpName}-${suffix}-${number}`;
+              }
+              break;
+            }
+          }
+        }
+        if (found) {
+          break;
+        }
+      }
+    }
+  }
+  return tmpName;
 };
 
 /**
