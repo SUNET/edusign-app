@@ -141,7 +141,7 @@ export const forcedPreviewButton = (props, doc) => {
     <>
       <div className="button-forced-preview-flex-item">
         <ESTooltip
-          helpId={"button-forced-preview-" + doc.name}
+          helpId={"button-forced-preview-" + doc.key}
           tooltip={
             <FormattedMessage
               defaultMessage="You need to approve all documents before they can be signed"
@@ -151,7 +151,7 @@ export const forcedPreviewButton = (props, doc) => {
         >
           <Button
             variant="outline-dark"
-            id={"button-forced-preview-" + doc.name}
+            id={"button-forced-preview-" + doc.key}
             size="sm"
             disabling={true}
             onClick={props.handleForcedPreview(doc.key)}
@@ -218,7 +218,7 @@ export const removeConfirmButton = (props, doc, id) => {
             variant="outline-danger"
             size="sm"
             onClick={props.showConfirm(id)}
-            id={"button-rm-invitation-" + doc.name}
+            id={"button-rm-invitation-" + doc.key}
           >
             <FormattedMessage defaultMessage="Remove" key="remove-button" />
           </Button>
@@ -321,7 +321,7 @@ export const downloadDraftButton = (props, doc) => {
     <>
       <div className="button-download-flex-item">
         <ESTooltip
-          helpId={"button-download-draft-" + doc.name}
+          helpId={"button-download-draft-" + doc.key}
           tooltip={
             <FormattedMessage
               defaultMessage="Download partially signed document. Be sure to save the original rather than a copy."
@@ -332,10 +332,10 @@ export const downloadDraftButton = (props, doc) => {
           <Button
             variant="outline-success"
             size="sm"
-            id={"button-download-draft-" + doc.name}
+            id={"button-download-draft-" + doc.key}
             disabling={true}
             onClick={props.handleDlDraft({
-              docName: doc.name,
+              docKey: doc.key,
               intl: props.intl,
             })}
           >
@@ -423,7 +423,7 @@ export const declineSignatureButton = (props, doc) => {
     <>
       <div className="button-decline-flex-item">
         <ESTooltip
-          helpId={"button-decline-" + doc.name}
+          helpId={"button-decline-" + doc.key}
           tooltip={
             <FormattedMessage
               defaultMessage="Click here to decline your invitation to sign this document."
@@ -434,7 +434,7 @@ export const declineSignatureButton = (props, doc) => {
           <Button
             variant="outline-danger"
             size="sm"
-            id={"button-decline-" + doc.name}
+            id={"button-decline-" + doc.key}
             disabling={true}
             onClick={props.handleDeclineSigning({ doc: doc, intl: props.intl })}
           >

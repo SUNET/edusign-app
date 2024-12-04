@@ -1154,7 +1154,7 @@ describe("Multi sign invitations", function () {
 
       const rmButton = await waitFor(() =>
         screen.getAllByTestId(
-          "button-rm-invitation-test1.pdf",
+          "button-rm-invitation-11111111-1111-1111-1111-111111111111",
         ),
       );
       expect(rmButton.length).to.equal(1);
@@ -1234,7 +1234,7 @@ describe("Multi sign invitations", function () {
 
       const rmButton = await waitFor(() =>
         screen.getAllByTestId(
-          "button-rm-invitation-test1.pdf",
+          "button-rm-invitation-11111111-1111-1111-1111-111111111111",
         ),
       );
       expect(rmButton.length).to.equal(1);

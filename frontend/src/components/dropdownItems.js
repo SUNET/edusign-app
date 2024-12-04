@@ -46,7 +46,7 @@ export const resendMenuItem = (props, doc) => (
 export const previewMenuItem = (props, doc) => (
   <ESDropdownItem
     doc={doc}
-    id={"menu-item-preview-" + doc.name}
+    id={"menu-item-preview-" + doc.key}
     disabling={true}
     onClick={props.handlePreview(doc.key)}
   >
@@ -68,10 +68,10 @@ export const previewTemplateMenuItem = (props, doc) => (
 export const downloadDraftMenuItem = (props, doc) => (
   <ESDropdownItem
     doc={doc}
-    id={"menu-item-dldraft-" + doc.name}
+    id={"menu-item-dldraft-" + doc.key}
     disabling={true}
     onClick={props.handleDlDraft({
-      docName: doc.name,
+      docKey: doc.key,
       intl: props.intl,
     })}
   >

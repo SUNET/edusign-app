@@ -182,20 +182,20 @@ class DocumentInvited extends Component {
     return (
       <>
         <ESPopover
-          helpId={"invited-doc-container-" + doc.name}
-          key={doc.name}
+          helpId={"invited-doc-container-" + doc.key}
+          key={doc.key}
           title={this.getHelp(doc.state + "-title")}
           body={this.getHelp(doc.state)}
         >
           {(this.props.size === "lg" && (
             <div
               className={"doc-flex-container invitation-multisign " + doc.state}
-              data-testid={`representation-for-doc-${doc.name}`}
+              data-testid={`representation-for-doc-${doc.key}`}
             >
               <div className="invitation-multisign-request">
                 <div
                   className={"invitation-name-and-buttons-" + this.props.size}
-                  id={"invitee-doc-" + doc.name}
+                  id={"invitee-doc-" + doc.key}
                 >
                   {doc.state === "unconfirmed" && (
                     <>
@@ -229,7 +229,7 @@ class DocumentInvited extends Component {
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
-                      {widgets.namedSpinner(doc.name, "signing")}
+                      {widgets.namedSpinner(doc.key, "signing")}
                     </>
                   )}
                   {doc.state === "signed" && (
@@ -311,7 +311,7 @@ class DocumentInvited extends Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-msg-row">
-                    {widgets.namedSpinner(doc.name, "signing")}
+                    {widgets.namedSpinner(doc.key, "signing")}
                   </div>
                 </>
               )}

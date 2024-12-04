@@ -221,7 +221,7 @@ export const downloadInvitedDraft = createAsyncThunk(
   async (args, thunkAPI) => {
     let state = thunkAPI.getState();
     let doc = state.main.pending_multisign.find((d) => {
-      return d.name === args.docName;
+      return d.key === args.docKey;
     });
     if (!doc.signedContent) {
       await thunkAPI.dispatch(
@@ -236,7 +236,7 @@ export const downloadInvitedDraft = createAsyncThunk(
     }
     state = thunkAPI.getState();
     doc = state.main.pending_multisign.find((d) => {
-      return d.name === args.docName;
+      return d.key === args.docKey;
     });
     const b64content =
       doc.signedContent !== undefined
