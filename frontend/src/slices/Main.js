@@ -667,7 +667,7 @@ const mainSlice = createSlice({
      */
     confirmForcedInvitedPreview(state, action) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
-        if (doc.name === action.payload) {
+        if (doc.key === action.payload) {
           return {
             ...doc,
             showForced: false,

@@ -94,10 +94,10 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetActiveId());
       };
     },
-    handleConfirmForcedPreview: function (name) {
+    handleConfirmForcedPreview: function (name, key) {
       return () => {
         dispatch(enablePolling());
-        dispatch(confirmForcedInvitedPreview(name));
+        dispatch(confirmForcedInvitedPreview(key));
         dispatch(unsetSpinning());
         dispatch(hideForcedInvitedPreview(name));
         dispatch(unsetActiveId());
