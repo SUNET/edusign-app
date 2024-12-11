@@ -117,14 +117,14 @@ const mapDispatchToProps = (dispatch, props) => {
       return async () => {
         dispatch(setState({ name: doc.name, state: "loading" }));
         await dispatch(prepareDocument({ doc: doc, intl: props.intl }));
-        await dispatch(saveDocument({ docName: doc.name }));
+        await dispatch(saveDocument({ docKey: doc.key }));
         dispatch(unsetSpinning());
       };
     },
-    handleDocSelection: function (name) {
+    handleDocSelection: function (name, key) {
       return async (e) => {
         dispatch(toggleDocSelection({ name: name, select: e.target.checked }));
-        await dispatch(saveDocument({ docName: name }));
+        await dispatch(saveDocument({ docKey: key }));
       };
     },
     handleSubmitToSign: async function () {
@@ -174,10 +174,10 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetActiveId());
       };
     },
-    handleConfirmForcedPreview: function (name) {
+    handleConfirmForcedPreview: function (name, key) {
       return async () => {
-        dispatch(confirmForcedPreview(name));
-        await dispatch(saveDocument({ docName: name }));
+        dispatch(confirmForcedPreview(key));
+        await dispatch(saveDocument({ docKey: key }));
         dispatch(hideForcedPreview(name));
         dispatch(unsetSpinning());
         dispatch(enablePolling());

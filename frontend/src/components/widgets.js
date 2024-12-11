@@ -120,7 +120,7 @@ export const selectDoc = (props, doc) => {
           <input
             type="checkbox"
             data-testid={"doc-selector-" + doc.key}
-            onChange={props.handleDocSelection(doc.name)}
+            onChange={props.handleDocSelection(doc.name, doc.key)}
             checked={doc.state === "selected"}
           />
         </ESTooltip>
@@ -129,30 +129,6 @@ export const selectDoc = (props, doc) => {
   );
 };
 
-export const selectInvitedDoc = (props, doc) => {
-  return (
-    <>
-      <div className="doc-selector-flex-item">
-        <ESTooltip
-          helpId={"doc-selector-" + doc.key}
-          tooltip={
-            <FormattedMessage
-              defaultMessage="Select the document for signing"
-              key="select-doc-tootip"
-            />
-          }
-        >
-          <input
-            type="checkbox"
-            data-testid={"doc-selector-" + doc.key}
-            onChange={props.handleInvitedDocSelection(doc.key)}
-            checked={doc.state === "selected"}
-          />
-        </ESTooltip>
-      </div>
-    </>
-  );
-};
 export const dummySelectDoc = () => {
   return (
     <>

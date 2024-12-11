@@ -403,7 +403,7 @@ export const saveDocument = createAsyncThunk(
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     const doc = state.documents.documents.find((d) => {
-      return d.name === args.docName;
+      return d.key === args.docKey;
     });
     await dbSaveDocument(doc);
     return doc;
@@ -576,7 +576,7 @@ export const createDocument = createAsyncThunk(
     // Finally we try to update the document persisted in the IndexedDB database
     // with whatever info it has been updated with after being prepared in the backend.
     try {
-      await thunkAPI.dispatch(saveDocument({ docName: newDoc.name }));
+      await thunkAPI.dispatch(saveDocument({ docKey: newDoc.key }));
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
@@ -697,9 +697,9 @@ export const startSigning = createAsyncThunk(
     for (const doc of state.documents.documents) {
       if (doc.state === "selected") {
         thunkAPI.dispatch(
-          documentsSlice.actions.startSigningDocument(doc.name),
+          documentsSlice.actions.startSigningDocument(doc.key),
         );
-        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+        await thunkAPI.dispatch(saveDocument({ docKey: doc.key }));
       }
     }
     state.main.owned_multisign.forEach((doc) => {
@@ -711,7 +711,7 @@ export const startSigning = createAsyncThunk(
     state.main.pending_multisign.forEach((doc) => {
       if (doc.state === "selected") {
         invited = true;
-        thunkAPI.dispatch(startSigningInvited(doc.name));
+        thunkAPI.dispatch(startSigningInvited(doc.key));
       }
     });
     if (invited) {
@@ -811,7 +811,7 @@ export const startSigningDocuments = createAsyncThunk(
       thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
       if (data.payload.documents !== undefined) {
         for (const doc of data.payload.documents) {
-          await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+          await thunkAPI.dispatch(saveDocument({ docKey: doc.key }));
         }
       }
       return thunkAPI.rejectWithValue(err.toString());
@@ -986,7 +986,7 @@ export const restartSigningDocuments = createAsyncThunk(
         data.payload.hasOwnProperty("documents")
       ) {
         for (const doc of data.payload.documents) {
-          await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+          await thunkAPI.dispatch(saveDocument({ docKey: doc.key }));
         }
       }
     }
@@ -1036,7 +1036,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           thunkAPI.dispatch(
             documentsSlice.actions.updateDocumentWithSignedContent(doc),
           );
-          await thunkAPI.dispatch(saveDocument({ docName: oldDoc.name }));
+          await thunkAPI.dispatch(saveDocument({ docKey: oldDoc.key }));
         }
       }
       // In the case of documents corresponding to invitations from the owner,
@@ -1104,7 +1104,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
     thunkAPI.dispatch(invitationsSignFailure(message));
     if (data && data.payload && data.payload.documents) {
       for (const doc of data.payload.documents) {
-        await thunkAPI.dispatch(saveDocument({ docName: doc.name }));
+        await thunkAPI.dispatch(saveDocument({ docKey: doc.key }));
       }
     }
   }
@@ -1329,7 +1329,7 @@ const documentsSlice = createSlice({
      */
     confirmForcedPreview(state, action) {
       state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload) {
+        if (doc.key === action.payload) {
           return {
             ...doc,
             showForced: false,
@@ -1404,7 +1404,7 @@ const documentsSlice = createSlice({
      */
     startSigningDocument(state, action) {
       state.documents = state.documents.map((doc) => {
-        if (doc.name === action.payload) {
+        if (doc.key === action.payload) {
           const document = {
             ...doc,
             state: "signing",

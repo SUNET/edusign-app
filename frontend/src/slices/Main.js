@@ -469,7 +469,7 @@ const mainSlice = createSlice({
      */
     selectOwnedDoc(state, action) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
-        if (doc.name === action.payload) {
+        if (doc.key === action.payload) {
           const state = doc.state === "selected" ? "loaded" : "selected";
           return {
             ...doc,
@@ -565,7 +565,7 @@ const mainSlice = createSlice({
      */
     startSigningInvited(state, action) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
-        if (doc.name === action.payload) {
+        if (doc.key === action.payload) {
           const document = {
             ...doc,
             state: "signing",

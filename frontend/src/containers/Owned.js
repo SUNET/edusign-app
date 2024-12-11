@@ -28,9 +28,9 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleDocSelection: function (docName) {
+    handleDocSelection: function (docName, docKey) {
       return () => {
-        dispatch(selectOwnedDoc(docName));
+        dispatch(selectOwnedDoc(docKey));
       };
     },
     handleRemove: function (doc, props) {

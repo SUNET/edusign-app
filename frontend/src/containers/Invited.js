@@ -33,7 +33,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleInvitedDocSelection: function (docKey) {
+    handleDocSelection: function (docName, docKey) {
       return () => {
         dispatch(selectInvitedDoc(docKey));
       };
