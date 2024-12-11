@@ -40,15 +40,34 @@ class Invited extends Component {
                   index={Number(index)}
                 />
               )}
-              {doc.state === "unconfirmed" && (
-                <ForcedPreview
-                  doc={doc}
-                  index={Number(index)}
-                  handleClose={this.props.handleCloseForcedPreview}
-                  handleConfirm={this.props.handleConfirmForcedPreview}
-                  handleUnConfirm={this.props.handleUnConfirmForcedPreview}
-                />
-              )}
+              {doc.state === "unconfirmed" &&
+                doc.type.endsWith("/pdf") && (
+                  <ForcedPreviewContainer
+                    doc={doc}
+                    index={Number(index)}
+                    handleClose={this.props.handleCloseForcedPreview}
+                    handleConfirm={
+                      this.props.handleConfirmForcedPreview
+                    }
+                    handleUnConfirm={
+                      this.props.handleUnConfirmForcedPreview
+                    }
+                  />
+                )}
+              {doc.state === "unconfirmed" &&
+                doc.type.endsWith("/xml") && (
+                  <ForcedXMLPreviewContainer
+                    doc={doc}
+                    index={Number(index)}
+                    handleClose={this.props.handleCloseForcedPreview}
+                    handleConfirm={
+                      this.props.handleConfirmForcedPreview
+                    }
+                    handleUnConfirm={
+                      this.props.handleUnConfirmForcedPreview
+                    }
+                  />
+                )}
               {["loaded", "selected"].includes(doc.state) && (
                 <DelegateFormContainer
                   doc={doc}

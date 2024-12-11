@@ -153,7 +153,7 @@ function ForcedPreview(props) {
             <span className="d-inline-block">
               <Button
                 disabled={!readyToConfirm}
-                onClick={props.handleConfirm(props.doc.name)}
+                onClick={props.handleConfirm(props.doc.name, props.doc.key)}
                 style={(!readyToConfirm && { pointerEvents: "none" }) || {}}
                 variant="outline-success"
                 id={"preview-button-confirm-" + props.index}

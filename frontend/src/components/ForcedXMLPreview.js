@@ -71,7 +71,7 @@ function ForcedXMLPreview(props) {
           >
             <span className="d-inline-block">
               <Button
-                onClick={props.handleConfirm(props.doc.name)}
+                onClick={props.handleConfirm(props.doc.name, props.doc.key)}
                 variant="outline-success"
                 id={"preview-button-confirm-" + props.index}
               >
