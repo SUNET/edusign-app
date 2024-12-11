@@ -1315,7 +1315,7 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf"),
+      screen.getAllByTestId("doc-selector-dummy-ref"),
     );
     expect(selector.length).to.equal(1);
 
@@ -1384,7 +1384,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf"),
+      screen.getAllByTestId("doc-selector-dummy-ref"),
     );
     expect(selector.length).to.equal(1);
 
@@ -1463,7 +1463,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf"),
+      screen.getAllByTestId("doc-selector-dummy-ref"),
     );
     expect(selector.length).to.equal(1);
 
@@ -1536,7 +1536,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf"),
+      screen.getAllByTestId("doc-selector-dummy-ref"),
     );
     expect(selector.length).to.equal(1);
 
@@ -1624,7 +1624,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf"),
+      screen.getAllByTestId("doc-selector-dummy-key"),
     );
     expect(selector.length).to.equal(1);
 
@@ -1713,7 +1713,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     const selector = await waitFor(() =>
-      screen.getAllByTestId("doc-selector-test.pdf"),
+      screen.getAllByTestId("doc-selector-dummy-ref"),
     );
     expect(selector.length).to.equal(1);
 

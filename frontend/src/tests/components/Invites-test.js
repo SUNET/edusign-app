@@ -1550,7 +1550,7 @@ describe("Multi sign invitations", function () {
       //await flushPromises(rerender, wrapped);
 
       const selector = await waitFor(() =>
-        screen.getAllByTestId("doc-selector-test1.pdf"),
+        screen.getAllByTestId("doc-selector-11111111-1111-1111-1111-111111111111"),
       );
       expect(selector.length).to.equal(1);
 
