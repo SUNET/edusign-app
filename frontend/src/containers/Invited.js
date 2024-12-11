@@ -33,9 +33,9 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch, props) => {
   return {
-    handleDocSelection: function (docName) {
+    handleInvitedDocSelection: function (docKey) {
       return () => {
-        dispatch(selectInvitedDoc(docName));
+        dispatch(selectInvitedDoc(docKey));
       };
     },
     startMultiSigning: (docRef) => {

@@ -213,7 +213,7 @@ class DocumentInvited extends Component {
                     doc.state,
                   ) && (
                     <>
-                      {widgets.selectDoc(this.props, doc)}
+                      {widgets.selectInvitedDoc(this.props, doc)}
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
                       {widgets.showMessage(doc)}
@@ -287,7 +287,7 @@ class DocumentInvited extends Component {
               {["loaded", "selected", "failed-signing"].includes(doc.state) && (
                 <>
                   <div className="doc-container-md-row">
-                    {widgets.selectDoc(this.props, doc)}
+                    {widgets.selectInvitedDoc(this.props, doc)}
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
                   </div>
