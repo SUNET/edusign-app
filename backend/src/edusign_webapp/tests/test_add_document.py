@@ -150,10 +150,7 @@ def test_add_document_missing_doc_name(client, sample_new_doc_1):
     resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
-    assert (
-        resp_data['message']
-        == "There was an error. Please try again, or contact the site administrator."
-    )
+    assert resp_data['message'] == "There was an error. Please try again, or contact the site administrator."
 
 
 def test_add_document_empty_doc_name(client, sample_new_doc_1):
@@ -161,10 +158,7 @@ def test_add_document_empty_doc_name(client, sample_new_doc_1):
     resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
-    assert (
-        resp_data['message']
-        == 'There was an error. Please try again, or contact the site administrator.'
-    )
+    assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
 def test_add_document_missing_doc_size(client, sample_new_doc_1):
@@ -172,10 +166,7 @@ def test_add_document_missing_doc_size(client, sample_new_doc_1):
     resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
-    assert (
-        resp_data['message']
-        == "There was an error. Please try again, or contact the site administrator."
-    )
+    assert resp_data['message'] == "There was an error. Please try again, or contact the site administrator."
 
 
 def test_add_document_bad_doc_size(client, sample_new_doc_1):
@@ -183,10 +174,7 @@ def test_add_document_bad_doc_size(client, sample_new_doc_1):
     resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
-    assert (
-        resp_data['message']
-        == "There was an error. Please try again, or contact the site administrator."
-    )
+    assert resp_data['message'] == "There was an error. Please try again, or contact the site administrator."
 
 
 def test_add_document_missing_doc_type(client, sample_new_doc_1):
@@ -194,10 +182,7 @@ def test_add_document_missing_doc_type(client, sample_new_doc_1):
     resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
-    assert (
-        resp_data['message']
-        == "There was an error. Please try again, or contact the site administrator."
-    )
+    assert resp_data['message'] == "There was an error. Please try again, or contact the site administrator."
 
 
 def test_add_document_bad_doc_type(client, sample_new_doc_1):
@@ -205,10 +190,7 @@ def test_add_document_bad_doc_type(client, sample_new_doc_1):
     resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
-    assert (
-        resp_data['message']
-        == 'There was an error. Please try again, or contact the site administrator.'
-    )
+    assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'
 
 
 def test_add_document_missing_doc(client, sample_new_doc_1):
@@ -216,10 +198,7 @@ def test_add_document_missing_doc(client, sample_new_doc_1):
     resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
-    assert (
-        resp_data['message']
-        == "There was an error. Please try again, or contact the site administrator."
-    )
+    assert resp_data['message'] == "There was an error. Please try again, or contact the site administrator."
 
 
 def test_add_document_empty_doc(client, sample_new_doc_1):
@@ -227,7 +206,4 @@ def test_add_document_empty_doc(client, sample_new_doc_1):
     resp_data = _add_document_missing_data(client, sample_new_doc_1)
 
     assert resp_data['error']
-    assert (
-        resp_data['message']
-        == 'There was an error. Please try again, or contact the site administrator.'
-    )
+    assert resp_data['message'] == 'There was an error. Please try again, or contact the site administrator.'

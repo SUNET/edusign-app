@@ -1049,8 +1049,15 @@ def _prepare_signed_documents_data(process_data):
 
             if pending > 0 or not skipfinal:
                 docs.append(
-                    {'id': key, 'name': docname, 'signed_content': doc['signedContent'],
-                     'validated': False, 'type': doc['mimeType'], 'pending': pending_invites, 'signed': signed_invites}
+                    {
+                        'id': key,
+                        'name': docname,
+                        'signed_content': doc['signedContent'],
+                        'validated': False,
+                        'type': doc['mimeType'],
+                        'pending': pending_invites,
+                        'signed': signed_invites,
+                    }
                 )
 
         # invitation from self
@@ -1112,7 +1119,14 @@ def _process_signed_documents(process_data):
                     f"Data for final email - key: {key}, owner: {owner}, sendsigned: {sendsigned}, type: {mime_type}"
                 )
                 to_validate.append(
-                    {'key': key, 'owner': owner, 'doc': doc, 'sendsigned': sendsigned, 'type': mime_type, 'signed': signed_invites}
+                    {
+                        'key': key,
+                        'owner': owner,
+                        'doc': doc,
+                        'sendsigned': sendsigned,
+                        'type': mime_type,
+                        'signed': signed_invites,
+                    }
                 )
 
             else:
@@ -1231,9 +1245,7 @@ def get_signed_documents(sign_data: dict) -> dict:
         doc['pprinted'] = pretty_print_any(doc['signed_content'], doc['type'])
         doc_names.append(doc["name"])
 
-    current_app.logger.info(
-        f"Handing over signed documents to {session['eppn']}: {', '.join(doc_names)}"
-    )
+    current_app.logger.info(f"Handing over signed documents to {session['eppn']}: {', '.join(doc_names)}")
     return {
         'payload': {'documents': docs},
     }

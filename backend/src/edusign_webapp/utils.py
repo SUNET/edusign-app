@@ -455,9 +455,13 @@ def sendmail_bulk(msgs_data: list):
 
     if current_app.config['ENVIRONMENT'] == 'e2e':
         if 'messages' in current_app.extensions['email_msgs']:
-            current_app.extensions['email_msgs']['messages'].extend([{'message': msg.message().as_string()} for msg in msgs])
+            current_app.extensions['email_msgs']['messages'].extend(
+                [{'message': msg.message().as_string()} for msg in msgs]
+            )
         else:
-            current_app.extensions['email_msgs'] = {'messages': [{'message': msg.message().as_string()} for msg in msgs]}
+            current_app.extensions['email_msgs'] = {
+                'messages': [{'message': msg.message().as_string()} for msg in msgs]
+            }
 
     else:
         dummy = False
