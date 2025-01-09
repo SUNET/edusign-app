@@ -174,11 +174,8 @@ class DocumentInvited extends Component {
         )}
       </>
     );
-    const failedLoA = (doc.state === "failed-loa") && (
-      <>
-        {widgets.showMessage(doc)}
-      </>
-    ) || "";
+    const failedLoA =
+      (doc.state === "failed-loa" && <>{widgets.showMessage(doc)}</>) || "";
     return (
       <>
         <ESPopover

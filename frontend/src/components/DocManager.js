@@ -176,9 +176,7 @@ class DocManager extends React.Component {
                         <>
                           {_docRepr}
                           <ConfirmDialogContainer
-                            confirmId={
-                              "confirm-remove-" + doc.name
-                            }
+                            confirmId={"confirm-remove-" + doc.name}
                             title={this.props.intl.formatMessage({
                               defaultMessage:
                                 "Confirm Removal of signed invitation",

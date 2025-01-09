@@ -35,7 +35,6 @@ const logorder = () => {
 };
 
 describe("Document representations", function () {
-
   beforeEach(async () => {
     sinon.spy(FileSaver, "saveAs");
     await resetDb();

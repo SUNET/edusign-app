@@ -78,11 +78,11 @@ function _InviteesControl(props) {
       </ESTooltip>
     </div>
   );
-  let heading = (<></>);
-  if (props.parentForm === 'create') {
+  let heading = <></>;
+  if (props.parentForm === "create") {
     if (props.ordered) {
       if (index === 0) {
-        heading = (<>{inviteOrdinal}</>);
+        heading = <>{inviteOrdinal}</>;
       } else if (index > 0) {
         heading = (
           <div className="invite-header">
@@ -92,9 +92,9 @@ function _InviteesControl(props) {
         );
       }
     } else if (index > 0) {
-      heading = (<>{crossButton}</>);
+      heading = <>{crossButton}</>;
     }
-  } else if (props.parentForm === 'edit') {
+  } else if (props.parentForm === "edit") {
     if (props.ordered) {
       heading = (
         <div className="invite-header">
@@ -103,7 +103,7 @@ function _InviteesControl(props) {
         </div>
       );
     } else {
-      heading = (<>{crossButton}</>);
+      heading = <>{crossButton}</>;
     }
   }
   return (

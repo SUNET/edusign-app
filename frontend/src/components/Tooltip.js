@@ -33,7 +33,12 @@ class Tooltip extends Component {
         show={showHelp}
         onToggle={handleToggleOverlay(helpId)}
         overlay={
-          <BTooltip placement="auto" className={klass} data-testid={helpId} {...props}>
+          <BTooltip
+            placement="auto"
+            className={klass}
+            data-testid={helpId}
+            {...props}
+          >
             {tooltip}
           </BTooltip>
         }

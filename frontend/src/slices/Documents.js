@@ -164,8 +164,7 @@ export const loadDocuments = createAsyncThunk(
           thunkAPI.dispatch(
             updateInvitationsFailed({
               message: args.intl.formatMessage({
-                defaultMessage:
-                  "There was a problem signing the document",
+                defaultMessage: "There was a problem signing the document",
                 id: "prepare-doc-problem",
               }),
             }),
@@ -181,8 +180,7 @@ export const loadDocuments = createAsyncThunk(
               ...doc,
               state: "failed-preparing",
               message: args.intl.formatMessage({
-                defaultMessage:
-                  "There was a problem preparing the document",
+                defaultMessage: "There was a problem preparing the document",
                 id: "load-doc-problem-preparing",
               }),
             };
@@ -696,9 +694,7 @@ export const startSigning = createAsyncThunk(
     let invited = false;
     for (const doc of state.documents.documents) {
       if (doc.state === "selected") {
-        thunkAPI.dispatch(
-          documentsSlice.actions.startSigningDocument(doc.key),
-        );
+        thunkAPI.dispatch(documentsSlice.actions.startSigningDocument(doc.key));
         await thunkAPI.dispatch(saveDocument({ docKey: doc.key }));
       }
     }
@@ -1077,7 +1073,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
         }
       }
-      await thunkAPI.dispatch(finishInvited({doc: doc, intl: intl})).unwrap();
+      await thunkAPI.dispatch(finishInvited({ doc: doc, intl: intl })).unwrap();
     }
     await thunkAPI.dispatch(checkStoredDocuments());
   } catch (err) {
@@ -1086,7 +1082,8 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
       addNotification({
         level: "danger",
         message: intl.formatMessage({
-          defaultMessage: "Problem getting signed documents, please try again later",
+          defaultMessage:
+            "Problem getting signed documents, please try again later",
           id: "problem-getting-signed",
         }),
       }),

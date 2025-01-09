@@ -248,7 +248,6 @@ export const downloadInvitedDraft = createAsyncThunk(
   },
 );
 
-
 /**
  * @public
  * @function finishInvited
@@ -258,11 +257,13 @@ export const finishInvited = createAsyncThunk(
   "main/finishInvited",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
-    const oldDoc = state.main.pending_multisign.find(doc => doc.key === args.doc.id);
+    const oldDoc = state.main.pending_multisign.find(
+      (doc) => doc.key === args.doc.id,
+    );
     if (oldDoc === undefined) {
       return;
     }
-    thunkAPI.dispatch(mainSlice.actions.removeInvited({key: args.doc.id}));
+    thunkAPI.dispatch(mainSlice.actions.removeInvited({ key: args.doc.id }));
     let prefix = "data:application/xml;base64,";
     if (args.doc.type === "application/pdf") {
       prefix = "data:application/pdf;base64,";
@@ -286,7 +287,7 @@ export const finishInvited = createAsyncThunk(
     try {
       newDoc = await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
       thunkAPI.dispatch(addDocument(newDoc));
-    } catch(err) {
+    } catch (err) {
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
@@ -376,7 +377,7 @@ const mainSlice = createSlice({
       send_signed: true,
       ordered_invitations: false,
     },
-    environment: 'production',
+    environment: "production",
   },
   reducers: {
     /**

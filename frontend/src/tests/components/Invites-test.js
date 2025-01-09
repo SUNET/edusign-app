@@ -1550,7 +1550,9 @@ describe("Multi sign invitations", function () {
       //await flushPromises(rerender, wrapped);
 
       const selector = await waitFor(() =>
-        screen.getAllByTestId("doc-selector-11111111-1111-1111-1111-111111111111"),
+        screen.getAllByTestId(
+          "doc-selector-11111111-1111-1111-1111-111111111111",
+        ),
       );
       expect(selector.length).to.equal(1);
 
@@ -1651,9 +1653,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const dlButton = await waitFor(() =>
-        screen.getAllByTestId(
-          "button-download-signed-test1.pdf",
-        ),
+        screen.getAllByTestId("button-download-signed-test1.pdf"),
       );
       expect(dlButton.length).to.equal(1);
     } catch (err) {

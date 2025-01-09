@@ -322,7 +322,12 @@ export const nameForDownload = (name, suffix, state = null) => {
   }
   let number = 0;
   if (state !== null) {
-    const docCollections = [state.template.documents, state.documents.documents, state.main.owned_multisign, state.main.pending_multisign];
+    const docCollections = [
+      state.template.documents,
+      state.documents.documents,
+      state.main.owned_multisign,
+      state.main.pending_multisign,
+    ];
     let finished = false;
     while (!finished) {
       finished = true;

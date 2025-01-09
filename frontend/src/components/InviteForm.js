@@ -160,12 +160,15 @@ class InviteForm extends React.Component {
                 htmlFor="loa-select-input"
               >
                 <span>
-                <FormattedMessage
-                  defaultMessage="Assurance level for signatures"
-                  key="loa-select-field"
-                />
+                  <FormattedMessage
+                    defaultMessage="Assurance level for signatures"
+                    key="loa-select-field"
+                  />
                 </span>
-                <a href="https://wiki.sunet.se/display/EDUSIGN/eduSign+Assurance+Levels" target="_blank">
+                <a
+                  href="https://wiki.sunet.se/display/EDUSIGN/eduSign+Assurance+Levels"
+                  target="_blank"
+                >
                   <FormattedMessage
                     defaultMessage="More info about assurance levels"
                     key="loa-info-link"
@@ -186,15 +189,13 @@ class InviteForm extends React.Component {
                     <option key={i} value={level.value}>
                       {level.name}
                     </option>
-                  )
+                  );
                 })}
               </>
             </Field>
-      
           </BForm.Group>
         </div>
-        <div className="loa-select-holder">
-        </div>
+        <div className="loa-select-holder"></div>
       </>
     );
     const newNameControl = (props, fprops) => {

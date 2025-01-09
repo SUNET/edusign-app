@@ -29,7 +29,7 @@ describe("DnDArea Component", function () {
 
   it("Shows dnd area ready to accept documents", function () {
     const { unmount } = setupComponent(<DnDAreaContainer />, {
-      main: { loading: false, size: "lg", environment: 'testing' },
+      main: { loading: false, size: "lg", environment: "testing" },
       dnd: { state: "waiting" },
     });
 
