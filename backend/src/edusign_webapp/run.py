@@ -122,6 +122,8 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
         app.teardown_appcontext(func)
 
+    from edusign_webapp import to_translate
+
     app.logger.info(f'Init {name} app...')
 
     return app

@@ -67,7 +67,7 @@ import json
 import uuid
 from base64 import b64decode, b64encode
 from pprint import pformat
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlencode, urlparse
 
 import requests
 from flask import current_app, request, session, url_for
@@ -141,7 +141,7 @@ class APIClient(object):
             self.config[f'EDUSIGN_API_USERNAME_{attr_schema}'], self.config[f'EDUSIGN_API_PASSWORD_{attr_schema}']
         )
 
-    def _post(self, url: str, request_data: dict) -> dict:
+    def _post(self, url: str, request_data: dict, query_params: dict = {}) -> dict:
         """
         Method to POST to the eduSign API, used by all methods of the class
         that POST to it.
@@ -151,6 +151,14 @@ class APIClient(object):
         :return: Flask representation of the HTTP response from the API.
         """
         requests_session = requests.Session()
+
+        if query_params:
+            params = urlencode(query_params)
+            sep = '?'
+            if urlparse(url).query:
+                sep = '&'
+            url = f"{url}{sep}{params}"
+
         req = requests.Request('POST', url, json=request_data, auth=self.basic_auth)
         prepped = requests_session.prepare_request(req)
 
@@ -228,12 +236,12 @@ class APIClient(object):
                 },
                 "failWhenSignPageFull": True,
                 "insertPageAt": 0,
-                "returnDocumentReference": True,
             },
         }
         api_url = urljoin(self.api_base_url, f'prepare/{self.profile}')
+        query_params = {"returnDocReference": True}
 
-        response = self._post(api_url, request_data)
+        response = self._post(api_url, request_data, query_params)
 
         if current_app.logger.level == 'DEBUG':
             tolog = response.copy()

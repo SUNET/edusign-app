@@ -61,6 +61,10 @@ def test_add_document(app, environ_base, monkeypatch, sample_new_doc_1):
                 'xposition': 37,
                 'yposition': 165,
             },
+            'prepareReport': {
+                'warnings': ['warning1'],
+                'actions': ['action1', 'action2'],
+            },
         }
 
     monkeypatch.setattr(APIClient, '_post', mock_post)
@@ -72,7 +76,7 @@ def test_add_document(app, environ_base, monkeypatch, sample_new_doc_1):
     doc_data = {'payload': sample_new_doc_1}
 
     response = client.post(
-        '/sign/add-doc',
+        '/sign/add-doc?returnDocReference=true',
         headers={
             'X-Requested-With': 'XMLHttpRequest',
             'Origin': 'https://test.localhost',
@@ -86,6 +90,7 @@ def test_add_document(app, environ_base, monkeypatch, sample_new_doc_1):
     resp_data = json.loads(response.data)
 
     assert resp_data['payload']['ref'] == 'ba26478f-f8e0-43db-991c-08af7c65ed58'
+    assert resp_data['payload']['message'] == 'warning1; action1; action2'
 
 
 def test_add_document_error_preparing(client, monkeypatch, sample_new_doc_1):

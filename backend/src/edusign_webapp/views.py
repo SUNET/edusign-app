@@ -551,6 +551,21 @@ def add_document(document: dict) -> dict:
             prepare_data['error'] = True
             return prepare_data
 
+        msg = ""
+        if 'prepareReport' in prepare_data:
+            report = prepare_data['prepareReport']
+
+            if 'warnings' in report:
+                warnings = report['warnings']
+                msg = '; '.join([gettext(w) for w in warnings])
+
+            if 'actions' in report:
+                actions = report['actions']
+                if msg:
+                    msg = '; '.join([msg] + [gettext(a) for a in actions])
+                else:
+                    msg = '; '.join([gettext(a) for a in actions])
+
         doc_ref = prepare_data['updatedPdfDocumentReference']
         sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])
 
@@ -563,6 +578,7 @@ def add_document(document: dict) -> dict:
         prev_signatures = get_previous_signatures_xml(document)
         has_form = False
         pprinted = pretty_print_xml(document['blob'])
+        msg = ""
 
     return {
         'payload': {
@@ -572,6 +588,7 @@ def add_document(document: dict) -> dict:
             'prev_signatures': prev_signatures,
             'has_form': has_form,
             'pprinted': pprinted,
+            'message': msg,
         }
     }
 

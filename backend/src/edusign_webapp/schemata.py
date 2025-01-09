@@ -223,6 +223,7 @@ class ReferenceSchema(_ReferenceSchema):
     prev_signatures = fields.String(dump_default="")
     has_form = fields.Boolean(dump_default=False)
     pprinted = fields.String(required=True, validate=[validate_nonempty])
+    message = fields.String(dump_default="")
 
 
 class ToSignSchema(Schema):
