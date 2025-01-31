@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-11-20 13:24+0100\n"
+"POT-Creation-Date: 2025-01-31 11:13+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sv\n"
@@ -16,7 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.12.1\n"
+"Generated-By: Babel 2.16.0\n"
 
 #: src/edusign_webapp/marshal.py:241
 msgid ""
@@ -24,13 +24,41 @@ msgid ""
 "your IT support"
 msgstr ""
 
+#: src/edusign_webapp/to_translate.py:34
+msgid "flattened-acroform"
+msgstr ""
+
+#: src/edusign_webapp/to_translate.py:35
+msgid "removed-encryption-dictionary"
+msgstr ""
+
+#: src/edusign_webapp/to_translate.py:36
+msgid "pdfa-inconsistency"
+msgstr ""
+
+#: src/edusign_webapp/to_translate.py:37
+msgid "pdfa-consistency-check-failed"
+msgstr ""
+
+#: src/edusign_webapp/to_translate.py:38
+msgid "pdf-contains-acroform"
+msgstr ""
+
+#: src/edusign_webapp/to_translate.py:39
+msgid "pdf-flatten-acroform-failed"
+msgstr ""
+
+#: src/edusign_webapp/to_translate.py:40
+msgid "pdf-contains-encryption-dictionary"
+msgstr ""
+
 #: src/edusign_webapp/utils.py:172 src/edusign_webapp/validators.py:50
 #: src/edusign_webapp/validators.py:54 src/edusign_webapp/validators.py:65
 #: src/edusign_webapp/validators.py:78 src/edusign_webapp/validators.py:82
 #: src/edusign_webapp/validators.py:95 src/edusign_webapp/validators.py:99
 #: src/edusign_webapp/validators.py:103 src/edusign_webapp/validators.py:114
-#: src/edusign_webapp/views.py:557 src/edusign_webapp/views.py:753
-#: src/edusign_webapp/views.py:982
+#: src/edusign_webapp/views.py:571 src/edusign_webapp/views.py:767
+#: src/edusign_webapp/views.py:1000
 msgid "There was an error. Please try again, or contact the site administrator."
 msgstr "Ett problem uppstod. Var god försök igen eller kontakta administratör"
 
@@ -62,12 +90,12 @@ msgstr ""
 "Du bör lägga till ditt namn på ditt konto i din organisation. Kontakta "
 "din IT-avdelning för att avhjälpa problemet."
 
-#: src/edusign_webapp/views.py:488 src/edusign_webapp/views.py:540
-#: src/edusign_webapp/views.py:714 src/edusign_webapp/views.py:1071
+#: src/edusign_webapp/views.py:488 src/edusign_webapp/views.py:554
+#: src/edusign_webapp/views.py:728 src/edusign_webapp/views.py:1089
 msgid "Unauthorized"
 msgstr "Ej behörig"
 
-#: src/edusign_webapp/views.py:599
+#: src/edusign_webapp/views.py:613
 msgid ""
 "Document is being signed by another user, please try again in a few "
 "minutes."
@@ -75,14 +103,14 @@ msgstr ""
 "Dokumentet håller på att signeras av en annan person, försök igen om "
 "någon minut."
 
-#: src/edusign_webapp/views.py:609
+#: src/edusign_webapp/views.py:623
 #, python-format
 msgid "There doesn't seem to be an invitation for you to sign \"%(docname)s\"."
 msgstr ""
 "Det verkar inte finnas någon inbjudan till dig att signera  "
 "\"%(docname)s\"."
 
-#: src/edusign_webapp/views.py:625
+#: src/edusign_webapp/views.py:639
 #, python-format
 msgid ""
 "The email %(email)s invited to sign \"%(docname)s\" does not coincide "
@@ -91,7 +119,7 @@ msgstr ""
 "E-posten %(email)s att signera \"%(docname)s\" stämmer inte överens med "
 "din."
 
-#: src/edusign_webapp/views.py:663
+#: src/edusign_webapp/views.py:677
 msgid ""
 "Problem preparing document for signing. Please try again, or contact the "
 "site administrator."
@@ -99,141 +127,142 @@ msgstr ""
 "Ett problem uppstod att ladda dokumentet. Var god försök igen eller "
 "kontakta administratör."
 
-#: src/edusign_webapp/views.py:860
+#: src/edusign_webapp/views.py:878
 #, python-format
 msgid "%(name)s signed '%(docname)s'"
 msgstr "%(name)s signerade '%(docname)s'"
 
-#: src/edusign_webapp/views.py:911
+#: src/edusign_webapp/views.py:929
 #, python-format
 msgid "'%(docname)s' is now signed"
 msgstr "'%(docname)s' är nu signerat"
 
-#: src/edusign_webapp/views.py:991
+#: src/edusign_webapp/views.py:1009
 msgid "Could not provide the requested security level."
 msgstr ""
 
-#: src/edusign_webapp/views.py:1078
+#: src/edusign_webapp/views.py:1096
 #, python-format
 msgid "You cannot invite as %(owner)s"
 msgstr "Du kan inte bjuda in att signera som %(owner)s"
 
-#: src/edusign_webapp/views.py:1098
+#: src/edusign_webapp/views.py:1116
 msgid "Problem creating invitation to sign, please try again"
 msgstr "Ett problem uppstod att skapa inbjudan att signera, var god försök igen"
 
-#: src/edusign_webapp/views.py:1113
+#: src/edusign_webapp/views.py:1131
 msgid "There was a problem and the invitation email(s) were not sent"
 msgstr "Ett problem uppstod och inbjudningarna att signera skickades inte iväg"
 
-#: src/edusign_webapp/views.py:1115
+#: src/edusign_webapp/views.py:1133
 msgid "Success sending invitations to sign"
 msgstr "Inbjudningarna att signera har skickats"
 
-#: src/edusign_webapp/views.py:1133
+#: src/edusign_webapp/views.py:1151
 #, python-format
 msgid "You have been invited to sign \"%(document_name)s\""
 msgstr "Du har blivit inbjuden att signera '%(document_name)s'"
 
-#: src/edusign_webapp/views.py:1167
+#: src/edusign_webapp/views.py:1185
 msgid "Problem finding the users pending to multi sign"
 msgstr "Ett problem uppstod att hitta användare som inte signerat"
 
-#: src/edusign_webapp/views.py:1171
+#: src/edusign_webapp/views.py:1189
 msgid "Problem finding the users pending to sign"
 msgstr "Ett problem uppstod att hitta användare som inte signerat"
 
-#: src/edusign_webapp/views.py:1175
+#: src/edusign_webapp/views.py:1193
 msgid "Could not find the document"
 msgstr "Det gick inte att hitta dokumentet"
 
-#: src/edusign_webapp/views.py:1199
+#: src/edusign_webapp/views.py:1217
 #, python-format
 msgid "A reminder to sign '%(document_name)s'"
 msgstr "En påminnelse att signera '%(document_name)s'"
 
-#: src/edusign_webapp/views.py:1209
+#: src/edusign_webapp/views.py:1227
 msgid "Problem sending the email, please try again"
 msgstr "Ett problem uppstod att meddelandet, var god försök igen"
 
-#: src/edusign_webapp/views.py:1211
+#: src/edusign_webapp/views.py:1229
 msgid "Success sending reminder email to pending users"
 msgstr "Meddelandet skickades till alla som inte svarat på inbjudan att signera"
 
-#: src/edusign_webapp/views.py:1237
+#: src/edusign_webapp/views.py:1255
 msgid "Problem editing the invitations"
 msgstr "Problem med att redigera inbjudningarna"
 
-#: src/edusign_webapp/views.py:1250
+#: src/edusign_webapp/views.py:1268
 #, python-format
 msgid "Success editing invitation to sign '%(docname)s'"
 msgstr "Framgång med redigering av inbjudan att signera '%(docname)s'"
 
-#: src/edusign_webapp/views.py:1255 src/edusign_webapp/views.py:1268
+#: src/edusign_webapp/views.py:1273 src/edusign_webapp/views.py:1286
 #, python-format
 msgid "Some users may not have been notified of the changes for '%(docname)s'"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1304
+#: src/edusign_webapp/views.py:1322
 msgid "Problem removing the invitation, please try again"
 msgstr "Ett problem uppstod att ta bort inbjudan, var god försök igen"
 
-#: src/edusign_webapp/views.py:1308
+#: src/edusign_webapp/views.py:1326
 msgid "Document has not been removed, please try again"
 msgstr "Dokumentet togs inte bort, var god försök igen"
 
-#: src/edusign_webapp/views.py:1317
+#: src/edusign_webapp/views.py:1335
 msgid "Success removing invitation to sign"
 msgstr "Borttagningen av inbjudan att signera lyckades"
 
-#: src/edusign_webapp/views.py:1322
+#: src/edusign_webapp/views.py:1340
 msgid "Some users may have not been informed of the cancellation"
 msgstr ""
 
-#: src/edusign_webapp/views.py:1337
+#: src/edusign_webapp/views.py:1355
 #, python-format
 msgid "Cancellation of invitation to sign '%(document_name)s'"
 msgstr "Borttagen inbjudan att signera '%(document_name)s'"
 
-#: src/edusign_webapp/views.py:1371 src/edusign_webapp/views.py:1375
-#: src/edusign_webapp/views.py:1450 src/edusign_webapp/views.py:1454
+#: src/edusign_webapp/views.py:1389 src/edusign_webapp/views.py:1393
+#: src/edusign_webapp/views.py:1468 src/edusign_webapp/views.py:1472
+#: src/edusign_webapp/views.py:1538
 msgid "Cannot find the document being signed"
 msgstr "Går inte att hitta dokumentet som skall signeras"
 
-#: src/edusign_webapp/views.py:1415
+#: src/edusign_webapp/views.py:1433
 #, python-format
 msgid "\"%(docname)s\" is now signed"
 msgstr "'%(docname)s' är nu signerat"
 
-#: src/edusign_webapp/views.py:1500
+#: src/edusign_webapp/views.py:1522
 #, python-format
 msgid "%(name)s declined to sign '%(docname)s'"
 msgstr "%(name)s nekade att signera '%(docname)s'"
 
-#: src/edusign_webapp/views.py:1531
+#: src/edusign_webapp/views.py:1574
 msgid "Problem declining signature, please try again"
 msgstr "Ett problem uppstod att neka signering, var god försök igen"
 
-#: src/edusign_webapp/views.py:1547
+#: src/edusign_webapp/views.py:1590
 msgid "Success declining signature"
 msgstr "Signeringen av dokumentet nekades"
 
-#: src/edusign_webapp/views.py:1566
+#: src/edusign_webapp/views.py:1609
 #, fuzzy, python-format
 msgid "%(name)s has delegated signature of \"%(docname)s\" to you"
 msgstr "%(name)s nekade att signera \"%(docname)s\""
 
-#: src/edusign_webapp/views.py:1600
+#: src/edusign_webapp/views.py:1643
 #, fuzzy
 msgid "There was a problem delegating the invitation"
 msgstr "Ett problem uppstod och inbjudningarna att signera skickades inte iväg"
 
-#: src/edusign_webapp/views.py:1615
+#: src/edusign_webapp/views.py:1658
 #, fuzzy
 msgid "Success delegating signature"
 msgstr "Signeringen av dokumentet nekades"
 
-#: src/edusign_webapp/views.py:1631
+#: src/edusign_webapp/views.py:1674
 msgid "Problem filling in form in PDF, please try again"
 msgstr "Problem med att fylla i formuläret i PDF, försök igen"
 
@@ -367,8 +396,7 @@ msgstr ""
 msgid ""
 "\n"
 "This was the final reply to your invitation to sign this document.\n"
-msgstr ""
-"Detta var det sista svaret till din inbjudan att signera detta dokument.\n"
+msgstr "Detta var det sista svaret till din inbjudan att signera detta dokument.\n"
 
 #: src/edusign_webapp/templates/final_signed_by_email.html.jinja2:7
 #: src/edusign_webapp/templates/final_signed_by_email_skip.html.jinja2:7
