@@ -272,7 +272,7 @@ export const finishInvited = createAsyncThunk(
     let newDoc = {
       ...oldDoc,
       name: nameForDownload(oldDoc.name, "draft", state),
-      state: "signed",
+      state: "loaded",
       message: "",
       blob: content,
       signedContent: content,
@@ -284,6 +284,12 @@ export const finishInvited = createAsyncThunk(
     };
     delete newDoc.pending;
     delete newDoc.declined;
+    delete newDoc.ordered;
+    delete newDoc.validated;
+    delete newDoc.invite_key;
+    delete newDoc.owner;
+    delete newDoc.message;
+    delete newDoc.loa;
     try {
       newDoc = await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
       thunkAPI.dispatch(addDocument(newDoc));
