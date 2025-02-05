@@ -30,31 +30,31 @@ msgstr "Ett problem uppstod. Var god försök igen eller kontakta administratör
 
 #: src/edusign_webapp/to_translate.py:37
 msgid "flattened-acroform"
-msgstr ""
+msgstr "Dokumentet hade ett Acroform som blev tillplattad (borttagen)."
 
 #: src/edusign_webapp/to_translate.py:38
 msgid "removed-encryption-dictionary"
-msgstr ""
+msgstr "Dokumentet innehåller ett krypteringsbibliotek. Detta togs bort."
 
 #: src/edusign_webapp/to_translate.py:39
 msgid "pdfa-inconsistency"
-msgstr ""
+msgstr "Det signerade dokumentet som returneras är inte PDF/A."
 
 #: src/edusign_webapp/to_translate.py:40
 msgid "pdfa-consistency-check-failed"
-msgstr ""
+msgstr "Kan inte skapa ett PDF/A dokument."
 
 #: src/edusign_webapp/to_translate.py:41
 msgid "pdf-contains-acroform"
-msgstr ""
+msgstr "Dokumentet har ett Acroform."
 
 #: src/edusign_webapp/to_translate.py:42
 msgid "pdf-flatten-acroform-failed"
-msgstr ""
+msgstr "Dokumentet har ett Acroform som det var problem att ta bort."
 
 #: src/edusign_webapp/to_translate.py:43
 msgid "pdf-contains-encryption-dictionary"
-msgstr ""
+msgstr "Dokumentet innehåller ett krypteringsbibliotek."
 
 #: src/edusign_webapp/utils.py:241 src/edusign_webapp/views.py:492
 msgid "Low"

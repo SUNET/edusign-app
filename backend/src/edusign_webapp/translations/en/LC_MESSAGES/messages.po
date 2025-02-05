@@ -30,31 +30,31 @@ msgstr ""
 
 #: src/edusign_webapp/to_translate.py:37
 msgid "flattened-acroform"
-msgstr ""
+msgstr "The document had an Acroform which was flattened."
 
 #: src/edusign_webapp/to_translate.py:38
 msgid "removed-encryption-dictionary"
-msgstr ""
+msgstr "The document contained an encryption dictionary. This was removed."
 
 #: src/edusign_webapp/to_translate.py:39
 msgid "pdfa-inconsistency"
-msgstr ""
+msgstr "The signed document returned is not PDF/A."
 
 #: src/edusign_webapp/to_translate.py:40
 msgid "pdfa-consistency-check-failed"
-msgstr ""
+msgstr "Cannot produce PDF/A document."
 
 #: src/edusign_webapp/to_translate.py:41
 msgid "pdf-contains-acroform"
-msgstr ""
+msgstr "The document has an acroForm."
 
 #: src/edusign_webapp/to_translate.py:42
 msgid "pdf-flatten-acroform-failed"
-msgstr ""
+msgstr "The document has an AcroForm and there was a problem flattening it."
 
 #: src/edusign_webapp/to_translate.py:43
 msgid "pdf-contains-encryption-dictionary"
-msgstr ""
+msgstr "The document contains an encryption dictionary."
 
 #: src/edusign_webapp/utils.py:241 src/edusign_webapp/views.py:492
 msgid "Low"
