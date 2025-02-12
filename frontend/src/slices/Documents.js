@@ -500,7 +500,7 @@ const setChangedDocument = async (thunkAPI, state, doc) => {
 export const createDocument = createAsyncThunk(
   "documents/createDocument",
   async (args, thunkAPI) => {
-    const state = thunkAPI.getState();
+    let state = thunkAPI.getState();
     // First we validate the document
     const doc = await validateDoc(args.doc, args.intl, state);
     if (doc.state === "failed-loading") {
@@ -548,10 +548,16 @@ export const createDocument = createAsyncThunk(
     // After loading the document locally in the browser, we send it to the backend
     // to be prepared for signing.
     // If this fails, the document is marked as failed, and the user is notified.
+    let preparedDoc;
     try {
       await thunkAPI.dispatch(
         prepareDocument({ doc: newDoc, intl: args.intl }),
       );
+      state = thunkAPI.getState();
+      preparedDoc = state.documents.documents.find(doc => doc.name === newDoc.name);
+      if (preparedDoc === undefined) {
+        throw new Error(`Document ${newDoc.name} could not be prepared`);
+      }
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
@@ -574,7 +580,7 @@ export const createDocument = createAsyncThunk(
     // Finally we try to update the document persisted in the IndexedDB database
     // with whatever info it has been updated with after being prepared in the backend.
     try {
-      await thunkAPI.dispatch(saveDocument({ docKey: newDoc.key }));
+      await thunkAPI.dispatch(saveDocument({ docKey: preparedDoc.key }));
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
