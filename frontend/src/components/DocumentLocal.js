@@ -244,6 +244,7 @@ class DocumentLocal extends React.Component {
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
+                    {widgets.showMessage(doc)}
                     <div className="doc-manager-buttons">
                       {widgets.forcedPreviewButton(this.props, doc)}
                       {widgets.removeConfirmButton(
