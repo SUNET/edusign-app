@@ -117,28 +117,8 @@ export const hashCode = function (s) {
  *
  */
 export const preparePrevSigs = (doc, size) => {
-  if (doc.prev_signatures === undefined || doc.prev_signatures === null)
+  if (doc.prev_signatures === undefined || doc.prev_signatures === null || doc.prev_signatures === "pdf read error")
     return "";
-  if (doc.prev_signatures === "pdf read error") {
-    return (
-      <div className={"doc-container-info-row-" + size} key="-1">
-        <span className="info-row-label">
-          <FormattedMessage
-            defaultMessage="Previously signed by:"
-            key="multisign-owned-prev-signed"
-          />
-        </span>
-        <span className="info-row-items">
-          <span className="info-row-item">
-            <FormattedMessage
-              defaultMessage="Unable to interpret document metadata"
-              key="multisign-owned-prev-signed-pdf-error"
-            />
-          </span>
-        </span>
-      </div>
-    );
-  }
   try {
     const sigStrs = doc.prev_signatures
       .split("|")
