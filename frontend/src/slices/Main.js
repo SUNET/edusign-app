@@ -250,6 +250,27 @@ export const downloadInvitedDraft = createAsyncThunk(
 
 /**
  * @public
+ * @function downloadPersonalDraft
+ * @desc Redux async thunk to hand partially signed documents to the user.
+ */
+export const downloadPersonalDraft = createAsyncThunk(
+  "main/downloadPersonalDraft",
+  async (args, thunkAPI) => {
+    let state = thunkAPI.getState();
+    let doc = state.documents.documents.find((d) => {
+      return d.key === args.docKey;
+    });
+    const b64content =
+      doc.signedContent !== undefined
+        ? doc.signedContent.split(",")[1]
+        : doc.blob.split(",")[1];
+    const blob = b64toBlob(b64content, doc.type);
+    FileSaver.saveAs(blob, doc.name);
+  },
+);
+
+/**
+ * @public
  * @function finishInvited
  * @desc Redux action to finish an invited multisign request
  */

@@ -79,6 +79,20 @@ export const downloadDraftMenuItem = (props, doc) => (
   </ESDropdownItem>
 );
 
+export const downloadPersonalDraftMenuItem = (props, doc) => (
+  <ESDropdownItem
+    doc={doc}
+    id={"menu-item-dlpersonaldraft-" + doc.key}
+    disabling={true}
+    onClick={props.handleDlPersonalDraft({
+      docKey: doc.key,
+      intl: props.intl,
+    })}
+  >
+    <FormattedMessage defaultMessage="Download (draft)" key="dldraft-button" />
+  </ESDropdownItem>
+);
+
 export const fillFormMenuItem = (props, doc) => (
   <ESDropdownItem
     doc={doc}

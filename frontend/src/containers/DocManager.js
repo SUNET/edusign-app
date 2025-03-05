@@ -33,6 +33,7 @@ import {
   showTemplatePreview,
   hideTemplatePreview,
 } from "slices/Templates";
+import { downloadPersonalDraft, } from "slices/Main";
 import { showForm } from "slices/Modals";
 import { clearDocStore } from "init-app/database";
 import { askConfirmation } from "slices/ConfirmDialog";
@@ -77,6 +78,12 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(disablePolling());
         dispatch(setActiveId("dummy-help-id"));
         await dispatch(showTemplatePreview(key));
+        dispatch(unsetSpinning());
+      };
+    },
+    handleDlPersonalDraft: function (args) {
+      return async () => {
+        await dispatch(downloadPersonalDraft(args));
         dispatch(unsetSpinning());
       };
     },
