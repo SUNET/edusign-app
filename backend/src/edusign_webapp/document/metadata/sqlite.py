@@ -39,92 +39,7 @@ from typing import Any, Dict, List, Union
 from flask import Flask, current_app, g
 
 from edusign_webapp.doc_store import ABCMetadata
-
-DB_SCHEMA = """
-CREATE TABLE [Documents]
-(      [doc_id] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [key] VARCHAR(255) NOT NULL,
-       [name] VARCHAR(255) NOT NULL,
-       [size] INTEGER NOT NULL,
-       [type] VARCHAR(50) NOT NULL,
-       [created] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-       [updated] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-       [owner_eppn] VARCHAR(255) NOT NULL,
-       [owner_email] VARCHAR(255) NOT NULL,
-       [owner_name] VARCHAR(255) NOT NULL,
-       [owner_lang] VARCHAR(2) NOT NULL,
-       [prev_signatures] TEXT,
-       [sendsigned] INTEGER DEFAULT 1,
-       [loa] VARCHAR(255) DEFAULT "low",
-       [skipfinal] INTEGER DEFAULT 0,
-       [locked] TIMESTAMP DEFAULT NULL,
-       [locking_email] VARCHAR(255) DEFAULT NULL,
-       [ordered_invitations] INTEGER DEFAULT 0,
-       [invitation_text] TEXT
-);
-CREATE TABLE [Invites]
-(      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [key] VARCHAR(255) NOT NULL,
-       [user_email] VARCHAR(255) NOT NULL,
-       [user_name] VARCHAR(255) NOT NULL,
-       [user_lang] VARCHAR(2) NOT NULL,
-       [doc_id] INTEGER NOT NULL,
-       [signed] INTEGER DEFAULT 0,
-       [declined] INTEGER DEFAULT 0,
-       [order_invitation] INTEGER DEFAULT 0,
-            FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
-              ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
-CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);
-CREATE INDEX IF NOT EXISTS [OwnerEppnIX] ON [Documents] ([owner_eppn]);
-CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
-CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
-CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-PRAGMA user_version = 9;
-"""
-
-
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_ALL = (
-    "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
-)
-DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created, ordered_invitations FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created, ordered_invitations, invitation_text FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned FROM Documents WHERE owner_eppn = ?;"
-DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned FROM Documents WHERE owner_email = ?;"
-DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
-DOCUMENT_SET_SENDSIGNED = "UPDATE Documents SET sendsigned = ? WHERE key = ?;"
-DOCUMENT_QUERY_SKIPFINAL = "SELECT skipfinal FROM Documents WHERE key = ?;"
-DOCUMENT_SET_SKIPFINAL = "UPDATE Documents SET skipfinal = ? WHERE key = ?;"
-DOCUMENT_QUERY_ORDERED = "SELECT ordered_invitations FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_INVITATION_TEXT = "SELECT invitation_text FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_LOA = "SELECT loa FROM Documents WHERE key = ?;"
-DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
-DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locking_email = '' WHERE doc_id = ?;"
-DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE doc_id = ?;"
-DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
-INVITE_INSERT = (
-    "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, order_invitation) VALUES (?, ?, ?, ?, ?, ?)"
-)
-INVITE_INSERT_RAW = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_lang, signed, declined, order_invitation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-INVITE_QUERY_FROM_EMAIL = (
-    "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0 ORDER BY order_invitation;"
-)
-INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, user_lang, signed, declined, key, order_invitation FROM Invites WHERE doc_id = ? ORDER BY order_invitation;"
-INVITE_QUERY_UNSIGNED_FROM_DOC = (
-    "SELECT inviteID FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0 ORDER BY order_invitation;"
-)
-INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, user_lang, doc_id FROM Invites WHERE key = ?;"
-INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_email IN (%s) and doc_id = ?;"
-INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_email IN (%s) and doc_id = ?;"
-INVITE_DELETE = "DELETE FROM Invites WHERE user_id = ? and doc_id = ?;"
-INVITE_DELETE_FROM_KEY = "DELETE FROM Invites WHERE key = ?;"
-INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
+from edusign_webapp.document.metadata import sql
 
 
 def convert_date(val):
@@ -161,7 +76,7 @@ def get_db(db_path):
         db = g._database = sqlite3.connect(db_path)
 
         if not exists:
-            db.cursor().executescript(DB_SCHEMA)
+            db.cursor().executescript(sql.DB_SCHEMA)
             db.commit()
 
         db.row_factory = make_dicts
@@ -412,7 +327,7 @@ class SqliteMD(ABCMetadata):
         prev_sigs = document.get("prev_signatures", "")
 
         self._db_execute(
-            DOCUMENT_INSERT,
+            sql.DOCUMENT_INSERT,
             (
                 str(key),
                 document['name'],
@@ -430,7 +345,7 @@ class SqliteMD(ABCMetadata):
                 invitation_text,
             ),
         )
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_ID, (str(key),), one=True)
 
         if document_result is None or isinstance(
             document_result, list
@@ -444,7 +359,7 @@ class SqliteMD(ABCMetadata):
 
         for order, user in enumerate(invites):
             invite_key = str(uuid.uuid4())
-            self._db_execute(INVITE_INSERT, (invite_key, document_id, user['email'], user['name'], user['lang'], order))
+            self._db_execute(sql.INVITE_INSERT, (invite_key, document_id, user['email'], user['name'], user['lang'], order))
 
             updated_invite = {'key': invite_key, 'order': order}
             updated_invite.update(user)
@@ -481,7 +396,7 @@ class SqliteMD(ABCMetadata):
         :return:
         """
         self._db_execute(
-            DOCUMENT_INSERT_RAW,
+            sql.DOCUMENT_INSERT_RAW,
             (
                 document['doc_id'],
                 str(document['key']),
@@ -519,7 +434,7 @@ class SqliteMD(ABCMetadata):
         :return:
         """
         self._db_execute(
-            INVITE_INSERT_RAW,
+            sql.INVITE_INSERT_RAW,
             (
                 str(invite['key']),
                 invite['doc_id'],
@@ -540,7 +455,7 @@ class SqliteMD(ABCMetadata):
         :return: A list of UUIDs identifying the documents
         """
         assert isinstance(days, int)
-        query = DOCUMENT_QUERY_OLD % days
+        query = sql.DOCUMENT_QUERY_OLD % days
         old_docs = self._db_query(query, ())
 
         if old_docs is None or isinstance(old_docs, dict):
@@ -573,13 +488,13 @@ class SqliteMD(ABCMetadata):
         pending = []
         doc_ids = []
         for email in emails:
-            invites = self._db_query(INVITE_QUERY_FROM_EMAIL, (email,))
+            invites = self._db_query(sql.INVITE_QUERY_FROM_EMAIL, (email,))
             if invites is None or isinstance(invites, dict):
                 return []
 
             for invite in invites:
                 document_id = invite['doc_id']
-                document = self._db_query(DOCUMENT_QUERY, (document_id,), one=True)
+                document = self._db_query(sql.DOCUMENT_QUERY, (document_id,), one=True)
                 if document is None or isinstance(document, list):
                     self.logger.error(
                         f"Db seems corrupted, an invite for {email}"
@@ -608,7 +523,7 @@ class SqliteMD(ABCMetadata):
                 document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
                 document['ordered'] = document['ordered_invitations']
 
-                subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
+                subinvites = self._db_query(sql.INVITE_QUERY_FROM_DOC, (document_id,))
 
                 if subinvites is not None and not isinstance(subinvites, dict):
                     if document["ordered"]:
@@ -649,7 +564,7 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the document in the `storage`.
         :param emails: email addresses of the user that has just signed the document.
         """
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_ID, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.error(f"Trying to update a non-existing document with the signature of {emails}")
             return
@@ -657,10 +572,10 @@ class SqliteMD(ABCMetadata):
         document_id = document_result['doc_id']
 
         self.logger.info(f"Removing invite for {emails} to sign {key}")
-        invite_update = INVITE_UPDATE % " ,".join(["?"] * len(emails))
+        invite_update = sql.INVITE_UPDATE % " ,".join(["?"] * len(emails))
         self._db_execute(invite_update, (*emails, document_id))
         self._db_execute(
-            DOCUMENT_UPDATE,
+            sql.DOCUMENT_UPDATE,
             (
                 datetime.now().isoformat(),
                 str(key),
@@ -675,7 +590,7 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the document in the `storage`.
         :param emails: email addresses of the user that has just signed the document.
         """
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_ID, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.error(f"Trying to decline a non-existing document by {emails}")
             return
@@ -683,10 +598,10 @@ class SqliteMD(ABCMetadata):
         document_id = document_result['doc_id']
 
         self.logger.info(f"Declining invite for {emails} to sign {key}")
-        invite_decline = INVITE_DECLINE % " ,".join(["?"] * len(emails))
+        invite_decline = sql.INVITE_DECLINE % " ,".join(["?"] * len(emails))
         self._db_execute(invite_decline, (*emails, document_id))
         self._db_execute(
-            DOCUMENT_UPDATE,
+            sql.DOCUMENT_UPDATE,
             (
                 datetime.now().isoformat(),
                 str(key),
@@ -715,7 +630,7 @@ class SqliteMD(ABCMetadata):
                  + ordered: Whether to send invitations in order.
                  + sendsigned: Whether to send signed documents in final email
         """
-        documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (eppn,))
+        documents = self._db_query(sql.DOCUMENT_QUERY_FROM_OWNER, (eppn,))
         if documents is None or isinstance(documents, dict):
             return []
 
@@ -742,7 +657,7 @@ class SqliteMD(ABCMetadata):
                  + ordered: Whether to send invitations in order.
                  + sendsigned: Whether to send signed documents in final email
         """
-        documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL, (email,))
+        documents = self._db_query(sql.DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL, (email,))
         if documents is None or isinstance(documents, dict):
             return []
 
@@ -758,7 +673,7 @@ class SqliteMD(ABCMetadata):
             state = 'loaded'
             document['ordered'] = document['ordered_invitations']
             document_id = document['doc_id']
-            invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
+            invites = self._db_query(sql.INVITE_QUERY_FROM_DOC, (document_id,))
             del document['doc_id']
             if invites is None or isinstance(invites, dict):
                 document['state'] = state
@@ -796,14 +711,14 @@ class SqliteMD(ABCMetadata):
         """
         invitees: List[Dict[str, Any]] = []
 
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_ID, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.error(f"Trying to retrieve invitees for non-existing document with key {key}")
             return invitees
 
         doc_id = document_result['doc_id']
 
-        invites = self._db_query(INVITE_QUERY_FROM_DOC, (doc_id,))
+        invites = self._db_query(sql.INVITE_QUERY_FROM_DOC, (doc_id,))
         if invites is None or isinstance(invites, dict):
             self.logger.error(f"Trying to retrieve non-existing invitees to sign document with key {key}")
             return invitees
@@ -835,12 +750,12 @@ class SqliteMD(ABCMetadata):
         """
         invitees: List[Dict[str, Any]] = []
 
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_ID, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.error(f"Trying to remind invitees to sign non-existing document with key {key}")
             return invitees
 
-        invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_result['doc_id'],))
+        invites = self._db_query(sql.INVITE_QUERY_FROM_DOC, (document_result['doc_id'],))
         if invites is None or isinstance(invites, dict):
             self.logger.error(f"Trying to remind non-existing invitees to sign document with key {key}")
             return invitees
@@ -864,13 +779,13 @@ class SqliteMD(ABCMetadata):
         :param force: whether to remove the doc even if there are pending signatures
         :return: whether the document has been removed
         """
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_ID, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.error(f"Trying to delete a non-existing document with key {key}")
             return False
 
         document_id = document_result['doc_id']
-        invites = self._db_query(INVITE_QUERY_UNSIGNED_FROM_DOC, (document_id,))
+        invites = self._db_query(sql.INVITE_QUERY_UNSIGNED_FROM_DOC, (document_id,))
 
         if not force:
             if invites is None or isinstance(invites, dict):  # This should never happen, it's just to please mypy
@@ -880,9 +795,9 @@ class SqliteMD(ABCMetadata):
                 return False
 
         else:
-            self._db_execute(INVITE_DELETE_ALL, (document_id,))
+            self._db_execute(sql.INVITE_DELETE_ALL, (document_id,))
 
-        self._db_execute(DOCUMENT_DELETE, (str(key),))
+        self._db_execute(sql.DOCUMENT_DELETE, (str(key),))
         self._db_commit()
 
         return True
@@ -894,12 +809,12 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the signing invitation
         :return: A dict with data on the user and the document
         """
-        invite = self._db_query(INVITE_QUERY_FROM_KEY, (str(key),), one=True)
+        invite = self._db_query(sql.INVITE_QUERY_FROM_KEY, (str(key),), one=True)
         if invite is None or isinstance(invite, list):
             self.logger.error(f"Retrieving a non-existing invite with key {key}")
             return {}
 
-        doc = self._db_query(DOCUMENT_QUERY, (invite['doc_id'],), one=True)
+        doc = self._db_query(sql.DOCUMENT_QUERY, (invite['doc_id'],), one=True)
         if doc is None or isinstance(doc, list):
             self.logger.error(f"Retrieving a non-existing document with key {key}")
             return {}
@@ -923,7 +838,7 @@ class SqliteMD(ABCMetadata):
         :param order: The order for the new invitation
         :return: data on the new invitation
         """
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(document_key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_ID, (str(document_key),), one=True)
         if document_result is None or isinstance(
             document_result, list
         ):  # This should never happen, it's just to please mypy
@@ -933,7 +848,7 @@ class SqliteMD(ABCMetadata):
         if invite_key == '':
             invite_key = str(uuid.uuid4())
 
-        self._db_execute(INVITE_INSERT, (invite_key, document_id, email, name, lang, order))
+        self._db_execute(sql.INVITE_INSERT, (invite_key, document_id, email, name, lang, order))
         self._db_commit()
 
         return {'key': invite_key, 'name': name, 'email': email}
@@ -946,7 +861,7 @@ class SqliteMD(ABCMetadata):
         :param document_key: The key identifying the signing invitation to remove
         :return: success
         """
-        self._db_execute(INVITE_DELETE_FROM_KEY, (str(invite_key),))
+        self._db_execute(sql.INVITE_DELETE_FROM_KEY, (str(invite_key),))
         self._db_commit()
         return True
 
@@ -974,7 +889,7 @@ class SqliteMD(ABCMetadata):
                  + ordered_invitations: send invitations in order
                  + invitation_text: The custom text to send in the invitation email
         """
-        document_result = self._db_query(DOCUMENT_QUERY_FULL, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_FULL, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.debug(f"Trying to find a non-existing full document with key {key}")
             return {}
@@ -996,7 +911,7 @@ class SqliteMD(ABCMetadata):
                  + owner_name: Display name of owner
                  + owner_lang: Language of owner
         """
-        document_result = self._db_query(DOCUMENT_QUERY_ALL, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_ALL, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.debug(f"Trying to find a non-existing document with key {key}")
             return {}
@@ -1012,7 +927,7 @@ class SqliteMD(ABCMetadata):
         :param locking_email: Email of the user locking the document
         :return: Whether the document has been locked.
         """
-        lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
+        lock_info = self._db_query(sql.DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
         self.logger.debug(f"Checking lock for {locking_email} in document with id {doc_id}: {lock_info}")
         if lock_info is None or isinstance(lock_info, list):
             self.logger.error(f"Trying to lock a non-existing document with id {doc_id}")
@@ -1031,7 +946,7 @@ class SqliteMD(ABCMetadata):
             or lock_info['locking_email'] == locking_email
         ):
             self.logger.debug(f"Adding lock for {locking_email} in document with id {doc_id}: {lock_info}")
-            self._db_execute(DOCUMENT_ADD_LOCK, (now, locking_email, doc_id))
+            self._db_execute(sql.DOCUMENT_ADD_LOCK, (now, locking_email, doc_id))
             self._db_commit()
             return True
 
@@ -1046,7 +961,7 @@ class SqliteMD(ABCMetadata):
         :param unlocking_email: Emails of the user unlocking the document
         :return: Whether the document has been unlocked.
         """
-        lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
+        lock_info = self._db_query(sql.DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
         if lock_info is None or isinstance(lock_info, list):
             self.logger.error(f"Trying to unlock a non-existing document with id {doc_id}")
             return False
@@ -1062,7 +977,7 @@ class SqliteMD(ABCMetadata):
             locked = lock_info['locked']
 
         if (now - locked) < current_app.config['DOC_LOCK_TIMEOUT'] and lock_info['locking_email'] in unlocking_email:
-            self._db_execute(DOCUMENT_RM_LOCK, (doc_id,))
+            self._db_execute(sql.DOCUMENT_RM_LOCK, (doc_id,))
             self._db_commit()
             return True
 
@@ -1077,7 +992,7 @@ class SqliteMD(ABCMetadata):
         :param locking_email: Email of the user locking the document
         :return: Whether the document is locked by the user with `locking_email` emails
         """
-        lock_info = self._db_query(DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
+        lock_info = self._db_query(sql.DOCUMENT_QUERY_LOCK, (doc_id,), one=True)
         if lock_info is None or isinstance(lock_info, list):
             self.logger.error(f"Trying to check a non-existing document with id {doc_id}")
             return False
@@ -1095,7 +1010,7 @@ class SqliteMD(ABCMetadata):
 
         if (now - locked) > current_app.config['DOC_LOCK_TIMEOUT']:
             self.logger.debug(f"Lock for document with id {doc_id} has expired")
-            self._db_execute(DOCUMENT_RM_LOCK, (doc_id,))
+            self._db_execute(sql.DOCUMENT_RM_LOCK, (doc_id,))
             self._db_commit()
             return False
 
@@ -1109,7 +1024,7 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the document
         :return: whether to send emails
         """
-        document_result = self._db_query(DOCUMENT_QUERY_SENDSIGNED, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_SENDSIGNED, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.debug(f"Trying to get sendsigned from a non-existing document with key {key}")
             return True
@@ -1124,7 +1039,7 @@ class SqliteMD(ABCMetadata):
         :param value: whether to send emails
         """
         try:
-            self._db_execute(DOCUMENT_SET_SENDSIGNED, (value, str(key)))
+            self._db_execute(sql.DOCUMENT_SET_SENDSIGNED, (value, str(key)))
             self._db_commit()
         except Exception as e:
             self.logger.error(f"Problem trying to set sendsigned: {e}")
@@ -1137,7 +1052,7 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the document
         :return: whether it should be signed by the owner
         """
-        document_result = self._db_query(DOCUMENT_QUERY_SKIPFINAL, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_SKIPFINAL, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.debug(f"Trying to get skipfinal from a non-existing document with key {key}")
             return True
@@ -1152,7 +1067,7 @@ class SqliteMD(ABCMetadata):
         :param value: whether it should be signed by the owner
         """
         try:
-            self._db_execute(DOCUMENT_SET_SKIPFINAL, (value, str(key)))
+            self._db_execute(sql.DOCUMENT_SET_SKIPFINAL, (value, str(key)))
             self._db_commit()
         except Exception as e:
             self.logger.error(f"Problem trying to set skipfinal: {e}")
@@ -1165,7 +1080,7 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the document
         :return: LoA
         """
-        document_result = self._db_query(DOCUMENT_QUERY_LOA, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_LOA, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.debug(f"Trying to find loa for a non-existing document with key {key}")
             return "low"
@@ -1179,7 +1094,7 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the document
         :return: whether the invitations for signing the document are ordered
         """
-        document_result = self._db_query(DOCUMENT_QUERY_ORDERED, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_ORDERED, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.debug(f"Trying to get ordered from a non-existing document with key {key}")
             return False
@@ -1193,7 +1108,7 @@ class SqliteMD(ABCMetadata):
         :param key: The key identifying the document
         :return: The invitation text
         """
-        document_result = self._db_query(DOCUMENT_QUERY_INVITATION_TEXT, (str(key),), one=True)
+        document_result = self._db_query(sql.DOCUMENT_QUERY_INVITATION_TEXT, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.debug(f"Trying to get invitation text from a non-existing document with key {key}")
             return ''
