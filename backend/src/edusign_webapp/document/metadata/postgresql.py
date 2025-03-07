@@ -30,7 +30,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import os
 from typing import Any, Dict, List, Union
 
 from flask import Flask, g
@@ -39,6 +38,7 @@ from edusign_webapp.document.metadata import sql
 
 import psycopg2
 from psycopg2 import pool
+from psycopg2 import sql as pg_sql
 from psycopg2.extras import RealDictCursor
 
 
@@ -57,34 +57,135 @@ class PostgresqlMD(sql.SqlMD):
         :param app: flask app
         """
         super().__init__(app)
+        self.user = app.config.get('PG_DB_USER'),
+        self.password = app.config.get('PG_DB_PASSWORD'),
+        self.host = app.config.get('PG_DB_HOST'),
+        self.port = app.config.get('PG_DB_PORT'),
+        self.database = app.config.get('PG_DB_NAME')
 
-        self.connection_pool = psycopg2.pool.ThreadedConnectionPool(
+        if not self._database_exists():
+            self._create_database()
+
+        self.connection_pool = pool.ThreadedConnectionPool(
             minconn=1,
             maxconn=10,
-            user=app.config.get('DB_USER'),
-            password=app.config.get('DB_PASSWORD'),
-            host=app.config.get('DB_HOST'),
-            port=app.config.get('DB_PORT'),
-            database=app.config.get('DB_NAME')
+            user=self.user,
+            password=self.password,
+            host=self.host,
+            port=self.port,
+            database=self.database
         )
+        self._close_db_connection = self.app.teardown_appcontext(self._close_db_connection)
 
-    def get_db_connection(self):
+    def _database_exists(self):
+        """
+        Check if a PostgreSQL database exists.
+
+        Returns:
+            bool: True if the database exists, False otherwise
+        """
+        # Connect to the default 'postgres' database
+        conn = None
+        try:
+            # Connect to the postgres database (this DB always exists)
+            conn = psycopg2.connect(
+                dbname='postgres',
+                user=self.user,
+                password=self.password,
+                host=self.host,
+                port=self.port
+            )
+            # Create a cursor and execute the query to check if the database exists
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT 1 FROM pg_database WHERE datname = %s;",
+                    (self.database,)
+                )
+                exists = cursor.fetchone() is not None
+
+            return exists
+
+        except Exception as e:
+            self.logger.error(f"Error checking if database exists: {e}")
+            return False
+
+        finally:
+            if conn:
+                conn.close()
+
+    def _create_database(self):
+        conn = None
+        try:
+            conn = psycopg2.connect(
+                dbname='postgres',
+                user=self.user,
+                password=self.password,
+                host=self.host,
+                port=self.port
+            )
+            conn.autocommit = True
+
+            with conn.cursor() as cursor:
+                # Use sql.Identifier to safely quote the database name
+                cursor.execute(
+                    pg_sql.SQL("CREATE DATABASE {}").format(pg_sql.Identifier(self.database))
+                )
+            conn.close()
+
+            dbconn = psycopg2.connect(
+                dbname=self.database,
+                user=self.user,
+                password=self.password,
+                host=self.host,
+                port=self.port
+            )
+            dbconn.autocommit = True
+
+            schema = f"""
+                {sql.DB_SCHEMA}
+                set my.version to {sql.CURRENT_DB_VERSION};
+                alter database {self.database} set my.version from current;
+            """
+
+            with conn.cursor() as cursor:
+                cursor.execute(schema)
+
+            conn.close()
+            self.logger.info(f"Database '{self.database}' created successfully")
+
+        except Exception as e:
+            self.logger.error(f"Error creating database: {e}")
+
+        finally:
+            if conn:
+                conn.close()
+
+    def _get_db_connection(self):
         if 'db_conn' not in g:
             g.db_conn = self.connection_pool.getconn()
         return g.db_conn
 
+    def _close_db_connection(self):
+        conn = g.pop('db_conn', None)
+        if conn is not None:
+            self.connection_pool.putconn(conn)
+
     def _db_execute(self, stmt: str, args: tuple = ()):
-        db = self.get_db_connection()
-        db.execute(stmt, args)
+        conn = self._get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(stmt, args)
+        cursor.close()
 
     def _db_query(
         self, query: str, args: tuple = (), one: bool = False
     ) -> Union[List[Dict[str, Any]], Dict[str, Any], None]:
-        cur = self.get_db_connection().execute(query, args)
-        rv = cur.fetchall()
-        cur.close()
+        conn = self._get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(query, args)
+        rv = cursor.fetchall()
+        cursor.close()
         return (rv[0] if rv else None) if one else rv
 
     def _db_commit(self):
-        db = self.get_db_connection()
-        db.commit()
+        conn = self._get_db_connection()
+        conn.commit()
