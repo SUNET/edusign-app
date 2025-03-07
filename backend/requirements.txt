@@ -19,3 +19,4 @@ fakeredis==2.27.0
 signxml==4.0.3
 pygments==2.19.1
 chardet==5.2.0
+pdfminer.six==20240706
