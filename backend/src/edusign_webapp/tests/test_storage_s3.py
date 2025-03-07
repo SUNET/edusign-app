@@ -32,14 +32,14 @@
 #
 import uuid
 
-from moto import mock_s3
+from moto import mock_aws
 
 
 def _create_bucket(app):
     app.extensions['doc_store'].storage.s3.create_bucket(Bucket='edusign-storage')
 
 
-@mock_s3
+@mock_aws
 def test_add(s3_app, sample_pdf_data, sample_binary_pdf_data):
     _create_bucket(s3_app)
     key = str(uuid.uuid4())
@@ -49,7 +49,7 @@ def test_add(s3_app, sample_pdf_data, sample_binary_pdf_data):
     assert list(s3_app.extensions['doc_store'].storage.s3_bucket.objects.all())[0].key == key
 
 
-@mock_s3
+@mock_aws
 def test_add_and_retrieve(s3_app, sample_pdf_data):
     _create_bucket(s3_app)
     key = str(uuid.uuid4())
@@ -59,7 +59,7 @@ def test_add_and_retrieve(s3_app, sample_pdf_data):
     assert content == sample_pdf_data
 
 
-@mock_s3
+@mock_aws
 def test_add_update_and_retrieve(s3_app, sample_pdf_data, sample_pdf_data_2):
     _create_bucket(s3_app)
     key = str(uuid.uuid4())
@@ -73,7 +73,7 @@ def test_add_update_and_retrieve(s3_app, sample_pdf_data, sample_pdf_data_2):
     assert content == sample_pdf_data_2
 
 
-@mock_s3
+@mock_aws
 def test_add_two_update_and_retrieve(s3_app, sample_pdf_data, sample_pdf_data_2):
     _create_bucket(s3_app)
     key1 = str(uuid.uuid4())
@@ -90,7 +90,7 @@ def test_add_two_update_and_retrieve(s3_app, sample_pdf_data, sample_pdf_data_2)
     assert content1 == content2
 
 
-@mock_s3
+@mock_aws
 def test_add_and_remove(s3_app, sample_pdf_data):
     _create_bucket(s3_app)
     key = str(uuid.uuid4())
@@ -101,7 +101,7 @@ def test_add_and_remove(s3_app, sample_pdf_data):
     assert len(list(s3_app.extensions['doc_store'].storage.s3_bucket.objects.all())) == 0
 
 
-@mock_s3
+@mock_aws
 def test_add_2_and_remove_1(s3_app, sample_pdf_data, sample_pdf_data_2):
     _create_bucket(s3_app)
     key = str(uuid.uuid4())
