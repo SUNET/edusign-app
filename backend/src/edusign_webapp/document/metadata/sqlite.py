@@ -58,7 +58,11 @@ def get_db(db_path):
         db = g._database = sqlite3.connect(db_path)
 
         if not exists:
-            db.cursor().executescript(sql.DB_SCHEMA)
+            schema = f"""
+                {sql.DB_SCHEMA}
+                PRAGMA user_version = {sql.CURRENT_DB_VERSION};
+            """
+            db.cursor().executescript(schema)
             db.commit()
 
         db.row_factory = make_dicts
