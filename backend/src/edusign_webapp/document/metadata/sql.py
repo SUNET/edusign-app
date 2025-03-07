@@ -32,14 +32,16 @@
 #
 
 
-import os
 import uuid
 from datetime import datetime, date
 from typing import Any, Dict, List, Union
 
-from flask import Flask, current_app, g
+from flask import Flask, current_app
 
 from edusign_webapp.doc_store import ABCMetadata
+
+
+CURRENT_DB_VERSION = "9"
 
 DB_SCHEMA = """
 CREATE TABLE [Documents]
@@ -82,7 +84,6 @@ CREATE INDEX IF NOT EXISTS [OwnerEppnIX] ON [Documents] ([owner_eppn]);
 CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
 CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-PRAGMA user_version = 9;
 """
 
 
