@@ -153,6 +153,13 @@ DOC_METADATA_CLASS_PATH = os.environ.get(
 )
 SQLITE_MD_DB_PATH = os.environ.get('SQLITE_MD_DB_PATH', default='/tmp/test.db')
 
+
+PG_DB_USER = os.environ.get('PG_DB_USER', default='edusign')
+PG_DB_PASSWORD = os.environ.get('PG_DB_PASSWORD', default='edusign')
+PG_DB_HOST = os.environ.get('PG_DB_HOST', default='postgres')
+PG_DB_PORT = os.environ.get('PG_DB_PORT', default='5432')
+PG_DB_NAME = os.environ.get('PG_DB_NAME', default='edusign')
+
 REDIS_URL = os.environ.get('REDIS_URL', default='redis://localhost:6379/0')
 
 DOC_LOCK_TIMEOUT_RAW = os.environ.get('DOC_LOCK_TIMEOUT', default='300')
