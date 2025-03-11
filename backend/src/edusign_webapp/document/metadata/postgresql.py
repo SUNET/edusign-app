@@ -57,10 +57,10 @@ class PostgresqlMD(sql.SqlMD):
         :param app: flask app
         """
         super().__init__(app)
-        self.user = app.config.get('PG_DB_USER'),
-        self.password = app.config.get('PG_DB_PASSWORD'),
-        self.host = app.config.get('PG_DB_HOST'),
-        self.port = app.config.get('PG_DB_PORT'),
+        self.user = app.config.get('PG_DB_USER')
+        self.password = app.config.get('PG_DB_PASSWORD')
+        self.host = app.config.get('PG_DB_HOST')
+        self.port = app.config.get('PG_DB_PORT')
         self.database = app.config.get('PG_DB_NAME')
 
         if not self._database_exists():
