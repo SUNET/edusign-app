@@ -44,46 +44,46 @@ from edusign_webapp.doc_store import ABCMetadata
 CURRENT_DB_VERSION = "9"
 
 DB_SCHEMA = """
-CREATE TABLE [Documents]
-(      [doc_id] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [key] VARCHAR(255) NOT NULL,
-       [name] VARCHAR(255) NOT NULL,
-       [size] INTEGER NOT NULL,
-       [type] VARCHAR(50) NOT NULL,
-       [created] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-       [updated] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-       [owner_eppn] VARCHAR(255) NOT NULL,
-       [owner_email] VARCHAR(255) NOT NULL,
-       [owner_name] VARCHAR(255) NOT NULL,
-       [owner_lang] VARCHAR(2) NOT NULL,
-       [prev_signatures] TEXT,
-       [sendsigned] INTEGER DEFAULT 1,
-       [loa] VARCHAR(255) DEFAULT "low",
-       [skipfinal] INTEGER DEFAULT 0,
-       [locked] TIMESTAMP DEFAULT NULL,
-       [locking_email] VARCHAR(255) DEFAULT NULL,
-       [ordered_invitations] INTEGER DEFAULT 0,
-       [invitation_text] TEXT
+CREATE TABLE IF NOT EXISTS Documents
+(      doc_id INTEGER PRIMARY KEY AUTOINCREMENT,
+       key VARCHAR(255) NOT NULL,
+       name VARCHAR(255) NOT NULL,
+       size INTEGER NOT NULL,
+       type VARCHAR(50) NOT NULL,
+       created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       owner_eppn VARCHAR(255) NOT NULL,
+       owner_email VARCHAR(255) NOT NULL,
+       owner_name VARCHAR(255) NOT NULL,
+       owner_lang VARCHAR(2) NOT NULL,
+       prev_signatures TEXT,
+       sendsigned INTEGER DEFAULT 1,
+       loa VARCHAR(255) DEFAULT 'low',
+       skipfinal INTEGER DEFAULT 0,
+       locked TIMESTAMP DEFAULT NULL,
+       locking_email VARCHAR(255) DEFAULT NULL,
+       ordered_invitations INTEGER DEFAULT 0,
+       invitation_text TEXT
 );
-CREATE TABLE [Invites]
-(      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
-       [key] VARCHAR(255) NOT NULL,
-       [user_email] VARCHAR(255) NOT NULL,
-       [user_name] VARCHAR(255) NOT NULL,
-       [user_lang] VARCHAR(2) NOT NULL,
-       [doc_id] INTEGER NOT NULL,
-       [signed] INTEGER DEFAULT 0,
-       [declined] INTEGER DEFAULT 0,
-       [order_invitation] INTEGER DEFAULT 0,
-            FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
+CREATE TABLE IF NOT EXISTS Invites
+(      inviteID INTEGER PRIMARY KEY AUTOINCREMENT,
+       key VARCHAR(255) NOT NULL,
+       user_email VARCHAR(255) NOT NULL,
+       user_name VARCHAR(255) NOT NULL,
+       user_lang VARCHAR(2) NOT NULL,
+       doc_id INTEGER NOT NULL,
+       signed INTEGER DEFAULT 0,
+       declined INTEGER DEFAULT 0,
+       order_invitation INTEGER DEFAULT 0,
+            FOREIGN KEY (doc_id) REFERENCES Documents (doc_id)
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
-CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
-CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);
-CREATE INDEX IF NOT EXISTS [OwnerEppnIX] ON [Documents] ([owner_eppn]);
-CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
-CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
-CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
+CREATE UNIQUE INDEX IF NOT EXISTS KeyIX ON Documents (key);
+CREATE INDEX IF NOT EXISTS OwnerEmailIX ON Documents (owner_email);
+CREATE INDEX IF NOT EXISTS OwnerEppnIX ON Documents (owner_eppn);
+CREATE INDEX IF NOT EXISTS CreatedIX ON Documents (created);
+CREATE INDEX IF NOT EXISTS InviteeEmailIX ON Invites (user_email);
+CREATE INDEX IF NOT EXISTS InvitedIX ON Invites (doc_id);
 """
 
 
