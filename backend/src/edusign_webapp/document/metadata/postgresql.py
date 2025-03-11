@@ -42,6 +42,9 @@ from psycopg2 import sql as pg_sql
 from psycopg2.extras import RealDictCursor
 
 
+PRIMARY_KEY_AUTOINCREMENT = "BIGSERIAL PRIMARY KEY"
+
+
 class PostgresqlMD(sql.SqlMD):
     """
     Postgresql backend to deal with the metadata associated to documents
@@ -63,8 +66,9 @@ class PostgresqlMD(sql.SqlMD):
         self.port = app.config.get('PG_DB_PORT')
         self.database = app.config.get('PG_DB_NAME')
 
-        if not self._database_exists():
-            self._create_database()
+        db_exists, tables_exist = self._database_exists()
+        if not tables_exist:
+            self._create_database(db_exists)
 
         self.connection_pool = pool.ThreadedConnectionPool(
             minconn=1,
@@ -75,7 +79,12 @@ class PostgresqlMD(sql.SqlMD):
             port=self.port,
             database=self.database
         )
-        self._close_db_connection = self.app.teardown_appcontext(self._close_db_connection)
+
+        @app.teardown_appcontext
+        def _close_db_connection(exc):
+            conn = g.pop('db_conn', None)
+            if conn is not None:
+                self.connection_pool.putconn(conn)
 
     def _database_exists(self):
         """
@@ -86,6 +95,8 @@ class PostgresqlMD(sql.SqlMD):
         """
         # Connect to the default 'postgres' database
         conn = None
+        db_exists = False
+        tables_exist = False
         try:
             # Connect to the postgres database (this DB always exists)
             conn = psycopg2.connect(
@@ -101,19 +112,31 @@ class PostgresqlMD(sql.SqlMD):
                     "SELECT 1 FROM pg_database WHERE datname = %s;",
                     (self.database,)
                 )
-                exists = cursor.fetchone() is not None
+                db_exists = cursor.fetchone() is not None
+                cursor.close()
 
-            return exists
+            if db_exists:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';",
+                    )
+                    tables = cursor.fetchall()
+                    tables_exist = "Documents" in tables
+                    cursor.close()
+
+            conn.close()
+
+            return (db_exists, tables_exist)
 
         except Exception as e:
             self.logger.error(f"Error checking if database exists: {e}")
-            return False
+            return (False, False)
 
         finally:
             if conn:
                 conn.close()
 
-    def _create_database(self):
+    def _create_database(self, db_exists):
         conn = None
         try:
             conn = psycopg2.connect(
@@ -125,12 +148,13 @@ class PostgresqlMD(sql.SqlMD):
             )
             conn.autocommit = True
 
-            with conn.cursor() as cursor:
-                # Use sql.Identifier to safely quote the database name
-                cursor.execute(
-                    pg_sql.SQL("CREATE DATABASE {}").format(pg_sql.Identifier(self.database))
-                )
-            conn.close()
+            if not db_exists:
+                with conn.cursor() as cursor:
+                    # Use sql.Identifier to safely quote the database name
+                    cursor.execute(
+                        pg_sql.SQL("CREATE DATABASE {}").format(pg_sql.Identifier(self.database))
+                    )
+                conn.close()
 
             dbconn = psycopg2.connect(
                 dbname=self.database,
@@ -146,11 +170,12 @@ class PostgresqlMD(sql.SqlMD):
                 set my.version to {sql.CURRENT_DB_VERSION};
                 alter database {self.database} set my.version from current;
             """
+            schema = schema.replace("PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY")
 
-            with conn.cursor() as cursor:
+            with dbconn.cursor() as cursor:
                 cursor.execute(schema)
 
-            conn.close()
+            dbconn.close()
             self.logger.info(f"Database '{self.database}' created successfully")
 
         except Exception as e:
