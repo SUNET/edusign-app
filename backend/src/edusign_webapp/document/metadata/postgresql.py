@@ -190,29 +190,34 @@ class PostgresqlMD(sql.SqlMD):
             g.db_conn = self.connection_pool.getconn()
         return g.db_conn
 
+    def _get_db_cursor(self):
+        if 'db_cursor' not in g:
+            conn = self._get_db_connection()
+            g.db_cursor = conn.cursor(cursor_factory=RealDictCursor)
+        return g.db_cursor
+
     def _close_db_connection(self):
+        cursor = g.pop('db_cursor', None)
+        if cursor is not None:
+            cursor.close()
         conn = g.pop('db_conn', None)
         if conn is not None:
             self.connection_pool.putconn(conn)
 
     def _db_execute(self, stmt: str, args: tuple = ()):
-        conn = self._get_db_connection()
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor = self._get_db_cursor()
         stmt = stmt.replace('?', '%s')
         args = self._fix_args(args)
         cursor.execute(stmt, args)
-        cursor.close()
 
     def _db_query(
         self, query: str, args: tuple = (), one: bool = False
     ) -> Union[List[Dict[str, Any]], Dict[str, Any], None]:
-        conn = self._get_db_connection()
-        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor = self._get_db_cursor()
         query = query.replace('?', '%s')
         args = self._fix_args(args)
         cursor.execute(query, args)
         rv = cursor.fetchall()
-        cursor.close()
         return (rv[0] if rv else None) if one else rv
 
     def _db_commit(self):
