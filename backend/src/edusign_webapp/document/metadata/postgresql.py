@@ -170,7 +170,7 @@ class PostgresqlMD(sql.SqlMD):
                 set my.version to {sql.CURRENT_DB_VERSION};
                 alter database {self.database} set my.version from current;
             """
-            schema = schema.replace("PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY")
+            schema = schema.replace("INTEGER PRIMARY KEY AUTOINCREMENT", "BIGSERIAL PRIMARY KEY")
 
             with dbconn.cursor() as cursor:
                 cursor.execute(schema)
@@ -198,6 +198,8 @@ class PostgresqlMD(sql.SqlMD):
     def _db_execute(self, stmt: str, args: tuple = ()):
         conn = self._get_db_connection()
         cursor = conn.cursor()
+        stmt = stmt.replace('?', '%s')
+        args = self._fix_args(args)
         cursor.execute(stmt, args)
         cursor.close()
 
@@ -206,6 +208,8 @@ class PostgresqlMD(sql.SqlMD):
     ) -> Union[List[Dict[str, Any]], Dict[str, Any], None]:
         conn = self._get_db_connection()
         cursor = conn.cursor()
+        query = query.replace('?', '%s')
+        args = self._fix_args(args)
         cursor.execute(query, args)
         rv = cursor.fetchall()
         cursor.close()
@@ -214,3 +218,12 @@ class PostgresqlMD(sql.SqlMD):
     def _db_commit(self):
         conn = self._get_db_connection()
         conn.commit()
+
+    def _fix_args(self, args):
+        new_args = []
+        for arg in args:
+            if type(arg) is bool:
+                new_args.append(int(arg))
+            else:
+                new_args.append(arg)
+        return tuple(new_args)
