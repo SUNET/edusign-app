@@ -399,7 +399,10 @@ class SqlMD(ABCMetadata):
                 document['signed'] = []
                 document['declined'] = []
                 document['state'] = "unconfirmed"
-                document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
+                created = document['created']
+                if isinstance(created, str):
+                    created = datetime.fromisoformat(created)
+                document['created'] = created.timestamp() * 1000
                 document['ordered'] = document['ordered_invitations']
 
                 subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
@@ -548,7 +551,10 @@ class SqlMD(ABCMetadata):
             document['pending'] = []
             document['signed'] = []
             document['declined'] = []
-            document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
+            created = document['created']
+            if isinstance(created, str):
+                created = datetime.fromisoformat(created)
+            document['created'] = created.timestamp() * 1000
             state = 'loaded'
             document['ordered'] = document['ordered_invitations']
             document_id = document['doc_id']
