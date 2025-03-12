@@ -197,7 +197,7 @@ class PostgresqlMD(sql.SqlMD):
 
     def _db_execute(self, stmt: str, args: tuple = ()):
         conn = self._get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
         stmt = stmt.replace('?', '%s')
         args = self._fix_args(args)
         cursor.execute(stmt, args)
@@ -207,7 +207,7 @@ class PostgresqlMD(sql.SqlMD):
         self, query: str, args: tuple = (), one: bool = False
     ) -> Union[List[Dict[str, Any]], Dict[str, Any], None]:
         conn = self._get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
         query = query.replace('?', '%s')
         args = self._fix_args(args)
         cursor.execute(query, args)
