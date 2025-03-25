@@ -674,14 +674,12 @@ class SqlMD(ABCMetadata):
 
         if not force:
             if invites is None or isinstance(invites, dict):  # This should never happen, it's just to please mypy
-                pass
+                return False
             elif len(invites) != 0:
                 self.logger.error(f"Refusing to remove document {key} with pending emails")
                 return False
 
-        else:
-            self._db_execute(INVITE_DELETE_ALL, (document_id,))
-
+        self._db_execute(INVITE_DELETE_ALL, (document_id,))
         self._db_execute(DOCUMENT_DELETE, (str(key),))
         self._db_commit()
 

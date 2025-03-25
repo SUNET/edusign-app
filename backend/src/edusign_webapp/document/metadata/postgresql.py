@@ -205,19 +205,22 @@ class PostgresqlMD(sql.SqlMD):
             self.connection_pool.putconn(conn)
 
     def _db_execute(self, stmt: str, args: tuple = ()):
-        cursor = self._get_db_cursor()
-        stmt = stmt.replace('?', '%s')
-        args = self._fix_args(args)
-        cursor.execute(stmt, args)
+        with self._get_db_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                stmt = stmt.replace('?', '%s')
+                args = self._fix_args(args)
+                cursor.execute(stmt, args)
 
     def _db_query(
         self, query: str, args: tuple = (), one: bool = False
     ) -> Union[List[Dict[str, Any]], Dict[str, Any], None]:
-        cursor = self._get_db_cursor()
-        query = query.replace('?', '%s')
-        args = self._fix_args(args)
-        cursor.execute(query, args)
-        rv = cursor.fetchall()
+        with self._get_db_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                query = query.replace('?', '%s')
+                args = self._fix_args(args)
+                cursor.execute(query, args)
+                rv = cursor.fetchall()
+
         return (rv[0] if rv else None) if one else rv
 
     def _db_commit(self):
