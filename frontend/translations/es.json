@@ -19,6 +19,7 @@
   "components.DocManager.invited-multisign-legend": "Documentos que has sido invitado a firmar",
   "components.DocManager.invited-unauthn-title": "Te han invitado a firmar los siguientes documento(s)",
   "components.DocManager.local-monosign-legend": "Documentos personales",
+  "components.DocManager.local-monosign-legend-title": "Los documentos personales se almacenan en el navegador. Una vez firmados, recomendamos almacenarlos en otro sitio para su uso posterior.",
   "components.DocManager.local-templates-legend": "Plantillas",
   "components.DocManager.owned-multisign-legend": "Documentos que has invitado a firmar",
   "components.DocManager.unauthn-text": "No estás invitado a firmar ningún documento en estos momentos. La organización/proveedor de identidades con la que estás afiliado no tiene permiso para iniciar la firma de documentos en eduSign. Por favor, contacta con tu departamento de TI si deseas poder firmar tus propios documentos o invitar a otros a firmar documentos.",

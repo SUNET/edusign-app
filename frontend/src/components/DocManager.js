@@ -148,6 +148,12 @@ class DocManager extends React.Component {
                     key="local-monosign-legend"
                   />
                 </legend>
+                <p className="docset-legend-title">
+                  <FormattedMessage
+                    defaultMessage="Personal documents are stored in your browser. When signed, we recommend to store them in a separate place for later use."
+                    key="local-monosign-legend-title"
+                  />
+                </p>
                 {this.props.documents.map((doc, index) => {
                   disableClearButton = false;
                   if (doc.state === "signed") {
