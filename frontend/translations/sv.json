@@ -19,6 +19,7 @@
   "components.DocManager.invited-multisign-legend": "Dokument du är inbjuden att signera",
   "components.DocManager.invited-unauthn-title": "Du har blivit inbjuden att signera nedan dokument",
   "components.DocManager.local-monosign-legend": "Personliga dokument",
+  "components.DocManager.local-monosign-legend-title": "Personliga dokument lagras i din webbläsare. När de är signerade rekommenderar vi att lagra dem på en annan plats för senare användning.",
   "components.DocManager.local-templates-legend": "Mallar",
   "components.DocManager.owned-multisign-legend": "Dokument du har bjudit in andra att signera",
   "components.DocManager.unauthn-text": "Du är för närvarande inte inbjuden att signera några dokument. Organisationen/identitetsutfärdaren du loggat in från har inte ett aktivt avtal att ladda upp egna dokument att signera. Kontakta din IT-avdelning om du skulle vilja kunna signera dina egna dokument eller bjuda in andra att signera dina dokument.",

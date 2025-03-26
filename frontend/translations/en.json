@@ -19,6 +19,7 @@
   "components.DocManager.invited-multisign-legend": "Documents you are invited to sign",
   "components.DocManager.invited-unauthn-title": "You have been invited to sign the following document(s)",
   "components.DocManager.local-monosign-legend": "Personal documents",
+  "components.DocManager.local-monosign-legend-title": "Personal documents are stored in your browser. When signed, we recommend to store them in a separate place for later use.",
   "components.DocManager.local-templates-legend": "Templates",
   "components.DocManager.owned-multisign-legend": "Documents you have invited others to sign",
   "components.DocManager.unauthn-text": "You are currently not invited to sign any documents. The organization/identity provider you are affiliated with does not have permission to upload your own documents into eduSign to sign. Please contact your IT-department if you would like to be able to sign your own documents or invite others to sign your documents.",
