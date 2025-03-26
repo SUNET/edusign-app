@@ -11,7 +11,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 # * create git tag and push
 # * reference new tag in docker-edusign-app/backend/Dockerfile
 # * reference new tag in docker-edusign-app/nginx/Dockerfile
-version = '1.6.0b11'
+version = '1.6.0b12'
 
 requires = [x for x in open(os.path.join(here, 'requirements.txt')).read().split('\n') if len(x) > 0]
 test_requires = [x for x in open(os.path.join(here, 'test_requirements.txt')).read().split('\n')
