@@ -26,6 +26,9 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
   try {
     const response = await esFetch("/sign/poll", getRequest);
     const state = thunkAPI.getState();
+    if (!state.main.signer_attributes.eppn) {
+      return thunkAPI.rejectWithValue("Not ready to poll");
+    }
     if (state.main.disablePoll) {
       return thunkAPI.rejectWithValue("Polling disabled");
     }

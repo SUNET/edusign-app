@@ -60,7 +60,7 @@ export const createTemplate = createAsyncThunk(
       state: "loaded",
       isTemplate: true,
     };
-    await saveTemplate(thunkAPI, newTemplate);
+    await saveTemplate(thunkAPI, newTemplate, args.intl);
     thunkAPI.dispatch(
       addNotification({
         level: "success",

@@ -37,7 +37,7 @@ import {
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 import { loadDocuments, addDocumentToDb, addDocument } from "slices/Documents";
-import { setPolling, configureSkipped } from "slices/Poll";
+import { setPolling } from "slices/Poll";
 import { b64toBlob, nameForDownload } from "components/utils";
 
 /**
@@ -312,7 +312,10 @@ export const finishInvited = createAsyncThunk(
     delete newDoc.message;
     delete newDoc.loa;
     try {
-      newDoc = await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
+      newDoc = await addDocumentToDb(
+        newDoc,
+        state.main.signer_attributes.eppn,
+      );
       thunkAPI.dispatch(addDocument(newDoc));
     } catch (err) {
       thunkAPI.dispatch(

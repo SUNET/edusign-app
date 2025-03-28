@@ -413,11 +413,13 @@ export const saveDocument = createAsyncThunk(
  * @function saveTemplate
  * @desc async function to persist a new template
  */
-export const saveTemplate = async (thunkAPI, doc) => {
+export const saveTemplate = async (thunkAPI, doc, intl) => {
   const state = thunkAPI.getState();
   const newTemplate = await addDocumentToDb(
     doc,
     state.main.signer_attributes.eppn,
+    thunkAPI,
+    intl
   );
   thunkAPI.dispatch(addTemplate(newTemplate));
   return doc;
@@ -451,7 +453,18 @@ export const removeDocument = createAsyncThunk(
  * and when an invitation has been signed by all parties, thus being removed from
  * the backend database, and added to the local IndexedDB database.
  */
-export const addDocumentToDb = async (document, name) => {
+export const addDocumentToDb = async (doc, name, thunkAPI, intl) => {
+  if (!name && thunkAPI && intl) {
+    thunkAPI.dispatch(
+      addNotification({
+        level: "success",
+        message: intl.formatMessage({
+          defaultMessage: "Temporary network problem, please try again in a few aseconds",
+          id: "add-doc-to-db-problem",
+        }),
+      }),
+    );
+  }
   const db = await getDb(name);
   if (db !== null) {
     const newDoc = await new Promise((resolve, reject) => {
@@ -460,10 +473,10 @@ export const addDocumentToDb = async (document, name) => {
         reject("Problem with create transaction");
       };
       const docStore = transaction.objectStore("documents");
-      const docRequest = docStore.add(document);
+      const docRequest = docStore.add(doc);
       docRequest.onsuccess = (event) => {
         resolve({
-          ...document,
+          ...doc,
           id: event.target.result,
         });
       };
@@ -481,12 +494,12 @@ export const addDocumentToDb = async (document, name) => {
  * @function setChangedDocument
  * @desc Update the redux store with changed doc and add it to the IndexedDB database
  */
-const setChangedDocument = async (thunkAPI, state, doc) => {
+const setChangedDocument = async (thunkAPI, state, doc, intl) => {
   const docElem = document.getElementById(`local-doc-${doc.name}`);
   if (docElem !== null) {
     docElem.scrollIntoView({ behavior: "smooth", block: "center" });
   }
-  const newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn);
+  const newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn, thunkAPI, intl);
   thunkAPI.dispatch(documentsSlice.actions.setState(newDoc));
   return newDoc;
 };
@@ -504,7 +517,7 @@ export const createDocument = createAsyncThunk(
     // First we validate the document
     const doc = await validateDoc(args.doc, args.intl, state);
     if (doc.state === "failed-loading") {
-      await setChangedDocument(thunkAPI, state, doc);
+      await setChangedDocument(thunkAPI, state, doc, args.intl);
       return;
     }
 
@@ -523,7 +536,7 @@ export const createDocument = createAsyncThunk(
     }
     let newDoc = null;
     try {
-      newDoc = await setChangedDocument(thunkAPI, state, doc);
+      newDoc = await setChangedDocument(thunkAPI, state, doc, args.intl);
     } catch (err) {
       // If there was an error saving the document, we mark it as so,
       // and still try to save it to the redux store, so it can be displayed
@@ -542,7 +555,7 @@ export const createDocument = createAsyncThunk(
         defaultMessage: "Problem adding document, please try again",
         id: "save-doc-problem-db",
       });
-      await setChangedDocument(thunkAPI, state, doc);
+      await setChangedDocument(thunkAPI, state, doc, args.intl);
       return;
     }
     // After loading the document locally in the browser, we send it to the backend
@@ -574,7 +587,7 @@ export const createDocument = createAsyncThunk(
         defaultMessage: "There was a problem signing the document",
         id: "prepare-doc-problem",
       });
-      await setChangedDocument(thunkAPI, state, doc);
+      await setChangedDocument(thunkAPI, state, doc, args.intl);
       return;
     }
     // Finally we try to update the document persisted in the IndexedDB database
@@ -597,7 +610,7 @@ export const createDocument = createAsyncThunk(
         defaultMessage: "Problem saving document in session",
         id: "save-doc-problem-session",
       });
-      await setChangedDocument(thunkAPI, state, doc);
+      await setChangedDocument(thunkAPI, state, doc, args.intl);
     }
   },
 );
@@ -1226,6 +1239,8 @@ export const skipOwnedSignature = createAsyncThunk(
       const newDoc = await addDocumentToDb(
         doc,
         state.main.signer_attributes.eppn,
+        thunkAPI,
+        args.intl
       );
       thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
 
