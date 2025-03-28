@@ -494,11 +494,12 @@ export const addDocumentToDb = async (doc, name, thunkAPI, intl) => {
  * @function setChangedDocument
  * @desc Update the redux store with changed doc and add it to the IndexedDB database
  */
-const setChangedDocument = async (thunkAPI, state, doc, intl) => {
+const setChangedDocument = async (thunkAPI, doc, intl) => {
   const docElem = document.getElementById(`local-doc-${doc.name}`);
   if (docElem !== null) {
     docElem.scrollIntoView({ behavior: "smooth", block: "center" });
   }
+  let state = thunkAPI.getState()
   const newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn, thunkAPI, intl);
   thunkAPI.dispatch(documentsSlice.actions.setState(newDoc));
   return newDoc;
@@ -517,7 +518,7 @@ export const createDocument = createAsyncThunk(
     // First we validate the document
     const doc = await validateDoc(args.doc, args.intl, state);
     if (doc.state === "failed-loading") {
-      await setChangedDocument(thunkAPI, state, doc, args.intl);
+      await setChangedDocument(thunkAPI, doc, args.intl);
       return;
     }
 
@@ -536,7 +537,7 @@ export const createDocument = createAsyncThunk(
     }
     let newDoc = null;
     try {
-      newDoc = await setChangedDocument(thunkAPI, state, doc, args.intl);
+      newDoc = await setChangedDocument(thunkAPI, doc, args.intl);
     } catch (err) {
       // If there was an error saving the document, we mark it as so,
       // and still try to save it to the redux store, so it can be displayed
@@ -555,7 +556,7 @@ export const createDocument = createAsyncThunk(
         defaultMessage: "Problem adding document, please try again",
         id: "save-doc-problem-db",
       });
-      await setChangedDocument(thunkAPI, state, doc, args.intl);
+      await setChangedDocument(thunkAPI, doc, args.intl);
       return;
     }
     // After loading the document locally in the browser, we send it to the backend
@@ -587,7 +588,7 @@ export const createDocument = createAsyncThunk(
         defaultMessage: "There was a problem signing the document",
         id: "prepare-doc-problem",
       });
-      await setChangedDocument(thunkAPI, state, doc, args.intl);
+      await setChangedDocument(thunkAPI, doc, args.intl);
       return;
     }
     // Finally we try to update the document persisted in the IndexedDB database
@@ -610,7 +611,7 @@ export const createDocument = createAsyncThunk(
         defaultMessage: "Problem saving document in session",
         id: "save-doc-problem-session",
       });
-      await setChangedDocument(thunkAPI, state, doc, args.intl);
+      await setChangedDocument(thunkAPI, doc, args.intl);
     }
   },
 );
