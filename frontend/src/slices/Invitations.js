@@ -17,7 +17,6 @@ import {
   setState,
   rmDocument,
   rmDocumentByKey,
-  saveTemplate,
   removeDocument,
 } from "slices/Documents";
 import { setPolling } from "slices/Poll";
@@ -305,7 +304,12 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
     delete newDoc.pending;
     delete newDoc.signed;
     delete newDoc.declined;
-    newDoc = await addDocumentToDb(newDoc, state.main.signer_attributes.eppn);
+    newDoc = await addDocumentToDb(
+      newDoc,
+      state.main.signer_attributes.eppn,
+      thunkAPI,
+      intl
+    );
     thunkAPI.dispatch(addDocument(newDoc));
   } catch (err) {
     // in case of errors, inform the user, and update the local state.
