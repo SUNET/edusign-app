@@ -1444,7 +1444,7 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const loaLevel = await waitFor(() =>
-        screen.getAllByText(/Required assurance level/),
+        screen.getAllByText(/Required security level/),
       );
       expect(loaLevel.length).to.equal(1);
 
