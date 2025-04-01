@@ -17,6 +17,7 @@ import { docToFile } from "components/utils";
 import DnDAreaContainer from "containers/DnDArea";
 import * as edusignLogo from "../../../images/eduSign_logo.svg";
 import { resetDb } from "init-app/database";
+import { fetchConfig } from "slices/Main";
 
 describe("DnDArea Component", function () {
   beforeEach(async () => {
@@ -214,9 +215,30 @@ describe("DnDArea Component", function () {
   });
 
   it("It shows the file details after a drop event ", async () => {
-    const { wrapped, rerender, unmount } = setupReduxComponent(<Main />);
+    const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
 
     try {
+      const payload = {
+        payload: {
+          unauthn: false,
+          poll: false,
+          multisign_buttons: "true",
+          signer_attributes: {
+            name: "Tester Testig",
+            eppn: "tester@example.org",
+            mail: "tester@example.org",
+            mail_aliases: ["tester@example.org"],
+          },
+          owned_multisign: [],
+          pending_multisign: [],
+          skipped: [],
+          ui_defaults: { sendsigned: true, skip_final: true },
+          available_loas: [],
+        },
+      };
+      fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
+      await store.dispatch(fetchConfig());
+      await flushPromises(rerender, wrapped);
       let filename = screen.queryByText(/test.pdf/i);
       expect(filename).to.equal(null);
 
