@@ -454,6 +454,9 @@ export const removeDocument = createAsyncThunk(
  * the backend database, and added to the local IndexedDB database.
  */
 export const addDocumentToDb = async (doc, name, thunkAPI, intl) => {
+  if (!name) {
+    name = thunkAPI.getState().main.signer_attributes.eppn;
+  }
   if (!name && thunkAPI && intl) {
     thunkAPI.dispatch(
       addNotification({
@@ -464,6 +467,9 @@ export const addDocumentToDb = async (doc, name, thunkAPI, intl) => {
         }),
       }),
     );
+  }
+  if (!name) {
+    throw new Error("Settings absent, cannot save document");
   }
   const db = await getDb(name);
   if (db !== null) {
@@ -1088,7 +1094,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           thunkAPI.dispatch(removeOwned({ key: doc.id }));
           newDoc = await addDocumentToDb(
             newDoc,
-            state.main.signer_attributes.eppn,
+            state.main.signer_attributes.eppn
           );
           thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
         }

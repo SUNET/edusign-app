@@ -503,15 +503,20 @@ describe("Document representations", function () {
   it("It carries the sign response after getting the signed docs", async () => {
     await carriesTheSignResponseAfterGettingTheSignedDocs({
       payload: {
-        available_loas: [],
+        unauthn: false,
+        poll: false,
+        multisign_buttons: "true",
         signer_attributes: {
           name: "Tester Testig",
           eppn: "tester@example.org",
           mail: "tester@example.org",
           mail_aliases: ["tester@example.org"],
         },
+        owned_multisign: [],
+        pending_multisign: [],
         skipped: [],
         ui_defaults: { sendsigned: true, skip_final: true },
+        available_loas: [],
       },
     });
   });
@@ -1564,7 +1569,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
   fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
   const { wrapped, rerender, store, unmount } = setupReduxComponent(<Main />);
   try {
-    store.dispatch(fetchConfig());
+    await store.dispatch(fetchConfig());
     await flushPromises(rerender, wrapped);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
@@ -1645,6 +1650,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     await store.dispatch(
       loadDocuments({
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+        eppn: 'tester@example.org',
       }),
     );
 
@@ -1734,6 +1740,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     await store.dispatch(
       loadDocuments({
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
+        eppn: 'tester@example.org',
       }),
     );
 

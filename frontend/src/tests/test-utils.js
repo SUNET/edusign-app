@@ -119,6 +119,20 @@ export function setupReduxComponent(component) {
   return { wrapped, rerender, store, unmount };
 }
 
+export function setupReduxComponentFake(component, stateOverrides) {
+  const state = {
+    ...initialState,
+    ...stateOverrides,
+  };
+  if (state.intl.locale === "sv") {
+    state.intl.messages = messages.sv;
+  }
+  const store = mockStore(state);
+  const wrapped = <Provider store={store}>{component}</Provider>;
+  const { rerender, unmount } = render(wrapped);
+  return { wrapped, rerender, store, unmount };
+}
+
 /**
  * @public
  * @function mockFileData
