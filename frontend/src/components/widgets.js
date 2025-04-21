@@ -66,9 +66,7 @@ export const infoLine = (doc, size) => {
           />
         </span>
         &nbsp;
-        <ESTooltip tooltip={loaValue} helpId={"invited-" + loaValue}>
-          <span className="info-row-item">{loaName}</span>
-        </ESTooltip>
+        <span className="info-row-item">{loaName}</span>
       </div>
     );
   }
