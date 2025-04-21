@@ -136,7 +136,7 @@ We authenticate with 5 different identities, which are set at `e2e/users-env`.
 - As invitee, decline the invitation
 - Check email sent to inviter informing of non signature by invitee
 - Check presence of text "Documents you have invited others to sign",
-  of  message "Declined to sign by:" the invitee, of message "Required security
+  of  message "Declined to sign by:" the invitee, of message "Required assurance
   level: Low", and of buttons to skip final signature and to remove document.
 - As inviter, click on "Skip Signature" button
 - Check document in "personal documents"
@@ -154,7 +154,7 @@ We authenticate with 5 different identities, which are set at `e2e/users-env`.
 - Check email sent to inviter informing them that the last invitee has signed
   the document
 - Check presence of text "Documents you have invited others to sign",
-  of  message "Signed by:" the invitee, of message "Required security
+  of  message "Signed by:" the invitee, of message "Required assurance
   level: Low", and of buttons to skip final signature and to remove document.
 - As inviter, click on "Skip Signature" button
 - Check document in "personal documents"
@@ -172,7 +172,7 @@ We authenticate with 5 different identities, which are set at `e2e/users-env`.
 - Check email sent to inviter informing them that the last invitee has signed
   the document
 - Check presence of text "Documents you have invited others to sign",
-  of  message "Signed by:" the invitee, of message "Required security
+  of  message "Signed by:" the invitee, of message "Required assurance
   level: Low", and of buttons to skip final signature and to remove document.
 - Add final signature as inviter
 - Check presence of button "Download (signed)"
@@ -201,7 +201,7 @@ We authenticate with 5 different identities, which are set at `e2e/users-env`.
 - Check email sent to inviter informing them that the last invitee has signed
   the document
 - Check presence of text "Documents you have invited others to sign",
-  of  message "Signed by:" the invitee, of message "Required security
+  of  message "Signed by:" the invitee, of message "Required assurance
   level: Low", and of buttons to skip final signature and to remove document.
 - Add final signature as inviter
 - Check presence of button "Download (signed)"
@@ -218,7 +218,7 @@ We authenticate with 5 different identities, which are set at `e2e/users-env`.
 - Check email sent to all that signed, with the signed document attached
 - Check presence of text "Personal documents" in invitee UI
 - Check presence of text "Personal documents",
-  of  message "Signed by:" the invitee, of message "Required security
+  of  message "Signed by:" the invitee, of message "Required assurance
   level: Low", and of buttons to download signed, to invite others to sign,
   and to remove the document
 - Remove document
@@ -232,7 +232,7 @@ We authenticate with 5 different identities, which are set at `e2e/users-env`.
 - As one of the invitees, sign the invitation
 - Check presence of text "Documents you have invited others to sign",
   of  message "Signed by:" the invitee that has signed, of message
-  "Waiting for signatures by" the other invitees, of message "Required security
+  "Waiting for signatures by" the other invitees, of message "Required assurance
   level: Low", and of a button to remove the document
 - Edit the invitation to remove the pending invitee
 - Check cancellation email sent to removed invitee
@@ -251,7 +251,7 @@ We authenticate with 5 different identities, which are set at `e2e/users-env`.
 - As one of the invitees, sign the invitation
 - Check presence of text "Documents you have invited others to sign",
   of  message "Signed by:" the invitee that has signed, of message
-  "Waiting for signatures by" the other invitees, of message "Required security
+  "Waiting for signatures by" the other invitees, of message "Required assurance
   level: Low", and of a button to remove the document
 - Sign document as the pending invitee
 - Check email sent to inviter informing them that the last invitee has signed
@@ -273,7 +273,7 @@ We authenticate with 5 different identities, which are set at `e2e/users-env`.
   and invitation email sent to 2nd invitee
 - Check presence of text "Documents you have invited others to sign",
   of  message "Signed by:" the invitee that has signed, of message
-  "Waiting for signatures by" the other invitee, of message "Required security
+  "Waiting for signatures by" the other invitee, of message "Required assurance
   level: Low", and of a button to remove the document
 - Sign invitation as 2nd invitee
 - Check email sent to inviter informing them that the last invitee has signed
@@ -293,7 +293,7 @@ We authenticate with 5 different identities, which are set at `e2e/users-env`.
 - As one of the invitees, sign the invitation
 - Check presence of text "Documents you have invited others to sign",
   of  message "Signed by:" the invitee that has signed, of message "Required
-  security level: Low", and of a button to remove the document
+  assurance level: Low", and of a button to remove the document
 - Edit invitation and uncheck "Send signed document in email"
 - Check presence of text "Signed by:" the invitee that has signed, and of text
   "Waiting for signatures by" the other invitee
@@ -315,7 +315,7 @@ We authenticate with 5 different identities, which are set at `e2e/users-env`.
 - As one of the invitees, sign the invitation
 - Check presence of text "Documents you have invited others to sign",
   of  message "Signed by:" the invitee that has signed, of message
-  "Waiting for signatures by" the other invitees, of message "Required security
+  "Waiting for signatures by" the other invitees, of message "Required assurance
   level: Low", and of a button to remove the document
 - As another invitee, decline the invitation
 - Check email sent to inviter informing of non signature by invitee
@@ -348,7 +348,7 @@ We authenticate with 5 different identities, which are set at `e2e/users-env`.
 - Check email sent to inviter informing of the signature by the 1st invitee,
   and invitation email sent to 2nd invitee
 - Check presence of message "Waiting for signatures by" the 3 pending invitees,
-  and of message "Signed by" 1st invitee, and of "Required security level"
+  and of message "Signed by" 1st invitee, and of "Required assurance level"
   message, and of "Remove" button
 - Edit invitation to remove next (2nd) invitee
 - Check cancellation email sent to 2nd invitee, and invitation email sent to

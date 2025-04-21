@@ -61,7 +61,7 @@ export const infoLine = (doc, size) => {
       <div className={"info-line info-line-2 doc-container-info-row-" + size}>
         <span className="info-row-label">
           <FormattedMessage
-            defaultMessage="Required security level:"
+            defaultMessage="Required assurance level:"
             key="multisign-loa"
           />
         </span>

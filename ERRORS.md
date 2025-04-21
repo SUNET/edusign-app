@@ -442,9 +442,9 @@ fails, this is shown in the notifications area.
 contextual help on the box representing the invitation shows this (title and
 text).
 
-    Insufficient security level
+    Insufficient assurance level
 
-    Your account does not provide the required security level. Please take the
+    Your account does not provide the required assurance level. Please take the
     steps to provide it.
 
     Inte tillräckligt hög säkerhetsnivå

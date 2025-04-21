@@ -28,7 +28,7 @@ test('Make one invitation and sign it with skip final signature', async ({ brows
 
   await expect(user0.page.getByTestId('legend-personal')).toContainText('Personal documents');
   await expect(user0.page.getByTestId(`representation-for-doc-${filename}`)).toContainText(`Signed by:${user1.name} <${user1.email}> .`);
-  await expect(user0.page.getByTestId(`representation-for-doc-${filename}`)).toContainText('Required security level: Low');
+  await expect(user0.page.getByTestId(`representation-for-doc-${filename}`)).toContainText('Required assurance level: Low');
   await expect(user0.page.getByTestId(`button-download-signed-${filename}`)).toContainText('Download (signed)');
   await expect(user0.page.getByTestId(`button-multisign-${filename}`)).toContainText('Invite others to sign');
   await expect(user0.page.getByTestId(`button-rm-invitation-${filename}`)).toContainText('Remove');

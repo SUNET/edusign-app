@@ -212,7 +212,7 @@ export const checkInvitation = async (user, inviter, filename) => {
   await expect(user.page.getByTestId('legend-invited')).toContainText('Documents you are invited to sign');
   await expect(user.page.getByRole('group')).toContainText(filename);
   await expect(user.page.getByRole('group')).toContainText(`Invited by:${inviter.name} <${inviter.email}>.`);
-  await expect(user.page.getByRole('group')).toContainText('Required security level: Low');
+  await expect(user.page.getByRole('group')).toContainText('Required assurance level: Low');
 }
 
 export const signInvitation = async (user, inviter, filename, draftFilename) => {

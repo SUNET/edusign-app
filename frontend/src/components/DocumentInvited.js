@@ -79,12 +79,12 @@ class DocumentInvited extends Component {
         id: "docmanager-help-declined-invited",
       }),
       "failed-loa-title": this.props.intl.formatMessage({
-        defaultMessage: "Insufficient security level",
+        defaultMessage: "Insufficient assurance level",
         id: "docmanager-help-failed-loa-title",
       }),
       "failed-loa": this.props.intl.formatMessage({
         defaultMessage:
-          "Your account does not provide the required security level. Please take the steps to provide it.",
+          "Your account does not provide the required assurance level. Please take the steps to provide it.",
         id: "docmanager-help-failed-loa-invited",
       }),
     };

@@ -28,7 +28,7 @@ test('Make four ordered invitations, sign one, remove next, then sign all', asyn
   await expect(user0.page.getByTestId('legend-inviter')).toContainText('Documents you have invited others to sign');
   await expect(user0.page.getByRole('group')).toContainText(`Signed by:${user1.name} <${user1.email}> .`);
   await expect(user0.page.getByRole('group')).toContainText(`Waiting for signatures by:${user2.name} <${user2.email}> ,${user3.name} <${user3.email}> ,${user4.name} <${user4.email}> .`)
-  await expect(user0.page.getByRole('group')).toContainText('Required security level: Low');
+  await expect(user0.page.getByRole('group')).toContainText('Required assurance level: Low');
   await expect(user0.page.getByTestId(`button-rm-invitation-${filename}`)).toContainText('Remove');
 
   await rmInvitation(user0, filename, 0);
