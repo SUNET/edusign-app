@@ -137,6 +137,9 @@ export const configureSkipped = async (thunkAPI, configData, owned) => {
           pending: doc.pending,
           pprinted: doc.pprinted,
         };
+        delete newDoc.ordered;
+        delete newDoc.sendsigned;
+        delete newDoc.skipfinal;
         newDoc = await addDocumentToDb(
           newDoc,
           state.main.signer_attributes.eppn
