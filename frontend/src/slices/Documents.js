@@ -1091,6 +1091,9 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
             validated: doc.validated,
             pprinted: doc.pprinted,
           };
+          delete newDoc.ordered;
+          delete newDoc.sendsigned;
+          delete newDoc.skipfinal;
           thunkAPI.dispatch(removeOwned({ key: doc.id }));
           newDoc = await addDocumentToDb(
             newDoc,
@@ -1238,6 +1241,9 @@ export const skipOwnedSignature = createAsyncThunk(
         show: false,
         pprinted: data.payload.documents[0].pprinted,
       };
+      delete doc.ordered;
+      delete doc.sendsigned;
+      delete doc.skipfinal;
 
       // Remove the document from the collection of invitations to the user in the redux store,
       // and add it to the IndexedDB database
