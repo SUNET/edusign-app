@@ -1,4 +1,5 @@
 {
+  "add-doc-to-db-problem": "",
   "components.ConfirmDialog.confirm-dialog-cancel": "Avbryt",
   "components.ConfirmDialog.confirm-dialog-confirm": "Bekräfta",
   "components.DelegateForm.cancel-delegate": "",
@@ -142,7 +143,7 @@
   "dnd-doc-not-loaded": "Dokumentet kunde inte laddas",
   "docmanager-help-declined-invited": "Du har nekat att signera detta dokument. Det kommer försvinna när du laddar om applikationen.",
   "docmanager-help-declined-title": "Signatur nekad",
-  "docmanager-help-failed-loa-invited": "Ditt konto have inte tillräckligt hög tillitsnivå. Var vänlig höj tillitsnivån på ditt konto.",
+  "docmanager-help-failed-loa-invited": "Ditt konto har inte tillräckligt hög tillitsnivå. Höj tillitsnivån för att kunna signera.",
   "docmanager-help-failed-loa-title": "Inte tillräckligt hög tillitsnivå",
   "docmanager-help-failed-loading": "Detta verkar inte vara ett giltigt dokument",
   "docmanager-help-failed-loading-title": "Det gick inte att ladda dokumentet",
