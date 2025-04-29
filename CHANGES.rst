@@ -3,7 +3,7 @@ In version 1.4.0:
 -----------------
 
 * Add e2e tests
-* Keep partially signed docs locally
+* Keep all signed invitations locally in the browser
 * Review of error messages
 * Better pagination controls
 * Allow sining XML documents
