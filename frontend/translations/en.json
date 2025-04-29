@@ -1,4 +1,5 @@
 {
+  "add-doc-to-db-problem": "Temporary network problem, please try again in a few aseconds",
   "components.ConfirmDialog.confirm-dialog-cancel": "Cancel",
   "components.ConfirmDialog.confirm-dialog-confirm": "Confirm",
   "components.DelegateForm.cancel-delegate": "Cancel",

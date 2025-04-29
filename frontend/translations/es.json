@@ -1,4 +1,5 @@
 {
+  "add-doc-to-db-problem": "",
   "components.ConfirmDialog.confirm-dialog-cancel": "Cancelar",
   "components.ConfirmDialog.confirm-dialog-confirm": "Confirmar",
   "components.DelegateForm.cancel-delegate": "Cancelar",
