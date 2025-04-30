@@ -63,6 +63,7 @@ config_dev = {
     'SESSION_COOKIE_DOMAIN': 'test.localhost',
     'SERVER_NAME': 'test.localhost',
     'SQLITE_MD_DB_PATH': '/tmp/test.db',
+    'POLLING': 'always',
 }
 
 
@@ -79,6 +80,7 @@ config_pro = {
     'SESSION_COOKIE_DOMAIN': 'test.localhost',
     'SERVER_NAME': 'test.localhost',
     'SQLITE_MD_DB_PATH': '/tmp/test.db',
+    'POLLING': 'always',
 }
 
 
