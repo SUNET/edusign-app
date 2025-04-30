@@ -136,6 +136,8 @@ RAW_USER_WHITELIST = os.environ.get('USER_WHITELIST', default='whitelisted@eduid
 
 USER_WHITELIST = [eppn.lower().strip() for eppn in RAW_USER_WHITELIST.split(',')]
 
+POLLING = os.environ.get('POLLING', default='always')  # always|inviter|never
+
 STORAGE_CLASS_PATH = os.environ.get('STORAGE_CLASS_PATH', default='edusign_webapp.document.storage.local.LocalStorage')
 LOCAL_STORAGE_BASE_DIR = os.environ.get('LOCAL_STORAGE_BASE_DIR', default='/tmp')
 

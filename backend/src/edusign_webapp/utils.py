@@ -276,8 +276,11 @@ def get_invitations(remove_finished=False):
         else:
             newowned.append(doc)
 
-    # let's poll always
-    poll = True
+    polling = current_app.config['POLLING']
+    if polling == 'never':
+        poll = False
+    elif polling == 'always':
+        poll = True
 
     return {
         'owned_multisign': newowned,
