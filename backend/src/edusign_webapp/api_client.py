@@ -353,17 +353,19 @@ class APIClient(object):
             more_used_attr_names = tuple(saml_name for saml_name, _ in more_attr_names)
             used_attr_names += more_used_attr_names
         attrs.extend(more_attrs)
-        assurances = self.config['AVAILABLE_LOAS'].get(
-            session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']
-        )
-        levels = {'low': 0, 'medium': 1, 'high': 2}
-        loa = assurances[levels[assurance]]
-        if attr_schema == '11':
-            assurance_attr_name = 'urn:mace:dir:attribute-def:eduPersonAssurance'
-        else:
-            assurance_attr_name = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
-        if assurance_attr_name not in used_attr_names:
-            attrs.append({'name': assurance_attr_name, 'value': loa})
+        # For low assurance, we don't care about the value of eduPersonAssurance
+        if assurance != 'low':
+            assurances = self.config['AVAILABLE_LOAS'].get(
+                session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']
+            )
+            levels = {'low': 0, 'medium': 1, 'high': 2}
+            loa = assurances[levels[assurance]]
+            if attr_schema == '11':
+                assurance_attr_name = 'urn:mace:dir:attribute-def:eduPersonAssurance'
+            else:
+                assurance_attr_name = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
+            if assurance_attr_name not in used_attr_names:
+                attrs.append({'name': assurance_attr_name, 'value': loa})
 
         if 'api_return_url' in session and session['api_return_url']:
             return_url = session['api_return_url']
