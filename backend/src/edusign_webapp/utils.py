@@ -248,11 +248,12 @@ def get_invitations(remove_finished=False):
         doc['pprinted'] = pretty_print_any(content, doc['type'])
         loa = doc['loa']
         doc['loa'] = f"{loa},{display_levels[loa]}"
-        required_level = levels[loa]
-        required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
-        if required_loa not in session['eduPersonAssurance']:
-            doc['state'] = 'failed-loa'
-            doc['message'] = gettext("You do not fullfil required assurance level for your user account")
+        if loa != 'low':
+            required_level = levels[loa]
+            required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
+            if required_loa not in session['eduPersonAssurance']:
+                doc['state'] = 'failed-loa'
+                doc['message'] = gettext("You do not fullfil required assurance level for your user account")
         if len(doc['pending']) > 0:
             poll = True
     newowned, skipped = [], []
