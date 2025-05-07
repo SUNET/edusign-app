@@ -1225,7 +1225,7 @@ def get_signed_documents(sign_data: dict) -> dict:
 
     validated = current_app.extensions['api_client'].validate_signatures(to_validate)
 
-    docs = _prepare_signed_documents_data(process_data)
+    more_docs = []
 
     mail_aliases = session.get('mail_aliases', [session['mail']])
     for doc in validated:
@@ -1251,7 +1251,10 @@ def get_signed_documents(sign_data: dict) -> dict:
         if signed_invites:
             new_doc['signed'] = signed_invites
 
-        docs.append(new_doc)
+        more_docs.append(new_doc)
+
+    docs = _prepare_signed_documents_data(process_data)
+    docs.extend(more_docs)
 
     if len(emails) > 0:
         sendmail_bulk(emails)
