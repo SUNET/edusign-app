@@ -38,6 +38,7 @@ from flask import Flask, g
 
 from edusign_webapp.document.metadata import sql
 
+DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 
 sqlite3.register_converter("date", sql.convert_date)
 sqlite3.register_converter("datetime", sql.convert_datetime)
@@ -277,3 +278,19 @@ class SqliteMD(sql.SqlMD):
     def _db_commit(self):
         db = get_db(self.db_path)
         db.commit()
+
+    def get_old(self, days: int) -> List[uuid.UUID]:
+        """
+        Get the keys identifying stored documents that are older than the provided number of days.
+
+        :param days: max number of days a document is kept in the db.
+        :return: A list of UUIDs identifying the documents
+        """
+        assert isinstance(days, int)
+        query = DOCUMENT_QUERY_OLD % days
+        old_docs = self._db_query(query, ())
+
+        if old_docs is None or isinstance(old_docs, dict):
+            return []
+
+        return [uuid.UUID(doc['key']) for doc in old_docs]
