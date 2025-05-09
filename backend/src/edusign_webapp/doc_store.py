@@ -509,7 +509,7 @@ class DocStore(object):
     class DocumentLocked(Exception):
         pass
 
-    def __init__(self, app: Flask):
+    def __init__(self, app: Flask, storage_class_path=None, docmd_class_path=None):
         """
         :param app: flask app
         """
@@ -518,23 +518,23 @@ class DocStore(object):
         self.config = app.config
         self.logger = app.logger
 
-        storage_class_path = app.config['STORAGE_CLASS_PATH']
+        if storage_class_path is None:
+            storage_class_path = app.config['STORAGE_CLASS_PATH']
         storage_module_path, storage_class_name = storage_class_path.rsplit('.', 1)
         storage_class = getattr(import_module(storage_module_path), storage_class_name)
 
         self.storage = storage_class(app.config, app.logger)
 
-        docmd_class_path = app.config['DOC_METADATA_CLASS_PATH']
+        if docmd_class_path is None:
+            docmd_class_path = app.config['DOC_METADATA_CLASS_PATH']
         docmd_module_path, docmd_class_name = docmd_class_path.rsplit('.', 1)
         docmd_class = getattr(import_module(docmd_module_path), docmd_class_name)
 
         self.metadata = docmd_class(app)
 
     @classmethod
-    def custom(cls, app, storage, metadata):
-        store = cls(app)
-        store.storage = storage
-        store.metadata = metadata
+    def custom(cls, app, old_storage_class_path, old_docmd_class_path):
+        store = cls(app, old_storage_class_path, old_docmd_class_path)
         return store
 
     def add_document(
