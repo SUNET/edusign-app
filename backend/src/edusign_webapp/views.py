@@ -181,21 +181,18 @@ def migrate_to_postgres_and_s3():
 
     :return: the number of documents migrated
     """
-    assert "S3Storage" in current_app.config['STORAGE_CLASS_PATH']
     assert "PostgresqlMD" in current_app.config['DOC_METADATA_CLASS_PATH']
+    assert "S3Storage" in current_app.config['STORAGE_CLASS_PATH']
 
-    assert 'LOCAL_STORAGE_BASE_DIR' in current_app.config
     assert 'SQLITE_MD_DB_PATH' in current_app.config
+    assert 'LOCAL_STORAGE_BASE_DIR' in current_app.config
 
-    from edusign_webapp.document.metadata.sqlite import SqliteMD
-    from edusign_webapp.document.storage.local import LocalStorage
+    old_docmd_class_path = "edusign_webapp.document.storage.local.LocalStorage"
+    old_storage_class_path = "edusign_webapp.document.metadata.sqlite.SqliteMD"
 
-    sqlite_md = SqliteMD(current_app)
-    local_storage = LocalStorage(current_app.config, current_app.logger)
+    old_doc_store = DocStore.custom(current_app, old_storage_class_path, old_docmd_class_path)
 
-    old_doc_store = DocStore.custom(current_app, local_storage, sqlite_md)
-
-    current_app.logger.info("STARTING MIGRATION TO REDIS AND S3")
+    current_app.logger.info("STARTING MIGRATION TO POSSTGRES AND S3")
 
     keys = old_doc_store.get_old_documents(0)
     current_app.logger.info(f"Going to migrate {len(keys)} documents")
