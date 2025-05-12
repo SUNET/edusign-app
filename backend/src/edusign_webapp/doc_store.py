@@ -775,7 +775,7 @@ class DocStore(object):
         return self.metadata.rm_invitation(invite_key, document_key)
 
     def update_invitations(
-        self, document_key: uuid.UUID, orig_pending, new_pending: List[Dict[str, str]]
+        self, document_key: uuid.UUID, orig_invites, new_pending: List[Dict[str, str]]
     ) -> Dict[str, List[Dict[str, str]]]:
         """
         Update the list of pending invitations to sign a document.
@@ -785,9 +785,13 @@ class DocStore(object):
         :return: A dict with a `removed` key pointing to a list of removed invitations
                  and an `added` key pointing to added invitations
         """
+        orig_pending = [i for i in orig_invites if not i['signed'] and not i['declined']]
         changed: Dict[str, List[Dict[str, str]]] = {'added': [], 'removed': []}
         ordered = self.get_ordered(document_key)
-        order = min([invite['order'] for invite in orig_pending])
+        if len(orig_pending) == 0:
+            order = max([invite['order'] for invite in orig_invites]) + 1
+        else:
+            order = min([invite['order'] for invite in orig_pending])
 
         for old in orig_pending:
             for new in new_pending:

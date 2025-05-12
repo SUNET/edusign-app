@@ -617,7 +617,11 @@ def create_sign_request(documents: dict) -> dict:
     """
     if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
         if not session['invited-unauthn']:
-            return {'error': True, 'message': gettext('Unauthorized')}
+            invites = get_invitations()
+            if len(invites['pending_multisign']) == 0:
+                return {'error': True, 'message': gettext('Unauthorized')}
+            else:
+                session['invited-unauthn'] = True
 
     current_app.logger.debug(f'Data gotten in create view: {documents}')
     try:
@@ -815,7 +819,11 @@ def recreate_sign_request(documents: dict) -> dict:
     """
     if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
         if not session['invited-unauthn']:
-            return {'error': True, 'message': gettext('Unauthorized')}
+            invites = get_invitations()
+            if len(invites['pending_multisign']) == 0:
+                return {'error': True, 'message': gettext('Unauthorized')}
+            else:
+                session['invited-unauthn'] = True
 
     current_app.logger.debug(f'Data gotten in recreate view: {documents}')
 
@@ -1488,7 +1496,7 @@ def edit_multi_sign_request(data: dict) -> dict:
     try:
         current_app.extensions['doc_store'].set_sendsigned(key, sendsigned)
         current_app.extensions['doc_store'].set_skipfinal(key, skipfinal)
-        changed = current_app.extensions['doc_store'].update_invitations(key, orig_pending, current_pending)
+        changed = current_app.extensions['doc_store'].update_invitations(key, orig_invites, current_pending)
         message = gettext("Success editing invitation to sign '%(docname)s'") % {'docname': docname}
     except Exception as e:
         current_app.logger.error(f"Problem editing the invitations for {key}: {e}")
@@ -1502,16 +1510,22 @@ def edit_multi_sign_request(data: dict) -> dict:
             current_next_invite = current_pending[0]
             current_next_recipient = f"{current_next_invite['name']} <{current_next_invite['email']}>"
 
-        orig_next_invite = orig_pending[0]
-        orig_next_recipient = f"{orig_next_invite['name']} <{orig_next_invite['email']}>"
+        new_next_invite = True
+        if len(orig_pending) > 0:
+            new_next_invite = False
+            orig_next_invite = orig_pending[0]
+            orig_next_recipient = f"{orig_next_invite['name']} <{orig_next_invite['email']}>"
 
-        if orig_next_recipient != current_next_recipient:
-            recipient = {orig_next_invite['lang']: [orig_next_recipient]}
-            sent = _send_cancellation_mail(docname, owner_email, recipient)
-            if not sent:
-                message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
-                    'docname': docname
-                }
+            if orig_next_recipient != current_next_recipient:
+                new_next_invite = True
+                recipient = {orig_next_invite['lang']: [orig_next_recipient]}
+                sent = _send_cancellation_mail(docname, owner_email, recipient)
+                if not sent:
+                    message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
+                        'docname': docname
+                    }
+
+        if new_next_invite:
             if current_next_invite is not None:
                 recipient = {current_next_invite['lang']: [current_next_recipient]}
                 try:
