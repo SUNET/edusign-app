@@ -1,6 +1,6 @@
 publiccodeYmlVersion: "0.4"
 
-name: "eduSign frontend"
+name: "edusign"
 url: "https://github.com/SUNET/edusign-app"
 platforms:
   - web
