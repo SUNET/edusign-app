@@ -1,0 +1,45 @@
+publiccodeYmlVersion: "0.4"
+
+name: "eduSign frontend"
+url: "https://github.com/SUNET/edusign-app"
+platforms:
+  - web
+
+categories:
+  - e-signature
+
+developmentStatus: stable
+
+softwareType: "standalone/web"
+
+description:
+  en:
+    shortDescription: >
+          This app provides a web frontend for a digital signatures service.
+
+    longDescription: >
+          This app provides a web frontend for a digital signatures service.
+
+          It allows users to sign PDF and XML documents,
+          and to load documents and invite other users to sign them.
+          It needs a backend based on
+          https://github.com/SUNET/docker-signservice-rest
+
+    features:
+       - Digital signatures
+
+legal:
+  license: BSD-2-Clause
+
+maintenance:
+  type: "community"
+
+  contacts:
+    - name: Enrique Pérez <enrique@cazalla.net>
+
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - en
+    - sv
+    - es
