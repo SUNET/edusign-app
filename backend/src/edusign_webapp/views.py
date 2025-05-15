@@ -138,7 +138,7 @@ def migrate_to_redis_and_s3():
     sqlite_md = SqliteMD(current_app)
     local_storage = LocalStorage(current_app.config, current_app.logger)
 
-    old_doc_store = DocStore.custom(current_app, local_storage, sqlite_md)
+    old_doc_store = DocStore(current_app, local_storage, sqlite_md)
 
     current_app.logger.info("STARTING MIGRATION TO REDIS AND S3")
 
@@ -190,7 +190,7 @@ def migrate_to_postgres_and_s3():
     old_docmd_class_path = "edusign_webapp.document.storage.local.LocalStorage"
     old_storage_class_path = "edusign_webapp.document.metadata.sqlite.SqliteMD"
 
-    old_doc_store = DocStore.custom(current_app, old_storage_class_path, old_docmd_class_path)
+    old_doc_store = DocStore(current_app, old_storage_class_path, old_docmd_class_path)
 
     current_app.logger.info("STARTING MIGRATION TO POSSTGRES AND S3")
 
