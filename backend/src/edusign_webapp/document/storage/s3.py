@@ -37,6 +37,7 @@ import uuid
 from typing import Optional
 
 import boto3
+from botocore.config import Config
 
 from edusign_webapp.doc_store import ABCStorage
 
@@ -61,6 +62,10 @@ class S3Storage(ABCStorage):
             region_name=config['AWS_REGION_NAME'],
             aws_access_key_id=config['AWS_ACCESS_KEY'],
             aws_secret_access_key=config['AWS_SECRET_ACCESS_KEY'],
+            config=Config(
+                request_checksum_calculation='WHEN_REQUIRED',
+                response_checksum_validation='WHEN_REQUIRED'
+            )
         )
         self.s3_bucket_name = config['AWS_BUCKET_NAME']
         self.s3_bucket = self.s3.Bucket(config['AWS_BUCKET_NAME'])
