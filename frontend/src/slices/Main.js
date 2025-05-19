@@ -88,7 +88,9 @@ export const fetchConfig = createAsyncThunk(
           doc.pprinted = doc.pprinted;
           const newDoc = await addDocumentToDb(
             doc,
-            state.main.signer_attributes.eppn
+            state.main.signer_attributes.eppn,
+            thunkAPI,
+            intl
           );
           thunkAPI.dispatch(addDocument(newDoc));
         }
@@ -314,7 +316,9 @@ export const finishInvited = createAsyncThunk(
     try {
       newDoc = await addDocumentToDb(
         newDoc,
-        state.main.signer_attributes.eppn
+        state.main.signer_attributes.eppn,
+        thunkPI,
+        args.intl
       );
       thunkAPI.dispatch(addDocument(newDoc));
     } catch (err) {
