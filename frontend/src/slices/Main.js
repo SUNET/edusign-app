@@ -315,7 +315,9 @@ export const finishInvited = createAsyncThunk(
     try {
       newDoc = await addDocumentToDb(
         newDoc,
-        state.main.signer_attributes.eppn
+        state.main.signer_attributes.eppn,
+        thunkPI,
+        args.intl
       );
       thunkAPI.dispatch(addDocument(newDoc));
     } catch (err) {
