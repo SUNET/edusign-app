@@ -66,10 +66,11 @@ export const fetchConfig = createAsyncThunk(
         );
         return thunkAPI.rejectWithValue(configData.message);
       } else {
+        const eppn = configData.payload.signer_attributes.eppn;
         thunkAPI.dispatch(
           loadDocuments({
             intl: intl,
-            eppn: configData.payload.signer_attributes.eppn,
+            eppn: eppn,
           }),
         );
         thunkAPI.dispatch(setPolling(configData.payload.poll));
@@ -88,7 +89,7 @@ export const fetchConfig = createAsyncThunk(
           doc.pprinted = doc.pprinted;
           const newDoc = await addDocumentToDb(
             doc,
-            state.main.signer_attributes.eppn
+            eppn
           );
           thunkAPI.dispatch(addDocument(newDoc));
         }
