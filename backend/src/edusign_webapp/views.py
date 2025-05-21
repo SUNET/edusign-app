@@ -161,7 +161,7 @@ def migrate_to_redis_and_s3():
         migrated_docs += 1
         current_app.logger.info(f"    Document with key {doc_key} added to db and storage")
 
-        doc_id = old_doc_store.get_document_id(doc_key)
+        doc_id = current_app.extensions['doc_store'].metadata.get_document_id(doc_key)
         current_app.logger.info(f"Going to migrate {len(old_invites)} invites for document with key {doc_key}")
         for invite in old_invites:
             invite['doc_id'] = doc_id
@@ -214,7 +214,7 @@ def migrate_to_postgres_and_s3():
         migrated_docs += 1
         current_app.logger.info(f"    Document with key {doc_key} added to db and storage")
 
-        doc_id = old_doc_store.get_document_id(doc_key)
+        doc_id = current_app.extensions['doc_store'].metadata.get_document_id(doc_key)
         current_app.logger.info(f"Going to migrate {len(old_invites)} invites for document with key {doc_key}")
         for invite in old_invites:
             invite['doc_id'] = doc_id
