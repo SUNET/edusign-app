@@ -88,7 +88,7 @@ CREATE INDEX IF NOT EXISTS InvitedIX ON Invites (doc_id);
 
 
 DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT_RAW = "INSERT INTO Documents (key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = (
     "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
@@ -247,6 +247,16 @@ class SqlMD(ABCMetadata):
         self._db_commit()
         return updated_invites
 
+    def get_document_id(self, key: uuid.UUID) -> str:
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
+
+        if document_result is None or isinstance(
+            document_result, list
+        ):  # This should never happen, it's just to please mypy
+            raise ValueError('Wrong result')
+
+        return document_result['doc_id']
+
     def add_document_raw(
         self,
         document: Dict[str, str],
@@ -277,7 +287,6 @@ class SqlMD(ABCMetadata):
         self._db_execute(
             DOCUMENT_INSERT_RAW,
             (
-                document['doc_id'],
                 str(document['key']),
                 document['name'],
                 document['size'],
@@ -322,7 +331,7 @@ class SqlMD(ABCMetadata):
                 invite['lang'],
                 invite['signed'],
                 invite['declined'],
-                invite['order_invitation'],
+                invite['order'],
             ),
         )
 
