@@ -278,7 +278,7 @@ export const downloadPersonalDraft = createAsyncThunk(
 export const finishInvited = createAsyncThunk(
   "main/finishInvited",
   async (args, thunkAPI) => {
-    const state = thunkAPI.getState();
+    let state = thunkAPI.getState();
     const oldDoc = state.main.pending_multisign.find(
       (doc) => doc.key === args.doc.id,
     );
@@ -291,6 +291,7 @@ export const finishInvited = createAsyncThunk(
       prefix = "data:application/pdf;base64,";
     }
     const content = prefix + args.doc.signed_content;
+    state = thunkAPI.getState();
     let newDoc = {
       ...oldDoc,
       name: nameForDownload(oldDoc.name, "draft", state),
@@ -315,9 +316,7 @@ export const finishInvited = createAsyncThunk(
     try {
       newDoc = await addDocumentToDb(
         newDoc,
-        state.main.signer_attributes.eppn,
-        thunkPI,
-        args.intl
+        state.main.signer_attributes.eppn
       );
       thunkAPI.dispatch(addDocument(newDoc));
     } catch (err) {
@@ -330,6 +329,7 @@ export const finishInvited = createAsyncThunk(
           }),
         }),
       );
+      return thunkAPI.rejectWithValue(err.toString());
     }
   },
 );
