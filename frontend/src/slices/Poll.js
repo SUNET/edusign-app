@@ -142,8 +142,7 @@ export const configureSkipped = async (thunkAPI, configData, owned) => {
         delete newDoc.skipfinal;
         newDoc = await addDocumentToDb(
           newDoc,
-          state.main.signer_attributes.eppn,
-          thunkAPI
+          state.main.signer_attributes.eppn
         );
         thunkAPI.dispatch(addDocument(newDoc));
         thunkAPI.dispatch(removeOwned({ key: doc.key }));
