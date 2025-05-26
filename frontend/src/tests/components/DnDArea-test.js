@@ -21,11 +21,12 @@ import { fetchConfig } from "slices/Main";
 
 describe("DnDArea Component", function () {
   beforeEach(async () => {
+    fetchMock.mockGlobal();
     await resetDb();
   });
   afterEach(() => {
     cleanup();
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it("Shows dnd area ready to accept documents", function () {
@@ -236,7 +237,7 @@ describe("DnDArea Component", function () {
           available_loas: [],
         },
       };
-      fetchMock.get("/sign/config", payload).get("/sign/poll", payload);
+      fetchMock.route({url: "/sign/config", mthod: "GET"}, payload).route({url: "/sign/poll", method: "GET"}, payload);
       await store.dispatch(fetchConfig());
       await flushPromises(rerender, wrapped);
       let filename = screen.queryByText(/test.pdf/i);
@@ -258,7 +259,7 @@ describe("DnDArea Component", function () {
       });
       const data = mockFileData([file]);
 
-      fetchMock.post("/sign/add-doc", {
+      fetchMock.post({url: "/sign/add-doc", method: "POST"}, {
         message: "document added",
         payload: {
           ref: "dummy ref",
@@ -283,7 +284,7 @@ describe("DnDArea Component", function () {
       rmButton = await waitFor(() => screen.getAllByText("Remove"));
       expect(rmButton.length).to.equal(1);
 
-      fetchMock.restore();
+      fetchMock.hardReset();
     } catch (err) {
       unmount();
       throw err;
