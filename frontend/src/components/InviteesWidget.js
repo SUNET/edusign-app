@@ -7,7 +7,24 @@ import BForm from "react-bootstrap/Form";
 import { Field, ErrorMessage, FieldArray, useFormikContext } from "formik";
 import { FormattedMessage } from "react-intl";
 import Cookies from "js-cookie";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { ESTooltip } from "containers/Overlay";
 import { getOrdinal } from "components/utils";
 import {
@@ -250,8 +267,74 @@ function _InviteesControl(props) {
 
 const InviteesControl = connect(mapStateToProps)(_InviteesControl);
 
+// New SortableItem component for @dnd-kit
+function SortableInviteesControl(props) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: props.invitee.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      data-dummy={`dummy-${props.ordered}`}
+      className="invitation-fields"
+      data-testid={`draggable-invitation-field-${props.index}`}
+    >
+      <InviteesControl {...props} />
+    </div>
+  );
+}
+
 function _InviteesArrayOrdered(props) {
   const fprops = useFormikContext();
+  
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragStart = () => {
+    fprops.setStatus({ validate: false });
+  };
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    
+    fprops.setStatus({ validate: true });
+    
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = fprops.values.invitees.findIndex(
+      (invitee) => invitee.id === active.id
+    );
+    const newIndex = fprops.values.invitees.findIndex(
+      (invitee) => invitee.id === over.id
+    );
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const newInvitees = arrayMove(fprops.values.invitees, oldIndex, newIndex);
+      fprops.setFieldValue('invitees', newInvitees);
+    }
+  };
+
   return (
     <FieldArray
       name="invitees"
@@ -260,54 +343,30 @@ function _InviteesArrayOrdered(props) {
     >
       {(arrayHelpers) => (
         <>
-          <DragDropContext
-            onBeforeCapture={() => {
-              fprops.setStatus({ validate: false });
-            }}
-            onDragEnd={(result) => {
-              if (!result.destination) {
-                fprops.setStatus({ validate: true });
-                return;
-              }
-              arrayHelpers.move(result.source.index, result.destination.index);
-              fprops.setStatus({ validate: true });
-            }}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
           >
-            <Droppable droppableId="droppable">
-              {(provided, snapshot) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {fprops.values.invitees.length > 0 &&
-                    fprops.values.invitees.map((invitee, index) => (
-                      <Draggable
-                        key={invitee.id}
-                        draggableId={invitee.id}
-                        index={index}
-                      >
-                        {(provided, snapshot) => (
-                          <div
-                            data-dummy={`dummy-${props.ordered}`}
-                            className="invitation-fields"
-                            data-testid={`draggable-invitation-field-${index}`}
-                            key={index}
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                          >
-                            <InviteesControl
-                              invitee={invitee}
-                              index={index}
-                              arrayHelpers={arrayHelpers}
-                              {...props}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
+            <SortableContext
+              items={fprops.values.invitees.map(invitee => invitee.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div>
+                {fprops.values.invitees.length > 0 &&
+                  fprops.values.invitees.map((invitee, index) => (
+                    <SortableInviteesControl
+                      key={invitee.id}
+                      invitee={invitee}
+                      index={index}
+                      arrayHelpers={arrayHelpers}
+                      {...props}
+                    />
+                  ))}
+              </div>
+            </SortableContext>
+          </DndContext>
           {props.button(arrayHelpers)}
         </>
       )}
