@@ -28,7 +28,7 @@
     "@reduxjs/toolkit": "2.8.2",
     "bootstrap": "5.3.6",
     "es6-promise": "4.2.8",
-    "fetch-mock": "9.11.0",
+    "fetch-mock": "12.5.2",
     "file-saver": "2.0.5",
     "formik": "2.4.6",
     "js-cookie": "3.0.5",

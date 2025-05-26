@@ -16,11 +16,12 @@ import { resetDb } from "init-app/database";
 
 describe("Multi sign invitations", function () {
   beforeEach(async () => {
+    fetchMock.mockGlobal();
     await resetDb();
   });
   afterEach(() => {
     cleanup();
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it("It shows the invites form after clicking the invite button", async () => {

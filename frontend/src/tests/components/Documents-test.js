@@ -36,13 +36,14 @@ const logorder = () => {
 
 describe("Document representations", function () {
   beforeEach(async () => {
+    fetchMock.mockGlobal();
     sinon.spy(FileSaver, "saveAs");
     await resetDb();
   });
 
   afterEach(() => {
     cleanup();
-    fetchMock.restore();
+    fetchMock.hardReset();
     sinon.restore();
   });
 
