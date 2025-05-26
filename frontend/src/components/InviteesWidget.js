@@ -102,7 +102,7 @@ function _InviteesControl(props) {
         heading = <>{inviteOrdinal}</>;
       } else if (index > 0) {
         heading = (
-          <div className="invite-header">
+          <div className="invite-header" {...props.sortableAttributes} {...props.sortableListeners} >
             {inviteOrdinal}
             {crossButton}
           </div>
@@ -114,7 +114,7 @@ function _InviteesControl(props) {
   } else if (props.parentForm === "edit") {
     if (props.ordered) {
       heading = (
-        <div className="invite-header">
+        <div className="invite-header" {...props.sortableAttributes} {...props.sortableListeners} >
           {inviteOrdinal}
           {crossButton}
         </div>
@@ -294,7 +294,7 @@ function SortableInviteesControl(props) {
       className="invitation-fields"
       data-testid={`draggable-invitation-field-${props.index}`}
     >
-      <InviteesControl {...props} />
+      <InviteesControl {...props} sortableAttributes={attributes} sortableListeners={listeners}  />
     </div>
   );
 }
