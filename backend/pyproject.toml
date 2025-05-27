@@ -1,0 +1,98 @@
+[project]
+name = "edusign-app"
+version = "1.6.0b31"
+description = "Frontend code for sign service"
+authors = [
+  {name = "Enrique Pérez Arnaud", email = "enrique@cazalla.net"},
+]
+maintainers = [
+  {name = "Enrique Pérez Arnaud", email = "enrique@cazalla.net"},
+]
+readme = "README.txt"
+license = "BSD"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+dependencies = [
+    "boto3==1.37.8",
+    "chardet==5.2.0",
+    "cryptography==44.0.2",
+    "fakeredis==2.27.0",
+    "flask==3.1.0",
+    "flask-babel==4.0.0",
+    "flask-cors==5.0.1",
+    "flask-mailman==1.1.1",
+    "flask-misaka==1.0.1",
+    "flask-redis==0.4.0",
+    "marshmallow==3.26.1",
+    "ocrmypdf==16.10.1",
+    "pdfminer-six==20240706",
+    "pikepdf==9.7.0",
+    "psycopg2==2.9.10",
+    "pygments==2.19.1",
+    "pyhanko==0.25.3",
+    "pymupdf==1.25.3",
+    "pytz>=2025.1",
+    "pyyaml==6.0.2",
+    "reportlab==4.3.1",
+    "requests==2.32.3",
+    "setuptools>=75.8.2",
+    "signxml==4.0.3",
+]
+
+[dependency-groups]
+dev = [
+    "black==25.1.0",
+    "certifi==2025.1.31",
+    "cffi==1.17.1",
+    "charset-normalizer==3.4.1",
+    "click==8.1.8",
+    "coverage==7.6.12",
+    "idna==3.10",
+    "isort==6.0.1",
+    "jinja2==3.1.6",
+    "mock==5.2.0",
+    "moto[s3]==5.1.1",
+    "mypy==1.15.0",
+    "pytest==8.3.5",
+    "pytest-cov==6.0.0",
+    "setuptools-rust==1.10.2",
+    "webtest==3.0.4",
+]
+
+[tool.isort]
+sections = "FUTURE,STDLIB,THIRDPARTY,EDUSIGN,FIRSTPARTY"
+
+[tool.pytest.ini_options]
+addopts = "--cov=src/"
+norecursedirs = build
+
+[tool.coverage.run]
+branch = true
+
+[tool.coverage.report]
+# Regexes for lines to exclude from consideration
+exclude_also = [
+    # Don't complain about missing debug-only code:
+    "def __repr__",
+    "if self\\.debug",
+
+    # Don't complain if tests don't hit defensive assertion code:
+    "raise AssertionError",
+    "raise NotImplementedError",
+
+    # Don't complain if non-runnable code isn't run:
+    "if 0:",
+    "if __name__ == .__main__.:",
+
+    # Don't complain about abstract methods, they aren't run:
+    "@(abc\\.)?abstractmethod",
+    ]
+
+ignore_errors = true
+
+omit = [
+    "test_*",
+    ]
+
+[tool.coverage.html]
+directory = "coverage_html_report"
