@@ -18,21 +18,6 @@ DOCS_DIR=docs/
 # Get any extra command line arguments
 args=`arg="$(filter-out $@,$(MAKECMDGOALS))" && echo $${arg:-${1}}`
 
-## -- Docker development environment commands --
-
-## Start the docker environment, adding entries to /etc/hosts if needed
-.PHONY: dev-env-start
-dev-env-start:
-	@cd $(ENV_DIR); \
-    docker-compose -f docker-compose-dev.yml rm -s -f; \
-    docker-compose -f docker-compose-dev.yml up --build
-
-## Stop the docker environment
-.PHONY: dev-env-stop
-dev-env-stop:
-	@cd $(ENV_DIR); \
-    docker-compose -f docker-compose-dev.yml  rm -s -f; \
-
 ## -- Logging commands --
 
 ## Tail some log file
@@ -103,9 +88,7 @@ front-build-docs:
 .PHONY: back-init
 back-init:
 	@cd $(BACK_DIR); \
-		python -m venv venv; \
-		pip install -r test_requirements.txt; \
-		python setup.py develop
+		uv sync
 
 ## Extract initial translatable messages from the backend sources
 .PHONY: back-init-msgs
