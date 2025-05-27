@@ -12,11 +12,11 @@
   .invite-header {
     display: flex;
     justify-content: space-between;
-    [role=button] {
-      cursor: grab;
-    }
   }
 
+  div.invite-header[role="button"] {
+    cursor: grab;
+  }
   .invitee-form-dismiss {
     flex: 0 0 auto;
     display: flex;
