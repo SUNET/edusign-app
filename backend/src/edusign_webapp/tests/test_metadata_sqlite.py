@@ -314,7 +314,7 @@ def test_add_document_and_invitation_raw_and_get_full_invites(
             'declined': False,
             'key': str(dummy_invitation_key),
             'doc_id': document_id,
-            'order_invitation': 0,
+            'order': 0,
         }
 
         test_md.add_invite_raw(invite)
@@ -349,7 +349,7 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
             'declined': False,
             'key': str(dummy_invitation_key),
             'doc_id': document_id,
-            'order_invitation': 0,
+            'order': 0,
         }
 
         test_md.add_invite_raw(invite)
@@ -362,7 +362,7 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
             'declined': True,
             'key': str(dummy_invitation_key),
             'doc_id': document_id,
-            'order_invitation': 1,
+            'order': 1,
         }
 
         test_md.add_invite_raw(invite2)
