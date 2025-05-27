@@ -64,7 +64,7 @@ sections = "FUTURE,STDLIB,THIRDPARTY,EDUSIGN,FIRSTPARTY"
 
 [tool.pytest.ini_options]
 addopts = "--cov=src/"
-norecursedirs = build
+norecursedirs = "build"
 
 [tool.coverage.run]
 branch = true
