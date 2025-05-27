@@ -99,7 +99,11 @@ function _InviteesControl(props) {
   if (props.parentForm === "create") {
     if (props.ordered) {
       if (index === 0) {
-        heading = <>{inviteOrdinal}</>;
+        heading = (
+          <div className="invite-header" {...props.sortableAttributes} {...props.sortableListeners} >
+            {inviteOrdinal}
+          </div>
+        );
       } else if (index > 0) {
         heading = (
           <div className="invite-header" {...props.sortableAttributes} {...props.sortableListeners} >
@@ -288,8 +292,6 @@ function SortableInviteesControl(props) {
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
       data-dummy={`dummy-${props.ordered}`}
       className="invitation-fields"
       data-testid={`draggable-invitation-field-${props.index}`}
