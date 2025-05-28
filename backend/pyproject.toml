@@ -9,7 +9,7 @@ maintainers = [
   {name = "Enrique Pérez Arnaud", email = "enrique@cazalla.net"},
 ]
 readme = "README.txt"
-license = "BSD"
+license = "BSD-2-Clause"
 license-files = ["LICENSE"]
 requires-python = ">=3.12"
 dependencies = [
