@@ -1,5 +1,5 @@
 [project]
-name = "edusign-app"
+name = "edusign-webapp"
 version = "1.6.0b46"
 description = "Frontend code for sign service"
 authors = [
@@ -58,6 +58,10 @@ dev = [
     "setuptools-rust==1.10.2",
     "webtest==3.0.4",
 ]
+
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
 
 [tool.isort]
 sections = "FUTURE,STDLIB,THIRDPARTY,EDUSIGN,FIRSTPARTY"
