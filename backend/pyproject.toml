@@ -1,6 +1,6 @@
 [project]
 name = "edusign-webapp"
-version = "1.6.0b48"
+version = "1.6.0b49"
 description = "Frontend code for sign service"
 authors = [
   {name = "Enrique Pérez Arnaud", email = "enrique@cazalla.net"},
