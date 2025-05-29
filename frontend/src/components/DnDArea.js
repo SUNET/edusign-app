@@ -23,7 +23,7 @@ class DnDArea extends Component {
               "application/pdf": [".pdf"],
               "application/xml": [".xml"],
             }}
-            onDrop={this.props.handleFileDrop(this.props.intl)}
+            onDrop={async (fileObjs) => {await this.props.handleFileDrop(this.props.intl)(fileObjs)}}
             onDragEnter={this.props.handleDragEnter}
             onDragLeave={this.props.handleDragLeave}
             onDropRejected={this.props.handleRejected(this.props.intl)}

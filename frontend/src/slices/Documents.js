@@ -348,18 +348,20 @@ export const validateDoc = async (doc, intl, state) => {
   }
 
   if (doc.type === "application/pdf") {
-    return pdfjs
+    await pdfjs
       .getDocument({ url: doc.blob, password: "", stopAtErrors: true })
       .promise.then(() => {
-        return {
+        newDoc = {
           ...doc,
           show: false,
           state: "loading",
         };
       })
       .catch((err) => {
-        return dealWithPDFError(doc, err, intl);
+        console.log(`Error reading PDF: ${err.message}`);
+        newDoc = dealWithPDFError(doc, err, intl);
       });
+    return newDoc;
   } else {
     const domParser = new DOMParser();
 
@@ -454,7 +456,7 @@ export const removeDocument = createAsyncThunk(
  * the backend database, and added to the local IndexedDB database.
  */
 export const addDocumentToDb = async (doc, name, thunkAPI, intl) => {
-  if (!name) {
+  if (!name && thunkAPI) {
     name = thunkAPI.getState().main.signer_attributes.eppn;
   }
   if (!name && thunkAPI && intl) {

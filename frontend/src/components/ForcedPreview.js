@@ -83,13 +83,13 @@ function ForcedPreview(props) {
               <Page
                 pageNumber={pageNumber}
                 width={props.width - 20}
-                renderInteractiveForms={false}
+                renderForms={false}
                 renderAnnotationLayer={true}
               />
             )) || (
               <Page
                 pageNumber={pageNumber}
-                renderInteractiveForms={false}
+                renderForms={false}
                 renderAnnotationLayer={true}
               />
             )}
