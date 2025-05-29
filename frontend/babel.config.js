@@ -8,7 +8,7 @@ module.exports = function(api) {
         regenerator: true,
       },
     ],
-    "@babel/plugin-proposal-object-rest-spread",
+    "babel-plugin-proposal-object-rest-spread-stable",
     "@babel/plugin-transform-flow-strip-types",
     "transform-class-properties",
     [

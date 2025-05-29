@@ -74,31 +74,6 @@ class PDFForm extends React.Component {
     this.restoreValues();
   }
 
-  // https://github.com/mozilla/pdf.js/issues/15597
-  // remove this function once the fix for the above reaches react-pdf,
-  // which should depend on pdfjs-dist >= 3.0.279
-  async fixCheckboxBug() {
-    const pdf = this.state.docRef.current.state.pdf;
-    const page = await pdf.getPage(this.state.pageNumber);
-    const annotations = await page.getAnnotations();
-    annotations.forEach((ann) => {
-      if (ann.subtype === "Widget" && ann.checkBox) {
-        const elemId = `pdfjs_internal_id_${ann.id}`;
-        window.setTimeout(() => {
-          const elem = document.getElementById(elemId);
-          if (elem) {
-            elem.addEventListener("click", (e) => {
-              const checked = e.target.checked;
-              setTimeout(() => {
-                e.target.checked = checked;
-              }, 100);
-            });
-          }
-        }, 500);
-      }
-    });
-  }
-
   async collectValues() {
     const pdf = this.state.docRef.current.state.pdf;
     const page = await pdf.getPage(this.state.pageNumber);
@@ -151,7 +126,6 @@ class PDFForm extends React.Component {
   }
 
   async initPage() {
-    await this.fixCheckboxBug();
     this.restoreValues();
   }
 
