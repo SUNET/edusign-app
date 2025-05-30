@@ -27,16 +27,18 @@ const validate = (props) => {
   };
 };
 
+const getFile = doc => {
+  if (doc === null) return null;
+  return docToFile(doc);
+}
+
 /**
  * @desc To show a modal dialog with a paginated view of a PDF, using PDF.js.
  * @component
  */
 function PDFForm(props) {
 
-  let docFile = null;
-  if (props.doc !== null) {
-    docFile = useMemo(() => docToFile(props.doc), [props.doc]);
-  }
+  const docFile = useMemo(() => getFile(props.doc), [props.doc]);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [formValues, setFormValues] = useState({});
@@ -108,7 +110,7 @@ function PDFForm(props) {
     restoreValues();
   }
 
-  if (!props.show) return "";
+  if (!props.show || docFile === null) return "";
 
   return (
     <>
