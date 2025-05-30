@@ -33,7 +33,10 @@ const validate = (props) => {
  */
 function PDFForm(props) {
 
-  const docFile = useMemo(() => docToFile(props.doc), [props.doc]);
+  let docFile = null;
+  if (props.doc !== null) {
+    docFile = useMemo(() => docToFile(props.doc), [props.doc]);
+  }
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [formValues, setFormValues] = useState({});
@@ -84,7 +87,7 @@ function PDFForm(props) {
           name: annotation.fieldName
         };
       });
-    setFormValues({ ...formValues, ...values } });
+    setFormValues({ ...formValues, ...values });
   }
 
   function restoreValues() {
