@@ -16,15 +16,12 @@ import { unsetSpinning } from "slices/Button";
 import { sendPDFForm, hidePDFForm } from "slices/PDFForms";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { isNotInviting } from "slices/InviteForm";
-import { docToFile } from "components/utils";
 
 const mapStateToProps = (state, props) => {
   const doc = state.pdfform.document;
-  let docFile = null,
-    docName = "",
+  let docName = "",
     show = false;
   if (doc !== null) {
-    docFile = docToFile(doc);
     docName = doc.name;
     show = true;
   }
@@ -32,7 +29,6 @@ const mapStateToProps = (state, props) => {
     show: show,
     doc: doc,
     docName: docName,
-    docFile: docFile,
     size: state.main.size,
     templates: state.template.documents,
     documents: state.documents.documents,
