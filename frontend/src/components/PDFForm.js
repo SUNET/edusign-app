@@ -79,50 +79,28 @@ class PDFForm extends React.Component {
     const page = await pdf.getPage(this.state.pageNumber);
     const annotations = await page.getAnnotations();
     const values = {};
-    const radio = {};
-    annotations.forEach((ann) => {
-      if (ann.subtype === "Widget") {
-        let val;
-        const elem = document.getElementById(`pdfjs_internal_id_${ann.id}`);
-        if (elem) {
-          if (ann.checkBox) {
-            val = elem.checked ? "on" : "off";
-          } else if (ann.radioButton) {
-            const key = ann.fieldName;
-            if (radio.hasOwnProperty(key)) {
-              radio[key] += 1;
-            } else {
-              radio[key] = 1;
-            }
-            if (elem.checked) {
-              val = radio[key];
-            }
-          } else {
-            val = elem.value;
-          }
-        }
-        if (val) {
-          values[ann.id] = { value: val, name: ann.fieldName };
-        }
-      }
-    });
+    annotations.filter(annotation => annotation.fieldType)
+      .forEach(annotation => {
+        values[annotation.id] = {
+          value: annotation.fieldValue || '',
+          name: annotation.fieldName
+        };
+      });
     this.setState({ values: { ...this.state.values, ...values } });
   }
 
   restoreValues() {
-    for (const key in this.state.values) {
-      const elem = document.getElementById(`pdfjs_internal_id_${key}`);
-
-      if (elem) {
-        if (elem.type === "checkbox") {
-          elem.checked = this.state.values[key].value === "on";
-        } else if (elem.type === "radio") {
-          elem.checked = true;
-        } else {
-          elem.value = this.state.values[key].value;
+    const formElements = document.querySelectorAll('input[data-pdf-field]');
+    
+    formElements.forEach(element => {
+      const fieldName = element.getAttribute('data-pdf-field');
+      for (let fieldID in this.state.values) {
+        if (this.state.values[fieldID].name === fieldName) {
+          element.value = this.state.values[fieldID].value;
+          break;
         }
       }
-    }
+    });
   }
 
   async initPage() {
@@ -204,15 +182,15 @@ class PDFForm extends React.Component {
                 <Page
                   pageNumber={this.state.pageNumber}
                   width={this.props.width - 20}
-                  renderForms={true}
                   renderAnnotationLayer={true}
+                  renderForms={true}
                   onRenderSuccess={this.initPage.bind(this)}
                 />
               )) || (
                 <Page
                   pageNumber={this.state.pageNumber}
-                  renderForms={true}
                   renderAnnotationLayer={true}
+                  renderForms={true}
                   onRenderSuccess={this.initPage.bind(this)}
                 />
               )}
