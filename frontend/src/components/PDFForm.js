@@ -32,53 +32,63 @@ const getFile = doc => {
   return docToFile(doc);
 }
 
+const documentOptions = {
+  cMapUrl: "/js/cmaps/",
+  cMapPacked: true,
+  enableXfa: true,
+};
+
 /**
  * @desc To show a modal dialog with a paginated view of a PDF, using PDF.js.
  * @component
  */
-function PDFForm(props) {
-
-  const docFile = useMemo(() => getFile(props.doc), [props.doc]);
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [formValues, setFormValues] = useState({});
-  const docRef = useRef(null);
-  const formRef = useRef(null);
-
-  function onDocumentLoadSuccess({ numPages }) {
-    setNumPages(numPages);
+class PDFForm extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      docFile: getFile(props.doc),
+      formRef: React.createRef(),
+      docRef: React.createRef(),
+      numPages: null,
+      pageNumber: 1,
+      values: {},
+    };
   }
 
-  function changePage(offset) {
-    setPageNumber(pageNumber + offset);
+  onDocumentLoadSuccess({ numPages }) {
+    this.setState({ numPages });
   }
 
-  async function firstPage() {
-    await collectValues();
-    setPageNumber(1);
-    restoreValues();
+  changePage(offset) {
+    this.setState({ pageNumber: this.state.pageNumber + offset });
   }
 
-  async function previousPage() {
-    await collectValues();
-    changePage(-1);
-    restoreValues();
+  async firstPage() {
+    await this.collectValues();
+    this.setState({ PageNumber: 1 });
+    this.restoreValues();
   }
 
-  async function nextPage() {
-    await collectValues();
-    changePage(1);
-    restoreValues();
+  async previousPage() {
+    await this.collectValues();
+    this.changePage(-1);
+    this.restoreValues();
   }
 
-  async function lastPage() {
-    await collectValues();
-    setPageNumber(numPages);
-    restoreValues();
+  async nextPage() {
+    await this.collectValues();
+    this.changePage(1);
+    this.restoreValues();
   }
 
-  async function collectValues() {
-    const pdf = docRef.current.state.pdf;
+  async lastPage() {
+    await this.collectValues();
+    this.setState({ PageNumber: numPages });
+    this.restoreValues();
+  }
+
+  async collectValues() {
+    const pdf = this.state.docRef.current.state.pdf;
     const page = await pdf.getPage(pageNumber);
     const annotations = await page.getAnnotations();
     const values = {};
@@ -89,147 +99,144 @@ function PDFForm(props) {
           name: annotation.fieldName
         };
       });
-    setFormValues({ ...formValues, ...values });
+    this.setState({ values: {...this.state.values, ...values }});
   }
 
-  function restoreValues() {
+  restoreValues() {
     const formElements = document.querySelectorAll('input[data-pdf-field]');
     
     formElements.forEach(element => {
       const fieldName = element.getAttribute('data-pdf-field');
-      for (let fieldID in formValues) {
-        if (formValues[fieldID].name === fieldName) {
-          element.value = formValues[fieldID].value;
+      for (let fieldID in this.state.values) {
+        if (this.state.values[fieldID].name === fieldName) {
+          element.value = this.state.values[fieldID].value;
           break;
         }
       }
     });
   }
 
-  async function initPage() {
-    restoreValues();
+  initPage() {
+    this.restoreValues();
   }
 
-  if (!props.show || docFile === null) return "";
-
-  return (
-    <>
-      <Modal
-        id="pdf-form-modal"
-        show={props.show}
-        onHide={props.handleClose}
-        size="lg"
-        centered
-      >
-        <Modal.Header closeButton className="pdf-form-header">
-          <Formik
-            innerRef={formRef}
-            initialValues={initValues(props)}
-            validate={validate(props)}
-            enableReinitialize={true}
-            validateOnBlur={true}
-            validateOnChange={true}
-            validateOnMount={true}
-          >
-            {(fprops) => (
-              <Form data-testid={"newfname-form-" + props.doc.name}>
-                <div className="newfname-text-holder">
-                  <BForm.Group className="newfname-text-group form-group">
-                    <BForm.Label
-                      className="newfname-text-label"
-                      htmlFor="newfname"
-                    >
-                      <FormattedMessage
-                        defaultMessage="Set name for new document"
-                        key="newfname-text-field"
+  render () {
+    if (!this.props.show || this.state.docFile === null) return "";
+    return (
+      <>
+        <Modal
+          id="pdf-form-modal"
+          show={this.props.show}
+          onHide={this.props.handleClose}
+          size="lg"
+          centered
+        >
+          <Modal.Header closeButton className="pdf-form-header">
+            <Formik
+              innerRef={this.state.formRef}
+              initialValues={initValues(this.props)}
+              validate={validate(this.props)}
+              enableReinitialize={true}
+              validateOnBlur={true}
+              validateOnChange={true}
+              validateOnMount={true}
+            >
+              {(fprops) => (
+                <Form data-testid={"newfname-form-" + this.props.doc.name}>
+                  <div className="newfname-text-holder">
+                    <BForm.Group className="newfname-text-group form-group">
+                      <BForm.Label
+                        className="newfname-text-label"
+                        htmlFor="newfname"
+                      >
+                        <FormattedMessage
+                          defaultMessage="Set name for new document"
+                          key="newfname-text-field"
+                        />
+                      </BForm.Label>
+                      <Field
+                        name="newfname"
+                        id="newfname"
+                        data-testid="newfname-text-input"
+                        className="newfname-text"
+                        as={BForm.Control}
+                        type="text"
+                        validate={validateNewname(this.props)}
+                        isValid={!fprops.errors.newfname}
+                        isInvalid={fprops.errors.newfname}
                       />
-                    </BForm.Label>
-                    <Field
-                      name="newfname"
-                      id="newfname"
-                      data-testid="newfname-text-input"
-                      className="newfname-text"
-                      as={BForm.Control}
-                      type="text"
-                      validate={validateNewname(props)}
-                      isValid={!fprops.errors.newfname}
-                      isInvalid={fprops.errors.newfname}
-                    />
-                    <ErrorMessage
-                      name="newfname"
-                      component="div"
-                      className="field-error"
-                    />
-                  </BForm.Group>
-                </div>
-              </Form>
-            )}
-          </Formik>
-        </Modal.Header>
+                      <ErrorMessage
+                        name="newfname"
+                        component="div"
+                        className="field-error"
+                      />
+                    </BForm.Group>
+                  </div>
+                </Form>
+              )}
+            </Formik>
+          </Modal.Header>
 
-        <Modal.Body>
-          <Document
-            ref={docRef}
-            file={docFile}
-            onLoadSuccess={onDocumentLoadSuccess}
-            onPassword={(c) => {
-              throw new Error("Never password");
-            }}
-            options={{
-              cMapUrl: "/js/cmaps/",
-              cMapPacked: true,
-              enableXfa: true,
-            }}
-          >
-            {(props.width < 550 && (
-              <Page
-                pageNumber={pageNumber}
-                width={props.width - 20}
-                renderAnnotationLayer={true}
-                renderForms={true}
-                onRenderSuccess={initPage}
-              />
-            )) || (
-              <Page
-                pageNumber={pageNumber}
-                renderAnnotationLayer={true}
-                renderForms={true}
-                onRenderSuccess={initPage}
-              />
-            )}
-          </Document>
-        </Modal.Body>
+          <Modal.Body>
+            <Document
+              ref={this.state.docRef}
+              file={this.state.docFile}
+              onLoadSuccess={this.onDocumentLoadSuccess.bind(this)}
+              onPassword={(c) => {
+                throw new Error("Never password");
+              }}
+              options={documentOptions}
+            >
+              {(this.props.width < 550 && (
+                <Page
+                  pageNumber={this.state.pageNumber}
+                  width={this.props.width - 20}
+                  renderAnnotationLayer={true}
+                  renderForms={true}
+                  onRenderSuccess={this.initPage}
+                />
+              )) || (
+                <Page
+                  pageNumber={this.props.pageNumber}
+                  renderAnnotationLayer={true}
+                  renderForms={true}
+                  onRenderSuccess={this.initPage}
+                />
+              )}
+            </Document>
+          </Modal.Body>
 
-        <Modal.Footer>
-          <div className="pdf-navigation">
-            <Pagination
-              numPages={numPages}
-              pageNumber={pageNumber}
-              firstPage={firstPage}
-              previousPage={previousPage}
-              nextPage={nextPage}
-              lastPage={lastPage}
-              index={Number(0)}
-            />
-          </div>
-          <Button
-            variant="outline-primary"
-            onClick={props.handleSendPDFForm}
-            data-testid={"pdfform-button-send-" + props.doc.name}
-          >
-            <FormattedMessage defaultMessage="Done" key="button-sendform" />
-          </Button>
-          <Button
-            variant="outline-secondary"
-            onClick={props.handleClose}
-            data-testid={"preview-button-close-" + props.doc.name}
-          >
-            <FormattedMessage defaultMessage="Close" key="button-close" />
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </>
-  );
+          <Modal.Footer>
+            <div className="pdf-navigation">
+              <Pagination
+                numPages={this.state.numPages}
+                pageNumber={this.state.pageNumber}
+                firstPage={this.firstPage}
+                previousPage={this.previousPage}
+                nextPage={this.nextPage}
+                lastPage={this.lastPage}
+                index={Number(0)}
+              />
+            </div>
+            <Button
+              variant="outline-primary"
+              onClick={this.props.handleSendPDFForm.bind(this)}
+              data-testid={"pdfform-button-send-" + this.props.doc.name}
+            >
+              <FormattedMessage defaultMessage="Done" key="button-sendform" />
+            </Button>
+            <Button
+              variant="outline-secondary"
+              onClick={this.props.handleClose}
+              data-testid={"preview-button-close-" + this.props.doc.name}
+            >
+              <FormattedMessage defaultMessage="Close" key="button-close" />
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </>
+    );
+  }
 }
 
 PDFForm.propTypes = {
