@@ -9,7 +9,6 @@ import { Document, Page } from "react-pdf";
 import { nameForCopy } from "components/utils";
 import { validateNewname } from "components/validation";
 import Pagination from "components/Pagination";
-import { docToFile } from "components/utils";
 
 import "styles/DocPreview.scss";
 import "styles/PDFForm.scss";
@@ -27,11 +26,6 @@ const validate = (props) => {
   };
 };
 
-const getFile = doc => {
-  if (doc === null) return null;
-  return docToFile(doc);
-}
-
 const documentOptions = {
   cMapUrl: "/js/cmaps/",
   cMapPacked: true,
@@ -46,7 +40,6 @@ class PDFForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      docFile: getFile(props.doc),
       formRef: React.createRef(),
       docRef: React.createRef(),
       numPages: null,
@@ -121,7 +114,7 @@ class PDFForm extends React.Component {
   }
 
   render () {
-    if (!this.props.show || this.state.docFile === null) return "";
+    if (!this.props.show || this.props.docFile === null) return "";
     return (
       <>
         <Modal
@@ -180,7 +173,7 @@ class PDFForm extends React.Component {
           <Modal.Body>
             <Document
               ref={this.state.docRef}
-              file={this.state.docFile}
+              file={this.props.docFile}
               onLoadSuccess={this.onDocumentLoadSuccess.bind(this)}
               onPassword={(c) => {
                 throw new Error("Never password");
@@ -197,7 +190,7 @@ class PDFForm extends React.Component {
                 />
               )) || (
                 <Page
-                  pageNumber={this.props.pageNumber}
+                  pageNumber={this.state.pageNumber}
                   renderAnnotationLayer={true}
                   renderForms={true}
                   onRenderSuccess={this.initPage}
