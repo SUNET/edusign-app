@@ -105,6 +105,10 @@ module.exports = {
           from: path.join(path.dirname(require.resolve('pdfjs-dist/package.json')), 'cmaps'),
           to: 'cmaps/'
         },
+        {
+          from: path.join(path.dirname(require.resolve('pdfjs-dist/package.json')), 'standard_fonts'),
+          to: 'standard_fonts/'
+        }
       ]
     }),
   ]
