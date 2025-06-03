@@ -27,9 +27,10 @@ const validate = (props) => {
 };
 
 const documentOptions = {
-  cMapUrl: "/js/cmaps/",
+  cMapUrl: "/cmaps/",
   cMapPacked: true,
   enableXfa: true,
+  standardFontDataUrl: '/standard_fonts/',
 };
 
 /**
@@ -81,29 +82,35 @@ class PDFForm extends React.Component {
   }
 
   async collectValues() {
-    const pdf = this.state.docRef.current.state.pdf;
-    const page = await pdf.getPage(pageNumber);
-    const annotations = await page.getAnnotations();
+    const wrapper = docRef.current;
+    const formElements = wrapper.querySelectorAll('input, select');
     const values = {};
-    annotations.filter(annotation => annotation.fieldType)
-      .forEach(annotation => {
-        values[annotation.id] = {
-          value: annotation.fieldValue || '',
-          name: annotation.fieldName
+    for (let input of formElements) {
+      if (input.type === "checkbox") {
+        values[input.id] = {
+          value: input.checked,
+          name: input.name,
         };
-      });
+      } else {
+        values[input.id] = {
+          value: input.value || '',
+          name: input.name,
+        };
+      }
+    }
     this.setState({ values: {...this.state.values, ...values }});
   }
 
   restoreValues() {
-    const formElements = document.querySelectorAll('input[data-pdf-field]');
+    const wrapper = docRef.current;
+    const formInputs = wrapper.querySelectorAll('input, select');
     
-    formElements.forEach(element => {
-      const fieldName = element.getAttribute('data-pdf-field');
-      for (let fieldID in this.state.values) {
-        if (this.state.values[fieldID].name === fieldName) {
-          element.value = this.state.values[fieldID].value;
-          break;
+    formInputs.forEach(input => {
+      if (input.id in this.state.values) {
+        if (input.type === "checkbox") {
+          input.checked = this.state.values[input.id].value;
+        } else {
+          input.value = this.state.values[input.id].value;
         }
       }
     });
@@ -172,7 +179,7 @@ class PDFForm extends React.Component {
 
           <Modal.Body>
             <Document
-              ref={this.state.docRef}
+              inputRef={this.state.docRef}
               file={this.props.docFile}
               onLoadSuccess={this.onDocumentLoadSuccess.bind(this)}
               onPassword={(c) => {
