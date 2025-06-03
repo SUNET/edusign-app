@@ -27,10 +27,10 @@ const validate = (props) => {
 };
 
 const documentOptions = {
-  cMapUrl: "/cmaps/",
+  cMapUrl: "/js/cmaps/",
   cMapPacked: true,
   enableXfa: true,
-  standardFontDataUrl: '/standard_fonts/',
+  standardFontDataUrl: '/js/standard_fonts/',
 };
 
 /**
