@@ -384,7 +384,7 @@ const mainSlice = createSlice({
   name: "main",
   initialState: {
     unauthn: false,
-    loading: false,
+    loading: true,
     csrf_token: null,
     signer_attributes: {
       eppn: "",
