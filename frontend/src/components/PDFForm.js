@@ -193,14 +193,14 @@ class PDFForm extends React.Component {
                   width={this.props.width - 20}
                   renderAnnotationLayer={true}
                   renderForms={true}
-                  onRenderSuccess={this.initPage}
+                  onRenderSuccess={this.initPage.bind(this)}
                 />
               )) || (
                 <Page
                   pageNumber={this.state.pageNumber}
                   renderAnnotationLayer={true}
                   renderForms={true}
-                  onRenderSuccess={this.initPage}
+                  onRenderSuccess={this.initPage.bind(this)}
                 />
               )}
             </Document>
@@ -211,10 +211,10 @@ class PDFForm extends React.Component {
               <Pagination
                 numPages={this.state.numPages}
                 pageNumber={this.state.pageNumber}
-                firstPage={this.firstPage}
-                previousPage={this.previousPage}
-                nextPage={this.nextPage}
-                lastPage={this.lastPage}
+                firstPage={this.firstPage.bind(this)}
+                previousPage={this.previousPage.bind(this)}
+                nextPage={this.nextPage.bind(this)}
+                lastPage={this.lastPage.bind(this)}
                 index={Number(0)}
               />
             </div>
