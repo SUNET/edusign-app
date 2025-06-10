@@ -63,7 +63,7 @@ const mapDispatchToProps = (dispatch, props) => {
         }),
       );
       dispatch(unsetSpinning());
-      this.restoreValues();
+      //this.restoreValues();
     },
     handleClose: function () {
       dispatch(hidePDFForm());

@@ -82,13 +82,13 @@ class PDFForm extends React.Component {
   }
 
   async collectValues() {
-    const wrapper = docRef.current;
-    const formElements = wrapper.querySelectorAll('input, select');
+    const wrapper = this.state.docRef.current;
+    const formElements = wrapper.querySelectorAll('input, select, textarea');
     const values = {};
     for (let input of formElements) {
       if (input.type === "checkbox") {
         values[input.id] = {
-          value: input.checked,
+          value: input.checked ? 'on' : 'off',
           name: input.name,
         };
       } else {
@@ -102,13 +102,13 @@ class PDFForm extends React.Component {
   }
 
   restoreValues() {
-    const wrapper = docRef.current;
-    const formInputs = wrapper.querySelectorAll('input, select');
+    const wrapper = this.state.docRef.current;
+    const formInputs = wrapper.querySelectorAll('input, select, textarea');
     
     formInputs.forEach(input => {
       if (input.id in this.state.values) {
         if (input.type === "checkbox") {
-          input.checked = this.state.values[input.id].value;
+          input.checked = this.state.values[input.id].value === 'on';
         } else {
           input.value = this.state.values[input.id].value;
         }
