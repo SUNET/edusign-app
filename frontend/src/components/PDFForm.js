@@ -14,7 +14,6 @@ import "styles/DocPreview.scss";
 import "styles/PDFForm.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
-import { docToFile } from "components/utils";
 
 const initValues = (props) => ({ newfname: nameForCopy(props) });
 
@@ -42,7 +41,7 @@ class PDFForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      docFile: docToFile(props.doc),
+      docFile: props.docFile,
       formRef: React.createRef(),
       docRef: React.createRef(),
       numPages: null,
@@ -51,12 +50,25 @@ class PDFForm extends React.Component {
     };
   }
 
+  static getDerivedStateFromProps(props, state) {
+    if (state.docFile === null) {
+      return {
+        docFile: props.docFile
+      };
+    }
+    return null;
+  }
+
   onDocumentLoadSuccess({ numPages }) {
     this.setState({ numPages });
   }
 
   async changePage(number) {
-    const newFile = await docRef.current.linkService.current.pdfDocument.saveDocument();
+    const byteArray = await this.state.docRef.current.linkService.current.pdfDocument.saveDocument();
+    const fileContents = new Blob([byteArray], { type: this.props.doc.type });
+    const newFile = new File([fileContents], this.props.docName, {
+      type: this.props.doc.type,
+    });
     this.setState({ docFile: newFile, pageNumber: number });
   }
 
@@ -136,7 +148,7 @@ class PDFForm extends React.Component {
           <Modal.Body>
             <Document
               ref={this.state.docRef}
-              file={this.props.docFile}
+              file={this.state.docFile}
               onLoadSuccess={this.onDocumentLoadSuccess.bind(this)}
               onPassword={(c) => {
                 throw new Error("Never password");
