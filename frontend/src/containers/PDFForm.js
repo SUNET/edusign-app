@@ -31,7 +31,7 @@ const mapStateToProps = (state, props) => {
   return {
     show: show,
     doc: doc,
-    dofFile: docFile,
+    docFile: docFile,
     docName: docName,
     size: state.main.size,
     templates: state.template.documents,
