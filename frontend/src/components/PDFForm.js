@@ -89,7 +89,7 @@ class PDFForm extends React.Component {
   }
 
   render () {
-    if (!this.props.show || this.props.docFile === null) return "";
+    if (!this.props.show || this.state.docFile === null) return "";
     return (
       <>
         <Modal
