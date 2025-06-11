@@ -14,6 +14,7 @@ import "styles/DocPreview.scss";
 import "styles/PDFForm.scss";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 import "react-pdf/dist/esm/Page/TextLayer.css";
+import { docToFile } from "components/utils";
 
 const initValues = (props) => ({ newfname: nameForCopy(props) });
 
@@ -41,6 +42,7 @@ class PDFForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      docFile: docToFile(props.doc),
       formRef: React.createRef(),
       docRef: React.createRef(),
       numPages: null,
@@ -53,71 +55,25 @@ class PDFForm extends React.Component {
     this.setState({ numPages });
   }
 
-  changePage(offset) {
-    this.setState({ pageNumber: this.state.pageNumber + offset });
+  async changePage(number) {
+    const newFile = await docRef.current.linkService.current.pdfDocument.saveDocument();
+    this.setState({ docFile: newFile, pageNumber: number });
   }
 
   async firstPage() {
-    await this.collectValues();
-    this.setState({ PageNumber: 1 });
-    this.restoreValues();
+    await this.changePage(1);
   }
 
   async previousPage() {
-    await this.collectValues();
-    this.changePage(-1);
-    this.restoreValues();
+    await this.changePage(this.state.pageNumber - 1);
   }
 
   async nextPage() {
-    await this.collectValues();
-    this.changePage(1);
-    this.restoreValues();
+    await this.changePage(this.state.pageNumber + 1);
   }
 
   async lastPage() {
-    await this.collectValues();
-    this.setState({ PageNumber: numPages });
-    this.restoreValues();
-  }
-
-  async collectValues() {
-    const wrapper = this.state.docRef.current;
-    const formElements = wrapper.querySelectorAll('input, select, textarea');
-    const values = {};
-    for (let input of formElements) {
-      if (input.type === "checkbox") {
-        values[input.id] = {
-          value: input.checked ? 'on' : 'off',
-          name: input.name,
-        };
-      } else {
-        values[input.id] = {
-          value: input.value || '',
-          name: input.name,
-        };
-      }
-    }
-    this.setState({ values: {...this.state.values, ...values }});
-  }
-
-  restoreValues() {
-    const wrapper = this.state.docRef.current;
-    const formInputs = wrapper.querySelectorAll('input, select, textarea');
-    
-    formInputs.forEach(input => {
-      if (input.id in this.state.values) {
-        if (input.type === "checkbox") {
-          input.checked = this.state.values[input.id].value === 'on';
-        } else {
-          input.value = this.state.values[input.id].value;
-        }
-      }
-    });
-  }
-
-  initPage() {
-    this.restoreValues();
+    await this.changePage(this.state.numPages);
   }
 
   render () {
@@ -179,7 +135,7 @@ class PDFForm extends React.Component {
 
           <Modal.Body>
             <Document
-              inputRef={this.state.docRef}
+              ref={this.state.docRef}
               file={this.props.docFile}
               onLoadSuccess={this.onDocumentLoadSuccess.bind(this)}
               onPassword={(c) => {
@@ -193,14 +149,12 @@ class PDFForm extends React.Component {
                   width={this.props.width - 20}
                   renderAnnotationLayer={true}
                   renderForms={true}
-                  onRenderSuccess={this.initPage.bind(this)}
                 />
               )) || (
                 <Page
                   pageNumber={this.state.pageNumber}
                   renderAnnotationLayer={true}
                   renderForms={true}
-                  onRenderSuccess={this.initPage.bind(this)}
                 />
               )}
             </Document>
