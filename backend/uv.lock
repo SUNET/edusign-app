@@ -304,9 +304,9 @@ wheels = [
 ]
 
 [[package]]
-name = "edusign-app"
-version = "1.4.0b293"
-source = { virtual = "." }
+name = "edusign-webapp"
+version = "1.6.0b64"
+source = { editable = "." }
 dependencies = [
     { name = "boto3" },
     { name = "chardet" },

@@ -6,7 +6,7 @@ import Modal from "react-bootstrap/Modal";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { Document, Page } from "react-pdf";
-import { nameForCopy } from "components/utils";
+import { nameForCopy, byteArrayToBlob } from "components/utils";
 import { validateNewname } from "components/validation";
 import Pagination from "components/Pagination";
 
@@ -65,7 +65,7 @@ class PDFForm extends React.Component {
 
   async changePage(number) {
     const byteArray = await this.state.docRef.current.linkService.current.pdfDocument.saveDocument();
-    const fileContents = new Blob([byteArray], { type: this.props.doc.type });
+    const fileContents = byteArrayToBlob(byteArray);
     const newFile = new File([fileContents], this.props.docName, {
       type: this.props.doc.type,
     });
