@@ -20,25 +20,10 @@ export const b64toBlob = (
   sliceSize = 512,
 ) => {
   const byteCharacters = atob(b64Data);
-  return byteArrayToBlob(byteCharacters, contentType, sliceSize);
-};
-
-/**
- * @public
- * @function byteArrayToBlob
- * @desc Create a Blob object from a byte array
- *
- * Obtained from [this stackoverflow question]{https://stackoverflow.com/questions/16245767/creating-a-blob-from-a-base64-string-in-javascript}
- */
-export const byteArrayToBlob = (
-  byteArrayData,
-  contentType = "application/pdf",
-  sliceSize = 512,
-) => {
   const byteArrays = [];
 
-  for (let offset = 0; offset < byteArrayData.length; offset += sliceSize) {
-    const slice = byteArrayData.slice(offset, offset + sliceSize);
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
 
     const byteNumbers = new Array(slice.length);
     for (let i = 0; i < slice.length; i++) {
