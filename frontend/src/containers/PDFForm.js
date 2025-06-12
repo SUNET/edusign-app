@@ -16,7 +16,7 @@ import { unsetSpinning } from "slices/Button";
 import { sendPDFForm, hidePDFForm } from "slices/PDFForms";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { isNotInviting } from "slices/InviteForm";
-import { docToFile } from "components/utils";
+import { docToFile, uint8ArrayToBase64 } from "components/utils";
 import { createDocument, addDocument } from "slices/Documents";
 
 const mapStateToProps = (state, props) => {
@@ -55,7 +55,7 @@ const mapDispatchToProps = (dispatch, props) => {
       
       const byteArray = await this.state.docRef.current.linkService.current.pdfDocument.saveDocument();
       const docSize = byteArray.length;
-      const b64doc = `data:application/pdf;base64,${btoa(byteArray)}`;
+      const b64doc = await uint8ArrayToBase64(pdfData);
       dispatch(isNotInviting());
 
       const newDoc = {
