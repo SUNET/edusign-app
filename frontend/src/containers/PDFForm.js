@@ -17,6 +17,7 @@ import { sendPDFForm, hidePDFForm } from "slices/PDFForms";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { isNotInviting } from "slices/InviteForm";
 import { docToFile } from "components/utils";
+import { createDocument, addDocument } from "slices/Documents";
 
 const mapStateToProps = (state, props) => {
   const doc = state.pdfform.document;
@@ -43,7 +44,6 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSendPDFForm: async function () {
-      await this.collectValues();
       const form = this.state.formRef.current;
       if (!form.isValid) {
         document
@@ -51,17 +51,24 @@ const mapDispatchToProps = (dispatch, props) => {
           .scrollIntoView({ behavior: "smooth" });
         return;
       }
-      const newname = form.values.newfname;
+      const newName = form.values.newfname;
+      
+      const byteArray = await this.state.docRef.current.linkService.current.pdfDocument.saveDocument();
+      const docSize = byteArray.length;
+      const b64doc = `data:application/pdf;base64,${btoa(byteArray)}`;
       dispatch(isNotInviting());
-      dispatch(disablePolling());
-      await dispatch(
-        sendPDFForm({
-          doc: this.props.doc,
-          values: this.state.values,
-          newname: newname,
-          intl: this.props.intl,
-        }),
-      );
+
+      const newDoc = {
+        name: newName,
+        size: docSize,
+        type: 'appication/pdf',
+        blob: b64doc,
+        created: Date.now(),
+        state: "loading",
+      };
+      dispatch(addDocument(newDoc));
+      await dispatch(createDocument({ doc: newDoc, intl: this.props.intl }));
+
       dispatch(unsetSpinning());
       //this.restoreValues();
     },

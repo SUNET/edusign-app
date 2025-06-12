@@ -367,17 +367,3 @@ class Field(Schema):
     label = fields.String(required=False)
     value = fields.Raw(required=False)
     choices = fields.List(fields.String)
-
-
-class DocSchema(Schema):
-    """
-    Schema to unmarshal a document's contents
-    sent to extract a PDF form
-    """
-
-    document = fields.String(required=True, validate=[validate_nonempty])
-
-
-class FillFormSchema(Schema):
-    document = fields.String(required=True, validate=[validate_nonempty])
-    form_fields = fields.List(fields.Nested(Field))

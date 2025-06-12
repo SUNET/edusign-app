@@ -1,9 +1,8 @@
 import os.path
-from base64 import b64decode, b64encode
+from base64 import b64decode
 from tempfile import TemporaryDirectory
 
 import fitz
-from flask import current_app
 from ocrmypdf import ocr
 from ocrmypdf.pdfa import file_claims_pdfa
 
@@ -26,46 +25,6 @@ def has_pdf_form(b64_pdf):
     """
     doc = _load_b64_pdf(b64_pdf)
     return doc.is_form_pdf
-
-
-def update_pdf_form(b64_pdf, fields):
-    """
-    Fill in the PDF form in the provided PDF
-    with the values given in the fields param.
-    """
-    doc = _load_b64_pdf(b64_pdf)
-    for page in doc:
-        radio = {}
-        for field in page.widgets():
-            for f in fields:
-                if field.field_name == f['name']:
-                    if field.field_type == 2:  # checkbox
-                        field.field_value = True if f['value'] == 'on' else False
-                    elif field.field_type == 5:  # radio button
-                        if field.field_name in radio:
-                            radio[field.field_name] += 1
-                        else:
-                            radio[field.field_name] = 1
-                        if radio[field.field_name] == f['value']:
-                            field.field_value = True
-                    else:
-                        field.field_value = f['value']
-
-                    break
-
-            field.field_flags = fitz.PDF_FIELD_IS_READ_ONLY
-            field.update()
-
-    orig_doc = _load_b64_pdf(b64_pdf)
-
-    try:
-        doc = try_pdfa(orig_doc, doc)
-    except Exception as e:
-        current_app.logger.info(f"Problem ensuring PDF/A: {e}")
-
-    doc_bytes = doc.tobytes()
-    newpdf = b64encode(doc_bytes)
-    return newpdf
 
 
 def try_pdfa(orig_doc, doc):

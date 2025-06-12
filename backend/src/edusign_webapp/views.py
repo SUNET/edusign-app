@@ -46,17 +46,15 @@ from flask_babel import force_locale, get_locale, gettext
 from werkzeug.wrappers.response import Response
 
 from edusign_webapp.doc_store import DocStore
-from edusign_webapp.forms import has_pdf_form, update_pdf_form
+from edusign_webapp.forms import has_pdf_form
 from edusign_webapp.marshal import Marshal, UnMarshal, UnMarshalNoCSRF
 from edusign_webapp.schemata import (
     BlobSchema,
     ConfigSchema,
     DelegationSchema,
-    DocSchema,
     DocumentSchema,
     EditMultiSignSchema,
     EmailsSchema,
-    FillFormSchema,
     InvitationsSchema,
     KeySchema,
     MultiSignSchema,
@@ -2063,22 +2061,6 @@ def delegate_invitation(data):
     message = gettext("Success delegating signature")
 
     return {'message': message}
-
-
-@edusign_views.route('/update-form', methods=['POST'])
-@edusign_views2.route('/update-form', methods=['POST'])
-@UnMarshal(FillFormSchema)
-@Marshal(DocSchema)
-def update_form(data):
-    pdf = data['document']
-    fields = data['form_fields']
-    try:
-        updated = update_pdf_form(pdf, fields)
-    except Exception as e:
-        current_app.logger.error(f"Problem filling in form in PDF: {e}")
-        return {'error': True, 'message': gettext('Problem filling in form in PDF, please try again')}
-
-    return {'message': 'Success', 'payload': {'document': updated}}
 
 
 @edusign_views.route('/lock-doc', methods=['POST'])
