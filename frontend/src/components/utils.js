@@ -40,6 +40,23 @@ export const b64toBlob = (
 
 /**
  * @public
+ * @function uint8ArrayToBase64
+ * @desc create b64 data url from Uint8Array
+ *
+ */
+
+export function uint8ArrayToBase64(uint8Array) {
+  const blob = new Blob([uint8Array], { type: 'application/pdf' });
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+/**
+ * @public
  * @function humanFileSize
  * @desc Convert file size from number of bytes (int) to human readable string
  *
