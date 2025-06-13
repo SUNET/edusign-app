@@ -67,12 +67,15 @@ const mapDispatchToProps = (dispatch, props) => {
         show: false,
       };
       dispatch(addDocument(newDoc));
+      dispatch(hidePDFForm());
+      this.state.docFile = null;
+      this.state.pageNumber = 1;
+      this.state.numPages = null;
       await dispatch(createDocument({ doc: newDoc, intl: this.props.intl }));
 
       dispatch(isNotInviting());
       dispatch(unsetSpinning());
       dispatch(enablePolling());
-      dispatch(hidePDFForm());
     },
     handleClose: function () {
       dispatch(hidePDFForm());
