@@ -198,8 +198,8 @@ MAIL_ASCII_ATTACHMENTS = get_boolean(RAW_MAIL_ASCII_ATTACHMENTS)
 
 RAW_AVAILABLE_LOAS = os.environ.get(
     'AVAILABLE_LOAS',
-    default='http://www.swamid.se/;http://www.swamid.se/policy/assurance/al1,http://www.swamid.se/policy/assurance/al2,http://www.swamid.se/policy/assurance/al3|'
-    'default;https://refeds.org/assurance/IAP/low,https://refeds.org/assurance/IAP/medium,https://refeds.org/assurance/IAP/high;',
+    default='http://www.swamid.se/;none,http://www.swamid.se/policy/assurance/al1,http://www.swamid.se/policy/assurance/al2,http://www.swamid.se/policy/assurance/al3|'
+    'default;none,https://refeds.org/assurance/IAP/low,https://refeds.org/assurance/IAP/medium,https://refeds.org/assurance/IAP/high;',
 )
 
 _PRE_LOAS = RAW_AVAILABLE_LOAS.strip().strip('|').split('|')
