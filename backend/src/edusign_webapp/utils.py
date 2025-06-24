@@ -232,7 +232,7 @@ def get_invitations(remove_finished=False):
     invited = current_app.extensions['doc_store'].get_pending_documents(mail_addresses)
     poll = False
     levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
-    display_levels = 
+    display_levels = {
         'none': gettext('None'),
         'low': gettext('Low'),
         'medium': gettext('Medium'),
