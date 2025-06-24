@@ -1336,6 +1336,7 @@ describe("Multi sign invitations", function () {
           },
           owned_multisign: [],
           available_loas: [
+            { name: "None", value: "none" },
             { name: "Low", value: "low" },
             { name: "Medium", value: "medium" },
             { name: "High", value: "high" },
@@ -1406,6 +1407,7 @@ describe("Multi sign invitations", function () {
           },
           owned_multisign: [],
           available_loas: [
+            { name: "None", value: "none" },
             { name: "Low", value: "low" },
             { name: "Medium", value: "medium" },
             { name: "High", value: "high" },

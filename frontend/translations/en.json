@@ -182,6 +182,7 @@
   "loa-name-high": "High",
   "loa-name-low": "Low",
   "loa-name-medium": "Medium",
+  "loa-name-none": "None",
   "load-doc-problem-preparing": "There was a problem preparing the document",
   "main-todo": "TODO",
   "malformed-pdf": "Malformed PDF",

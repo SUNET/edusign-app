@@ -231,8 +231,9 @@ def get_invitations(remove_finished=False):
     owned = current_app.extensions['doc_store'].get_owned_documents(session['eppn'], mail_addresses)
     invited = current_app.extensions['doc_store'].get_pending_documents(mail_addresses)
     poll = False
-    levels = {'low': 0, 'medium': 1, 'high': 2}
-    display_levels = {
+    levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
+    display_levels = 
+        'none': gettext('None'),
         'low': gettext('Low'),
         'medium': gettext('Medium'),
         'high': gettext('High'),
@@ -243,7 +244,7 @@ def get_invitations(remove_finished=False):
         doc['pprinted'] = pretty_print_any(content, doc['type'])
         loa = doc['loa']
         doc['loa'] = f"{loa},{display_levels[loa]}"
-        if loa != 'low':
+        if loa != 'none':
             required_level = levels[loa]
             required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
             if required_loa not in session['eduPersonAssurance']:
@@ -501,8 +502,8 @@ def get_required_assurance(docs: list) -> str:
     :return: the required level of assurance
     """
     assurance = 0
-    required_assurance = 'low'
-    levels = {'low': 0, 'medium': 1, 'high': 2}
+    required_assurance = 'none'
+    levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
     for doc in docs:
         key = uuid.UUID(doc['key'])
         required = current_app.extensions['doc_store'].get_loa(key)

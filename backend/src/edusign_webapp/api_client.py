@@ -354,11 +354,11 @@ class APIClient(object):
             used_attr_names += more_used_attr_names
         attrs.extend(more_attrs)
         # For low assurance, we don't care about the value of eduPersonAssurance
-        if assurance != 'low':
+        if assurance != 'none':
             assurances = self.config['AVAILABLE_LOAS'].get(
                 session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']
             )
-            levels = {'low': 0, 'medium': 1, 'high': 2}
+            levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
             loa = assurances[levels[assurance]]
             if attr_schema == '11':
                 assurance_attr_name = 'urn:mace:dir:attribute-def:eduPersonAssurance'
