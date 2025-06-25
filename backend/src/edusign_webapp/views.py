@@ -538,6 +538,7 @@ def get_config() -> dict:
     payload['multisign_buttons'] = current_app.config['MULTISIGN_BUTTONS']
     payload['max_signatures'] = current_app.config['MAX_SIGNATURES']
     payload['available_loas'] = [
+        {'name': gettext('None'), 'value': 'none'},
         {'name': gettext('Low'), 'value': 'low'},
         {'name': gettext('Medium'), 'value': 'medium'},
         {'name': gettext('High'), 'value': 'high'},
