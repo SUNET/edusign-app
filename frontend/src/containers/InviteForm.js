@@ -36,6 +36,7 @@ const mapStateToProps = (state, props) => {
     mail: state.main.signer_attributes.mail,
     mail_aliases: state.main.signer_attributes.mail_aliases,
     loas: state.main.available_loas,
+    default_loa: state.main.default_loa,
     inviting: state.inviteform.inviting,
     templates: state.template.documents,
     documents: state.documents.documents,
