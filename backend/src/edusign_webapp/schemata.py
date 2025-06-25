@@ -135,6 +135,7 @@ class ConfigSchema(InvitationsSchema):
     signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)
     available_loas = fields.List(fields.Nested(AvailableLoa))
+    default_loa = fields.String(required=True)
     unauthn = fields.Boolean(dump_default=True)
     max_file_size = fields.String(required=True)
     max_signatures = fields.String(required=True)
