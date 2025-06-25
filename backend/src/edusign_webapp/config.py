@@ -216,6 +216,8 @@ AVAILABLE_LOAS = {}
 for pre_loa in _PRE_LOAS:
     AVAILABLE_LOAS[pre_loa.split(";")[0].strip()] = pre_loa.split(";")[1].strip().strip(',').split(',')
 
+DEFAULT_LOA = os.environ.get('DEFAULT_LOA', default='low')
+
 MAX_CONTENT_LENGTH = int(os.environ.get('MAX_FILE_SIZE', default=28730982))
 
 MAX_FILE_SIZE_FRONT = int(os.environ.get('MAX_FILE_SIZE_FRONT', default=20971520))

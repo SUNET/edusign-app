@@ -69,7 +69,7 @@ const initialValues = (props) => {
     makecopyChoice: false,
     isTemplate: props.isTemplate,
     newnameInput: nameForCopy(props),
-    loa: "none",
+    loa: props.default_loa,
     documentId: props.docId,
     orderedChoice:
       props.docOrdered === undefined || props.docOrdered === null
@@ -141,63 +141,65 @@ class InviteForm extends React.Component {
         return <Field name="makecopyChoice" value={true} type="hidden" />;
       }
     };
-    const loaControl = (
-      <>
-        <div className="loa-select-holder">
-          <BForm.Group className="loa-select-group form-group">
-            <ESTooltip
-              helpId="loa-select-input"
-              inModal={true}
-              tooltip={
-                <FormattedMessage
-                  defaultMessage="How sure you can be on the identity of the person signing. Note that the assurance level an identity can provide depends on the Identity provider. Read more about this on eduSign wiki."
-                  key="loa-select-help"
-                />
-              }
-            >
-              <BForm.Label
-                className="loa-select-label"
-                htmlFor="loa-select-input"
+    const loaControl = (fprops) => {
+      return (
+        <>
+          <div className="loa-select-holder">
+            <BForm.Group className="loa-select-group form-group">
+              <ESTooltip
+                helpId="loa-select-input"
+                inModal={true}
+                tooltip={
+                  <FormattedMessage
+                    defaultMessage="How sure you can be on the identity of the person signing. Note that the assurance level an identity can provide depends on the Identity provider. Read more about this on eduSign wiki."
+                    key="loa-select-help"
+                  />
+                }
               >
-                <span>
-                  <FormattedMessage
-                    defaultMessage="Assurance level for signatures"
-                    key="loa-select-field"
-                  />
-                </span>
-                <a
-                  href="https://wiki.sunet.se/display/EDUSIGN/eduSign+Assurance+Levels"
-                  target="_blank"
+                <BForm.Label
+                  className="loa-select-label"
+                  htmlFor="loa-select-input"
                 >
-                  <FormattedMessage
-                    defaultMessage="More info about assurance levels"
-                    key="loa-info-link"
-                  />
-                </a>
-              </BForm.Label>
-            </ESTooltip>
+                  <span>
+                    <FormattedMessage
+                      defaultMessage="Assurance level for signatures"
+                      key="loa-select-field"
+                    />
+                  </span>
+                  <a
+                    href="https://wiki.sunet.se/display/EDUSIGN/eduSign+Assurance+Levels"
+                    target="_blank"
+                  >
+                    <FormattedMessage
+                      defaultMessage="More info about assurance levels"
+                      key="loa-info-link"
+                    />
+                  </a>
+                </BForm.Label>
+              </ESTooltip>
 
-            <Field
-              name="loa"
-              data-testid="loa-select-input"
-              id="loa-select-input"
-              as={BForm.Select}
-            >
-              <>
-                {this.props.loas.map((level, i) => {
-                  return (
-                    <option key={i} value={level.value}>
-                      {level.name}
-                    </option>
-                  );
-                })}
-              </>
-            </Field>
-          </BForm.Group>
-        </div>
-        <div className="loa-select-holder"></div>
-      </>
-    );
+              <Field
+                name="loa"
+                data-testid="loa-select-input"
+                id="loa-select-input"
+                as={BForm.Select}
+              >
+                <>
+                  {this.props.loas.map((level, i) => {
+                    return (
+                      <option key={i} value={level.value} selected={level.value === fprops.values.loa}>
+                        {level.name}
+                      </option>
+                    );
+                  })}
+                </>
+              </Field>
+            </BForm.Group>
+          </div>
+          <div className="loa-select-holder"></div>
+        </>
+      )
+    };
     const newNameControl = (props, fprops) => {
       if (props.isTemplate) {
         return (
@@ -235,7 +237,6 @@ class InviteForm extends React.Component {
         return <Field name="newnameInput" value="" type="hidden" />;
       }
     };
-    const loaControlHidden = <Field name="loa" value="none" type="hidden" />;
     const formId = "invite-form-" + this.props.docName;
     return (
       <>
@@ -298,7 +299,7 @@ class InviteForm extends React.Component {
                   {orderedControl(fprops)}
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
-                  {loaControl}
+                  {loaControl(fprops)}
                   <InviteesWidget parentForm="create" {...this.props} />
                 </Modal.Body>
                 <Modal.Footer>

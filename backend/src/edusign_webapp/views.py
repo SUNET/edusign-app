@@ -543,6 +543,7 @@ def get_config() -> dict:
         {'name': gettext('Medium'), 'value': 'medium'},
         {'name': gettext('High'), 'value': 'high'},
     ]
+    payload['default_loa'] = current_app.config['DEFAULT_LOA']
     payload['max_file_size'] = current_app.config['MAX_FILE_SIZE_FRONT']
     payload['company_link'] = current_app.config['COMPANY_LINK']
     payload['edit_form_timeout'] = current_app.config['DOC_LOCK_TIMEOUT'].seconds * 1000
