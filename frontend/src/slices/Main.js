@@ -36,7 +36,7 @@ import {
   esFetch,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { loadDocuments, addDocumentToDb, addDocument } from "slices/Documents";
+import { loadDocuments, addDocumentToDb, addDocument, prepareDocument } from "slices/Documents";
 import { setPolling } from "slices/Poll";
 import { b64toBlob, nameForDownload } from "components/utils";
 
@@ -102,8 +102,8 @@ export const fetchConfig = createAsyncThunk(
         addNotification({
           level: "danger",
           message: intl.formatMessage({
-            defaultMessage: "TODO",
-            id: "main-todo",
+            defaultMessage: "Problem fetching configuration",
+            id: "problem-fetching-configuration",
           }),
         }),
       );
@@ -312,19 +312,34 @@ export const finishInvited = createAsyncThunk(
     delete newDoc.owner;
     delete newDoc.message;
     delete newDoc.loa;
+
+    newDoc.signed_draft = true;
+
     try {
       newDoc = await addDocumentToDb(
         newDoc,
         state.main.signer_attributes.eppn
       );
       thunkAPI.dispatch(addDocument(newDoc));
+
+      await thunkAPI.dispatch(
+        prepareDocument({ doc: newDoc, intl: args.intl }),
+      );
+      state = thunkAPI.getState();
+      preparedDoc = state.documents.documents.find(doc => doc.name === newDoc.name);
+      if (preparedDoc === undefined) {
+        throw new Error(`Document ${newDoc.name} could not be prepared`);
+      }
+      if (preparedDoc.state === 'unconfirmed') {
+        thunkAPI.dispatch(setState({name: newDoc.name, status: 'loaded', signed_draft: true}));
+      }
     } catch (err) {
       thunkAPI.dispatch(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
-            defaultMessage: "TODO",
-            id: "main-todo",
+            defaultMessage: "Problem saving draft of signed invitation.",
+            id: "problem-saving-signed-draft",
           }),
         }),
       );
