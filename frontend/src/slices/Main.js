@@ -36,7 +36,7 @@ import {
   esFetch,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { loadDocuments, addDocumentToDb, addDocument, prepareDocument } from "slices/Documents";
+import { loadDocuments, addDocumentToDb, addDocument, prepareDocument, setState } from "slices/Documents";
 import { setPolling } from "slices/Poll";
 import { b64toBlob, nameForDownload } from "components/utils";
 
@@ -278,7 +278,7 @@ export const downloadPersonalDraft = createAsyncThunk(
 export const finishInvited = createAsyncThunk(
   "main/finishInvited",
   async (args, thunkAPI) => {
-    const state = thunkAPI.getState();
+    let state = thunkAPI.getState();
     const oldDoc = state.main.pending_multisign.find(
       (doc) => doc.key === args.doc.id,
     );
@@ -326,12 +326,12 @@ export const finishInvited = createAsyncThunk(
         prepareDocument({ doc: newDoc, intl: args.intl }),
       );
       state = thunkAPI.getState();
-      preparedDoc = state.documents.documents.find(doc => doc.name === newDoc.name);
+      const preparedDoc = state.documents.documents.find(doc => doc.name === newDoc.name);
       if (preparedDoc === undefined) {
         throw new Error(`Document ${newDoc.name} could not be prepared`);
       }
       if (preparedDoc.state === 'unconfirmed') {
-        thunkAPI.dispatch(setState({name: newDoc.name, status: 'loaded', signed_draft: true}));
+        thunkAPI.dispatch(setState({name: newDoc.name, state: 'loaded', signed_draft: true}));
       }
     } catch (err) {
       thunkAPI.dispatch(
