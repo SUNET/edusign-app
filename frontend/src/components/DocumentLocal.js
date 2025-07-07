@@ -264,7 +264,7 @@ class DocumentLocal extends React.Component {
                       <ESDropdown doc={doc}>
                         {doc.type === "application/pdf" &&
                           menu.createTemplateMenuItem(this.props, doc)}
-                        {doc.signed &&
+                        {doc.signed_draft &&
                           menu.downloadPersonalDraftMenuItem(this.props, doc)}
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
@@ -409,7 +409,7 @@ class DocumentLocal extends React.Component {
                     <ESDropdown doc={doc}>
                       {doc.type === "application/pdf" &&
                         menu.createTemplateMenuItem(this.props, doc)}
-                      {doc.signed &&
+                      {doc.signed_draft &&
                         menu.downloadPersonalDraftMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
