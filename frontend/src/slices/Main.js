@@ -312,6 +312,7 @@ export const finishInvited = createAsyncThunk(
     delete newDoc.owner;
     delete newDoc.message;
     delete newDoc.loa;
+    delete newDoc.signed;
 
     newDoc.signed_draft = true;
 
