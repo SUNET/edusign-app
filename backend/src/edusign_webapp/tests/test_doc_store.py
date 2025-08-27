@@ -39,7 +39,7 @@ from edusign_webapp import run
 
 invitation_flags = [
     True,  # sendsigned
-    'any',  # loa
+    'none',  # loa
     False,  # skipfinal
     False,  # ordered
     'Invitation text',  # invitation_text

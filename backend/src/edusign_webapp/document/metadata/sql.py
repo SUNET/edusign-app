@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS Documents
        owner_lang VARCHAR(2) NOT NULL,
        prev_signatures TEXT,
        sendsigned INTEGER DEFAULT 1,
-       loa VARCHAR(255) DEFAULT 'low',
+       loa VARCHAR(255) DEFAULT 'none',
        skipfinal INTEGER DEFAULT 0,
        locked TIMESTAMP DEFAULT NULL,
        locking_email VARCHAR(255) DEFAULT NULL,
@@ -975,7 +975,7 @@ class SqlMD(ABCMetadata):
         document_result = self._db_query(DOCUMENT_QUERY_LOA, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.debug(f"Trying to find loa for a non-existing document with key {key}")
-            return "low"
+            return "none"
 
         return str(document_result['loa'])
 

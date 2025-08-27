@@ -122,6 +122,18 @@ _environ_base_2 = {
 }
 
 
+_environ_base_no_assurance = {
+    "HTTP_MD_ORGANIZATIONNAME": 'Test Org',
+    "HTTP_MD_REGISTRATIONAUTHORITY": 'http://www.swamid.se/',
+    "HTTP_EDUPERSONPRINCIPALNAME_20": 'dummy-eppn-2@example.org',
+    "HTTP_DISPLAYNAME_20": b64encode('<Attribute>Invited Kid</Attribute>'.encode("utf-8")).decode('ascii'),
+    "HTTP_MAIL_20": b64encode(b'<Attribute>invite0@example.org</Attribute>').decode('ascii'),
+    "HTTP_SHIB_IDENTITY_PROVIDER": 'https://idp',
+    "HTTP_SHIB_AUTHENTICATION_METHOD": 'dummy',
+    "HTTP_SHIB_AUTHNCONTEXT_CLASS": 'dummy',
+}
+
+
 @pytest.fixture(autouse=True)
 def run_around_tests():
     if os.path.exists('/tmp/test.db'):
@@ -137,6 +149,11 @@ def environ_base():
 @pytest.fixture
 def environ_base_2():
     yield _environ_base_2
+
+
+@pytest.fixture
+def environ_base_no_assurance():
+    yield _environ_base_no_assurance
 
 
 @pytest.fixture(params=[config_dev, config_pro])
