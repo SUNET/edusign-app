@@ -251,6 +251,68 @@ class APIClient(object):
 
         return response
 
+    def _get_sign_request_data(self, documents):
+        idp = session['idp']
+        attr_schema = session['saml-attr-schema']
+        authn_context = get_authn_context(documents)
+        assurance = get_required_assurance(documents)
+        correlation_id = str(uuid.uuid4())
+        attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
+        attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]
+        used_attr_names = tuple(friendly_name for _, friendly_name in attr_names)
+        if 'api_call' in session and session['api_call']:
+            more_attr_names = []
+            more_attrs = []
+            if session['authn_attr_name'] not in used_attr_names:
+                more_attr_names.append(session['authn_attr_name'])
+                more_attrs = [{'name': session['authn_attr_name'], 'value': session['authn_attr_value']}]
+                used_attr_names += tuple([session['authn_attr_name']])
+        else:
+            more_attr_names = [
+                attr_names
+                for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items()
+                if attr_names[1] not in used_attr_names
+            ]
+            more_attrs = [
+                {'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in more_attr_names
+            ]
+            more_used_attr_names = tuple(friendly_name for _, friendly_name in more_attr_names)
+            used_attr_names += more_used_attr_names
+        attrs.extend(more_attrs)
+        # For none assurance, we don't care about the value of eduPersonAssurance
+        if assurance != 'none':
+            assurances = self.config['AVAILABLE_LOAS'].get(
+                session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']
+            )
+            levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
+            loa = assurances[levels[assurance]]
+            if attr_schema == '11':
+                assurance_attr_name = 'urn:mace:dir:attribute-def:eduPersonAssurance'
+            else:
+                assurance_attr_name = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
+            if assurance_attr_name not in used_attr_names:
+                attrs.append({'name': assurance_attr_name, 'value': loa})
+
+        if 'api_return_url' in session and session['api_return_url']:
+            return_url = session['api_return_url']
+        else:
+            scheme = self.config['PREFERRED_URL_SCHEME']
+            return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
+            if request.path.startswith('/sign2'):
+                return_url = url_for('edusign2.sign_service_callback', _external=True, _scheme=scheme)
+
+        return {
+            "correlationId": correlation_id,
+            "signRequesterID": self.config['SIGN_REQUESTER_ID'],
+            "returnUrl": return_url,
+            "authnRequirements": {
+                "authnServiceID": idp,
+                "authnContextClassRefs": authn_context,
+                "requestedSignerAttributes": attrs,
+            },
+            "tbsDocuments": [],
+        }
+
     def _try_creating_sign_request(self, documents: list, add_blob=False) -> tuple:
         """
         Send request to the `create` endpoint of the API.
@@ -326,67 +388,7 @@ class APIClient(object):
         :return: Pair of  Flask representation of the HTTP response from the API,
                  and list of mappings linking the documents' names with the generated ids.
         """
-        idp = session['idp']
-        attr_schema = session['saml-attr-schema']
-        authn_context = get_authn_context(documents)
-        assurance = get_required_assurance(documents)
-        correlation_id = str(uuid.uuid4())
-        attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
-        attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]
-        used_attr_names = tuple(saml_name for saml_name, _ in attr_names)
-        if 'api_call' in session and session['api_call']:
-            more_attr_names = []
-            more_attrs = []
-            if session['authn_attr_name'] not in used_attr_names:
-                more_attr_names.append(session['authn_attr_name'])
-                more_attrs = [{'name': session['authn_attr_name'], 'value': session['authn_attr_value']}]
-                used_attr_names += tuple([session['authn_attr_name']])
-        else:
-            more_attr_names = [
-                attr_names
-                for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items()
-                if attr_names[0] not in used_attr_names
-            ]
-            more_attrs = [
-                {'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in more_attr_names
-            ]
-            more_used_attr_names = tuple(saml_name for saml_name, _ in more_attr_names)
-            used_attr_names += more_used_attr_names
-        attrs.extend(more_attrs)
-        # For low assurance, we don't care about the value of eduPersonAssurance
-        if assurance != 'none':
-            assurances = self.config['AVAILABLE_LOAS'].get(
-                session['registrationAuthority'], self.config['AVAILABLE_LOAS']['default']
-            )
-            levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
-            loa = assurances[levels[assurance]]
-            if attr_schema == '11':
-                assurance_attr_name = 'urn:mace:dir:attribute-def:eduPersonAssurance'
-            else:
-                assurance_attr_name = 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
-            if assurance_attr_name not in used_attr_names:
-                attrs.append({'name': assurance_attr_name, 'value': loa})
-
-        if 'api_return_url' in session and session['api_return_url']:
-            return_url = session['api_return_url']
-        else:
-            scheme = self.config['PREFERRED_URL_SCHEME']
-            return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
-
-            if request.path.startswith('/sign2'):
-                return_url = url_for('edusign2.sign_service_callback', _external=True, _scheme=scheme)
-
-        request_data = {
-            "correlationId": correlation_id,
-            "signRequesterID": self.config['SIGN_REQUESTER_ID'],
-            "returnUrl": return_url,
-            "authnRequirements": {
-                "authnServiceID": idp,
-                "authnContextClassRefs": authn_context,
-                "requestedSignerAttributes": attrs,
-            },
-            "tbsDocuments": [],
-        }
+        request_data = self._get_sign_request_data(documents)
         documents_with_id = []
         for document in documents:
             doc_with_id = {'name': document['name'], 'key': str(document['key'])}
