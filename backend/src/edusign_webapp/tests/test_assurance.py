@@ -127,14 +127,16 @@ invitation_flags = [
 ]
 
 headers = {
+    'Md-Organizationname': 'eduID Sweden',
+    'Md-Registrationauthority': 'http://www.swamid.se/',
     'Edupersonprincipalname-20': 'invite0@example.org',
-    'Mail-20': 'invite0@example.org',
-    'Displayname-20': 'invite0'
+    'Mail-20': 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aW52aXRlMEBleGFtcGxlLm9yZzwvbnMxOkF0dHJpYnV0ZVZhbHVlPg==',
+    'Displayname-20': 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aW52aXRlMDwvbnMxOkF0dHJpYnV0ZVZhbHVlPg=='
 }
 
 
-def test_get_invitations_no_loa(
-    monkeypatch, environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+def _test_get_invitations_loa(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1, headers, invitation_flags
 ):
     _, doc_store = doc_store_local_sqlite
     app, client = app_and_client
@@ -142,24 +144,215 @@ def test_get_invitations_no_loa(
     client.environ_base.update(environ_base)
 
     with app.test_request_context(headers=headers):
-
-            from flask.sessions import SecureCookieSession
-
-            def mock_getitem(self, key):
-                if key == 'eduPersonAssurance':
-                    return []
-                elif key == 'mail':
-                    return 'invite0@example.org'
-                self.accessed = True
-                return super(SecureCookieSession, self).__getitem__(key)
-
-            monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+        with client.session_transaction():
 
             doc_store.add_document(sample_doc_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
             from edusign_webapp.utils import add_attributes_to_session, get_invitations
 
             add_attributes_to_session()
-            invitations = get_invitations()
+            return get_invitations()
 
-            assert invitations == []
+
+def test_get_invitations_none_no_loa(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    if 'Edupersonassurance-20' in headers:
+        del headers['Edupersonassurance-20']
+    invitation_flags[1] = 'none'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'unconfirmed'
+
+
+def test_get_invitations_low_no_loa(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    if 'Edupersonassurance-20' in headers:
+        del headers['Edupersonassurance-20']
+    invitation_flags[1] = 'low'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'failed-loa'
+
+
+def test_get_invitations_low_al1(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    # SWAMID AL1
+    headers['Edupersonassurance-20'] = 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cDovL3d3dy5zd2FtaWQuc2UvcG9saWN5L2Fzc3VyYW5jZS9hbDE8L25zMTpBdHRyaWJ1dGVWYWx1ZT4='
+    invitation_flags[1] = 'low'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'unconfirmed'
+
+
+def test_get_invitations_low_many(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    # SWAMID AL1 and more
+    headers['Edupersonassurance-20'] = 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cDovL3d3dy5zd2FtaWQuc2UvcG9saWN5L2Fzc3VyYW5jZS9hbDE8L25zMTpBdHRyaWJ1dGVWYWx1ZT4=;PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cHM6Ly9yZWZlZHMub3JnL2Fzc3VyYW5jZTwvbnMxOkF0dHJpYnV0ZVZhbHVlPg==;PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cHM6Ly9yZWZlZHMub3JnL2Fzc3VyYW5jZS9JRC91bmlxdWU8L25zMTpBdHRyaWJ1dGVWYWx1ZT4=;PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cHM6Ly9yZWZlZHMub3JnL2Fzc3VyYW5jZS9JRC9lcHBuLXVuaXF1ZS1uby1yZWFzc2lnbjwvbnMxOkF0dHJpYnV0ZVZhbHVlPg==;PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cHM6Ly9yZWZlZHMub3JnL2Fzc3VyYW5jZS9JQVAvbG93PC9uczE6QXR0cmlidXRlVmFsdWU+'
+    invitation_flags[1] = 'low'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'unconfirmed'
+
+
+def test_get_invitations_medium_al1(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    # SWAMID AL1
+    headers['Edupersonassurance-20'] = 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cDovL3d3dy5zd2FtaWQuc2UvcG9saWN5L2Fzc3VyYW5jZS9hbDE8L25zMTpBdHRyaWJ1dGVWYWx1ZT4='
+    invitation_flags[1] = 'medium'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'failed-loa'
+
+
+def test_get_invitations_medium_al2(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    # SWAMID AL2
+    headers['Edupersonassurance-20'] = 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cDovL3d3dy5zd2FtaWQuc2UvcG9saWN5L2Fzc3VyYW5jZS9hbDI8L25zMTpBdHRyaWJ1dGVWYWx1ZT4='
+    invitation_flags[1] = 'medium'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'unconfirmed'
+
+
+def test_get_invitations_medium_al3(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    # SWAMID AL3
+    headers['Edupersonassurance-20'] = 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cDovL3d3dy5zd2FtaWQuc2UvcG9saWN5L2Fzc3VyYW5jZS9hbDM8L25zMTpBdHRyaWJ1dGVWYWx1ZT4='
+    invitation_flags[1] = 'medium'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'failed-loa'
+
+
+def test_get_invitations_high_al3(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    # SWAMID AL3
+    headers['Edupersonassurance-20'] = 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cDovL3d3dy5zd2FtaWQuc2UvcG9saWN5L2Fzc3VyYW5jZS9hbDM8L25zMTpBdHRyaWJ1dGVWYWx1ZT4='
+    invitation_flags[1] = 'high'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'unconfirmed'
+
+
+def test_get_invitations_high_no_loa(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    if 'Edupersonassurance-20' in headers:
+        del headers['Edupersonassurance-20']
+    invitation_flags[1] = 'high'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'failed-loa'
+
+
+def test_get_invitations_high_al1(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    # SWAMID AL1
+    headers['Edupersonassurance-20'] = 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cDovL3d3dy5zd2FtaWQuc2UvcG9saWN5L2Fzc3VyYW5jZS9hbDE8L25zMTpBdHRyaWJ1dGVWYWx1ZT4='
+    invitation_flags[1] = 'high'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'failed-loa'
+
+
+def test_get_invitations_high_al2(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    # SWAMID AL2
+    headers['Edupersonassurance-20'] = 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cDovL3d3dy5zd2FtaWQuc2UvcG9saWN5L2Fzc3VyYW5jZS9hbDI8L25zMTpBdHRyaWJ1dGVWYWx1ZT4='
+    invitation_flags[1] = 'high'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'failed-loa'
+
+
+def test_get_invitations_medium_no_loa(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    if 'Edupersonassurance-20' in headers:
+        del headers['Edupersonassurance-20']
+    invitation_flags[1] = 'medium'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'failed-loa'
+
+
+def _test_sign_personal(
+    environ_base, app_and_client, sample_doc_1, headers
+):
+    app, client = app_and_client
+
+    client.environ_base.update(environ_base)
+
+    with app.test_request_context(headers=headers):
+        with client.session_transaction():
+
+            from edusign_webapp.utils import add_attributes_to_session
+
+            add_attributes_to_session()
+            return app.extensions['api_client']._get_sign_request_data([sample_doc_1])
+
+
+def test_sign_personal_no_loa(
+    environ_base, app_and_client, sample_doc_1
+):
+    if 'Edupersonassurance-20' in headers:
+        del headers['Edupersonassurance-20']
+    sign_request_data = _test_sign_personal(environ_base, app_and_client, sample_doc_1, headers)
+
+    for attr in sign_request_data['authnRequirements']['requestedSignerAttributes']:
+        assert attr['name'] != 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
+
+
+def test_sign_personal_al1(
+    environ_base, app_and_client, sample_doc_1
+):
+    # SWAMID AL1
+    headers['Edupersonassurance-20'] = 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cDovL3d3dy5zd2FtaWQuc2UvcG9saWN5L2Fzc3VyYW5jZS9hbDE8L25zMTpBdHRyaWJ1dGVWYWx1ZT4='
+    sign_request_data = _test_sign_personal(environ_base, app_and_client, sample_doc_1, headers)
+
+    for attr in sign_request_data['authnRequirements']['requestedSignerAttributes']:
+        assert attr['name'] != 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
+
+
+def test_sign_personal_al2(
+    environ_base, app_and_client, sample_doc_1
+):
+    # SWAMID AL2
+    headers['Edupersonassurance-20'] = 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cDovL3d3dy5zd2FtaWQuc2UvcG9saWN5L2Fzc3VyYW5jZS9hbDI8L25zMTpBdHRyaWJ1dGVWYWx1ZT4='
+    sign_request_data = _test_sign_personal(environ_base, app_and_client, sample_doc_1, headers)
+
+    for attr in sign_request_data['authnRequirements']['requestedSignerAttributes']:
+        assert attr['name'] != 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
+
+
+def test_sign_personal_al3(
+    environ_base, app_and_client, sample_doc_1
+):
+    # SWAMID AL3
+    headers['Edupersonassurance-20'] = 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cDovL3d3dy5zd2FtaWQuc2UvcG9saWN5L2Fzc3VyYW5jZS9hbDM8L25zMTpBdHRyaWJ1dGVWYWx1ZT4='
+    sign_request_data = _test_sign_personal(environ_base, app_and_client, sample_doc_1, headers)
+
+    for attr in sign_request_data['authnRequirements']['requestedSignerAttributes']:
+        assert attr['name'] != 'urn:oid:1.3.6.1.4.1.5923.1.1.1.11'
