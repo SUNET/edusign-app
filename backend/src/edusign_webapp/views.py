@@ -1771,11 +1771,15 @@ def _prepare_final_email_skipped(doc, key, sendsigned):
     owner = current_app.extensions['doc_store'].get_owner_data(key)
     recipients = defaultdict(list)
     recipients[owner['lang']].append(f"{owner['name']} <{owner['email']}>")
+    signers = 0
     for invited in current_app.extensions['doc_store'].get_pending_invites(key):
         if not invited['signed']:
             continue
+        signers += 1
         lang = invited['lang']
         recipients[lang].append(f"{invited['name']} <{invited['email']}>")
+    if signers == 0:
+        return []
 
     mail_context = {
         'document_name': doc['doc']['name'],
