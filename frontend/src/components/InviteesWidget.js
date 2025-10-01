@@ -14,6 +14,7 @@ import {
   validateEmail,
   validateName,
   validateLang,
+  validateSSN,
 } from "components/validation";
 
 const mapStateToProps = (state, props) => {
@@ -27,8 +28,19 @@ const mapStateToProps = (state, props) => {
   } else {
     ordered = props.docOrdered;
   }
+  let allowbankid;
+  if (props.docAllowbankid === undefined || props.docAllowbankid === null) {
+    if (state.inviteform.allowbankid === null) {
+      allowbankid = state.main.ui_defaults.allow_bankid;
+    } else {
+      allowbankid = state.inviteform.allowbankid;
+    }
+  } else {
+    allowbankid = props.docAllowbankid;
+  }
   return {
     ordered: ordered,
+    allowbankid: allowbankid,
   };
 };
 
@@ -197,6 +209,50 @@ function _InviteesControl(props) {
             />
           </BForm.Group>
         </div>
+        {props.allowbankid && (
+          <div className="invitee-form-ssn">
+            <BForm.Group className="form-group">
+              <BForm.Label htmlFor={`invitees.${index}.ssn`}>
+                <FormattedMessage
+                  defaultMessage="SSN"
+                  key="ssn-input-field"
+                />
+              </BForm.Label>
+              <ErrorMessage
+                name={`invitees.${index}.ssn`}
+                component="div"
+                className="field-error"
+              />
+              <Field
+                name={`invitees.${index}.ssn`}
+                data-testid={`invitees.${index}.ssn`}
+                value={invitee.ssn}
+                placeholder="NNN"
+                as={BForm.Control}
+                type="text"
+                validate={validateSSN}
+                isValid={
+                  fprops.touched.invitees &&
+                  fprops.touched.invitees[index] &&
+                  fprops.touched.invitees[index].ssn &&
+                  (!fprops.errors.invitees ||
+                    (fprops.errors.invitees &&
+                      (!fprops.errors.invitees[index] ||
+                        (fprops.errors.invitees[index] &&
+                          !fprops.errors.invitees[index].ssn))))
+                }
+                isInvalid={
+                  fprops.touched.invitees &&
+                  fprops.touched.invitees[index] &&
+                  fprops.touched.invitees[index].ssn &&
+                  fprops.errors.invitees &&
+                  fprops.errors.invitees[index] &&
+                  fprops.errors.invitees[index].ssn
+                }
+              />
+            </BForm.Group>
+          </div>
+        )}
         <div className="invitee-form-language">
           <BForm.Group className="form-group">
             <BForm.Label htmlFor={`invitees.${index}.lang`}>

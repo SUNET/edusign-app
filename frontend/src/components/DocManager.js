@@ -133,6 +133,7 @@ class DocManager extends React.Component {
                         docId={doc.id}
                         docName={doc.name}
                         docOrdered={doc.ordered}
+                        docAllowbankid={doc.allowbankid}
                         isTemplate={true}
                       />
                     </React.Fragment>
@@ -285,6 +286,7 @@ class DocManager extends React.Component {
                           docId={doc.id}
                           docName={doc.name}
                           docOrdered={doc.ordered}
+                          docAllowbankid={doc.allowbankid}
                         />
                       )}
                     </React.Fragment>

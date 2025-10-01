@@ -233,6 +233,10 @@ RAW_UI_ORDERED_INVITATIONS = os.environ.get('UI_ORDERED_INVITATIONS', default=Fa
 
 UI_ORDERED_INVITATIONS = get_boolean(RAW_UI_ORDERED_INVITATIONS)
 
+RAW_UI_ALLOW_BANKID = os.environ.get('UI_ALLOW_BANKID', default=False)
+
+UI_ALLOW_BANKID = get_boolean(RAW_UI_ALLOW_BANKID)
+
 CUSTOM_FORMS_DEFAULTS_FILE = os.environ.get('CUSTOM_FORMS_DEFAULTS_FILE', default="/etc/edusign-forms.yaml")
 
 MD_ENTITY_ID = os.environ.get('MD_ENTITY_ID', default="https://edusign.sunet.se/shibboleth")

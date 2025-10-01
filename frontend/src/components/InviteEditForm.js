@@ -170,6 +170,7 @@ InviteEditForm.propTypes = {
   size: PropTypes.string,
   docKey: PropTypes.string,
   docOrdered: PropTypes.bool,
+  docAllowbankid: PropTypes.bool,
   docSendSigned: PropTypes.bool,
   docSkipFinal: PropTypes.bool,
   handleCloseResetting: PropTypes.func,

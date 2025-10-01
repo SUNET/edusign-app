@@ -33,6 +33,12 @@ const mapStateToProps = (state, props) => {
   } else {
     ordered = state.inviteform.ordered;
   }
+  let allowbankid;
+  if (state.inviteform.allowbankid === null) {
+    allowbankid = state.main.ui_defaults.allow_bankid;
+  } else {
+    allowbankid = state.inviteform.allowbankid;
+  }
   const doc = state.main.owned_multisign.filter(
     (d) => d.key === props.docKey,
   )[0];
