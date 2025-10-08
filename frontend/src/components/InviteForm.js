@@ -146,7 +146,7 @@ class InviteForm extends React.Component {
               inModal={true}
               tooltip={
                 <FormattedMessage
-                  defaultMessage="Invited persons will be allowed to sign document with Swedish eID."
+                  defaultMessage="Invited people will be allowed to sign the document with Swedish eID."
                   key="allowbankid-choice-help"
                 />
               }
@@ -222,22 +222,43 @@ class InviteForm extends React.Component {
                 </BForm.Label>
               </ESTooltip>
 
-              <Field
-                name="loa"
-                data-testid="loa-select-input"
-                id="loa-select-input"
-                as={BForm.Select}
-              >
+              {(this.props.allowbankid) && (
                 <>
-                  {this.props.loas.map((level, i) => {
-                    return (
-                      <option key={i} value={level.value} selected={level.value === fprops.values.loa}>
-                        {level.name}
-                      </option>
-                    );
-                  })}
-                </>
-              </Field>
+                  <span>
+                    <FormattedMessage
+                      defaultMessage="None"
+                      key="loa-name-none"
+                    />
+                  </span>
+                  <Field
+                    name="loa"
+                    data-testid="loa-select-input"
+                    id="loa-select-input"
+                    type="hidden"
+                    value="none"
+                  />
+                </>)
+              }
+
+              {(!this.props.allowbankid) && (
+                <Field
+                  name="loa"
+                  data-testid="loa-select-input"
+                  id="loa-select-input"
+                  as={BForm.Select}
+                >
+                  <>
+                    {this.props.loas.map((level, i) => {
+                      return (
+                        <option key={i} value={level.value} selected={level.value === fprops.values.loa}>
+                          {level.name}
+                        </option>
+                      );
+                    })}
+                  </>
+                </Field>)
+              }
+
             </BForm.Group>
           </div>
           <div className="loa-select-holder"></div>
