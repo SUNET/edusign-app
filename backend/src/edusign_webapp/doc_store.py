@@ -771,6 +771,7 @@ class DocStore(object):
         :param document_key: The key identifying the document
         :param name: Name of newly invited person
         :param email: Email of newly invited person
+        :param ssn: Swedish SSN of newly invited person
         :param lang: Language of newly invited person
         :return: A dict with data on the user and the document
         """

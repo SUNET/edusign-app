@@ -1331,6 +1331,7 @@ def create_multi_sign_request(data: dict) -> dict:
             data['loa'],
             data['skipfinal'],
             data['ordered'],
+            data['allowbankid'],
             data['text'],
         )
 
@@ -1997,8 +1998,9 @@ def delegate_invitation(data):
     name = data['name']
     email = data['email']
     lang = data['lang']
+    ssn = data['ssn']
     try:
-        current_app.extensions['doc_store'].delegate(invite_key, document_key, name, email, lang)
+        current_app.extensions['doc_store'].delegate(invite_key, document_key, name, email, ssn, lang)
 
     except Exception as e:
         current_app.logger.error(f'Problem delegating invitation: {e}')

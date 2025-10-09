@@ -55,6 +55,7 @@ class _DocumentSchema(Schema):
 class Invitee(Schema):
     email = fields.Email(required=True, validate=[validate_nonempty])
     name = fields.String(required=True, validate=[validate_nonempty])
+    ssn = fields.String(required=True, validate=[validate_nonempty])
     lang = fields.String(required=True, validate=[validate_nonempty, validate_language])
 
 
@@ -76,6 +77,7 @@ class InvitationsSchema(Schema):
         created = fields.String(dump_default="")
         message = fields.String(dump_default="")
         ordered = fields.Boolean()
+        allowbankid = fields.Boolean()
         pprinted = fields.String(required=True, validate=[validate_nonempty])
 
     class OwnedDocument(_DocumentSchema):
@@ -88,6 +90,7 @@ class InvitationsSchema(Schema):
         loa = fields.String(dump_default="")
         created = fields.String(dump_default="")
         ordered = fields.Boolean()
+        allowbankid = fields.Boolean()
         sendsigned = fields.Boolean()
         skipfinal = fields.Boolean()
         pprinted = fields.String(required=True, validate=[validate_nonempty])
@@ -101,6 +104,7 @@ class InvitationsSchema(Schema):
         prev_signatures = fields.String(dump_default="")
         loa = fields.String(dump_default="")
         created = fields.String(dump_default="")
+        allowbankid = fields.Boolean()
         blob = fields.Raw(required=True, validate=[validate_nonempty])
         signed_content = fields.Raw(required=True, validate=[validate_nonempty])
         ordered = fields.Boolean()
@@ -324,6 +328,7 @@ class MultiSignSchema(Schema):
     owner = fields.Email(required=True)
     loa = fields.String()
     ordered = fields.Boolean()
+    allowbankid = fields.Boolean()
 
 
 class EditMultiSignSchema(Schema):
