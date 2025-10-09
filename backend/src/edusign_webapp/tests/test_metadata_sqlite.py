@@ -43,6 +43,7 @@ invitation_flags = [
     'any',  # loa
     False,  # skipfinal
     False,  # ordered
+    False,  # allowbankid
     'Invitation text',  # invitation_text
 ]
 
