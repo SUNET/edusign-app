@@ -671,11 +671,11 @@ def create_sign_request(documents: dict) -> dict:
     return {'payload': sign_data}
 
 
-@edusign_views.route('/create-sign-request-for/<dockey>', methods=['POST'])
-@edusign_views2.route('/create-sign-request-for/<dockey>', methods=['POST'])
+@edusign_views.route('/create-sign-request-for/<invite_key>', methods=['POST'])
+@edusign_views2.route('/create-sign-request-for/<invite_key>', methods=['POST'])
 @UnMarshal(ToSignSchema)
 @Marshal(SignRequestSchema)
-def create_sign_request_for(documents: dict, dockey: str) -> dict:
+def create_sign_request_for(documents: dict, invite_key: str) -> dict:
     """
     View to send a request to the API to create a sign request for a document referenced by key.
 
@@ -1412,11 +1412,13 @@ def create_multi_sign_request(data: dict) -> dict:
     if len(invites) > 0:
         recipients = defaultdict(list)
         has_ssn = {}
+        keys = {}
         if ordered:
             invite = invites[0]
             lang = invite['lang']
             recipients[lang].append((invite['name'], invite['email']))
             has_ssn[invite['email']] = invite['ssn']
+            keys[invite['email']] = invite['key']
         else:
             for invite in invites:
                 lang = invite['lang']
@@ -1427,8 +1429,7 @@ def create_multi_sign_request(data: dict) -> dict:
         custom_text = data['text']
         try:
             if allowbankid:
-                dockey = data['document']['key']
-                _send_invitation_mail(docname, owner, custom_text, recipients, dockey=dockey, has_ssn=has_ssn)
+                _send_invitation_mail(docname, owner, custom_text, recipients, invite_keys=keys, has_ssn=has_ssn)
             else:
                 _send_invitation_mail(docname, owner, custom_text, recipients)
 
@@ -1441,11 +1442,9 @@ def create_multi_sign_request(data: dict) -> dict:
     return {'message': message}
 
 
-def _send_invitation_mail(docname, owner, custom_text, recipients, dockey=None, has_ssn={}):
+def _send_invitation_mail(docname, owner, custom_text, recipients, invite_keys={}, has_ssn={}):
     invited_link_index = url_for('edusign.get_index', _external=True)
     invited_link_doc = ""
-    if dockey:
-        invited_link_doc = url_for('edusign.create_sign_request_for', dockey=dockey, _external=True)
     try:
         mail_context = {
             'document_name': docname,
@@ -1457,22 +1456,20 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, dockey=None, 
         for lang in recipients:
             with force_locale(lang):
                 subject = gettext('You have been invited to sign "%(document_name)s"') % {'document_name': docname}
-                with_ssn = []
                 without_ssn = []
                 for recipient in recipients[lang]:
-                    if has_ssn[recipient[1]]:
-                        with_ssn.append(f"{recipient[0]} <{recipient[1]}>")
-                    else:
+                    if not has_ssn[recipient[1]]:
                         without_ssn.append(f"{recipient[0]} <{recipient[1]}>")
+                    else:
+                        invite_key = invite_keys[recipient[1]]
+                        invited_link_doc = url_for('edusign.create_sign_request_for', invite_key=invite_key, _external=True)
+                        context = {'invited_link': invited_link_doc}
+                        context.update(mail_context)
 
-                if len(with_ssn) > 0:
-                    context = {'invited_link': invited_link_doc}
-                    context.update(mail_context)
+                        body_txt = render_template('invitation_email.txt.jinja2', **context)
+                        body_html = render_template('invitation_email.html.jinja2', **context)
 
-                    body_txt = render_template('invitation_email.txt.jinja2', **context)
-                    body_html = render_template('invitation_email.html.jinja2', **context)
-
-                    messages.append(((with_ssn, subject, body_txt, body_html), {}))
+                        messages.append((([f"{recipient[0]} <{recipient[1]}>"], subject, body_txt, body_html), {}))
 
                 if len(without_ssn) > 0:
                     context = {'invited_link': invited_link_index}
@@ -1582,6 +1579,7 @@ def edit_multi_sign_request(data: dict) -> dict:
     dockey = data['key']
     key = uuid.UUID(dockey)
     docname = current_app.extensions['doc_store'].get_document_name(key)
+    docid = current_app.extensions['doc_store'].get_document_id(key)
     ordered = current_app.extensions['doc_store'].get_ordered(key)
     allowbankid = current_app.extensions['doc_store'].get_allowbankid(key)
     owner = current_app.extensions['doc_store'].get_owner_data(key)
@@ -1637,7 +1635,9 @@ def edit_multi_sign_request(data: dict) -> dict:
                 try:
                     if allowbankid:
                         has_ssn = {current_next_invite['email']: current_next_invite['ssn']}
-                        _send_invitation_mail(docname, owner, text, recipient, dockey=dockey, has_ssn=has_ssn)
+                        invite_key = current_app.extensions['doc_store'].get_invitation_key(current_next_invite['email'], current_next_invite['name'], docid)
+                        invite_keys = {current_next_invite['email']: invite_key}
+                        _send_invitation_mail(docname, owner, text, recipient, invite_keys=invite_keys, has_ssn=has_ssn)
                     else:
                         _send_invitation_mail(docname, owner, text, recipient)
                 except Exception as e:
@@ -1663,12 +1663,14 @@ def edit_multi_sign_request(data: dict) -> dict:
         recipients_removed = defaultdict(list)
         recipients_added = defaultdict(list)
         has_ssn = {}
+        keys = {}
 
         for invite in changed['added']:
             lang = invite['lang']
             recipient = (invite['name'], invite['email'])
             recipients_added[lang].append(recipient)
             has_ssn[invite['email']] = invite['ssn']
+            keys[invite['email']] = current_app.extensions['doc_store'].get_invitation_key(invite['email'], invite['name'], docid)
 
         for invite in changed['removed']:
             lang = invite['lang']
@@ -1678,7 +1680,7 @@ def edit_multi_sign_request(data: dict) -> dict:
         if len(recipients_added) > 0:
             try:
                 if allowbankid:
-                    _send_invitation_mail(docname, owner, text, recipients_added, dockey=dockey, has_ssn=has_ssn)
+                    _send_invitation_mail(docname, owner, text, recipients_added, invite_keys=keys, has_ssn=has_ssn)
                 else:
                     _send_invitation_mail(docname, owner, text, recipients_added)
             except Exception as e:

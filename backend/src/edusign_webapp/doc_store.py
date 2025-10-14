@@ -324,6 +324,17 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def get_invitation_key(self, user_email: str, user_name: str, doc_id: str) -> Optional[str]:
+        """
+        Get invitation key from user name, email and doc id
+
+        :param user_email: the email of the invited user
+        :param user_name: the name of the invited user
+        :param doc_id: the id of the document to be signed
+        :return: The key of the invitation or None
+        """
+
+    @abc.abstractmethod
     def remove(self, key: uuid.UUID, force: bool = False) -> bool:
         """
         Remove from the store the metadata corresponding to the document identified by the `key`,
@@ -518,6 +529,15 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
         :param key: The key identifying the document
         :return: The custom text to send in the invitation email
+        """
+
+    @abc.abstractmethod
+    def get_document_id(self, key: uuid.UUID) -> Optional[str]:
+        """
+        Get document ID from key
+
+        :param key: The key identifying the document
+        :return: The document ID
         """
 
 
@@ -795,6 +815,17 @@ class DocStore(object):
 
         data['document']['blob'] = self.storage.get_content(data['document']['key'])
         return data
+
+    def get_invitation_key(self, user_email: str, user_name: str, doc_id: str) -> Optional[str]:
+        """
+        Get invitation key from user name, email and doc id
+
+        :param user_email: the email of the invited user
+        :param user_name: the name of the invited user
+        :param doc_id: the id of the document to be signed
+        :return: The key of the invitation or None
+        """
+        return self.metadata.get_invitation_key(user_email, user_name, doc_id)
 
     def rm_invitation(self, invite_key: uuid.UUID, document_key: uuid.UUID) -> bool:
         """
@@ -1138,3 +1169,12 @@ class DocStore(object):
         :return: The custom text to send in the invitation email
         """
         return self.metadata.get_invitation_text(key)
+
+    def get_document_id(self, key: uuid.UUID) -> Optional[str]:
+        """
+        Get document ID from key
+
+        :param key: The key identifying the document
+        :return: The document ID
+        """
+        return self.metadata.get_document_id(key)
