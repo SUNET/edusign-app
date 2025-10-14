@@ -450,6 +450,45 @@ class APIClient(object):
 
         return response_data, documents_with_id
 
+    def create_sign_request_bankid(self, documents: list, add_blob=False) -> tuple:
+        """
+        Use the `_try_creating_sign_request` method to create a sign request
+        at the `create` endpoint of the API.
+
+        It is possible that the documents referenced in the requests have been cleared from
+        the API's cache; in that case, the response from the API will have an error code
+        indicating that condition. This method will then raise an `ExpiredCache` eception,
+        and it is the responsability of the calling method to restart the process: Send the
+        documents again to be prepared, and then try again to create a sign request.
+
+        If successful, this method will return the response with the sign request, to be POSTed
+        from the user agent to initiate the actual signing of the document.
+
+        :param documents: List with (already prepared) documents to include in the sign request.
+        :raises ExpiredCache: When the response from the API indicates that the documents to sign
+                              have dissapeared from the API's cache.
+        :return: Data (with the sign request) contained in the response from the API,
+                 and a list of mappings linking the documents' names with the generated ids (sent to
+                 the API as tbsDocuments.N.id).
+        """
+        self.initialize_credentials()
+        response_data, documents_with_id = self._try_creating_sign_request(documents, add_blob=add_blob)
+
+        if (
+            'status' in response_data
+            and response_data['status'] == 400
+            and 'message' in response_data
+            and 'not found in cache' in response_data['message']
+        ):
+            raise self.ExpiredCache()
+
+        if current_app.logger.level == 'DEBUG':
+            tolog = response_data.copy()
+            tolog['signRequest'] = tolog['signRequest'][:20] + '...'
+            current_app.logger.debug(f"Data returned from the API's create endpoint: {pformat(tolog)}")
+
+        return response_data, documents_with_id
+
     def process_sign_request(self, sign_response: dict, relay_state: str) -> dict:
         """
         This method is meant to be called after the user has completed the sgnature process, through the
