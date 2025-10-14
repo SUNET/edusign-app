@@ -671,6 +671,79 @@ def create_sign_request(documents: dict) -> dict:
     return {'payload': sign_data}
 
 
+@edusign_views.route('/create-sign-request-for/<dockey>', methods=['POST'])
+@edusign_views2.route('/create-sign-request-for/<dockey>', methods=['POST'])
+@UnMarshal(ToSignSchema)
+@Marshal(SignRequestSchema)
+def create_sign_request_for(documents: dict, dockey: str) -> dict:
+    """
+    View to send a request to the API to create a sign request for a document referenced by key.
+
+    This is the first view that is called when the user starts the signature process for some document
+    that are already loaded and that do not involve invitations.
+
+    The sign request obtained from the API in this view is sent back to the eduSign js app in the browser,
+    which will immediately POST it to the sign service to start the actual signing process.
+
+    The prepared document might have been removed from the API's cache, in which case the front side app will be
+    informed so that documents can be re-prepared.
+
+    :param documents: Representation of the documents to include in the sign request,
+                      as unmarshaled by the ToSignSchema schema
+    :return: A dict with either the relevant information returned by the API,
+             or information about some error obtained in the process.
+    """
+    if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
+        if not session['invited-unauthn']:
+            invites = get_invitations()
+            if len(invites['pending_multisign']) == 0:
+                return {'error': True, 'message': gettext('Unauthorized')}
+            else:
+                session['invited-unauthn'] = True
+
+    current_app.logger.debug(f'Data gotten in sign_request_for view: {documents}')
+    try:
+        current_app.logger.info(f"Creating signature request for user {session['eppn']}")
+        create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request(
+            documents['documents']
+        )
+
+    except current_app.extensions['api_client'].ExpiredCache:
+        current_app.logger.info(
+            f"Some document(s) have expired for {session['eppn']} in the API's cache, restarting process..."
+        )
+        return {'error': True, 'message': 'expired cache'}
+
+    except current_app.extensions['api_client'].UnknownDocType as e:
+        current_app.logger.error(f'Problem creating sign request, unsupported doc type: {e}')
+        return {
+            'error': True,
+            'message': gettext('There was an error signing docs: unsupported MIME type.'),
+        }
+
+    except Exception as e:
+        current_app.logger.error(f'Problem creating sign request: {e}')
+        return {
+            'error': True,
+            'message': gettext('There was an error. Please try again, or contact the site administrator.'),
+        }
+
+    try:
+        sign_data = {
+            'relay_state': create_data['relayState'],
+            'sign_request': create_data['signRequest'],
+            'binding': create_data['binding'],
+            'destination_url': create_data['destinationUrl'],
+            'documents': documents_with_id,
+        }
+    except KeyError:
+        current_app.logger.error(f'Problem creating sign request, got response: {create_data}')
+        # XXX translate
+        return {'error': True, 'message': create_data['message']}
+
+    return {'payload': sign_data}
+
+
 def _gather_invited_docs(docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     This function in used in the `recreate_sign_request` view.
@@ -1340,6 +1413,7 @@ def create_multi_sign_request(data: dict) -> dict:
         return {'error': True, 'message': gettext('Problem creating invitation to sign, please try again')}
 
     ordered = data['ordered']
+    allowbankid = data['allowbankid']
 
     if len(invites) > 0:
         recipients = defaultdict(list)
@@ -1355,7 +1429,11 @@ def create_multi_sign_request(data: dict) -> dict:
         docname = data['document']['name']
         custom_text = data['text']
         try:
-            _send_invitation_mail(docname, owner, custom_text, recipients)
+            if allowbankid:
+                dockey = data['document']['key']
+                _send_invitation_mail_allowbankid(docname, dockey, owner, custom_text, recipients)
+            else:
+                _send_invitation_mail(docname, owner, custom_text, recipients)
 
         except Exception:
             current_app.extensions['doc_store'].remove_document(uuid.UUID(data['document']['key']), force=True)
@@ -1367,6 +1445,32 @@ def create_multi_sign_request(data: dict) -> dict:
 
 
 def _send_invitation_mail(docname, owner, custom_text, recipients):
+    invited_link = url_for('edusign.get_index', _external=True)
+    try:
+        mail_context = {
+            'document_name': docname,
+            'inviter_email': f"{owner['email']}",
+            'inviter_name': f"{owner['name']}",
+            'invited_link': invited_link,
+            'text': custom_text,
+        }
+        messages = []
+        for lang in recipients:
+            with force_locale(lang):
+                subject = gettext('You have been invited to sign "%(document_name)s"') % {'document_name': docname}
+                body_txt = render_template('invitation_email.txt.jinja2', **mail_context)
+                body_html = render_template('invitation_email.html.jinja2', **mail_context)
+
+                messages.append(((recipients[lang], subject, body_txt, body_html), {}))
+
+        sendmail_bulk(messages)
+
+    except Exception as e:
+        current_app.logger.error(f'Problem sending invitation email: {e}: {type(e)}')
+        raise
+
+
+def _send_invitation_mail_allowbankid(docname, owner, custom_text, recipients):
     invited_link = url_for('edusign.get_index', _external=True)
     try:
         mail_context = {
