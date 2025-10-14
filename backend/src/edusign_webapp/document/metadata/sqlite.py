@@ -34,7 +34,7 @@ import os
 import sqlite3
 import uuid
 from datetime import datetime, date
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Optional
 
 from flask import Flask, current_app, g
 
@@ -117,6 +117,9 @@ INVITE_INSERT = (
 INVITE_INSERT_RAW = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_ssn, user_lang, signed, declined, order_invitation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
 INVITE_QUERY_FROM_EMAIL = (
     "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0 ORDER BY order_invitation;"
+)
+INVITE_QUERY_KEY = (
+    "SELECT key FROM Invites WHERE user_email = ? AND user_name = ? AND doc_id = ?;"
 )
 INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, user_ssn, user_lang, signed, declined, key, order_invitation FROM Invites WHERE doc_id = ? ORDER BY order_invitation;"
 INVITE_QUERY_UNSIGNED_FROM_DOC = (
@@ -879,6 +882,22 @@ class SqliteMD(ABCMetadata):
 
         return invitees
 
+    def get_invitation_key(self, user_email: str, user_name: str, doc_id: str) -> Optional[str]:
+        """
+        Get invitation key from user name, email and doc id
+
+        :param user_email: the email of the invited user
+        :param user_name: the name of the invited user
+        :param doc_id: the id of the document to be signed
+        :return: The key of the invitation or None
+        """
+        result = self._db_query(INVITE_QUERY_KEY, (user_email, user_name, str(doc_id),), one=True)
+        if result is None or isinstance(result, list):
+            self.logger.error("Trying to access the key of non-existing invitation")
+            return None
+
+        return result['key']
+
     def remove(self, key: uuid.UUID, force: bool = False) -> bool:
         """
         Remove from the store the metadata corresponding to the document identified by the `key`,
@@ -1239,3 +1258,20 @@ class SqliteMD(ABCMetadata):
             return ''
 
         return str(document_result['invitation_text'])
+
+    def get_document_id(self, key: uuid.UUID) -> Optional[str]:
+        """
+        Get document ID from key
+
+        :param key: The key identifying the document
+        :return: The document ID
+        """
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
+
+        if document_result is None or isinstance(
+            document_result, list
+        ):  # This should never happen, it's just to please mypy
+            self._db_commit()
+            return None
+
+        return str(document_result['doc_id'])
