@@ -1164,11 +1164,14 @@ def _prepare_signed_documents_data(process_data):
     return docs
 
 
-def _next_ordered_invitation_mail(doc_key, docname, invite, owner):
+def _next_ordered_invitation_mail(doc_key, docname, invite, owner, allowbankid):
     lang = invite['lang']
     recipients = [f"{invite['name']} <{invite['email']}>"]
     custom_text = current_app.extensions['doc_store'].get_invitation_text(doc_key)
-    invited_link = url_for('edusign.get_index', _external=True)
+    if allowbankid:
+        invited_link = url_for('edusign.create_sign_request_for', invite_key=invite['key'], _external=True)
+    else:
+        invited_link = url_for('edusign.get_index', _external=True)
     mail_context = {
         'document_name': docname,
         'inviter_email': f"{owner['email']}",
@@ -1197,6 +1200,7 @@ def _process_signed_documents(process_data):
         docname = current_app.extensions['doc_store'].get_document_name(key)
         doc['name'] = docname
         ordered = current_app.extensions['doc_store'].get_ordered(key)
+        allowbankid = current_app.extensions['doc_store'].get_allowbankid(key)
         owner = current_app.extensions['doc_store'].get_owner_data(key)
         sendsigned = current_app.extensions['doc_store'].get_sendsigned(key)
         all_invites = current_app.extensions['doc_store'].get_pending_invites(key)
@@ -1234,7 +1238,7 @@ def _process_signed_documents(process_data):
                         # We still haven't removed the invitation currently being addressed,
                         # thus the index 1
                         invite = pending_invites[1]
-                        next_invitation_mail = _next_ordered_invitation_mail(key, docname, invite, owner)
+                        next_invitation_mail = _next_ordered_invitation_mail(key, docname, invite, owner, allowbankid)
                         emails.append(next_invitation_mail)
                 try:
                     email_args = _prepare_signed_by_email(key, owner)
@@ -1411,25 +1415,22 @@ def create_multi_sign_request(data: dict) -> dict:
 
     if len(invites) > 0:
         recipients = defaultdict(list)
-        has_ssn = {}
         keys = {}
         if ordered:
             invite = invites[0]
             lang = invite['lang']
             recipients[lang].append((invite['name'], invite['email']))
-            has_ssn[invite['email']] = invite['ssn']
             keys[invite['email']] = invite['key']
         else:
             for invite in invites:
                 lang = invite['lang']
                 recipients[lang].append((invite['name'], invite['email']))
-                has_ssn[invite['email']] = invite['ssn']
 
         docname = data['document']['name']
         custom_text = data['text']
         try:
             if allowbankid:
-                _send_invitation_mail(docname, owner, custom_text, recipients, invite_keys=keys, has_ssn=has_ssn)
+                _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=allowbankid, invite_keys=keys)
             else:
                 _send_invitation_mail(docname, owner, custom_text, recipients)
 
@@ -1442,7 +1443,7 @@ def create_multi_sign_request(data: dict) -> dict:
     return {'message': message}
 
 
-def _send_invitation_mail(docname, owner, custom_text, recipients, invite_keys={}, has_ssn={}):
+def _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=False, invite_keys={}):
     invited_link_index = url_for('edusign.get_index', _external=True)
     invited_link_doc = ""
     try:
@@ -1456,11 +1457,8 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, invite_keys={
         for lang in recipients:
             with force_locale(lang):
                 subject = gettext('You have been invited to sign "%(document_name)s"') % {'document_name': docname}
-                without_ssn = []
-                for recipient in recipients[lang]:
-                    if not has_ssn[recipient[1]]:
-                        without_ssn.append(f"{recipient[0]} <{recipient[1]}>")
-                    else:
+                if allowbankid:
+                    for recipient in recipients[lang]:
                         invite_key = invite_keys[recipient[1]]
                         invited_link_doc = url_for('edusign.create_sign_request_for', invite_key=invite_key, _external=True)
                         context = {'invited_link': invited_link_doc}
@@ -1471,14 +1469,14 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, invite_keys={
 
                         messages.append((([f"{recipient[0]} <{recipient[1]}>"], subject, body_txt, body_html), {}))
 
-                if len(without_ssn) > 0:
+                else:
                     context = {'invited_link': invited_link_index}
                     context.update(mail_context)
 
                     body_txt = render_template('invitation_email.txt.jinja2', **context)
                     body_html = render_template('invitation_email.html.jinja2', **context)
 
-                    messages.append(((without_ssn, subject, body_txt, body_html), {}))
+                    messages.append(((recipients[lang], subject, body_txt, body_html), {}))
 
         sendmail_bulk(messages)
 
@@ -1634,10 +1632,9 @@ def edit_multi_sign_request(data: dict) -> dict:
                 recipient = {current_next_invite['lang']: [(current_next_invite['name'], current_next_invite['email'])]}
                 try:
                     if allowbankid:
-                        has_ssn = {current_next_invite['email']: current_next_invite['ssn']}
                         invite_key = current_app.extensions['doc_store'].get_invitation_key(current_next_invite['email'], current_next_invite['name'], docid)
                         invite_keys = {current_next_invite['email']: invite_key}
-                        _send_invitation_mail(docname, owner, text, recipient, invite_keys=invite_keys, has_ssn=has_ssn)
+                        _send_invitation_mail(docname, owner, text, recipient, allowbankid=allowbankid, invite_keys=invite_keys)
                     else:
                         _send_invitation_mail(docname, owner, text, recipient)
                 except Exception as e:
@@ -1662,14 +1659,12 @@ def edit_multi_sign_request(data: dict) -> dict:
     else:
         recipients_removed = defaultdict(list)
         recipients_added = defaultdict(list)
-        has_ssn = {}
         keys = {}
 
         for invite in changed['added']:
             lang = invite['lang']
             recipient = (invite['name'], invite['email'])
             recipients_added[lang].append(recipient)
-            has_ssn[invite['email']] = invite['ssn']
             keys[invite['email']] = current_app.extensions['doc_store'].get_invitation_key(invite['email'], invite['name'], docid)
 
         for invite in changed['removed']:
@@ -1680,7 +1675,7 @@ def edit_multi_sign_request(data: dict) -> dict:
         if len(recipients_added) > 0:
             try:
                 if allowbankid:
-                    _send_invitation_mail(docname, owner, text, recipients_added, invite_keys=keys, has_ssn=has_ssn)
+                    _send_invitation_mail(docname, owner, text, recipients_added, allowbankid=allowbankid, invite_keys=keys)
                 else:
                     _send_invitation_mail(docname, owner, text, recipients_added)
             except Exception as e:
@@ -1961,6 +1956,7 @@ def _prepare_declined_emails(key, owner_data):
     """
     docname = owner_data['docname']
     ordered = current_app.extensions['doc_store'].get_ordered(key)
+    allowbankid = current_app.extensions['doc_store'].get_allowbankid(key)
     pending_invites = current_app.extensions['doc_store'].get_pending_invites(key)
     pending = sum([1 for i in pending_invites if not i['signed'] and not i['declined']])
     mail_aliases = session.get('mail_aliases', [session['mail']])
@@ -2015,7 +2011,7 @@ def _prepare_declined_emails(key, owner_data):
 
     if len(pending) > 0 and ordered:
         invite = pending_invites[0]
-        next_invitation_mail = _next_ordered_invitation_mail(key, docname, invite, owner_data)
+        next_invitation_mail = _next_ordered_invitation_mail(key, docname, invite, owner_data, allowbankid)
         emails.append(next_invitation_mail)
 
     return emails
