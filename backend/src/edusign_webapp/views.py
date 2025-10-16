@@ -41,7 +41,7 @@ from typing import Any, Dict, List, Tuple, Union
 
 import importlib
 import yaml
-from flask import Blueprint, abort, current_app, g, make_response, redirect, render_template, request, session, url_for
+from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for
 from flask_babel import force_locale, get_locale, gettext
 from werkzeug.wrappers.response import Response
 
@@ -671,71 +671,57 @@ def create_sign_request(documents: dict) -> dict:
     return {'payload': sign_data}
 
 
-@edusign_views.route('/create-sign-request-for/<invite_key>', methods=['POST'])
-@edusign_views2.route('/create-sign-request-for/<invite_key>', methods=['POST'])
-@UnMarshal(ToSignSchema)
-@Marshal(SignRequestSchema)
-def create_sign_request_for(documents: dict, invite_key: str) -> dict:
+@anon_edusign_views.route('/anon-bankid/<invite_key>', methods=['GET'])
+def get_index_bankid(invite_key: str) -> Union[str, Response]:
     """
-    View to send a request to the API to create a sign request for a document referenced by key.
+    View to provide the UI to initiate signatures with Swedish BankID.
 
-    This is the first view that is called when the user starts the signature process for some document
-    that are already loaded and that do not involve invitations.
+    This is an anonymous view, for when the invited user is not provided with an SSN
 
-    The sign request obtained from the API in this view is sent back to the eduSign js app in the browser,
-    which will immediately POST it to the sign service to start the actual signing process.
-
-    The prepared document might have been removed from the API's cache, in which case the front side app will be
-    informed so that documents can be re-prepared.
-
-    :param documents: Representation of the documents to include in the sign request,
-                      as unmarshaled by the ToSignSchema schema
-    :return: A dict with either the relevant information returned by the API,
-             or information about some error obtained in the process.
+    :param invite_key: Key identifying the invitation to sign.
+    :return: Rendered template with UI to start the signature process.
     """
-    session['invited-unauthn'] = True
+    invite = current_app.extensions['doc_store'].get_invitation(invite_key)
 
-    current_app.logger.debug(f'Data gotten in create_sign_request_for view: {documents}')
-    try:
-        current_app.logger.info(f"Creating signature request for user {session['eppn']}")
-        create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request_bankid(
-            documents['documents']
-        )
+    if invite['ssn']:
+        #  redirect to authn
+        url = url_for('edusign.get_index_bankid_authn', invite_key=invite_key, _external=True)
+        return redirect(url)
 
-    except current_app.extensions['api_client'].ExpiredCache:
-        current_app.logger.info(
-            f"Some document(s) have expired for {session['eppn']} in the API's cache, restarting process..."
-        )
-        return {'error': True, 'message': 'expired cache'}
+    bundle_name = 'main-bundle'
+    if current_app.config['ENVIRONMENT'] in ('development', 'e2e'):
+        bundle_name += '.dev'
 
-    except current_app.extensions['api_client'].UnknownDocType as e:
-        current_app.logger.error(f'Problem creating sign request, unsupported doc type: {e}')
-        return {
-            'error': True,
-            'message': gettext('There was an error signing docs: unsupported MIME type.'),
-        }
+    return render_template(
+        'index-for-bankid.jinja2',
+        invite_key=invite['key'],
+        bundle_name=bundle_name,
+    )
 
-    except Exception as e:
-        current_app.logger.error(f'Problem creating sign request: {e}')
-        return {
-            'error': True,
-            'message': gettext('There was an error. Please try again, or contact the site administrator.'),
-        }
 
-    try:
-        sign_data = {
-            'relay_state': create_data['relayState'],
-            'sign_request': create_data['signRequest'],
-            'binding': create_data['binding'],
-            'destination_url': create_data['destinationUrl'],
-            'documents': documents_with_id,
-        }
-    except KeyError:
-        current_app.logger.error(f'Problem creating sign request, got response: {create_data}')
-        # XXX translate
-        return {'error': True, 'message': create_data['message']}
+@edusign_views.route('/bankid/<invite_key>', methods=['GET'])
+@edusign_views2.route('/bankid/<invite_key>', methods=['GET'])
+def get_index_bankid_authn(invite_key: str) -> Union[str, Response]:
+    """
+    View to provide the UI to initiate signatures with Swedish BankID.
 
-    return {'payload': sign_data}
+    This is an authenticated view, for when the invited user is provided with an SSN
+
+    :param invite_key: Key identifying the invitation to sign.
+    :return: Rendered template with UI to start the signature process.
+    """
+    invite = current_app.extensions['doc_store'].get_invitation(invite_key)
+
+    bundle_name = 'main-bundle'
+    if current_app.config['ENVIRONMENT'] in ('development', 'e2e'):
+        bundle_name += '.dev'
+
+    return render_template(
+        'index-for-bankid.jinja2',
+        invite_key=invite['key'],
+        ssn=invite['ssn'],
+        bundle_name=bundle_name,
+    )
 
 
 def _gather_invited_docs(docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -1169,7 +1155,7 @@ def _next_ordered_invitation_mail(doc_key, docname, invite, owner, allowbankid):
     recipients = [f"{invite['name']} <{invite['email']}>"]
     custom_text = current_app.extensions['doc_store'].get_invitation_text(doc_key)
     if allowbankid:
-        invited_link = url_for('edusign.create_sign_request_for', invite_key=invite['key'], _external=True)
+        invited_link = url_for('edusign.get_index_bankid', invite_key=invite['key'], _external=True)
     else:
         invited_link = url_for('edusign.get_index', _external=True)
     mail_context = {
@@ -1460,7 +1446,7 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=F
                 if allowbankid:
                     for recipient in recipients[lang]:
                         invite_key = invite_keys[recipient[1]]
-                        invited_link_doc = url_for('edusign.create_sign_request_for', invite_key=invite_key, _external=True)
+                        invited_link_doc = url_for('edusign.get_index_bankid', invite_key=invite_key, _external=True)
                         context = {'invited_link': invited_link_doc}
                         context.update(mail_context)
 
