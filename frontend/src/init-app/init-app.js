@@ -47,7 +47,7 @@ const store = edusignStore();
 export const appIsRendered = async function () {
   const path = window.location.pathname;
   const segments = path.split('/');
-  if (segments.length === 2 && segments[1] === 'sign') {
+  if (segments.length === 3 && segments[0] === '' && segments[1] === 'sign' && segments[2] === '') {
     await store.dispatch(fetchConfig());
   } else {
     const segment = segments[segments.length - 2];

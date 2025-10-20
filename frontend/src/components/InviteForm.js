@@ -76,7 +76,7 @@ const initialValues = (props) => {
       props.docOrdered === undefined || props.docOrdered === null
         ? props.ordered
         : props.docOrdered,
-    allowBankIDChoice: false,
+    allowBankIDChoice: props.ui_defaults.allow_bankid,
     invitees: [
       {
         name: "",

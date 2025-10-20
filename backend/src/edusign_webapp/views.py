@@ -1462,7 +1462,8 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=F
                     body_txt = render_template('invitation_email.txt.jinja2', **context)
                     body_html = render_template('invitation_email.html.jinja2', **context)
 
-                    messages.append(((recipients[lang], subject, body_txt, body_html), {}))
+                    recs = [f"{rec[0]} <{rec[1]}>" for rec in recipients[lang]]
+                    messages.append(((recs, subject, body_txt, body_html), {}))
 
         sendmail_bulk(messages)
 
