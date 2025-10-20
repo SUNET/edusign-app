@@ -1401,12 +1401,10 @@ def create_multi_sign_request(data: dict) -> dict:
 
     if len(invites) > 0:
         recipients = defaultdict(list)
-        keys = {}
         if ordered:
             invite = invites[0]
             lang = invite['lang']
             recipients[lang].append((invite['name'], invite['email']))
-            keys[invite['email']] = invite['key']
         else:
             for invite in invites:
                 lang = invite['lang']
@@ -1416,6 +1414,7 @@ def create_multi_sign_request(data: dict) -> dict:
         custom_text = data['text']
         try:
             if allowbankid:
+                keys = {invite['email']: invite['key'] for invite in invites}
                 _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=allowbankid, invite_keys=keys)
             else:
                 _send_invitation_mail(docname, owner, custom_text, recipients)
@@ -1446,7 +1445,7 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=F
                 if allowbankid:
                     for recipient in recipients[lang]:
                         invite_key = invite_keys[recipient[1]]
-                        invited_link_doc = url_for('edusign.get_index_bankid', invite_key=invite_key, _external=True)
+                        invited_link_doc = url_for('edusign_anon.get_index_bankid', invite_key=invite_key, _external=True)
                         context = {'invited_link': invited_link_doc}
                         context.update(mail_context)
 
