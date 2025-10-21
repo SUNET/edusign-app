@@ -73,6 +73,7 @@ from edusign_webapp.utils import (
     MissingDisplayName,
     NonWhitelisted,
     add_attributes_to_session,
+    add_attributes_to_session_bankid,
     get_invitations,
     get_previous_signatures,
     get_previous_signatures_xml,
@@ -681,12 +682,18 @@ def get_index_bankid(invite_key: str) -> Union[str, Response]:
     :param invite_key: Key identifying the invitation to sign.
     :return: Rendered template with UI to start the signature process.
     """
-    invite = current_app.extensions['doc_store'].get_invitation(invite_key)
-
-    if invite['ssn']:
-        #  redirect to authn
-        url = url_for('edusign.get_index_bankid_authn', invite_key=invite_key, _external=True)
-        return redirect(url)
+    try:
+        add_attributes_to_session_bankid(invite_key)
+    except Exception as e:
+        current_app.logger.error(
+            f'There is some problem adding bankid attributes to the session: {e}.'
+        )
+        context = {}
+        context['title'] = gettext("Not Found")
+        context['message'] = gettext(
+            'The URL you provided does not seem to correspond to any invitation. Please contact your IT-support for assistance.'
+        )
+        return render_template('error-generic.jinja2', **context)
 
     bundle_name = 'main-bundle'
     if current_app.config['ENVIRONMENT'] in ('development', 'e2e'):
@@ -694,7 +701,7 @@ def get_index_bankid(invite_key: str) -> Union[str, Response]:
 
     return render_template(
         'index-for-bankid.jinja2',
-        invite_key=invite['key'],
+        invite_key=invite_key,
         bundle_name=bundle_name,
     )
 

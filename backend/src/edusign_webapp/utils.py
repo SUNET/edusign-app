@@ -192,6 +192,56 @@ def add_attributes_to_session(check_whitelisted=True):
                 raise NonWhitelisted('Unauthorized user')
 
 
+def add_attributes_to_session_bankid(invite_key):
+    """
+    If the Flask session does not contain information identifying the user,
+    this function will grab it from the invitation in the db.
+    :param invite_key: key identifying the invitation in the db.
+    :type invite_key: str
+    """
+    if 'eppn' not in session:
+        invite = current_app.extensions['doc_store'].get_invitation(invite_key)
+
+        session['eppn'] = "dummy-bankid"
+        session['eduPersonPrincipalName'] = "dummy-bankid"
+        attr_schema = "20"
+        session['saml-attr-schema'] = attr_schema
+
+        current_app.logger.info(f'User {invite["email"]} started a session')
+        current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
+
+        session['mail_aliases'] = [invite['email']]
+        session['mail'] = invite['email']
+        session['displayName'] = invite['name']
+        session['ssn'] = invite['ssn']
+
+        session['eduPersonAssurance'] = []
+
+        try:
+            session['idp'] = current_app.config['BANKID_IDP']
+        except KeyError:
+            current_app.logger.error('Missing config for BANKID_IDP')
+            raise
+
+        try:
+            session['authn_method'] = current_app.config['BANKID_AUTHN_METHOD']
+        except KeyError:
+            current_app.logger.error('Missing config for BANKID_AUTHN_METHOD')
+            raise
+
+        try:
+            session['authn_context'] = current_app.config['BANKID_AUTHN_CONTEXT_CLASS']
+        except KeyError:
+            current_app.logger.error('Missing config for BANKID_AUTHN_CONTEXT_CLASS')
+            raise
+
+        session['organizationName'] = "dummy-bankid"
+
+        session['registrationAuthority'] = "dummy-bankid"
+
+        session['invited-unauthn'] = True
+
+
 def prepare_document(document: dict) -> dict:
     """
     Send documents to the eduSign API to be prepared for signing.
