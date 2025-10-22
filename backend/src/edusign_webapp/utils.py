@@ -202,8 +202,8 @@ def add_attributes_to_session_bankid(invite_key):
     if 'eppn' not in session:
         invite = current_app.extensions['doc_store'].get_invitation(invite_key)
 
-        session['eppn'] = "dummy-bankid"
-        session['eduPersonPrincipalName'] = "dummy-bankid"
+        session['eppn'] = "dummy@bankid"
+        session['eduPersonPrincipalName'] = "dummy@bankid"
         attr_schema = "20"
         session['saml-attr-schema'] = attr_schema
 
@@ -422,6 +422,9 @@ def is_whitelisted(app, eppn: str) -> bool:
     :param eppn: the eduPersonPrincipalName
     :return: whether it is whitelisted
     """
+    if eppn.lower() == "dummy@bankid":
+        return True
+
     if eppn.lower() in app.config['USER_BLACKLIST']:
         return False
 
