@@ -49,7 +49,7 @@ export const appIsRendered = async function () {
   const segments = path.split('/');
   let configPath = '/sign/config';
   if (segments.length > 2 && segments[1] === 'anon-bankid') {
-    configPath = '/config-bankid';
+    configPath = '/anon-bankid/config';
   }
   await store.dispatch(fetchConfig({configPath}));
 };

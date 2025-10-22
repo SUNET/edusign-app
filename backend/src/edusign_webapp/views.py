@@ -457,7 +457,7 @@ def _get_ui_defaults():
 
 @edusign_views.route('/config', methods=['GET'])
 @edusign_views2.route('/config', methods=['GET'])
-@anon_edusign_views.route('/config-bankid', methods=['GET'])
+@anon_edusign_views.route('/anon-bankid/config', methods=['GET'])
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """

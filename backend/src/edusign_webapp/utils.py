@@ -207,7 +207,7 @@ def add_attributes_to_session_bankid(invite_key):
         attr_schema = "20"
         session['saml-attr-schema'] = attr_schema
 
-        current_app.logger.info(f'User {invite["email"]} started a session')
+        current_app.logger.info(f'User {invite["user"]["email"]} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
 
         session['mail_aliases'] = [invite['user']['email']]

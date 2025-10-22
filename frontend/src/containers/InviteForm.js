@@ -63,9 +63,11 @@ const _close = (dispatch) => {
   dispatch(setOrdered(null));
 };
 
-const mapDispatchToProps = (dispatch, props) => {
+const mapDispatchToProps = (dispatch) => {
   return {
     handleSubmit: async function (values, actions) {
+      if (values.allowBankIDChoice)
+        values.loa = 'none';
       await dispatch(sendInvites({ values: values, intl: this.props.intl }));
       actions.setSubmitting(false);
       actions.resetForm();

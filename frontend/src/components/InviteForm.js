@@ -246,11 +246,12 @@ class InviteForm extends React.Component {
                   data-testid="loa-select-input"
                   id="loa-select-input"
                   as={BForm.Select}
+                  value={fprops.values.loa}
                 >
                   <>
                     {this.props.loas.map((level, i) => {
                       return (
-                        <option key={i} value={level.value} selected={level.value === fprops.values.loa}>
+                        <option key={i} value={level.value}>
                           {level.name}
                         </option>
                       );

@@ -122,6 +122,10 @@ def validate_swedish_ssn(ssn):
 
     Returns True if valid, False otherwise.
     """
+    # allow empty ssn
+    if ssn == '':
+        return True
+
     ssn = ssn.replace('-', '').replace(' ', '')
 
     if len(ssn) not in (10, 12):
