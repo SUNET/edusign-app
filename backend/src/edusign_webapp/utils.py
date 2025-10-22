@@ -210,10 +210,10 @@ def add_attributes_to_session_bankid(invite_key):
         current_app.logger.info(f'User {invite["email"]} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
 
-        session['mail_aliases'] = [invite['email']]
-        session['mail'] = invite['email']
-        session['displayName'] = invite['name']
-        session['ssn'] = invite['ssn']
+        session['mail_aliases'] = [invite['user']['email']]
+        session['mail'] = invite['user']['email']
+        session['displayName'] = invite['user']['name']
+        session['ssn'] = invite['user']['ssn']
 
         session['eduPersonAssurance'] = []
 

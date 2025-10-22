@@ -457,6 +457,7 @@ def _get_ui_defaults():
 
 @edusign_views.route('/config', methods=['GET'])
 @edusign_views2.route('/config', methods=['GET'])
+@anon_edusign_views.route('/config-bankid', methods=['GET'])
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """
@@ -473,7 +474,6 @@ def get_config() -> dict:
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
     payload = get_invitations(remove_finished=True)
-
     if 'eppn' in session and is_whitelisted(current_app, session['eppn']):
         payload['unauthn'] = False
     else:
@@ -1004,7 +1004,7 @@ def sign_service_callback() -> Union[str, Response]:
     except ValueError as e:
         current_app.logger.error(f'Invalid data in callback request: {e}')
         abort(400)
-    except binascii.Error as e:
+    except Exception as e:
         current_app.logger.error(f'Invalid data in callback request: {e}')
         abort(400)
 

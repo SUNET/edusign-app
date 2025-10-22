@@ -50,13 +50,19 @@ export const fetchConfig = createAsyncThunk(
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     let intl;
-    if (args === undefined) {
+    if (args === undefined || args.intl === undefined) {
       intl = createIntl(state.intl);
     } else {
       intl = args.intl;
     }
+    let configPath;
+    if (args === undefined || args.configPath === undefined) {
+      configPath = '/sign/config';
+    } else {
+      configPath = args.configPath;
+    }
     try {
-      const response = await esFetch("/sign/config", getRequest);
+      const response = await esFetch(configPath, getRequest);
       const configData = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, configData);
       thunkAPI.dispatch(mainSlice.actions.appLoaded());

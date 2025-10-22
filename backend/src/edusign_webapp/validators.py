@@ -113,3 +113,38 @@ def validate_language(value):
     if value not in current_app.config['SUPPORTED_LANGUAGES']:
         current_app.logger.debug(f'Validate language: unknown language {value}')
         raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+
+
+def validate_swedish_ssn(ssn):
+    """
+    Validate a Swedish Social Security Number (personnummer).
+    Accepts formats: YYYYMMDD-XXXX, YYYYMMDDXXXX, YYMMDD-XXXX, or YYMMDDXXXX
+
+    Returns True if valid, False otherwise.
+    """
+    ssn = ssn.replace('-', '').replace(' ', '')
+
+    if len(ssn) not in (10, 12):
+        return False
+
+    if not ssn.isdigit():
+        return False
+
+    if len(ssn) == 12:
+        ssn = ssn[2:]
+
+    # Validate using Luhn algorithm
+    checksum = 0
+    for i, digit in enumerate(ssn[:-1]):
+        num = int(digit)
+
+        if i % 2 == 0:
+            num *= 2
+            if num > 9:
+                num -= 9
+
+        checksum += num
+
+    check_digit = (10 - (checksum % 10)) % 10
+
+    return check_digit == int(ssn[-1])

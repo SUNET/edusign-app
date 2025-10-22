@@ -39,6 +39,7 @@ from edusign_webapp.validators import (
     validate_nonempty,
     validate_sign_requirement,
     validate_uuid4,
+    validate_swedish_ssn,
 )
 
 
@@ -55,7 +56,7 @@ class _DocumentSchema(Schema):
 class Invitee(Schema):
     email = fields.Email(required=True, validate=[validate_nonempty])
     name = fields.String(required=True, validate=[validate_nonempty])
-    ssn = fields.String(required=True, validate=[validate_nonempty])
+    ssn = fields.String(required=False, validate=[validate_swedish_ssn])
     lang = fields.String(required=True, validate=[validate_nonempty, validate_language])
 
 
