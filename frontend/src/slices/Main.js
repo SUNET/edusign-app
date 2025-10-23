@@ -38,6 +38,7 @@ import {
 import { addNotification } from "slices/Notifications";
 import { loadDocuments, addDocumentToDb, addDocument, prepareDocument, setState } from "slices/Documents";
 import { setPolling } from "slices/Poll";
+import { setAllowBankID } from "slices/InviteForm";
 import { b64toBlob, nameForDownload } from "components/utils";
 
 /**
@@ -81,6 +82,9 @@ export const fetchConfig = createAsyncThunk(
         );
         thunkAPI.dispatch(setPolling(configData.payload.poll));
         delete configData.payload.poll;
+
+        const allowbankid = configData.payload.wui_defaults.allow_bankid;
+        thunkAPI.dispatch(setAllowBankID(allowbankid));
 
         for (const doc of configData.payload.skipped) {
           let prefix = "data:application/xml;base64,";

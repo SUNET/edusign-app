@@ -31,7 +31,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import asyncio
-import binascii
 import json
 import os
 import uuid
@@ -457,7 +456,6 @@ def _get_ui_defaults():
 
 @edusign_views.route('/config', methods=['GET'])
 @edusign_views2.route('/config', methods=['GET'])
-@anon_edusign_views.route('/anon-bankid/config', methods=['GET'])
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """
@@ -473,11 +471,40 @@ def get_config() -> dict:
 
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
-    payload = get_invitations(remove_finished=True)
+    payload = {}
     if 'eppn' in session and is_whitelisted(current_app, session['eppn']):
         payload['unauthn'] = False
     else:
         payload['unauthn'] = True
+
+    return _get_ui_config(payload)
+
+
+@anon_edusign_views.route('/anon-bankid/config', methods=['GET'])
+@Marshal(ConfigSchema)
+def get_bankid_config() -> dict:
+    """
+    View to serve the configuration for the front app.
+
+    This is called once the browser has rendered the js app.
+    The main info sent in the config JSON is:
+
+    - Info about pending invitations to sign, both as inviter and as invitee;
+    - Attributes released by the IdP;
+    - A flag to indicate whether to show the invitations button;
+    - A flag to indicate whether the user has logged in through a whitelisted organization.
+
+    :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
+    """
+    payload = {'unauthn': True}
+
+    return _get_ui_config(payload)
+
+
+def _get_ui_config(payload: dict) -> dict:
+
+    invites = get_invitations(remove_finished=True)
+    payload.update(invites)
 
     payload['ui_defaults'] = _get_ui_defaults()
 

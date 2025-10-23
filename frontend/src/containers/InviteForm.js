@@ -61,6 +61,7 @@ const _close = (dispatch) => {
   dispatch(unsetActiveId());
   dispatch(isNotInviting());
   dispatch(setOrdered(null));
+  dispatch(setAllowBankID(null));
 };
 
 const mapDispatchToProps = (dispatch) => {
@@ -82,8 +83,8 @@ const mapDispatchToProps = (dispatch) => {
     handleSetOrdered: function (ordered) {
       dispatch(setOrdered(ordered));
     },
-    handleAllowBankID: function (ordered) {
-      dispatch(setAllowBankID(ordered));
+    handleAllowBankID: function (allowbankid) {
+      dispatch(setAllowBankID(allowbankid));
     },
   };
 };
