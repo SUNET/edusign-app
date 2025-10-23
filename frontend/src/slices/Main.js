@@ -83,7 +83,7 @@ export const fetchConfig = createAsyncThunk(
         thunkAPI.dispatch(setPolling(configData.payload.poll));
         delete configData.payload.poll;
 
-        const allowbankid = configData.payload.wui_defaults.allow_bankid;
+        const allowbankid = configData.payload.ui_defaults.allow_bankid;
         thunkAPI.dispatch(setAllowBankID(allowbankid));
 
         for (const doc of configData.payload.skipped) {
