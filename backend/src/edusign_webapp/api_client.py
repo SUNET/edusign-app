@@ -220,8 +220,14 @@ class APIClient(object):
         if session.get('organizationName', None) is not None:
             idp = session['organizationName']
 
-        attrs = [{'name': attr} for attr in self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].keys()]
-        current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
+        allowbankid = session['allowbankid']
+
+        if allowbankid:
+            attrs = [{'name': current_app.config['BANKID_SSN_ATTR']}]
+            current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
+        else:
+            attrs = [{'name': attr} for attr in self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].keys()]
+            current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
 
         doc_data = document['blob']
         if ',' in doc_data:
@@ -252,25 +258,29 @@ class APIClient(object):
         return response
 
     def _get_sign_request_data(self, documents):
+        allowbankid = session['allowbankid']
         idp = session['idp']
         attr_schema = session['saml-attr-schema']
-        authn_context = get_authn_context(documents)
+        authn_context = get_authn_context()
         assurance = get_required_assurance(documents)
         correlation_id = str(uuid.uuid4())
-        attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
-        attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]
-        used_attr_names = tuple(friendly_name for _, friendly_name in attr_names)
-        more_attr_names = [
-            attr_names
-            for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items()
-            if attr_names[1] not in used_attr_names
-        ]
-        more_attrs = [
-            {'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in more_attr_names
-        ]
-        more_used_attr_names = tuple(friendly_name for _, friendly_name in more_attr_names)
-        used_attr_names += more_used_attr_names
-        attrs.extend(more_attrs)
+        if allowbankid:
+            attrs = [{'name': current_app.config['BANKID_SSN_ATTR'], 'value': session['ssn']}]
+        else:
+            attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
+            attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]
+            used_attr_names = tuple(friendly_name for _, friendly_name in attr_names)
+            more_attr_names = [
+                attr_names
+                for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items()
+                if attr_names[1] not in used_attr_names
+            ]
+            more_attrs = [
+                {'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in more_attr_names
+            ]
+            more_used_attr_names = tuple(friendly_name for _, friendly_name in more_attr_names)
+            used_attr_names += more_used_attr_names
+            attrs.extend(more_attrs)
         # For none assurance, we don't care about the value of eduPersonAssurance
         if assurance != 'none':
             assurances = self.config['AVAILABLE_LOAS'].get(
@@ -412,45 +422,6 @@ class APIClient(object):
         return self._post(api_url, request_data), documents_with_id
 
     def create_sign_request(self, documents: list, add_blob=False) -> tuple:
-        """
-        Use the `_try_creating_sign_request` method to create a sign request
-        at the `create` endpoint of the API.
-
-        It is possible that the documents referenced in the requests have been cleared from
-        the API's cache; in that case, the response from the API will have an error code
-        indicating that condition. This method will then raise an `ExpiredCache` eception,
-        and it is the responsability of the calling method to restart the process: Send the
-        documents again to be prepared, and then try again to create a sign request.
-
-        If successful, this method will return the response with the sign request, to be POSTed
-        from the user agent to initiate the actual signing of the document.
-
-        :param documents: List with (already prepared) documents to include in the sign request.
-        :raises ExpiredCache: When the response from the API indicates that the documents to sign
-                              have dissapeared from the API's cache.
-        :return: Data (with the sign request) contained in the response from the API,
-                 and a list of mappings linking the documents' names with the generated ids (sent to
-                 the API as tbsDocuments.N.id).
-        """
-        self.initialize_credentials()
-        response_data, documents_with_id = self._try_creating_sign_request(documents, add_blob=add_blob)
-
-        if (
-            'status' in response_data
-            and response_data['status'] == 400
-            and 'message' in response_data
-            and 'not found in cache' in response_data['message']
-        ):
-            raise self.ExpiredCache()
-
-        if current_app.logger.level == 'DEBUG':
-            tolog = response_data.copy()
-            tolog['signRequest'] = tolog['signRequest'][:20] + '...'
-            current_app.logger.debug(f"Data returned from the API's create endpoint: {pformat(tolog)}")
-
-        return response_data, documents_with_id
-
-    def create_sign_request_bankid(self, documents: list, add_blob=False) -> tuple:
         """
         Use the `_try_creating_sign_request` method to create a sign request
         at the `create` endpoint of the API.

@@ -92,6 +92,7 @@ def add_attributes_to_session(check_whitelisted=True):
         session['eppn'] = eppn
         session['eduPersonPrincipalName'] = eppn
         session['saml-attr-schema'] = attr_schema
+        session['allowbankid'] = False
 
         current_app.logger.info(f'User {eppn} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
@@ -206,6 +207,7 @@ def add_attributes_to_session_bankid(invite_key):
         session['eduPersonPrincipalName'] = "dummy@bankid"
         attr_schema = "20"
         session['saml-attr-schema'] = attr_schema
+        session['allowbankid'] = True
 
         current_app.logger.info(f'User {invite["user"]["email"]} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
@@ -235,7 +237,11 @@ def add_attributes_to_session_bankid(invite_key):
             current_app.logger.error('Missing config for BANKID_AUTHN_CONTEXT_CLASS')
             raise
 
-        session['organizationName'] = "dummy-bankid"
+        try:
+            session['organizationName'] = current_app.config['BANKID_ORG_NAME']
+        except KeyError:
+            current_app.logger.error('Missing config for BANKID_ORG_NAME')
+            raise
 
         session['registrationAuthority'] = "dummy-bankid"
 
@@ -536,7 +542,7 @@ def sendmail_bulk(msgs_data: list):
         conn.close()
 
 
-def get_authn_context(docs: list) -> list:
+def get_authn_context() -> list:
     """
     Get the authentication context classes to send to the `create` API method.
 
