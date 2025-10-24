@@ -92,6 +92,8 @@ edusign_views = Blueprint('edusign', __name__, url_prefix='/sign', template_fold
 
 edusign_views2 = Blueprint('edusign2', __name__, url_prefix='/sign2', template_folder='templates')
 
+edusign_bankid_views = Blueprint('edusign_bankid', __name__, url_prefix='/bankid', template_folder='templates')
+
 
 @admin_edusign_views.route('/cleanup', methods=['POST'])
 def cleanup():
@@ -456,6 +458,7 @@ def _get_ui_defaults():
 
 @edusign_views.route('/config', methods=['GET'])
 @edusign_views2.route('/config', methods=['GET'])
+@edusign_bankid_views.route('/config', methods=['GET'])
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """
@@ -729,12 +732,12 @@ def get_index_bankid(invite_key: str) -> Union[str, Response]:
     return render_template(
         'index-for-bankid.jinja2',
         invite_key=invite_key,
+        ssn='',
         bundle_name=bundle_name,
     )
 
 
-@edusign_views.route('/bankid/<invite_key>', methods=['GET'])
-@edusign_views2.route('/bankid/<invite_key>', methods=['GET'])
+@edusign_bankid_views.route('/<invite_key>', methods=['GET'])
 def get_index_bankid_authn(invite_key: str) -> Union[str, Response]:
     """
     View to provide the UI to initiate signatures with Swedish BankID.

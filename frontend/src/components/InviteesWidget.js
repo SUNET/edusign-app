@@ -227,7 +227,7 @@ function _InviteesControl(props) {
                 name={`invitees.${index}.ssn`}
                 data-testid={`invitees.${index}.ssn`}
                 value={invitee.ssn}
-                placeholder="NNN"
+                placeholder="YYYYMMDD-XXXX"
                 as={BForm.Control}
                 type="text"
                 validate={validateSSN}
