@@ -265,7 +265,12 @@ class APIClient(object):
         assurance = get_required_assurance(documents)
         correlation_id = str(uuid.uuid4())
         if allowbankid:
-            attrs = [{'name': current_app.config['BANKID_SSN_ATTR'], 'value': session['ssn']}]
+            if session['ssn']:
+                attrs = [{'name': current_app.config['BANKID_SSN_ATTR'], 'value': session['ssn']}]
+                used_attr_names = [current_app.config['BANKID_SSN_ATTR']]
+            else:
+                attrs = []
+                used_attr_names = []
         else:
             attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
             attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]
