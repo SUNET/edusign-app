@@ -431,6 +431,7 @@ function _InviteesWidget(props) {
           arrayHelpers.push({
             name: "",
             email: "",
+            ssn: "",
             lang: Cookies.get("lang") || "en",
             id: `id${n_invites}`,
           });

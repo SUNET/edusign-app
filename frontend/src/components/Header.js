@@ -18,20 +18,21 @@ class Header extends Component {
     const greeting = this.props.allowbankid
       ? (
           <span id="signing-with-span">
+            { this.props.signer_attributes.name }
+          </span>
+        )
+      : (
+          <span id="signing-with-span">
             <FormattedMessage
               defaultMessage="Signed in as {name}"
               key="signing-with"
               values={{ ...this.props.signer_attributes }}
             />
           </span>
-        )
-      : (
-          <span id="signing-with-span">
-            { this.props.signer_attributes.name }
-          </span>
         );
     const logoutButton = this.props.allowbankid
-      ? (
+      ? ""
+      : (
           <span id="logout-button-container">
             <Button
               variant="outline-dark"
@@ -44,8 +45,7 @@ class Header extends Component {
               />
             </Button>
           </span>
-        )
-      : "";
+        );
     if (!this.props.loading) {
       name = (
         <div id="name-and-clear-in-header">
