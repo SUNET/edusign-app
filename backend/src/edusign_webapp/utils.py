@@ -93,6 +93,7 @@ def add_attributes_to_session(check_whitelisted=True):
         session['eduPersonPrincipalName'] = eppn
         session['saml-attr-schema'] = attr_schema
         session['allowbankid'] = False
+        session['ssn'] = ''
 
         current_app.logger.info(f'User {eppn} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
