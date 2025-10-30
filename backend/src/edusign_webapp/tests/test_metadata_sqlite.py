@@ -256,6 +256,7 @@ def test_add_document_and_invitation_and_get_full_invites(
             dummy_key,
             sample_invites_1[0]['name'],
             sample_invites_1[0]['email'],
+            sample_invites_1[0]['ssn'],
             sample_invites_1[0]['lang'],
             dummy_invitation_key,
         )
@@ -285,6 +286,7 @@ def test_add_document_and_invitation_and_remove_and_get_full_invites(
             dummy_key,
             sample_invites_1[0]['name'],
             sample_invites_1[0]['email'],
+            sample_invites_1[0]['ssn'],
             sample_invites_1[0]['lang'],
             dummy_invitation_key,
         )
@@ -311,6 +313,7 @@ def test_add_document_and_invitation_raw_and_get_full_invites(
             'name': sample_invites_1[0]['name'],
             'email': sample_invites_1[0]['email'],
             'lang': sample_invites_1[0]['lang'],
+            'ssn': sample_invites_1[0]['ssn'],
             'signed': False,
             'declined': False,
             'key': str(dummy_invitation_key),
@@ -327,6 +330,7 @@ def test_add_document_and_invitation_raw_and_get_full_invites(
     assert invites[0]['email'] == 'invite0@example.org'
     assert invites[0]['name'] == 'invite0'
     assert invites[0]['lang'] == 'en'
+    assert invites[0]['ssn'] == ''
     assert not invites[0]['declined']
     assert not invites[0]['signed']
 
@@ -346,6 +350,7 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
             'name': sample_invites_1[0]['name'],
             'email': sample_invites_1[0]['email'],
             'lang': sample_invites_1[0]['lang'],
+            'ssn': sample_invites_1[0]['ssn'],
             'signed': True,
             'declined': False,
             'key': str(dummy_invitation_key),
@@ -359,6 +364,7 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
             'name': sample_invites_1[1]['name'],
             'email': sample_invites_1[1]['email'],
             'lang': sample_invites_1[1]['lang'],
+            'ssn': sample_invites_1[1]['ssn'],
             'signed': False,
             'declined': True,
             'key': str(dummy_invitation_key),

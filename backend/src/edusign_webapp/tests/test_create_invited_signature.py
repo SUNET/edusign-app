@@ -118,6 +118,7 @@ def _test_create_invited_signature(
                 "skipfinal": True,
                 "loa": loa,
                 "ordered": False,
+                "allowbankid": False,
             },
         }
 

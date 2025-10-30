@@ -58,7 +58,7 @@ def test_config(client):
 
 
 def test_config_custom(client_custom):
-    config_dict = {'https://idp': {'send_signed': True, 'skip_final': True, 'ordered_invitations': True}}
+    config_dict = {'https://idp': {'send_signed': True, 'skip_final': True, 'ordered_invitations': True, 'allow_bankid': False}}
 
     custom_yaml = '/tmp/edusign-forms.yaml'
     with open(custom_yaml, 'w') as f:
@@ -77,12 +77,13 @@ def test_config_custom(client_custom):
     assert data['payload']['ui_defaults']['skip_final']
     assert data['payload']['ui_defaults']['send_signed']
     assert data['payload']['ui_defaults']['ordered_invitations']
+    assert 'allow_bankid' in data['payload']['ui_defaults']
 
     os.unlink(custom_yaml)
 
 
 def test_no_config_custom(client_custom):
-    config_dict = {'https://idp2': {'send_signed': True, 'skip_final': True, 'ordered_invitations': True}}
+    config_dict = {'https://idp2': {'send_signed': True, 'skip_final': True, 'ordered_invitations': True, 'allow_bankid': True}}
 
     custom_yaml = '/tmp/edusign-forms.yaml'
     with open(custom_yaml, 'w') as f:
@@ -101,6 +102,7 @@ def test_no_config_custom(client_custom):
     assert not data['payload']['ui_defaults']['skip_final']
     assert not data['payload']['ui_defaults']['send_signed']
     assert not data['payload']['ui_defaults']['ordered_invitations']
+    assert not data['payload']['ui_defaults']['allow_bankid']
 
     os.unlink(custom_yaml)
 
@@ -180,6 +182,7 @@ def _test_get_config_with_invitations(
                 "skipfinal": True,
                 "loa": loa,
                 "ordered": ordered,
+                "allowbankid": False,
             },
         }
 

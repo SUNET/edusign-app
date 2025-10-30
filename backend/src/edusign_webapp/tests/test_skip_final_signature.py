@@ -74,10 +74,11 @@ def _test_skip_final_signature(client, monkeypatch, sample_doc_1):
                 'sendsigned': True,
                 'skipfinal': False,
                 'ordered': False,
+                'allowbankid': False,
                 'loa': 'low',
                 'invites': [
-                    {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
-                    {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
+                    {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en', 'ssn': ''},
+                    {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en', 'ssn': ''},
                 ],
             },
         }

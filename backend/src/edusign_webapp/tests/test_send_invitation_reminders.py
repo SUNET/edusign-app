@@ -64,9 +64,10 @@ def _test_send_reminders(client, monkeypatch, sample_doc_1):
                 'skipfinal': False,
                 'loa': 'low',
                 'ordered': False,
+                'allowbankid': False,
                 'invites': [
-                    {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
-                    {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
+                    {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en', 'ssn': ''},
+                    {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en', 'ssn': ''},
                 ],
             },
         }

@@ -64,9 +64,10 @@ def _test_edit_multi_sign_request(client, environ_base, monkeypatch, sample_doc_
                 'skipfinal': False,
                 'loa': 'low',
                 'ordered': False,
+                'allowbankid': False,
                 'invites': [
-                    {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
-                    {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
+                    {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en', 'ssn': ''},
+                    {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en', 'ssn': ''},
                 ],
             },
         }
@@ -91,9 +92,9 @@ def _test_edit_multi_sign_request(client, environ_base, monkeypatch, sample_doc_
                 'sendsigned': True,
                 'skipfinal': False,
                 'invites': [
-                    {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
-                    {'name': 'invite2', 'email': 'invite2@example.org', 'lang': 'en'},
-                    {'name': 'invite3', 'email': 'invite3@example.org', 'lang': 'en'},
+                    {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en', 'ssn': ''},
+                    {'name': 'invite2', 'email': 'invite2@example.org', 'lang': 'en', 'ssn': ''},
+                    {'name': 'invite3', 'email': 'invite3@example.org', 'lang': 'en', 'ssn': ''},
                 ],
             },
         }

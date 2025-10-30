@@ -63,10 +63,11 @@ def _test_get_partially_signed_doc(client, monkeypatch, sample_doc_1):
                 'sendsigned': True,
                 'skipfinal': False,
                 'ordered': False,
+                'allowbankid': False,
                 'loa': '',
                 'invites': [
-                    {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
-                    {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
+                    {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en', 'ssn': ''},
+                    {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en', 'ssn': ''},
                 ],
             },
         }

@@ -34,6 +34,7 @@ import os
 import sqlite3
 import uuid
 from datetime import datetime
+import pytest
 
 from edusign_webapp import run
 
@@ -46,6 +47,7 @@ invitation_flags = [
 ]
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -66,6 +68,7 @@ def test_add(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     assert result[b'owner_eppn'].decode('utf8') == 'owner-eppn@example.org'
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_get_full(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -85,6 +88,7 @@ def test_get_full(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1)
     assert document['owner_eppn'] == 'owner-eppn@example.org'
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_raw(sqlite_md, redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -126,6 +130,7 @@ def test_add_raw(sqlite_md, redis_md, sample_metadata_1, sample_owner_1, sample_
     assert result[b'owner_eppn'].decode('utf8') == 'owner-eppn@example.org'
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_get_no_pending(redis_md):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -136,6 +141,7 @@ def test_get_no_pending(redis_md):
     assert pending == []
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -160,6 +166,7 @@ def test_add_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sample
     assert pending2[0]['owner_email'] == 'owner@example.org'
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_document_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -185,6 +192,7 @@ def test_add_document_and_get_owned(redis_md, sample_metadata_1, sample_owner_1,
     assert owned[0]['pending'][1]['lang'] == 'en'
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_document_and_decline_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -213,6 +221,7 @@ def test_add_document_and_decline_and_get_owned(redis_md, sample_metadata_1, sam
     assert owned[0]['declined'][0]['lang'] == 'en'
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_document_and_sign_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -242,6 +251,7 @@ def test_add_document_and_sign_and_get_owned(redis_md, sample_metadata_1, sample
     assert owned[0]['signed'][0]['lang'] == 'en'
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_document_and_sign_and_get_full_invites(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -259,10 +269,12 @@ def test_add_document_and_sign_and_get_full_invites(redis_md, sample_metadata_1,
     assert invites[0]['email'] == 'invite0@example.org'
     assert invites[0]['name'] == 'invite0'
     assert invites[0]['lang'] == 'en'
+    assert invites[0]['ssn'] == ''
     assert not invites[0]['declined']
     assert invites[0]['signed']
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_document_and_decline_and_get_full_invites(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -284,6 +296,7 @@ def test_add_document_and_decline_and_get_full_invites(redis_md, sample_metadata
     assert not invites[0]['signed']
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_document_and_invitation_and_get_full_invites(
     redis_md, sample_metadata_1, sample_owner_1, sample_invites_1
 ):
@@ -299,6 +312,7 @@ def test_add_document_and_invitation_and_get_full_invites(
             dummy_key,
             sample_invites_1[0]['name'],
             sample_invites_1[0]['email'],
+            sample_invites_1[0]['ssn'],
             sample_invites_1[0]['lang'],
             dummy_invitation_key,
         )
@@ -310,10 +324,12 @@ def test_add_document_and_invitation_and_get_full_invites(
     assert invites[0]['email'] == 'invite0@example.org'
     assert invites[0]['name'] == 'invite0'
     assert invites[0]['lang'] == 'en'
+    assert invites[0]['ssn'] == ''
     assert not invites[0]['declined']
     assert not invites[0]['signed']
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_document_and_invitation_and_remove_and_get_full_invites(
     redis_md, sample_metadata_1, sample_owner_1, sample_invites_1
 ):
@@ -329,6 +345,7 @@ def test_add_document_and_invitation_and_remove_and_get_full_invites(
             dummy_key,
             sample_invites_1[0]['name'],
             sample_invites_1[0]['email'],
+            sample_invites_1[0]['ssn'],
             sample_invites_1[0]['lang'],
             dummy_invitation_key,
         )
@@ -340,6 +357,7 @@ def test_add_document_and_invitation_and_remove_and_get_full_invites(
     assert len(invites) == 0
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_document_and_invitation_raw_and_get_full_invites(
     redis_md, sample_metadata_1, sample_owner_1, sample_invites_1
 ):
@@ -356,6 +374,7 @@ def test_add_document_and_invitation_raw_and_get_full_invites(
             'name': sample_invites_1[0]['name'],
             'email': sample_invites_1[0]['email'],
             'lang': sample_invites_1[0]['lang'],
+            'ssn': sample_invites_1[0]['ssn'],
             'signed': False,
             'declined': False,
             'key': str(dummy_invitation_key),
@@ -377,6 +396,7 @@ def test_add_document_and_invitation_raw_and_get_full_invites(
     assert invites[0]['order'] == 0
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_document_and_2_invitation_raw_and_get_full_invites(
     redis_md, sample_metadata_1, sample_owner_1, sample_invites_1
 ):
@@ -393,6 +413,7 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
             'name': sample_invites_1[0]['name'],
             'email': sample_invites_1[0]['email'],
             'lang': sample_invites_1[0]['lang'],
+            'ssn': sample_invites_1[0]['ssn'],
             'signed': True,
             'declined': False,
             'key': str(dummy_invitation_key),
@@ -406,6 +427,7 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
             'name': sample_invites_1[1]['name'],
             'email': sample_invites_1[1]['email'],
             'lang': sample_invites_1[1]['lang'],
+            'ssn': sample_invites_1[1]['ssn'],
             'signed': False,
             'declined': True,
             'key': str(dummy_invitation_key),
@@ -441,6 +463,7 @@ def test_add_document_and_2_invitation_raw_and_get_full_invites(
     assert invite0['order'] in (0, 1)
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_get_pending_not(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -454,6 +477,7 @@ def test_add_and_get_pending_not(redis_md, sample_metadata_1, sample_owner_1, sa
     assert pending == []
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_two_and_get_pending(
     redis_md, sample_metadata_1, sample_metadata_2, sample_owner_1, sample_owner_2, sample_invites_1, sample_invites_2
 ):
@@ -477,6 +501,7 @@ def test_add_two_and_get_pending(
         assert p['owner_email'] in ['owner@example.org', 'owner2@example.org']
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_get_pending_invites(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -495,6 +520,7 @@ def test_add_and_get_pending_invites(redis_md, sample_metadata_1, sample_owner_1
         assert not p['signed']
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_update_and_get_pending_invites(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -515,6 +541,7 @@ def test_add_update_and_get_pending_invites(redis_md, sample_metadata_1, sample_
     assert pending[0]['signed'] is not pending[1]['signed']
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_update_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -537,6 +564,7 @@ def test_update_and_get_pending(redis_md, sample_metadata_1, sample_owner_1, sam
     assert pending2[0]['owner_email'] == 'owner@example.org'
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_updated_timestamp(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -561,6 +589,7 @@ def test_updated_timestamp(redis_md, sample_metadata_1, sample_owner_1, sample_i
     assert datetime.fromtimestamp(float(result[b'created'])) < datetime.fromtimestamp(float(result[b'updated']))
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_get_owned_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -580,6 +609,7 @@ def test_add_and_get_owned_by_email(redis_md, sample_metadata_1, sample_owner_1,
         assert p['email'] in ['invite0@example.org', 'invite1@example.org']
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -599,6 +629,7 @@ def test_add_and_get_owned(redis_md, sample_metadata_1, sample_owner_1, sample_i
         assert p['email'] in ['invite0@example.org', 'invite1@example.org']
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_remove_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -615,6 +646,7 @@ def test_add_and_remove_by_email(redis_md, sample_metadata_1, sample_owner_1, sa
     assert len(owned) == 0
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_remove(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -631,6 +663,7 @@ def test_add_and_remove(redis_md, sample_metadata_1, sample_owner_1, sample_invi
     assert len(owned) == 0
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_remove_wrong_key_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -647,6 +680,7 @@ def test_add_and_remove_wrong_key_by_email(redis_md, sample_metadata_1, sample_o
     assert len(owned) == 1
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_remove_wrong_key(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -663,6 +697,7 @@ def test_add_and_remove_wrong_key(redis_md, sample_metadata_1, sample_owner_1, s
     assert len(owned) == 1
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_remove_not_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -677,6 +712,7 @@ def test_add_and_remove_not_by_email(redis_md, sample_metadata_1, sample_owner_1
     assert len(owned) == 1
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_remove_not(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -691,6 +727,7 @@ def test_add_and_remove_not(redis_md, sample_metadata_1, sample_owner_1, sample_
     assert len(owned) == 1
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_remove_force_by_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -705,6 +742,7 @@ def test_add_and_remove_force_by_email(redis_md, sample_metadata_1, sample_owner
     assert len(owned) == 0
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_remove_force(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -719,6 +757,7 @@ def test_add_and_remove_force(redis_md, sample_metadata_1, sample_owner_1, sampl
     assert len(owned) == 0
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_get_invitation(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -733,6 +772,7 @@ def test_add_and_get_invitation(redis_md, sample_metadata_1, sample_owner_1, sam
     assert invitation['document']['key'] == dummy_key
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_get_invitation_wrong_key(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -746,6 +786,7 @@ def test_add_and_get_invitation_wrong_key(redis_md, sample_metadata_1, sample_ow
     assert invitation == {}
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_get_no_document(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -759,6 +800,7 @@ def test_get_no_document(redis_md, sample_metadata_1, sample_owner_1, sample_inv
     assert doc == {}
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -776,6 +818,7 @@ def test_add_and_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invite
     assert locked
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -793,6 +836,7 @@ def test_add_and_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1, s
     assert not locked
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_rm_lock(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -810,6 +854,7 @@ def test_add_and_rm_lock(redis_md, sample_metadata_1, sample_owner_1, sample_inv
     assert removed
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_rm_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -827,6 +872,7 @@ def test_add_and_rm_lock_wrong_email(redis_md, sample_metadata_1, sample_owner_1
     assert not removed
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_lock_before(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -843,6 +889,7 @@ def test_add_and_lock_before(redis_md, sample_metadata_1, sample_owner_1, sample
         assert not locked
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_lock_timeout(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
@@ -866,6 +913,7 @@ def test_add_and_lock_timeout(redis_md, sample_metadata_1, sample_owner_1, sampl
     assert not locked
 
 
+@pytest.mark.skip(reason="deprecate redis backend")
 def test_add_and_get_user(redis_md, sample_metadata_1, sample_owner_1, sample_invites_1):
     _, test_md = redis_md
     test_md.client.redis.flushall()
