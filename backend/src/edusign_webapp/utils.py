@@ -92,6 +92,7 @@ def add_attributes_to_session(check_whitelisted=True):
         session['eppn'] = eppn
         session['eduPersonPrincipalName'] = eppn
         session['saml-attr-schema'] = attr_schema
+        session['allowbankid'] = False
 
         current_app.logger.info(f'User {eppn} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
@@ -185,6 +186,61 @@ def add_attributes_to_session(check_whitelisted=True):
             if not is_whitelisted(current_app, eppn):
                 current_app.logger.info(f"User with eppn {eppn} not whitelisted")
                 raise NonWhitelisted('Unauthorized user')
+
+
+def add_attributes_to_session_bankid(invite_key):
+    """
+    If the Flask session does not contain information identifying the user,
+    this function will grab it from the invitation in the db.
+    :param invite_key: key identifying the invitation in the db.
+    :type invite_key: str
+    """
+    if 'eppn' not in session:
+        invite = current_app.extensions['doc_store'].get_invitation(invite_key)
+
+        session['eppn'] = "dummy@bankid"
+        session['eduPersonPrincipalName'] = "dummy@bankid"
+        attr_schema = "20"
+        session['saml-attr-schema'] = attr_schema
+        session['allowbankid'] = True
+
+        current_app.logger.info(f'User {invite["user"]["email"]} started a session')
+        current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
+
+        session['mail_aliases'] = [invite['user']['email']]
+        session['mail'] = invite['user']['email']
+        session['displayName'] = invite['user']['name']
+        session['ssn'] = invite['user']['ssn']
+
+        session['eduPersonAssurance'] = []
+
+        try:
+            session['idp'] = current_app.config['BANKID_IDP']
+        except KeyError:
+            current_app.logger.error('Missing config for BANKID_IDP')
+            raise
+
+        try:
+            session['authn_method'] = current_app.config['BANKID_AUTHN_METHOD']
+        except KeyError:
+            current_app.logger.error('Missing config for BANKID_AUTHN_METHOD')
+            raise
+
+        try:
+            session['authn_context'] = current_app.config['BANKID_AUTHN_CONTEXT_CLASS']
+        except KeyError:
+            current_app.logger.error('Missing config for BANKID_AUTHN_CONTEXT_CLASS')
+            raise
+
+        try:
+            session['organizationName'] = current_app.config['BANKID_ORG_NAME']
+        except KeyError:
+            current_app.logger.error('Missing config for BANKID_ORG_NAME')
+            raise
+
+        session['registrationAuthority'] = "dummy-bankid"
+
+        session['invited-unauthn'] = True
 
 
 def prepare_document(document: dict) -> dict:
@@ -370,6 +426,9 @@ def is_whitelisted(app, eppn: str) -> bool:
     if 'api_call' in session and session['api_call']:
         return True
 
+    if eppn.lower() == "dummy@bankid":
+        return True
+
     if eppn.lower() in app.config['USER_BLACKLIST']:
         return False
 
@@ -481,7 +540,7 @@ def sendmail_bulk(msgs_data: list):
         conn.close()
 
 
-def get_authn_context(docs: list) -> list:
+def get_authn_context() -> list:
     """
     Get the authentication context classes to send to the `create` API method.
 

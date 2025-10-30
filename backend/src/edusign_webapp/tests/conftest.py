@@ -375,16 +375,16 @@ def sample_doc_2():
 @pytest.fixture
 def sample_invites_1():
     yield [
-        {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
-        {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
+        {'name': 'invite0', 'email': 'invite0@example.org', 'ssn': '', 'lang': 'en'},
+        {'name': 'invite1', 'email': 'invite1@example.org', 'ssn': '', 'lang': 'en'},
     ]
 
 
 @pytest.fixture
 def sample_invites_2():
     yield [
-        {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
-        {'name': 'invite2', 'email': 'invite2@example.org', 'lang': 'en'},
+        {'name': 'invite0', 'email': 'invite0@example.org', 'ssn': '999999999', 'lang': 'en'},
+        {'name': 'invite2', 'email': 'invite2@example.org', 'ssn': '000000000', 'lang': 'en'},
     ]
 
 

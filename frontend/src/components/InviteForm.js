@@ -20,6 +20,7 @@ import {
   validateSendsigned,
   validateSkipfinal,
   validateOrdered,
+  validateAllowBankID,
   validateNewname,
 } from "components/validation";
 
@@ -75,10 +76,12 @@ const initialValues = (props) => {
       props.docOrdered === undefined || props.docOrdered === null
         ? props.ordered
         : props.docOrdered,
+    allowBankIDChoice: props.ui_defaults.allow_bankid,
     invitees: [
       {
         name: "",
         email: "",
+        ssn: "",
         lang: Cookies.get("lang") || "en",
         id: "id0",
       },
@@ -134,6 +137,47 @@ class InviteForm extends React.Component {
         </div>
       );
     };
+    const allowBankIDControl = (fprops) => {
+      return (
+        <div className="allowbankid-choice-holder">
+          <BForm.Group className="allowbankid-choice-group form-group">
+            <ESTooltip
+              helpId="allowbankid-choice-input"
+              inModal={true}
+              tooltip={
+                <FormattedMessage
+                  defaultMessage="Invited people will be allowed to sign the document with Swedish eID."
+                  key="allowbankid-choice-help"
+                />
+              }
+            >
+              <BForm.Label
+                className="allowbankid-choice-label"
+                htmlFor="allowbankid-choice-input"
+              >
+                <FormattedMessage
+                  defaultMessage="Allow Swedish eID signatures"
+                  key="allowbankid-choice-field"
+                />
+              </BForm.Label>
+            </ESTooltip>
+            <Field
+              name="allowBankIDChoice"
+              id="allowbankid-choice-input"
+              data-testid="allowbankid-choice-input"
+              className="allowbankid-choice"
+              validate={validateAllowBankID}
+              type="checkbox"
+              onChange={(e) => {
+                fprops.setFieldValue("allowBankIDChoice", e.target.checked);
+                this.props.handleAllowBankID(e.target.checked);
+                fprops.validateForm();
+              }}
+            />
+          </BForm.Group>
+        </div>
+      );
+    };
     const makecopyControl = (props) => {
       if (!props.isTemplate) {
         return <Field name="makecopyChoice" value={false} type="hidden" />;
@@ -178,22 +222,43 @@ class InviteForm extends React.Component {
                 </BForm.Label>
               </ESTooltip>
 
-              <Field
-                name="loa"
-                data-testid="loa-select-input"
-                id="loa-select-input"
-                as={BForm.Select}
-              >
+              {(this.props.allowbankid) && (
                 <>
-                  {this.props.loas.map((level, i) => {
-                    return (
-                      <option key={i} value={level.value} selected={level.value === fprops.values.loa}>
-                        {level.name}
-                      </option>
-                    );
-                  })}
-                </>
-              </Field>
+                  <span>
+                    <FormattedMessage
+                      defaultMessage="None"
+                      key="loa-name-none"
+                    />
+                  </span>
+                  <Field
+                    name="loa"
+                    data-testid="loa-select-input"
+                    id="loa-select-input"
+                    type="hidden"
+                    value="none"
+                  />
+                </>)
+              }
+
+              {(!this.props.allowbankid) && (
+                <Field
+                  name="loa"
+                  data-testid="loa-select-input"
+                  id="loa-select-input"
+                  as={BForm.Select}
+                  value={fprops.values.loa}
+                >
+                  <>
+                    {this.props.loas.map((level, i) => {
+                      return (
+                        <option key={i} value={level.value}>
+                          {level.name}
+                        </option>
+                      );
+                    })}
+                  </>
+                </Field>)
+              }
             </BForm.Group>
           </div>
           <div className="loa-select-holder"></div>
@@ -297,6 +362,7 @@ class InviteForm extends React.Component {
                   {sendsignedControl}
                   {skipFinalControl}
                   {orderedControl(fprops)}
+                  {allowBankIDControl(fprops)}
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
                   {loaControl(fprops)}
@@ -365,6 +431,7 @@ InviteForm.propTypes = {
   docId: PropTypes.number,
   docName: PropTypes.string,
   docOrdered: PropTypes.bool,
+  docAllowbankid: PropTypes.bool,
   isTemplate: PropTypes.bool,
   handleCloseResetting: PropTypes.func,
   handleSubmit: PropTypes.func,

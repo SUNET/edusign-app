@@ -39,6 +39,7 @@ from edusign_webapp.validators import (
     validate_nonempty,
     validate_sign_requirement,
     validate_uuid4,
+    validate_swedish_ssn,
 )
 
 
@@ -55,6 +56,7 @@ class _DocumentSchema(Schema):
 class Invitee(Schema):
     email = fields.Email(required=True, validate=[validate_nonempty])
     name = fields.String(required=True, validate=[validate_nonempty])
+    ssn = fields.String(required=False, validate=[validate_swedish_ssn])
     lang = fields.String(required=True, validate=[validate_nonempty, validate_language])
 
 
@@ -76,6 +78,7 @@ class InvitationsSchema(Schema):
         created = fields.String(dump_default="")
         message = fields.String(dump_default="")
         ordered = fields.Boolean()
+        allowbankid = fields.Boolean()
         pprinted = fields.String(required=True, validate=[validate_nonempty])
 
     class OwnedDocument(_DocumentSchema):
@@ -88,6 +91,7 @@ class InvitationsSchema(Schema):
         loa = fields.String(dump_default="")
         created = fields.String(dump_default="")
         ordered = fields.Boolean()
+        allowbankid = fields.Boolean()
         sendsigned = fields.Boolean()
         skipfinal = fields.Boolean()
         pprinted = fields.String(required=True, validate=[validate_nonempty])
@@ -101,6 +105,7 @@ class InvitationsSchema(Schema):
         prev_signatures = fields.String(dump_default="")
         loa = fields.String(dump_default="")
         created = fields.String(dump_default="")
+        allowbankid = fields.Boolean()
         blob = fields.Raw(required=True, validate=[validate_nonempty])
         signed_content = fields.Raw(required=True, validate=[validate_nonempty])
         ordered = fields.Boolean()
@@ -131,6 +136,7 @@ class ConfigSchema(InvitationsSchema):
         send_signed = fields.Boolean(dump_default=True)
         skip_final = fields.Boolean(dump_default=True)
         ordered_invitations = fields.Boolean(dump_default=False)
+        allow_bankid = fields.Boolean(dump_default=False)
 
     signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)
@@ -323,6 +329,7 @@ class MultiSignSchema(Schema):
     owner = fields.Email(required=True)
     loa = fields.String()
     ordered = fields.Boolean()
+    allowbankid = fields.Boolean()
 
 
 class EditMultiSignSchema(Schema):

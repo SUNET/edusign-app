@@ -13,9 +13,16 @@ import { connect } from "react-redux";
 import Header from "components/Header";
 
 const mapStateToProps = (state) => {
+  let allowbankid;
+  if (state.inviteform.allowbankid === null) {
+    allowbankid = state.main.ui_defaults.allow_bankid;
+  } else {
+    allowbankid = state.inviteform.allowbankid;
+  }
   const common = {
     size: state.main.size,
     company_link: state.main.company_link,
+    allowbankid: allowbankid,
   };
   if (state.main.signer_attributes === undefined) {
     return {

@@ -15,31 +15,45 @@ import "styles/Header.scss";
 class Header extends Component {
   render() {
     let name = "";
+    const greeting = this.props.allowbankid
+      ? (
+          <span id="signing-with-span">
+            <FormattedMessage
+              defaultMessage="Signed in as {name}"
+              key="signing-with"
+              values={{ ...this.props.signer_attributes }}
+            />
+          </span>
+        )
+      : (
+          <span id="signing-with-span">
+            { this.props.signer_attributes.name }
+          </span>
+        );
+    const logoutButton = this.props.allowbankid
+      ? (
+          <span id="logout-button-container">
+            <Button
+              variant="outline-dark"
+              onClick={this.props.handleLogout}
+              data-testid="button-logout"
+            >
+              <FormattedMessage
+                defaultMessage="Logout"
+                key="logout-button"
+              />
+            </Button>
+          </span>
+        )
+      : "";
     if (!this.props.loading) {
       name = (
         <div id="name-and-clear-in-header">
           {(this.props.signer_attributes !== undefined && (
             <>
               <span id="name-in-header">
-                <span id="signing-with-span">
-                  <FormattedMessage
-                    defaultMessage="Signed in as {name}"
-                    key="signing-with"
-                    values={{ ...this.props.signer_attributes }}
-                  />
-                </span>
-                <span id="logout-button-container">
-                  <Button
-                    variant="outline-dark"
-                    onClick={this.props.handleLogout}
-                    data-testid="button-logout"
-                  >
-                    <FormattedMessage
-                      defaultMessage="Logout"
-                      key="logout-button"
-                    />
-                  </Button>
-                </span>
+                {greeting}
+                {logoutButton}
               </span>
             </>
           )) || (

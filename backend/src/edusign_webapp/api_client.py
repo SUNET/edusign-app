@@ -220,8 +220,14 @@ class APIClient(object):
         if session.get('organizationName', None) is not None:
             idp = session['organizationName']
 
-        attrs = [{'name': attr} for attr in self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].keys()]
-        current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
+        allowbankid = session['allowbankid']
+
+        if allowbankid:
+            attrs = [{'name': current_app.config['BANKID_SSN_ATTR']}]
+            current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
+        else:
+            attrs = [{'name': attr} for attr in self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].keys()]
+            current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
 
         doc_data = document['blob']
         if ',' in doc_data:
@@ -252,6 +258,7 @@ class APIClient(object):
         return response
 
     def _get_sign_request_data(self, documents):
+        allowbankid = session['allowbankid']
         idp = session['idp']
         attr_schema = session['saml-attr-schema']
         authn_context = get_authn_context(documents)
@@ -260,6 +267,7 @@ class APIClient(object):
         attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
         attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]
         used_attr_names = tuple(friendly_name for _, friendly_name in attr_names)
+
         if 'api_call' in session and session['api_call']:
             more_attr_names = []
             more_attrs = []
@@ -267,6 +275,15 @@ class APIClient(object):
                 more_attr_names.append(session['authn_attr_name'])
                 more_attrs = [{'name': session['authn_attr_name'], 'value': session['authn_attr_value']}]
                 used_attr_names += tuple([session['authn_attr_name']])
+            attrs.extend(more_attrs)
+
+        elif allowbankid:
+            if session['ssn']:
+                attrs = [{'name': current_app.config['BANKID_SSN_ATTR'], 'value': session['ssn']}]
+                used_attr_names = [current_app.config['BANKID_SSN_ATTR']]
+            else:
+                attrs = []
+                used_attr_names = []
         else:
             more_attr_names = [
                 attr_names
@@ -278,7 +295,8 @@ class APIClient(object):
             ]
             more_used_attr_names = tuple(friendly_name for _, friendly_name in more_attr_names)
             used_attr_names += more_used_attr_names
-        attrs.extend(more_attrs)
+            attrs.extend(more_attrs)
+
         # For none assurance, we don't care about the value of eduPersonAssurance
         if assurance != 'none':
             assurances = self.config['AVAILABLE_LOAS'].get(

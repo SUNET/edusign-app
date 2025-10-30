@@ -140,6 +140,12 @@ USER_WHITELIST = [eppn.lower().strip() for eppn in RAW_USER_WHITELIST.split(',')
 
 POLLING = os.environ.get('POLLING', default='always')  # always|inviter|never
 
+BANKID_IDP = os.environ.get('BANKID_IDP', default='https://bankid.com/shibboleth')  # TODO set correct default
+BANKID_ORG_NAME = os.environ.get('BANKID_ORG_NAME', default='BankID')  # TODO set correct default
+BANKID_AUTHN_METHOD = os.environ.get('BANKID_AUTHN_METHOD', default='urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport')  # TODO set correct default
+BANKID_AUTHN_CONTEXT_CLASS = os.environ.get('BANKID_AUTHN_CONTEXT_CLASS', default='urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport')  # TODO set correct default
+BANKID_SSN_ATTR = os.environ.get('BANKID_SSN_ATTR', default='bankid ssn attr name')  # TODO set correct default
+
 STORAGE_CLASS_PATH = os.environ.get('STORAGE_CLASS_PATH', default='edusign_webapp.document.storage.local.LocalStorage')
 LOCAL_STORAGE_BASE_DIR = os.environ.get('LOCAL_STORAGE_BASE_DIR', default='/tmp')
 
@@ -234,6 +240,10 @@ UI_SKIP_FINAL = get_boolean(RAW_UI_SKIP_FINAL)
 RAW_UI_ORDERED_INVITATIONS = os.environ.get('UI_ORDERED_INVITATIONS', default=False)
 
 UI_ORDERED_INVITATIONS = get_boolean(RAW_UI_ORDERED_INVITATIONS)
+
+RAW_UI_ALLOW_BANKID = os.environ.get('UI_ALLOW_BANKID', default=False)
+
+UI_ALLOW_BANKID = get_boolean(RAW_UI_ALLOW_BANKID)
 
 CUSTOM_FORMS_DEFAULTS_FILE = os.environ.get('CUSTOM_FORMS_DEFAULTS_FILE', default="/etc/edusign-forms.yaml")
 

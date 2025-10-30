@@ -38,6 +38,7 @@ import {
 import { addNotification } from "slices/Notifications";
 import { loadDocuments, addDocumentToDb, addDocument, prepareDocument, setState } from "slices/Documents";
 import { setPolling } from "slices/Poll";
+import { setAllowBankID } from "slices/InviteForm";
 import { b64toBlob, nameForDownload } from "components/utils";
 
 /**
@@ -50,13 +51,19 @@ export const fetchConfig = createAsyncThunk(
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     let intl;
-    if (args === undefined) {
+    if (args === undefined || args.intl === undefined) {
       intl = createIntl(state.intl);
     } else {
       intl = args.intl;
     }
+    let configPath;
+    if (args === undefined || args.configPath === undefined) {
+      configPath = '/sign/config';
+    } else {
+      configPath = args.configPath;
+    }
     try {
-      const response = await esFetch("/sign/config", getRequest);
+      const response = await esFetch(configPath, getRequest);
       const configData = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, configData);
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
@@ -75,6 +82,9 @@ export const fetchConfig = createAsyncThunk(
         );
         thunkAPI.dispatch(setPolling(configData.payload.poll));
         delete configData.payload.poll;
+
+        const allowbankid = configData.payload.ui_defaults.allow_bankid;
+        thunkAPI.dispatch(setAllowBankID(allowbankid));
 
         for (const doc of configData.payload.skipped) {
           let prefix = "data:application/xml;base64,";

@@ -42,6 +42,7 @@ export const sendInvites = createAsyncThunk(
       name: invitee.name,
       email: invitee.email,
       lang: invitee.lang,
+      ssn: invitee.ssn,
     }));
     const isTemplate = args.values.isTemplate;
     const ordered =
@@ -55,6 +56,10 @@ export const sendInvites = createAsyncThunk(
     const skipfinal =
       args.values.skipfinalChoice !== undefined
         ? args.values.skipfinalChoice
+        : false;
+    const allowbankid =
+      args.values.allowBankIDChoice !== undefined
+        ? args.values.allowBankIDChoice
         : false;
 
     let document;
@@ -114,6 +119,7 @@ export const sendInvites = createAsyncThunk(
       text: args.values.invitationText,
       sendsigned: sendsigned,
       skipfinal: skipfinal,
+      allowbankid: allowbankid,
       loa: loa,
       ordered: ordered,
       document: {
