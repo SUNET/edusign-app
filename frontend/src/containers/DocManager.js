@@ -21,6 +21,7 @@ import {
   setState,
   toggleDocSelection,
   startSigning,
+  startSigningDoc,
   removeDocument,
   removeAllDocuments,
   downloadSigned,
@@ -144,6 +145,11 @@ const mapDispatchToProps = (dispatch, props) => {
       return async () => {
         await dispatch(downloadSigned(args.docName));
         dispatch(unsetSpinning());
+      };
+    },
+    handleSendToSign: function(doc) {
+      return async () => {
+        await dispatch(startSigningDoc({ doc: doc, intl: this.props.intl }));
       };
     },
     openInviteForm: function (doc) {

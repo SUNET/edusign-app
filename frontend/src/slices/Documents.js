@@ -746,6 +746,71 @@ export const startSigning = createAsyncThunk(
 
 /**
  * @public
+ * @function startSigningDoc
+ * @desc Redux async thunk to tell the backend to create a sign request
+ *       for one specific document.
+ *
+ *  This function is called when the user clicks on the "sign" button.
+ *  Here we mark the selected document as being signed, and, in case it is
+ *  an invitation, we call the `restartSigningDocuments`
+ *  function; otherwise, we call the `startSigningDocuments` function.
+ *
+ *  restartSigningDocuments will try 1st to prepare the document; in case we are signing
+ *  an invitation, this is necessary, since we have never prepared it for signing.
+ *
+ *  startSigningDocuments will assume optimistically that the document is already prepared,
+ *  and only when it receives information to the contrary (which would indicate that the
+ *  preparation has expired), will it resort to calling restartSigningDocuments.
+ */
+export const startSigningDoc = createAsyncThunk(
+  "documents/startSigningDoc",
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    let invited = false;
+    let found = false;
+    const doc = args.doc;
+
+    const inDocs = state.documents.filter(d => d.key === doc.key);
+    if (inDocs.length > 0) {
+      thunkAPI.dispatch(documentsSlice.actions.startSigningDocument(doc.key));
+      found = true;
+    } else {
+      const inOwned = state.main.owned_multisign.filter(d => d.key === doc.key);
+      if (inOwned.length > 0) {
+        thunkAPI.dispatch(documentsSlice.actions.startSigningOwned(doc.name));
+        found = true;
+        invited = true;
+      } else {
+        const inInvited = state.main.pending_multisign.filter(d => d.key === doc.key);
+        if (inInvited.length > 0) {
+          thunkAPI.dispatch(documentsSlice.actions.startSigningInvited(doc.key));
+          found = true;
+          invited = true;
+        }
+      }
+    }
+    if (found) {
+      if (invited) {
+        thunkAPI.dispatch(restartSigningDocuments(args));
+      } else {
+        thunkAPI.dispatch(startSigningDocuments(args));
+      }
+    } else {
+      thunkAPI.dispatch(
+        addNotification({
+          level: "danger",
+          message: args.intl.formatMessage({
+            defaultMessage: "There was a problem signing the document",
+            id: "problem-signing-doc",
+          }),
+        }),
+      );
+    }
+  },
+);
+
+/**
+ * @public
  * @function startSigningDocuments
  * @desc Redux async thunk to tell the backend to create a sign request
  *

@@ -197,6 +197,37 @@ export const multiSignButton = (props, doc) => {
   );
 };
 
+export const signButton = (props, doc) => {
+  return (
+    <>
+      <div className="button-sign-flex-item">
+        <ESTooltip
+          helpId={"button-sign-" + doc.name}
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Click here to sign the document"
+              key="sign-button-tootip"
+            />
+          }
+        >
+          <Button
+            variant="outline-success"
+            id={"button-sign-" + doc.name}
+            size="sm"
+            disabling={true}
+            onClick={props.handleSendToSign(doc)}
+          >
+            <FormattedMessage
+              defaultMessage="Sign"
+              key="sign-button"
+            />
+          </Button>
+        </ESTooltip>
+      </div>
+    </>
+  );
+};
+
 export const removeConfirmButton = (props, doc, id) => {
   if (id === undefined) {
     id = "confirm-remove-" + doc.name;

@@ -207,6 +207,7 @@ class DocumentOwned extends Component {
                             {menu.editInvitationMenuItem(this.props, doc)}
                             {menu.previewMenuItem(this.props, doc)}
                           </ESDropdown>
+                          {widgets.signButton(this.props, doc)}
                           {widgets.skipSignatureButton(this.props, doc)}
                           {widgets.removeConfirmButton(this.props, doc)}
                         </>
@@ -280,6 +281,7 @@ class DocumentOwned extends Component {
                       {menu.editInvitationMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.signButton(this.props, doc)}
                     {widgets.skipSignatureButton(this.props, doc)}
                     {widgets.removeConfirmButton(this.props, doc)}
                   </div>

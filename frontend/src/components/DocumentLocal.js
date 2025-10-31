@@ -268,6 +268,7 @@ class DocumentLocal extends React.Component {
                           menu.downloadPersonalDraftMenuItem(this.props, doc)}
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
+                      {widgets.signButton(this.props, doc)}
                       {widgets.multiSignButton(this.props, doc)}
                       {widgets.removeConfirmButton(
                         this.props,
@@ -413,6 +414,7 @@ class DocumentLocal extends React.Component {
                         menu.downloadPersonalDraftMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {widgets.signButton(this.props, doc)}
                     {widgets.multiSignButton(this.props, doc)}
                     {widgets.removeConfirmButton(
                       this.props,

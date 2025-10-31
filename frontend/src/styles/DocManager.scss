@@ -73,6 +73,7 @@
       .button-decline-flex-item,
       .button-skip-flex-item,
       .button-edit-invitations-flex-item,
+      .button-sign-flex-item,
       .button-multisign-flex-item {
         flex: none;
         button {
@@ -96,6 +97,7 @@
 .button-decline-flex-item,
 .button-skip-flex-item,
 .button-edit-invitations-flex-item,
+.button-sign-flex-item,
 .button-multisign-flex-item {
   margin-right: 0.5rem;
 }
@@ -132,6 +134,7 @@
     .button-decline-flex-item,
     .button-skip-flex-item,
     .button-edit-invitations-flex-item,
+    .button-sign-flex-item,
     .button-multisign-flex-item {
       flex: none;
       button {
