@@ -770,9 +770,10 @@ export const startSigningDoc = createAsyncThunk(
     let found = false;
     const doc = args.doc;
 
-    const inDocs = state.documents.filter(d => d.key === doc.key);
+    const inDocs = state.documents.documents.filter(d => d.key === doc.key);
     if (inDocs.length > 0) {
       thunkAPI.dispatch(documentsSlice.actions.startSigningDocument(doc.key));
+      await thunkAPI.dispatch(saveDocument({ docKey: doc.key }));
       found = true;
     } else {
       const inOwned = state.main.owned_multisign.filter(d => d.key === doc.key);

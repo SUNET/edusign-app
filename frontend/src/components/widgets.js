@@ -215,7 +215,7 @@ export const signButton = (props, doc) => {
             id={"button-sign-" + doc.name}
             size="sm"
             disabling={true}
-            onClick={props.handleSendToSign(doc)}
+            onClick={props.handleSendToSign(props, doc)}
           >
             <FormattedMessage
               defaultMessage="Sign"

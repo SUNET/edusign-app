@@ -147,9 +147,9 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
       };
     },
-    handleSendToSign: function(doc) {
+    handleSendToSign: function(props, doc) {
       return async () => {
-        await dispatch(startSigningDoc({ doc: doc, intl: this.props.intl }));
+        await dispatch(startSigningDoc({ doc: doc, intl: props.intl }));
       };
     },
     openInviteForm: function (doc) {

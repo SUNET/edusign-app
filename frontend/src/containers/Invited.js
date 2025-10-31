@@ -17,6 +17,7 @@ import {
   downloadInvitedDraft,
   startDelegating,
 } from "slices/Main";
+import { startSigningDoc } from "slices/Documents";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
 import { setActiveId, unsetActiveId } from "slices/Overlay";
@@ -44,6 +45,11 @@ const mapDispatchToProps = (dispatch, props) => {
         window.document.location.href = getLocation(
           `/sign/invitation/${docRef}`,
         );
+      };
+    },
+    handleSendToSign: function(props, doc) {
+      return async () => {
+        await dispatch(startSigningDoc({ doc: doc, intl: props.intl }));
       };
     },
     handlePreview: (docKey) => {
