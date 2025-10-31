@@ -778,13 +778,13 @@ export const startSigningDoc = createAsyncThunk(
     } else {
       const inOwned = state.main.owned_multisign.filter(d => d.key === doc.key);
       if (inOwned.length > 0) {
-        thunkAPI.dispatch(documentsSlice.actions.startSigningOwned(doc.name));
+        thunkAPI.dispatch(startSigningOwned(doc.name));
         found = true;
         invited = true;
       } else {
         const inInvited = state.main.pending_multisign.filter(d => d.key === doc.key);
         if (inInvited.length > 0) {
-          thunkAPI.dispatch(documentsSlice.actions.startSigningInvited(doc.key));
+          thunkAPI.dispatch(startSigningInvited(doc.key));
           found = true;
           invited = true;
         }
