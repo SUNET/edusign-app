@@ -15,7 +15,7 @@ import {
   selectOwnedDoc,
 } from "slices/Main";
 import { disablePolling, enablePolling, poll } from "slices/Poll";
-import { skipOwnedSignature } from "slices/Documents";
+import { skipOwnedSignature, startSigningDoc } from "slices/Documents";
 import { unsetSpinning } from "slices/Button";
 import { setActiveId, unsetActiveId } from "slices/Overlay";
 
@@ -31,6 +31,11 @@ const mapDispatchToProps = (dispatch, props) => {
     handleDocSelection: function (docName, docKey) {
       return () => {
         dispatch(selectOwnedDoc(docKey));
+      };
+    },
+    handleSendToSign: function(props, doc) {
+      return async () => {
+        await dispatch(startSigningDoc({ doc: doc, intl: props.intl }));
       };
     },
     handleRemove: function (doc, props) {
