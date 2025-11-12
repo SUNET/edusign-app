@@ -1,9 +1,4 @@
 
-In version 1.5.0:
------------------
-
-* API for nextcloud app
-
 In version 1.4.0:
 -----------------
 
@@ -17,6 +12,9 @@ In version 1.4.0:
 * Inviter can require LoA levels
 * customization of defaults in forms
 * A few bugfixes
+* API for nextcloud app
+* Add button to sign individual documents
+* Integration with BankID (hidden for now)
 
 In version 1.3.0:
 -----------------
