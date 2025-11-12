@@ -556,6 +556,7 @@ def _get_ui_config(payload: dict) -> dict:
     payload['edit_form_timeout'] = current_app.config['DOC_LOCK_TIMEOUT'].seconds * 1000
     payload['environment'] = current_app.config['ENVIRONMENT']
     payload['loading'] = False
+    payload['allow_bankid_signatures'] = current_app.config['ALLOW_BANKID']
 
     return {
         'payload': payload,

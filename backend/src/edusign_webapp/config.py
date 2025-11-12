@@ -140,6 +140,10 @@ USER_WHITELIST = [eppn.lower().strip() for eppn in RAW_USER_WHITELIST.split(',')
 
 POLLING = os.environ.get('POLLING', default='always')  # always|inviter|never
 
+# Whether users are allowed to invite to sign with BankID
+RAW_ALLOW_BANKID = os.environ.get('ALLOW_BANKID', default='false')
+ALLOW_BANKID = get_boolean(RAW_ALLOW_BANKID)
+
 BANKID_IDP = os.environ.get('BANKID_IDP', default='https://bankid.com/shibboleth')  # TODO set correct default
 BANKID_ORG_NAME = os.environ.get('BANKID_ORG_NAME', default='BankID')  # TODO set correct default
 BANKID_AUTHN_METHOD = os.environ.get('BANKID_AUTHN_METHOD', default='urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport')  # TODO set correct default
@@ -241,8 +245,8 @@ RAW_UI_ORDERED_INVITATIONS = os.environ.get('UI_ORDERED_INVITATIONS', default=Fa
 
 UI_ORDERED_INVITATIONS = get_boolean(RAW_UI_ORDERED_INVITATIONS)
 
+# If signing with BankID is enabled, whether to start the form with the option selected or unselected
 RAW_UI_ALLOW_BANKID = os.environ.get('UI_ALLOW_BANKID', default=False)
-
 UI_ALLOW_BANKID = get_boolean(RAW_UI_ALLOW_BANKID)
 
 CUSTOM_FORMS_DEFAULTS_FILE = os.environ.get('CUSTOM_FORMS_DEFAULTS_FILE', default="/etc/edusign-forms.yaml")

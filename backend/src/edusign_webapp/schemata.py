@@ -149,6 +149,7 @@ class ConfigSchema(InvitationsSchema):
     ui_defaults = fields.Nested(UIDefaults)
     edit_form_timeout = fields.String(required=True)
     environment = fields.String(required=True)
+    allow_bankid_signatures = fields.Boolean(dump_default=False)
 
 
 class EmailsSchema(Schema):

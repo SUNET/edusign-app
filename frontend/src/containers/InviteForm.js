@@ -30,11 +30,16 @@ const mapStateToProps = (state, props) => {
   } else {
     ordered = state.inviteform.ordered;
   }
+  const show_allowbankid = state.main.allow_bankid_signatures;
   let allowbankid;
-  if (state.inviteform.allowbankid === null) {
-    allowbankid = state.main.ui_defaults.allow_bankid;
+  if (show_allowbankid) {
+    if (state.inviteform.allowbankid === null) {
+      allowbankid = state.main.ui_defaults.allow_bankid;
+    } else {
+      allowbankid = state.inviteform.allowbankid;
+    }
   } else {
-    allowbankid = state.inviteform.allowbankid;
+    allowbankid = false;
   }
   return {
     size: state.main.size,
@@ -51,6 +56,7 @@ const mapStateToProps = (state, props) => {
     ui_defaults: state.main.ui_defaults,
     ordered: ordered,
     allowbankid: allowbankid,
+    show_allowbankid: show_allowbankid,
   };
 };
 

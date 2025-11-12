@@ -137,46 +137,50 @@ class InviteForm extends React.Component {
         </div>
       );
     };
-    const allowBankIDControl = (fprops) => {
-      return (
-        <div className="allowbankid-choice-holder">
-          <BForm.Group className="allowbankid-choice-group form-group">
-            <ESTooltip
-              helpId="allowbankid-choice-input"
-              inModal={true}
-              tooltip={
-                <FormattedMessage
-                  defaultMessage="Invited people will be allowed to sign the document with Swedish eID."
-                  key="allowbankid-choice-help"
-                />
-              }
-            >
-              <BForm.Label
-                className="allowbankid-choice-label"
-                htmlFor="allowbankid-choice-input"
+    const allowBankIDControl = (props, fprops) => {
+      if (props.show_allowbankid) {
+        return (
+          <div className="allowbankid-choice-holder">
+            <BForm.Group className="allowbankid-choice-group form-group">
+              <ESTooltip
+                helpId="allowbankid-choice-input"
+                inModal={true}
+                tooltip={
+                  <FormattedMessage
+                    defaultMessage="Invited people will be allowed to sign the document with Swedish eID."
+                    key="allowbankid-choice-help"
+                  />
+                }
               >
-                <FormattedMessage
-                  defaultMessage="Allow Swedish eID signatures"
-                  key="allowbankid-choice-field"
-                />
-              </BForm.Label>
-            </ESTooltip>
-            <Field
-              name="allowBankIDChoice"
-              id="allowbankid-choice-input"
-              data-testid="allowbankid-choice-input"
-              className="allowbankid-choice"
-              validate={validateAllowBankID}
-              type="checkbox"
-              onChange={(e) => {
-                fprops.setFieldValue("allowBankIDChoice", e.target.checked);
-                this.props.handleAllowBankID(e.target.checked);
-                fprops.validateForm();
-              }}
-            />
-          </BForm.Group>
-        </div>
-      );
+                <BForm.Label
+                  className="allowbankid-choice-label"
+                  htmlFor="allowbankid-choice-input"
+                >
+                  <FormattedMessage
+                    defaultMessage="Allow Swedish eID signatures"
+                    key="allowbankid-choice-field"
+                  />
+                </BForm.Label>
+              </ESTooltip>
+              <Field
+                name="allowBankIDChoice"
+                id="allowbankid-choice-input"
+                data-testid="allowbankid-choice-input"
+                className="allowbankid-choice"
+                validate={validateAllowBankID}
+                type="checkbox"
+                onChange={(e) => {
+                  fprops.setFieldValue("allowBankIDChoice", e.target.checked);
+                  this.props.handleAllowBankID(e.target.checked);
+                  fprops.validateForm();
+                }}
+              />
+            </BForm.Group>
+          </div>
+        );
+      } else {
+        return <Field name="allowBankIDChoice" value={false} type="hidden" />;
+      }
     };
     const makecopyControl = (props) => {
       if (!props.isTemplate) {
@@ -362,7 +366,7 @@ class InviteForm extends React.Component {
                   {sendsignedControl}
                   {skipFinalControl}
                   {orderedControl(fprops)}
-                  {allowBankIDControl(fprops)}
+                  {allowBankIDControl(this.props, fprops)}
                   {makecopyControl(this.props)}
                   {newNameControl(this.props, fprops)}
                   {loaControl(fprops)}
