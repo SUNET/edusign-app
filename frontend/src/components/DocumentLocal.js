@@ -261,6 +261,7 @@ class DocumentLocal extends React.Component {
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
+                      {widgets.signButton(this.props, doc)}
                       <ESDropdown doc={doc}>
                         {doc.type === "application/pdf" &&
                           menu.createTemplateMenuItem(this.props, doc)}
@@ -268,7 +269,6 @@ class DocumentLocal extends React.Component {
                           menu.downloadPersonalDraftMenuItem(this.props, doc)}
                         {menu.previewMenuItem(this.props, doc)}
                       </ESDropdown>
-                      {widgets.signButton(this.props, doc)}
                       {widgets.multiSignButton(this.props, doc)}
                       {widgets.removeConfirmButton(
                         this.props,
@@ -407,6 +407,7 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
+                    {widgets.signButton(this.props, doc)}
                     <ESDropdown doc={doc}>
                       {doc.type === "application/pdf" &&
                         menu.createTemplateMenuItem(this.props, doc)}
@@ -414,7 +415,6 @@ class DocumentLocal extends React.Component {
                         menu.downloadPersonalDraftMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
-                    {widgets.signButton(this.props, doc)}
                     {widgets.multiSignButton(this.props, doc)}
                     {widgets.removeConfirmButton(
                       this.props,
