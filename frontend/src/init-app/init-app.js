@@ -13,7 +13,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import Cookies from "js-cookie";
 import rootReducer from "init-app/store";
-import { fetchConfig, resizeWindow, enableContextualHelp } from "slices/Main";
+import { fetchConfig, resizeWindow, enableContextualHelp, setVisibilityTimer } from "slices/Main";
+import { enablePolling, disablePolling } from "slices/Poll";
 
 /*
  * internationalization.
@@ -52,6 +53,24 @@ export const appIsRendered = async function () {
     configPath = '/anon-bankid/config';
   }
   await store.dispatch(fetchConfig({configPath}));
+
+  window.document.addEventListener("visibilitychange", () => {
+    if (window.document.hidden) {
+      // stop polling
+      store.dispatch(disablePolling());
+    } else {
+      // start polling, trigger a reload in case the session is stale
+      // keep the time of the reload to avoid excessive reloads
+      store.dispatch(enablePolling());
+      const state = store.getState();
+      const now = Date.now();
+      const before = state.main.visibility_timer;
+      if (now - before > 600000) {
+        window.location.reload();
+      }
+      store.dispatch(setVisibilityTimer(now));
+    }
+  });
 };
 
 /**

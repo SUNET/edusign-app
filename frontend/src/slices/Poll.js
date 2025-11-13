@@ -185,6 +185,7 @@ const pollSlice = createSlice({
       clearTimeout(state.timerId);
       state.timerId = null;
       state.disablePoll = true;
+      state.poll = false;
     },
     /**
      * @public

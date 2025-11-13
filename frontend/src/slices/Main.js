@@ -435,6 +435,7 @@ const mainSlice = createSlice({
       ordered_invitations: false,
     },
     environment: "production",
+    visibility_timer: 0,
   },
   reducers: {
     /**
@@ -864,6 +865,18 @@ const mainSlice = createSlice({
         } else return doc;
       });
     },
+    /**
+     * @public
+     * @function setVisibilityTimer
+     * @desc Redux action to set the visibility timer
+     *       to avoid reloading the page too often
+     */
+    setVisibilityTimer(state, action) {
+      return {
+        ...state,
+        visibility_timer: action.payload,
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -952,6 +965,7 @@ export const {
   setOwnedDocs,
   startDelegating,
   stopDelegating,
+  setVisibilityTimer,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;
