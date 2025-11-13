@@ -14,7 +14,7 @@ import { Provider, updateIntl } from "react-intl-redux";
 import Cookies from "js-cookie";
 import rootReducer from "init-app/store";
 import { fetchConfig, resizeWindow, enableContextualHelp, setVisibilityTimer } from "slices/Main";
-import { poll, enablePolling, disablePolling } from "slices/Poll";
+import { enablePolling, disablePolling } from "slices/Poll";
 
 /*
  * internationalization.
@@ -72,7 +72,6 @@ export const appIsRendered = async function () {
       }
       store.dispatch(setVisibilityTimer(now));
       store.dispatch(enablePolling());
-      store.dispatch(poll());
     }
   });
 };
