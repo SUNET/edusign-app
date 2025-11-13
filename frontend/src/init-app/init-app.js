@@ -14,7 +14,7 @@ import { Provider, updateIntl } from "react-intl-redux";
 import Cookies from "js-cookie";
 import rootReducer from "init-app/store";
 import { fetchConfig, resizeWindow, enableContextualHelp, setVisibilityTimer } from "slices/Main";
-import { enablePolling, disablePolling } from "slices/Poll";
+import { poll, enablePolling, disablePolling } from "slices/Poll";
 
 /*
  * internationalization.
@@ -61,17 +61,21 @@ export const appIsRendered = async function () {
     if (window.document.hidden) {
       // stop polling
       store.dispatch(disablePolling());
+      console.log('Polling disabled');
     } else {
       // start polling, trigger a reload in case the session is stale
       // keep the time of the reload to avoid excessive reloads
-      store.dispatch(enablePolling());
       const state = store.getState();
       const now = Date.now();
       const before = state.main.visibility_timer;
       if (now - before > 600000) {
+        console.log('Reloading...');
         window.location.reload();
       }
       store.dispatch(setVisibilityTimer(now));
+      store.dispatch(enablePolling());
+      console.log('Polling enabled');
+      store.dispatch(poll());
     }
   });
 };
