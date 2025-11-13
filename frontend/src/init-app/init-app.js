@@ -54,6 +54,9 @@ export const appIsRendered = async function () {
   }
   await store.dispatch(fetchConfig({configPath}));
 
+  const now = Date.now();
+  store.dispatch(setVisibilityTimer(now));
+
   window.document.addEventListener("visibilitychange", () => {
     if (window.document.hidden) {
       // stop polling
