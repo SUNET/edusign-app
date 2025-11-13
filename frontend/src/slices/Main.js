@@ -37,7 +37,7 @@ import {
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
 import { loadDocuments, addDocumentToDb, addDocument, prepareDocument, setState } from "slices/Documents";
-import { setPolling } from "slices/Poll";
+import { setInitialPolling } from "slices/Poll";
 import { setAllowBankID } from "slices/InviteForm";
 import { b64toBlob, nameForDownload } from "components/utils";
 
@@ -80,7 +80,7 @@ export const fetchConfig = createAsyncThunk(
             eppn: eppn,
           }),
         );
-        thunkAPI.dispatch(setPolling(configData.payload.poll));
+        thunkAPI.dispatch(setInitialPolling(configData.payload.poll));
         delete configData.payload.poll;
 
         const allowbankid = configData.payload.ui_defaults.allow_bankid;
@@ -438,6 +438,14 @@ const mainSlice = createSlice({
     visibility_timer: 0,
   },
   reducers: {
+    /**
+     * @public
+     * @function appLoading
+     * @desc Redux action to set the loading key to true to indicate that the app is loading.
+     */
+    appLoading(state) {
+      state.loading = true;
+    },
     /**
      * @public
      * @function appLoaded
@@ -936,6 +944,7 @@ const mainSlice = createSlice({
 });
 
 export const {
+  appLoading,
   appLoaded,
   setCsrfToken,
   updateSigningForm,

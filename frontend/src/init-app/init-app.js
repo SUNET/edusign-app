@@ -13,7 +13,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import Cookies from "js-cookie";
 import rootReducer from "init-app/store";
-import { fetchConfig, resizeWindow, enableContextualHelp, setVisibilityTimer } from "slices/Main";
+import { appLoading, fetchConfig, resizeWindow, enableContextualHelp, setVisibilityTimer } from "slices/Main";
 import { enablePolling, disablePolling } from "slices/Poll";
 
 /*
@@ -57,7 +57,7 @@ export const appIsRendered = async function () {
   const now = Date.now();
   store.dispatch(setVisibilityTimer(now));
 
-  window.document.addEventListener("visibilitychange", () => {
+  window.document.addEventListener("visibilitychange", async () => {
     if (window.document.hidden) {
       // stop polling
       store.dispatch(disablePolling());
@@ -67,11 +67,13 @@ export const appIsRendered = async function () {
       const state = store.getState();
       const now = Date.now();
       const before = state.main.visibility_timer;
-      if (now - before > 600000) {
-        window.location.reload();
-      }
       store.dispatch(setVisibilityTimer(now));
-      store.dispatch(enablePolling());
+      if (now - before > 600000) {
+        store.dispatch(appLoading());
+        await store.dispatch(fetchConfig({configPath}));
+      } else {
+        store.dispatch(enablePolling());
+      }
     }
   });
 };

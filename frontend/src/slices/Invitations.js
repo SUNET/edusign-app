@@ -19,7 +19,7 @@ import {
   rmDocumentByKey,
   removeDocument,
 } from "slices/Documents";
-import { setPolling } from "slices/Poll";
+import { setInitialPolling } from "slices/Poll";
 import { dbRemoveDocument } from "init-app/database";
 
 /**
@@ -212,7 +212,7 @@ export const sendInvites = createAsyncThunk(
     thunkAPI.dispatch(addOwned(owned));
 
     // Start polling the backend, to update the local state when users invited to sign do sign.
-    thunkAPI.dispatch(setPolling(true));
+    thunkAPI.dispatch(setInitialPolling(true));
     thunkAPI.dispatch(rmDocumentByKey(document.key));
   },
 );

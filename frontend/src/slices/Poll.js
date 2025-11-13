@@ -154,11 +154,21 @@ export const configureSkipped = async (thunkAPI, configData, owned) => {
 const pollSlice = createSlice({
   name: "poll",
   initialState: {
+    initialPoll: false,
     poll: false,
     disablePoll: false,
     timerId: null,
   },
   reducers: {
+    /**
+     * @public
+     * @function setInitialPolling
+     * @desc Redux action to set the initial polling state
+     */
+    setInitialPolling(state, action) {
+      state.initialPoll = action.payload;
+      state.poll = action.payload;
+    },
     /**
      * @public
      * @function setPolling
@@ -174,7 +184,7 @@ const pollSlice = createSlice({
      */
     enablePolling(state, action) {
       state.disablePoll = false;
-      state.poll = true;
+      state.poll = state.initialPoll;
     },
     /**
      * @public
@@ -207,7 +217,7 @@ const pollSlice = createSlice({
   },
 });
 
-export const { setPolling, enablePolling, disablePolling, setTimerId } =
+export const { setInitialPolling, setPolling, enablePolling, disablePolling, setTimerId } =
   pollSlice.actions;
 
 export default pollSlice.reducer;

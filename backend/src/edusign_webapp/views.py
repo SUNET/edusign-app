@@ -497,6 +497,9 @@ def get_config() -> dict:
 
     :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
     """
+    if 'eppn' not in session:
+        abort(403)
+
     payload = {}
     if 'eppn' in session and is_whitelisted(current_app, session['eppn']):
         payload['unauthn'] = False
@@ -524,7 +527,7 @@ def get_bankid_config() -> dict:
     """
     payload = {'unauthn': True}
 
-    return _get_ui_config(payload)
+    return _get_ui_config(payload)  # TODO this will break without a session
 
 
 def _get_ui_config(payload: dict) -> dict:
@@ -575,6 +578,9 @@ def poll() -> dict:
 
     :return: A dict with the invitation data.
     """
+    if 'eppn' not in session:
+        abort(403)
+
     payload = get_invitations(remove_finished=True)
 
     return {
