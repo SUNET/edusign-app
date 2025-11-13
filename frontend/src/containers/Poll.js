@@ -19,6 +19,9 @@ const mapDispatchToProps = (dispatch) => {
     pollInvitations: () => {
       dispatch(poll());
     },
+    startPolling: () => {
+      dispatch(setPolling(true));
+    },
     stopPolling: () => {
       dispatch(setPolling(false));
     },
