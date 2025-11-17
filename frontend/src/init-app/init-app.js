@@ -13,7 +13,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "react-intl-redux";
 import Cookies from "js-cookie";
 import rootReducer from "init-app/store";
-import { appLoading, fetchConfig, resizeWindow, enableContextualHelp, setVisibilityTimer } from "slices/Main";
+import { appLoading, fetchConfig, resizeWindow, enableContextualHelp, setVisibilityTimer, setFetchTimer } from "slices/Main";
 import { enablePolling, disablePolling } from "slices/Poll";
 
 /*
@@ -58,13 +58,17 @@ export const appIsRendered = async function () {
   store.dispatch(setVisibilityTimer(now));
 
   window.document.addEventListener("visibilitychange", async () => {
+    const state = store.getState();
     if (window.document.hidden) {
       // stop polling
+      if (state.main.fetch_timer !== null) {
+        clearTimeout(state.main.fetch_timer);
+        store.dispatch(setFetchTimer(null));
+      }
       store.dispatch(disablePolling());
     } else {
       // start polling, trigger a reload in case the session is stale
       // keep the time of the reload to avoid excessive reloads
-      const state = store.getState();
       const now = Date.now();
       const before = state.main.visibility_timer;
       store.dispatch(setVisibilityTimer(now));
