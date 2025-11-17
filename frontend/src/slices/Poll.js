@@ -24,8 +24,8 @@ import { addDocumentToDb, addDocument } from "slices/Documents";
  */
 export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
   try {
-    const response = await esFetch("/sign/poll", getRequest);
     const state = thunkAPI.getState();
+    const response = await esFetch("/sign/poll", getRequest, state, thunkAPI.dispatch);
     if (!state.main.signer_attributes.eppn) {
       return thunkAPI.rejectWithValue("Not ready to poll");
     }

@@ -68,7 +68,7 @@ export const appIsRendered = async function () {
       const now = Date.now();
       const before = state.main.visibility_timer;
       store.dispatch(setVisibilityTimer(now));
-      if (now - before > 600000) {
+      if (now - before > 10 * 60 * 1000) {
         store.dispatch(appLoading());
         await store.dispatch(fetchConfig({configPath}));
       } else {

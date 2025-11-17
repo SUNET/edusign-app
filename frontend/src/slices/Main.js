@@ -63,7 +63,7 @@ export const fetchConfig = createAsyncThunk(
       configPath = args.configPath;
     }
     try {
-      const response = await esFetch(configPath, getRequest);
+      const response = await esFetch(configPath, getRequest, state, thunkAPI.dispatch);
       const configData = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, configData);
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
@@ -154,7 +154,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
       const response = await esFetch("/sign/get-partially-signed", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       let data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
@@ -195,7 +195,7 @@ export const declineSigning = createAsyncThunk(
       const response = await esFetch("/sign/decline-invitation", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       let data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
@@ -377,7 +377,7 @@ export const delegateSignature = createAsyncThunk(
       const response = await esFetch("/sign/delegate-invitation", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       let data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
@@ -436,6 +436,7 @@ const mainSlice = createSlice({
     },
     environment: "production",
     visibility_timer: 0,
+    fetch_timer: null,
   },
   reducers: {
     /**
@@ -885,6 +886,18 @@ const mainSlice = createSlice({
         visibility_timer: action.payload,
       }
     },
+    /**
+     * @public
+     * @function setFetchTimer
+     * @desc Redux action to set the fetch timer
+     *       to avoid reloading the page too often
+     */
+    setFetchTimer(state, action) {
+      return {
+        ...state,
+        fetch_timer: action.payload,
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -975,6 +988,7 @@ export const {
   startDelegating,
   stopDelegating,
   setVisibilityTimer,
+  setFetchTimer,
 } = mainSlice.actions;
 
 export default mainSlice.reducer;

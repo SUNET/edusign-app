@@ -4,7 +4,7 @@
  * to help fetching data from the backend.
  */
 
-import { setCsrfToken } from "slices/Main";
+import { setCsrfToken, setFetchTimer, fetchConfig } from "slices/Main";
 
 /**
  * @public
@@ -90,10 +90,25 @@ export const preparePayload = (state, payload) => {
   return JSON.stringify(data);
 };
 
-export const esFetch = async (resource, options) => {
+export const esFetch = async (resource, options, state, dispatch) => {
   if (window.document.location.pathname.includes("/sign2/")) {
     resource.replace("/sign/", "/sign2/");
   }
+  if (state.poll.fetchTimeoutID !== null) {
+    clearTimeout(state.poll.fetchTimeoutID);
+  }
+  const timerID = setTimeout(async () => {
+    const path = window.location.pathname;
+    const segments = path.split('/');
+    let configPath = '/sign/config';
+    if (segments.length > 2 && segments[1] === 'anon-bankid') {
+      configPath = '/anon-bankid/config';
+    }
+    await dispatch(fetchConfig({configPath}));
+  }, 10 * 60 * 1000);
+
+  dispatch(setFetchTimer(timerID));
+
   return await fetch(resource, options);
 };
 

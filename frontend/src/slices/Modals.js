@@ -33,7 +33,7 @@ export const showEditInvitationForm = createAsyncThunk(
       const response = await esFetch("/sign/lock-doc", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       const lockData = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, lockData);
       if (lockData.error) {
@@ -78,7 +78,7 @@ export const hideEditInvitationForm = createAsyncThunk(
       const response = await esFetch("/sign/unlock-doc", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       const lockData = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, lockData);
       thunkAPI.dispatch(modalsSlice.actions.hideForm());

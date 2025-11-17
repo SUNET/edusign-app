@@ -49,7 +49,7 @@ export const sendPDFForm = createAsyncThunk(
       const response = await esFetch("/sign/update-form", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {

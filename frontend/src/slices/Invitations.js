@@ -134,10 +134,11 @@ export const sendInvites = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
+      state = thunkAPI.getState();
       const response = await esFetch("/sign/create-multi-sign", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       if (response.status === 502) {
         // Backend side worker timeout,
         // Invitation has been persisted but emails were not sent,
@@ -146,10 +147,11 @@ export const sendInvites = createAsyncThunk(
           key: document.key,
         };
         const body_rm = preparePayload(state, dataToSend_rm);
+        state = thunkAPI.getState();
         const response = await esFetch("/sign/remove-multi-sign", {
           ...postRequest,
           body: body_rm,
-        });
+        }, state, thunkAPI.dispatch);
         data = await checkStatus(response);
         extractCsrfToken(thunkAPI.dispatch, data);
 
@@ -281,7 +283,7 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
     const response2 = await esFetch("/sign/remove-multi-sign", {
       ...postRequest,
       body: body,
-    });
+    }, state, thunkAPI.dispatch);
     data = await checkStatus(response2);
     extractCsrfToken(thunkAPI.dispatch, data);
     if (data.error) {
@@ -373,7 +375,7 @@ const editInvitesPending = async (values, thunkAPI, intl) => {
     const response = await esFetch("/sign/edit-multi-sign", {
       ...postRequest,
       body: body,
-    });
+    }, state, thunkAPI.dispatch);
     if (response.status === 502) {
       // Backend side worker timeout,
       throw new Error("502 when trying to send invitations");
@@ -436,7 +438,7 @@ export const removeInvites = createAsyncThunk(
       const response = await esFetch("/sign/remove-multi-sign", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
@@ -504,7 +506,7 @@ export const resendInvitations = createAsyncThunk(
       const response = await esFetch("/sign/send-multisign-reminder", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {

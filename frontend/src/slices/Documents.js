@@ -643,10 +643,11 @@ export const prepareDocument = createAsyncThunk(
     const body = JSON.stringify({ payload: docToSend });
     let data = null;
     try {
+      const state = thunkAPI.getState();
       const response = await esFetch("/sign/add-doc", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       if (response.status === 413) {
         return {
           ...doc,
@@ -852,7 +853,7 @@ export const startSigningDocuments = createAsyncThunk(
       const response = await esFetch("/sign/create-sign-request", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
 
@@ -977,7 +978,7 @@ export const restartSigningDocuments = createAsyncThunk(
       const response = await esFetch("/sign/recreate-sign-request", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       // Get data from the response. These data consists mainly of documents successfully
       // preprocessed for signing, and documents that for some reason have failed to be
       // prepared.
@@ -1104,7 +1105,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
     const response = await esFetch("/sign/get-signed", {
       ...postRequest,
       body: body,
-    });
+    }, state, thunkAPI.dispatch);
     data = await checkStatus(response);
     extractCsrfToken(thunkAPI.dispatch, data);
     if (data.error) {
@@ -1280,7 +1281,7 @@ export const skipOwnedSignature = createAsyncThunk(
       const response = await esFetch("/sign/skip-final-signature", {
         ...postRequest,
         body: body,
-      });
+      }, state, thunkAPI.dispatch);
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
