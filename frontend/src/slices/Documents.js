@@ -61,6 +61,7 @@ import {
   updateInvitationsFailed,
 } from "slices/Main";
 import { setTemplates, addTemplate } from "slices/Templates";
+import { enablePolling, disablePolling } from "slices/Poll";
 import { dbSaveDocument, dbRemoveDocument, getDb } from "init-app/database";
 import {
   b64toBlob,
@@ -195,7 +196,9 @@ export const loadDocuments = createAsyncThunk(
       thunkAPI.dispatch(documentsSlice.actions.setDocuments(documents));
       thunkAPI.dispatch(setTemplates(templates));
       if (signing && dataElem !== null) {
+        thunkAPI.dispatch(disablePolling());
         await fetchSignedDocuments(thunkAPI, dataElem, args.intl);
+        thunkAPI.dispatch(enablePolling());
       } else {
         // If we are loading the app without having signed anything yet,
         // remove any information that might have been left in local storage.
