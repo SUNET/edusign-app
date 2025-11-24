@@ -11,6 +11,8 @@
 import { connect } from "react-redux";
 
 import Header from "components/Header";
+import { showUserInfo } from "slices/UserInfo";
+import { disablePolling } from "slices/Poll";
 
 const mapStateToProps = (state) => {
   let allowbankid;
@@ -42,6 +44,10 @@ const mapDispatchToProps = (dispatch, props) => {
   return {
     handleLogout: function () {
       document.location = "logout";
+    },
+    handleOpenUserInfo: function () {
+      dispatch(disablePolling());
+      dispatch(showUserInfo());
     },
   };
 };

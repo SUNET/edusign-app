@@ -15,19 +15,24 @@ import "styles/Header.scss";
 class Header extends Component {
   render() {
     let name = "";
+    const userInfoButton = (
+      <span id="" onclick={this.props.handleOpenUserInfo}>
+        {this.props.signer_attributes.name}
+      </span>
+    );
     const greeting = this.props.allowbankid
       ? (
           <span id="signing-with-span">
-            { this.props.signer_attributes.name }
+            { userInfoButton }
           </span>
         )
       : (
           <span id="signing-with-span">
             <FormattedMessage
-              defaultMessage="Signed in as {name}"
+              defaultMessage="Signed in as "
               key="signing-with"
-              values={{ ...this.props.signer_attributes }}
             />
+            { userInfoButton }
           </span>
         );
     const logoutButton = this.props.allowbankid
