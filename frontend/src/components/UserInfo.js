@@ -18,6 +18,9 @@ class UserInfo extends React.Component {
           show={this.props.show}
           onHide={this.props.handleClose}
           keyboard={false}
+          size="lg"
+          backdrop="static"
+          centered
         >
           <Modal.Header closeButton>
             <Modal.Title>
