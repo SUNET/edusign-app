@@ -81,8 +81,8 @@ class UserInfo extends React.Component {
               <div className="user-attr-holder">
                 <div className="user-attr-name-holder">
                   <FormattedMessage
-                    defaultMessage={'Assurance level'}
-                    key="user-info-assurance-level"
+                    defaultMessage={'Assurance levels'}
+                    key="user-info-assurance-levels"
                   />
                 </div>
                 <div className="user-attr-value-holder">
@@ -91,6 +91,17 @@ class UserInfo extends React.Component {
                       <div className="user-attr-value-list-item">{level}</div>
                     ))}
                   </div>
+                </div>
+              </div>
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
+                    defaultMessage={'Authn Context'}
+                    key="user-info-authn-context"
+                  />
+                </div>
+                <div className="user-attr-value-holder">
+                  {this.props.authn_context}
                 </div>
               </div>
             </div>

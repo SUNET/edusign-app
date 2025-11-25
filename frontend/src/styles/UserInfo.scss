@@ -7,9 +7,11 @@
   .user-attr-holder {
     display: flex;
     flex-direction: row;
+    min-height: 2rem;
 
     .user-attr-name-holder {
       flex: none;
+      min-width: 9rem;
     }
     .user-attr-value-holder {
       flex: none;
@@ -20,6 +22,7 @@
 
         .user-attr-value-list-item {
           flex: none;
+          min-height: 1.5rem;
         }
       }
     }
