@@ -8,7 +8,7 @@ import { hideUserInfo } from "slices/UserInfo";
 const mapStateToProps = (state) => {
   return {
     show: state.user_info.show,
-    displayName: state.main.signer_attributes.name,
+    display_name: state.main.signer_attributes.name,
     eppn: state.main.signer_attributes.eppn,
     mail: state.main.signer_attributes.mail,
     mail_aliases: state.main.signer_attributes.mail_aliases,
