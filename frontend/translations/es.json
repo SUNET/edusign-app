@@ -50,7 +50,7 @@
   "components.ForcedXMLPreview.dissaprove-doc-tootip": "",
   "components.Header.header-unauthz-for-site": "No parece que estés autorizado para usar este sitio en estos momentos",
   "components.Header.logout-button": "Salir",
-  "components.Header.signing-with": "Identificado como {name}",
+  "components.Header.signing-with": "Identificado como ",
   "components.InviteEditForm.cancel-edit-invite": "Cancelar",
   "components.InviteEditForm.cancel-invitation-edit-tootip": "Cerrar el formulario de edición",
   "components.InviteEditForm.edit-invitation": "Editar invitaciones para {docName}",

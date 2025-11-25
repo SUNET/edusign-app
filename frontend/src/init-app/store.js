@@ -13,6 +13,7 @@ import inviteform from "slices/InviteForm";
 import template from "slices/Templates";
 import overlay from "slices/Overlay";
 import pdfform from "slices/PDFForms";
+import userinfo from "slices/UserInfo";
 
 /**
  * @public
@@ -32,5 +33,6 @@ export default combineReducers({
   inviteform,
   overlay,
   pdfform,
+  userinfo,
   intl: intlReducer,
 });

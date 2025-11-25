@@ -8,6 +8,7 @@ import FooterContainer from "containers/Footer";
 import DnDAreaContainer from "containers/DnDArea";
 import DocManagerContainer from "containers/DocManager";
 import PollContainer from "containers/Poll";
+import UserInfoContainer from "containers/UserInfo";
 import { appIsRendered } from "init-app/init-app";
 
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
@@ -46,6 +47,7 @@ class Main extends Component {
           <FooterContainer />
         </section>
         <PollContainer />
+        <UserInfoContainer />
       </>
     );
   }

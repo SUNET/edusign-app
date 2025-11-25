@@ -50,7 +50,7 @@
   "components.ForcedXMLPreview.dissaprove-doc-tootip": "Click here to reject/remove the document",
   "components.Header.header-unauthz-for-site": "You don't seem to be authorized to use this site at this moment",
   "components.Header.logout-button": "Logout",
-  "components.Header.signing-with": "Signed in as {name}",
+  "components.Header.signing-with": "Signed in as ",
   "components.InviteEditForm.cancel-edit-invite": "Cancel",
   "components.InviteEditForm.cancel-invitation-edit-tootip": "Dismiss edit form",
   "components.InviteEditForm.edit-invitation": "Edit invitations for {docName}",

@@ -50,7 +50,7 @@
   "components.ForcedXMLPreview.dissaprove-doc-tootip": "Klicka här för att ta bort ett dokument",
   "components.Header.header-unauthz-for-site": "Du verkar inte ha behörighet att använda denna webbplats för tillfället",
   "components.Header.logout-button": "Logga ut",
-  "components.Header.signing-with": "Inloggad som  {name}",
+  "components.Header.signing-with": "Inloggad som ",
   "components.InviteEditForm.cancel-edit-invite": "Avbryt",
   "components.InviteEditForm.cancel-invitation-edit-tootip": "Stäng inbjudningsformulär",
   "components.InviteEditForm.edit-invitation": "Uppdatera inbjudan gällande {docName}",

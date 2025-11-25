@@ -7,7 +7,7 @@ import { hideUserInfo } from "slices/UserInfo";
 
 const mapStateToProps = (state) => {
   return {
-    show: state.user_info.show,
+    show: state.userinfo.show,
     display_name: state.main.signer_attributes.name,
     eppn: state.main.signer_attributes.eppn,
     mail: state.main.signer_attributes.mail,
@@ -25,4 +25,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export const UserInfo = connect(mapStateToProps, mapDispatchToProps)(UserInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(UserInfo);
