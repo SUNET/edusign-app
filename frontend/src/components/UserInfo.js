@@ -41,6 +41,58 @@ class UserInfo extends React.Component {
                   {this.props.display_name}
                 </div>
               </div>
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
+                    defaultMessage={'Mail'}
+                    key="user-info-mail"
+                  />
+                </div>
+                <div className="user-attr-value-holder">
+                  {this.props.mail}
+                </div>
+              </div>
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
+                    defaultMessage={'Mail aliases'}
+                    key="user-info-mail-aliases"
+                  />
+                </div>
+                <div className="user-attr-value-holder">
+                  <div className="user-attr-value-list-holder">
+                    {this.props.mail_aliases.map(alias => (
+                      <div className="user-attr-value-list-item">{alias}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
+                    defaultMessage={'Identity Provider'}
+                    key="user-info-identity-provider"
+                  />
+                </div>
+                <div className="user-attr-value-holder">
+                  {this.props.identity_provider}
+                </div>
+              </div>
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
+                    defaultMessage={'Assurance level'}
+                    key="user-info-assurance-level"
+                  />
+                </div>
+                <div className="user-attr-value-holder">
+                  <div className="user-attr-value-list-holder">
+                    {this.props.assurance_levels.map(level => (
+                      <div className="user-attr-value-list-item">{level}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </Modal.Body>
           <Modal.Footer>

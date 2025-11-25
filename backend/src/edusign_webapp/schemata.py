@@ -127,6 +127,9 @@ class ConfigSchema(InvitationsSchema):
         name = fields.String(required=True, validate=[validate_nonempty])
         mail = fields.String(required=True, validate=[validate_nonempty])
         mail_aliases = fields.List(fields.String())
+        identity_provider = fields.String(required=True, validate=[validate_nonempty])
+        authn_context = fields.String(required=True, validate=[validate_nonempty])
+        assurance_levels = fields.List(fields.String())
 
     class AvailableLoa(Schema):
         name = fields.String(required=True, validate=[validate_nonempty])

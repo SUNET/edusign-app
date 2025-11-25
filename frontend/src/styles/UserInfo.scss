@@ -1,2 +1,27 @@
 @import "./variables.scss";
 
+.user-info-holder {
+  display: flex;
+  flex-direction: column;
+
+  .user-attr-holder {
+    display: flex;
+    flex-direction: row;
+
+    .user-attr-name-holder {
+      flex: none;
+    }
+    .user-attr-value-holder {
+      flex: none;
+
+      .user-attr-value-list-holder {
+        display: flex;
+        flex-direction: column;
+
+        .user-attr-value-list-item {
+          flex: none;
+        }
+      }
+    }
+  }
+}

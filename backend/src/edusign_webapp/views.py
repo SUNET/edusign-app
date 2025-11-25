@@ -537,11 +537,18 @@ def _get_ui_config(payload: dict) -> dict:
 
     payload['ui_defaults'] = _get_ui_defaults()
 
+    raw_loas = current_app.config['AVAILABLE_LOAS']
+    known_assurances = [v for loas in raw_loas.values() for v in loas]
+    loas = [loa for loa in session['eduPersonAssurance'] if loa in known_assurances]
+
     attrs = {
         'eppn': session['eppn'],
         "mail": session["mail"],
         "mail_aliases": session.get("mail_aliases", [session["mail"]]),
         'name': session['displayName'],
+        'identity_provider': session['idp'],
+        'assurance_levels': loas,
+        'authn_context': session['authn_context'],
     }
 
     payload['signer_attributes'] = attrs
