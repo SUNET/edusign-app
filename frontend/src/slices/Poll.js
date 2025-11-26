@@ -178,6 +178,8 @@ const pollSlice = createSlice({
      * @desc Redux action to set the polling state
      */
     setPolling(state, action) {
+      clearTimeout(state.timerId);
+      state.timerId = null;
       state.poll = action.payload;
     },
     /**

@@ -5,7 +5,7 @@
 import { connect } from "react-redux";
 
 import Poll from "components/Poll";
-import { poll, enablePolling, disablePolling, setTimerId } from "slices/Poll";
+import { poll, enablePolling, setPolling, setTimerId } from "slices/Poll";
 
 const mapStateToProps = (state) => {
   return {
@@ -23,7 +23,7 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(enablePolling());
     },
     stopPolling: () => {
-      dispatch(disablePolling());
+      dispatch(setPolling(false));
     },
     setTimerId: (timerId) => {
       dispatch(setTimerId(timerId));
