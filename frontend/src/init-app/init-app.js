@@ -60,24 +60,26 @@ export const appIsRendered = async function () {
   window.document.addEventListener("visibilitychange", async () => {
     const state = store.getState();
     if (window.document.hidden) {
-      // stop polling
       if (state.main.fetch_timer !== null) {
         clearTimeout(state.main.fetch_timer);
         store.dispatch(setFetchTimer(null));
       }
+      // stop polling
       store.dispatch(disablePolling());
+      const now = Date.now();
+      store.dispatch(setVisibilityTimer(now));
     } else {
       // start polling, trigger a reload in case the session is stale
       // keep the time of the reload to avoid excessive reloads
       const now = Date.now();
       const before = state.main.visibility_timer;
-      store.dispatch(setVisibilityTimer(now));
       if (now - before > 10 * 60 * 1000) {
         store.dispatch(appLoading());
         await store.dispatch(fetchConfig({configPath}));
       } else {
         store.dispatch(enablePolling());
       }
+      store.dispatch(setVisibilityTimer(now));
     }
   });
 };

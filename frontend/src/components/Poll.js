@@ -7,7 +7,7 @@ export default function Poll(props) {
         props.stopPolling();
         const timerId = setTimeout(() => {
           props.pollInvitations();
-        }, 10000);
+        }, 15000);
         props.setTimerId(timerId);
       }
     }

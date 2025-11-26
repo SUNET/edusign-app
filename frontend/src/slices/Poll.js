@@ -25,13 +25,13 @@ import { addDocumentToDb, addDocument } from "slices/Documents";
 export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
   try {
     const state = thunkAPI.getState();
-    const response = await esFetch("/sign/poll", getRequest, state, thunkAPI.dispatch);
     if (!state.main.signer_attributes.eppn) {
       return thunkAPI.rejectWithValue("Not ready to poll");
     }
     if (state.main.disablePoll) {
       return thunkAPI.rejectWithValue("Polling disabled");
     }
+    const response = await esFetch("/sign/poll", getRequest, state, thunkAPI.dispatch);
     const configData = await checkStatus(response);
     extractCsrfToken(thunkAPI.dispatch, configData);
     if (configData.error) {
@@ -182,7 +182,9 @@ const pollSlice = createSlice({
      * @function enablePolling
      * @desc Redux action to enable polling
      */
-    enablePolling(state, action) {
+    enablePolling(state) {
+      clearTimeout(state.timerId);
+      state.timerId = null;
       state.disablePoll = false;
       state.poll = state.initialPoll;
     },
@@ -191,7 +193,7 @@ const pollSlice = createSlice({
      * @function disablePolling
      * @desc Redux action to disable polling
      */
-    disablePolling(state, action) {
+    disablePolling(state) {
       clearTimeout(state.timerId);
       state.timerId = null;
       state.disablePoll = true;
@@ -202,6 +204,7 @@ const pollSlice = createSlice({
      * @desc Redux action to keep track of polling timers
      */
     setTimerId(state, action) {
+      clearTimeout(state.timerId);
       state.timerId = action.payload;
     },
   },

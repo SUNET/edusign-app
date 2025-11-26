@@ -94,8 +94,8 @@ export const esFetch = async (resource, options, state, dispatch) => {
   if (window.document.location.pathname.includes("/sign2/")) {
     resource.replace("/sign/", "/sign2/");
   }
-  if (state.poll.fetchTimeoutID !== null) {
-    clearTimeout(state.poll.fetchTimeoutID);
+  if (state.main.fetch_timer !== null) {
+    clearTimeout(state.main.fetch_timer);
   }
   const timerID = setTimeout(async () => {
     const path = window.location.pathname;
