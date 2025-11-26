@@ -168,6 +168,9 @@ const pollSlice = createSlice({
     setInitialPolling(state, action) {
       state.initialPoll = action.payload;
       state.poll = action.payload;
+      if (action.payload) {
+        state.disablePoll = false;
+      }
     },
     /**
      * @public
