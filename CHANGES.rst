@@ -1,3 +1,17 @@
+In version 1.4.8
+----------------
+
+* A few bugfixes
+* API for nextcloud app
+* Add button to sign individual documents
+* MVP integration with BankID (hidden for now)
+* User info page
+* Stop polling when app not visible
+
+In version 1.4.3
+----------------
+
+* fix bug where signeed drafts were lost
 
 In version 1.4.0:
 -----------------
@@ -11,10 +25,6 @@ In version 1.4.0:
 * Ability to use 2 different sign service integration API profiles
 * Inviter can require LoA levels
 * customization of defaults in forms
-* A few bugfixes
-* API for nextcloud app
-* Add button to sign individual documents
-* Integration with BankID (hidden for now)
 
 In version 1.3.0:
 -----------------
