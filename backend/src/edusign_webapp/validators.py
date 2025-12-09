@@ -88,7 +88,7 @@ def validate_sign_requirement(value):
 
     :raises ValidationError: in case the value doesn't conform to the above.
     """
-    if value != 'not-needed-for-non-pdf':
+    if value != 'not-needed-for-non-pdf' and value != '':
         try:
             val = json.loads(value)
         except json.decoder.JSONDecodeError:

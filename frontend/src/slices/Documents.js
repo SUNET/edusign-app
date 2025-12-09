@@ -837,6 +837,10 @@ export const startSigningDocuments = createAsyncThunk(
     // Get the documents to be signed and serialize their metadata to be sent to
     // the `create-sign-request` endpoint.
     for (const doc of state.documents.documents) {
+      if (!doc.sign_requirement) {
+        await thunkAPI.dispatch(restartSigningDocuments({ intl: args.intl }));
+        return thunkAPI.rejectWithValue(`Document ${doc.name} missing sign requirement`);
+      }
       if (doc.state === "signing") {
         const docToSign = {
           name: doc.name,
@@ -874,7 +878,7 @@ export const startSigningDocuments = createAsyncThunk(
             }),
           );
           await thunkAPI.dispatch(restartSigningDocuments({ intl: args.intl }));
-          return;
+          return thunkAPI.rejectWithValue("Expired sign API cache");
         }
         throw new Error(data.message);
       }

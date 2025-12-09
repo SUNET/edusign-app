@@ -409,6 +409,8 @@ class APIClient(object):
         request_data = self._get_sign_request_data(documents)
         documents_with_id = []
         for document in documents:
+            if document.get('sign_requirement', '') == '':
+                raise self.ExpiredCache()
             doc_with_id = {'name': document['name'], 'key': str(document['key'])}
             if add_blob:
                 doc_with_id['blob'] = document['blob']

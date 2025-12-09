@@ -222,7 +222,7 @@ class _ReferenceSchema(Schema):
 
     key = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
     ref = fields.String(required=True, validate=[validate_nonempty, validate_uuid4])
-    sign_requirement = fields.String(required=True, validate=[validate_nonempty, validate_sign_requirement])
+    sign_requirement = fields.String(required=False, dump_default="", load_default="",  validate=[validate_sign_requirement])
 
 
 class ReferenceSchema(_ReferenceSchema):
