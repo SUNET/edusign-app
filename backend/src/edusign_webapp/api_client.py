@@ -220,7 +220,7 @@ class APIClient(object):
         if session.get('organizationName', None) is not None:
             idp = session['organizationName']
 
-        allowbankid = session['allowbankid']
+        allowbankid = session.get('allowbankid', False)
 
         if allowbankid:
             attrs = [{'name': current_app.config['BANKID_SSN_ATTR']}]
@@ -258,7 +258,7 @@ class APIClient(object):
         return response
 
     def _get_sign_request_data(self, documents):
-        allowbankid = session['allowbankid']
+        allowbankid = session.get('allowbankid', False)
         idp = session['idp']
         attr_schema = session['saml-attr-schema']
         authn_context = get_authn_context()
@@ -278,7 +278,7 @@ class APIClient(object):
             attrs.extend(more_attrs)
 
         elif allowbankid:
-            if session['ssn']:
+            if 'ssn' in session and session['ssn']:
                 attrs = [{'name': current_app.config['BANKID_SSN_ATTR'], 'value': session['ssn']}]
                 used_attr_names = [current_app.config['BANKID_SSN_ATTR']]
             else:

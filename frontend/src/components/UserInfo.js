@@ -64,8 +64,8 @@ class UserInfo extends React.Component {
                 </div>
                 <div className="user-attr-value-holder">
                   <div className="user-attr-value-list-holder">
-                    {this.props.mail_aliases.map(alias => (
-                      <div className="user-attr-value-list-item">{alias}</div>
+                    {this.props.mail_aliases.map((alias, i) => (
+                      <div className="user-attr-value-list-item" key={i}>{alias}</div>
                     ))}
                   </div>
                 </div>
@@ -90,8 +90,8 @@ class UserInfo extends React.Component {
                 </div>
                 <div className="user-attr-value-holder">
                   <div className="user-attr-value-list-holder">
-                    {this.props.assurance_levels.map(level => (
-                      <div className="user-attr-value-list-item">{level}</div>
+                    {this.props.assurance_levels.map((level, i) => (
+                      <div className="user-attr-value-list-item" key={i}>{level}</div>
                     ))}
                   </div>
                 </div>

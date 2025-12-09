@@ -211,7 +211,7 @@ def add_attributes_to_session_bankid(invite_key):
         session['mail_aliases'] = [invite['user']['email']]
         session['mail'] = invite['user']['email']
         session['displayName'] = invite['user']['name']
-        session['ssn'] = invite['user']['ssn']
+        session['ssn'] = invite['user'].get('ssn', '')
 
         session['eduPersonAssurance'] = []
 

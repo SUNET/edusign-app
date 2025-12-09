@@ -461,7 +461,7 @@ class SqliteMD(ABCMetadata):
 
         for order, user in enumerate(invites):
             invite_key = str(uuid.uuid4())
-            self._db_execute(INVITE_INSERT, (invite_key, document_id, user['email'], user['name'], user['ssn'], user['lang'], order))
+            self._db_execute(INVITE_INSERT, (invite_key, document_id, user['email'], user['name'], user.get('ssn', ''), user['lang'], order))
 
             updated_invite = {'key': invite_key, 'order': order}
             updated_invite.update(user)
@@ -517,7 +517,7 @@ class SqliteMD(ABCMetadata):
                 document['loa'],
                 document['skipfinal'],
                 document['ordered_invitations'],
-                document['allowbankid'],
+                document.get('allowbankid', False),
                 document['invitation_text'],
             ),
         )
@@ -545,7 +545,7 @@ class SqliteMD(ABCMetadata):
                 invite['doc_id'],
                 invite['email'],
                 invite['name'],
-                invite['ssn'],
+                invite.get('ssn', ''),
                 invite['lang'],
                 invite['signed'],
                 invite['declined'],
@@ -647,7 +647,7 @@ class SqliteMD(ABCMetadata):
                         subemail_result = {
                             'email': subinvite['user_email'],
                             'name': subinvite['user_name'],
-                            'ssn': subinvite['user_ssn'],
+                            'ssn': subinvite.get('user_ssn', ''),
                             'lang': subinvite['user_lang'],
                             'order': int(subinvite['order_invitation']),
                         }
@@ -789,7 +789,7 @@ class SqliteMD(ABCMetadata):
                 document['state'] = state
                 continue
             for invite in invites:
-                email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'ssn': invite['user_ssn'], 'lang': invite['user_lang']}
+                email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'ssn': invite.get('user_ssn', ''), 'lang': invite['user_lang']}
                 if invite['declined'] == 1:
                     document['declined'].append(email_result)
                 elif invite['signed'] == 1:
@@ -835,7 +835,7 @@ class SqliteMD(ABCMetadata):
             return invitees
 
         for invite in invites:
-            email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'ssn': invite['user_ssn'], 'lang': invite['user_lang']}
+            email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'ssn': invite.get('user_ssn', ''), 'lang': invite['user_lang']}
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
@@ -873,7 +873,7 @@ class SqliteMD(ABCMetadata):
             return invitees
 
         for invite in invites:
-            email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'ssn': invite['user_ssn'], 'lang': invite['user_lang']}
+            email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'ssn': invite.get('user_ssn', ''), 'lang': invite['user_lang']}
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
@@ -948,7 +948,7 @@ class SqliteMD(ABCMetadata):
             return {}
 
         doc['doc_id'] = invite['doc_id']
-        user = {'name': invite['user_name'], 'email': invite['user_email'], 'ssn': invite['user_ssn'], 'lang': invite['user_lang']}
+        user = {'name': invite['user_name'], 'email': invite['user_email'], 'ssn': invite.get('user_ssn', ''), 'lang': invite['user_lang']}
 
         return {'document': doc, 'user': user}
 
@@ -1243,7 +1243,7 @@ class SqliteMD(ABCMetadata):
             self.logger.debug(f"Trying to get allowbankid from a non-existing document with key {key}")
             return True
 
-        return bool(document_result['allowbankid'])
+        return bool(document_result.get('allowbankid', False))
 
     def get_invitation_text(self, key: uuid.UUID) -> str:
         """

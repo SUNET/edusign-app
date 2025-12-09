@@ -474,7 +474,7 @@ def _get_ui_defaults():
                     'send_signed': idp_config['send_signed'],
                     'skip_final': idp_config['skip_final'],
                     'ordered_invitations': idp_config['ordered_invitations'],
-                    'allow_bankid': idp_config['allow_bankid'],
+                    'allow_bankid': idp_config.get('allow_bankid', False),
                 }
     return ui_defaults
 
@@ -793,7 +793,7 @@ def get_index_bankid_authn(invite_key: str) -> Union[str, Response]:
     return render_template(
         'index-for-bankid.jinja2',
         invite_key=invite['key'],
-        ssn=invite['ssn'],
+        ssn=invite.get('ssn', ''),
         bundle_name=bundle_name,
     )
 
@@ -1260,7 +1260,7 @@ def _next_ordered_invitation_mail(doc_key, docname, invite, owner, allowbankid):
     recipients = [f"{invite['name']} <{invite['email']}>"]
     custom_text = current_app.extensions['doc_store'].get_invitation_text(doc_key)
     if allowbankid:
-        if session['ssn']:
+        if 'ssn' in session and session['ssn']:
             invited_link = url_for('edusign.get_index_bankid_authn', invite_key=invite['key'], _external=True)
         else:
             invited_link = url_for('edusign.get_index_bankid', invite_key=invite['key'], _external=True)
@@ -1503,7 +1503,7 @@ def create_multi_sign_request(data: dict) -> dict:
             data['loa'],
             data['skipfinal'],
             data['ordered'],
-            data['allowbankid'],
+            data.get('allowbankid', False),
             data['text'],
         )
 
@@ -1512,7 +1512,7 @@ def create_multi_sign_request(data: dict) -> dict:
         return {'error': True, 'message': gettext('Problem creating invitation to sign, please try again')}
 
     ordered = data['ordered']
-    allowbankid = data['allowbankid']
+    allowbankid = data.get('allowbankid', False)
 
     if len(invites) > 0:
         recipients = defaultdict(list)
@@ -1560,7 +1560,7 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=F
                 if allowbankid:
                     for recipient in recipients[lang]:
                         invite_key = invite_keys[recipient[1]]
-                        if session['ssn']:
+                        if 'ssn' in session and session['ssn']:
                             invited_link_doc = url_for('edusign.get_index_bankid_authn', invite_key=invite_key, _external=True)
                         else:
                             invited_link_doc = url_for('edusign_anon.get_index_bankid', invite_key=invite_key, _external=True)
@@ -2209,7 +2209,7 @@ def delegate_invitation(data):
     name = data['name']
     email = data['email']
     lang = data['lang']
-    ssn = data['ssn']
+    ssn = data.get('ssn', '')
     try:
         current_app.extensions['doc_store'].delegate(invite_key, document_key, name, email, ssn, lang)
 

@@ -858,7 +858,7 @@ class DocStore(object):
 
         for old in orig_pending:
             for new in new_pending:
-                if new['email'] == old['email'] and new['name'] == old['name'] and new['ssn'] == old['ssn'] and new['lang'] == old['lang']:
+                if new['email'] == old['email'] and new['name'] == old['name'] and new.get('ssn', '') == old.get('ssn', '') and new['lang'] == old['lang']:
                     new['key'] = old['key']
                     break
             else:
@@ -870,17 +870,17 @@ class DocStore(object):
         for new in new_pending:
             if not ordered:
                 for old in orig_pending:
-                    if new['email'] == old['email'] and new['name'] == old['name'] and new['ssn'] == old['ssn'] and new['lang'] == old['lang']:
+                    if new['email'] == old['email'] and new['name'] == old['name'] and new.get('ssn', '') == old.get('ssn', '') and new['lang'] == old['lang']:
                         break
                 else:
                     changed['added'].append(new)
 
             if 'key' in new:
                 self.metadata.add_invitation(
-                    document_key, new['name'], new['email'], new['ssn'], new['lang'], invite_key=new['key'], order=order
+                    document_key, new['name'], new['email'], new.get('ssn', ''), new['lang'], invite_key=new['key'], order=order
                 )
             else:
-                self.metadata.add_invitation(document_key, new['name'], new['email'], new['ssn'], new['lang'], order=order)
+                self.metadata.add_invitation(document_key, new['name'], new['email'], new.get('ssn', ''), new['lang'], order=order)
             order += 1
 
         return changed
