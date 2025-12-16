@@ -8,6 +8,7 @@ import DocPreviewContainer from "containers/DocPreview";
 import XMLPreviewContainer from "containers/XMLPreview";
 import DocumentInvited from "components/DocumentInvited";
 import DelegateFormContainer from "containers/DelegateForm";
+import FastSignatureContainer from "containers/FastSignature";
 
 import "styles/Invitation.scss";
 
@@ -47,6 +48,11 @@ class Invited extends Component {
                   handleClose={this.props.handleCloseForcedPreview}
                   handleConfirm={this.props.handleConfirmForcedPreview}
                   handleUnConfirm={this.props.handleUnConfirmForcedPreview}
+                />
+              )}
+              {doc.state === "unconfirmed" && (
+                <FastSignatureContainer
+                  doc={doc}
                 />
               )}
               {doc.state === "unconfirmed" && doc.type.endsWith("/xml") && (
