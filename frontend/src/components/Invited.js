@@ -50,7 +50,7 @@ class Invited extends Component {
                   handleUnConfirm={this.props.handleUnConfirmForcedPreview}
                 />
               )}
-              {doc.state === "unconfirmed" && (
+              {["loaded", "selected"].includes(doc.state) && (
                 <FastSignatureContainer
                   doc={doc}
                 />

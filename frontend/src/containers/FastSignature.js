@@ -23,7 +23,7 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleSign: () => {
       dispatch(disableFastSignature());
-      await dispatch(startSigningDoc({ doc: props.doc, intl: props.intl }));
+      dispatch(startSigningDoc({ doc: props.doc, intl: props.intl }));
     },
   };
 };

@@ -35,7 +35,7 @@ class FastSignature extends React.Component {
               <FormattedMessage
                 defaultMessage={`You have just accepted the review of {docName}. Do you want to go ahead and sign it?`}
                 key="fast-signature-desc"
-                values={{ docName: this.props.docName }}
+                values={{ docName: this.props.doc.name }}
               />
             </div>
           </Modal.Body>
@@ -71,7 +71,7 @@ class FastSignature extends React.Component {
               }
             >
               <Button
-                variant="outline-secondary"
+                variant="outline-success"
                 onClick={this.props.handleSign}
               >
                 <FormattedMessage
