@@ -14,6 +14,7 @@ import template from "slices/Templates";
 import overlay from "slices/Overlay";
 import pdfform from "slices/PDFForms";
 import userinfo from "slices/UserInfo";
+import fast_signature from "slices/FastSignature";
 
 /**
  * @public
@@ -34,5 +35,6 @@ export default combineReducers({
   overlay,
   pdfform,
   userinfo,
+  fast_signature,
   intl: intlReducer,
 });

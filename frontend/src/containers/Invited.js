@@ -21,6 +21,7 @@ import { startSigningDoc } from "slices/Documents";
 import { disablePolling, enablePolling } from "slices/Poll";
 import { unsetSpinning } from "slices/Button";
 import { setActiveId, unsetActiveId } from "slices/Overlay";
+import { enableFastSignature } from "slices/FastSignature";
 import { getLocation } from "slices/fetch-utils";
 
 const mapStateToProps = (state) => {
@@ -102,11 +103,9 @@ const mapDispatchToProps = (dispatch, props) => {
     },
     handleConfirmForcedPreview: function (name, key) {
       return () => {
-        dispatch(enablePolling());
         dispatch(confirmForcedInvitedPreview(key));
-        dispatch(unsetSpinning());
         dispatch(hideForcedInvitedPreview(name));
-        dispatch(unsetActiveId());
+        dispatch(enableFastSignature());
       };
     },
     handleUnConfirmForcedPreview: function (args) {
