@@ -25,9 +25,8 @@ class UserInfo extends React.Component {
           <Modal.Header closeButton>
             <Modal.Title>
               <FormattedMessage
-                defaultMessage={`Info for user: {displayName}`}
+                defaultMessage={`User information.`}
                 key="user-info-modal"
-                values={{ displayName: this.props.display_name }}
               />
             </Modal.Title>
           </Modal.Header>
