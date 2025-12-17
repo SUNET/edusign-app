@@ -84,6 +84,17 @@ class UserInfo extends React.Component {
               <div className="user-attr-holder">
                 <div className="user-attr-name-holder">
                   <FormattedMessage
+                    defaultMessage={'User identity'}
+                    key="user-info-user-identity"
+                  />
+                </div>
+                <div className="user-attr-value-holder">
+                  {this.props.eppn}
+                </div>
+              </div>
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
                     defaultMessage={'Assurance levels'}
                     key="user-info-assurance-levels"
                   />
