@@ -153,6 +153,7 @@ class ConfigSchema(InvitationsSchema):
     edit_form_timeout = fields.String(required=True)
     environment = fields.String(required=True)
     allow_bankid_signatures = fields.Boolean(dump_default=False)
+    user_info_detail = fields.String(required=True)
 
 
 class EmailsSchema(Schema):

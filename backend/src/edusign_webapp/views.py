@@ -567,6 +567,7 @@ def _get_ui_config(payload: dict) -> dict:
     payload['environment'] = current_app.config['ENVIRONMENT']
     payload['loading'] = False
     payload['allow_bankid_signatures'] = current_app.config['ALLOW_BANKID']
+    payload['user_info_detail'] = current_app.config['USER_INFO_DETAIL']
 
     return {
         'payload': payload,
