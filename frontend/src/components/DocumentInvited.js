@@ -214,7 +214,6 @@ class DocumentInvited extends Component {
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
                       {widgets.showMessage(doc)}
-                      {widgets.signButton(this.props, doc)}
                       <ESDropdown doc={doc}>
                         {menu.previewMenuItem(this.props, doc)}
                         {menu.downloadDraftMenuItem(this.props, doc)}
@@ -293,7 +292,6 @@ class DocumentInvited extends Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.signButton(this.props, doc)}
                     <ESDropdown doc={doc}>
                       {menu.previewMenuItem(this.props, doc)}
                       {menu.downloadDraftMenuItem(this.props, doc)}

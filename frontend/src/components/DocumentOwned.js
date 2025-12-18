@@ -203,7 +203,6 @@ class DocumentOwned extends Component {
                       {widgets.showMessage(doc)}
                       <div className="owned-container-buttons-lg">
                         <>
-                          {widgets.signButton(this.props, doc)}
                           <ESDropdown doc={doc}>
                             {menu.editInvitationMenuItem(this.props, doc)}
                             {menu.previewMenuItem(this.props, doc)}
@@ -277,7 +276,6 @@ class DocumentOwned extends Component {
                     {widgets.showMessage(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.signButton(this.props, doc)}
                     <ESDropdown doc={doc}>
                       {menu.editInvitationMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}

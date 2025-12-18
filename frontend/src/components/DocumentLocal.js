@@ -261,8 +261,6 @@ class DocumentLocal extends React.Component {
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
                     <div className="doc-manager-buttons">
-                      {!doc.signed_draft &&
-                          widgets.signButton(this.props, doc)}
                       <ESDropdown doc={doc}>
                         {doc.type === "application/pdf" &&
                           menu.createTemplateMenuItem(this.props, doc)}
@@ -408,7 +406,6 @@ class DocumentLocal extends React.Component {
                     {widgets.docName(doc)}
                   </div>
                   <div className="doc-container-button-row">
-                    {widgets.signButton(this.props, doc)}
                     <ESDropdown doc={doc}>
                       {doc.type === "application/pdf" &&
                         menu.createTemplateMenuItem(this.props, doc)}
