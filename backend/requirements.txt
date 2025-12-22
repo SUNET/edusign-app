@@ -1,6 +1,6 @@
 setuptools>=75.8.2 
 Flask==3.1.0
-marshmallow==3.26.1
+marshmallow==3.26.2
 Flask-Babel==4.0.0
 requests==2.32.3
 Flask-Mailman==1.1.1
