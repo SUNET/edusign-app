@@ -43,6 +43,7 @@
   "components.FastSignature.close-fast-signature-help": "",
   "components.FastSignature.close-fast-signature-label": "",
   "components.FastSignature.fast-signature-desc": "",
+  "components.FastSignature.fast-signature-desc-2": "",
   "components.FastSignature.fast-signature-question": "",
   "components.Footer.show-help": "Mostrar ayuda contextual",
   "components.ForcedPreview.button-confirm": "Aprobar",

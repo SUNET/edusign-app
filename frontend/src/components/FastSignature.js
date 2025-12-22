@@ -32,11 +32,19 @@ class FastSignature extends React.Component {
           </Modal.Header>
           <Modal.Body>
             <div className="user-info-holder">
-              <FormattedMessage
-                defaultMessage={`You have just accepted the review of {docName}. Do you want to go ahead and sign it?`}
-                key="fast-signature-desc"
-                values={{ docName: this.props.doc.name }}
-              />
+              <div className="user-info-holder-1">
+                <FormattedMessage
+                  defaultMessage={"You have approved the preview of \"{docName}\". Do you want to sign it?"}
+                  key="fast-signature-desc"
+                  values={{ docName: this.props.doc.name }}
+                />
+              </div>
+              <div className="user-info-holder-2">
+                <FormattedMessage
+                  defaultMessage={"If you press \"Sign\" you will be redirected to your identity provider to authenticate and sign."}
+                  key="fast-signature-desc-2"
+                />
+              </div>
             </div>
           </Modal.Body>
           <Modal.Footer>
@@ -65,7 +73,7 @@ class FastSignature extends React.Component {
               inModal={true}
               tooltip={
                 <FormattedMessage
-                  defaultMessage="Procceed to sign the document already"
+                  defaultMessage="Procceed to sign the document"
                   key="accept-fast-signature-help"
                 />
               }
