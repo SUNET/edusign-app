@@ -1,0 +1,23 @@
+{% extends "base-md-template.jinja2" %}
+
+    {% block script %}
+    <script src="https://service.seamlessaccess.org/thiss.js"></script>
+    {% endblock %}
+
+    {% block body %}
+          <h1 id="main-title">{{ gettext("eduSign - Secure digital signature") }}</h1>
+          <div id="login"></div>
+          <div id="login-with-bankid">LOGIN WITH BANKID</div>
+          <div id="md-content">
+            {{ body | markdown }}
+          </div>
+    {% endblock %}
+
+    {% block script_bottom %}
+          document.getElementById('login-with-bankid').addEventListener('click', e => {
+            window.location.href = '{{ login_initiator_bankid }}';
+          });
+
+          thiss.DiscoveryComponent({ loginInitiatorURL: '{{ login_initiator }}' }).render('#login');
+    {% endblock %}
+
