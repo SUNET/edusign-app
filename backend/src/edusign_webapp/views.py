@@ -292,6 +292,103 @@ def get_home():
         abort(500)
 
 
+@anon_edusign_views.route('/', methods=['GET'])
+def get_home():
+    """
+    View to serve the anonymous landing page.
+
+    The text on the page is extractd from markdown documents
+    at edusign_webapp/md/, and can be overridden with md documents at /etc/edusign.
+
+    :return: the rendered `home.jinja2` template as a string
+    """
+    current_lang = str(get_locale())
+    md_name = f"home-{current_lang}.md"
+    base_dir = current_app.config['CUSTOMIZATION_DIR']
+    md_custom = os.path.join(base_dir, 'md', md_name)
+    old_md_custom = os.path.join(base_dir, md_name)
+    if os.path.exists(md_custom):
+        md_file = md_custom
+    elif os.path.exists(old_md_custom):
+        md_file = old_md_custom
+    else:
+        md_file = os.path.join(current_app.config['HERE'], 'md', md_name)
+
+    with open(md_file) as f:
+        body = f.read()
+
+    base_url = f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}"
+
+    version = importlib.metadata.version('edusign-webapp')
+
+    company_link = current_app.config['COMPANY_LINK']
+    context = {
+        'body': body,
+        'login_initiator': f'{base_url}/Shibboleth.sso/Login?target=/sign',
+        'current_lang': current_lang,
+        'langs': current_app.config['SUPPORTED_LANGUAGES'],
+        'version': version,
+        'company_link': company_link,
+    }
+
+    try:
+        return render_template('home.jinja2', **context)
+    except AttributeError as e:
+        current_app.logger.error(f'Template rendering failed: {e}')
+        abort(500)
+
+
+@anon_edusign_views.route('/home-bankid/<invite_key>', methods=['GET'])
+def get_home_bankid(invite_key: str):
+    """
+    View to serve an anonymous landing page with a choice to login using bankid.
+
+    The text on the page is extractd from markdown documents
+    at edusign_webapp/md/, and can be overridden with md documents at /etc/edusign.
+
+    :return: the rendered `home-bankid.jinja2` template as a string
+    """
+    current_lang = str(get_locale())
+    md_name = f"home-{current_lang}.md"
+    base_dir = current_app.config['CUSTOMIZATION_DIR']
+    md_custom = os.path.join(base_dir, 'md', md_name)
+    old_md_custom = os.path.join(base_dir, md_name)
+    if os.path.exists(md_custom):
+        md_file = md_custom
+    elif os.path.exists(old_md_custom):
+        md_file = old_md_custom
+    else:
+        md_file = os.path.join(current_app.config['HERE'], 'md', md_name)
+
+    with open(md_file) as f:
+        body = f.read()
+
+    base_url = f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}"
+
+    version = importlib.metadata.version('edusign-webapp')
+
+    company_link = current_app.config['COMPANY_LINK']
+
+    bankid_entity_id = "https://sandbox.swedenconnect.se/bankid/idp"
+    login_initiator = f"{base_url}/Shibboleth.sso/Login?target=/sign/"
+    login_initiator_bankid = f"{base_url}/Shibboleth.sso/Login/BankID?target=/sign/&entityID={bankid_entity_id}"
+    context = {
+        'body': body,
+        'login_initiator': login_initiator,
+        'current_lang': current_lang,
+        'langs': current_app.config['SUPPORTED_LANGUAGES'],
+        'version': version,
+        'company_link': company_link,
+        'login_initiator_bankid': login_initiator_bankid,
+    }
+
+    try:
+        return render_template('home-bankid.jinja2', **context)
+    except AttributeError as e:
+        current_app.logger.error(f'Template rendering failed: {e}')
+        abort(500)
+
+
 @anon_edusign_views.route('/faq', methods=['GET'])
 def get_help_page():
     """
@@ -507,27 +604,6 @@ def get_config() -> dict:
         payload['unauthn'] = True
 
     return _get_ui_config(payload)
-
-
-@anon_edusign_views.route('/anon-bankid/config', methods=['GET'])
-@Marshal(ConfigSchema)
-def get_bankid_config() -> dict:
-    """
-    View to serve the configuration for the front app.
-
-    This is called once the browser has rendered the js app.
-    The main info sent in the config JSON is:
-
-    - Info about pending invitations to sign, both as inviter and as invitee;
-    - Attributes released by the IdP;
-    - A flag to indicate whether to show the invitations button;
-    - A flag to indicate whether the user has logged in through a whitelisted organization.
-
-    :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
-    """
-    payload = {'unauthn': True}
-
-    return _get_ui_config(payload)  # TODO this will break without a session
 
 
 def _get_ui_config(payload: dict) -> dict:
