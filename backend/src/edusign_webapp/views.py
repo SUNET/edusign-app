@@ -292,52 +292,6 @@ def get_home():
         abort(500)
 
 
-@anon_edusign_views.route('/', methods=['GET'])
-def get_home():
-    """
-    View to serve the anonymous landing page.
-
-    The text on the page is extractd from markdown documents
-    at edusign_webapp/md/, and can be overridden with md documents at /etc/edusign.
-
-    :return: the rendered `home.jinja2` template as a string
-    """
-    current_lang = str(get_locale())
-    md_name = f"home-{current_lang}.md"
-    base_dir = current_app.config['CUSTOMIZATION_DIR']
-    md_custom = os.path.join(base_dir, 'md', md_name)
-    old_md_custom = os.path.join(base_dir, md_name)
-    if os.path.exists(md_custom):
-        md_file = md_custom
-    elif os.path.exists(old_md_custom):
-        md_file = old_md_custom
-    else:
-        md_file = os.path.join(current_app.config['HERE'], 'md', md_name)
-
-    with open(md_file) as f:
-        body = f.read()
-
-    base_url = f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}"
-
-    version = importlib.metadata.version('edusign-webapp')
-
-    company_link = current_app.config['COMPANY_LINK']
-    context = {
-        'body': body,
-        'login_initiator': f'{base_url}/Shibboleth.sso/Login?target=/sign',
-        'current_lang': current_lang,
-        'langs': current_app.config['SUPPORTED_LANGUAGES'],
-        'version': version,
-        'company_link': company_link,
-    }
-
-    try:
-        return render_template('home.jinja2', **context)
-    except AttributeError as e:
-        current_app.logger.error(f'Template rendering failed: {e}')
-        abort(500)
-
-
 @anon_edusign_views.route('/home-bankid/<invite_key>', methods=['GET'])
 def get_home_bankid(invite_key: str):
     """
