@@ -1291,10 +1291,7 @@ def _next_ordered_invitation_mail(doc_key, docname, invite, owner, allowbankid):
     recipients = [f"{invite['name']} <{invite['email']}>"]
     custom_text = current_app.extensions['doc_store'].get_invitation_text(doc_key)
     if allowbankid:
-        if 'ssn' in session and session['ssn']:
-            invited_link = url_for('edusign.get_index_bankid_authn', invite_key=invite['key'], _external=True)
-        else:
-            invited_link = url_for('edusign.get_index_bankid', invite_key=invite['key'], _external=True)
+        invited_link = url_for('edusign.get_home_bankid', invite_key=invite['key'], _external=True)
     else:
         invited_link = url_for('edusign.get_index', _external=True)
     mail_context = {
@@ -1591,10 +1588,7 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=F
                 if allowbankid:
                     for recipient in recipients[lang]:
                         invite_key = invite_keys[recipient[1]]
-                        if 'ssn' in session and session['ssn']:
-                            invited_link_doc = url_for('edusign.get_index_bankid_authn', invite_key=invite_key, _external=True)
-                        else:
-                            invited_link_doc = url_for('edusign_anon.get_index_bankid', invite_key=invite_key, _external=True)
+                        invited_link_doc = url_for('edusign.get_home_bankid', invite_key=invite_key, _external=True)
                         context = {'invited_link': invited_link_doc}
                         context.update(mail_context)
 
