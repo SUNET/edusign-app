@@ -92,6 +92,10 @@ EDUSIGN_API_PROFILE_11 = os.environ.get('EDUSIGN_API_PROFILE_11', default='edusi
 EDUSIGN_API_USERNAME_11 = os.environ.get('EDUSIGN_API_USERNAME_11', default='dummy')
 EDUSIGN_API_PASSWORD_11 = os.environ.get('EDUSIGN_API_PASSWORD_11', default='dummy')
 
+EDUSIGN_API_PROFILE_BANKID = os.environ.get('EDUSIGN_API_PROFILE_BANKID', default='edusign-bankid-test')
+EDUSIGN_API_USERNAME_BANKID = os.environ.get('EDUSIGN_API_USERNAME_BANKID', default='dummy')
+EDUSIGN_API_PASSWORD_BANKID = os.environ.get('EDUSIGN_API_PASSWORD_BANKID', default='dummy')
+
 SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.idsec.se/edusign-test")
 
 VALIDATOR_API_BASE_URL = os.environ.get('VALIDATOR_API_BASE_URL', default='https://sig.idsec.se/sigval/')
@@ -144,7 +148,7 @@ POLLING = os.environ.get('POLLING', default='always')  # always|inviter|never
 RAW_ALLOW_BANKID = os.environ.get('ALLOW_BANKID', default='false')
 ALLOW_BANKID = get_boolean(RAW_ALLOW_BANKID)
 
-BANKID_IDP = os.environ.get('BANKID_IDP', default='https://bankid.com/shibboleth')  # TODO set correct default
+BANKID_IDP = os.environ.get('BANKID_IDP', default='https://bankidp.qa.swamid.se/bankid/idp')  # TODO set correct default
 BANKID_ORG_NAME = os.environ.get('BANKID_ORG_NAME', default='BankID')  # TODO set correct default
 BANKID_AUTHN_METHOD = os.environ.get('BANKID_AUTHN_METHOD', default='urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport')  # TODO set correct default
 BANKID_AUTHN_CONTEXT_CLASS = os.environ.get('BANKID_AUTHN_CONTEXT_CLASS', default='urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport')  # TODO set correct default

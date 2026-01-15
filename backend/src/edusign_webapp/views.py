@@ -95,9 +95,6 @@ edusign_views2 = Blueprint('edusign2', __name__, url_prefix='/sign2', template_f
 
 edusign_api_views = Blueprint('edusign_api', __name__, url_prefix='/api/v1', template_folder='templates')
 
-edusign_bankid_views = Blueprint('edusign_bankid', __name__, url_prefix='/bankid', template_folder='templates')
-
-
 
 @admin_edusign_views.route('/cleanup', methods=['POST'])
 def cleanup():
@@ -325,7 +322,7 @@ def get_home_bankid(invite_key: str):
 
     bankid_entity_id = "https://sandbox.swedenconnect.se/bankid/idp"
     login_initiator = f"{base_url}/Shibboleth.sso/Login?target=/sign/"
-    login_initiator_bankid = f"{base_url}/Shibboleth.sso/Login/BankID?target=/sign/&entityID={bankid_entity_id}"
+    login_initiator_bankid = f"{base_url}/Shibboleth.sso/Login/BankID?target=/bankid-sign/{invite_key}/&entityID={bankid_entity_id}"
     context = {
         'body': body,
         'login_initiator': login_initiator,
@@ -470,6 +467,65 @@ def get_index() -> str:
         abort(500)
 
 
+@edusign_views.route('/bankid/<invite_key>', methods=['GET'])
+@edusign_views2.route('/bankid/<invite_key>', methods=['GET'])
+def get_index_bankid(invite_key: str) -> Union[str, Response]:
+    """
+    View to provide the UI to initiate signatures with Swedish BankID.
+
+    This is an authenticated view, for when the invited user is provided with an SSN
+
+    :param invite_key: Key identifying the invitation to sign.
+    :return: Rendered template with UI to start the signature process.
+    """
+    company_link = current_app.config['COMPANY_LINK']
+    context = {
+        'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}",
+        'back_button_text': gettext("Back"),
+        'company_link': company_link,
+    }
+    unauthn = False
+    try:
+        add_attributes_to_session_bankid(invite_key)
+    except KeyError as e:
+        current_app.logger.error(
+            f'There is some misconfiguration and the IdP does not seem to provide the correct attributes: {e}.'
+        )
+        context['title'] = gettext("Missing information")
+        context['message'] = gettext(
+            'Your organization did not provide the correct information during login. Please contact your IT-support for assistance.'
+        )
+        return render_template('error-generic.jinja2', **context)
+    except MissingDisplayName:
+        current_app.logger.error('There is some misconfiguration and the IdP does not seem to provide the displayName.')
+        context['title'] = gettext("Missing displayName")
+        context['message'] = gettext(
+            'Your should add your name to your account at your organization. Please contact your IT-support for assistance.'
+        )
+        return render_template('error-generic.jinja2', **context)
+    except NonWhitelisted:
+        current_app.logger.debug("Authorizing non-whitelisted user")
+        unauthn = True
+
+    if 'invited-unauthn' in session and session['invited-unauthn']:
+        invites = get_invitations()
+        if len(invites['pending_multisign']) > 0:
+            unauthn = True
+
+    session['invited-unauthn'] = unauthn
+    current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
+
+    bundle_name = 'main-bundle'
+    if current_app.config['ENVIRONMENT'] in ('development', 'e2e'):
+        bundle_name += '.dev'
+
+    try:
+        return render_template('index.jinja2', bundle_name=bundle_name)
+    except AttributeError as e:
+        current_app.logger.error(f'Template rendering failed: {e}')
+        abort(500)
+
+
 @edusign_views.route('/emails', methods=['GET'])
 @edusign_views2.route('/emails', methods=['GET'])
 @Marshal(EmailsSchema)
@@ -532,7 +588,6 @@ def _get_ui_defaults():
 
 @edusign_views.route('/config', methods=['GET'])
 @edusign_views2.route('/config', methods=['GET'])
-@edusign_bankid_views.route('/config', methods=['GET'])
 @Marshal(ConfigSchema)
 def get_config() -> dict:
     """
@@ -573,12 +628,15 @@ def _get_ui_config(payload: dict) -> dict:
 
     attrs = {
         'eppn': session['eppn'],
+        'ssn': session['ssn'],
         "mail": session["mail"],
         "mail_aliases": session.get("mail_aliases", [session["mail"]]),
         'name': session['displayName'],
         'identity_provider': session['idp'],
         'assurance_levels': loas,
         'authn_context': session['authn_context'],
+        'using_bankid': session['using-bankid'],
+        'invite_key': session['invite-key'],
     }
 
     payload['signer_attributes'] = attrs
@@ -768,65 +826,6 @@ def create_sign_request(documents: dict) -> dict:
         return {'error': True, 'message': create_data['message']}
 
     return {'payload': sign_data}
-
-
-@anon_edusign_views.route('/anon-bankid/<invite_key>', methods=['GET'])
-def get_index_bankid(invite_key: str) -> Union[str, Response]:
-    """
-    View to provide the UI to initiate signatures with Swedish BankID.
-
-    This is an anonymous view, for when the invited user is not provided with an SSN
-
-    :param invite_key: Key identifying the invitation to sign.
-    :return: Rendered template with UI to start the signature process.
-    """
-    try:
-        add_attributes_to_session_bankid(invite_key)
-    except Exception as e:
-        current_app.logger.error(
-            f'There is some problem adding bankid attributes to the session: {e}.'
-        )
-        context = {}
-        context['title'] = gettext("Not Found")
-        context['message'] = gettext(
-            'The URL you provided does not seem to correspond to any invitation. Please contact your IT-support for assistance.'
-        )
-        return render_template('error-generic.jinja2', **context)
-
-    bundle_name = 'main-bundle'
-    if current_app.config['ENVIRONMENT'] in ('development', 'e2e'):
-        bundle_name += '.dev'
-
-    return render_template(
-        'index-for-bankid.jinja2',
-        invite_key=invite_key,
-        ssn='',
-        bundle_name=bundle_name,
-    )
-
-
-@edusign_bankid_views.route('/<invite_key>', methods=['GET'])
-def get_index_bankid_authn(invite_key: str) -> Union[str, Response]:
-    """
-    View to provide the UI to initiate signatures with Swedish BankID.
-
-    This is an authenticated view, for when the invited user is provided with an SSN
-
-    :param invite_key: Key identifying the invitation to sign.
-    :return: Rendered template with UI to start the signature process.
-    """
-    invite = current_app.extensions['doc_store'].get_invitation(invite_key)
-
-    bundle_name = 'main-bundle'
-    if current_app.config['ENVIRONMENT'] in ('development', 'e2e'):
-        bundle_name += '.dev'
-
-    return render_template(
-        'index-for-bankid.jinja2',
-        invite_key=invite['key'],
-        ssn=invite.get('ssn', ''),
-        bundle_name=bundle_name,
-    )
 
 
 def _gather_invited_docs(docs: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
@@ -1291,7 +1290,7 @@ def _next_ordered_invitation_mail(doc_key, docname, invite, owner, allowbankid):
     recipients = [f"{invite['name']} <{invite['email']}>"]
     custom_text = current_app.extensions['doc_store'].get_invitation_text(doc_key)
     if allowbankid:
-        invited_link = url_for('edusign.get_home_bankid', invite_key=invite['key'], _external=True)
+        invited_link = url_for('edusign_anon.get_home_bankid', invite_key=invite['key'], _external=True)
     else:
         invited_link = url_for('edusign.get_index', _external=True)
     mail_context = {
@@ -1588,7 +1587,7 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=F
                 if allowbankid:
                     for recipient in recipients[lang]:
                         invite_key = invite_keys[recipient[1]]
-                        invited_link_doc = url_for('edusign.get_home_bankid', invite_key=invite_key, _external=True)
+                        invited_link_doc = url_for('edusign_anon.get_home_bankid', invite_key=invite_key, _external=True)
                         context = {'invited_link': invited_link_doc}
                         context.update(mail_context)
 

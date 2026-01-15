@@ -124,12 +124,15 @@ class ConfigSchema(InvitationsSchema):
 
     class SignerAttributes(Schema):
         eppn = fields.String(required=True, validate=[validate_nonempty])
+        ssn = fields.String(required=True)
         name = fields.String(required=True, validate=[validate_nonempty])
         mail = fields.String(required=True, validate=[validate_nonempty])
         mail_aliases = fields.List(fields.String())
         identity_provider = fields.String(required=True, validate=[validate_nonempty])
         authn_context = fields.String(required=True, validate=[validate_nonempty])
         assurance_levels = fields.List(fields.String())
+        using_bankid = fields.Boolean(dump_default=False)
+        invite_key = fields.List(fields.String())
 
     class AvailableLoa(Schema):
         name = fields.String(required=True, validate=[validate_nonempty])

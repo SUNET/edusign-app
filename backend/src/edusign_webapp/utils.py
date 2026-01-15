@@ -92,7 +92,8 @@ def add_attributes_to_session(check_whitelisted=True):
         session['eppn'] = eppn
         session['eduPersonPrincipalName'] = eppn
         session['saml-attr-schema'] = attr_schema
-        session['allowbankid'] = False
+        session['using-bankid'] = False
+        session['invite-key'] = ''
         session['ssn'] = ''
 
         current_app.logger.info(f'User {eppn} started a session')
@@ -203,7 +204,8 @@ def add_attributes_to_session_bankid(invite_key):
         session['eduPersonPrincipalName'] = "dummy@bankid"
         attr_schema = "20"
         session['saml-attr-schema'] = attr_schema
-        session['allowbankid'] = True
+        session['using-bankid'] = True
+        session['invite-key'] = invite_key
 
         current_app.logger.info(f'User {invite["user"]["email"]} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
@@ -285,8 +287,17 @@ def get_invitations(remove_finished=False):
     if mail_addresses is None:
         mail_addresses = [session['mail']]
     mail_addresses = list(set(mail_addresses))
-    owned = current_app.extensions['doc_store'].get_owned_documents(session['eppn'], mail_addresses)
-    invited = current_app.extensions['doc_store'].get_pending_documents(mail_addresses)
+    using_bankid = session.get('using-bankid')
+
+    if using_bankid:
+        invite_key = session.get('invite-key')
+        invite = current_app.extensions['doc_store'].get_invitation(invite_key)
+        owned = []
+        invited = [invite['doc']]
+    else:
+        owned = current_app.extensions['doc_store'].get_owned_documents(session['eppn'], mail_addresses)
+        invited = current_app.extensions['doc_store'].get_pending_documents(mail_addresses)
+
     poll = False
     levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
     display_levels = {

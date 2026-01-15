@@ -134,12 +134,19 @@ class APIClient(object):
         + The profile in the API to use - for which we have credentials (HTTP Basic Auth)
         + The HTTP Basic Auth credentials.
         """
-        attr_schema = session['saml-attr-schema']
+        using_bankid = session.get('using-bankid', False)
         self.api_base_url = self.config['EDUSIGN_API_BASE_URL']
-        self.profile = self.config[f'EDUSIGN_API_PROFILE_{attr_schema}']
-        self.basic_auth = HTTPBasicAuth(
-            self.config[f'EDUSIGN_API_USERNAME_{attr_schema}'], self.config[f'EDUSIGN_API_PASSWORD_{attr_schema}']
-        )
+        if using_bankid:
+            self.profile = self.config[f'EDUSIGN_API_PROFILE_BANKID']
+            self.basic_auth = HTTPBasicAuth(
+                self.config['EDUSIGN_API_USERNAME_BANKID'], self.config['EDUSIGN_API_PASSWORD_BANKID']
+            )
+        else:
+            attr_schema = session['saml-attr-schema']
+            self.profile = self.config[f'EDUSIGN_API_PROFILE_{attr_schema}']
+            self.basic_auth = HTTPBasicAuth(
+                self.config[f'EDUSIGN_API_USERNAME_{attr_schema}'], self.config[f'EDUSIGN_API_PASSWORD_{attr_schema}']
+            )
 
     def _post(self, url: str, request_data: dict, query_params: dict = {}) -> dict:
         """
@@ -220,9 +227,9 @@ class APIClient(object):
         if session.get('organizationName', None) is not None:
             idp = session['organizationName']
 
-        allowbankid = session.get('allowbankid', False)
+        using_bankid = session.get('using-bankid', False)
 
-        if allowbankid:
+        if using_bankid:
             attrs = [{'name': current_app.config['BANKID_SSN_ATTR']}]
             current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
         else:
@@ -258,7 +265,7 @@ class APIClient(object):
         return response
 
     def _get_sign_request_data(self, documents):
-        allowbankid = session.get('allowbankid', False)
+        using_bankid = session.get('using-bankid', False)
         idp = session['idp']
         attr_schema = session['saml-attr-schema']
         authn_context = get_authn_context()
@@ -277,7 +284,7 @@ class APIClient(object):
                 used_attr_names += tuple([session['authn_attr_name']])
             attrs.extend(more_attrs)
 
-        elif allowbankid:
+        elif using_bankid:
             if 'ssn' in session and session['ssn']:
                 attrs = [{'name': current_app.config['BANKID_SSN_ATTR'], 'value': session['ssn']}]
                 used_attr_names = [current_app.config['BANKID_SSN_ATTR']]
