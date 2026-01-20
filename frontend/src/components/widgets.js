@@ -93,6 +93,24 @@ export const infoLine = (doc, size) => {
   );
 };
 
+export const infoLine2 = (doc, size) => {
+  const info = doc.info_message;
+  if (!info) return "";
+  return (
+    <div className="doc-info-line">
+      <div className={"info-line info-line-2 doc-container-info-row-" + size}>
+        <span className="info-row-label">
+          <FormattedMessage
+            defaultMessage="Info:"
+            key="info-line-2-label"
+          />
+        </span>
+        <span className="info-row-item">{info}</span>
+      </div>
+    </div>
+  );
+};
+
 export const namedSpinner = (index, name) => {
   return (
     <>

@@ -625,6 +625,7 @@ def add_document(document: dict) -> dict:
             prepare_data['error'] = True
             return prepare_data
 
+        actions = ""
         msg = ""
         if 'prepareReport' in prepare_data:
             report = prepare_data['prepareReport']
@@ -634,11 +635,8 @@ def add_document(document: dict) -> dict:
                 msg = '; '.join([gettext(w) for w in warnings])
 
             if 'actions' in report:
-                actions = report['actions']
-                if msg:
-                    msg = '; '.join([msg] + [gettext(a) for a in actions])
-                else:
-                    msg = '; '.join([gettext(a) for a in actions])
+                acts = report['actions']
+                actions = '; '.join([gettext(a) for a in acts])
 
         doc_ref = prepare_data['updatedPdfDocumentReference']
         sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])
@@ -653,6 +651,7 @@ def add_document(document: dict) -> dict:
         has_form = False
         pprinted = pretty_print_xml(document['blob'])
         msg = ""
+        actions = ""
 
     return {
         'payload': {
@@ -663,6 +662,7 @@ def add_document(document: dict) -> dict:
             'has_form': has_form,
             'pprinted': pprinted,
             'message': msg,
+            'info_message': actions,
         }
     }
 
