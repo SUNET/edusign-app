@@ -328,6 +328,7 @@ class DocumentLocal extends React.Component {
               {signed}
               {preparePrevSigs(doc, this.props.size)}
               {widgets.infoLine(doc, this.props.size)}
+              {widgets.infoLine2(doc, this.props.size)}
             </div>
           )) || (
             <div className={"doc-flex-container-sm " + doc.state} key="0">
@@ -480,6 +481,7 @@ class DocumentLocal extends React.Component {
               {signed}
               {preparePrevSigs(doc, this.props.size)}
               {widgets.infoLine(doc, this.props.size)}
+              {widgets.infoLine2(doc, this.props.size)}
             </div>
           )}
         </ESPopover>
