@@ -148,7 +148,7 @@ POLLING = os.environ.get('POLLING', default='always')  # always|inviter|never
 RAW_ALLOW_BANKID = os.environ.get('ALLOW_BANKID', default='false')
 ALLOW_BANKID = get_boolean(RAW_ALLOW_BANKID)
 
-BANKID_IDP = os.environ.get('BANKID_IDP', default='https://bankidp.qa.swamid.se/bankid/idp')  # TODO set correct default
+BANKID_IDP = os.environ.get('BANKID_IDP', default="https://sandbox.swedenconnect.se/bankid/idp")
 BANKID_ORG_NAME = os.environ.get('BANKID_ORG_NAME', default='BankID')  # TODO set correct default
 BANKID_AUTHN_METHOD = os.environ.get('BANKID_AUTHN_METHOD', default='urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport')  # TODO set correct default
 BANKID_AUTHN_CONTEXT_CLASS = os.environ.get('BANKID_AUTHN_CONTEXT_CLASS', default='urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport')  # TODO set correct default
