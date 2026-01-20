@@ -46,13 +46,7 @@ const store = edusignStore();
  * It will trigger retrieving configuration parameters from the backend and loading documents from the IndeedBD db.
  */
 export const appIsRendered = async function () {
-  const path = window.location.pathname;
-  const segments = path.split('/');
-  let configPath = '/sign/config';
-  if (segments.length > 2 && segments[1] === 'anon-bankid') {
-    configPath = '/anon-bankid/config';
-  }
-  await store.dispatch(fetchConfig({configPath}));
+  await store.dispatch(fetchConfig({configPath: '/sign/config'}));
 
   const now = Date.now();
   store.dispatch(setVisibilityTimer(now));

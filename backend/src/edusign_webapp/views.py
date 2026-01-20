@@ -320,9 +320,10 @@ def get_home_bankid(invite_key: str):
 
     company_link = current_app.config['COMPANY_LINK']
 
-    bankid_entity_id = "https://sandbox.swedenconnect.se/bankid/idp"
+    target = url_for('edusign.get_index_bankid', invite_key=invite_key, _external=False)
+    bankid_entity_id = current_app.config['BANKID_IDP']
     login_initiator = f"{base_url}/Shibboleth.sso/Login?target=/sign/"
-    login_initiator_bankid = f"{base_url}/Shibboleth.sso/Login/BankID?target=/bankid-sign/{invite_key}/&entityID={bankid_entity_id}"
+    login_initiator_bankid = f"{base_url}/Shibboleth.sso/Login/BankID?target={target}/&entityID={bankid_entity_id}"
     context = {
         'body': body,
         'login_initiator': login_initiator,

@@ -98,13 +98,7 @@ export const esFetch = async (resource, options, state, dispatch) => {
     clearTimeout(state.main.fetch_timer);
   }
   const timerID = setTimeout(async () => {
-    const path = window.location.pathname;
-    const segments = path.split('/');
-    let configPath = '/sign/config';
-    if (segments.length > 2 && segments[1] === 'anon-bankid') {
-      configPath = '/anon-bankid/config';
-    }
-    await dispatch(fetchConfig({configPath}));
+    await dispatch(fetchConfig({configPath: '/sign/config'}));
   }, 10 * 60 * 1000);
 
   dispatch(setFetchTimer(timerID));
