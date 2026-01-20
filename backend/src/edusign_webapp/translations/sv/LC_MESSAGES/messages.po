@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-17 12:04+0100\n"
+"POT-Creation-Date: 2026-01-20 17:24+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sv\n"
@@ -31,11 +31,11 @@ msgstr "Ett problem uppstod. Var god försök igen eller kontakta administratör
 
 #: src/edusign_webapp/to_translate.py:37
 msgid "flattened-acroform"
-msgstr "Dokumentet hade ett Acroform som blev tillplattad (borttagen)."
+msgstr "Dokumentet hade ett formulär som blev tillplattat (borttagen)"
 
 #: src/edusign_webapp/to_translate.py:38
 msgid "removed-encryption-dictionary"
-msgstr "Dokumentet innehåller ett krypteringsbibliotek. Detta togs bort."
+msgstr "Dokumentet innehöll ett krypteringsbibliotek. Detta togs bort"
 
 #: src/edusign_webapp/to_translate.py:39
 msgid "pdfa-inconsistency"

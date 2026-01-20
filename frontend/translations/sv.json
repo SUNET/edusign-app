@@ -139,6 +139,7 @@
   "components.widgets.dlsigned-button": "Ladda ner (signerad)",
   "components.widgets.forced-preview-button": "Förhandsvisa och godkänn",
   "components.widgets.forced-preview-button-tootip": "Du behöver godkänna alla dokument innan de kan signeras",
+  "components.widgets.info-line-2-label": "Info",
   "components.widgets.invited-decline-button-help": "Klicka här för att neka signering av detta dokument.",
   "components.widgets.invited-delegate-button-help": "",
   "components.widgets.multisign-button": "Bjud in andra att signera",

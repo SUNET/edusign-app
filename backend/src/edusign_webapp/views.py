@@ -725,7 +725,7 @@ def add_document(document: dict) -> dict:
 
             if 'actions' in report:
                 acts = report['actions']
-                actions = '; '.join([gettext(a) for a in acts])
+                actions = '; '.join([gettext(a) for a in acts]) + '.'
 
         doc_ref = prepare_data['updatedPdfDocumentReference']
         sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])

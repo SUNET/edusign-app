@@ -139,6 +139,7 @@
   "components.widgets.dlsigned-button": "Descarga (firmado)",
   "components.widgets.forced-preview-button": "Revisar y aprobar",
   "components.widgets.forced-preview-button-tootip": "Debes aprobar todos los documentos que desees firmar",
+  "components.widgets.info-line-2-label": "Info",
   "components.widgets.invited-decline-button-help": "Haz click aquí para declinar tu invitación a firmar este documento.",
   "components.widgets.invited-delegate-button-help": "Haz click aquí para delegar la firma de este documento a otra persona.",
   "components.widgets.multisign-button": "",
