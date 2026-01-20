@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-17 12:04+0100\n"
+"POT-Creation-Date: 2026-01-20 17:24+0100\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -33,11 +33,11 @@ msgstr ""
 
 #: src/edusign_webapp/to_translate.py:37
 msgid "flattened-acroform"
-msgstr ""
+msgstr "El documento contenía un formulario, que ha sido deshabilitado"
 
 #: src/edusign_webapp/to_translate.py:38
 msgid "removed-encryption-dictionary"
-msgstr ""
+msgstr "El documento contenía un diccionario de encriptación, que ha sido eliminado"
 
 #: src/edusign_webapp/to_translate.py:39
 msgid "pdfa-inconsistency"

@@ -105,7 +105,9 @@ export const infoLine2 = (doc, size) => {
             key="info-line-2-label"
           />
         </span>
-        <span className="info-row-item">{info}</span>
+        <span className="info-row-items">
+          <span className="info-row-item">{info}</span>
+        </span>
       </div>
     </div>
   );

@@ -200,6 +200,7 @@ export const sendInvites = createAsyncThunk(
       size: document.size,
       type: document.type,
       prev_signatures: document.prev_signatures,
+      info_message: document.info_message,
       state: "incomplete",
       pending: args.values.invitees,
       signed: [],

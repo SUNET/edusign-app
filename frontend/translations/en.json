@@ -139,6 +139,7 @@
   "components.widgets.dlsigned-button": "Download (signed)",
   "components.widgets.forced-preview-button": "Preview and approve",
   "components.widgets.forced-preview-button-tootip": "You need to approve all documents before they can be signed",
+  "components.widgets.info-line-2-label": "Info:",
   "components.widgets.invited-decline-button-help": "Click here to decline your invitation to sign this document.",
   "components.widgets.invited-delegate-button-help": "Click here to delegate the signature of this document to someone else.",
   "components.widgets.multisign-button": "Invite others to sign",
