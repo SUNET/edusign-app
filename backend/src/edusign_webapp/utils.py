@@ -291,9 +291,9 @@ def get_invitations(remove_finished=False):
 
     if using_bankid:
         invite_key = session.get('invite-key')
-        invite = current_app.extensions['doc_store'].get_invitation(invite_key)
+        invite = current_app.extensions['doc_store'].get_invitation(invite_key, include_others=True)
         owned = []
-        invited = [invite['doc']]
+        invited = [invite['document']]
     else:
         owned = current_app.extensions['doc_store'].get_owned_documents(session['eppn'], mail_addresses)
         invited = current_app.extensions['doc_store'].get_pending_documents(mail_addresses)

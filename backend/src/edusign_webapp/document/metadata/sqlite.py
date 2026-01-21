@@ -930,11 +930,12 @@ class SqliteMD(ABCMetadata):
 
         return True
 
-    def get_invitation(self, key: uuid.UUID) -> Dict[str, Any]:
+    def get_invitation(self, key: uuid.UUID, include_others: bool = False) -> Dict[str, Any]:
         """
         Get the invited user's name and email and ssn and the data on the document she's been invited to sign
 
         :param key: The key identifying the signing invitation
+        :param include_others: whether to include info on other invitations to sign the document
         :return: A dict with data on the user and the document
         """
         invite = self._db_query(INVITE_QUERY_FROM_KEY, (str(key),), one=True)
@@ -949,6 +950,30 @@ class SqliteMD(ABCMetadata):
 
         doc['doc_id'] = invite['doc_id']
         user = {'name': invite['user_name'], 'email': invite['user_email'], 'ssn': invite.get('user_ssn', ''), 'lang': invite['user_lang']}
+
+        doc['pending'] = []
+        doc['signed'] = []
+        doc['declined'] = []
+
+        if include_others:
+            subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (doc['doc_id'],))
+            if subinvites is not None and not isinstance(subinvites, dict):
+                for subinvite in subinvites:
+                    subemail_result = {
+                        'email': subinvite['user_email'],
+                        'name': subinvite['user_name'],
+                        'ssn': subinvite.get('user_ssn', ''),
+                        'lang': subinvite['user_lang'],
+                        'order': int(subinvite['order_invitation']),
+                    }
+                    if subemail_result['email'] == invite['user_email']:
+                        continue
+                    if subinvite['declined'] == 1:
+                        doc['declined'].append(subemail_result)
+                    elif subinvite['signed'] == 1:
+                        doc['signed'].append(subemail_result)
+                    else:
+                        doc['pending'].append(subemail_result)
 
         return {'document': doc, 'user': user}
 

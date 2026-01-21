@@ -346,11 +346,12 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def get_invitation(self, key: uuid.UUID) -> Dict[str, Any]:
+    def get_invitation(self, key: uuid.UUID, include_others: bool = False) -> Dict[str, Any]:
         """
         Get the invited user's name and email and ssn and the data on the document she's been invited to sign
 
         :param key: The key identifying the signing invitation
+        :param include_others: whether to include info on other invitations to sign the document
         :return: A dict with data on the user and the document
         """
 
@@ -797,14 +798,15 @@ class DocStore(object):
         """
         return self.metadata.add_invitation(document_key, name, email, ssn, lang)
 
-    def get_invitation(self, key: uuid.UUID) -> Dict[str, Any]:
+    def get_invitation(self, key: uuid.UUID, include_others: bool = False) -> Dict[str, Any]:
         """
         Get the invited user's name and email and ssn and the data on the document she's been invited to sign
 
         :param key: The key identifying the signing invitation
+        :param include_others: whether to include info on other invitations to sign the document
         :return: A dict with data on the user and the document
         """
-        data = self.metadata.get_invitation(key)
+        data = self.metadata.get_invitation(key, include_others=include_others)
         if not data:
             return {}
 
