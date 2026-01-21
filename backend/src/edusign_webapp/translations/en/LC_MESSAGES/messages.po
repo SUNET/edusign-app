@@ -31,7 +31,7 @@ msgstr ""
 
 #: src/edusign_webapp/to_translate.py:37
 msgid "flattened-acroform"
-msgstr "The document had a form which was flattened"
+msgstr "The document contained an active form that became locked within the document"
 
 #: src/edusign_webapp/to_translate.py:38
 msgid "removed-encryption-dictionary"
