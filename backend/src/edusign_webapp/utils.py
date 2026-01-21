@@ -60,6 +60,21 @@ class NonWhitelisted(Exception):
     pass
 
 
+def get_attr_values(attr_in_header):
+    """
+    To be able to pass utf8 through wsgi headers,
+    we tell shibboleth to add them as b64 encoded XML elements.
+    """
+    attrs = []
+    b64 = request.headers[attr_in_header]
+    attrs_b64 = b64.split(';')
+    for attr_b64 in attrs_b64:
+        attr_xml = b64decode(attr_b64)
+        attr_val = ET.fromstring(attr_xml)
+        attrs.append(attr_val.text)
+    return attrs
+
+
 def add_attributes_to_session(check_whitelisted=True):
     """
     If the Flask session does not contain information identifying the user,
@@ -114,20 +129,6 @@ def add_attributes_to_session(check_whitelisted=True):
             if attr not in attrs and attr[0] != 'eduPersonPrincipalName':
                 attrs.append(attr)
 
-        def get_attr_values(attr_in_header):
-            """
-            To be able to pass utf8 through wsgi headers,
-            we tell shibboleth to add them as b64 encoded XML elements.
-            """
-            attrs = []
-            b64 = request.headers[attr_in_header]
-            attrs_b64 = b64.split(';')
-            for attr_b64 in attrs_b64:
-                attr_xml = b64decode(attr_b64)
-                attr_val = ET.fromstring(attr_xml)
-                attrs.append(attr_val.text)
-            return attrs
-
         for attr_in_session, attr_in_header in attrs:
             try:
                 current_app.logger.debug(
@@ -161,33 +162,37 @@ def add_attributes_to_session(check_whitelisted=True):
             assurances = []
         session['eduPersonAssurance'] = assurances
 
-        try:
-            session['idp'] = request.headers.get('Shib-Identity-Provider')
-        except KeyError:
-            current_app.logger.error('Missing Identity Provider from request')
-            raise
-        try:
-            session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
-        except KeyError:
-            current_app.logger.error('Missing AuthnContext Class from request')
-            raise
-
-        session['organizationName'] = None
-        orgName = request.headers.get('Md-Organizationname', None)
-        if orgName is not None:
-            session['organizationName'] = orgName.encode('latin1').decode('utf8')
-
         session['registrationAuthority'] = None
         reg_auth = request.headers.get('Md-Registrationauthority', None)
         if reg_auth is not None:
             session['registrationAuthority'] = reg_auth.encode('latin1').decode('utf8')
 
-        current_app.logger.debug(f'Headers sent by Shibboleth SP {request.headers}')
+        common_attributes_to_session()
 
         if check_whitelisted:
             if not is_whitelisted(current_app, eppn):
                 current_app.logger.info(f"User with eppn {eppn} not whitelisted")
                 raise NonWhitelisted('Unauthorized user')
+
+
+def common_attributes_to_session():
+    try:
+        session['idp'] = request.headers.get('Shib-Identity-Provider')
+    except KeyError:
+        current_app.logger.error('Missing Identity Provider from request')
+        raise
+    try:
+        session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
+    except KeyError:
+        current_app.logger.error('Missing AuthnContext Class from request')
+        raise
+
+    session['organizationName'] = None
+    orgName = request.headers.get('Md-Organizationname', None)
+    if orgName is not None:
+        session['organizationName'] = orgName.encode('latin1').decode('utf8')
+
+    current_app.logger.debug(f'Headers sent by Shibboleth SP {request.headers}')
 
 
 def add_attributes_to_session_bankid(invite_key):
@@ -200,9 +205,16 @@ def add_attributes_to_session_bankid(invite_key):
     if 'eppn' not in session:
         invite = current_app.extensions['doc_store'].get_invitation(invite_key)
 
-        session['eppn'] = "dummy@bankid"
-        session['eduPersonPrincipalName'] = "dummy@bankid"
+        try:
+            eppn = request.headers['Persistent-Id']
+        except KeyError:
+            current_app.logger.error('Missing Persistent-Id from request')
+            raise
+
         attr_schema = "20"
+
+        session['eppn'] = eppn
+        session['eduPersonPrincipalName'] = eppn
         session['saml-attr-schema'] = attr_schema
         session['using-bankid'] = True
         session['invite-key'] = invite_key
@@ -212,38 +224,14 @@ def add_attributes_to_session_bankid(invite_key):
 
         session['mail_aliases'] = [invite['user']['email']]
         session['mail'] = invite['user']['email']
-        session['displayName'] = invite['user']['name']
+        session['displayName'] = get_attr_values('Displayname-20')[0]
         session['ssn'] = invite['user'].get('ssn', '')
 
         session['eduPersonAssurance'] = []
 
-        try:
-            session['idp'] = current_app.config['BANKID_IDP']
-        except KeyError:
-            current_app.logger.error('Missing config for BANKID_IDP')
-            raise
-
-        try:
-            session['authn_method'] = current_app.config['BANKID_AUTHN_METHOD']
-        except KeyError:
-            current_app.logger.error('Missing config for BANKID_AUTHN_METHOD')
-            raise
-
-        try:
-            session['authn_context'] = current_app.config['BANKID_AUTHN_CONTEXT_CLASS']
-        except KeyError:
-            current_app.logger.error('Missing config for BANKID_AUTHN_CONTEXT_CLASS')
-            raise
-
-        try:
-            session['organizationName'] = current_app.config['BANKID_ORG_NAME']
-        except KeyError:
-            current_app.logger.error('Missing config for BANKID_ORG_NAME')
-            raise
-
         session['registrationAuthority'] = "dummy-bankid"
 
-        session['invited-unauthn'] = True
+        common_attributes_to_session()
 
 
 def prepare_document(document: dict) -> dict:
