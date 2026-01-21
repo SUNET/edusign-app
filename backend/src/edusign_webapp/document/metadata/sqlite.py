@@ -948,14 +948,24 @@ class SqliteMD(ABCMetadata):
             self.logger.error(f"Retrieving a non-existing document with key {key}")
             return {}
 
-        doc['doc_id'] = invite['doc_id']
         user = {'name': invite['user_name'], 'email': invite['user_email'], 'ssn': invite.get('user_ssn', ''), 'lang': invite['user_lang']}
 
-        doc['pending'] = []
-        doc['signed'] = []
-        doc['declined'] = []
+        doc['doc_id'] = invite['doc_id']
+        doc['owner'] = {
+            'email': doc['owner_email'],
+            'name': doc['owner_name'],
+            'lang': doc['owner_lang'],
+            'eppn': doc['owner_eppn'],
+        }
+        doc['key'] = uuid.UUID(doc['key'])
+        doc['invite_key'] = key
+        doc['created'] = datetime.fromisoformat(doc['created']).timestamp() * 1000
+        doc['ordered'] = doc['ordered_invitations']
 
         if include_others:
+            doc['pending'] = []
+            doc['signed'] = []
+            doc['declined'] = []
             subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (doc['doc_id'],))
             if subinvites is not None and not isinstance(subinvites, dict):
                 for subinvite in subinvites:
