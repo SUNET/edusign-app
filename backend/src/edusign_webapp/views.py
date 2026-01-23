@@ -724,8 +724,7 @@ def add_document(document: dict) -> dict:
                 msg = '; '.join([gettext(w) for w in warnings])
 
             if 'actions' in report:
-                acts = report['actions']
-                actions = '; '.join([gettext(a) for a in acts]) + '.'
+                actions = ';'.join(report['actions'])
 
         doc_ref = prepare_data['updatedPdfDocumentReference']
         sign_req = json.dumps(prepare_data['visiblePdfSignatureRequirement'])

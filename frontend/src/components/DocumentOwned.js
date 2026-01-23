@@ -244,7 +244,7 @@ class DocumentOwned extends Component {
                 {invites}
                 {preparePrevSigs(doc, this.props.size)}
                 {widgets.infoLine(doc, this.props.size)}
-                {widgets.infoLine2(doc, this.props.size)}
+                {widgets.infoLine2(doc, this.props)}
               </div>
             </div>
           )) || (
@@ -318,7 +318,7 @@ class DocumentOwned extends Component {
               {invites}
               {preparePrevSigs(doc, this.props.size)}
               {widgets.infoLine(doc, this.props.size)}
-              {widgets.infoLine2(doc, this.props.size)}
+              {widgets.infoLine2(doc, this.props)}
             </div>
           )}
         </ESPopover>
