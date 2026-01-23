@@ -96,6 +96,7 @@ export const infoLine = (doc, size) => {
 export const infoLine2 = (doc, props) => {
   const info = doc.info_message;
   if (!info) return "";
+  const infos = [];
   if (info.includes('flattened-acroform')) {
     infos.push(props.intl.formatMessage({
       defaultMessage: "The document contained an active form that became locked within the document",
