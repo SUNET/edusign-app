@@ -426,13 +426,13 @@ def is_whitelisted(app, eppn: str) -> bool:
     if 'api_call' in session and session['api_call']:
         return True
 
-    if eppn.lower() == "dummy@bankid":
-        return True
-
     if eppn.lower() in app.config['USER_BLACKLIST']:
         return False
 
     elif eppn.lower() in app.config['USER_WHITELIST']:
+        return True
+
+    if '@' not in eppn:  # BankID
         return True
 
     return eppn.lower().split('@')[1] in app.config['SCOPE_WHITELIST']
