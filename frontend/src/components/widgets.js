@@ -93,12 +93,25 @@ export const infoLine = (doc, size) => {
   );
 };
 
-export const infoLine2 = (doc, size) => {
+export const infoLine2 = (doc, props) => {
   const info = doc.info_message;
   if (!info) return "";
+  if (info.includes('flattened-acroform')) {
+    infos.push(props.intl.formatMessage({
+      defaultMessage: "The document contained an active form that became locked within the document",
+      id: "flattened-acroform",
+    }));
+  }
+  if (info.includes('removed-encryption-dictionary')) {
+    infos.push(props.intl.formatMessage({
+      defaultMessage: "The document contained an encryption dictionary. This was removed",
+      id: "removed-encryption-dictionary",
+    }));
+  }
+  const info_t = infos.join('; ');
   return (
     <div className="doc-info-line">
-      <div className={"info-line info-line-2 doc-container-info-row-" + size}>
+      <div className={"info-line info-line-2 doc-container-info-row-" + props.size}>
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Info:"
@@ -106,7 +119,7 @@ export const infoLine2 = (doc, size) => {
           />
         </span>
         <span className="info-row-items">
-          <span className="info-row-item">{info}</span>
+          <span className="info-row-item">{info_t}</span>
         </span>
       </div>
     </div>
