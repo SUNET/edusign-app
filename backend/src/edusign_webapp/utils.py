@@ -56,6 +56,10 @@ class MissingDisplayName(Exception):
     pass
 
 
+class WrongSSN(Exception):
+    pass
+
+
 class NonWhitelisted(Exception):
     pass
 
@@ -206,6 +210,12 @@ def add_attributes_to_session_bankid(invite_key):
         invite = current_app.extensions['doc_store'].get_invitation(invite_key)
 
         try:
+            ssn = get_attr_values('Personalidentitynumber-20')[0]
+        except KeyError:
+            current_app.logger.error('Missing personnummer from request')
+            raise
+
+        try:
             eppn = request.headers['Persistent-Id']
         except KeyError:
             current_app.logger.error('Missing Persistent-Id from request')
@@ -225,7 +235,12 @@ def add_attributes_to_session_bankid(invite_key):
         session['mail_aliases'] = [invite['user']['email']]
         session['mail'] = invite['user']['email']
         session['displayName'] = get_attr_values('Displayname-20')[0]
-        session['ssn'] = invite['user'].get('ssn', '')
+        
+        invited_ssn = invite['user'].get('ssn', '')
+        if invited_ssn and invited_ssn != ssn:
+            raise WrongSSN()
+
+        session['ssn'] = ssn
 
         session['eduPersonAssurance'] = []
 

@@ -71,6 +71,7 @@ from edusign_webapp.schemata import (
 )
 from edusign_webapp.utils import (
     MissingDisplayName,
+    WrongSSN,
     NonWhitelisted,
     add_attributes_to_session,
     add_attributes_to_session_bankid,
@@ -502,6 +503,13 @@ def get_index_bankid(invite_key: str) -> Union[str, Response]:
         context['title'] = gettext("Missing displayName")
         context['message'] = gettext(
             'Your should add your name to your account at your organization. Please contact your IT-support for assistance.'
+        )
+        return render_template('error-generic.jinja2', **context)
+    except WrongSSN:
+        current_app.logger.error('The invited personnumer does not coincide with the one received from the IdP.')
+        context['title'] = gettext("Unknown invitation")
+        context['message'] = gettext(
+            'Your identity does not seem to coincide with the invited identity.'
         )
         return render_template('error-generic.jinja2', **context)
     except NonWhitelisted:

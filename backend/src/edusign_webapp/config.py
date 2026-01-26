@@ -149,10 +149,7 @@ RAW_ALLOW_BANKID = os.environ.get('ALLOW_BANKID', default='false')
 ALLOW_BANKID = get_boolean(RAW_ALLOW_BANKID)
 
 BANKID_IDP = os.environ.get('BANKID_IDP', default="https://sandbox.swedenconnect.se/bankid/idp")
-BANKID_ORG_NAME = os.environ.get('BANKID_ORG_NAME', default='BankID')  # TODO set correct default
-BANKID_AUTHN_METHOD = os.environ.get('BANKID_AUTHN_METHOD', default='urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport')  # TODO set correct default
-BANKID_AUTHN_CONTEXT_CLASS = os.environ.get('BANKID_AUTHN_CONTEXT_CLASS', default='urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport')  # TODO set correct default
-BANKID_SSN_ATTR = os.environ.get('BANKID_SSN_ATTR', default='urn:oid:1.3.6.1.4.1.5923.1.1.1.6')  # TODO set correct default
+BANKID_SSN_ATTR = os.environ.get('BANKID_SSN_ATTR', default='urn:oid:1.2.752.29.4.13')
 
 STORAGE_CLASS_PATH = os.environ.get('STORAGE_CLASS_PATH', default='edusign_webapp.document.storage.local.LocalStorage')
 LOCAL_STORAGE_BASE_DIR = os.environ.get('LOCAL_STORAGE_BASE_DIR', default='/tmp')
