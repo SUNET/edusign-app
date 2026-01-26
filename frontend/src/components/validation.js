@@ -49,6 +49,7 @@ export const validateEmail = (props, allValues, idx, status) => {
 export const validateName = (props, index) => {
   const _validateName = (value) => {
     let error;
+    const displayNameRegex = /^[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~]+(\s+[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~]+)*$/;
 
     if (props.max_signatures < index) {
       error = (
@@ -61,6 +62,13 @@ export const validateName = (props, index) => {
     } else if (!value) {
       error = (
         <FormattedMessage defaultMessage="Required" key="required-field" />
+      );
+    } else if (!displayNameRegex.test(value)) {
+      error = (
+        <FormattedMessage
+          defaultMessage="Display name includes ilegal characters."
+          key="dn-ilegal-chars"
+        />
       );
     }
     return error;

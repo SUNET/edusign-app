@@ -117,6 +117,7 @@
   "components.dropdownItems.resend-invitations-button": "Send reminder",
   "components.utils.multisign-owned-prev-signed": "Previously signed by:",
   "components.utils.multisign-owned-prev-signed-unknown": "Unknown",
+  "components.validation.dn-ilegal-chars": "Display name includes ilegal characters.",
   "components.validation.do-no-invite-yourself": "Do not invite yourself",
   "components.validation.email-problem-dup": "That email has already been invited",
   "components.validation.invalid-email": "Invalid email",

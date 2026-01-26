@@ -117,6 +117,7 @@
   "components.dropdownItems.resend-invitations-button": "Mandar recordatorio",
   "components.utils.multisign-owned-prev-signed": "Previamente firmado por:",
   "components.utils.multisign-owned-prev-signed-unknown": "Desconocido",
+  "components.validation.dn-ilegal-chars": "Nombre contiene caracteres ilegales",
   "components.validation.do-no-invite-yourself": "",
   "components.validation.email-problem-dup": "",
   "components.validation.invalid-email": "",
