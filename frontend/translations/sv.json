@@ -117,6 +117,7 @@
   "components.dropdownItems.resend-invitations-button": "Skicka påminnelse",
   "components.utils.multisign-owned-prev-signed": "Tidigare signerat av:",
   "components.utils.multisign-owned-prev-signed-unknown": "Okänd",
+  "components.validation.dn-ilegal-chars": "Namnet innehåller ogiltiga tecken",
   "components.validation.do-no-invite-yourself": "Bjud inte in dig själv",
   "components.validation.email-problem-dup": "Det e-post har redan bjudits in",
   "components.validation.invalid-email": "Ogiltig e-post",
