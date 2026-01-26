@@ -1,3 +1,12 @@
+In version 1.4.9
+----------------
+
+* Validate Display Name in invitation form
+* PDF forms - flattening and removing encryption dictionaries
+* Hide the specific sign button for all documents
+* Modal to show user SAML attributes
+* Fast lane to sign invitations
+
 In version 1.4.8
 ----------------
 
