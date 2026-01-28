@@ -7,9 +7,9 @@ import { disableFastSignature } from "slices/FastSignature";
 import { unsetActiveId } from "slices/Overlay";
 import { startSigningDoc } from "slices/Documents";
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state, props) => {
   return {
-    show: state.fast_signature.show,
+    show: state.fast_signature.show === props.doc.key,
   };
 };
 
