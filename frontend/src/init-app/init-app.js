@@ -69,7 +69,7 @@ export const appIsRendered = async function () {
       const before = state.main.visibility_timer;
       if (now - before > 10 * 60 * 1000) {
         store.dispatch(appLoading());
-        await store.dispatch(fetchConfig({configPath}));
+        await store.dispatch(fetchConfig({configPath: '/sign/config'}));
       } else {
         store.dispatch(enablePolling());
       }
