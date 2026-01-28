@@ -6,7 +6,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const FastSignatureSlice = createSlice({
   name: "fast_signature",
   initialState: {
-    show: false,
+    show: null,
   },
   reducers: {
     /**
@@ -14,8 +14,8 @@ const FastSignatureSlice = createSlice({
      * @function enableFastSignature
      * @desc Redux action to display the fast signature modal.
      */
-    enableFastSignature(state) {
-      state.show = true;
+    enableFastSignature(state, action) {
+      state.show = action.payload;
     },
     /**
      * @public
@@ -23,7 +23,7 @@ const FastSignatureSlice = createSlice({
      * @desc Redux action to not display the fast signature modal.
      */
     disableFastSignature(state) {
-      state.show = false;
+      state.show = null;
     },
   },
 });

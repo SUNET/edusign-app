@@ -105,7 +105,7 @@ const mapDispatchToProps = (dispatch, props) => {
       return () => {
         dispatch(confirmForcedInvitedPreview(key));
         dispatch(hideForcedInvitedPreview(name));
-        dispatch(enableFastSignature());
+        dispatch(enableFastSignature(key));
       };
     },
     handleUnConfirmForcedPreview: function (args) {
