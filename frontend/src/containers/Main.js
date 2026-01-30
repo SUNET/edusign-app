@@ -13,6 +13,7 @@ const mapStateToProps = (state) => {
     unauthn: state.main.unauthn,
     size: state.main.size,
     loaded: state.main.signer_attributes !== undefined,
+    using_bankid: state.main.signer_attributes.using_bankid,
   };
 };
 
