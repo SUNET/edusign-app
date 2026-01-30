@@ -19,6 +19,12 @@
           text-overflow: ellipsis;
           white-space: nowrap;
         }
+        #bankid-button-wrapper {
+          display: flex;
+          flex-direction: row;
+          width: 100%;
+          justify-content: center;
+        }
         button {
           &.bankid-button, &.bankid-button:active {
             width: 350px;
@@ -84,21 +90,23 @@
     {% block body %}
           <h1 id="main-title">{{ gettext("eduSign - Secure digital signature") }}</h1>
           <div id="login"></div>
-          <button class="bankid-button" type="button" id="bankid-button">
-              <div class="bankid-button">
-                  <div class="bankid-button-logo-wrap">
-                      <div class="bankid-button-logo">
-                          {% include 'BankID_logo_neg.svg' %}
+          <div id="bankid-button-wrapper">
+              <button class="bankid-button" type="button" id="bankid-button">
+                  <div class="bankid-button">
+                      <div class="bankid-button-logo-wrap">
+                          <div class="bankid-button-logo">
+                              {% include 'BankID_logo_neg.svg' %}
+                          </div>
+                      </div>
+                      <div class="d-flex justify-content-center align-items-center text-truncate bankid-button-text">
+                          <div class="text-truncate">
+                              <div class="bankid-button-text-primary text-truncate" id="headline"></div>
+                              <div class="bankid-button-text-primary text-truncate" id="title">{{ gettext("Access with BankID") }}</div>
+                          </div>
                       </div>
                   </div>
-                  <div class="d-flex justify-content-center align-items-center text-truncate bankid-button-text">
-                      <div class="text-truncate">
-                          <div class="bankid-button-text-primary text-truncate" id="headline"></div>
-                          <div class="bankid-button-text-primary text-truncate" id="title">{{ gettext("Access with BankID") }}</div>
-                      </div>
-                  </div>
-              </div>
-          </button>
+              </button>
+          </div>
           <div id="md-content">
             {{ body | markdown }}
           </div>
