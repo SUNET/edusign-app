@@ -961,6 +961,7 @@ class SqliteMD(ABCMetadata):
         doc['invite_key'] = key
         doc['created'] = datetime.fromisoformat(doc['created']).timestamp() * 1000
         doc['ordered'] = doc['ordered_invitations']
+        doc['state'] = 'unconfirmed'
 
         if include_others:
             doc['pending'] = []
