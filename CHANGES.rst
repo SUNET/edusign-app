@@ -3,6 +3,11 @@ In version 1.5.0
 
 * Integration with BankID
 
+In version 1.4.10
+----------------
+
+* Fix problem with validation of max number of signatures per document
+
 In version 1.4.9
 ----------------
 
