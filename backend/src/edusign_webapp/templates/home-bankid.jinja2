@@ -112,7 +112,7 @@
     {% endblock %}
 
     {% block script_bottom %}
-          document.getElementById('login-with-bankid').addEventListener('click', e => {
+          document.getElementById('bankid-button').addEventListener('click', e => {
             window.location.href = '{{ login_initiator_bankid }}';
           });
 
