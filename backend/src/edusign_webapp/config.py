@@ -228,7 +228,7 @@ MAX_CONTENT_LENGTH = int(os.environ.get('MAX_FILE_SIZE', default=28730982))
 
 MAX_FILE_SIZE_FRONT = int(os.environ.get('MAX_FILE_SIZE_FRONT', default=20971520))
 
-MAX_SIGNATURES = int(os.environ.get('MAX_SIGNATURES', default=10))
+MAX_SIGNATURES = int(os.environ.get('MAX_SIGNATURES', default=12))
 
 CUSTOMIZATION_DIR = os.environ.get('CUSTOMIZATION_DIR', default="/etc/edusign/")
 

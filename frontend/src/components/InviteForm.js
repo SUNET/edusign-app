@@ -30,7 +30,18 @@ const validate = (props) => {
   return (values) => {
     let errors = {};
     let emails = [];
+    const max_invitees = values.skipfinalChoice ? props.max_signatures : props.max_signatures - 1;
     values.invitees.forEach((val, i) => {
+      if (max_invitees <= i) {
+        const maxError = (
+          <FormattedMessage
+            defaultMessage="It is only possible to invite at most {max_signatures} people"
+            key="too-many-invitations"
+            values={{ max_signatures: max_invitees }}
+          />
+        );
+        errors.dummy = maxError;
+      }
       const nameError = validateName(props, i)(val.name);
       const emailError = validateEmail(props, values.invitees, i, {
         validate: true,
@@ -86,6 +97,7 @@ const initialValues = (props) => {
         id: "id0",
       },
     ],
+    dummy: 'dummy',
   };
   return values;
 };

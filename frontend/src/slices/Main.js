@@ -432,7 +432,7 @@ const mainSlice = createSlice({
     multisign_buttons: "yes",
     showHelp: true,
     max_file_size: 20971520,
-    max_signatures: 10,
+    max_signatures: 12,
     company_link: "https://sunet.se",
     available_loas: [],
     ui_defaults: {
