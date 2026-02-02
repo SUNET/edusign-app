@@ -121,6 +121,13 @@ function _InviteesControl(props) {
   return (
     <>
       {heading}
+      {(index + 1 === fprops.values.invitees.length) && (
+        <ErrorMessage
+          name="dummy"
+          component="div"
+          className="field-error"
+        />
+      )}
       <Field name="id" value={`invitees.${index}.id`} type="hidden" />
       <div className="invitee-form-row" key={index}>
         <div className="invitee-form-name">
