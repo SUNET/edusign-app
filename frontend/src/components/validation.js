@@ -51,15 +51,7 @@ export const validateName = (props, index) => {
     let error;
     const displayNameRegex = /^[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~]+(\s+[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~]+)*$/;
 
-    if (props.max_signatures < index) {
-      error = (
-        <FormattedMessage
-          defaultMessage="It is only possible to invite at most {max_signatures} people"
-          key="too-many-invitations"
-          values={{ max_signatures: props.max_signatures }}
-        />
-      );
-    } else if (!value) {
+    if (!value) {
       error = (
         <FormattedMessage defaultMessage="Required" key="required-field" />
       );

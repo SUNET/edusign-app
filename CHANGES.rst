@@ -1,3 +1,8 @@
+In version 1.4.10
+----------------
+
+* Fix problem with validation of max number of signatures per document
+
 In version 1.4.9
 ----------------
 

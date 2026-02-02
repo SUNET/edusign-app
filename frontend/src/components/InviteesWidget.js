@@ -118,10 +118,15 @@ function _InviteesControl(props) {
       heading = <>{crossButton}</>;
     }
   }
+  let dummy = false;
+  if (index + 1 >= fprops.values.invitees.length) {
+    dummy = true;
+    fprops.touched.dummy = true;
+}
   return (
     <>
       {heading}
-      {(index + 1 === fprops.values.invitees.length) && (
+      {dummy && (
         <ErrorMessage
           name="dummy"
           component="div"
