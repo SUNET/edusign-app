@@ -118,15 +118,16 @@ function _InviteesControl(props) {
       heading = <>{crossButton}</>;
     }
   }
-  let dummy = false;
-  if (index + 1 >= fprops.values.invitees.length) {
-    dummy = true;
+  let too_many = false;
+  const max_invitees = fprops.values.skipfinalChoice ? props.max_signatures : props.max_signatures - 1;
+  if (index >= max_invitees) {
+    too_many = true;
     fprops.touched.dummy = true;
-}
+  }
   return (
     <>
       {heading}
-      {dummy && (
+      {too_many && (
         <ErrorMessage
           name="dummy"
           component="div"
@@ -425,6 +426,11 @@ const InviteesArray = connect(mapStateToProps)(_InviteesArray);
 function _InviteesWidget(props) {
   const [n_invites, setNInvites] = useState(1);
   const fprops = useFormikContext();
+  let too_many = false;
+  const max_invitees = fprops.values.skipfinalChoice ? props.max_signatures : props.max_signatures - 1;
+  if (fprops.values.invitees.length > max_invitees) {
+    too_many = true;
+  }
   const button = (arrayHelpers) => (
     <ESTooltip
       helpId="button-add-invitation"
@@ -439,6 +445,7 @@ function _InviteesWidget(props) {
       <Button
         variant="outline-secondary"
         data-testid="button-add-invitation"
+        disabled={too_many}
         onClick={() => {
           arrayHelpers.push({
             name: "",
