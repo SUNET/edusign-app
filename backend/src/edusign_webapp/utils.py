@@ -458,7 +458,7 @@ def fix_recipients(recipients):
     for i, recipient in enumerate(recipients):
         m = reg.match(recipient)
         if m is not None:
-            name = m.group(1).strip()
+            name = m.group(1).strip().strip('"')
             mail = m.group(2).strip()
             if name == mail:
                 recipients[i] = mail
