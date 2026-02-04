@@ -90,7 +90,8 @@ def test_add_document(app, environ_base, monkeypatch, sample_new_doc_1):
     resp_data = json.loads(response.data)
 
     assert resp_data['payload']['ref'] == 'ba26478f-f8e0-43db-991c-08af7c65ed58'
-    assert resp_data['payload']['message'] == 'warning1; action1; action2'
+    assert resp_data['payload']['message'] == 'warning1'
+    assert resp_data['payload']['info_message'] == 'action1;action2'
 
 
 def test_add_document_error_preparing(client, monkeypatch, sample_new_doc_1):
