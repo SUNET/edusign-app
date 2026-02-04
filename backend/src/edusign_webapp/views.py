@@ -1202,7 +1202,6 @@ def _prepare_all_signed_email(doc, mail_aliases):
     This is sent when the inviter user adds the final signature.
     """
     current_lang = str(get_locale())
-    recipients = []
     recipients = defaultdict(list)
     recipients[current_lang].append(formataddr((doc['owner']['name'], doc['owner']['email'])))
     for invited in current_app.extensions['doc_store'].get_pending_invites(doc['key']):
