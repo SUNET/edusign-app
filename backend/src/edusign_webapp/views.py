@@ -1164,7 +1164,6 @@ def _prepare_all_signed_email(doc, mail_aliases):
     This is sent when the inviter user adds the final signature.
     """
     current_lang = str(get_locale())
-    recipients = []
     recipients = defaultdict(list)
     recipients[current_lang].append(formataddr((doc['owner']['name'], doc['owner']['email'])))
     for invited in current_app.extensions['doc_store'].get_pending_invites(doc['key']):
@@ -1563,7 +1562,7 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=F
                         invite_key = invite_keys[recipient[1]]
                         if 'ssn' in session and session['ssn']:
                             invited_link_doc = url_for('edusign.get_index_bankid_authn', invite_key=invite_key, _external=True)
-                        else:
+                        else:  # XXX TODO No anon bankid
                             invited_link_doc = url_for('edusign_anon.get_index_bankid', invite_key=invite_key, _external=True)
                         context = {'invited_link': invited_link_doc}
                         context.update(mail_context)
