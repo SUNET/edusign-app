@@ -36,6 +36,7 @@ import os
 import uuid
 from base64 import b64decode
 from collections import defaultdict
+from email.utils import formataddr
 from typing import Any, Dict, List, Tuple, Union
 
 import importlib
@@ -1144,7 +1145,7 @@ def _prepare_signed_by_email(key, owner):
         'invited_email': session['mail'],
     }
     lang = owner['lang']
-    recipients = [f"{owner['name']} <{owner['email']}>"]
+    recipients = [formataddr((owner['name'], owner['email']))]
     with force_locale(lang):
         subject = gettext("%(name)s signed '%(docname)s'") % {
             'name': session['displayName'],
@@ -1165,12 +1166,12 @@ def _prepare_all_signed_email(doc, mail_aliases):
     current_lang = str(get_locale())
     recipients = []
     recipients = defaultdict(list)
-    recipients[current_lang].append(f"{doc['owner']['name']} <{doc['owner']['email']}>")
+    recipients[current_lang].append(formataddr((doc['owner']['name'], doc['owner']['email'])))
     for invited in current_app.extensions['doc_store'].get_pending_invites(doc['key']):
         if not invited['signed'] and invited['email'] not in mail_aliases:
             continue
         lang = invited['lang']
-        recipients[lang].append(f"{invited['name']} <{invited['email']}>")
+        recipients[lang].append(formataddr((invited['name'], invited['email'])))
 
     mail_context = {
         'document_name': doc['owner']['docname'],
@@ -1257,7 +1258,7 @@ def _prepare_signed_documents_data(process_data):
 
 def _next_ordered_invitation_mail(doc_key, docname, invite, owner, allowbankid):
     lang = invite['lang']
-    recipients = [f"{invite['name']} <{invite['email']}>"]
+    recipients = [formataddr((invite['name'], invite['email']))]
     custom_text = current_app.extensions['doc_store'].get_invitation_text(doc_key)
     if allowbankid:
         if 'ssn' in session and session['ssn']:
@@ -1570,7 +1571,7 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=F
                         body_txt = render_template('invitation_email.txt.jinja2', **context)
                         body_html = render_template('invitation_email.html.jinja2', **context)
 
-                        messages.append((([f"{recipient[0]} <{recipient[1]}>"], subject, body_txt, body_html), {}))
+                        messages.append((([formataddr((recipient[0], recipient[1]))], subject, body_txt, body_html), {}))
 
                 else:
                     context = {'invited_link': invited_link_index}
@@ -1579,7 +1580,7 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=F
                     body_txt = render_template('invitation_email.txt.jinja2', **context)
                     body_html = render_template('invitation_email.html.jinja2', **context)
 
-                    recs = [f"{rec[0]} <{rec[1]}>" for rec in recipients[lang]]
+                    recs = [formataddr((rec[0], rec[1])) for rec in recipients[lang]]
                     messages.append(((recs, subject, body_txt, body_html), {}))
 
         sendmail_bulk(messages)
@@ -1627,12 +1628,12 @@ def send_multisign_reminder(data: dict) -> dict:
     if ordered:
         invite = invites[0]
         lang = invite['lang']
-        recipient = f"{invite['name']} <{invite['email']}>"
+        recipient = formataddr((invite['name'], invite['email']))
         recipients[lang].append(recipient)
     else:
         for invite in invites:
             lang = invite['lang']
-            recipient = f"{invite['name']} <{invite['email']}>"
+            recipient = formataddr((invite['name'], invite['email']))
             recipients[lang].append(recipient)
 
     if len(recipients) > 0:
@@ -1714,13 +1715,13 @@ def edit_multi_sign_request(data: dict) -> dict:
             current_next_recipient = ''
         else:
             current_next_invite = current_pending[0]
-            current_next_recipient = f"{current_next_invite['name']} <{current_next_invite['email']}>"
+            current_next_recipient = formataddr((current_next_invite['name'], current_next_invite['email']))
 
         new_next_invite = True
         if len(orig_pending) > 0:
             new_next_invite = False
             orig_next_invite = orig_pending[0]
-            orig_next_recipient = f"{orig_next_invite['name']} <{orig_next_invite['email']}>"
+            orig_next_recipient = formataddr((orig_next_invite['name'], orig_next_invite['email']))
 
             if orig_next_recipient != current_next_recipient:
                 new_next_invite = True
@@ -1773,7 +1774,7 @@ def edit_multi_sign_request(data: dict) -> dict:
 
         for invite in changed['removed']:
             lang = invite['lang']
-            recipient = f"{invite['name']} <{invite['email']}>"
+            recipient = formataddr((invite['name'], invite['email']))
             recipients_removed[lang].append(recipient)
 
         if len(recipients_added) > 0:
@@ -1855,13 +1856,13 @@ def remove_multi_sign_request(data: dict) -> dict:
             if invite['signed'] or invite['declined']:
                 continue
             lang = invite['lang']
-            recipients[lang].append(f"{invite['name']} <{invite['email']}>")
+            recipients[lang].append(formataddr((invite['name'], invite['email'])))
     else:
         npending = sum([1 for i in pending if not i['signed'] and not i['declined']])
         if npending > 0:
             invite = pending[len(pending) - npending]
             lang = invite['lang']
-            recipients[lang].append(f"{invite['name']} <{invite['email']}>")
+            recipients[lang].append(formataddr((invite['name'], invite['email'])))
 
     message = gettext("Success removing invitation to sign")
     current_app.logger.info(f"Success removing invitation to sign for document {docname}")
@@ -1934,14 +1935,14 @@ def get_partially_signed_doc(data: dict) -> dict:
 def _prepare_final_email_skipped(doc, key, sendsigned):
     owner = current_app.extensions['doc_store'].get_owner_data(key)
     recipients = defaultdict(list)
-    recipients[owner['lang']].append(f"{owner['name']} <{owner['email']}>")
+    recipients[owner['lang']].append(formataddr((owner['name'], owner['email'])))
     signers = 0
     for invited in current_app.extensions['doc_store'].get_pending_invites(key):
         if not invited['signed']:
             continue
         signers += 1
         lang = invited['lang']
-        recipients[lang].append(f"{invited['name']} <{invited['email']}>")
+        recipients[lang].append(formataddr((invited['name'], invited['email'])))
     if signers == 0:
         return []
 
@@ -2076,7 +2077,7 @@ def _prepare_declined_emails(key, owner_data):
         else:
             template = 'final_declined_by_email'
 
-    recipients = [f"{owner_data['name']} <{owner_data['email']}>"]
+    recipients = [formataddr((owner_data['name'], owner_data['email']))]
     mail_context = {
         'document_name': docname,
         'invited_name': session['displayName'],
@@ -2171,7 +2172,7 @@ def _prepare_delegation_email(owner_data, name, email, lang):
     Prepare email to inform some user that a user invited to sign a document
     has delegeted the responsibility to them.
     """
-    recipients = [f"{name} <{email}>"]
+    recipients = [formataddr((name, email))]
     mail_context = {
         'document_name': owner_data['docname'],
         'delegater_name': session['displayName'],

@@ -49,7 +49,7 @@ export const validateEmail = (props, allValues, idx, status) => {
 export const validateName = (props, index) => {
   const _validateName = (value) => {
     let error;
-    const displayNameRegex = /^[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~]+(\s+[a-zA-Z0-9!#$%&'*+\-/=?^_`{|}~]+)*$/;
+    const displayNameRegex = /^"([^"\\]|\\[\\"])*"$/;
 
     if (!value) {
       error = (
