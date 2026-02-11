@@ -14,7 +14,7 @@ PyMuPDF==1.25.3
 pytz>=2025.1
 ocrmypdf==16.10.0
 PyYAML==6.0.2
-cryptography==44.0.2
+cryptography==46.0.5
 fakeredis==2.27.0
 signxml==4.0.3
 pygments==2.19.1
