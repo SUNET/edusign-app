@@ -36,7 +36,7 @@ import {
   esFetch,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { loadDocuments, addDocumentToDb, addDocument, prepareDocument, setState } from "slices/Documents";
+import { loadDocuments, addDocumentToDb, addDocument, setState, createDocument } from "slices/Documents";
 import { setInitialPolling } from "slices/Poll";
 import { setAllowBankID } from "slices/InviteForm";
 import { b64toBlob, nameForDownload } from "components/utils";
@@ -323,19 +323,14 @@ export const finishInvited = createAsyncThunk(
     delete newDoc.message;
     delete newDoc.loa;
     delete newDoc.signed;
+    delete newDoc.key;
+    delete newDoc.id;
 
     newDoc.signed_draft = true;
 
     try {
-      newDoc = await addDocumentToDb(
-        newDoc,
-        state.main.signer_attributes.eppn
-      );
       thunkAPI.dispatch(addDocument(newDoc));
-
-      await thunkAPI.dispatch(
-        prepareDocument({ doc: newDoc, intl: args.intl }),
-      );
+      await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
       state = thunkAPI.getState();
       const preparedDoc = state.documents.documents.find(doc => doc.name === newDoc.name);
       if (preparedDoc === undefined) {
