@@ -88,29 +88,39 @@ export const validateLang = (value) => {
 };
 
 function validateSSN(value) {
-  // Remove any non-digits except hyphen/plus
   const cleaned = value.replace(/\s/g, '');
 
-  // Match formats: YYYYMMDD-XXXX, YYYYMMDDXXXX, YYMMDD-XXXX, YYMMDDXXXX
-  // The '+' sign indicates the person is 100+ years old
-  const match = cleaned.match(/^(\d{2})?(\d{6})[-+]?(\d{4})$/);
+  // Match 12-digit or 10-digit formats, with optional -/+ separator
+  const match = cleaned.match(/^(\d{2})?(\d{2})(\d{2})(\d{2})([-+]?)(\d{4})$/);
   if (!match) return false;
 
-  const [, century, datepart, last4] = match;
-  const digits = datepart + last4; // 10 digits for Luhn
+  let [, century, year, month, day, sep, last4] = match;
 
-  // Validate date (basic check)
-  const year = century ? parseInt(century + datepart.slice(0, 2)) : null;
-  const month = parseInt(datepart.slice(2, 4));
-  const day = parseInt(datepart.slice(4, 6));
+  month = parseInt(month);
+  day = parseInt(day);
 
-  // Month must be 01-12 (or 20+ for coordination numbers where 60 is added to day)
+  // Coordination numbers have 60 added to the day
+  const realDay = day > 60 ? day - 60 : day;
+
   if (month < 1 || month > 12) return false;
+  if (realDay < 1 || realDay > 31) return false;
 
-  // Day: 01-31 for normal, 61-91 for coordination numbers (day + 60)
-  if (!((day >= 1 && day <= 31) || (day >= 61 && day <= 91))) return false;
+  // Build a full date and validate it actually exists
+  if (century) {
+    const fullYear = parseInt(century + year);
+    const date = new Date(fullYear, month - 1, realDay);
+    if (
+      date.getFullYear() !== fullYear ||
+      date.getMonth() !== month - 1 ||
+      date.getDate() !== realDay
+    ) {
+      return false;
+    }
+  }
 
-  // Luhn algorithm on the last 10 digits (YYMMDDXXXX)
+  // Luhn algorithm always on the 10-digit form: YYMMDDXXXX
+  const digits = year + String(month).padStart(2, '0') + String(parseInt(match[4])).toString().padStart(2, '0') + last4;
+
   let sum = 0;
   for (let i = 0; i < 10; i++) {
     let d = parseInt(digits[i]) * (i % 2 === 0 ? 2 : 1);
