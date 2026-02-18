@@ -87,12 +87,21 @@ export const validateLang = (value) => {
   return undefined;
 };
 
-function validateSSN(value) {
+export function validateSSN(value) {
+  const error = (
+    <FormattedMessage
+      defaultMessage="Invalid PIN"
+      key="invalid-pin"
+    />
+  );
+
+  if (value === '') return;
+
   const cleaned = value.replace(/\s/g, '');
 
   // Match 12-digit or 10-digit formats, with optional -/+ separator
   const match = cleaned.match(/^(\d{2})?(\d{2})(\d{2})(\d{2})([-+]?)(\d{4})$/);
-  if (!match) return false;
+  if (!match) return error;
 
   let [, century, year, month, day, sep, last4] = match;
 
@@ -102,8 +111,8 @@ function validateSSN(value) {
   // Coordination numbers have 60 added to the day
   const realDay = day > 60 ? day - 60 : day;
 
-  if (month < 1 || month > 12) return false;
-  if (realDay < 1 || realDay > 31) return false;
+  if (month < 1 || month > 12) return error;
+  if (realDay < 1 || realDay > 31) return error;
 
   // Build a full date and validate it actually exists
   if (century) {
@@ -114,10 +123,9 @@ function validateSSN(value) {
       date.getMonth() !== month - 1 ||
       date.getDate() !== realDay
     ) {
-      return false;
+      return error;
     }
   }
-
   // Luhn algorithm always on the 10-digit form: YYMMDDXXXX
   const digits = year + String(month).padStart(2, '0') + String(parseInt(match[4])).toString().padStart(2, '0') + last4;
 
@@ -128,7 +136,9 @@ function validateSSN(value) {
     sum += d;
   }
 
-  return sum % 10 === 0;
+  if (sum % 10 === 0) return;
+
+  return error;
 }
 
 export const validateBody = (value) => {

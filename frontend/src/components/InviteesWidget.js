@@ -227,7 +227,7 @@ function _InviteesControl(props) {
             <BForm.Group className="form-group">
               <BForm.Label htmlFor={`invitees.${index}.ssn`}>
                 <FormattedMessage
-                  defaultMessage="SSN"
+                  defaultMessage="PIN"
                   key="ssn-input-field"
                 />
               </BForm.Label>

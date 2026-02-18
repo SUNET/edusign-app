@@ -15,6 +15,7 @@ import { sendsignedControl, skipFinalControl } from "components/widgets";
 import {
   validateEmail,
   validateName,
+  validateSSN,
   validateLang,
   validateBody,
   validateSendsigned,
@@ -46,6 +47,7 @@ const validate = (props) => {
       const emailError = validateEmail(props, values.invitees, i, {
         validate: true,
       })(val.email);
+      const pinError = validateSSN(val.ssn);
       const langError = validateLang(val.lang);
       if (nameError !== undefined) errors[`invitees.${i}.name`] = nameError;
       if (emailError !== undefined) {
@@ -63,6 +65,7 @@ const validate = (props) => {
           emails.push(val.email);
         }
       }
+      if (pinError !== undefined) errors[`invitees.${i}.ssn`] = pinError;
       if (langError !== undefined) errors[`invitees.${i}.lang`] = langError;
     });
     if (values.makecopyChoice) {
