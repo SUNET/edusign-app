@@ -33,11 +33,16 @@ const mapStateToProps = (state, props) => {
   } else {
     ordered = state.inviteform.ordered;
   }
+  const show_allowbankid = state.main.allow_bankid_signatures;
   let allowbankid;
-  if (state.inviteform.allowbankid === null) {
-    allowbankid = state.main.ui_defaults.allow_bankid;
+  if (show_allowbankid) {
+    if (state.inviteform.allowbankid === null) {
+      allowbankid = state.main.ui_defaults.allow_bankid;
+    } else {
+      allowbankid = state.inviteform.allowbankid;
+    }
   } else {
-    allowbankid = state.inviteform.allowbankid;
+    allowbankid = false;
   }
   const doc = state.main.owned_multisign.filter(
     (d) => d.key === props.docKey,
@@ -52,6 +57,8 @@ const mapStateToProps = (state, props) => {
     ui_defaults: state.main.ui_defaults,
     ordered: ordered,
     edit_form_timeout: state.main.edit_form_timeout,
+    allowbankid: allowbankid,
+    show_allowbankid: show_allowbankid,
   };
 };
 
