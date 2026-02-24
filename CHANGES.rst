@@ -7,6 +7,7 @@ In version 1.4.10
 ----------------
 
 * Fix problem with validation of max number of signatures per document
+* fix problem with duplicated / dissapearing signatures after signing a signed draft
 
 In version 1.4.9
 ----------------
