@@ -77,13 +77,23 @@ CREATE TABLE [Invites]
             FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
+CREATE TABLE [PayableSignatures]
+(
+       [signature_id] INTEGER PRIMARY KEY AUTOINCREMENT,
+       [type] VARCHAR(255) NOT NULL,
+       [organization] VARCHAR(255) NOT NULL,
+       [owner_eppn] VARCHAR(255) NOT NULL,
+       [user_eppn] VARCHAR(255) NOT NULL,
+       [timestamp] TIMESTAMP NOT NULL
+);
 CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
 CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);
 CREATE INDEX IF NOT EXISTS [OwnerEppnIX] ON [Documents] ([owner_eppn]);
 CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
 CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
-PRAGMA user_version = 10;
+CREATE INDEX IF NOT EXISTS [SignaturesIX] ON [PayableSignatures] ([type], [organization]);
+PRAGMA user_version = 11;
 """
 
 
@@ -131,6 +141,9 @@ INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_email IN (%s) and d
 INVITE_DELETE = "DELETE FROM Invites WHERE user_id = ? and doc_id = ?;"
 INVITE_DELETE_FROM_KEY = "DELETE FROM Invites WHERE key = ?;"
 INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
+
+SIGNATURE_INSERT = "INSERT INTO PayableSignatures (type, organization, owner_eppn, user_eppn, timestamp) VALUES (?, ?, ?, ?, ?);"
+SIGNATURES_QUERY = "SELECT owner_eppn, user_eppn, timestamp FROM PayableSignatures WHERE type = ? AND organization = ?;"
 
 
 def convert_date(val):
@@ -288,6 +301,27 @@ def upgrade(db):
         cur.execute("ALTER TABLE [Documents] ADD COLUMN [allowbankid] INTEGER DEFAULT 0;")
         cur.execute("ALTER TABLE [Invites] ADD COLUMN [user_ssn] VARCHAR(255) DEFAULT \"\";")
         cur.execute("PRAGMA user_version = 10;")
+        cur.close()
+        db.commit()
+
+    if version == 10:
+        cur = db.cursor()
+        cur.execute(
+            """
+            CREATE TABLE [PayableSignatures]
+            (
+               [signature_id] INTEGER PRIMARY KEY AUTOINCREMENT,
+               [type] VARCHAR(255) NOT NULL,
+               [organization] VARCHAR(255) NOT NULL,
+               [owner_eppn] VARCHAR(255) NOT NULL,
+               [user_eppn] VARCHAR(255) NOT NULL,
+               [timestamp] TIMESTAMP NOT NULL
+            );
+            """
+        )
+        
+        cur.execute("CREATE INDEX IF NOT EXISTS [SignaturesIX] ON [PayableSignatures] ([type], [organization]);")
+        cur.execute("PRAGMA user_version = 11;")
         cur.close()
         db.commit()
 
@@ -1311,3 +1345,38 @@ class SqliteMD(ABCMetadata):
             return None
 
         return str(document_result['doc_id'])
+
+    def add_signature(self, sig_type: str, organization: str, owner_eppn: str, user_eppn: str, timestamp: datetime):
+        """
+        Add a payable signature to the db.
+
+        :param sig_type: the type of the signature, bankid |
+        :param organization: the organization requesting the signature
+        :param owner_eppn: eduPersonPrincipalName of the person requesting the signature
+        :param user_eppn: eduPersonPrincipalName of the person signing
+        :param timestamp: the timestamp in the signature
+        """
+        try:
+            self._db_execute(SIGNATURE_INSERT, (sig_type, organization, owner_eppn, user_eppn, timestamp))
+            self._db_commit()
+        except Exception as e:
+            self.logger.error(f"Problem trying to add payable signature: {e}")
+            raise
+
+    def get_signatures(self, organization: str, sig_type: str):
+        """
+        Retrieve payable signature records for the provided organization and signature type
+
+        :param organization: The organization that requested the signatures
+        :param sig_type: The type of the signatures
+        :return: A list of dictionaries, one for each signature, with keys:
+            + owner_eppn: eduPersonPrincipalName of the user requesting the signature
+            + user_eppn: eduPersonPrincipalName of the user signing
+            + timestamp: timestamp of the signature
+        """
+        signatures = self._db_query(SIGNATURES_QUERY, (organization, sig_type))
+        if signatures is None or isinstance(signatures, dict):
+            self.logger.debug(f"No signatures found of type {sig_type} for {organization}")
+            return []
+
+        return signatures

@@ -33,6 +33,7 @@
 import abc
 import logging
 import uuid
+from datetime import datetime
 from importlib import import_module
 from typing import Any, Dict, List, Optional
 
@@ -539,6 +540,31 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
         :param key: The key identifying the document
         :return: The document ID
+        """
+
+    @abc.abstractmethod
+    def add_signature(self, sig_type: str, organization: str, owner_eppn: str, user_eppn: str, timestamp: datetime):
+        """
+        Add a payable signature to the db.
+
+        :param sig_type: the type of the signature, bankid |
+        :param organization: the organization requesting the signature
+        :param owner_eppn: eduPersonPrincipalName of the person requesting the signature
+        :param user_eppn: eduPersonPrincipalName of the person signing
+        :param timestamp: the timestamp in the signature
+        """
+
+    @abc.abstractmethod
+    def get_signatures(self, organization: str, sig_type: str):
+        """
+        Retrieve payable signature records for the provided organization and signature type
+
+        :param organization: The organization that requested the signatures
+        :param sig_type: The type of the signatures
+        :return: A list of dictionaries, one for each signature, with keys:
+            + owner_eppn: eduPersonPrincipalName of the user requesting the signature
+            + user_eppn: eduPersonPrincipalName of the user signing
+            + timestamp: timestamp of the signature
         """
 
 
@@ -1180,3 +1206,28 @@ class DocStore(object):
         :return: The document ID
         """
         return self.metadata.get_document_id(key)
+
+    def add_signature(self, sig_type: str, organization: str, owner_eppn: str, user_eppn: str, timestamp: datetime):
+        """
+        Add a payable signature to the db.
+
+        :param sig_type: the type of the signature, bankid |
+        :param organization: the organization requesting the signature
+        :param owner_eppn: eduPersonPrincipalName of the person requesting the signature
+        :param user_eppn: eduPersonPrincipalName of the person signing
+        :param timestamp: the timestamp in the signature
+        """
+        self.metadata.add_signature(sig_type, organization, owner_eppn, user_eppn, timestamp)
+
+    def get_signatures(self, organization: str, sig_type: str):
+        """
+        Retrieve payable signature records for the provided organization and signature type
+
+        :param organization: The organization that requested the signatures
+        :param sig_type: The type of the signatures
+        :return: A list of dictionaries, one for each signature, with keys:
+            + owner_eppn: eduPersonPrincipalName of the user requesting the signature
+            + user_eppn: eduPersonPrincipalName of the user signing
+            + timestamp: timestamp of the signature
+        """
+        return self.metadata.get_signatures(organization, sig_type)
