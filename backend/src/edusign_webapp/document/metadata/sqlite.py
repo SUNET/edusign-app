@@ -84,7 +84,7 @@ CREATE TABLE [PayableSignatures]
        [organization] VARCHAR(255) NOT NULL,
        [owner_eppn] VARCHAR(255) NOT NULL,
        [user_eppn] VARCHAR(255) NOT NULL,
-       [timestamp] TIMESTAMP NOT NULL
+       [timestamp] INTEGER NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
 CREATE INDEX IF NOT EXISTS [OwnerEmailIX] ON [Documents] ([owner_email]);
@@ -315,7 +315,7 @@ def upgrade(db):
                [organization] VARCHAR(255) NOT NULL,
                [owner_eppn] VARCHAR(255) NOT NULL,
                [user_eppn] VARCHAR(255) NOT NULL,
-               [timestamp] TIMESTAMP NOT NULL
+               [timestamp] INTEGER NOT NULL
             );
             """
         )
@@ -1346,7 +1346,7 @@ class SqliteMD(ABCMetadata):
 
         return str(document_result['doc_id'])
 
-    def add_signature(self, sig_type: str, organization: str, owner_eppn: str, user_eppn: str, timestamp: datetime):
+    def add_signature(self, sig_type: str, organization: str, owner_eppn: str, user_eppn: str, timestamp: int):
         """
         Add a payable signature to the db.
 
@@ -1363,7 +1363,7 @@ class SqliteMD(ABCMetadata):
             self.logger.error(f"Problem trying to add payable signature: {e}")
             raise
 
-    def get_signatures(self, organization: str, sig_type: str):
+    def get_signatures(self, organization: str, sig_type: str) -> List[Dict[str, Any]]:
         """
         Retrieve payable signature records for the provided organization and signature type
 

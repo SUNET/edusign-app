@@ -543,7 +543,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add_signature(self, sig_type: str, organization: str, owner_eppn: str, user_eppn: str, timestamp: datetime):
+    def add_signature(self, sig_type: str, organization: str, owner_eppn: str, user_eppn: str, timestamp: int):
         """
         Add a payable signature to the db.
 
@@ -555,7 +555,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def get_signatures(self, organization: str, sig_type: str):
+    def get_signatures(self, organization: str, sig_type: str) -> List[Dict[str, Any]]:
         """
         Retrieve payable signature records for the provided organization and signature type
 
@@ -1209,7 +1209,7 @@ class DocStore(object):
         """
         return self.metadata.get_document_id(key)
 
-    def add_signature(self, sig_type: str, organization: str, owner_eppn: str, user_eppn: str, timestamp: datetime):
+    def add_signature(self, sig_type: str, organization: str, owner_eppn: str, user_eppn: str, timestamp: int):
         """
         Add a payable signature to the db.
 

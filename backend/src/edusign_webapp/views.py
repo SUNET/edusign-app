@@ -1346,6 +1346,11 @@ def _process_signed_documents(process_data):
             else:
                 org = 'unknown'
                 current_app.logger.debug(f"Missing organization info in owner eppn: {owner['eppn']}")
+
+            if session['using-bankid']:
+                authnInstant = int(process_data['signerAssertionInformation']['authnInstant'])
+                current_app.extensions['doc_store'].add_signature('bankid', org, owner['eppn'], session['eppn'], authnInstant)
+
         else:
             if '@' in session['eppn']:
                 org = session['eppn'].split('@')[1]
