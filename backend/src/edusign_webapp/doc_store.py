@@ -1048,7 +1048,7 @@ class DocStore(object):
                  + eppn: The eppn of the owner
                  + docname: The name of the document
         """
-        doc = self.metadata.get_document(key)
+        doc = self.metadata.get_full_document(key)
         if not doc:
             return {}
 
