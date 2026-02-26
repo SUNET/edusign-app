@@ -1305,9 +1305,24 @@ def _process_signed_documents(process_data):
         current_app.logger.debug(
             f"Data for emails for signed docs - key: {key}, owner: {owner}, sendsigned: {sendsigned}, pending: {pending}, skipfinal: {skipfinal}, type: {mime_type}"
         )
+        if owner:
+            if '@' in owner['eppn']:
+                org = owner['eppn'].split('@')[1]
+            else:
+                org = 'unknown'
+                current_app.logger.debug(f"Missing organization info in owner eppn: {owner['eppn']}")
+        else:
+            if '@' in session['eppn']:
+                org = session['eppn'].split('@')[1]
+            else:
+                org = 'unknown'
+                current_app.logger.debug(f"Missing organization info in user eppn: {session['eppn']}")
+
+        current_app.logger.info(f"One document has been signed by organization {org}")
 
         # this is an invitation to the current user
         if owner and 'email' in owner and owner['email'] not in mail_aliases:
+
             # Last person to sign this document
             if not pending and skipfinal:
                 current_app.logger.debug(

@@ -1045,6 +1045,7 @@ class DocStore(object):
                  + name: The name of the owner
                  + email: The email of the owner
                  + lang: The language of the owner
+                 + eppn: The eppn of the owner
                  + docname: The name of the document
         """
         doc = self.metadata.get_document(key)
@@ -1054,6 +1055,7 @@ class DocStore(object):
         return {
             'name': doc['owner_name'],
             'email': doc['owner_email'],
+            'eppn': doc['owner_eppn'],
             'lang': doc['owner_lang'],
             'docname': doc['name'],
         }
