@@ -1,6 +1,7 @@
 In version 1.4.10
 ----------------
 
+* Add log entries tracking how many docs are signed and by which organization
 * Fix problem with validation of max number of signatures per document
 * fix problem with duplicated / dissapearing signatures after signing a signed draft
 
