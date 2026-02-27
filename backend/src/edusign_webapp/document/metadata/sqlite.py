@@ -136,6 +136,7 @@ INVITE_QUERY_UNSIGNED_FROM_DOC = (
     "SELECT inviteID FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0 ORDER BY order_invitation;"
 )
 INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, user_lang, user_ssn, doc_id FROM Invites WHERE key = ?;"
+INVITE_STATUS_QUERY_FROM_KEY = "SELECT signed, declined FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_email IN (%s) and doc_id = ?;"
 INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_email IN (%s) and doc_id = ?;"
 INVITE_DELETE = "DELETE FROM Invites WHERE user_id = ? and doc_id = ?;"
@@ -1063,6 +1064,20 @@ class SqliteMD(ABCMetadata):
         self._db_execute(INVITE_DELETE_FROM_KEY, (str(invite_key),))
         self._db_commit()
         return True
+
+    def is_invitation_standing(self, invite_key: uuid.UUID) -> bool:
+        """
+        Whether the invitation is still standing - not signed nor declined
+
+        :param invite_key: The key identifying the signing invitation to remove
+        :return: is invitation standing
+        """
+        invite = self._db_query(INVITE_STATUS_QUERY_FROM_KEY, (str(invite_key),), one=True)
+        if invite is None or isinstance(invite, list):
+            self.logger.error(f"Retrieving a non-existing invite with key {key}")
+            return False
+
+        return not (invite['signed'] or invite['declined'])
 
     def get_full_document(self, key: uuid.UUID) -> Dict[str, Any]:
         """

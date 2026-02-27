@@ -384,6 +384,15 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def is_invitation_standing(self, invite_key: uuid.UUID) -> bool:
+        """
+        Whether the invitation is still standing - not signed nor declined
+
+        :param invite_key: The key identifying the signing invitation to remove
+        :return: is invitation standing
+        """
+
+    @abc.abstractmethod
     def get_full_document(self, key: uuid.UUID) -> Dict[str, Any]:
         """
         Get full information about some document
@@ -1127,6 +1136,15 @@ class DocStore(object):
             invites = [i for i in invites if i['email'] not in exclude]
         invites.sort(key=lambda invite: invite['order'])
         return invites
+
+    def is_invitation_standing(self, invite_key: uuid.UUID) -> bool:
+        """
+        Whether the invitation is still standing - not signed nor declined
+
+        :param invite_key: The key identifying the signing invitation to remove
+        :return: is invitation standing
+        """
+        return self.metadata.is_invitation_standing(invite_key)
 
     def get_sendsigned(self, key: uuid.UUID) -> bool:
         """
