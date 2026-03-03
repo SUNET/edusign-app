@@ -295,60 +295,65 @@ export const finishInvited = createAsyncThunk(
     if (oldDoc === undefined) {
       return;
     }
-    thunkAPI.dispatch(mainSlice.actions.removeInvited({ key: args.doc.id }));
-    let prefix = "data:application/xml;base64,";
-    if (args.doc.type === "application/pdf") {
-      prefix = "data:application/pdf;base64,";
-    }
-    const content = prefix + args.doc.signed_content;
-    let newDoc = {
-      ...oldDoc,
-      name: nameForDownload(oldDoc.name, "draft", state),
-      state: "loaded",
-      message: "",
-      blob: content,
-      signedContent: content,
-      pprinted: args.doc.pprinted,
-      validated: args.doc.validated,
-      show: false,
-      showForced: false,
-      signed: args.doc.signed,
-    };
-    delete newDoc.pending;
-    delete newDoc.declined;
-    delete newDoc.ordered;
-    delete newDoc.validated;
-    delete newDoc.invite_key;
-    delete newDoc.owner;
-    delete newDoc.message;
-    delete newDoc.loa;
-    delete newDoc.signed;
-    delete newDoc.key;
-    delete newDoc.id;
-
-    newDoc.signed_draft = true;
-
-    try {
-      thunkAPI.dispatch(addDocument(newDoc));
-      await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
-      state = thunkAPI.getState();
-      const preparedDoc = state.documents.documents.find(doc => doc.name === newDoc.name);
-      if (preparedDoc === undefined) {
-        throw new Error(`Document ${newDoc.name} could not be prepared`);
+    if (state.main.signer_attributes.using_bankid) {
+      oldDoc.state = 'signed';
+      thunkAPI.dispatch(setInvitedState(oldDoc));
+    } else {
+      thunkAPI.dispatch(mainSlice.actions.removeInvited({ key: args.doc.id }));
+      let prefix = "data:application/xml;base64,";
+      if (args.doc.type === "application/pdf") {
+        prefix = "data:application/pdf;base64,";
       }
-      if (preparedDoc.state === 'unconfirmed') {
-        thunkAPI.dispatch(setState({name: newDoc.name, state: 'loaded', signed_draft: true}));
-      }
-    } catch (err) {
-      thunkAPI.dispatch(
-        addNotification({
-          level: "danger",
-          message: args.intl.formatMessage({
-            defaultMessage: "Problem saving draft of signed invitation.",
-            id: "problem-saving-signed-draft",
+      const content = prefix + args.doc.signed_content;
+      let newDoc = {
+        ...oldDoc,
+        name: nameForDownload(oldDoc.name, "draft", state),
+        state: "loaded",
+        message: "",
+        blob: content,
+        signedContent: content,
+        pprinted: args.doc.pprinted,
+        validated: args.doc.validated,
+        show: false,
+        showForced: false,
+        signed: args.doc.signed,
+      };
+      delete newDoc.pending;
+      delete newDoc.declined;
+      delete newDoc.ordered;
+      delete newDoc.validated;
+      delete newDoc.invite_key;
+      delete newDoc.owner;
+      delete newDoc.message;
+      delete newDoc.loa;
+      delete newDoc.signed;
+      delete newDoc.key;
+      delete newDoc.id;
+
+      newDoc.signed_draft = true;
+
+      try {
+        thunkAPI.dispatch(addDocument(newDoc));
+        await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
+        state = thunkAPI.getState();
+        const preparedDoc = state.documents.documents.find(doc => doc.name === newDoc.name);
+        if (preparedDoc === undefined) {
+          throw new Error(`Document ${newDoc.name} could not be prepared`);
+        }
+        if (preparedDoc.state === 'unconfirmed') {
+          thunkAPI.dispatch(setState({name: newDoc.name, state: 'loaded', signed_draft: true}));
+        }
+      } catch (err) {
+        thunkAPI.dispatch(
+          addNotification({
+            level: "danger",
+            message: args.intl.formatMessage({
+              defaultMessage: "Problem saving draft of signed invitation.",
+              id: "problem-saving-signed-draft",
+            }),
           }),
-        }),
-      );
+        );
+      }
     }
   },
 );
