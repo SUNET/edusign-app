@@ -46,7 +46,7 @@ class Invited extends Component {
                   doc={doc}
                   index={Number(index)}
                   handleClose={this.props.handleCloseForcedPreview}
-                  handleConfirm={this.props.handleConfirmForcedPreview}
+                  handleConfirm={this.props.handleConfirmForcedPreview(this.props)}
                   handleUnConfirm={this.props.handleUnConfirmForcedPreview}
                 />
               )}
@@ -60,7 +60,7 @@ class Invited extends Component {
                   doc={doc}
                   index={Number(index)}
                   handleClose={this.props.handleCloseForcedPreview}
-                  handleConfirm={this.props.handleConfirmForcedPreview}
+                  handleConfirm={this.props.handleConfirmForcedPreview(this.props)}
                   handleUnConfirm={this.props.handleUnConfirmForcedPreview}
                 />
               )}

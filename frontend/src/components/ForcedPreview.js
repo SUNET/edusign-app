@@ -58,6 +58,73 @@ function ForcedPreview(props) {
     setPageNumber(numPages);
   }
 
+  let rejectButtonLabel = (
+    <FormattedMessage
+      defaultMessage="Reject"
+      key="button-dissaprove"
+    />
+  );
+  let rejectButtonHelpText = (
+    <FormattedMessage
+      defaultMessage="Click here to reject/remove the document"
+      key="dissaprove-doc-tootip"
+    />
+  );
+  let acceptButtonLabel = (
+    <FormattedMessage
+      defaultMessage="Approve"
+      key="button-confirm"
+    />
+  );
+  let acceptButtonHelpText = (
+    <FormattedMessage
+      defaultMessage="Once you have scrolled to the end of the document you will be able to approve the document for signing"
+      key="disabled-confirm-doc-tootip"
+    />
+  );
+  if (readyToConfirm) {
+    acceptButtonHelpText = (
+      <FormattedMessage
+        defaultMessage="Click here to approve the document for signing"
+        key="confirm-doc-tootip"
+      />
+    );
+  }
+  if (props.using_bankid) {
+    rejectButtonLabel = (
+      <FormattedMessage
+        defaultMessage="Decline"
+        key="button-dissaprove-bankid"
+      />
+    );
+    rejectButtonHelpText = (
+      <FormattedMessage
+        defaultMessage="Click here to reject signing the document"
+        key="dissaprove-doc-tootip-bankid"
+      />
+    );
+    acceptButtonLabel = (
+      <FormattedMessage
+        defaultMessage="Approve"
+        key="button-confirm-bankid"
+      />
+    );
+    acceptButtonHelpText = (
+      <FormattedMessage
+        defaultMessage="Once you have scrolled to the end of the document you will be able to approve the document for signing"
+        key="disabled-confirm-doc-tootip-bankid"
+      />
+    );
+    if (readyToConfirm) {
+      acceptButtonHelpText = (
+        <FormattedMessage
+          defaultMessage="Click here to approve and sign the document"
+          key="confirm-doc-tootip-bankid"
+        />
+      );
+    }
+  }
+
   return (
     <>
       <Modal
@@ -111,12 +178,7 @@ function ForcedPreview(props) {
           <ESTooltip
             helpId={"preview-button-dissaprove-" + props.index}
             inModal={true}
-            tooltip={
-              <FormattedMessage
-                defaultMessage="Click here to reject/remove the document"
-                key="dissaprove-doc-tootip"
-              />
-            }
+            tooltip={rejectButtonHelpText}
           >
             <Button
               variant="outline-danger"
@@ -127,41 +189,23 @@ function ForcedPreview(props) {
               })}
               id={"preview-button-dissaprove-" + props.index}
             >
-              <FormattedMessage
-                defaultMessage="Reject"
-                key="button-dissaprove"
-              />
+              {rejectButtonLabel}
             </Button>
           </ESTooltip>
           <ESTooltip
             helpId={"preview-button-confirm-" + props.index}
             inModal={true}
-            tooltip={
-              (readyToConfirm && (
-                <FormattedMessage
-                  defaultMessage="Click here to approve the document for signing"
-                  key="confirm-doc-tootip"
-                />
-              )) || (
-                <FormattedMessage
-                  defaultMessage="Once you have scrolled to the end of the document you will be able to approve the document for signing"
-                  key="disabled-confirm-doc-tootip"
-                />
-              )
-            }
+            tooltip={acceptButtonHelpText}
           >
             <span className="d-inline-block">
               <Button
                 disabled={!readyToConfirm}
-                onClick={props.handleConfirm(props.doc.name, props.doc.key)}
+                onClick={props.handleConfirm(props.doc)}
                 style={(!readyToConfirm && { pointerEvents: "none" }) || {}}
                 variant="outline-success"
                 id={"preview-button-confirm-" + props.index}
               >
-                <FormattedMessage
-                  defaultMessage="Approve"
-                  key="button-confirm"
-                />
+                {acceptButtonLabel}
               </Button>
             </span>
           </ESTooltip>

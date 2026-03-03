@@ -30,6 +30,7 @@ const mapStateToProps = (state) => {
     size: state.main.size,
     name: state.main.signer_attributes.name,
     mail: state.main.signer_attributes.mail,
+    using_bankid: state.main.signer_attributes.using_bankid,
   };
 };
 
@@ -101,11 +102,17 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetActiveId());
       };
     },
-    handleConfirmForcedPreview: function (name, key) {
-      return () => {
-        dispatch(confirmForcedInvitedPreview(key));
-        dispatch(hideForcedInvitedPreview(name));
-        dispatch(enableFastSignature(key));
+    handleConfirmForcedPreview: function (props) {
+      return (doc) => {
+        return async () => {
+          dispatch(confirmForcedInvitedPreview(doc.key));
+          dispatch(hideForcedInvitedPreview(doc.name));
+          if (props.using_bankid) {
+            await dispatch(startSigningDoc({ doc: doc, intl: props.intl }));
+          } else {
+            dispatch(enableFastSignature(key));
+          }
+        };
       };
     },
     handleUnConfirmForcedPreview: function (args) {

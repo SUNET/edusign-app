@@ -325,26 +325,28 @@ class DocManager extends React.Component {
           )}
         </div>
         <div id="adjust-vertical-space" />
-        <div id="global-buttons-wrapper">
-          {widgets.buttonSignSelected(
-            disableSigning,
-            this.props.handleSubmitToSign.bind(this),
-          )}
-          {!this.props.unauthn && (
-            <>
-              {widgets.buttonDownloadAll(
-                disableDlAllButton,
-                this.props.handleDownloadAll.bind(this),
-              )}
-              {widgets.buttonClearPersonal(
-                disableClearButton,
-                this.props.showConfirm("confirm-clear-session"),
-                this.props.clearDb,
-                this.props.intl,
-              )}
-            </>
-          )}
-        </div>
+        {!this.props.using_bankid && (
+          <div id="global-buttons-wrapper">
+            {widgets.buttonSignSelected(
+              disableSigning,
+              this.props.handleSubmitToSign.bind(this),
+            )}
+            {!this.props.unauthn && (
+              <>
+                {widgets.buttonDownloadAll(
+                  disableDlAllButton,
+                  this.props.handleDownloadAll.bind(this),
+                )}
+                {widgets.buttonClearPersonal(
+                  disableClearButton,
+                  this.props.showConfirm("confirm-clear-session"),
+                  this.props.clearDb,
+                  this.props.intl,
+                )}
+              </>
+            )}
+          </div>
+        )}
         {/**
          * This is the form that is sent to the sign service.
          * Both the data sent in the form (`binding`, `relayState`, and `signRequest`)

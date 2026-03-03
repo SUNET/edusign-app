@@ -61,6 +61,7 @@ const mapStateToProps = (state) => {
     name: state.main.signer_attributes.name,
     mail: state.main.signer_attributes.mail,
     inviting: state.inviteform.inviting,
+    using_bankid: state.main.signer_attributes.using_bankid,
   };
 };
 
@@ -187,11 +188,11 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetActiveId());
       };
     },
-    handleConfirmForcedPreview: function (name, key) {
+    handleConfirmForcedPreview: function (doc) {
       return async () => {
-        dispatch(confirmForcedPreview(key));
-        await dispatch(saveDocument({ docKey: key }));
-        dispatch(hideForcedPreview(name));
+        dispatch(confirmForcedPreview(doc.key));
+        await dispatch(saveDocument({ docKey: doc.key }));
+        dispatch(hideForcedPreview(doc.name));
         dispatch(unsetSpinning());
         dispatch(enablePolling());
         dispatch(unsetActiveId());
