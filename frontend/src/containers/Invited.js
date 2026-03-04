@@ -110,7 +110,7 @@ const mapDispatchToProps = (dispatch, props) => {
           if (props.using_bankid) {
             await dispatch(startSigningDoc({ doc: doc, intl: props.intl }));
           } else {
-            dispatch(enableFastSignature(key));
+            dispatch(enableFastSignature(doc.key));
           }
         };
       };
