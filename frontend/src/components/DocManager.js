@@ -314,12 +314,21 @@ class DocManager extends React.Component {
           )}
           {this.props.pending.length > 0 && (
             <fieldset className="invited-multisign-container">
-              <legend data-testid="legend-invited">
-                <FormattedMessage
-                  defaultMessage="Documents you are invited to sign"
-                  key="invited-multisign-legend"
-                />
-              </legend>
+              {!this.props.using_bankid && (
+                <legend data-testid="legend-invited">
+                  <FormattedMessage
+                    defaultMessage="Documents you are invited to sign"
+                    key="invited-multisign-legend"
+                  />
+                </legend>
+              ) || (
+                <p className="invited-legend-title">
+                  <FormattedMessage
+                    defaultMessage="The draft document can be downloaded now, but will disappear when this window is closed. The fully signed document will be available from the person who invited the signature."
+                    key="local-invited-legend-title"
+                  />
+                </p>
+              )}
               <InvitedContainer />
             </fieldset>
           )}

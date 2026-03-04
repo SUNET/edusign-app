@@ -19,6 +19,7 @@
   "components.DnDArea.dnd-area-head-sm": "Pincha aquí para seleccionar ficheros a firmar",
   "components.DocManager.invited-multisign-legend": "Documentos que has sido invitado a firmar",
   "components.DocManager.invited-unauthn-title": "Te han invitado a firmar los siguientes documento(s)",
+  "components.DocManager.local-invited-legend-title": "",
   "components.DocManager.local-monosign-legend": "Documentos personales",
   "components.DocManager.local-monosign-legend-title": "Los documentos personales se almacenan en el navegador. Una vez firmados, recomendamos almacenarlos en otro sitio para su uso posterior.",
   "components.DocManager.local-templates-legend": "Plantillas",

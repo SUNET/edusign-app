@@ -19,6 +19,7 @@
   "components.DnDArea.dnd-area-head-sm": "Tap here to choose files to be signed",
   "components.DocManager.invited-multisign-legend": "Documents you are invited to sign",
   "components.DocManager.invited-unauthn-title": "You have been invited to sign the following document(s)",
+  "components.DocManager.local-invited-legend-title": "The draft document can be downloaded now, but will disappear when this window is closed. The fully signed document will be available from the person who invited the signature.",
   "components.DocManager.local-monosign-legend": "Personal documents",
   "components.DocManager.local-monosign-legend-title": "Personal documents are stored in your browser. When signed, we recommend to store them in a separate place for later use.",
   "components.DocManager.local-templates-legend": "Templates",

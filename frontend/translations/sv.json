@@ -19,6 +19,7 @@
   "components.DnDArea.dnd-area-head-sm": "Klicka här för att välja filer att signera",
   "components.DocManager.invited-multisign-legend": "Dokument du är inbjuden att signera",
   "components.DocManager.invited-unauthn-title": "Du har blivit inbjuden att signera nedan dokument",
+  "components.DocManager.local-invited-legend-title": "Dokumentutkastet kan laddas ner nu, men försvinner när detta fönster stängs. Det färdiga dokumentet finns hos den som bjöd in till signatur",
   "components.DocManager.local-monosign-legend": "Personliga dokument",
   "components.DocManager.local-monosign-legend-title": "Personliga dokument lagras i din webbläsare. När de är signerade rekommenderar vi att lagra dem på en annan plats för senare användning.",
   "components.DocManager.local-templates-legend": "Mallar",

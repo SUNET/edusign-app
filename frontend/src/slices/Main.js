@@ -296,8 +296,11 @@ export const finishInvited = createAsyncThunk(
       return;
     }
     if (state.main.signer_attributes.using_bankid) {
-      oldDoc.state = 'signed';
-      thunkAPI.dispatch(setInvitedState(oldDoc));
+      const newDoc = {
+        ...oldDoc,
+        state: 'signed',
+      };
+      thunkAPI.dispatch(setInvitedState(newDoc));
     } else {
       thunkAPI.dispatch(mainSlice.actions.removeInvited({ key: args.doc.id }));
       let prefix = "data:application/xml;base64,";
