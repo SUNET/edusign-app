@@ -321,14 +321,14 @@ class DocManager extends React.Component {
                     key="invited-multisign-legend"
                   />
                 </legend>
-              ) || (
+              ) || (this.props.pending[0].state === 'signed' && (
                 <p className="invited-legend-title">
                   <FormattedMessage
                     defaultMessage="The draft document can be downloaded now, but will disappear when this window is closed. The fully signed document will be available from the person who invited the signature."
                     key="local-invited-legend-title"
                   />
                 </p>
-              )}
+              ))}
               <InvitedContainer />
             </fieldset>
           )}
