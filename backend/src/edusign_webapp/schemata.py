@@ -407,9 +407,9 @@ class SigGlobalSchema(Schema):
     accountable for each organization
     """
 
-    class ToSignDocumentSchema(_ReferenceSchema):
+    class SigSchema(Schema):
         organization = fields.String(required=True, validate=[validate_nonempty])
         type = fields.String(required=True, validate=[validate_nonempty, validate_sig_type])
         number_of_signatures = fields.Number(required=True)
 
-    documents = fields.List(fields.Nested(ToSignDocumentSchema))
+    orgs = fields.List(fields.Nested(SigSchema))

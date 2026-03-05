@@ -133,7 +133,8 @@ def get_id_service_usage():
 
     :return: JSON [{"org name": <number of signatures>}, ...]
     """
-    return current_app.extensions['doc_store'].get_signatures_global()
+    to_pay = current_app.extensions['doc_store'].get_signatures_global()
+    return {'orgs': to_pay}
 
 
 @admin_edusign_views.route('/migrate-to-redis-and-s3', methods=['POST'])
