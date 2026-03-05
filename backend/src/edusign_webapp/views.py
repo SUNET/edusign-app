@@ -69,6 +69,7 @@ from edusign_webapp.schemata import (
     SignRequestSchema,
     ToRestartSigningSchema,
     ToSignSchema,
+    SigGlobalSchema,
 )
 from edusign_webapp.utils import (
     MissingDisplayName,
@@ -121,6 +122,18 @@ def cleanup():
     response = make_response(f"Removed {removed} documents out of {total} scheduled")
     response.mimetype = "text/plain"
     return response
+
+
+@admin_edusign_views.route('/get-id-service-usage', methods=['GET'])
+@Marshal(SigGlobalSchema)
+def get_id_service_usage():
+    """
+    Get JSON representation of BankID signatures
+    and the organizations responsible for them.
+
+    :return: JSON [{"org name": <number of signatures>}, ...]
+    """
+    return current_app.extensions['doc_store'].get_signatures_global()
 
 
 @admin_edusign_views.route('/migrate-to-redis-and-s3', methods=['POST'])
@@ -1349,7 +1362,8 @@ def _process_signed_documents(process_data):
 
             if session['using-bankid']:
                 authnInstant = int(process_data['signerAssertionInformation']['authnInstant'])
-                current_app.extensions['doc_store'].add_signature('bankid', org, owner['eppn'], session['eppn'], authnInstant)
+                # current_app.extensions['doc_store'].add_signature('bankid', org, doc['name'], owner['eppn'], session['eppn'], authnInstant)
+                current_app.extensions['doc_store'].add_signature('bankid', org, '', '', '', authnInstant)
 
         else:
             if '@' in session['eppn']:

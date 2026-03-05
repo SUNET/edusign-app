@@ -35,6 +35,7 @@ from marshmallow import Schema, fields
 
 from edusign_webapp.validators import (
     validate_doc_type,
+    validate_sig_type,
     validate_language,
     validate_nonempty,
     validate_sign_requirement,
@@ -398,3 +399,17 @@ class DocSchema(Schema):
 class FillFormSchema(Schema):
     document = fields.String(required=True, validate=[validate_nonempty])
     form_fields = fields.List(fields.Nested(Field))
+
+
+class SigGlobalSchema(Schema):
+    """
+    Schema to marshal a report on the number of payable signatures
+    accountable for each organization
+    """
+
+    class ToSignDocumentSchema(_ReferenceSchema):
+        organization = fields.String(required=True, validate=[validate_nonempty])
+        type = fields.String(required=True, validate=[validate_nonempty, validate_sig_type])
+        number_of_signatures = fields.Number(required=True)
+
+    documents = fields.List(fields.Nested(ToSignDocumentSchema))

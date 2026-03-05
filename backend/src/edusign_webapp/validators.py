@@ -65,6 +65,17 @@ def validate_doc_type(value):
         raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 
 
+def validate_sig_type(value):
+    """
+    Validate that the provided value is an allowed payable signature type
+
+    :raises ValidationError: if the value is not an allowed payable signature type
+    """
+    if value not in ('BankID', 'Freja'):
+        current_app.logger.debug(f'Validate sig type: wrong type {value}')
+        raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
+
+
 def validate_uuid4(value):
     """
     Validate that the provided value is an UUID (RFC 4122)

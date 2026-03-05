@@ -552,12 +552,13 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add_signature(self, sig_type: str, organization: str, owner_eppn: str, user_eppn: str, timestamp: int):
+    def add_signature(self, sig_type: str, organization: str, doc_name: str, owner_eppn: str, user_eppn: str, timestamp: int):
         """
         Add a payable signature to the db.
 
         :param sig_type: the type of the signature, bankid |
         :param organization: the organization requesting the signature
+        :param doc_name: Name of signed document
         :param owner_eppn: eduPersonPrincipalName of the person requesting the signature
         :param user_eppn: eduPersonPrincipalName of the person signing
         :param timestamp: the timestamp in the signature
@@ -574,6 +575,17 @@ class ABCMetadata(metaclass=abc.ABCMeta):
             + owner_eppn: eduPersonPrincipalName of the user requesting the signature
             + user_eppn: eduPersonPrincipalName of the user signing
             + timestamp: timestamp of the signature
+        """
+
+    @abc.abstractmethod
+    def get_signatures_global(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve payable signatures number per organization and type
+
+        :return: A list of dictionaries, one for each organization and type, with keys:
+            + organization: Name of responsible organization
+            + type: BankID / Freja
+            + number_of_signatures: Number of signatures made on request of the responsible organization
         """
 
 
@@ -1227,17 +1239,18 @@ class DocStore(object):
         """
         return self.metadata.get_document_id(key)
 
-    def add_signature(self, sig_type: str, organization: str, owner_eppn: str, user_eppn: str, timestamp: int):
+    def add_signature(self, sig_type: str, organization: str, doc_name: str, owner_eppn: str, user_eppn: str, timestamp: int):
         """
         Add a payable signature to the db.
 
         :param sig_type: the type of the signature, bankid |
         :param organization: the organization requesting the signature
+        :param doc_name: Name of signed document
         :param owner_eppn: eduPersonPrincipalName of the person requesting the signature
         :param user_eppn: eduPersonPrincipalName of the person signing
         :param timestamp: the timestamp in the signature
         """
-        self.metadata.add_signature(sig_type, organization, owner_eppn, user_eppn, timestamp)
+        self.metadata.add_signature(sig_type, organization, doc_name, owner_eppn, user_eppn, timestamp)
 
     def get_signatures(self, organization: str, sig_type: str):
         """
@@ -1251,3 +1264,14 @@ class DocStore(object):
             + timestamp: timestamp of the signature
         """
         return self.metadata.get_signatures(organization, sig_type)
+
+    def get_signatures_global(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve payable signatures number per organization and type
+
+        :return: A list of dictionaries, one for each organization and type, with keys:
+            + organization: Name of responsible organization
+            + type: BankID / Freja
+            + number_of_signatures: Number of signatures made on request of the responsible organization
+        """
+        return self.metadata.get_signatures_global()

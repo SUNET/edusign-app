@@ -82,8 +82,9 @@ CREATE TABLE [PayableSignatures]
        [signature_id] INTEGER PRIMARY KEY AUTOINCREMENT,
        [type] VARCHAR(255) NOT NULL,
        [organization] VARCHAR(255) NOT NULL,
-       [owner_eppn] VARCHAR(255) NOT NULL,
-       [user_eppn] VARCHAR(255) NOT NULL,
+       [doc_name] VARCHAR(255) NOT NULL DEFAULT "",
+       [owner_eppn] VARCHAR(255) NOT NULL DEFAULT "",
+       [user_eppn] VARCHAR(255) NOT NULL DEFAULT "",
        [timestamp] INTEGER NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS [KeyIX] ON [Documents] ([key]);
@@ -143,8 +144,9 @@ INVITE_DELETE = "DELETE FROM Invites WHERE user_id = ? and doc_id = ?;"
 INVITE_DELETE_FROM_KEY = "DELETE FROM Invites WHERE key = ?;"
 INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
 
-SIGNATURE_INSERT = "INSERT INTO PayableSignatures (type, organization, owner_eppn, user_eppn, timestamp) VALUES (?, ?, ?, ?, ?);"
+SIGNATURE_INSERT = "INSERT INTO PayableSignatures (type, organization, doc_name, owner_eppn, user_eppn, timestamp) VALUES (?, ?, ?, ?, ?, ?);"
 SIGNATURES_QUERY = "SELECT owner_eppn, user_eppn, timestamp FROM PayableSignatures WHERE type = ? AND organization = ?;"
+SIGNATURES_QUERY_GLOBAL = "SELECT organization, type, COUNT(*) AS number_of_signatures FROM PayableSignatures GROUP BY organization, type;"
 
 
 def convert_date(val):
@@ -314,8 +316,9 @@ def upgrade(db):
                [signature_id] INTEGER PRIMARY KEY AUTOINCREMENT,
                [type] VARCHAR(255) NOT NULL,
                [organization] VARCHAR(255) NOT NULL,
-               [owner_eppn] VARCHAR(255) NOT NULL,
-               [user_eppn] VARCHAR(255) NOT NULL,
+               [doc_name] VARCHAR(255) NOT NULL DEFAULT "",
+               [owner_eppn] VARCHAR(255) NOT NULL DEFAULT "",
+               [user_eppn] VARCHAR(255) NOT NULL DEFAULT "",
                [timestamp] INTEGER NOT NULL
             );
             """
@@ -1361,18 +1364,19 @@ class SqliteMD(ABCMetadata):
 
         return str(document_result['doc_id'])
 
-    def add_signature(self, sig_type: str, organization: str, owner_eppn: str, user_eppn: str, timestamp: int):
+    def add_signature(self, sig_type: str, organization: str, doc_name: str, owner_eppn: str, user_eppn: str, timestamp: int):
         """
         Add a payable signature to the db.
 
         :param sig_type: the type of the signature, bankid |
         :param organization: the organization requesting the signature
+        :param doc_name: Name of signed document
         :param owner_eppn: eduPersonPrincipalName of the person requesting the signature
         :param user_eppn: eduPersonPrincipalName of the person signing
         :param timestamp: the timestamp in the signature
         """
         try:
-            self._db_execute(SIGNATURE_INSERT, (sig_type, organization, owner_eppn, user_eppn, timestamp))
+            self._db_execute(SIGNATURE_INSERT, (sig_type, organization, doc_name, owner_eppn, user_eppn, timestamp))
             self._db_commit()
         except Exception as e:
             self.logger.error(f"Problem trying to add payable signature: {e}")
@@ -1392,6 +1396,22 @@ class SqliteMD(ABCMetadata):
         signatures = self._db_query(SIGNATURES_QUERY, (organization, sig_type))
         if signatures is None or isinstance(signatures, dict):
             self.logger.debug(f"No signatures found of type {sig_type} for {organization}")
+            return []
+
+        return signatures
+
+    def get_signatures_global(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve payable signatures number per organization and type
+
+        :return: A list of dictionaries, one for each organization and type, with keys:
+            + organization: Name of responsible organization
+            + type: BankID / Freja
+            + number_of_signatures: Number of signatures made on request of the responsible organization
+        """
+        signatures = self._db_query(SIGNATURES_QUERY_GLOBAL)
+        if signatures is None or isinstance(signatures, dict):
+            self.logger.debug(f"No signatures found")
             return []
 
         return signatures
