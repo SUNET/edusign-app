@@ -40,6 +40,7 @@ import { loadDocuments, addDocumentToDb, addDocument, setState, createDocument }
 import { setInitialPolling } from "slices/Poll";
 import { setAllowBankID } from "slices/InviteForm";
 import { b64toBlob, nameForDownload } from "components/utils";
+import { dbRemoveDocument } from "init-app/database";
 
 /**
  * @public
@@ -311,6 +312,7 @@ export const finishInvited = createAsyncThunk(
       let newDoc = {
         ...oldDoc,
         name: nameForDownload(oldDoc.name, "draft", state),
+        size: content.length,
         state: "loaded",
         message: "",
         blob: content,
@@ -346,6 +348,10 @@ export const finishInvited = createAsyncThunk(
         if (preparedDoc.state === 'unconfirmed') {
           thunkAPI.dispatch(setState({name: newDoc.name, state: 'loaded', signed_draft: true}));
         }
+        state = thunkAPI.getState();
+        newDoc = state.documents.documents.find(doc => doc.name === newDoc.name);
+        await dbRemoveDocument(newDoc);
+        await addDocumentToDb(newDoc, state.main.signer_attributes.eppn, thunkAPI, args.intl);
       } catch (err) {
         thunkAPI.dispatch(
           addNotification({
