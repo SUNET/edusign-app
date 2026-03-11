@@ -269,6 +269,7 @@ def get_home():
 
     :return: the rendered `home.jinja2` template as a string
     """
+    session.clear()
     current_lang = str(get_locale())
     md_name = f"home-{current_lang}.md"
     base_dir = current_app.config['CUSTOMIZATION_DIR']
@@ -315,6 +316,7 @@ def get_home_bankid(invite_key: str):
 
     :return: the rendered `home-bankid.jinja2` template as a string
     """
+    session.clear()
     current_lang = str(get_locale())
     md_name = f"home-{current_lang}.md"
     base_dir = current_app.config['CUSTOMIZATION_DIR']
@@ -419,7 +421,7 @@ def logout() -> Response:
 
 @edusign_views.route('/', methods=['GET'])
 @edusign_views2.route('/', methods=['GET'])
-def get_index() -> str:
+def get_index() -> str | Response:
     """
     View to get the index html that loads the frontside app.
 
@@ -436,6 +438,10 @@ def get_index() -> str:
 
     :return: the rendered `index.jinja2` template as a string (or `error-generic.jinja2` in case of errors)
     """
+    if 'using-bankid' in session and session.get('using-bankid'):
+        session.clear()
+        return redirect(url_for('edusign_anon.get_home'))
+
     company_link = current_app.config['COMPANY_LINK']
     context = {
         'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}",
@@ -446,6 +452,9 @@ def get_index() -> str:
     try:
         add_attributes_to_session()
     except KeyError as e:
+        if request.headers.get('Md-Organizationname', '') in ('BankID',):
+            return redirect(url_for('edusign_anon.get_home'))
+
         current_app.logger.error(
             f'There is some misconfiguration and the IdP does not seem to provide the correct attributes: {e}.'
         )
@@ -495,6 +504,9 @@ def get_index_bankid(invite_key: str) -> Union[str, Response]:
     :param invite_key: Key identifying the invitation to sign.
     :return: Rendered template with UI to start the signature process.
     """
+    if 'using-bankid' in session and  not session.get('using-bankid'):
+        session.clear()
+
     company_link = current_app.config['COMPANY_LINK']
     context = {
         'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}",
