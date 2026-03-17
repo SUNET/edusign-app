@@ -69,14 +69,15 @@ def get_attr_values(attr_in_header):
     To be able to pass utf8 through wsgi headers,
     we tell shibboleth to add them as b64 encoded XML elements.
     """
-    attrs = []
+    vals = []
     b64 = request.headers[attr_in_header]
     attrs_b64 = b64.split(';')
     for attr_b64 in attrs_b64:
         attr_xml = b64decode(attr_b64)
         attr_val = ET.fromstring(attr_xml)
-        attrs.append(attr_val.text)
-    return attrs
+        value = attr_val.text.strip()
+        vals.append(value)
+    return vals
 
 
 def add_attributes_to_session(check_whitelisted=True):
@@ -108,6 +109,7 @@ def add_attributes_to_session(check_whitelisted=True):
                 current_app.logger.error('Missing eduPersonPrincipalName from request')
                 raise
 
+        eppn = eppn.strip()
         session['eppn'] = eppn
         session['Persistent-Id'] = eppn
         session['eduPersonPrincipalName'] = eppn
