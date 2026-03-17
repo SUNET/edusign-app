@@ -81,6 +81,7 @@ from edusign_webapp.utils import (
     get_previous_signatures,
     get_previous_signatures_xml,
     is_whitelisted,
+    is_whitelisted_for_bankid,
     prepare_document,
     pretty_print_any,
     pretty_print_xml,
@@ -594,11 +595,16 @@ def receive_sign_request():
 
 
 def _get_ui_defaults():
+    allow_bankid = False
+    if current_app.config['UI_ALLOW_BANKID']:
+        if is_whitelisted_for_bankid(current_app, session['eppn']):
+            allow_bankid = True
+
     ui_defaults = {
         'send_signed': current_app.config['UI_SEND_SIGNED'],
         'skip_final': current_app.config['UI_SKIP_FINAL'],
         'ordered_invitations': current_app.config['UI_ORDERED_INVITATIONS'],
-        'allow_bankid': current_app.config['UI_ALLOW_BANKID'],
+        'allow_bankid': allow_bankid,
     }
     form_config_file = current_app.config['CUSTOM_FORMS_DEFAULTS_FILE']
     if os.path.exists(form_config_file):

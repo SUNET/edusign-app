@@ -456,6 +456,20 @@ def is_whitelisted(app, eppn: str) -> bool:
     return eppn.lower().split('@')[1] in app.config['SCOPE_WHITELIST']
 
 
+def is_whitelisted_for_bankid(app, eppn: str) -> bool:
+    """
+    Check whether a given eppn is whitelisted for inviting to sign with BankID
+
+    :param app: the Flask app
+    :param eppn: the eduPersonPrincipalName
+    :return: whether it is whitelisted
+    """
+    if '@' not in eppn:  # BankID
+        return False
+
+    return eppn.lower().split('@')[1] in app.config['BANKID_WHITELIST']
+
+
 def fix_recipients(recipients):
     reg = re.compile("^([^<]*)<([^>]*)>$")
     for i, recipient in enumerate(recipients):

@@ -142,10 +142,14 @@ RAW_USER_WHITELIST = os.environ.get('USER_WHITELIST', default='whitelisted@eduid
 
 USER_WHITELIST = [eppn.lower().strip() for eppn in RAW_USER_WHITELIST.split(',')]
 
+RAW_BANKID_WHITELIST = os.environ.get('BANKID_WHITELIST', default='eduid.se, sunet.se')
+
+BANKID_WHITELIST = [scope.lower().strip() for scope in RAW_BANKID_WHITELIST.split(',')]
+
 POLLING = os.environ.get('POLLING', default='always')  # always|inviter|never
 
 # Whether users are allowed to invite to sign with BankID
-RAW_ALLOW_BANKID = os.environ.get('ALLOW_BANKID', default='false')
+RAW_ALLOW_BANKID = os.environ.get('ALLOW_BANKID', default='true')
 ALLOW_BANKID = get_boolean(RAW_ALLOW_BANKID)
 
 BANKID_IDP = os.environ.get('BANKID_IDP', default="https://sandbox.swedenconnect.se/bankid/idp")
