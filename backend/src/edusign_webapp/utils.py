@@ -109,11 +109,13 @@ def add_attributes_to_session(check_whitelisted=True):
                 raise
 
         session['eppn'] = eppn
+        session['Persistent-Id'] = eppn
         session['eduPersonPrincipalName'] = eppn
         session['saml-attr-schema'] = attr_schema
         session['using-bankid'] = False
         session['invite-key'] = ''
         session['ssn'] = ''
+        session['personalIdentityNumber'] = ''
 
         current_app.logger.info(f'User {eppn} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
@@ -224,6 +226,7 @@ def add_attributes_to_session_bankid(invite_key):
         attr_schema = "20"
 
         session['eppn'] = eppn
+        session['Persistent-Id'] = eppn
         session['eduPersonPrincipalName'] = eppn
         session['saml-attr-schema'] = attr_schema
         session['using-bankid'] = True
@@ -241,6 +244,7 @@ def add_attributes_to_session_bankid(invite_key):
             raise WrongSSN()
 
         session['ssn'] = ssn
+        session['personalIdentityNumber'] = ssn
 
         session['eduPersonAssurance'] = []
 

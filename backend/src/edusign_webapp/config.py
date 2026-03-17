@@ -116,6 +116,13 @@ RAW_SIGNER_ATTRIBUTES_20 = os.environ.get(
 
 SIGNER_ATTRIBUTES_20 = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES_20.split(';')}
 
+RAW_SIGNER_ATTRIBUTES_BANKID = os.environ.get(
+    'SIGNER_ATTRIBUTES_BANKID',
+    default='urn:oid:2.16.840.1.113730.3.1.241,displayName',
+)
+
+SIGNER_ATTRIBUTES_BANKID = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES_BANKID.split(';')}
+
 RAW_AUTHN_ATTRIBUTES_11 = os.environ.get(
     'AUTHN_ATTRIBUTES_11',
     default='urn:mace:dir:attribute-def:eduPersonPrincipalName,eduPersonPrincipalName',
@@ -129,6 +136,13 @@ RAW_AUTHN_ATTRIBUTES_20 = os.environ.get(
 )
 
 AUTHN_ATTRIBUTES_20 = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_20.split(';')}
+
+RAW_AUTHN_ATTRIBUTES_BANKID = os.environ.get(
+    'AUTHN_ATTRIBUTES_BANKID',
+    default='urn:oid:1.2.752.29.4.13,personalIdentityNumber',
+)
+
+AUTHN_ATTRIBUTES_BANKID = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_BANKID.split(';')}
 
 RAW_SCOPE_WHITELIST = os.environ.get('SCOPE_WHITELIST', default='eduid.se, sunet.se')
 

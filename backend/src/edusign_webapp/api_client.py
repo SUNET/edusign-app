@@ -222,19 +222,18 @@ class APIClient(object):
         """
         self.initialize_credentials()
         idp = session['idp']
-        attr_schema = session['saml-attr-schema']
 
         if session.get('organizationName', None) is not None:
             idp = session['organizationName']
 
         using_bankid = session.get('using-bankid', False)
 
+        attr_suffix = session['saml-attr-schema']
         if using_bankid:
-            attrs = [{'name': current_app.config['BANKID_SSN_ATTR']}]
-            current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
-        else:
-            attrs = [{'name': attr} for attr in self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].keys()]
-            current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
+            attr_suffix = 'BANKID'
+
+        attrs = [{'name': attr} for attr in self.config[f'SIGNER_ATTRIBUTES_{attr_suffix}'].keys()]
+        current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
 
         doc_data = document['blob']
         if ',' in doc_data:
@@ -267,11 +266,16 @@ class APIClient(object):
     def _get_sign_request_data(self, documents):
         using_bankid = session.get('using-bankid', False)
         idp = session['idp']
-        attr_schema = session['saml-attr-schema']
         authn_context = get_authn_context()
         assurance = get_required_assurance(documents)
         correlation_id = str(uuid.uuid4())
-        attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
+
+        attr_schema = session['saml-attr-schema']
+        attr_suffix = attr_schema
+        if using_bankid:
+            attr_suffix = 'BANKID'
+
+        attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_suffix}'].items()
         attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]
         used_attr_names = tuple(friendly_name for _, friendly_name in attr_names)
 
@@ -284,17 +288,10 @@ class APIClient(object):
                 used_attr_names += tuple([session['authn_attr_name']])
             attrs.extend(more_attrs)
 
-        elif using_bankid:
-            if 'ssn' in session and session['ssn']:
-                attrs = [{'name': current_app.config['BANKID_SSN_ATTR'], 'value': session['ssn']}]
-                used_attr_names = [current_app.config['BANKID_SSN_ATTR']]
-            else:
-                attrs = []
-                used_attr_names = []
         else:
             more_attr_names = [
                 attr_names
-                for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_schema}'].items()
+                for attr_names in self.config[f'AUTHN_ATTRIBUTES_{attr_suffix}'].items()
                 if attr_names[1] not in used_attr_names
             ]
             more_attrs = [
