@@ -11,7 +11,7 @@ import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
 import { InviteesWidget } from "components/InviteesWidget";
 import { nameForCopy } from "components/utils";
-import { sendsignedControl, skipFinalControl } from "components/widgets";
+import { sendsignedControl, skipFinalControl, sendinvitesControl } from "components/widgets";
 import {
   validateEmail,
   validateName,
@@ -23,6 +23,7 @@ import {
   validateOrdered,
   validateAllowBankID,
   validateNewname,
+  validateSendInvites,
 } from "components/validation";
 
 import "styles/InviteForm.scss";
@@ -81,6 +82,7 @@ const initialValues = (props) => {
     invitationText: "",
     sendsignedChoice: props.ui_defaults.send_signed,
     skipfinalChoice: props.ui_defaults.skip_final,
+    sendinvitesChoice: props.ui_defaults.send_invites,
     makecopyChoice: false,
     isTemplate: props.isTemplate,
     newnameInput: nameForCopy(props),
@@ -379,6 +381,7 @@ class InviteForm extends React.Component {
                     </BForm.Group>
                   </div>
                   {sendsignedControl}
+                  {sendinvitesControl}
                   {skipFinalControl}
                   {orderedControl(fprops)}
                   {allowBankIDControl(this.props, fprops)}

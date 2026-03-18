@@ -1589,6 +1589,7 @@ def create_multi_sign_request(data: dict) -> dict:
             owner,
             data['invites'],
             data['sendsigned'],
+            data.get('sendinvited', True),
             data['loa'],
             data['skipfinal'],
             data['ordered'],

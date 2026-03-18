@@ -736,3 +736,37 @@ export const sendsignedControl = (
     </BForm.Group>
   </div>
 );
+
+export const sendinvitesControl = (
+  <div className="sendinvites-choice-holder">
+    <BForm.Group className="sendinvites-choice-group form-group">
+      <ESTooltip
+        helpId="sendinvites-choice-input"
+        inModal={true}
+        tooltip={
+          <FormattedMessage
+            defaultMessage="Send an invitation email to each of the invitees"
+            key="sendinvites-choice-help"
+          />
+        }
+      >
+        <BForm.Label
+          className="sendinvites-choice-label"
+          htmlFor="sendinvites-choice-input"
+        >
+          <FormattedMessage
+            defaultMessage="Send invitation emails"
+            key="sendinvites-choice-field"
+          />
+        </BForm.Label>
+      </ESTooltip>
+      <Field
+        name="sendinvitesChoice"
+        id="sendinvites-choice-input"
+        data-testid="sendinvites-choice-input"
+        className="sendinvites-choice"
+        type="checkbox"
+      />
+    </BForm.Group>
+  </div>
+);

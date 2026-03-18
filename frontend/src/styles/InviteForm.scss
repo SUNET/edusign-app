@@ -92,6 +92,7 @@
   }
 }
 
+.sendinvites-choice-group,
 .sendsigned-choice-group,
 .skipfinal-choice-group,
 .ordered-choice-group,
@@ -102,12 +103,14 @@
   margin-right: 10%;
   margin-left: 10%;
 
+  .sendinvites-choice-label,
   .sendsigned-choice-label,
   .skipfinal-choice-label,
   .ordered-choice-label,
   .allowbankid-choice-label {
     padding-right: 1rem;
   }
+  .sendinvites-choice,
   .sendsigned-choice,
   .skipfinal-choice,
   .ordered-choice,
@@ -121,6 +124,7 @@
     margin-bottom: 0.5rem;
   }
 
+  .sendinvites-choice:focus,
   .sendsigned-choice:focus,
   .skipfinal-choice:focus,
   .ordered-choice:focus,

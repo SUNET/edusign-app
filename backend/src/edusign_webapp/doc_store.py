@@ -117,6 +117,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         owner: Dict[str, str],
         invites: List[Dict[str, Any]],
         sendsigned: bool,
+        sendinvites: bool,
         loa: str,
         skipfinal: bool,
         ordered: bool,
@@ -135,6 +136,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :param owner: Name and email address and language and eppn of the user that has uploaded the document.
         :param invites: List of the names and emails and languages of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
+        :param sendinvites: Whether to send invitation emails
         :param loa: The "authentication for signature" required LoA.
         :param skipfinal: Whether to request signature from the user who is inviting.
         :param ordered: Whether to send invitations in order.
@@ -162,6 +164,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + owner_eppn: eppn of owner
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
+                 + sendinvites: whether to send invitation emails
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
@@ -262,6 +265,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
                  + sendsigned: Whether to send signed documents in final email
+                 + sendinvites: Whether to send invitation emails
                  + allowbankid: Whether to allow BankID signatures.
         """
 
@@ -286,6 +290,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
                  + sendsigned: Whether to send signed documents in final email
+                 + sendinvites: Whether to send invitation emails
                  + allowbankid: Whether to allow BankID signatures.
         """
 
@@ -409,6 +414,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + owner_eppn: Eppn of inviter user
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
+                 + sendinvites: whether to send invitation emails
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
@@ -632,6 +638,7 @@ class DocStore(object):
         owner: Dict[str, str],
         invites: List[Dict[str, Any]],
         sendsigned: bool,
+        sendinvites: bool,
         loa: str,
         skipfinal: bool,
         ordered: bool,
@@ -651,13 +658,14 @@ class DocStore(object):
         :param owner: Email address and name and language and eppn of the user that has uploaded the document.
         :param invites: List of names and email addresses and languages of the users that should sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
+        :param sendinvites: Whether to send invitations by email.
         :param loa: The "authentication for signature" required LoA.
         :param skipfinal: Whether to request signature from the user who is inviting.
         :return: The list of invitations as dicts with 3 keys: name, email, and generated key (UUID)
         """
         key = uuid.UUID(document['key'])
         self.storage.add(key, document['blob'])
-        return self.metadata.add(key, document, owner, invites, sendsigned, loa, skipfinal, ordered, allowbankid, invitation_text)
+        return self.metadata.add(key, document, owner, invites, sendsigned, sendinvites, loa, skipfinal, ordered, allowbankid, invitation_text)
 
     def add_document_raw(
         self,
@@ -678,6 +686,7 @@ class DocStore(object):
                  + owner_eppn: eppn of owner
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
+                 + sendinvites: whether to send invitation emails
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
@@ -784,6 +793,7 @@ class DocStore(object):
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
                  + sendsigned: Whether to send signed documents in final email
+                 + sendinvites: Whether to send invitation emails
                  + allowbankid: Whether to allow BankID signatures.
         """
         invites = []
@@ -1015,6 +1025,7 @@ class DocStore(object):
                  + owner_eppn: Eppn of inviter user
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
+                 + sendinvites: whether to send invitation emails
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp

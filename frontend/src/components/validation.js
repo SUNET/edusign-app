@@ -197,3 +197,7 @@ export const validateNewname = (props) => {
     return error;
   };
 };
+
+export const validateSendInvites = (value) => {
+  return undefined;
+};

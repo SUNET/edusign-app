@@ -53,6 +53,10 @@ export const sendInvites = createAsyncThunk(
       args.values.sendsignedChoice !== undefined
         ? args.values.sendsignedChoice
         : false;
+    const sendinvites =
+      args.values.sendinvitesChoice !== undefined
+        ? args.values.sendinvitesChoice
+        : false;
     const skipfinal =
       args.values.skipfinalChoice !== undefined
         ? args.values.skipfinalChoice
@@ -118,6 +122,7 @@ export const sendInvites = createAsyncThunk(
       invites: invitees,
       text: args.values.invitationText,
       sendsigned: sendsigned,
+      sendinvites: sendinvites,
       skipfinal: skipfinal,
       allowbankid: allowbankid,
       loa: loa,
@@ -210,6 +215,7 @@ export const sendInvites = createAsyncThunk(
       ordered: ordered,
       skipfinal: skipfinal,
       sendsigned: sendsigned,
+      sendinvites: sendinvites,
     };
     await thunkAPI.dispatch(removeDocument({ docName: document.name }));
     thunkAPI.dispatch(addOwned(owned));

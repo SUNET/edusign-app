@@ -55,6 +55,7 @@ CREATE TABLE [Documents]
        [owner_lang] VARCHAR(2) NOT NULL,
        [prev_signatures] TEXT,
        [sendsigned] INTEGER DEFAULT 1,
+       [sendinvites] INTEGER DEFAULT 1,
        [loa] VARCHAR(255) DEFAULT "none",
        [skipfinal] INTEGER DEFAULT 0,
        [locked] TIMESTAMP DEFAULT NULL,
@@ -94,24 +95,26 @@ CREATE INDEX IF NOT EXISTS [CreatedIX] ON [Documents] ([created]);
 CREATE INDEX IF NOT EXISTS [InviteeEmailIX] ON [Invites] ([user_email]);
 CREATE INDEX IF NOT EXISTS [InvitedIX] ON [Invites] ([doc_id]);
 CREATE INDEX IF NOT EXISTS [SignaturesIX] ON [PayableSignatures] ([type], [organization]);
-PRAGMA user_version = 11;
+PRAGMA user_version = 12;
 """
 
 
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, allowbankid, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, allowbankid, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, sendinvites, loa, skipfinal, ordered_invitations, allowbankid, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT_RAW = "INSERT INTO Documents (doc_id, key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, sendinvites, loa, skipfinal, ordered_invitations, allowbankid, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = (
     "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
 )
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created, ordered_invitations, allowbankid FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created, ordered_invitations, allowbankid, invitation_text FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, sendinvites, loa, skipfinal, updated, created, ordered_invitations, allowbankid, invitation_text FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned, allowbankid FROM Documents WHERE owner_eppn = ?;"
-DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned, allowbankid FROM Documents WHERE owner_email = ?;"
+DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned, sendinvites, allowbankid FROM Documents WHERE owner_eppn = ?;"
+DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned, sendinvites, allowbankid FROM Documents WHERE owner_email = ?;"
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
 DOCUMENT_SET_SENDSIGNED = "UPDATE Documents SET sendsigned = ? WHERE key = ?;"
+DOCUMENT_QUERY_SENDINVITES = "SELECT sendinvites FROM Documents WHERE key = ?;"
+DOCUMENT_SET_SENDINVITES = "UPDATE Documents SET sendinvites = ? WHERE key = ?;"
 DOCUMENT_QUERY_SKIPFINAL = "SELECT skipfinal FROM Documents WHERE key = ?;"
 DOCUMENT_SET_SKIPFINAL = "UPDATE Documents SET skipfinal = ? WHERE key = ?;"
 DOCUMENT_QUERY_ORDERED = "SELECT ordered_invitations FROM Documents WHERE key = ?;"
@@ -329,6 +332,13 @@ def upgrade(db):
         cur.close()
         db.commit()
 
+    if version == 11:
+        cur = db.cursor()
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [sendinvited] INTEGER DEFAULT 1;")
+        cur.execute("PRAGMA user_version = 12;")
+        cur.close()
+        db.commit()
+
 
 def drop_owner_and_locked_by_in_documents(cur):
     cur.execute(
@@ -438,6 +448,7 @@ class SqliteMD(ABCMetadata):
         owner: Dict[str, str],
         invites: List[Dict[str, Any]],
         sendsigned: bool,
+        sendinvites: bool,
         loa: str,
         skipfinal: bool,
         ordered: bool,
@@ -456,6 +467,7 @@ class SqliteMD(ABCMetadata):
         :param owner: Name and email address and language and eppn of the user that has uploaded the document.
         :param invites: List of the names and emails and ssn's and languages of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
+        :param sendinvites: Whether to send invitation emails
         :param loa: The "authentication for signature" required LoA.
         :param skipfinal: Whether to request signature from the user who is inviting.
         :param ordered: Whether to send invitations in order.
@@ -478,6 +490,7 @@ class SqliteMD(ABCMetadata):
                 owner['eppn'],
                 prev_sigs,
                 sendsigned,
+                sendinvites,
                 loa,
                 skipfinal,
                 ordered,
@@ -527,6 +540,7 @@ class SqliteMD(ABCMetadata):
                  + owner_eppn: eppn of owner
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
+                 + sendinvites: whether to send invitation emails
                  + skipfinal: whether to send the signed document by mail
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
@@ -552,6 +566,7 @@ class SqliteMD(ABCMetadata):
                 document['owner_eppn'],
                 document['prev_signatures'],
                 document['sendsigned'],
+                document['sendinvites'],
                 document['loa'],
                 document['skipfinal'],
                 document['ordered_invitations'],
@@ -775,6 +790,7 @@ class SqliteMD(ABCMetadata):
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
                  + sendsigned: Whether to send signed documents in final email
+                 + sendinvites: Whether to send invitation emails
                  + allowbankid: Whether to allow BankID signatures.
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (eppn,))
@@ -803,6 +819,7 @@ class SqliteMD(ABCMetadata):
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
                  + sendsigned: Whether to send signed documents in final email
+                 + sendinvites: Whether to send invitation emails
                  + allowbankid: Whether to allow BankID signatures.
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL, (email,))
@@ -1099,6 +1116,7 @@ class SqliteMD(ABCMetadata):
                  + owner_eppn: Eppn of inviter user
                  + loa: required loa
                  + sendsigned: whether to send the signed document by mail
+                 + sendinvites: whether to send invitation emails
                  + prev_signatures: previous signatures
                  + updated: modification timestamp
                  + created: creation timestamp
@@ -1259,8 +1277,38 @@ class SqliteMD(ABCMetadata):
         try:
             self._db_execute(DOCUMENT_SET_SENDSIGNED, (value, str(key)))
             self._db_commit()
+            return True
         except Exception as e:
             self.logger.error(f"Problem trying to set sendsigned: {e}")
+            raise
+
+    def get_sendinvites(self, key: uuid.UUID) -> bool:
+        """
+        Whether invitation emails should be sent
+
+        :param key: The key identifying the document
+        :return: whether to send emails
+        """
+        document_result = self._db_query(DOCUMENT_QUERY_SENDINVITES, (str(key),), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.debug(f"Trying to get sendinvites from a non-existing document with key {key}")
+            return True
+
+        return bool(document_result['sendinvites'])
+
+    def set_sendinvites(self, key: uuid.UUID, value: bool):
+        """
+        Set whether invitation emails should be sent
+
+        :param key: The key identifying the document
+        :param value: whether to send emails
+        """
+        try:
+            self._db_execute(DOCUMENT_SET_SENDINVITES, (value, str(key)))
+            self._db_commit()
+            return True
+        except Exception as e:
+            self.logger.error(f"Problem trying to set sendinvites: {e}")
             raise
 
     def get_skipfinal(self, key: uuid.UUID) -> bool:
