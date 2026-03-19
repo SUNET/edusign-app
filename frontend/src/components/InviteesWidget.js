@@ -16,7 +16,6 @@ import {
   validateLang,
   validateSSN,
 } from "components/validation";
-import { requiredField } from "components/widgets";
 
 const mapStateToProps = (state, props) => {
   let ordered;
@@ -44,6 +43,23 @@ const mapStateToProps = (state, props) => {
     allowbankid: allowbankid,
   };
 };
+
+const requiredField = (fid) => (
+  <span>
+    <ESTooltip
+      helpId=`required-field-help-${fid}`
+      inModal={true}
+      tooltip={
+        <FormattedMessage
+          defaultMessage="This field is required"
+          key="required-field-help"
+        />
+      }
+    >
+      <span className="required-field-mark"> *</span>
+    </ESTooltip>
+  </span>
+);
 
 function _InviteesControl(props) {
   const fprops = useFormikContext();
@@ -142,7 +158,7 @@ function _InviteesControl(props) {
             <BForm.Label htmlFor={`invitees.${index}.name`}>
               <FormattedMessage defaultMessage="Name" key="name-input-field" />
             </BForm.Label>
-            {requiredField}
+            {requiredField(`name-${index}`)}
             <ErrorMessage
               name={`invitees.${index}.name`}
               component="div"
@@ -185,7 +201,7 @@ function _InviteesControl(props) {
                 key="email-input-field"
               />
             </BForm.Label>
-            {requiredField}
+            {requiredField(`email-${index}`)}
             <ErrorMessage
               name={`invitees.${index}.email`}
               component="div"
@@ -277,7 +293,7 @@ function _InviteesControl(props) {
                 key="language-input-field"
               />
             </BForm.Label>
-            {requiredField}
+            {requiredField(`email-${index}`)}
             <ErrorMessage
               name={`invitees.${index}.lang`}
               component="div"

@@ -736,20 +736,3 @@ export const sendsignedControl = (
     </BForm.Group>
   </div>
 );
-
-export const requiredField = (
-  <span className="required-field-mark">
-    <ESTooltip
-      helpId="required-field-help"
-      inModal={true}
-      tooltip={
-        <FormattedMessage
-          defaultMessage="This field is required"
-          key="required-field-help"
-        />
-      }
-    >
-      <span> *</span>
-    </ESTooltip>
-  </span>
-);
