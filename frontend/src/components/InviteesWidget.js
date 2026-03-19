@@ -47,7 +47,7 @@ const mapStateToProps = (state, props) => {
 const requiredField = (fid) => (
   <span>
     <ESTooltip
-      helpId=`required-field-help-${fid}`
+      helpId={`required-field-help-${fid}`}
       inModal={true}
       tooltip={
         <FormattedMessage
