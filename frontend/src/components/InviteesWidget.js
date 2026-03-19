@@ -293,7 +293,7 @@ function _InviteesControl(props) {
                 key="language-input-field"
               />
             </BForm.Label>
-            {requiredField(`email-${index}`)}
+            {requiredField(`lang-${index}`)}
             <ErrorMessage
               name={`invitees.${index}.lang`}
               component="div"
