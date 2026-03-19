@@ -157,6 +157,7 @@
   "components.widgets.owned-remove-button-help": "Ta bort dokument",
   "components.widgets.owned-skip-button-help": "Alla personer har svarat på inbjudan att signera dokumentet, klicka här för att gå vidare utan att själv signera",
   "components.widgets.remove-button": "Ta bort",
+  "components.widgets.required-field-help": "Detta fält är obligatoriskt",
   "components.widgets.retry-button": "Ladda om",
   "components.widgets.retry-button-tootip": "Försök att förbereda dokumentet för signering igen",
   "components.widgets.select-doc-tootip": "Välj dokument för signering",

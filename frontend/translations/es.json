@@ -157,6 +157,7 @@
   "components.widgets.owned-remove-button-help": "Eliminar documento",
   "components.widgets.owned-skip-button-help": "Todos los invitados han firmado el documento, haz click aquí para omitir tu firma final",
   "components.widgets.remove-button": "Eliminar",
+  "components.widgets.required-field-help": "",
   "components.widgets.retry-button": "Reintentar",
   "components.widgets.retry-button-tootip": "Intenta preparar de nuevo el documento para su firma",
   "components.widgets.select-doc-tootip": "Selecciona el documento para su firma",

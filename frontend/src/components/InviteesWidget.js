@@ -16,6 +16,7 @@ import {
   validateLang,
   validateSSN,
 } from "components/validation";
+import { requiredField } from "components/widgets";
 
 const mapStateToProps = (state, props) => {
   let ordered;
@@ -141,6 +142,7 @@ function _InviteesControl(props) {
             <BForm.Label htmlFor={`invitees.${index}.name`}>
               <FormattedMessage defaultMessage="Name" key="name-input-field" />
             </BForm.Label>
+            {requiredField}
             <ErrorMessage
               name={`invitees.${index}.name`}
               component="div"
@@ -183,6 +185,7 @@ function _InviteesControl(props) {
                 key="email-input-field"
               />
             </BForm.Label>
+            {requiredField}
             <ErrorMessage
               name={`invitees.${index}.email`}
               component="div"
@@ -274,6 +277,7 @@ function _InviteesControl(props) {
                 key="language-input-field"
               />
             </BForm.Label>
+            {requiredField}
             <ErrorMessage
               name={`invitees.${index}.lang`}
               component="div"

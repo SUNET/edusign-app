@@ -157,6 +157,7 @@
   "components.widgets.owned-remove-button-help": "Remove document",
   "components.widgets.owned-skip-button-help": "All requested users have answered your invitation to sign the document, click here to skip adding your final signature",
   "components.widgets.remove-button": "Remove",
+  "components.widgets.required-field-help": "This field is required",
   "components.widgets.retry-button": "Retry",
   "components.widgets.retry-button-tootip": "Try again to prepare the document for signing",
   "components.widgets.select-doc-tootip": "Select the document for signing",
