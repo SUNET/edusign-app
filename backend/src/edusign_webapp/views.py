@@ -1568,6 +1568,10 @@ def create_multi_sign_request(data: dict) -> dict:
     # migration to mail_aliases
     mail_aliases = session.get('mail_aliases', [session['mail']])
 
+    sendinvites = data.get('sendinvites', True)
+    ordered = data['ordered']
+    allowbankid = data.get('allowbankid', False)
+
     if data['owner'] not in mail_aliases:
         current_app.logger.error(f"User {session['mail']} is trying to create an invitation as {data['owner']}")
         return {'error': True, 'message': gettext("You cannot invite as %(owner)s") % {'owner': data['owner']}}
@@ -1589,20 +1593,17 @@ def create_multi_sign_request(data: dict) -> dict:
             owner,
             data['invites'],
             data['sendsigned'],
-            data.get('sendinvited', True),
+            sendinvites,
             data['loa'],
             data['skipfinal'],
-            data['ordered'],
-            data.get('allowbankid', False),
+            ordered,
+            allowbankid,
             data['text'],
         )
 
     except Exception as e:
         current_app.logger.error(f'Problem processing multi sign request: {e}')
         return {'error': True, 'message': gettext('Problem creating invitation to sign, please try again')}
-
-    ordered = data['ordered']
-    allowbankid = data.get('allowbankid', False)
 
     if len(invites) > 0:
         recipients = defaultdict(list)
@@ -1621,7 +1622,7 @@ def create_multi_sign_request(data: dict) -> dict:
             if allowbankid:
                 keys = {invite['email']: invite['key'] for invite in invites}
                 _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=allowbankid, invite_keys=keys)
-            else:
+            elif sendinvites:
                 _send_invitation_mail(docname, owner, custom_text, recipients)
 
         except Exception:
@@ -1771,6 +1772,7 @@ def edit_multi_sign_request(data: dict) -> dict:
     docid = current_app.extensions['doc_store'].get_document_id(key)
     ordered = current_app.extensions['doc_store'].get_ordered(key)
     allowbankid = current_app.extensions['doc_store'].get_allowbankid(key)
+    sendinvites = current_app.extensions['doc_store'].get_sendinvites(key)
     owner = current_app.extensions['doc_store'].get_owner_data(key)
     owner_email = owner['email']
     text = data['text']
@@ -1867,7 +1869,7 @@ def edit_multi_sign_request(data: dict) -> dict:
             try:
                 if allowbankid:
                     _send_invitation_mail(docname, owner, text, recipients_added, allowbankid=allowbankid, invite_keys=keys)
-                else:
+                elif sendinvites:
                     _send_invitation_mail(docname, owner, text, recipients_added)
             except Exception as e:
                 current_app.logger.error(f"Problem sending invitation emails {e}")

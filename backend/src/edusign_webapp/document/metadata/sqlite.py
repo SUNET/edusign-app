@@ -334,7 +334,7 @@ def upgrade(db):
 
     if version == 11:
         cur = db.cursor()
-        cur.execute("ALTER TABLE [Documents] ADD COLUMN [sendinvited] INTEGER DEFAULT 1;")
+        cur.execute("ALTER TABLE [Documents] ADD COLUMN [sendinvites] INTEGER DEFAULT 1;")
         cur.execute("PRAGMA user_version = 12;")
         cur.close()
         db.commit()
