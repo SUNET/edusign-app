@@ -95,7 +95,7 @@ export function validateSSN(value) {
     />
   );
 
-  if (value === '') return;
+  if (!value) return;
 
   const cleaned = value.replace(/\s/g, '');
 
