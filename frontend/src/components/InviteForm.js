@@ -73,6 +73,23 @@ const validate = (props) => {
       const newNameError = validateNewname(props)(values.newnameInput);
       if (newNameError !== undefined) errors.newnameInput = newNameError;
     }
+    if (values.sendinvitesChoice) {
+      if (values.orderedChoice) {
+        errors.sendinvitesChoice = (
+          <FormattedMessage
+            defaultMessage="Ordering of the signatures requires sending invitation emails."
+            key="bankid-and-ordered-problem"
+          />
+        );
+      } else if (values.allowBankIDChoice) {
+        errors.sendinvitesChoice = (
+          <FormattedMessage
+            defaultMessage="Allowing BankID signatures requires sending invitation emails."
+            key="bankid-and-invites-problem"
+          />
+        );
+      }
+    }
     return errors;
   };
 };
@@ -359,6 +376,11 @@ class InviteForm extends React.Component {
                   </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                  <ErrorMessage
+                    name="sendinvitesChoice"
+                    component="div"
+                    className="field-error"
+                  />
                   <div className="invitation-text-holder">
                     <BForm.Group className="invitation-text-group form-group">
                       <BForm.Label
