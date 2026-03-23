@@ -18,12 +18,7 @@ import {
   validateSSN,
   validateLang,
   validateBody,
-  validateSendsigned,
-  validateSkipfinal,
-  validateOrdered,
-  validateAllowBankID,
   validateNewname,
-  validateSendInvites,
 } from "components/validation";
 
 import "styles/InviteForm.scss";
@@ -73,7 +68,7 @@ const validate = (props) => {
       const newNameError = validateNewname(props)(values.newnameInput);
       if (newNameError !== undefined) errors.newnameInput = newNameError;
     }
-    if (values.sendinvitesChoice) {
+    if (!values.sendinvitesChoice) {
       if (values.orderedChoice) {
         errors.sendinvitesChoice = (
           <FormattedMessage
@@ -159,7 +154,6 @@ class InviteForm extends React.Component {
               id="ordered-choice-input"
               data-testid="ordered-choice-input"
               className="ordered-choice"
-              validate={validateOrdered}
               type="checkbox"
               onChange={(e) => {
                 fprops.setFieldValue("orderedChoice", e.target.checked);
@@ -201,7 +195,6 @@ class InviteForm extends React.Component {
                 id="allowbankid-choice-input"
                 data-testid="allowbankid-choice-input"
                 className="allowbankid-choice"
-                validate={validateAllowBankID}
                 type="checkbox"
                 onChange={(e) => {
                   fprops.setFieldValue("allowBankIDChoice", e.target.checked);

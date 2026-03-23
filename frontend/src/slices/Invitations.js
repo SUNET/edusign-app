@@ -56,7 +56,7 @@ export const sendInvites = createAsyncThunk(
     const sendinvites =
       args.values.sendinvitesChoice !== undefined
         ? args.values.sendinvitesChoice
-        : false;
+        : true;
     const skipfinal =
       args.values.skipfinalChoice !== undefined
         ? args.values.skipfinalChoice

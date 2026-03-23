@@ -448,6 +448,8 @@ const mainSlice = createSlice({
       skip_final: false,
       send_signed: true,
       ordered_invitations: false,
+      allow_bankid: false,
+      send_invites: true,
     },
     environment: "production",
     visibility_timer: 0,

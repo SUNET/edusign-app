@@ -145,22 +145,6 @@ export const validateBody = (value) => {
   return undefined;
 };
 
-export const validateSendsigned = (value) => {
-  return undefined;
-};
-
-export const validateSkipfinal = (value) => {
-  return undefined;
-};
-
-export const validateOrdered = (value) => {
-  return undefined;
-};
-
-export const validateAllowBankID = (value) => {
-  return undefined;
-};
-
 export const validateNewname = (props) => {
   return (value) => {
     let error;
@@ -196,8 +180,4 @@ export const validateNewname = (props) => {
     }
     return error;
   };
-};
-
-export const validateSendInvites = (value) => {
-  return undefined;
 };

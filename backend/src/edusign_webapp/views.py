@@ -600,6 +600,7 @@ def _get_ui_defaults():
         'skip_final': current_app.config['UI_SKIP_FINAL'],
         'ordered_invitations': current_app.config['UI_ORDERED_INVITATIONS'],
         'allow_bankid': current_app.config['UI_ALLOW_BANKID'],
+        'send_invites': current_app.config['UI_SEND_INVITES'],
     }
     form_config_file = current_app.config['CUSTOM_FORMS_DEFAULTS_FILE']
     if os.path.exists(form_config_file):
@@ -619,6 +620,7 @@ def _get_ui_defaults():
                     'skip_final': idp_config['skip_final'],
                     'ordered_invitations': idp_config['ordered_invitations'],
                     'allow_bankid': idp_config.get('allow_bankid', False),
+                    'send_invites': idp_config.get('send_invites', False),
                 }
     return ui_defaults
 

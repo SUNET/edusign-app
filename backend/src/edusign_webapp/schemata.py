@@ -144,6 +144,7 @@ class ConfigSchema(InvitationsSchema):
         skip_final = fields.Boolean(dump_default=True)
         ordered_invitations = fields.Boolean(dump_default=False)
         allow_bankid = fields.Boolean(dump_default=False)
+        send_invites = fields.Boolean(dump_default=True)
 
     signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)
@@ -334,7 +335,7 @@ class MultiSignSchema(Schema):
     document = fields.Nested(DocumentSchemaWithKey, many=False)
     text = fields.String()
     sendsigned = fields.Boolean()
-    sendinvites = fields.Boolean(required=False)
+    sendinvites = fields.Boolean(required=False, load_default=True)
     skipfinal = fields.Boolean()
     invites = fields.List(fields.Nested(Invitee))
     owner = fields.Email(required=True)

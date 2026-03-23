@@ -268,6 +268,9 @@ UI_ORDERED_INVITATIONS = get_boolean(RAW_UI_ORDERED_INVITATIONS)
 RAW_UI_ALLOW_BANKID = os.environ.get('UI_ALLOW_BANKID', default=False)
 UI_ALLOW_BANKID = get_boolean(RAW_UI_ALLOW_BANKID)
 
+RAW_UI_SEND_INVITES = os.environ.get('UI_SEND_INVITES', default=True)
+UI_SEND_INVITES = get_boolean(RAW_UI_SEND_INVITES)
+
 CUSTOM_FORMS_DEFAULTS_FILE = os.environ.get('CUSTOM_FORMS_DEFAULTS_FILE', default="/etc/edusign-forms.yaml")
 
 USER_INFO_DETAIL = os.environ.get('USER_INFO_DETAIL', default="display_name,mail,mail_aliases,eppn,idp,loa,authn_context")
