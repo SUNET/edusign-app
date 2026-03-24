@@ -369,11 +369,13 @@ class InviteForm extends React.Component {
                   </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                  <ErrorMessage
-                    name="sendinvitesChoice"
-                    component="div"
-                    className="field-error"
-                  />
+                  <div className="send-invites-global-error">
+                    <ErrorMessage
+                      name="sendinvitesChoice"
+                      component="div"
+                      className="field-error"
+                    />
+                  </div>
                   <div className="invitation-text-holder">
                     <BForm.Group className="invitation-text-group form-group">
                       <BForm.Label
