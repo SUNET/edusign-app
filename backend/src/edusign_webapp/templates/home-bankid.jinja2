@@ -105,6 +105,23 @@
                   </div>
               </button>
           </div>
+          <div id="freja-button-wrapper">
+              <button class="freja-button" type="button" id="freja-button">
+                  <div class="freja-button">
+                      <div class="freja-button-logo-wrap">
+                          <div class="freja-button-logo">
+                              {% include 'FrejaPlusOvalGradient.svg' %}
+                          </div>
+                      </div>
+                      <div class="d-flex justify-content-center align-items-center text-truncate freja-button-text">
+                          <div class="text-truncate">
+                              <div class="freja-button-text-primary text-truncate" id="headline"></div>
+                              <div class="freja-button-text-primary text-truncate" id="title">{{ gettext("Access with BankID") }}</div>
+                          </div>
+                      </div>
+                  </div>
+              </button>
+          </div>
           <div id="md-content">
             {{ body | markdown }}
           </div>
@@ -113,6 +130,9 @@
     {% block script_bottom %}
           document.getElementById('bankid-button').addEventListener('click', e => {
             window.location.href = '{{ login_initiator_bankid }}';
+          });
+          document.getElementById('freja-button').addEventListener('click', e => {
+            window.location.href = '{{ login_initiator_freja }}';
           });
 
           thiss.DiscoveryComponent({ loginInitiatorURL: '{{ login_initiator }}' }).render('#login');

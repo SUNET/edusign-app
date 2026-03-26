@@ -71,7 +71,7 @@ def validate_sig_type(value):
 
     :raises ValidationError: if the value is not an allowed payable signature type
     """
-    if value not in ('BankID', 'Freja'):
+    if value not in ('bankid', 'freja'):
         current_app.logger.debug(f'Validate sig type: wrong type {value}')
         raise ValidationError(gettext('There was an error. Please try again, or contact the site administrator.'))
 

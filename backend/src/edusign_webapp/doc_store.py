@@ -556,7 +556,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
         Add a payable signature to the db.
 
-        :param sig_type: the type of the signature, bankid |
+        :param sig_type: the type of the signature, bankid | freja
         :param organization: the organization requesting the signature
         :param doc_name: Name of signed document
         :param owner_eppn: eduPersonPrincipalName of the person requesting the signature
@@ -570,7 +570,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         Retrieve payable signature records for the provided organization and signature type
 
         :param organization: The organization that requested the signatures
-        :param sig_type: The type of the signatures
+        :param sig_type: The type of the signatures - bankid | freja
         :return: A list of dictionaries, one for each signature, with keys:
             + owner_eppn: eduPersonPrincipalName of the user requesting the signature
             + user_eppn: eduPersonPrincipalName of the user signing
@@ -584,7 +584,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
         :return: A list of dictionaries, one for each organization and type, with keys:
             + organization: Name of responsible organization
-            + type: BankID / Freja
+            + type: bankid / freja
             + number_of_signatures: Number of signatures made on request of the responsible organization
         """
 
@@ -1243,7 +1243,7 @@ class DocStore(object):
         """
         Add a payable signature to the db.
 
-        :param sig_type: the type of the signature, bankid |
+        :param sig_type: the type of the signature, bankid | freja
         :param organization: the organization requesting the signature
         :param doc_name: Name of signed document
         :param owner_eppn: eduPersonPrincipalName of the person requesting the signature
@@ -1257,7 +1257,7 @@ class DocStore(object):
         Retrieve payable signature records for the provided organization and signature type
 
         :param organization: The organization that requested the signatures
-        :param sig_type: The type of the signatures
+        :param sig_type: The type of the signatures -  bankid | freja
         :return: A list of dictionaries, one for each signature, with keys:
             + owner_eppn: eduPersonPrincipalName of the user requesting the signature
             + user_eppn: eduPersonPrincipalName of the user signing
@@ -1271,7 +1271,7 @@ class DocStore(object):
 
         :return: A list of dictionaries, one for each organization and type, with keys:
             + organization: Name of responsible organization
-            + type: BankID / Freja
+            + type: bankid / freja
             + number_of_signatures: Number of signatures made on request of the responsible organization
         """
         return self.metadata.get_signatures_global()
