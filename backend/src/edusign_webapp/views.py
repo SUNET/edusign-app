@@ -82,7 +82,6 @@ from edusign_webapp.utils import (
     get_previous_signatures_xml,
     is_whitelisted,
     is_whitelisted_for_bankid,
-    is_whitelisted_for_freja,
     prepare_document,
     pretty_print_any,
     pretty_print_xml,
@@ -457,7 +456,7 @@ def get_index() -> str | Response:
     try:
         add_attributes_to_session()
     except KeyError as e:
-        if request.headers.get('Md-Organizationname', '') in ('BankID', 'Freja+'):
+        if request.headers.get('Md-Organizationname', '') in ('BankID', 'Freja+'):  # XXX is it 'Freja+' for sure?
             return redirect(url_for('edusign_anon.get_home'))
 
         current_app.logger.error(
@@ -669,7 +668,6 @@ def _get_ui_defaults():
         'skip_final': current_app.config['UI_SKIP_FINAL'],
         'ordered_invitations': current_app.config['UI_ORDERED_INVITATIONS'],
         'allow_bankid': current_app.config['UI_ALLOW_BANKID'],
-        'allow_freja': current_app.config['UI_ALLOW_FREJA'],
     }
     form_config_file = current_app.config['CUSTOM_FORMS_DEFAULTS_FILE']
     if os.path.exists(form_config_file):
@@ -689,7 +687,6 @@ def _get_ui_defaults():
                     'skip_final': idp_config['skip_final'],
                     'ordered_invitations': idp_config['ordered_invitations'],
                     'allow_bankid': idp_config.get('allow_bankid', False),
-                    'allow_freja': idp_config.get('allow_freja', False),
                 }
     return ui_defaults
 
@@ -769,12 +766,6 @@ def _get_ui_config(payload: dict) -> dict:
         if is_whitelisted_for_bankid(current_app, session['eppn']):
             allow_bankid = True
     payload['allow_bankid_signatures'] = allow_bankid
-
-    allow_freja = False
-    if current_app.config['ALLOW_FREJA']:
-        if is_whitelisted_for_freja(current_app, session['eppn']):
-            allow_freja = True
-    payload['allow_freja_signatures'] = allow_freja
 
     payload['user_info_detail'] = current_app.config['USER_INFO_DETAIL']
 
@@ -1404,11 +1395,11 @@ def _prepare_signed_documents_data(process_data):
     return docs
 
 
-def _next_ordered_invitation_mail(doc_key, docname, invite, owner, allowbankid, allowfreja):
+def _next_ordered_invitation_mail(doc_key, docname, invite, owner, allowbankid):
     lang = invite['lang']
     recipients = [formataddr((invite['name'], invite['email']))]
     custom_text = current_app.extensions['doc_store'].get_invitation_text(doc_key)
-    if allowbankid or allowfreja:
+    if allowbankid:
         invited_link = url_for('edusign_anon.get_home_bankid', invite_key=invite['key'], _external=True)
     else:
         invited_link = url_for('edusign.get_index', _external=True)
@@ -1441,7 +1432,6 @@ def _process_signed_documents(process_data):
         doc['name'] = docname
         ordered = current_app.extensions['doc_store'].get_ordered(key)
         allowbankid = current_app.extensions['doc_store'].get_allowbankid(key)
-        allowfreja = current_app.extensions['doc_store'].get_allowfreja(key)
         owner = current_app.extensions['doc_store'].get_owner_data(key)
         sendsigned = current_app.extensions['doc_store'].get_sendsigned(key)
         all_invites = current_app.extensions['doc_store'].get_pending_invites(key)
@@ -1505,7 +1495,7 @@ def _process_signed_documents(process_data):
                         # We still haven't removed the invitation currently being addressed,
                         # thus the index 1
                         invite = pending_invites[1]
-                        next_invitation_mail = _next_ordered_invitation_mail(key, docname, invite, owner, allowbankid, allowfreja)
+                        next_invitation_mail = _next_ordered_invitation_mail(key, docname, invite, owner, allowbankid)
                         emails.append(next_invitation_mail)
                 try:
                     email_args = _prepare_signed_by_email(key, owner)
@@ -1686,7 +1676,6 @@ def create_multi_sign_request(data: dict) -> dict:
 
     ordered = data['ordered']
     allowbankid = data.get('allowbankid', False)
-    allowfreja = data.get('allowfreja', False)
 
     if len(invites) > 0:
         recipients = defaultdict(list)
@@ -1702,7 +1691,7 @@ def create_multi_sign_request(data: dict) -> dict:
         docname = data['document']['name']
         custom_text = data['text']
         try:
-            if allowbankid or allowfreja:
+            if allowbankid:
                 keys = {invite['email']: invite['key'] for invite in invites}
                 _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=True, invite_keys=keys)
             else:
@@ -2232,7 +2221,6 @@ def _prepare_declined_emails(key, owner_data):
     docname = owner_data['docname']
     ordered = current_app.extensions['doc_store'].get_ordered(key)
     allowbankid = current_app.extensions['doc_store'].get_allowbankid(key)
-    allowfreja = current_app.extensions['doc_store'].get_allowfreja(key)
     pending_invites = current_app.extensions['doc_store'].get_pending_invites(key)
     pending = sum([1 for i in pending_invites if not i['signed'] and not i['declined']])
     mail_aliases = session.get('mail_aliases', [session['mail']])
@@ -2287,7 +2275,7 @@ def _prepare_declined_emails(key, owner_data):
 
     if len(pending) > 0 and ordered:
         invite = pending_invites[0]
-        next_invitation_mail = _next_ordered_invitation_mail(key, docname, invite, owner_data, allowbankid, allowfreja)
+        next_invitation_mail = _next_ordered_invitation_mail(key, docname, invite, owner_data, allowbankid)
         emails.append(next_invitation_mail)
 
     return emails

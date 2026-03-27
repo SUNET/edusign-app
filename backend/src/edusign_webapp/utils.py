@@ -481,20 +481,6 @@ def is_whitelisted_for_bankid(app, eppn: str) -> bool:
     return eppn.lower().split('@')[1] in app.config['BANKID_WHITELIST']
 
 
-def is_whitelisted_for_freja(app, eppn: str) -> bool:
-    """
-    Check whether a given eppn is whitelisted for inviting to sign with Freja+
-
-    :param app: the Flask app
-    :param eppn: the eduPersonPrincipalName
-    :return: whether it is whitelisted
-    """
-    if '@' not in eppn:  # BankID / Freja+
-        return False
-
-    return eppn.lower().split('@')[1] in app.config['FREJA_WHITELIST']
-
-
 def fix_recipients(recipients):
     reg = re.compile("^([^<]*)<([^>]*)>$")
     for i, recipient in enumerate(recipients):

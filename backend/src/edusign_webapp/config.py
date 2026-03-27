@@ -184,13 +184,9 @@ FREJA_WHITELIST = [scope.lower().strip() for scope in RAW_FREJA_WHITELIST.split(
 
 POLLING = os.environ.get('POLLING', default='always')  # always|inviter|never
 
-# Whether users are allowed to invite to sign with BankID
+# Whether users are allowed to invite to sign with BankID or Freja+
 RAW_ALLOW_BANKID = os.environ.get('ALLOW_BANKID', default='true')
 ALLOW_BANKID = get_boolean(RAW_ALLOW_BANKID)
-
-# Whether users are allowed to invite to sign with Freja
-RAW_ALLOW_FREJA = os.environ.get('ALLOW_FREJA', default='true')
-ALLOW_FREJA = get_boolean(RAW_ALLOW_FREJA)
 
 BANKID_IDP = os.environ.get('BANKID_IDP', default="https://sandbox.swedenconnect.se/bankid/idp")
 BANKID_SSN_ATTR = os.environ.get('BANKID_SSN_ATTR', default='urn:oid:1.2.752.29.4.13')

@@ -145,7 +145,6 @@ class ConfigSchema(InvitationsSchema):
         skip_final = fields.Boolean(dump_default=True)
         ordered_invitations = fields.Boolean(dump_default=False)
         allow_bankid = fields.Boolean(dump_default=False)
-        allow_freja = fields.Boolean(dump_default=False)
 
     signer_attributes = fields.Nested(SignerAttributes)
     multisign_buttons = fields.String(required=True)
@@ -159,7 +158,6 @@ class ConfigSchema(InvitationsSchema):
     edit_form_timeout = fields.String(required=True)
     environment = fields.String(required=True)
     allow_bankid_signatures = fields.Boolean(dump_default=False)
-    allow_freja_signatures = fields.Boolean(dump_default=False)
     user_info_detail = fields.String(required=True)
 
 
