@@ -178,10 +178,6 @@ RAW_BANKID_WHITELIST = os.environ.get('BANKID_WHITELIST', default='eduid.se, sun
 
 BANKID_WHITELIST = [scope.lower().strip() for scope in RAW_BANKID_WHITELIST.split(',')]
 
-RAW_FREJA_WHITELIST = os.environ.get('FREJA_WHITELIST', default='eduid.se, sunet.se')
-
-FREJA_WHITELIST = [scope.lower().strip() for scope in RAW_FREJA_WHITELIST.split(',')]
-
 POLLING = os.environ.get('POLLING', default='always')  # always|inviter|never
 
 # Whether users are allowed to invite to sign with BankID or Freja+
