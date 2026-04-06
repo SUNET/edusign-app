@@ -187,7 +187,7 @@ ALLOW_BANKID = get_boolean(RAW_ALLOW_BANKID)
 BANKID_IDP = os.environ.get('BANKID_IDP', default="https://sandbox.swedenconnect.se/bankid/idp")
 BANKID_SSN_ATTR = os.environ.get('BANKID_SSN_ATTR', default='urn:oid:1.2.752.29.4.13')
 
-FREJA_IDP = os.environ.get('FREJA_IDP', default="https://idp-sweden-connect-org-sandbox.test.frejaeid.com")
+FREJA_IDP = os.environ.get('FREJA_IDP', default="https://idp-sweden-connect-valfr-2017-sandbox.test.frejaeid.com")
 FREJA_SSN_ATTR = os.environ.get('FREJA_SSN_ATTR', default='urn:oid:1.2.752.29.4.13')
 
 STORAGE_CLASS_PATH = os.environ.get('STORAGE_CLASS_PATH', default='edusign_webapp.document.storage.local.LocalStorage')
