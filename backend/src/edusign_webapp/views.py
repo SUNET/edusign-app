@@ -456,7 +456,8 @@ def get_index() -> str | Response:
     try:
         add_attributes_to_session()
     except KeyError as e:
-        if request.headers.get('Md-Organizationname', '') in ('BankID', 'Freja+'):  # XXX is it 'Freja+' for sure?
+        orgname = request.headers.get('Md-Organizationname', '').lower()
+        if 'bankid' in orgname or 'freja' in orgname:
             return redirect(url_for('edusign_anon.get_home'))
 
         current_app.logger.error(

@@ -19,14 +19,19 @@
           text-overflow: ellipsis;
           white-space: nowrap;
         }
-        #bankid-button-wrapper {
+        #bankid-button-wrapper,
+        #freja-button-wrapper {
           display: flex;
           flex-direction: row;
           width: 100%;
           justify-content: center;
         }
+        #freja-button-wrapper {
+          margin-top: 1.5rem;
+        }
         button {
-          &.bankid-button, &.bankid-button:active {
+          &.bankid-button, &.bankid-button:active,
+          &.freja-button, &.freja-button:active {
             width: 340px;
             padding: 0;
             background-color: #183e4f;
@@ -37,33 +42,39 @@
             cursor: pointer;
           }
 
-          &.bankid-button:hover, &.bankid-button:focus, &.bankid-button:active {
+          &.bankid-button:hover, &.bankid-button:focus, &.bankid-button:active,
+          &.freja-button:hover, &.freja-button:focus, &.freja-button:active {
             outline: none;
             box-shadow: 0 0 0 1px, 0 0 0 4px #216e93;
           }
 
-          .bankid-button  {
+          .bankid-button,
+          .freja-button {
             display: flex;
             padding: 2px;
           }
-          .bankid-button-logo-wrap {
+          .bankid-button-logo-wrap,
+          .freja-button-logo-wrap {
             width: 50px;
             height: 100%;
             border-right: 1px solid #ffffff;
           }
 
-          .bankid-button-logo {
+          .bankid-button-logo,
+          .freja-button-logo {
             width: 50px;
           }
 
-          .bankid-button-text {
+          .bankid-button-text,
+          .freja-button-text {
             padding-left: 10px;
             text-align: center;
             width: 85%;
             color: inherit;
           }
 
-          .bankid-button-text-primary, .bankid-button-text-secondary, .bankid-access-text {
+          .bankid-button-text-primary, .bankid-button-text-secondary, .bankid-access-text,
+          .freja-button-text-primary, .freja-button-text-secondary, .freja-access-text {
             font-family: 'Libre Franklin', Arial, sans-serif;
             font-style: normal;
             font-stretch: normal;
@@ -71,12 +82,14 @@
             letter-spacing: normal;
           }
 
-          .bankid-button-text-primary {
+          .bankid-button-text-primary,
+          .freja-button-text-primary {
             font-size: 14px;
             font-weight: 700;
           }
 
-          .bankid-button-text-secondary {
+          .bankid-button-text-secondary,
+          .freja-button-text-secondary {
             /* Zep */
             font-size: 13px;
             font-weight: normal;
@@ -116,7 +129,7 @@
                       <div class="d-flex justify-content-center align-items-center text-truncate freja-button-text">
                           <div class="text-truncate">
                               <div class="freja-button-text-primary text-truncate" id="headline"></div>
-                              <div class="freja-button-text-primary text-truncate" id="title">{{ gettext("Access with BankID") }}</div>
+                              <div class="freja-button-text-primary text-truncate" id="title">{{ gettext("Access with Freja+") }}</div>
                           </div>
                       </div>
                   </div>
