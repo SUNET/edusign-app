@@ -226,7 +226,7 @@ def add_attributes_to_session_bankid_freja(invite_key, stype):
             eppn = request.headers['Persistent-Id']
         except KeyError:
             current_app.logger.error('Missing Persistent-Id from request')
-            raise
+            eppn = ssn
 
         attr_schema = "20"
 
@@ -638,7 +638,10 @@ def pretty_print_xml(content):
         XmlLexer(),
         HtmlFormatter(full=True, linenos='inline', classprefix="xml-preview-", prestyles="font-family: monospace;"),
     )
-    html = b64encode(xml.encode('latin1'))
+    try:
+        html = b64encode(xml.encode('latin1'))
+    except UnicodeEncodeError:
+        html = b64encode(xml.encode('utf8'))
 
     return html
 
