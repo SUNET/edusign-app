@@ -636,12 +636,12 @@ def pretty_print_xml(content):
     xml = highlight(
         xmlstr,
         XmlLexer(),
-        HtmlFormatter(full=True, linenos='inline', classprefix="xml-preview-", prestyles="font-family: monospace;"),
+        HtmlFormatter(full=True,
+                      linenos='inline',
+                      classprefix="xml-preview-",
+                      prestyles="font-family: monospace;"),
     )
-    try:
-        html = b64encode(xml.encode('latin1'))
-    except UnicodeEncodeError:
-        html = b64encode(xml.encode('utf8'))
+    html = b64encode(xml.encode('latin1'))
 
     return html
 
