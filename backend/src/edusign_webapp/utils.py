@@ -637,7 +637,7 @@ def pretty_print_xml(content):
                       classprefix="xml-preview-",
                       prestyles="font-family: monospace;"),
     )
-    html = b64encode(xml.encode('latin1'))
+    html = b64encode(xml.encode('ascii', 'xmlcharrefreplace'))
 
     return html
 
