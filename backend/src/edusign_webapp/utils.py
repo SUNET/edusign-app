@@ -222,11 +222,7 @@ def add_attributes_to_session_bankid_freja(invite_key, stype):
             current_app.logger.error('Missing personnummer from request')
             raise
 
-        try:
-            eppn = request.headers['Persistent-Id']
-        except KeyError:
-            current_app.logger.error('Missing Persistent-Id from request')
-            eppn = ssn
+        eppn = ssn
 
         attr_schema = "20"
 
