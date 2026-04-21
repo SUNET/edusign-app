@@ -135,11 +135,17 @@ class APIClient(object):
         + The HTTP Basic Auth credentials.
         """
         using_bankid = session.get('using-bankid', False)
+        using_freja = session.get('using-freja', False)
         self.api_base_url = self.config['EDUSIGN_API_BASE_URL']
         if using_bankid:
             self.profile = self.config[f'EDUSIGN_API_PROFILE_BANKID']
             self.basic_auth = HTTPBasicAuth(
                 self.config['EDUSIGN_API_USERNAME_BANKID'], self.config['EDUSIGN_API_PASSWORD_BANKID']
+            )
+        elif using_freja:
+            self.profile = self.config[f'EDUSIGN_API_PROFILE_FREJA']
+            self.basic_auth = HTTPBasicAuth(
+                self.config['EDUSIGN_API_USERNAME_FREJA'], self.config['EDUSIGN_API_PASSWORD_FREJA']
             )
         else:
             attr_schema = session['saml-attr-schema']
@@ -227,10 +233,13 @@ class APIClient(object):
             idp = session['organizationName']
 
         using_bankid = session.get('using-bankid', False)
+        using_freja = session.get('using-freja', False)
 
         attr_suffix = session['saml-attr-schema']
         if using_bankid:
             attr_suffix = 'BANKID'
+        elif using_freja:
+            attr_suffix = 'FREJA'
 
         attrs = [{'name': attr} for attr in self.config[f'SIGNER_ATTRIBUTES_{attr_suffix}'].keys()]
         current_app.logger.debug(f"signerAttributes sent to the prepare endpoint: {attrs}")
@@ -265,6 +274,7 @@ class APIClient(object):
 
     def _get_sign_request_data(self, documents):
         using_bankid = session.get('using-bankid', False)
+        using_freja = session.get('using-freja', False)
         idp = session['idp']
         authn_context = get_authn_context()
         assurance = get_required_assurance(documents)
@@ -274,6 +284,8 @@ class APIClient(object):
         attr_suffix = attr_schema
         if using_bankid:
             attr_suffix = 'BANKID'
+        elif using_freja:
+            attr_suffix = 'FREJA'
 
         attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_suffix}'].items()
         attrs = [{'name': saml_name, 'value': session[friendly_name]} for saml_name, friendly_name in attr_names]

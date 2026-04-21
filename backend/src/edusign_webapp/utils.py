@@ -115,6 +115,7 @@ def add_attributes_to_session(check_whitelisted=True):
         session['eduPersonPrincipalName'] = eppn
         session['saml-attr-schema'] = attr_schema
         session['using-bankid'] = False
+        session['using-freja'] = False
         session['invite-key'] = ''
         session['ssn'] = ''
         session['personalIdentityNumber'] = ''
@@ -203,12 +204,14 @@ def common_attributes_to_session():
     current_app.logger.debug(f'Headers sent by Shibboleth SP {request.headers}')
 
 
-def add_attributes_to_session_bankid(invite_key):
+def add_attributes_to_session_bankid_freja(invite_key, stype):
     """
     If the Flask session does not contain information identifying the user,
     this function will grab it from the invitation in the db.
     :param invite_key: key identifying the invitation in the db.
+    :param stype: type of signature - bankid | freja.
     :type invite_key: str
+    :type stype: str
     """
     if 'eppn' not in session:
         invite = current_app.extensions['doc_store'].get_invitation(invite_key)
@@ -219,11 +222,7 @@ def add_attributes_to_session_bankid(invite_key):
             current_app.logger.error('Missing personnummer from request')
             raise
 
-        try:
-            eppn = request.headers['Persistent-Id']
-        except KeyError:
-            current_app.logger.error('Missing Persistent-Id from request')
-            raise
+        eppn = ssn
 
         attr_schema = "20"
 
@@ -231,7 +230,8 @@ def add_attributes_to_session_bankid(invite_key):
         session['Persistent-Id'] = eppn
         session['eduPersonPrincipalName'] = eppn
         session['saml-attr-schema'] = attr_schema
-        session['using-bankid'] = True
+        session['using-bankid'] = stype == 'bankid'
+        session['using-freja'] = stype == 'freja'
         session['invite-key'] = invite_key
 
         current_app.logger.info(f'User {invite["user"]["email"]} started a session')
@@ -250,7 +250,7 @@ def add_attributes_to_session_bankid(invite_key):
 
         session['eduPersonAssurance'] = []
 
-        session['registrationAuthority'] = "dummy-bankid"
+        session['registrationAuthority'] = f"dummy-{stype}"
 
         common_attributes_to_session()
 
@@ -297,8 +297,9 @@ def get_invitations(remove_finished=False):
         mail_addresses = [session['mail']]
     mail_addresses = list(set(mail_addresses))
     using_bankid = session.get('using-bankid')
+    using_freja = session.get('using-freja')
 
-    if using_bankid:
+    if using_bankid or using_freja:
         owned = []
         invited = []
         invite_key = session.get('invite-key')
@@ -470,7 +471,7 @@ def is_whitelisted_for_bankid(app, eppn: str) -> bool:
     :param eppn: the eduPersonPrincipalName
     :return: whether it is whitelisted
     """
-    if '@' not in eppn:  # BankID
+    if '@' not in eppn:  # BankID / Freja+
         return False
 
     return eppn.lower().split('@')[1] in app.config['BANKID_WHITELIST']
@@ -631,9 +632,12 @@ def pretty_print_xml(content):
     xml = highlight(
         xmlstr,
         XmlLexer(),
-        HtmlFormatter(full=True, linenos='inline', classprefix="xml-preview-", prestyles="font-family: monospace;"),
+        HtmlFormatter(full=True,
+                      linenos='inline',
+                      classprefix="xml-preview-",
+                      prestyles="font-family: monospace;"),
     )
-    html = b64encode(xml.encode('latin1'))
+    html = b64encode(xml.encode('ascii', 'xmlcharrefreplace'))
 
     return html
 

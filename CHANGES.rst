@@ -1,3 +1,8 @@
+In version 1.5.2
+----------------
+
+* Integration with Freja+
+
 In version 1.5.0
 ----------------
 

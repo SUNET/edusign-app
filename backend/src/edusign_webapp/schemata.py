@@ -133,6 +133,7 @@ class ConfigSchema(InvitationsSchema):
         authn_context = fields.String(required=True, validate=[validate_nonempty])
         assurance_levels = fields.List(fields.String())
         using_bankid = fields.Boolean(dump_default=False)
+        using_freja = fields.Boolean(dump_default=False)
         invite_key = fields.List(fields.String())
 
     class AvailableLoa(Schema):

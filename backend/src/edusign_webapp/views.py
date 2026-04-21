@@ -76,7 +76,7 @@ from edusign_webapp.utils import (
     WrongSSN,
     NonWhitelisted,
     add_attributes_to_session,
-    add_attributes_to_session_bankid,
+    add_attributes_to_session_bankid_freja,
     get_invitations,
     get_previous_signatures,
     get_previous_signatures_xml,
@@ -129,7 +129,7 @@ def cleanup():
 @Marshal(SigGlobalSchema)
 def get_id_service_usage():
     """
-    Get JSON representation of BankID signatures
+    Get JSON representation of BankID and Freja signatures
     and the organizations responsible for them.
 
     :return: JSON [{"org name": <number of signatures>}, ...]
@@ -310,7 +310,7 @@ def get_home():
 @anon_edusign_views.route('/home-bankid/<invite_key>', methods=['GET'])
 def get_home_bankid(invite_key: str):
     """
-    View to serve an anonymous landing page with a choice to login using bankid.
+    View to serve an anonymous landing page with a choice to login using bankid or freja.
 
     The text on the page is extractd from markdown documents
     at edusign_webapp/md/, and can be overridden with md documents at /etc/edusign.
@@ -341,8 +341,10 @@ def get_home_bankid(invite_key: str):
 
     target = url_for('edusign.get_index_bankid', invite_key=invite_key, _external=False)
     bankid_entity_id = current_app.config['BANKID_IDP']
+    freja_entity_id = current_app.config['FREJA_IDP']
     login_initiator = f"{base_url}/Shibboleth.sso/Login?target=/sign/"
     login_initiator_bankid = f"{base_url}/Shibboleth.sso/Login/BankID?target={target}&entityID={bankid_entity_id}"
+    login_initiator_freja = f"{base_url}/Shibboleth.sso/Login/Freja?target={target}&entityID={freja_entity_id}"
     context = {
         'body': body,
         'login_initiator': login_initiator,
@@ -351,6 +353,7 @@ def get_home_bankid(invite_key: str):
         'version': version,
         'company_link': company_link,
         'login_initiator_bankid': login_initiator_bankid,
+        'login_initiator_freja': login_initiator_freja,
     }
 
     try:
@@ -439,7 +442,7 @@ def get_index() -> str | Response:
 
     :return: the rendered `index.jinja2` template as a string (or `error-generic.jinja2` in case of errors)
     """
-    if 'using-bankid' in session and session.get('using-bankid'):
+    if ('using-bankid' in session and session.get('using-bankid')) or ('using-freja' in session and session.get('using-freja')):
         session.clear()
         return redirect(url_for('edusign_anon.get_home'))
 
@@ -453,7 +456,8 @@ def get_index() -> str | Response:
     try:
         add_attributes_to_session()
     except KeyError as e:
-        if request.headers.get('Md-Organizationname', '') in ('BankID',):
+        orgname = request.headers.get('Md-Organizationname', '').lower()
+        if 'bankid' in orgname or 'freja' in orgname:
             return redirect(url_for('edusign_anon.get_home'))
 
         current_app.logger.error(
@@ -500,8 +504,6 @@ def get_index_bankid(invite_key: str) -> Union[str, Response]:
     """
     View to provide the UI to initiate signatures with Swedish BankID.
 
-    This is an authenticated view, for when the invited user is provided with an SSN
-
     :param invite_key: Key identifying the invitation to sign.
     :return: Rendered template with UI to start the signature process.
     """
@@ -516,7 +518,74 @@ def get_index_bankid(invite_key: str) -> Union[str, Response]:
     }
     unauthn = False
     try:
-        add_attributes_to_session_bankid(invite_key)
+        add_attributes_to_session_bankid_freja(invite_key, 'bankid')
+    except KeyError as e:
+        current_app.logger.error(
+            f'There is some misconfiguration and the IdP does not seem to provide the correct attributes: {e}.'
+        )
+        context['title'] = gettext("Missing information")
+        context['message'] = gettext(
+            'Your organization did not provide the correct information during login. Please contact your IT-support for assistance.'
+        )
+        return render_template('error-generic.jinja2', **context)
+    except MissingDisplayName:
+        current_app.logger.error('There is some misconfiguration and the IdP does not seem to provide the displayName.')
+        context['title'] = gettext("Missing displayName")
+        context['message'] = gettext(
+            'Your should add your name to your account at your organization. Please contact your IT-support for assistance.'
+        )
+        return render_template('error-generic.jinja2', **context)
+    except WrongSSN:
+        current_app.logger.error('The invited personnumer does not coincide with the one received from the IdP.')
+        context['title'] = gettext("Unknown invitation")
+        context['message'] = gettext(
+            'Your identity does not seem to coincide with the invited identity.'
+        )
+        return render_template('error-generic.jinja2', **context)
+    except NonWhitelisted:
+        current_app.logger.debug("Authorizing non-whitelisted user")
+        unauthn = True
+
+    if 'invited-unauthn' in session and session['invited-unauthn']:
+        invites = get_invitations()
+        if len(invites['pending_multisign']) > 0:
+            unauthn = True
+
+    session['invited-unauthn'] = unauthn
+    current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
+
+    bundle_name = 'main-bundle'
+    if current_app.config['ENVIRONMENT'] in ('development', 'e2e'):
+        bundle_name += '.dev'
+
+    try:
+        return render_template('index.jinja2', bundle_name=bundle_name)
+    except AttributeError as e:
+        current_app.logger.error(f'Template rendering failed: {e}')
+        abort(500)
+
+
+@edusign_views.route('/freja/<invite_key>', methods=['GET'])
+@edusign_views2.route('/freja/<invite_key>', methods=['GET'])
+def get_index_freja(invite_key: str) -> Union[str, Response]:
+    """
+    View to provide the UI to initiate signatures with Freja+
+
+    :param invite_key: Key identifying the invitation to sign.
+    :return: Rendered template with UI to start the signature process.
+    """
+    if 'using-freja' in session and  not session.get('using-freja'):
+        session.clear()
+
+    company_link = current_app.config['COMPANY_LINK']
+    context = {
+        'back_link': f"{current_app.config['PREFERRED_URL_SCHEME']}://{current_app.config['SERVER_NAME']}",
+        'back_button_text': gettext("Back"),
+        'company_link': company_link,
+    }
+    unauthn = False
+    try:
+        add_attributes_to_session_bankid_freja(invite_key, 'freja')
     except KeyError as e:
         current_app.logger.error(
             f'There is some misconfiguration and the IdP does not seem to provide the correct attributes: {e}.'
@@ -673,6 +742,7 @@ def _get_ui_config(payload: dict) -> dict:
         'assurance_levels': loas,
         'authn_context': session['authn_context'],
         'using_bankid': session['using-bankid'],
+        'using_freja': session['using-freja'],
         'invite_key': session['invite-key'],
     }
 
@@ -1385,6 +1455,11 @@ def _process_signed_documents(process_data):
                 # current_app.extensions['doc_store'].add_signature('bankid', org, doc['name'], owner['eppn'], session['eppn'], authnInstant)
                 current_app.extensions['doc_store'].add_signature('bankid', org, '', '', '', authnInstant)
 
+            if session['using-freja']:
+                authnInstant = int(process_data['signerAssertionInformation']['authnInstant'])
+                # current_app.extensions['doc_store'].add_signature('bankid', org, doc['name'], owner['eppn'], session['eppn'], authnInstant)
+                current_app.extensions['doc_store'].add_signature('freja', org, '', '', '', authnInstant)
+
         else:
             if '@' in session['eppn']:
                 org = session['eppn'].split('@')[1]
@@ -1619,7 +1694,7 @@ def create_multi_sign_request(data: dict) -> dict:
         try:
             if allowbankid:
                 keys = {invite['email']: invite['key'] for invite in invites}
-                _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=allowbankid, invite_keys=keys)
+                _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=True, invite_keys=keys)
             else:
                 _send_invitation_mail(docname, owner, custom_text, recipients)
 

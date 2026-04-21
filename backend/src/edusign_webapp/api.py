@@ -132,6 +132,7 @@ def add_to_session(personal_data):
     session['mail'] = personal_data['mail'][0]
     session['ssn'] = ''
     session['using-bankid'] = False
+    session['using-freja'] = False
     session['invite-key'] = ''
     session['mail_aliases'] = personal_data['mail']
     session['organizationName'] = personal_data['organization']

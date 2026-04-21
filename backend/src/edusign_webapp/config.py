@@ -96,6 +96,10 @@ EDUSIGN_API_PROFILE_BANKID = os.environ.get('EDUSIGN_API_PROFILE_BANKID', defaul
 EDUSIGN_API_USERNAME_BANKID = os.environ.get('EDUSIGN_API_USERNAME_BANKID', default='dummy')
 EDUSIGN_API_PASSWORD_BANKID = os.environ.get('EDUSIGN_API_PASSWORD_BANKID', default='dummy')
 
+EDUSIGN_API_PROFILE_FREJA = os.environ.get('EDUSIGN_API_PROFILE_FREJA', default='edusign-freja-test')
+EDUSIGN_API_USERNAME_FREJA = os.environ.get('EDUSIGN_API_USERNAME_FREJA', default='dummy')
+EDUSIGN_API_PASSWORD_FREJA = os.environ.get('EDUSIGN_API_PASSWORD_FREJA', default='dummy')
+
 SIGN_REQUESTER_ID = os.environ.get('SIGN_REQUESTER_ID', default="https://sig.idsec.se/edusign-test")
 
 VALIDATOR_API_BASE_URL = os.environ.get('VALIDATOR_API_BASE_URL', default='https://sig.idsec.se/sigval/')
@@ -123,6 +127,13 @@ RAW_SIGNER_ATTRIBUTES_BANKID = os.environ.get(
 
 SIGNER_ATTRIBUTES_BANKID = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES_BANKID.split(';')}
 
+RAW_SIGNER_ATTRIBUTES_FREJA = os.environ.get(
+    'SIGNER_ATTRIBUTES_FREJA',
+    default='urn:oid:2.16.840.1.113730.3.1.241,displayName',
+)
+
+SIGNER_ATTRIBUTES_FREJA = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_SIGNER_ATTRIBUTES_FREJA.split(';')}
+
 RAW_AUTHN_ATTRIBUTES_11 = os.environ.get(
     'AUTHN_ATTRIBUTES_11',
     default='urn:mace:dir:attribute-def:eduPersonPrincipalName,eduPersonPrincipalName',
@@ -144,6 +155,13 @@ RAW_AUTHN_ATTRIBUTES_BANKID = os.environ.get(
 
 AUTHN_ATTRIBUTES_BANKID = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_BANKID.split(';')}
 
+RAW_AUTHN_ATTRIBUTES_FREJA = os.environ.get(
+    'AUTHN_ATTRIBUTES_FREJA',
+    default='urn:oid:1.2.752.29.4.13,personalIdentityNumber',
+)
+
+AUTHN_ATTRIBUTES_FREJA = {attr.split(',')[0]: attr.split(',')[1] for attr in RAW_AUTHN_ATTRIBUTES_FREJA.split(';')}
+
 RAW_SCOPE_WHITELIST = os.environ.get('SCOPE_WHITELIST', default='eduid.se, sunet.se')
 
 SCOPE_WHITELIST = [scope.lower().strip() for scope in RAW_SCOPE_WHITELIST.split(',')]
@@ -162,12 +180,15 @@ BANKID_WHITELIST = [scope.lower().strip() for scope in RAW_BANKID_WHITELIST.spli
 
 POLLING = os.environ.get('POLLING', default='always')  # always|inviter|never
 
-# Whether users are allowed to invite to sign with BankID
+# Whether users are allowed to invite to sign with BankID or Freja+
 RAW_ALLOW_BANKID = os.environ.get('ALLOW_BANKID', default='true')
 ALLOW_BANKID = get_boolean(RAW_ALLOW_BANKID)
 
 BANKID_IDP = os.environ.get('BANKID_IDP', default="https://sandbox.swedenconnect.se/bankid/idp")
 BANKID_SSN_ATTR = os.environ.get('BANKID_SSN_ATTR', default='urn:oid:1.2.752.29.4.13')
+
+FREJA_IDP = os.environ.get('FREJA_IDP', default="https://idp-sweden-connect-valfr-2017-sandbox.test.frejaeid.com")
+FREJA_SSN_ATTR = os.environ.get('FREJA_SSN_ATTR', default='urn:oid:1.2.752.29.4.13')
 
 STORAGE_CLASS_PATH = os.environ.get('STORAGE_CLASS_PATH', default='edusign_webapp.document.storage.local.LocalStorage')
 LOCAL_STORAGE_BASE_DIR = os.environ.get('LOCAL_STORAGE_BASE_DIR', default='/tmp')
