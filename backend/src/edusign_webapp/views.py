@@ -307,7 +307,7 @@ def get_home():
         abort(500)
 
 
-@anon_edusign_views.route('/home-bankid/<invite_key>', methods=['GET'])
+@anon_edusign_views.route('/home-eid/<invite_key>', methods=['GET'])
 def get_home_bankid(invite_key: str):
     """
     View to serve an anonymous landing page with a choice to login using bankid or freja.
@@ -692,6 +692,32 @@ def _get_ui_defaults():
     return ui_defaults
 
 
+@edusign_views.route('/config-eid/<invite_key>', methods=['GET'])
+@edusign_views2.route('/config-eid/<invite_key>', methods=['GET'])
+@Marshal(ConfigSchema)
+def get_config_eid(invite_key: str) -> dict:
+    """
+    View to serve the configuration for the front app for eID signatures.
+
+    This is called once the browser has rendered the js app.
+    The main info sent in the config JSON is:
+
+    - Info about pending invitations to sign, both as inviter and as invitee;
+    - Attributes released by the IdP;
+    - A flag to indicate whether to show the invitations button;
+    - A flag to indicate whether the user has logged in through a whitelisted organization.
+
+    :return: A dict with the configuration parameters, to be marshaled with the ConfigSchema schema.
+    """
+    if 'ssn' not in session:
+        abort(403)
+
+    payload = {}
+    payload['unauthn'] = False
+
+    return _get_ui_config(payload, invite_key)
+
+
 @edusign_views.route('/config', methods=['GET'])
 @edusign_views2.route('/config', methods=['GET'])
 @Marshal(ConfigSchema)
@@ -721,9 +747,9 @@ def get_config() -> dict:
     return _get_ui_config(payload)
 
 
-def _get_ui_config(payload: dict) -> dict:
+def _get_ui_config(payload: dict, invite_key: str = '') -> dict:
 
-    invites = get_invitations(remove_finished=True)
+    invites = get_invitations(remove_finished=True, invite_key=invite_key)
     payload.update(invites)
 
     payload['ui_defaults'] = _get_ui_defaults()
@@ -1076,7 +1102,7 @@ def _ready_docs(
     ],
     authn_request=True
 )
-def recreate_sign_request(documents: dict) -> dict:
+def recreate_sign_request(data: dict) -> dict:
     """
     View to both send some documents to the API to be prepared to  be signed,
     and to send the results of the preparations to create a sign request.
@@ -1107,20 +1133,20 @@ def recreate_sign_request(documents: dict) -> dict:
             else:
                 session['invited-unauthn'] = True
 
-    current_app.logger.debug(f'Data gotten in recreate view: {documents}')
+    current_app.logger.debug(f'Data gotten in recreate view: {data}')
 
     async def prepare(doc):
         return prepare_document(doc)
 
     current_app.logger.info(f"Re-preparing documents for user {session['eppn']}")
     loop = asyncio.new_event_loop()
-    tasks = [loop.create_task(prepare(doc)) for doc in documents['documents']['local']]
+    tasks = [loop.create_task(prepare(doc)) for doc in data['documents']['local']]
 
-    for doc in documents['documents']['owned']:
+    for doc in data['documents']['owned']:
         doc['blob'] = current_app.extensions['doc_store'].get_document_content(doc['key'])
         tasks.append(loop.create_task(prepare(doc)))
 
-    failed, invited_docs = _gather_invited_docs(documents['documents']['invited'])
+    failed, invited_docs = _gather_invited_docs(data['documents']['invited'])
 
     for doc in invited_docs:
         doc['blob'] = current_app.extensions['doc_store'].get_document_content(doc['key'])
@@ -1131,7 +1157,7 @@ def recreate_sign_request(documents: dict) -> dict:
     loop.close()
 
     docs_data = [task.result() for task in tasks]
-    all_docs = documents['documents']['local'] + documents['documents']['owned'] + invited_docs
+    all_docs = data['documents']['local'] + data['documents']['owned'] + invited_docs
 
     more_failed, new_docs = _ready_docs(docs_data, all_docs)
     failed += more_failed
@@ -1201,6 +1227,36 @@ def sign_service_callback() -> Union[str, Response]:
     if request.method == 'GET':
         return redirect(url_for('edusign.get_index'))
 
+    return _common_callback()
+
+
+@edusign_views.route('/callback-eid/<invite_key>', methods=['POST', 'GET'])
+@edusign_views2.route('/callback-eid/<invite_key>', methods=['POST', 'GET'])
+def sign_service_callback_eid(invite_key) -> Union[str, Response]:
+    """
+    After the user has used the sign request to go through the sign service and IdP to sign the documents,
+    the sign service will respond with a redirect to this view. This redirect will carry the sign response
+    obtained in the sign process.
+
+    The response of this view will trigger loading the frontside js eduSign app in the browser,
+    adding the sign response to the mix as data attributes in the html. When the frontside app loads,
+    and detects a sign response in the html, it will automatically call the `get_signed_docs` view below,
+    to get the signed documents in the browser and hand them over to the user.
+
+    :return: The rendered template `index-with-sign-response.jinja2`, which loads the app like the index,
+             and in addition contains some information POSTed from the signature service, needed
+             to retrieve the signed documents.
+    """
+    if request.method == 'GET':
+        if session['using-freja']:
+            return redirect(url_for('edusign.get_index_freja', invite_key=invite_key))
+        elif session['using-bankid']:
+            return redirect(url_for('edusign.get_index_bankid', invite_key=invite_key))
+
+    return _common_callback()
+
+
+def _common_callback():
     bundle_name = 'main-bundle'
     if current_app.config['ENVIRONMENT'] in ('development', 'e2e'):
         bundle_name += '.dev'

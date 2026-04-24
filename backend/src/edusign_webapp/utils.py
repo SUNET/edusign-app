@@ -116,7 +116,6 @@ def add_attributes_to_session(check_whitelisted=True):
         session['saml-attr-schema'] = attr_schema
         session['using-bankid'] = False
         session['using-freja'] = False
-        session['invite-key'] = ''
         session['ssn'] = ''
         session['personalIdentityNumber'] = ''
 
@@ -232,7 +231,6 @@ def add_attributes_to_session_bankid_freja(invite_key, stype):
         session['saml-attr-schema'] = attr_schema
         session['using-bankid'] = stype == 'bankid'
         session['using-freja'] = stype == 'freja'
-        session['invite-key'] = invite_key
 
         current_app.logger.info(f'User {invite["user"]["email"]} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
@@ -280,7 +278,7 @@ def prepare_document(document: dict) -> dict:
         return {}
 
 
-def get_invitations(remove_finished=False):
+def get_invitations(remove_finished=False, invite_key=''):
     """
     Function that will retrieve from the db all invitations concerning the user in the current session.
     This is called from the `get_config` and `poll` views, and the results are sent to the client side app
@@ -302,7 +300,6 @@ def get_invitations(remove_finished=False):
     if using_bankid or using_freja:
         owned = []
         invited = []
-        invite_key = session.get('invite-key')
         standing = current_app.extensions['doc_store'].is_invitation_standing(invite_key)
         if standing:
             invite = current_app.extensions['doc_store'].get_invitation(invite_key, include_others=True)

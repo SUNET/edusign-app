@@ -270,6 +270,7 @@ class ToRestartSigningSchema(Schema):
         owned = fields.List(fields.Nested(DocumentSchemaWithKeyNoBlob))
 
     documents = fields.Nested(AllDocuments)
+    invite_key = fields.String(required=True)
 
 
 class SignRequestSchema(Schema):

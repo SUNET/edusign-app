@@ -272,7 +272,7 @@ class APIClient(object):
 
         return response
 
-    def _get_sign_request_data(self, documents):
+    def _get_sign_request_data(self, documents, invite_key=''):
         using_bankid = session.get('using-bankid', False)
         using_freja = session.get('using-freja', False)
         idp = session['idp']
@@ -331,9 +331,14 @@ class APIClient(object):
             return_url = session['api_return_url']
         else:
             scheme = self.config['PREFERRED_URL_SCHEME']
-            return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
-            if request.path.startswith('/sign2'):
-                return_url = url_for('edusign2.sign_service_callback', _external=True, _scheme=scheme)
+            if invite_key:
+                return_url = url_for('edusign.sign_service_callback_eid', invite_key=invite_key, _external=True, _scheme=scheme)
+                if request.path.startswith('/sign2'):
+                    return_url = url_for('edusign2.sign_service_callback_eid', invite_key=invite_key, _external=True, _scheme=scheme)
+            else:
+                return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
+                if request.path.startswith('/sign2'):
+                    return_url = url_for('edusign2.sign_service_callback', _external=True, _scheme=scheme)
 
         return {
             "correlationId": correlation_id,
@@ -347,7 +352,7 @@ class APIClient(object):
             "tbsDocuments": [],
         }
 
-    def _try_creating_sign_request(self, documents: list, add_blob=False) -> tuple:
+    def _try_creating_sign_request(self, documents: list, add_blob=False, invite_key='') -> tuple:
         """
         Send request to the `create` endpoint of the API.
         This API method is used to create a sign request that can then be POSTed
@@ -422,7 +427,7 @@ class APIClient(object):
         :return: Pair of  Flask representation of the HTTP response from the API,
                  and list of mappings linking the documents' names with the generated ids.
         """
-        request_data = self._get_sign_request_data(documents)
+        request_data = self._get_sign_request_data(documents, invite_key=invite_key)
         documents_with_id = []
         for document in documents:
             if document.get('sign_requirement', '') == '':
@@ -458,7 +463,7 @@ class APIClient(object):
 
         return self._post(api_url, request_data), documents_with_id
 
-    def create_sign_request(self, documents: list, add_blob=False) -> tuple:
+    def create_sign_request(self, documents: list, add_blob=False, invite_key='') -> tuple:
         """
         Use the `_try_creating_sign_request` method to create a sign request
         at the `create` endpoint of the API.
@@ -480,7 +485,7 @@ class APIClient(object):
                  the API as tbsDocuments.N.id).
         """
         self.initialize_credentials()
-        response_data, documents_with_id = self._try_creating_sign_request(documents, add_blob=add_blob)
+        response_data, documents_with_id = self._try_creating_sign_request(documents, add_blob=add_blob, invite_key=invite_key)
 
         if (
             'status' in response_data

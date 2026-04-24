@@ -15,6 +15,7 @@ import Cookies from "js-cookie";
 import rootReducer from "init-app/store";
 import { appLoading, fetchConfig, resizeWindow, enableContextualHelp, setVisibilityTimer, setFetchTimer } from "slices/Main";
 import { enablePolling, disablePolling } from "slices/Poll";
+import { getConfigPath } from "components/utils";
 
 /*
  * internationalization.
@@ -46,7 +47,10 @@ const store = edusignStore();
  * It will trigger retrieving configuration parameters from the backend and loading documents from the IndeedBD db.
  */
 export const appIsRendered = async function () {
-  await store.dispatch(fetchConfig({configPath: '/sign/config'}));
+
+  let configPath = getConfigPath();
+
+  await store.dispatch(fetchConfig({configPath: configPath}));
 
   const now = Date.now();
   store.dispatch(setVisibilityTimer(now));

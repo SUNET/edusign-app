@@ -68,6 +68,7 @@ import {
   hashCode,
   humanFileSize,
   nameForDownload,
+  getInviteKey,
 } from "components/utils";
 
 /**
@@ -980,7 +981,8 @@ export const restartSigningDocuments = createAsyncThunk(
       }
     });
     // send data about documents to be signed to the backend
-    const body = preparePayload(state, { documents: docsToSign });
+    const invite_key = getInviteKey();
+    const body = preparePayload(state, { documents: docsToSign, invite_key: invite_key });
     try {
       const response = await esFetch("/sign/recreate-sign-request", {
         ...postRequest,
