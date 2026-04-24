@@ -769,7 +769,7 @@ def _get_ui_config(payload: dict, invite_key: str = '') -> dict:
         'authn_context': session['authn_context'],
         'using_bankid': session['using-bankid'],
         'using_freja': session['using-freja'],
-        'invite_key': session['invite-key'],
+        'invite_key': invite_key,
     }
 
     payload['signer_attributes'] = attrs
@@ -1165,7 +1165,7 @@ def recreate_sign_request(data: dict) -> dict:
     if len(new_docs) > 0:
         try:
             current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
-            create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request(new_docs)
+            create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request(new_docs, invite_key=data['invite_key'])
 
         except current_app.extensions['api_client'].UnknownDocType as e:
             current_app.logger.error(f'Problem creating sign request, unsupported doc type: {e}')

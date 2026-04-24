@@ -1077,7 +1077,7 @@ class SqliteMD(ABCMetadata):
         """
         invite = self._db_query(INVITE_STATUS_QUERY_FROM_KEY, (str(invite_key),), one=True)
         if invite is None or isinstance(invite, list):
-            self.logger.error(f"Retrieving a non-existing invite with key {key}")
+            self.logger.error(f"Retrieving a non-existing invite with key {invite_key}")
             return False
 
         return not (invite['signed'] or invite['declined'])
