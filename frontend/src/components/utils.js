@@ -393,12 +393,12 @@ export const getInviteKey = () => {
   let invite_key = '';
 
   const path = window.location.pathname;
-  const bankid_regex = /\/bankid/([^/]*)/;
+  const bankid_regex = /\/bankid\/([^/]*)/;
   let match = path.match(bankid_regex);
   if (match !== null) {
     invite_key = match[1];
   } else {
-    const freja_regex = /\/freja/([^/]*)/;
+    const freja_regex = /\/freja\/([^/]*)/;
     match = path.match(freja_regex);
     if (match !== null) {
       invite_key = match[1];
