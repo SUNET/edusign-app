@@ -402,6 +402,12 @@ export const getInviteKey = () => {
     match = path.match(freja_regex);
     if (match !== null) {
       invite_key = match[1];
+    } else {
+      const freja_regex = /\/callback-eid\/([^/]*)/;
+      match = path.match(freja_regex);
+      if (match !== null) {
+        invite_key = match[1];
+      }
     }
   }
   return invite_key;

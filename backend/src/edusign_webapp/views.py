@@ -516,7 +516,7 @@ def get_index_bankid(invite_key: str) -> Union[str, Response]:
         'back_button_text': gettext("Back"),
         'company_link': company_link,
     }
-    unauthn = False
+    unauthn = True
     try:
         add_attributes_to_session_bankid_freja(invite_key, 'bankid')
     except KeyError as e:
@@ -583,7 +583,7 @@ def get_index_freja(invite_key: str) -> Union[str, Response]:
         'back_button_text': gettext("Back"),
         'company_link': company_link,
     }
-    unauthn = False
+    unauthn = True
     try:
         add_attributes_to_session_bankid_freja(invite_key, 'freja')
     except KeyError as e:
@@ -713,7 +713,7 @@ def get_config_eid(invite_key: str) -> dict:
         abort(403)
 
     payload = {}
-    payload['unauthn'] = False
+    payload['unauthn'] = True
 
     return _get_ui_config(payload, invite_key)
 
