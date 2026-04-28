@@ -5,6 +5,7 @@
  */
 
 import { setCsrfToken, setFetchTimer, fetchConfig } from "slices/Main";
+import { getConfigPath } from "components/utils";
 
 /**
  * @public
@@ -98,7 +99,8 @@ export const esFetch = async (resource, options, state, dispatch) => {
     clearTimeout(state.main.fetch_timer);
   }
   const timerID = setTimeout(async () => {
-    await dispatch(fetchConfig({configPath: '/sign/config'}));
+    const configPath = getConfigPath();
+    await dispatch(fetchConfig({configPath: configPath}));
   }, 10 * 60 * 1000);
 
   dispatch(setFetchTimer(timerID));
