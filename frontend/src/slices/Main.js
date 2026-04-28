@@ -164,7 +164,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
             ...args,
             retried: true
           };
-          return thunkAPI.dispatch(getPartiallySignedDoc(newArgs));
+          thunkAPI.dispatch(getPartiallySignedDoc(newArgs));
         } else {
           throw new Error(data.message);
         }
