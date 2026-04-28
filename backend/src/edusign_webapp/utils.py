@@ -114,8 +114,6 @@ def add_attributes_to_session(check_whitelisted=True):
         session['Persistent-Id'] = eppn
         session['eduPersonPrincipalName'] = eppn
         session['saml-attr-schema'] = attr_schema
-        session['using-bankid'] = False
-        session['using-freja'] = False
         session['ssn'] = ''
         session['personalIdentityNumber'] = ''
 
@@ -229,8 +227,6 @@ def add_attributes_to_session_bankid_freja(invite_key, stype):
         session['Persistent-Id'] = eppn
         session['eduPersonPrincipalName'] = eppn
         session['saml-attr-schema'] = attr_schema
-        session['using-bankid'] = stype == 'bankid'
-        session['using-freja'] = stype == 'freja'
 
         current_app.logger.info(f'User {invite["user"]["email"]} started a session')
         current_app.logger.debug(f'\n\nHEADERS\n\n{request.headers}\n\n\n\n')
@@ -253,7 +249,7 @@ def add_attributes_to_session_bankid_freja(invite_key, stype):
         common_attributes_to_session()
 
 
-def prepare_document(document: dict) -> dict:
+def prepare_document(document: dict, eid_type: str = '') -> dict:
     """
     Send documents to the eduSign API to be prepared for signing.
 
@@ -266,7 +262,7 @@ def prepare_document(document: dict) -> dict:
     if document['type'] == 'application/pdf':
         try:
             current_app.logger.info(f"Sending document {document['name']} for preparation for user {session['eppn']}")
-            return current_app.extensions['api_client'].prepare_document(document)
+            return current_app.extensions['api_client'].prepare_document(document, eid_type=eid_type)
 
         except Exception as e:
             current_app.logger.error(f'Problem preparing document: {e}')
@@ -278,7 +274,7 @@ def prepare_document(document: dict) -> dict:
         return {}
 
 
-def get_invitations(remove_finished=False, invite_key=''):
+def get_invitations(remove_finished=False, eid_type='', invite_key=''):
     """
     Function that will retrieve from the db all invitations concerning the user in the current session.
     This is called from the `get_config` and `poll` views, and the results are sent to the client side app
@@ -294,8 +290,8 @@ def get_invitations(remove_finished=False, invite_key=''):
     if mail_addresses is None:
         mail_addresses = [session['mail']]
     mail_addresses = list(set(mail_addresses))
-    using_bankid = session.get('using-bankid')
-    using_freja = session.get('using-freja')
+    using_bankid = eid_type == "bankid"
+    using_freja = eid_type == "freja"
 
     if using_bankid or using_freja:
         owned = []

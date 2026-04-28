@@ -125,7 +125,7 @@ class APIClient(object):
         """
         self.config = config
 
-    def initialize_credentials(self):
+    def initialize_credentials(self, eid_type=''):
         """
         Initialize the client object with configuration gathered by flask.
         We need 3 things here:
@@ -134,8 +134,8 @@ class APIClient(object):
         + The profile in the API to use - for which we have credentials (HTTP Basic Auth)
         + The HTTP Basic Auth credentials.
         """
-        using_bankid = session.get('using-bankid', False)
-        using_freja = session.get('using-freja', False)
+        using_bankid = eid_type == "bankid"
+        using_freja = eid_type == "freja"
         self.api_base_url = self.config['EDUSIGN_API_BASE_URL']
         if using_bankid:
             self.profile = self.config[f'EDUSIGN_API_PROFILE_BANKID']
@@ -182,7 +182,7 @@ class APIClient(object):
         current_app.logger.debug(f"Response from the API's {url} method: {response.json()}")
         return response.json()
 
-    def prepare_document(self, document: dict) -> dict:
+    def prepare_document(self, document: dict, eid_type: str = '') -> dict:
         """
         Send request to the `prepare` endpoint of the API.
         This API method will prepare a PDF document
@@ -226,14 +226,18 @@ class APIClient(object):
         :param document: Dict holding the PDF (data and metadata) to prepare for signing.
         :return: Flask representation of the HTTP response from the API.
         """
-        self.initialize_credentials()
+        self.initialize_credentials(eid_type=eid_type)
+
+        using_bankid = eid_type == "bankid"
+        using_freja = eid_type == "freja"
         idp = session['idp']
+        if using_bankid:
+            idp = current_app.config['BANKID_IDP']
+        elif using_freja:
+            idp = current_app.config['FREJA_IDP']
 
         if session.get('organizationName', None) is not None:
             idp = session['organizationName']
-
-        using_bankid = session.get('using-bankid', False)
-        using_freja = session.get('using-freja', False)
 
         attr_suffix = session['saml-attr-schema']
         if using_bankid:
@@ -272,10 +276,14 @@ class APIClient(object):
 
         return response
 
-    def _get_sign_request_data(self, documents, invite_key=''):
-        using_bankid = session.get('using-bankid', False)
-        using_freja = session.get('using-freja', False)
+    def _get_sign_request_data(self, documents, invite_key='', eid_type=''):
+        using_bankid = eid_type == "bankid"
+        using_freja = eid_type == "freja"
         idp = session['idp']
+        if using_bankid:
+            idp = current_app.config['BANKID_IDP']
+        elif using_freja:
+            idp = current_app.config['FREJA_IDP']
         authn_context = get_authn_context()
         assurance = get_required_assurance(documents)
         correlation_id = str(uuid.uuid4())
@@ -331,10 +339,10 @@ class APIClient(object):
             return_url = session['api_return_url']
         else:
             scheme = self.config['PREFERRED_URL_SCHEME']
-            if invite_key:
-                return_url = url_for('edusign.sign_service_callback_eid', invite_key=invite_key, _external=True, _scheme=scheme)
+            if invite_key and eid_type:
+                return_url = url_for('edusign.sign_service_callback_eid', invite_key=invite_key, eid_type=eid_type, _external=True, _scheme=scheme)
                 if request.path.startswith('/sign2'):
-                    return_url = url_for('edusign2.sign_service_callback_eid', invite_key=invite_key, _external=True, _scheme=scheme)
+                    return_url = url_for('edusign2.sign_service_callback_eid', invite_key=invite_key, eid_type=eid_type, _external=True, _scheme=scheme)
             else:
                 return_url = url_for('edusign.sign_service_callback', _external=True, _scheme=scheme)
                 if request.path.startswith('/sign2'):
@@ -352,7 +360,7 @@ class APIClient(object):
             "tbsDocuments": [],
         }
 
-    def _try_creating_sign_request(self, documents: list, add_blob=False, invite_key='') -> tuple:
+    def _try_creating_sign_request(self, documents: list, add_blob=False, invite_key='', eid_type='') -> tuple:
         """
         Send request to the `create` endpoint of the API.
         This API method is used to create a sign request that can then be POSTed
@@ -427,7 +435,7 @@ class APIClient(object):
         :return: Pair of  Flask representation of the HTTP response from the API,
                  and list of mappings linking the documents' names with the generated ids.
         """
-        request_data = self._get_sign_request_data(documents, invite_key=invite_key)
+        request_data = self._get_sign_request_data(documents, invite_key=invite_key, eid_type=eid_type)
         documents_with_id = []
         for document in documents:
             if document.get('sign_requirement', '') == '':
@@ -463,7 +471,7 @@ class APIClient(object):
 
         return self._post(api_url, request_data), documents_with_id
 
-    def create_sign_request(self, documents: list, add_blob=False, invite_key='') -> tuple:
+    def create_sign_request(self, documents: list, add_blob=False, invite_key='', eid_type='') -> tuple:
         """
         Use the `_try_creating_sign_request` method to create a sign request
         at the `create` endpoint of the API.
@@ -485,7 +493,7 @@ class APIClient(object):
                  the API as tbsDocuments.N.id).
         """
         self.initialize_credentials()
-        response_data, documents_with_id = self._try_creating_sign_request(documents, add_blob=add_blob, invite_key=invite_key)
+        response_data, documents_with_id = self._try_creating_sign_request(documents, add_blob=add_blob, invite_key=invite_key, eid_type=eid_type)
 
         if (
             'status' in response_data

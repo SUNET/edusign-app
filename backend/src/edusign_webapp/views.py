@@ -663,39 +663,10 @@ def receive_sign_request():
     return {'message': 'OK'}
 
 
-def _get_ui_defaults():
-    ui_defaults = {
-        'send_signed': current_app.config['UI_SEND_SIGNED'],
-        'skip_final': current_app.config['UI_SKIP_FINAL'],
-        'ordered_invitations': current_app.config['UI_ORDERED_INVITATIONS'],
-        'allow_bankid': current_app.config['UI_ALLOW_BANKID'],
-    }
-    form_config_file = current_app.config['CUSTOM_FORMS_DEFAULTS_FILE']
-    if os.path.exists(form_config_file):
-        config = None
-        with open(form_config_file, 'r') as f:
-            try:
-                config = yaml.safe_load(f)
-            except yaml.YAMLError as e:
-                current_app.logger.info(f"Cannot read YAML file at {form_config_file}: {e}")
-
-        if config is not None:
-            idp = session['idp']
-            if idp in config:
-                idp_config = config[idp]
-                ui_defaults = {
-                    'send_signed': idp_config['send_signed'],
-                    'skip_final': idp_config['skip_final'],
-                    'ordered_invitations': idp_config['ordered_invitations'],
-                    'allow_bankid': idp_config.get('allow_bankid', False),
-                }
-    return ui_defaults
-
-
-@edusign_views.route('/config-eid/<invite_key>', methods=['GET'])
-@edusign_views2.route('/config-eid/<invite_key>', methods=['GET'])
+@edusign_views.route('/config-eid/<eid_type>/<invite_key>', methods=['GET'])
+@edusign_views2.route('/config-eid/<eid_type>/<invite_key>', methods=['GET'])
 @Marshal(ConfigSchema)
-def get_config_eid(invite_key: str) -> dict:
+def get_config_eid(eid_type: str, invite_key: str) -> dict:
     """
     View to serve the configuration for the front app for eID signatures.
 
@@ -715,7 +686,7 @@ def get_config_eid(invite_key: str) -> dict:
     payload = {}
     payload['unauthn'] = True
 
-    return _get_ui_config(payload, invite_key)
+    return _get_ui_config(payload, eid_type, invite_key)
 
 
 @edusign_views.route('/config', methods=['GET'])
@@ -747,12 +718,12 @@ def get_config() -> dict:
     return _get_ui_config(payload)
 
 
-def _get_ui_config(payload: dict, invite_key: str = '') -> dict:
+def _get_ui_config(payload: dict, eid_type: str = '', invite_key: str = '') -> dict:
 
-    invites = get_invitations(remove_finished=True, invite_key=invite_key)
+    invites = get_invitations(remove_finished=True, eid_type=eid_type, invite_key=invite_key)
     payload.update(invites)
 
-    payload['ui_defaults'] = _get_ui_defaults()
+    payload['ui_defaults'] = _get_ui_defaults(eid_type=eid_type)
 
     raw_loas = current_app.config['AVAILABLE_LOAS']
     known_assurances = [v for loas in raw_loas.values() for v in loas]
@@ -767,10 +738,16 @@ def _get_ui_config(payload: dict, invite_key: str = '') -> dict:
         'identity_provider': session['idp'],
         'assurance_levels': loas,
         'authn_context': session['authn_context'],
-        'using_bankid': session['using-bankid'],
-        'using_freja': session['using-freja'],
+        'using_bankid': False,
+        'using_freja': False,
         'invite_key': invite_key,
     }
+    if eid_type == "freja":
+        attrs['using_freja'] = True
+        attrs['identity_provider'] = current_app.config['FREJA_IDP']
+    elif eid_type == "bankid":
+        attrs['using_bankid'] = True
+        attrs['identity_provider'] = current_app.config['BANKID_IDP']
 
     payload['signer_attributes'] = attrs
     payload['multisign_buttons'] = current_app.config['MULTISIGN_BUTTONS']
@@ -799,6 +776,39 @@ def _get_ui_config(payload: dict, invite_key: str = '') -> dict:
     return {
         'payload': payload,
     }
+
+
+def _get_ui_defaults(eid_type=''):
+    ui_defaults = {
+        'send_signed': current_app.config['UI_SEND_SIGNED'],
+        'skip_final': current_app.config['UI_SKIP_FINAL'],
+        'ordered_invitations': current_app.config['UI_ORDERED_INVITATIONS'],
+        'allow_bankid': current_app.config['UI_ALLOW_BANKID'],
+    }
+    form_config_file = current_app.config['CUSTOM_FORMS_DEFAULTS_FILE']
+    if os.path.exists(form_config_file):
+        config = None
+        with open(form_config_file, 'r') as f:
+            try:
+                config = yaml.safe_load(f)
+            except yaml.YAMLError as e:
+                current_app.logger.info(f"Cannot read YAML file at {form_config_file}: {e}")
+
+        if config is not None:
+            idp = session['idp']
+            if eid_type == "bankid":
+                idp = current_app.config['BANKID_IDP']
+            elif eid_type == "freja":
+                idp = current_app.config['FREJA_IDP']
+            if idp in config:
+                idp_config = config[idp]
+                ui_defaults = {
+                    'send_signed': idp_config['send_signed'],
+                    'skip_final': idp_config['skip_final'],
+                    'ordered_invitations': idp_config['ordered_invitations'],
+                    'allow_bankid': idp_config.get('allow_bankid', False),
+                }
+    return ui_defaults
 
 
 @edusign_views.route('/poll', methods=['GET'])
@@ -1136,7 +1146,7 @@ def recreate_sign_request(data: dict) -> dict:
     current_app.logger.debug(f'Data gotten in recreate view: {data}')
 
     async def prepare(doc):
-        return prepare_document(doc)
+        return prepare_document(doc, eid_type=data['eid_type'])
 
     current_app.logger.info(f"Re-preparing documents for user {session['eppn']}")
     loop = asyncio.new_event_loop()
@@ -1165,7 +1175,7 @@ def recreate_sign_request(data: dict) -> dict:
     if len(new_docs) > 0:
         try:
             current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
-            create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request(new_docs, invite_key=data['invite_key'])
+            create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request(new_docs, invite_key=data['invite_key'], eid_type=data['eid_type'])
 
         except current_app.extensions['api_client'].UnknownDocType as e:
             current_app.logger.error(f'Problem creating sign request, unsupported doc type: {e}')
@@ -1230,9 +1240,9 @@ def sign_service_callback() -> Union[str, Response]:
     return _common_callback()
 
 
-@edusign_views.route('/callback-eid/<invite_key>', methods=['POST', 'GET'])
-@edusign_views2.route('/callback-eid/<invite_key>', methods=['POST', 'GET'])
-def sign_service_callback_eid(invite_key) -> Union[str, Response]:
+@edusign_views.route('/callback-eid/<eid_type>/<invite_key>', methods=['POST', 'GET'])
+@edusign_views2.route('/callback-eid/<eid_type>/<invite_key>', methods=['POST', 'GET'])
+def sign_service_callback_eid(eid_type, invite_key) -> Union[str, Response]:
     """
     After the user has used the sign request to go through the sign service and IdP to sign the documents,
     the sign service will respond with a redirect to this view. This redirect will carry the sign response
@@ -1248,9 +1258,9 @@ def sign_service_callback_eid(invite_key) -> Union[str, Response]:
              to retrieve the signed documents.
     """
     if request.method == 'GET':
-        if session['using-freja']:
+        if eid_type == "freja":
             return redirect(url_for('edusign.get_index_freja', invite_key=invite_key))
-        elif session['using-bankid']:
+        elif eid_type == "bankid":
             return redirect(url_for('edusign.get_index_bankid', invite_key=invite_key))
 
     return _common_callback()

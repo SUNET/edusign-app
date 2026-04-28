@@ -69,6 +69,7 @@ import {
   humanFileSize,
   nameForDownload,
   getInviteKey,
+  getEidType,
 } from "components/utils";
 
 /**
@@ -982,7 +983,8 @@ export const restartSigningDocuments = createAsyncThunk(
     });
     // send data about documents to be signed to the backend
     const invite_key = getInviteKey();
-    const body = preparePayload(state, { documents: docsToSign, invite_key: invite_key });
+    const eid_type = getEidType();
+    const body = preparePayload(state, { documents: docsToSign, invite_key: invite_key, eid_type: eid_type });
     try {
       const response = await esFetch("/sign/recreate-sign-request", {
         ...postRequest,
