@@ -434,8 +434,9 @@ export const getEidType = () => {
 export const getConfigPath = () => {
   let configPath = '/sign/config';
   const invite_key = getInviteKey();
-  if (invite_key) {
-    configPath = `/sign/config-eid/${invite_key}`;
+  const eid_type = getEidType();
+  if (invite_key && eid_type) {
+    configPath = `/sign/config-eid/${eid_type}/${invite_key}`;
   }
   return configPath
 };
