@@ -156,7 +156,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
         ...postRequest,
         body: body,
       }, state, thunkAPI.dispatch);
-      let data = await checkStatus(response);
+      const data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
         if (args.retried === undefined) {
@@ -164,8 +164,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
             ...args,
             retried: true
           };
-          thunkAPI.dispatch(getPartiallySignedDoc(newArgs));
-          return
+          return thunkAPI.dispatch(getPartiallySignedDoc(newArgs));
         } else {
           throw new Error(data.message);
         }
