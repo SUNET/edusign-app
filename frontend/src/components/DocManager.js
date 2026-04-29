@@ -314,7 +314,7 @@ class DocManager extends React.Component {
           )}
           {this.props.pending.length > 0 && (
             <fieldset className="invited-multisign-container">
-              {!this.props.using_bankid && (
+              {!this.props.using_bankid && !this.props.using_freja && (
                 <legend data-testid="legend-invited">
                   <FormattedMessage
                     defaultMessage="Documents you are invited to sign"
@@ -334,7 +334,7 @@ class DocManager extends React.Component {
           )}
         </div>
         <div id="adjust-vertical-space" />
-        {!this.props.using_bankid && (
+        {!this.props.using_bankid && !this.props.using_freja && (
           <div id="global-buttons-wrapper">
             {widgets.buttonSignSelected(
               disableSigning,

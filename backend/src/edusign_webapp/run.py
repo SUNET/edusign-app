@@ -163,13 +163,6 @@ class LoggingMiddleware(object):
         return self._app(env, log_response)
 
 
-@app.before_request
-def set_cookie_path():
-    segment1 = request.path.split('/')[1]
-    current_app.config["SESSION_COOKIE_PATH"] = f"/{segment1}"
-    current_app.logger.debug(f"SESSION COOKIE PATH set to {segment1} from {request.path}")
-
-
 if __name__ == '__main__':
     app.logger.info('Starting edusign app...')
 

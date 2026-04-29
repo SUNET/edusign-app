@@ -31,6 +31,7 @@ const mapStateToProps = (state) => {
     name: state.main.signer_attributes.name,
     mail: state.main.signer_attributes.mail,
     using_bankid: state.main.signer_attributes.using_bankid,
+    using_freja: state.main.signer_attributes.using_freja,
   };
 };
 
@@ -107,7 +108,7 @@ const mapDispatchToProps = (dispatch, props) => {
         return async () => {
           dispatch(confirmForcedInvitedPreview(doc.key));
           dispatch(hideForcedInvitedPreview(doc.name));
-          if (props.using_bankid) {
+          if (props.using_bankid || props.using_freja) {
             await dispatch(startSigningDoc({ doc: doc, intl: props.intl }));
           } else {
             dispatch(enableFastSignature(doc.key));

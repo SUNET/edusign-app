@@ -90,7 +90,7 @@ function ForcedPreview(props) {
       />
     );
   }
-  if (props.using_bankid) {
+  if (props.using_bankid || props.using_freja) {
     rejectButtonLabel = (
       <FormattedMessage
         defaultMessage="Decline"

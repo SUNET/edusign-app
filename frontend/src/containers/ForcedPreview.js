@@ -14,6 +14,7 @@ const mapStateToProps = (state) => {
     size: state.main.size,
     width: state.main.width,
     using_bankid: state.main.signer_attributes.using_bankid,
+    using_freja: state.main.signer_attributes.using_freja,
   };
 };
 

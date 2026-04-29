@@ -35,7 +35,7 @@ class Main extends Component {
         <section id={panelId}>
           <HeaderContainer />
           <div id="main-content">
-            {!this.props.unauthn && !this.props.using_bankid && <DnDAreaContainer />}
+            {!this.props.unauthn && !this.props.using_freja && !this.props.using_bankid && <DnDAreaContainer />}
             <div id="contact-local-it-msg">
               <FormattedMessage
                 defaultMessage="If you experience problems with eduSign contact your local IT-support"

@@ -218,6 +218,8 @@ class DocumentInvited extends Component {
                         {menu.previewMenuItem(this.props, doc)}
                         {menu.downloadDraftMenuItem(this.props, doc)}
                       </ESDropdown>
+                      {doc.state === "selected" && (this.props.using_bankid || this.props.using_freja) && (
+                         widgets.signButton(this.props, doc)}
                       {widgets.declineSignatureButton(this.props, doc)}
                     </>
                   )}
@@ -296,6 +298,8 @@ class DocumentInvited extends Component {
                       {menu.previewMenuItem(this.props, doc)}
                       {menu.downloadDraftMenuItem(this.props, doc)}
                     </ESDropdown>
+                    {doc.state === "selected" && (this.props.using_bankid || this.props.using_freja) && (
+                       widgets.signButton(this.props, doc)}
                     {widgets.declineSignatureButton(this.props, doc)}
                   </div>
                 </>

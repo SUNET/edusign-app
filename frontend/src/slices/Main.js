@@ -304,7 +304,7 @@ export const finishInvited = createAsyncThunk(
     if (oldDoc === undefined) {
       return;
     }
-    if (state.main.signer_attributes.using_bankid) {
+    if (state.main.signer_attributes.using_bankid || state.main.signer_attributes.using_freja) {
       const newDoc = {
         ...oldDoc,
         state: 'signed',

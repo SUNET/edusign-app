@@ -62,6 +62,7 @@ const mapStateToProps = (state) => {
     mail: state.main.signer_attributes.mail,
     inviting: state.inviteform.inviting,
     using_bankid: state.main.signer_attributes.using_bankid,
+    using_freja: state.main.signer_attributes.using_freja,
   };
 };
 
