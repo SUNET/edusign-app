@@ -219,7 +219,7 @@ class DocumentInvited extends Component {
                         {menu.downloadDraftMenuItem(this.props, doc)}
                       </ESDropdown>
                       {doc.state === "selected" && (this.props.using_bankid || this.props.using_freja) && (
-                         widgets.signButton(this.props, doc)}
+                         widgets.signButton(this.props, doc))}
                       {widgets.declineSignatureButton(this.props, doc)}
                     </>
                   )}
