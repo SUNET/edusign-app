@@ -317,7 +317,12 @@ def get_home_bankid(invite_key: str):
 
     :return: the rendered `home-bankid.jinja2` template as a string
     """
-    session.clear()
+    if 'eppn' in session and session.get('eppn'):
+        if session['using-bankid']:
+            return redirect(url_for('edusign.get_index_bankid', invite_key=invite_key, _external=False))
+        if session['using-freja']:
+            return redirect(url_for('edusign.get_index_freja', invite_key=invite_key, _external=False))
+
     current_lang = str(get_locale())
     md_name = f"home-{current_lang}.md"
     base_dir = current_app.config['CUSTOMIZATION_DIR']
@@ -339,12 +344,13 @@ def get_home_bankid(invite_key: str):
 
     company_link = current_app.config['COMPANY_LINK']
 
-    target = url_for('edusign.get_index_bankid', invite_key=invite_key, _external=False)
+    target_bankid = url_for('edusign.get_index_bankid', invite_key=invite_key, _external=False)
+    target_freja = url_for('edusign.get_index_freja', invite_key=invite_key, _external=False)
     bankid_entity_id = current_app.config['BANKID_IDP']
     freja_entity_id = current_app.config['FREJA_IDP']
     login_initiator = f"{base_url}/Shibboleth.sso/Login?target=/sign/"
-    login_initiator_bankid = f"{base_url}/Shibboleth.sso/Login/BankID?target={target}&entityID={bankid_entity_id}"
-    login_initiator_freja = f"{base_url}/Shibboleth.sso/Login/Freja?target={target}&entityID={freja_entity_id}"
+    login_initiator_bankid = f"{base_url}/Shibboleth.sso/Login/BankID?target={target_bankid}&entityID={bankid_entity_id}"
+    login_initiator_freja = f"{base_url}/Shibboleth.sso/Login/Freja?target={target_freja}&entityID={freja_entity_id}"
     context = {
         'body': body,
         'login_initiator': login_initiator,
