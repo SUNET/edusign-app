@@ -66,6 +66,7 @@ import asyncio
 import json
 import uuid
 from base64 import b64decode, b64encode
+from copy import deepcopy
 from pprint import pformat
 from urllib.parse import urljoin, urlencode, urlparse
 
@@ -175,12 +176,20 @@ class APIClient(object):
         req = requests.Request('POST', url, json=request_data, auth=self.basic_auth)
         prepped = requests_session.prepare_request(req)
 
-        current_app.logger.debug(f"Request sent to the API's {url} method: {pretty_print_req(prepped)}")
+        tolog_data = deepcopy(request_data)
+        tolog_data['pdfDocument'] = "..."
+        tolog_req = requests.Request('POST', url, json=tolog_data, auth=self.basic_auth)
+        tolog_prepped = requests_session.prepare_request(tolog_req)
+
+        current_app.logger.debug(f"Request sent to the API's {url} method: {pretty_print_req(tolog_prepped)}")
 
         settings = requests_session.merge_environment_settings(prepped.url, {}, None, None, None)
         response = requests_session.send(prepped, **settings)
-        current_app.logger.debug(f"Response from the API's {url} method: {response.json()}")
-        return response.json()
+        response_json = response.json()
+        tolog = deepcopy(response_json)
+        tolog['signedContent'] = "..."
+        current_app.logger.debug(f"Response from the API's {url} method: {tolog}")
+        return response_json
 
     def prepare_document(self, document: dict) -> dict:
         """
