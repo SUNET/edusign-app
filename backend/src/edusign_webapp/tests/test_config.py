@@ -200,6 +200,9 @@ def _test_get_config_with_invitations(
 
     client.environ_base.update(environ_base_2)
 
+    with client.session_transaction() as sess:
+        sess.clear()
+
     response1 = client.get("/sign/")
 
     assert response1.status == "200 OK"
@@ -228,6 +231,9 @@ def _test_get_config_with_invitations(
         )
 
     client.environ_base["HTTP_MAIL_20"] = b64encode(b'<Attribute>invite1@example.org</Attribute>').decode('ascii')
+
+    with client.session_transaction() as sess:
+        sess.clear()
 
     response3 = client.get("/sign/")
 

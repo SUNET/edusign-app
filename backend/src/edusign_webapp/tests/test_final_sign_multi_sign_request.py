@@ -75,6 +75,7 @@ def _test_final_sign_multi_sign_request(
                     'sendsigned': True,
                     'skipfinal': False,
                     'loa': 'low',
+                    'ordered': False,
                     'invites': [
                         {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en'},
                         {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en'},
@@ -147,6 +148,7 @@ def _test_final_sign_multi_sign_request(
 
         payload_data = {
             'documents': {'owned': [doc], 'local': [], 'invited': []},
+            'invite_key': '',
         }
         doc_data = {
             'csrf_token': csrf_token,

@@ -106,7 +106,8 @@ def test_recreate_sign_request(client, monkeypatch, sample_doc_1):
                     ],
                     'owned': [],
                     'invited': [],
-                }
+                },
+                'invite_key': '',
             },
         }
 
@@ -194,7 +195,8 @@ def _recreate_sign_request_post_raises(client, monkeypatch, sample_doc_1, raise_
                     ],
                     'owned': [],
                     'invited': [],
-                }
+                },
+                'invite_key': '',
             },
         }
 
@@ -527,7 +529,8 @@ def test_recreate_sign_request_bad_api_response(client, monkeypatch, sample_doc_
                     ],
                     'owned': [],
                     'invited': [],
-                }
+                },
+                'invite_key': '',
             },
         }
 
