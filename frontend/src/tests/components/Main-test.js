@@ -33,6 +33,7 @@ describe("Main Component", function () {
         pending_multisign: [],
         multisign_buttons: true,
         showHelp: true,
+        user_info_detail: '',
       },
     });
 
@@ -99,6 +100,7 @@ describe("Main Component", function () {
         },
         multisign_buttons: true,
         showHelp: true,
+        user_info_detail: '',
       },
     });
 
@@ -138,6 +140,7 @@ describe("Main Component", function () {
         },
         multisign_buttons: true,
         showHelp: true,
+        user_info_detail: '',
       },
     });
 
@@ -174,6 +177,7 @@ describe("Main Component", function () {
         },
         multisign_buttons: true,
         showHelp: true,
+        user_info_detail: '',
       },
       intl: { locale: "sv" },
     });
@@ -239,6 +243,7 @@ describe("Main Component", function () {
         },
         multisign_buttons: true,
         showHelp: true,
+        user_info_detail: '',
       },
     });
 

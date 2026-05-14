@@ -31,6 +31,10 @@ const initialState = {
     available_loas: [],
     max_file_size: 20000000,
     environment: "testing",
+    user_info_detail: '',
+  },
+  userinfo: {
+    show: false,
   },
   notifications: {
     message: null,
