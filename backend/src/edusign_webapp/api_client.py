@@ -285,7 +285,7 @@ class APIClient(object):
         using_bankid = session.get('using-bankid', False)
         using_freja = session.get('using-freja', False)
         idp = session['idp']
-        authn_context = get_authn_context()
+        authn_context = get_authn_context(documents)
         assurance = get_required_assurance(documents)
         correlation_id = str(uuid.uuid4())
 

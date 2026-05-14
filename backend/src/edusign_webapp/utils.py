@@ -580,14 +580,23 @@ def sendmail_bulk(msgs_data: list):
         conn.close()
 
 
-def get_authn_context() -> list:
+def get_authn_context(docs) -> list:
     """
     Get the authentication context classes to send to the `create` API method.
 
     :param docs: list of dicts with the data for the documents to be signed.
     :return: a list with the authn context classes
     """
+    levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
+    for doc in docs:
+        key = uuid.UUID(doc['key'])
+        required = current_app.extensions['doc_store'].get_loa(key)
+        required_level = levels[required]
+        if required_level == 3:
+            return ['https://refeds.org/profile/mfa']
+
     return [session['authn_context']]
+
 
 
 def get_required_assurance(docs: list) -> str:
