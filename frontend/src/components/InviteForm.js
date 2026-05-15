@@ -10,6 +10,7 @@ import { FormattedMessage, injectIntl } from "react-intl";
 import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
 import { InviteesWidget } from "components/InviteesWidget";
+import AL3WarningContainer from "containers/AL3Warning";
 import { nameForCopy } from "components/utils";
 import { sendsignedControl, skipFinalControl } from "components/widgets";
 import {
@@ -266,6 +267,10 @@ class InviteForm extends React.Component {
                   id="loa-select-input"
                   as={BForm.Select}
                   value={fprops.values.loa}
+                  onChange={(e) => {
+                    this.props.handleLoaChange(e.target.value);
+                    fprops.validateForm();
+                  }}
                 >
                   <>
                     {this.props.loas.map((level, i) => {
@@ -439,6 +444,7 @@ class InviteForm extends React.Component {
             </Modal>
           )}
         </Formik>
+        <AL3WarningContainer />
       </>
     );
   }
