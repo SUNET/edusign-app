@@ -583,7 +583,7 @@ msgstr ""
 "\n"
 "Logga in med ditt konto kopplat till din anslutna organisation. Om du har"
 " skapat ett eduID utan att vara kopplad till en ansluten organisation så "
-"väljer du \"eduID Sverige\\” som organisation. Har du inget eduID så kan "
+"väljer du \"eduID Sverige\" som organisation. Har du inget eduID så kan "
 "du kostnadsfritt skapa ett här: https://eduid.se/"
 
 #: src/edusign_webapp/templates/reminder_email.html.jinja2:7
