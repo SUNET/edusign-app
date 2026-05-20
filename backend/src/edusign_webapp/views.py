@@ -70,6 +70,7 @@ from edusign_webapp.schemata import (
     ToRestartSigningSchema,
     ToSignSchema,
     SigGlobalSchema,
+    get_authn_context,
 )
 from edusign_webapp.utils import (
     MissingDisplayName,
@@ -1462,11 +1463,15 @@ def _next_ordered_invitation_mail(doc_key, docname, invite, owner, allowbankid):
     lang = invite['lang']
     recipients = [formataddr((invite['name'], invite['email']))]
     custom_text = current_app.extensions['doc_store'].get_invitation_text(doc_key)
+
+    required_loa = current_app.extensions['doc_store'].get_loa(uuid.UUID(doc_key))
+
     if allowbankid:
         invited_link = url_for('edusign_anon.get_home_bankid', invite_key=invite['key'], _external=True)
     else:
         invited_link = url_for('edusign.get_index', _external=True)
     mail_context = {
+        'al3': required_loa == 'high',
         'document_name': docname,
         'inviter_email': f"{owner['email']}",
         'inviter_name': f"{owner['name']}",
@@ -1752,13 +1757,15 @@ def create_multi_sign_request(data: dict) -> dict:
                 recipients[lang].append((invite['name'], invite['email']))
 
         docname = data['document']['name']
+        key = uuid.UUID(data['document']['key'])
+        required_loa = current_app.extensions['doc_store'].get_loa(key)
         custom_text = data['text']
         try:
             if allowbankid:
                 keys = {invite['email']: invite['key'] for invite in invites}
-                _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=True, invite_keys=keys)
+                _send_invitation_mail(docname, owner, custom_text, recipients, required_loa, allowbankid=True, invite_keys=keys)
             else:
-                _send_invitation_mail(docname, owner, custom_text, recipients)
+                _send_invitation_mail(docname, owner, custom_text, recipients, required_loa)
 
         except Exception:
             current_app.extensions['doc_store'].remove_document(uuid.UUID(data['document']['key']), force=True)
@@ -1769,11 +1776,12 @@ def create_multi_sign_request(data: dict) -> dict:
     return {'message': message}
 
 
-def _send_invitation_mail(docname, owner, custom_text, recipients, allowbankid=False, invite_keys={}):
+def _send_invitation_mail(docname, owner, custom_text, recipients, required_loa, allowbankid=False, invite_keys={}):
     invited_link_index = url_for('edusign.get_index', _external=True)
     invited_link_doc = ""
     try:
         mail_context = {
+            'al3': required_loa == 'high',
             'document_name': docname,
             'inviter_email': f"{owner['email']}",
             'inviter_name': f"{owner['name']}",
@@ -1903,6 +1911,7 @@ def edit_multi_sign_request(data: dict) -> dict:
     """
     dockey = data['key']
     key = uuid.UUID(dockey)
+    required_loa = current_app.extensions['doc_store'].get_loa(key)
     docname = current_app.extensions['doc_store'].get_document_name(key)
     docid = current_app.extensions['doc_store'].get_document_id(key)
     ordered = current_app.extensions['doc_store'].get_ordered(key)
@@ -1961,9 +1970,9 @@ def edit_multi_sign_request(data: dict) -> dict:
                     if allowbankid:
                         invite_key = current_app.extensions['doc_store'].get_invitation_key(current_next_invite['email'], current_next_invite['name'], docid)
                         invite_keys = {current_next_invite['email']: invite_key}
-                        _send_invitation_mail(docname, owner, text, recipient, allowbankid=allowbankid, invite_keys=invite_keys)
+                        _send_invitation_mail(docname, owner, text, recipient, required_loa, allowbankid=allowbankid, invite_keys=invite_keys)
                     else:
-                        _send_invitation_mail(docname, owner, text, recipient)
+                        _send_invitation_mail(docname, owner, text, recipient, required_loa)
                 except Exception as e:
                     current_app.logger.error(f"Problem sending invitation emails {e}")
                     message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {
@@ -2002,9 +2011,9 @@ def edit_multi_sign_request(data: dict) -> dict:
         if len(recipients_added) > 0:
             try:
                 if allowbankid:
-                    _send_invitation_mail(docname, owner, text, recipients_added, allowbankid=allowbankid, invite_keys=keys)
+                    _send_invitation_mail(docname, owner, text, recipients_added, required_loa, allowbankid=allowbankid, invite_keys=keys)
                 else:
-                    _send_invitation_mail(docname, owner, text, recipients_added)
+                    _send_invitation_mail(docname, owner, text, recipients_added, required_loa)
             except Exception as e:
                 current_app.logger.error(f"Problem sending invitation emails {e}")
                 message = gettext("Some users may not have been notified of the changes for '%(docname)s'") % {

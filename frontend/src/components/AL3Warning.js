@@ -5,7 +5,7 @@ import Button from "containers/Button";
 import { FormattedMessage, injectIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
 
-import "styles/UserInfo.scss";
+import "styles/AL3Warning.scss";
 
 
 
@@ -43,26 +43,15 @@ class AL3Warning extends React.Component {
             </>
           </Modal.Body>
           <Modal.Footer>
-            <ESTooltip
-              helpId="button-close-al3-warning"
-              inModal={true}
-              tooltip={
-                <FormattedMessage
-                  defaultMessage="Close Warning"
-                  key="close-al3-warning-help"
-                />
-              }
+            <Button
+              variant="outline-secondary"
+              onClick={this.props.handleClose}
             >
-              <Button
-                variant="outline-secondary"
-                onClick={this.props.handleClose}
-              >
-                <FormattedMessage
-                  defaultMessage="Close"
-                  key="close-al3-warning-label"
-                />
-              </Button>
-            </ESTooltip>
+              <FormattedMessage
+                defaultMessage="Close"
+                key="close-al3-warning-label"
+              />
+            </Button>
           </Modal.Footer>
         </Modal>
       </>

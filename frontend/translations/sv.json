@@ -1,8 +1,7 @@
 {
   "add-doc-to-db-problem": "",
-  "components.AL3Warning.al3-warning-modal": "",
-  "components.AL3Warning.al3-warning-text": "",
-  "components.AL3Warning.close-al3-warning-help": "",
+  "components.AL3Warning.al3-warning-modal": "Viktigt",
+  "components.AL3Warning.al3-warning-text": "När du bjuder in någon att signera med \"Hög\" tillitsnivå, var vänlig kontrollera då först att mottagarens system stöder AL3/\"Hög\". Om inte så använda \"Låg\" eller \"Medium\".",
   "components.AL3Warning.close-al3-warning-label": "",
   "components.ConfirmDialog.confirm-dialog-cancel": "Avbryt",
   "components.ConfirmDialog.confirm-dialog-confirm": "Bekräfta",
