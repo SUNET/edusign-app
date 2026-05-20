@@ -70,7 +70,6 @@ from edusign_webapp.schemata import (
     ToRestartSigningSchema,
     ToSignSchema,
     SigGlobalSchema,
-    get_authn_context,
 )
 from edusign_webapp.utils import (
     MissingDisplayName,
@@ -88,6 +87,7 @@ from edusign_webapp.utils import (
     pretty_print_xml,
     sendmail,
     sendmail_bulk,
+    get_authn_context,
 )
 
 admin_edusign_views = Blueprint('edusign_admin', __name__, url_prefix='/admin', template_folder='templates')
