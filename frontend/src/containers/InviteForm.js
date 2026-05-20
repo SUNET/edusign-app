@@ -18,6 +18,7 @@ import { unsetSpinning } from "slices/Button";
 import { enablePolling } from "slices/Poll";
 import { isNotInviting, setOrdered, setAllowBankID } from "slices/InviteForm";
 import { unsetActiveId } from "slices/Overlay";
+import { showAL3Warning } from "slices/AL3Warning";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -91,6 +92,11 @@ const mapDispatchToProps = (dispatch) => {
     },
     handleAllowBankID: function (allowbankid) {
       dispatch(setAllowBankID(allowbankid));
+    },
+    handleLoaChange: function(loa) {
+      if (loa === 'high') {
+        dispatch(showAL3Warning());
+      }
     },
   };
 };

@@ -15,6 +15,7 @@ import overlay from "slices/Overlay";
 import pdfform from "slices/PDFForms";
 import userinfo from "slices/UserInfo";
 import fast_signature from "slices/FastSignature";
+import al3warning from "slices/AL3Warning";
 
 /**
  * @public
@@ -36,5 +37,6 @@ export default combineReducers({
   pdfform,
   userinfo,
   fast_signature,
+  al3warning,
   intl: intlReducer,
 });

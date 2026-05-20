@@ -1,5 +1,8 @@
 {
   "add-doc-to-db-problem": "",
+  "components.AL3Warning.al3-warning-modal": "",
+  "components.AL3Warning.al3-warning-text": "",
+  "components.AL3Warning.close-al3-warning-label": "",
   "components.ConfirmDialog.confirm-dialog-cancel": "Cancelar",
   "components.ConfirmDialog.confirm-dialog-confirm": "Confirmar",
   "components.DelegateForm.cancel-delegate": "Cancelar",

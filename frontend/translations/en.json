@@ -1,5 +1,8 @@
 {
   "add-doc-to-db-problem": "Temporary network problem, please try again in a few aseconds",
+  "components.AL3Warning.al3-warning-modal": "Important",
+  "components.AL3Warning.al3-warning-text": "When inviting someone to sign with \"high\" assurance level, please make sure the receivers IdP supports AL3/\"High\". If not use \"Low\" or \"Medium\".",
+  "components.AL3Warning.close-al3-warning-label": "Close",
   "components.ConfirmDialog.confirm-dialog-cancel": "Cancel",
   "components.ConfirmDialog.confirm-dialog-confirm": "Confirm",
   "components.DelegateForm.cancel-delegate": "Cancel",

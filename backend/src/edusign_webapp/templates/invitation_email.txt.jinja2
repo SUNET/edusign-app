@@ -18,9 +18,15 @@ Follow this link to preview and sign the document:
 {{ invited_link }}
 
 {% trans %}
-Log in with your account linked to your affiliated organisation. If you have created an eduID without being connected to an affiliated organisation, choose ‘eduID Sweden’ as the organisation. If you do not have an eduID, you can create one here for free: https://eduid.se/
+Log in with your account linked to your affiliated organisation. If you have created an eduID without being connected to an affiliated organisation, choose 'eduID Sweden' as the organisation. If you do not have an eduID, you can create one here for free: https://eduid.se/
+{% endtrans%}
+{% if al3 %}
+
+{% trans %}
+You are invited to sign this document with a "High" assurance level (AL3). Not all systems support AL3/ "High" assurance level. If you encounter issues with this in your system, please ask the sender to re-send the document with a "Medium" or "Low" assurance level.
 {% endtrans%}
 
+{% endif %}
 {% trans %}
 If you experience problems with this service contact the local IT-department at the organisation that invited you to sign. If you are unsure how to do that please reach out to the person who invited you.
 {% endtrans %}

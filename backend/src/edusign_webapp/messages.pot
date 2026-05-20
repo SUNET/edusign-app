@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-05-20 11:49+0200\n"
+"POT-Creation-Date: 2026-05-20 12:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -327,8 +327,8 @@ msgstr ""
 #: src/edusign_webapp/templates/final_signed_by_email.txt.jinja2:10
 #: src/edusign_webapp/templates/final_signed_by_email_skip.html.jinja2:17
 #: src/edusign_webapp/templates/final_signed_by_email_skip.txt.jinja2:10
-#: src/edusign_webapp/templates/invitation_email.html.jinja2:50
-#: src/edusign_webapp/templates/invitation_email.txt.jinja2:28
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:58
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:34
 #: src/edusign_webapp/templates/reminder_email.html.jinja2:38
 #: src/edusign_webapp/templates/reminder_email.txt.jinja2:20
 #: src/edusign_webapp/templates/signed_all_email.html.jinja2:13
@@ -459,12 +459,22 @@ msgid ""
 "\n"
 "Log in with your account linked to your affiliated organisation. If you "
 "have created an eduID without being connected to an affiliated "
-"organisation, choose ‘eduID Sweden’ as the organisation. If you do not "
+"organisation, choose 'eduID Sweden' as the organisation. If you do not "
 "have an eduID, you can create one here for free: https://eduid.se/\n"
 msgstr ""
 
-#: src/edusign_webapp/templates/invitation_email.html.jinja2:44
-#: src/edusign_webapp/templates/invitation_email.txt.jinja2:24
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:45
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:25
+msgid ""
+"\n"
+"You are invited to sign this document with a \"High\" assurance level "
+"(AL3). Not all systems support AL3/ \"High\" assurance level. If you "
+"encounter issues with this in your system, please ask the sender to re-"
+"send the document with a \"Medium\" or \"Low\" assurance level.\n"
+msgstr ""
+
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:52
+#: src/edusign_webapp/templates/invitation_email.txt.jinja2:30
 msgid ""
 "\n"
 "If you experience problems with this service contact the local IT-"
