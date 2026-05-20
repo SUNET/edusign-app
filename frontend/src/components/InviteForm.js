@@ -265,6 +265,7 @@ class InviteForm extends React.Component {
                   as={BForm.Select}
                   value={fprops.values.loa}
                   onChange={(e) => {
+                    fprops.setFieldValue("loa", e.target.value);
                     this.props.handleLoaChange(e.target.value);
                     fprops.validateForm();
                   }}
