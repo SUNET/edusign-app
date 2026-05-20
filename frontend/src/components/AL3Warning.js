@@ -18,14 +18,14 @@ class AL3Warning extends React.Component {
           show={this.props.show}
           onHide={this.props.handleClose}
           keyboard={false}
-          size="lg"
+          dialogClassName="modal-55w"
           backdrop="static"
           centered
         >
           <Modal.Header closeButton>
             <Modal.Title>
               <FormattedMessage
-                defaultMessage={`WARNING`}
+                defaultMessage={`Important`}
                 key="al3-warning-modal"
               />
             </Modal.Title>
