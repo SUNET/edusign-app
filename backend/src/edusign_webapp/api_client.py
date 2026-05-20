@@ -269,7 +269,7 @@ class APIClient(object):
         allowbankid = session.get('allowbankid', False)
         idp = session['idp']
         attr_schema = session['saml-attr-schema']
-        authn_context = get_authn_context()
+        authn_context = get_authn_context(documents)
         assurance = get_required_assurance(documents)
         correlation_id = str(uuid.uuid4())
         attr_names = self.config[f'SIGNER_ATTRIBUTES_{attr_schema}'].items()
