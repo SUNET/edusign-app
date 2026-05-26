@@ -1,6 +1,6 @@
 {
   "add-doc-to-db-problem": "Temporary network problem, please try again in a few aseconds",
-  "components.AL3Warning.al3-warning-modal": "WARNING",
+  "components.AL3Warning.al3-warning-modal": "Important",
   "components.AL3Warning.al3-warning-text": "You are choosing to send an invitation requiring high assurance. Please keep in mind that many IdP will crash when requested for high assurance, so make sure that all your invitees will be able to fulfil the requirement.",
   "components.AL3Warning.close-al3-warning-label": "Close",
   "components.ConfirmDialog.confirm-dialog-cancel": "Cancel",
