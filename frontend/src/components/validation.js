@@ -90,7 +90,7 @@ export const validateLang = (value) => {
 export function validateSSN(value) {
   const error = (
     <FormattedMessage
-      defaultMessage="Invalid PIN"
+      defaultMessage="Invalid SSN"
       key="invalid-pin"
     />
   );
