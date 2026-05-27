@@ -159,6 +159,7 @@ class ConfigSchema(InvitationsSchema):
     environment = fields.String(required=True)
     allow_bankid_signatures = fields.Boolean(dump_default=False)
     user_info_detail = fields.String(required=True)
+    stale_from = fields.String(required=True)
 
 
 class EmailsSchema(Schema):

@@ -308,7 +308,7 @@ def get_home():
 
 
 @anon_edusign_views.route('/home-eid/<invite_key>', methods=['GET'])
-def get_home_bankid(invite_key: str):
+def get_home_eid(invite_key: str):
     """
     View to serve an anonymous landing page with a choice to login using bankid or freja.
 
@@ -721,7 +721,9 @@ def get_config_eid(invite_key: str) -> dict:
     payload = {}
     payload['unauthn'] = True
 
-    return _get_ui_config(payload, invite_key)
+    stale_from = url_for('edusign_anon.get_home_eid', invite_key=invite_key, _external=True)
+
+    return _get_ui_config(payload, invite_key=invite_key, stale_from=stale_from)
 
 
 @edusign_views.route('/config', methods=['GET'])
@@ -753,7 +755,7 @@ def get_config() -> dict:
     return _get_ui_config(payload)
 
 
-def _get_ui_config(payload: dict, invite_key: str = '') -> dict:
+def _get_ui_config(payload: dict, invite_key: str = '', stale_from: str = 'none') -> dict:
 
     invites = get_invitations(remove_finished=True, invite_key=invite_key)
     payload.update(invites)
@@ -793,6 +795,7 @@ def _get_ui_config(payload: dict, invite_key: str = '') -> dict:
     payload['edit_form_timeout'] = current_app.config['DOC_LOCK_TIMEOUT'].seconds * 1000
     payload['environment'] = current_app.config['ENVIRONMENT']
     payload['loading'] = False
+    payload['stale_from'] = stale_from
 
     allow_bankid = False
     if current_app.config['ALLOW_BANKID']:
@@ -1466,7 +1469,7 @@ def _next_ordered_invitation_mail(doc_key, docname, invite, owner, allowbankid):
     required_loa = current_app.extensions['doc_store'].get_loa(uuid.UUID(doc_key))
 
     if allowbankid:
-        invited_link = url_for('edusign_anon.get_home_bankid', invite_key=invite['key'], _external=True)
+        invited_link = url_for('edusign_anon.get_home_eid', invite_key=invite['key'], _external=True)
     else:
         invited_link = url_for('edusign.get_index', _external=True)
     mail_context = {
@@ -1793,7 +1796,7 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, required_loa,
                 if allowbankid:
                     for recipient in recipients[lang]:
                         invite_key = invite_keys[recipient[1]]
-                        invited_link_doc = url_for('edusign_anon.get_home_bankid', invite_key=invite_key, _external=True)
+                        invited_link_doc = url_for('edusign_anon.get_home_eid', invite_key=invite_key, _external=True)
                         context = {'invited_link': invited_link_doc}
                         context.update(mail_context)
 

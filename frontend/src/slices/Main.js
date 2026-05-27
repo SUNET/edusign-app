@@ -461,6 +461,7 @@ const mainSlice = createSlice({
     visibility_timer: 0,
     fetch_timer: null,
     user_info_detail: '',
+    stale_from: 'none',
   },
   reducers: {
     /**

@@ -99,8 +99,12 @@ export const esFetch = async (resource, options, state, dispatch) => {
     clearTimeout(state.main.fetch_timer);
   }
   const timerID = setTimeout(async () => {
-    const configPath = getConfigPath();
-    await dispatch(fetchConfig({configPath: configPath}));
+    if (state.stale_from !== 'none') {
+      window.location.href = state.stale_from;
+    } else {
+      const configPath = getConfigPath();
+      await dispatch(fetchConfig({configPath: configPath}));
+    }
   }, 10 * 60 * 1000);
 
   dispatch(setFetchTimer(timerID));
