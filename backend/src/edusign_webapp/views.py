@@ -317,12 +317,6 @@ def get_home_eid(invite_key: str):
 
     :return: the rendered `home-bankid.jinja2` template as a string
     """
-    if 'eppn' in session and session.get('eppn'):
-        if session['using-bankid']:
-            return redirect(url_for('edusign.get_index_bankid', invite_key=invite_key, _external=False))
-        if session['using-freja']:
-            return redirect(url_for('edusign.get_index_freja', invite_key=invite_key, _external=False))
-
     current_lang = str(get_locale())
     md_name = f"home-{current_lang}.md"
     base_dir = current_app.config['CUSTOMIZATION_DIR']
