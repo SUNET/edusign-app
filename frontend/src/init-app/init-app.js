@@ -73,8 +73,8 @@ export const appIsRendered = async function () {
       const before = state.main.visibility_timer;
       if (now - before > 10 * 60 * 1000) {
         store.dispatch(appLoading());
-        if (state.stale_from !== 'none') {
-          window.location.href = state.stale_from;
+        if (state.main.stale_from !== 'none') {
+          window.location.href = state.main.stale_from;
         } else {
           await store.dispatch(fetchConfig({configPath: configPath}));
         }
