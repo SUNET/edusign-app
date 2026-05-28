@@ -25,6 +25,9 @@ import { addDocumentToDb, addDocument } from "slices/Documents";
 export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
   try {
     const state = thunkAPI.getState();
+    if (state.main.signer_attributes.using_freja || state.main.signer_attributes.using_bankid) {
+      return thunkAPI.rejectWithValue("No polling for eID invites");
+    }
     if (!state.main.signer_attributes.eppn) {
       return thunkAPI.rejectWithValue("Not ready to poll");
     }
