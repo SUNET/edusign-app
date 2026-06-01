@@ -1842,6 +1842,7 @@ def send_multisign_reminder(data: dict) -> dict:
         docname = current_app.extensions['doc_store'].get_document_name(uuid.UUID(data['key']))
         owner_email = current_app.extensions['doc_store'].get_document_email(uuid.UUID(data['key']))
         ordered = current_app.extensions['doc_store'].get_ordered(uuid.UUID(data['key']))
+        allowbankid = current_app.extensions['doc_store'].get_allowbankid(uuid.UUID(data['key']))
 
     except Exception as e:
         current_app.logger.error(f'Problem finding users pending to multi sign: {e}')
@@ -1871,22 +1872,34 @@ def send_multisign_reminder(data: dict) -> dict:
 
     if len(recipients) > 0:
         try:
-            invited_link = url_for('edusign.get_index', _external=True)
+            messages: List[tuple] = []
             mail_context = {
                 'document_name': docname,
                 'inviter_email': owner_email,
                 'inviter_name': f"{session['displayName']}",
-                'invited_link': invited_link,
                 'text': 'text' in data and data['text'] or "",
             }
-            messages: List[tuple] = []
-            for lang in recipients:
-                with force_locale(lang):
-                    subject = gettext("A reminder to sign '%(document_name)s'") % {'document_name': docname}
-                    body_txt = render_template('reminder_email.txt.jinja2', **mail_context)
-                    body_html = render_template('reminder_email.html.jinja2', **mail_context)
+            subject = gettext("A reminder to sign '%(document_name)s'") % {'document_name': docname}
+            if not allowbankid:
+                invited_link = url_for('edusign.get_index', _external=True)
+                mail_context['invited_link'] = invited_link
+                for lang in recipients:
+                    with force_locale(lang):
+                        body_txt = render_template('reminder_email.txt.jinja2', **mail_context)
+                        body_html = render_template('reminder_email.html.jinja2', **mail_context)
 
-                    messages.append(((recipients[lang], subject, body_txt, body_html), {}))
+                        messages.append(((recipients[lang], subject, body_txt, body_html), {}))
+            else:
+                for invite in invites:
+                    lang = invite['lang']
+                    with force_locale(lang):
+                        recipient = formataddr((invite['name'], invite['email']))
+                        invited_link = url_for('edusign_anon.get_home_eid', invite_key=invite['key'], _external=True)
+                        mail_context['invited_link'] = invited_link
+                        body_txt = render_template('reminder_email.txt.jinja2', **mail_context)
+                        body_html = render_template('reminder_email.html.jinja2', **mail_context)
+
+                        messages.append(((lang, subject, body_txt, body_html), {}))
 
             sendmail_bulk(messages)
 
