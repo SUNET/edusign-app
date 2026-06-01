@@ -46,6 +46,9 @@ const validateBody = (value) => {
 class InviteEditForm extends React.Component {
   render() {
     const formId = "invite-form-" + this.props.doc.name;
+    if (this.props.doc.use_eid) {
+      this.props.handleAllowBankID(true);
+    }
     return (
       <>
         <Formik

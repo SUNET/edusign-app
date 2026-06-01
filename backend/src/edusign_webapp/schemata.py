@@ -92,7 +92,7 @@ class InvitationsSchema(Schema):
         loa = fields.String(dump_default="")
         created = fields.String(dump_default="")
         ordered = fields.Boolean()
-        allowbankid = fields.Boolean(required=False, dump_default=False)
+        use_eid = fields.Boolean(required=False, dump_default=False)
         sendsigned = fields.Boolean()
         skipfinal = fields.Boolean()
         pprinted = fields.String(required=True, validate=[validate_nonempty])

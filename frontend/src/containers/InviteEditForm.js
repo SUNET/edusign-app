@@ -17,7 +17,7 @@ import { hideForm, hideEditInvitationForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { enablePolling } from "slices/Poll";
 import { unsetActiveId } from "slices/Overlay";
-import { isNotInviting, setOrdered } from "slices/InviteForm";
+import { isNotInviting, setOrdered, setAllowBankID } from "slices/InviteForm";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -86,6 +86,9 @@ const mapDispatchToProps = (dispatch, props) => {
         _close(dispatch);
         resetForm();
       };
+    },
+    handleAllowBankID: function (allowbankid) {
+      dispatch(setAllowBankID(allowbankid));
     },
   };
 };

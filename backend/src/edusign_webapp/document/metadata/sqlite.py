@@ -820,6 +820,7 @@ class SqliteMD(ABCMetadata):
             document['created'] = datetime.fromisoformat(document['created']).timestamp() * 1000
             state = 'loaded'
             document['ordered'] = document['ordered_invitations']
+            document['use_eid'] = document['allowbankid']
             document_id = document['doc_id']
             invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
             del document['doc_id']
