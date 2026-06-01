@@ -1899,7 +1899,7 @@ def send_multisign_reminder(data: dict) -> dict:
                         body_txt = render_template('reminder_email.txt.jinja2', **mail_context)
                         body_html = render_template('reminder_email.html.jinja2', **mail_context)
 
-                        messages.append(((lang, subject, body_txt, body_html), {}))
+                        messages.append((([recipient], subject, body_txt, body_html), {}))
 
             sendmail_bulk(messages)
 
