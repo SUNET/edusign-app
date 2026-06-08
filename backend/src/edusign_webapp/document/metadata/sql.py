@@ -805,10 +805,9 @@ class SqlMD(ABCMetadata):
 
         return {'document': doc, 'user': user}
 
-##### HERE WE GO
 
     def add_invitation(
-        self, document_key: uuid.UUID, name: str, email: str, lang: str, invite_key: str = '', order: int = 0
+            self, document_key: uuid.UUID, name: str, email: str, ssn: str, lang: str, invite_key: str = '', order: int = 0
     ) -> Dict[str, Any]:
         """
         Create a new invitation to sign
@@ -831,7 +830,7 @@ class SqlMD(ABCMetadata):
         if invite_key == '':
             invite_key = str(uuid.uuid4())
 
-        self._db_execute(INVITE_INSERT, (invite_key, document_id, email, name, lang, order))
+        self._db_execute(INVITE_INSERT, (invite_key, document_id, email, name, ssn, lang, order))
         self._db_commit()
 
         return {'key': invite_key, 'name': name, 'email': email}
@@ -847,6 +846,20 @@ class SqlMD(ABCMetadata):
         self._db_execute(INVITE_DELETE_FROM_KEY, (str(invite_key),))
         self._db_commit()
         return True
+
+    def is_invitation_standing(self, invite_key: uuid.UUID) -> bool:
+        """
+        Whether the invitation is still standing - not signed nor declined
+
+        :param invite_key: The key identifying the signing invitation to remove
+        :return: is invitation standing
+        """
+        invite = self._db_query(INVITE_STATUS_QUERY_FROM_KEY, (str(invite_key),), one=True)
+        if invite is None or isinstance(invite, list):
+            self.logger.error(f"Retrieving a non-existing invite with key {invite_key}")
+            return False
+
+        return not (invite['signed'] or invite['declined'])
 
     def get_full_document(self, key: uuid.UUID) -> Dict[str, Any]:
         """
@@ -870,6 +883,7 @@ class SqlMD(ABCMetadata):
                  + created: creation timestamp
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered_invitations: send invitations in order
+                 + allowbankid: Whether to allow BankID signatures.
                  + invitation_text: The custom text to send in the invitation email
         """
         document_result = self._db_query(DOCUMENT_QUERY_FULL, (str(key),), one=True)
@@ -1083,6 +1097,18 @@ class SqlMD(ABCMetadata):
             return False
 
         return bool(document_result['ordered_invitations'])
+
+    def get_allowbankid(self, key: uuid.UUID) -> bool:
+        """
+        Whether to allow BankID signatures
+
+        :param key: The key identifying the document
+        :return: whether BankID signatures are allowed
+        """
+        document_result = self._db_query(DOCUMENT_QUERY_ALLOWBANKID, (str(key),), one=True)
+        if document_result is None or isinstance(document_result, list):
+            self.logger.debug(f"Trying to get allowbankid from a non-existing document with key {key}")
+            return True
 
     def get_invitation_text(self, key: uuid.UUID) -> str:
         """
