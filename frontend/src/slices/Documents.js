@@ -542,7 +542,7 @@ export const createDocument = createAsyncThunk(
           }),
         }),
       );
-      thunkAPI.dispatch(documentsSlice.actions.rmDup(doc));
+      await thunkAPI.dispatch(documentsSlice.actions.rmDup(doc));
       return;
     }
     let newDoc = null;
@@ -552,7 +552,7 @@ export const createDocument = createAsyncThunk(
       // If there was an error saving the document, we mark it as so,
       // and still try to save it to the redux store, so it can be displayed
       // as failed in the UI.
-      thunkAPI.dispatch(
+      await thunkAPI.dispatch(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
@@ -583,7 +583,7 @@ export const createDocument = createAsyncThunk(
         throw new Error(`Document ${newDoc.name} could not be prepared`);
       }
     } catch (err) {
-      thunkAPI.dispatch(
+      await thunkAPI.dispatch(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({
@@ -606,7 +606,7 @@ export const createDocument = createAsyncThunk(
     try {
       await thunkAPI.dispatch(saveDocument({ docKey: preparedDoc.key }));
     } catch (err) {
-      thunkAPI.dispatch(
+      await thunkAPI.dispatch(
         addNotification({
           level: "danger",
           message: args.intl.formatMessage({

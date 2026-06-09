@@ -34,14 +34,14 @@
 
 import uuid
 from datetime import datetime, date
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from flask import Flask, current_app
 
 from edusign_webapp.doc_store import ABCMetadata
 
 
-CURRENT_DB_VERSION = "9"
+CURRENT_DB_VERSION = "11"
 
 DB_SCHEMA = """
 CREATE TABLE IF NOT EXISTS Documents
@@ -125,9 +125,9 @@ DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locking_email = '' WHERE
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
 INVITE_INSERT = (
-    "INSERT INTO Invites (key, doc_id, user_email, user_name, user_ssn, user_lang, order_invitation) VALUES (?, ?, ?, ?, ?, ?)"
+    "INSERT INTO Invites (key, doc_id, user_email, user_name, user_ssn, user_lang, order_invitation) VALUES (?, ?, ?, ?, ?, ?, ?)"
 )
-INVITE_INSERT_RAW = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_ssn, user_lang, signed, declined, order_invitation) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+INVITE_INSERT_RAW = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_ssn, user_lang, signed, declined, order_invitation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
 INVITE_QUERY_FROM_EMAIL = (
     "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0 ORDER BY order_invitation;"
 )
@@ -346,7 +346,7 @@ class SqlMD(ABCMetadata):
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + doc_id: the id of the document.
-                 + order_invitation: the order of the invitation.
+                 + order: the order of the invitation.
         :return:
         """
         self._db_execute(
@@ -1123,3 +1123,72 @@ class SqlMD(ABCMetadata):
             return ''
 
         return str(document_result['invitation_text'])
+
+    def get_document_id(self, key: uuid.UUID) -> Optional[str]:
+        """
+        Get document ID from key
+
+        :param key: The key identifying the document
+        :return: The document ID
+        """
+        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
+
+        if document_result is None or isinstance(
+            document_result, list
+        ):  # This should never happen, it's just to please mypy
+            self._db_commit()
+            return None
+
+        return str(document_result['doc_id'])
+
+    def add_signature(self, sig_type: str, organization: str, doc_name: str, owner_eppn: str, user_eppn: str, timestamp: int):
+        """
+        Add a payable signature to the db.
+
+        :param sig_type: the type of the signature, bankid | freja
+        :param organization: the organization requesting the signature
+        :param doc_name: Name of signed document
+        :param owner_eppn: eduPersonPrincipalName of the person requesting the signature
+        :param user_eppn: eduPersonPrincipalName of the person signing
+        :param timestamp: the timestamp in the signature
+        """
+        try:
+            self._db_execute(SIGNATURE_INSERT, (sig_type, organization, doc_name, owner_eppn, user_eppn, timestamp))
+            self._db_commit()
+        except Exception as e:
+            self.logger.error(f"Problem trying to add payable signature: {e}")
+            raise
+
+    def get_signatures(self, organization: str, sig_type: str) -> List[Dict[str, Any]]:
+        """
+        Retrieve payable signature records for the provided organization and signature type
+
+        :param organization: The organization that requested the signatures
+        :param sig_type: The type of the signatures -  bankid | freja
+        :return: A list of dictionaries, one for each signature, with keys:
+            + owner_eppn: eduPersonPrincipalName of the user requesting the signature
+            + user_eppn: eduPersonPrincipalName of the user signing
+            + timestamp: timestamp of the signature
+        """
+        signatures = self._db_query(SIGNATURES_QUERY, (organization, sig_type))
+        if signatures is None or isinstance(signatures, dict):
+            self.logger.debug(f"No signatures found of type {sig_type} for {organization}")
+            return []
+
+        return signatures
+
+    def get_signatures_global(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve payable signatures number per organization and type
+
+        :return: A list of dictionaries, one for each organization and type, with keys:
+            + organization: Name of responsible organization
+            + type: bankid / freja
+            + number_of_signatures: Number of signatures made on request of the responsible organization
+        """
+        signatures = self._db_query(SIGNATURES_QUERY_GLOBAL)
+        if signatures is None or isinstance(signatures, dict):
+            self.logger.debug(f"No signatures found")
+            return []
+
+        return signatures

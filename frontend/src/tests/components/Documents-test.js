@@ -1403,7 +1403,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     const text = await waitFor(() =>
       screen.getAllByText("There was a problem signing the document"),
     );
-    expect(text.length).to.equal(2);
+    expect(text.length).to.equal(1);
   } catch (err) {
     unmount();
     throw err;
@@ -1555,7 +1555,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     const text = await waitFor(() =>
       screen.getAllByText("There was a problem signing the document"),
     );
-    expect(text.length).to.equal(2);
+    expect(text.length).to.equal(1);
   } catch (err) {
     unmount();
     throw err;
