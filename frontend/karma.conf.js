@@ -71,6 +71,11 @@ module.exports = function(config) {
     //singleRun: !argv.watch,
     singleRun: true,
     autoWatch: false,
+    client: {
+      mocha: {
+        timeout: 10000,
+      },
+    },
 
     // which karma frameworks do we want integrated
     frameworks: ["mocha"], //use the mocha test framework
