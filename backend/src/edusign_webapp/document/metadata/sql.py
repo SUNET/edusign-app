@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS Invites
        key VARCHAR(255) NOT NULL,
        user_email VARCHAR(255) NOT NULL,
        user_name VARCHAR(255) NOT NULL,
-       user_ssn VARCHAR(255) DEFAULT "",
+       user_ssn VARCHAR(255) NOT NULL DEFAULT '',
        user_lang VARCHAR(2) NOT NULL,
        doc_id INTEGER NOT NULL,
        signed INTEGER DEFAULT 0,
@@ -85,9 +85,9 @@ CREATE TABLE IF NOT EXISTS PayableSignatures
        signature_id INTEGER PRIMARY KEY AUTOINCREMENT,
        type VARCHAR(255) NOT NULL,
        organization VARCHAR(255) NOT NULL,
-       doc_name VARCHAR(255) NOT NULL DEFAULT "",
-       owner_eppn VARCHAR(255) NOT NULL DEFAULT "",
-       user_eppn VARCHAR(255) NOT NULL DEFAULT "",
+       doc_name VARCHAR(255) NOT NULL DEFAULT '',
+       owner_eppn VARCHAR(255) NOT NULL DEFAULT '',
+       user_eppn VARCHAR(255) NOT NULL DEFAULT '',
        timestamp INTEGER NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS KeyIX ON Documents (key);
