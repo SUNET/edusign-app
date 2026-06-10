@@ -440,7 +440,7 @@ class SqlMD(ABCMetadata):
                 document['state'] = "unconfirmed"
                 created = document['created']
                 if isinstance(created, str):
-                    created = datetime.fromisoformat(created)
+                    created = datetime.fromisoformat(str(created))
                 document['created'] = created.timestamp() * 1000
                 document['ordered'] = document['ordered_invitations']
 
@@ -595,7 +595,7 @@ class SqlMD(ABCMetadata):
             document['declined'] = []
             created = document['created']
             if isinstance(created, str):
-                created = datetime.fromisoformat(created)
+                created = datetime.fromisoformat(str(created))
             document['created'] = created.timestamp() * 1000
             state = 'loaded'
             document['ordered'] = document['ordered_invitations']
@@ -775,7 +775,7 @@ class SqlMD(ABCMetadata):
         }
         doc['key'] = uuid.UUID(doc['key'])
         doc['invite_key'] = key
-        doc['created'] = datetime.fromisoformat(doc['created']).timestamp() * 1000
+        doc['created'] = datetime.fromisoformat(str(doc['created'])).timestamp() * 1000
         doc['ordered'] = doc['ordered_invitations']
         doc['state'] = 'unconfirmed'
 
@@ -933,7 +933,7 @@ class SqlMD(ABCMetadata):
         now = datetime.now()
 
         if isinstance(lock_info['locked'], str):
-            locked = datetime.fromisoformat(lock_info['locked'])
+            locked = datetime.fromisoformat(str(lock_info['locked']))
         else:
             locked = lock_info['locked']
 
@@ -969,7 +969,7 @@ class SqlMD(ABCMetadata):
         now = datetime.now()
 
         if isinstance(lock_info['locked'], str):
-            locked = datetime.fromisoformat(lock_info['locked'])
+            locked = datetime.fromisoformat(str(lock_info['locked']))
         else:
             locked = lock_info['locked']
 
@@ -999,7 +999,7 @@ class SqlMD(ABCMetadata):
             return False
 
         if isinstance(lock_info['locked'], str):
-            locked = datetime.fromisoformat(lock_info['locked'])
+            locked = datetime.fromisoformat(str(lock_info['locked']))
         else:
             locked = lock_info['locked']
 
