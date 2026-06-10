@@ -152,7 +152,7 @@ class PostgresqlMD(sql.SqlMD):
                 with conn.cursor() as cursor:
                     # Use sql.Identifier to safely quote the database name
                     cursor.execute(
-                        pg_sql.SQL("CREATE DATABASE {}").format(pg_sql.Identifier(self.database))
+                        pg_sql.SQL("CREATE DATABASE {}".format(pg_sql.Identifier(self.database)))
                     )
                 conn.close()
 
