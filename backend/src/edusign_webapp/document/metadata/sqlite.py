@@ -200,7 +200,7 @@ def upgrade(db):
                [doc_name] VARCHAR(255) NOT NULL DEFAULT "",
                [owner_eppn] VARCHAR(255) NOT NULL DEFAULT "",
                [user_eppn] VARCHAR(255) NOT NULL DEFAULT "",
-               [timestamp] INTEGER NOT NULL
+               [timestamp] TIMESTAMP NOT NULL
             );
             """
         )

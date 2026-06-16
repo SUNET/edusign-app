@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS PayableSignatures
        doc_name VARCHAR(255) NOT NULL DEFAULT '',
        owner_eppn VARCHAR(255) NOT NULL DEFAULT '',
        user_eppn VARCHAR(255) NOT NULL DEFAULT '',
-       timestamp INTEGER NOT NULL
+       timestamp TIMESTAMP NOT NULL
 );
 CREATE UNIQUE INDEX IF NOT EXISTS KeyIX ON Documents (key);
 CREATE INDEX IF NOT EXISTS OwnerEmailIX ON Documents (owner_email);
