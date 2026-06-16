@@ -33,7 +33,7 @@
 
 
 import uuid
-from datetime import datetime, date
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 from flask import Flask, current_app
@@ -149,21 +149,6 @@ INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
 SIGNATURE_INSERT = "INSERT INTO PayableSignatures (type, organization, doc_name, owner_eppn, user_eppn, timestamp) VALUES (?, ?, ?, ?, ?, ?);"
 SIGNATURES_QUERY = "SELECT owner_eppn, user_eppn, timestamp FROM PayableSignatures WHERE type = ? AND organization = ?;"
 SIGNATURES_QUERY_GLOBAL = "SELECT organization, type, COUNT(*) AS number_of_signatures FROM PayableSignatures GROUP BY organization, type;"
-
-
-def convert_date(val):
-    """Convert ISO 8601 date to datetime.date object."""
-    return date.fromisoformat(val.decode())
-
-
-def convert_datetime(val):
-    """Convert ISO 8601 datetime to datetime.datetime object."""
-    return datetime.fromisoformat(val.decode())
-
-
-def convert_timestamp(val):
-    """Convert Unix epoch timestamp to datetime.datetime object."""
-    return datetime.fromtimestamp(int(val))
 
 
 class SqlMD(ABCMetadata):
@@ -1153,7 +1138,8 @@ class SqlMD(ABCMetadata):
         :param timestamp: the timestamp in the signature
         """
         try:
-            self._db_execute(SIGNATURE_INSERT, (sig_type, organization, doc_name, owner_eppn, user_eppn, timestamp))
+            ts = datetime.fromtimestamp(timestamp / 1000)
+            self._db_execute(SIGNATURE_INSERT, (sig_type, organization, doc_name, owner_eppn, user_eppn, ts))
             self._db_commit()
         except Exception as e:
             self.logger.error(f"Problem trying to add payable signature: {e}")

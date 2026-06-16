@@ -33,6 +33,7 @@
 import os
 import sqlite3
 import uuid
+from datetime import datetime, date
 from typing import Any, Dict, List, Union
 
 from flask import Flask, g
@@ -41,9 +42,24 @@ from edusign_webapp.document.metadata import sql
 
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
 
-sqlite3.register_converter("date", sql.convert_date)
-sqlite3.register_converter("datetime", sql.convert_datetime)
-sqlite3.register_converter("timestamp", sql.convert_timestamp)
+
+def convert_date(val):
+    """Convert ISO 8601 date to datetime.date object."""
+    return date.fromisoformat(val.decode())
+
+
+def convert_datetime(val):
+    """Convert ISO 8601 datetime to datetime.datetime object."""
+    return datetime.fromisoformat(val.decode())
+
+
+def convert_timestamp(val):
+    """Convert Unix epoch timestamp to datetime.datetime object."""
+    return datetime.fromtimestamp(int(val))
+
+sqlite3.register_converter("date", convert_date)
+sqlite3.register_converter("datetime", convert_datetime)
+sqlite3.register_converter("timestamp", convert_timestamp)
 
 
 def make_dicts(cursor, row):
