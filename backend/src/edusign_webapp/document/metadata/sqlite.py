@@ -164,7 +164,15 @@ def get_db(db_path):
     db = getattr(g, '_database', None)
     if db is None:
         exists = os.path.isfile(db_path)
-        db = g._database = sqlite3.connect(db_path)
+        db = g._database = sqlite3.connect(db_path, timeout=30)
+
+        # Allow concurrent readers alongside a single writer, and wait (rather
+        # than failing with "database is locked") when several gunicorn workers
+        # or threads contend for the write lock. WAL is safe here because the db
+        # lives on a host-local filesystem bind-mounted into the container.
+        db.execute("PRAGMA journal_mode=WAL;")
+        db.execute("PRAGMA synchronous=NORMAL;")
+        db.execute("PRAGMA busy_timeout=30000;")
 
         if not exists:
             db.cursor().executescript(DB_SCHEMA)
