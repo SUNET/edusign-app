@@ -173,7 +173,8 @@ class APIClient(object):
         response = requests_session.send(prepped, **settings)
         response_json = response.json()
         tolog = deepcopy(response_json)
-        tolog['signedContent'] = "..."
+        for doc in tolog['signedDocuments']:
+            doc['signedContent'] = "..."
         current_app.logger.debug(f"Response from the API's {url} method: {tolog}")
         return response_json
 
