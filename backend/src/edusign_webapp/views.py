@@ -1078,6 +1078,7 @@ def _ready_docs(
         doc_key = doc['key']
 
         if doc_type == 'application/pdf':
+            current_app.logger.info(f"Prepared doc data: {doc_data}")
             ref = doc_data['updatedPdfDocumentReference']
             sign_req = json.dumps(doc_data['visiblePdfSignatureRequirement'])
 
