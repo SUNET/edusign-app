@@ -69,6 +69,7 @@ const _close = (dispatch) => {
   dispatch(unsetActiveId());
   dispatch(isNotInviting());
   dispatch(setOrdered(null));
+  dispatch(setAllowBankID(null));
 };
 
 const mapDispatchToProps = (dispatch, props) => {
