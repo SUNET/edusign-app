@@ -749,7 +749,7 @@ class SqlMD(ABCMetadata):
             self.logger.error(f"Retrieving a non-existing document with key {key}")
             return {}
 
-        user = {'name': invite['user_name'], 'email': invite['user_email'], 'lang': invite['user_lang']}
+        user = {'name': invite['user_name'], 'email': invite['user_email'], 'ssn': invite.get('user_ssn', ''), 'lang': invite['user_lang']}
         doc['doc_id'] = invite['doc_id']
         doc['doc_id'] = invite['doc_id']
         doc['owner'] = {
