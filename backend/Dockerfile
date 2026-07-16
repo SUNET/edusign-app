@@ -24,8 +24,10 @@ ENV LC_ALL en_US.UTF-8
 RUN mkdir -p /opt/edusign
 WORKDIR /opt/edusign
 
-RUN python3 -m venv /opt/edusign
-RUN /opt/edusign/bin/pip install -U pip wheel
+# uv manages the virtualenv and the python interpreter (the debian:11 system
+# python is too old for the locked dependency set; uv fetches the CPython
+# pinned in .python-version).
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
 RUN addgroup --system edusign
 RUN adduser --system --shell /bin/false edusign
@@ -42,9 +44,13 @@ ADD . /opt/edusign/edusign-webapp
 
 WORKDIR /opt/edusign/edusign-webapp
 
-RUN /opt/edusign/bin/pip install -r /opt/edusign/edusign-webapp/requirements.txt
-RUN /opt/edusign/bin/python /opt/edusign/edusign-webapp/setup.py develop
-RUN /opt/edusign/bin/pip install gunicorn
+# Create the venv at /opt/edusign (same location the old python -m venv used)
+# with the locked dependencies and the project installed editable (the uv
+# equivalent of the old `setup.py develop`). pip is seeded into the venv
+# because start.sh runs `pip freeze` for the startup log.
+ENV UV_PROJECT_ENVIRONMENT=/opt/edusign
+RUN uv sync --frozen --no-dev
+RUN uv pip install pip gunicorn
 
 ADD ./scripts/start.sh /start.sh
 

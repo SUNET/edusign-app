@@ -1,0 +1,73 @@
+[build-system]
+requires = ["setuptools>=75.8.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edusign-webapp"
+# To bump versions:
+# * bump with tbump (updates this file and frontend/package.json)
+# * create git tag and push
+# * reference new tag in docker-edusign-app/backend/Dockerfile
+# * reference new tag in docker-edusign-app/nginx/Dockerfile
+version = "1.6.2b19"
+description = "Backend for the eduSign web interface"
+readme = "README.txt"
+license = { text = "bsd" }
+authors = [{ name = "SUNET" }]
+urls = { Homepage = "https://github.com/SUNET/" }
+classifiers = ["Programming Language :: Python"]
+requires-python = ">=3.10"
+dependencies = [
+    "setuptools>=75.8.2",
+    "Flask==3.1.0",
+    "marshmallow==3.26.1",
+    "Flask-Babel==4.0.0",
+    "requests==2.32.3",
+    "Flask-Mailman==1.1.1",
+    "boto3==1.37.8",
+    "flask-redis==0.4.0",
+    "flask-cors==5.0.1",
+    "flask-misaka==1.0.1",
+    "reportlab==4.3.1",
+    "pyHanko==0.25.3",
+    "PyMuPDF==1.25.3",
+    "pytz>=2025.1",
+    "ocrmypdf==16.10.0",
+    "PyYAML==6.0.2",
+    "cryptography==44.0.2",
+    "fakeredis==2.27.0",
+    "signxml==4.0.3",
+    "pygments==2.19.1",
+    "chardet==5.2.0",
+    "pdfminer.six==20240706",
+    "psycopg2==2.9.12",
+]
+
+[dependency-groups]
+dev = [
+    "pytest==8.3.5",
+    "coverage==7.6.12",
+    "pytest-cov==6.0.0",
+    "mock==5.2.0",
+    "WebTest==3.0.4",
+    "isort==6.0.1",
+    "black==25.1.0",
+    "mypy==1.15.0",
+    "moto[s3]==5.1.1",
+    "click==8.1.8",
+    "charset_normalizer==3.4.1",
+    "Jinja2==3.1.6",
+    "idna==3.10",
+    "cffi==1.17.1",
+    "setuptools_rust==1.10.2",
+    "certifi==2025.1.31",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.isort]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "EDUSIGN", "FIRSTPARTY"]

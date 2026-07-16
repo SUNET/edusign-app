@@ -15,7 +15,8 @@ message_template = "Bump to {new_version}"
 tag_template = "v{new_version}"
 
 [[file]]
-src = "backend/setup.py"
+src = "backend/pyproject.toml"
+search = 'version = "{current_version}"'
 
 [[file]]
 src = "frontend/package.json"
