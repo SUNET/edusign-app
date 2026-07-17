@@ -413,6 +413,6 @@ class SigGlobalSchema(Schema):
     class SigSchema(Schema):
         organization = fields.String(required=True, validate=[validate_nonempty])
         type = fields.String(required=True, validate=[validate_nonempty, validate_sig_type])
-        number_of_signatures = fields.Number(required=True)
+        number_of_signatures = fields.Float(required=True)
 
     orgs = fields.List(fields.Nested(SigSchema))

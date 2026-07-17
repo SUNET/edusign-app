@@ -174,11 +174,12 @@ class RequestSchema(Schema):
     csrf_token = fields.String(required=True)
 
     @validates('csrf_token')
-    def verify_csrf_token(self, value: str) -> None:
+    def verify_csrf_token(self, value: str, data_key: str = 'csrf_token') -> None:
         """
         validate the CSRF token in requests from the front side app.
 
         :param value: The CSRF token to validate
+        :param data_key: The key of the field in the incoming data (passed by marshmallow >= 4)
         :raises ValidationError: When the provided CRF token does not validate.
         """
 
