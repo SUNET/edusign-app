@@ -29,6 +29,10 @@ WORKDIR /opt/edusign
 # pinned in .python-version).
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
+# The default python install dir is under /root, which the edusign user
+# that runs gunicorn cannot read.
+ENV UV_PYTHON_INSTALL_DIR=/opt/uv/python
+
 RUN addgroup --system edusign
 RUN adduser --system --shell /bin/false edusign
 
@@ -50,7 +54,7 @@ WORKDIR /opt/edusign/edusign-webapp
 # because start.sh runs `pip freeze` for the startup log.
 ENV UV_PROJECT_ENVIRONMENT=/opt/edusign
 RUN uv sync --frozen --no-dev
-RUN uv pip install pip gunicorn
+RUN uv pip install --python /opt/edusign pip gunicorn
 
 ADD ./scripts/start.sh /start.sh
 
