@@ -300,9 +300,9 @@ def test_receive_sign_request(app):
         response = client.get('/sign/receive-sign-request')
         assert response.status == '404 NOT FOUND'
     else:
-        # NOTE: the GET branch of this dev-only view is broken: it returns a
-        # rendered template through @Marshal, which expects a dict. Only the
-        # POST branch is exercised here.
+        response = client.get('/sign/receive-sign-request')
+        assert response.status == '200 OK'
+
         response = client.post(
             '/sign/receive-sign-request',
             data={'Binding': 'dummy', 'RelayState': 'dummy', 'EidSignResponse': 'dummy'},
