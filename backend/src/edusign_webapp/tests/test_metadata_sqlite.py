@@ -748,3 +748,100 @@ def test_add_and_get_user(sqlite_md, sample_metadata_1, sample_owner_1, sample_i
         invites = test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
 
     assert invites[0]['email'] == sample_invites_1[0]['email']
+
+
+V0_SCHEMA = """
+CREATE TABLE [Users]
+(      [user_id] INTEGER PRIMARY KEY AUTOINCREMENT,
+       [name] VARCHAR(255) NOT NULL,
+       [email] VARCHAR(255) NOT NULL
+);
+CREATE TABLE [Documents]
+(      [doc_id] INTEGER PRIMARY KEY AUTOINCREMENT,
+       [key] VARCHAR(255) NOT NULL,
+       [name] VARCHAR(255) NOT NULL,
+       [size] INTEGER NOT NULL,
+       [type] VARCHAR(50) NOT NULL,
+       [created] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       [updated] TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+       [owner] INTEGER NOT NULL,
+       [locked] TIMESTAMP DEFAULT NULL,
+       [locked_by] INTEGER DEFAULT NULL,
+            FOREIGN KEY ([owner]) REFERENCES [Users] ([user_id])
+              ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+CREATE TABLE [Invites]
+(      [inviteID] INTEGER PRIMARY KEY AUTOINCREMENT,
+       [key] VARCHAR(255) NOT NULL,
+       [user_id] INTEGER NOT NULL,
+       [doc_id] INTEGER NOT NULL,
+       [signed] INTEGER DEFAULT 0,
+       [declined] INTEGER DEFAULT 0,
+            FOREIGN KEY ([user_id]) REFERENCES [Users] ([user_id])
+              ON DELETE NO ACTION ON UPDATE NO ACTION,
+            FOREIGN KEY ([doc_id]) REFERENCES [Documents] ([doc_id])
+              ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+INSERT INTO Users (name, email) VALUES ('Owner', 'owner@example.org');
+INSERT INTO Users (name, email) VALUES ('Invited', 'invited@example.org');
+INSERT INTO Documents (key, name, size, type, owner)
+       VALUES ('a-key', 'test.pdf', 1500000, 'application/pdf', 1);
+INSERT INTO Invites (key, user_id, doc_id) VALUES ('invite-key', 2, 1);
+PRAGMA user_version = 0;
+"""
+
+
+def test_upgrade_from_v0(sqlite_md):
+    from edusign_webapp.document.metadata import sql, sqlite
+
+    tempdir, test_md = sqlite_md
+    db_path = os.path.join(tempdir.name, 'test-v0.db')
+
+    conn = sqlite3.connect(db_path)
+    conn.executescript(V0_SCHEMA)
+    conn.commit()
+    conn.close()
+
+    # each call to get_db advances the migration chain at least one step;
+    # iterate until it reaches the current version.
+    for _ in range(int(sql.CURRENT_DB_VERSION) + 1):
+        with run.app.app_context():
+            db = sqlite.get_db(db_path)
+            version = db.execute("PRAGMA user_version;").fetchone()['user_version']
+
+    assert version == int(sql.CURRENT_DB_VERSION)
+
+    with run.app.app_context():
+        db = sqlite.get_db(db_path)
+        doc = db.execute("SELECT * FROM Documents;").fetchone()
+        assert doc['name'] == 'test.pdf'
+        assert doc['owner_email'] == 'owner@example.org'
+        assert doc['owner_name'] == 'Owner'
+
+        invite = db.execute("SELECT * FROM Invites;").fetchone()
+        assert invite['user_email'] == 'invited@example.org'
+        assert invite['user_name'] == 'Invited'
+
+        tables = [r['name'] for r in db.execute("SELECT name FROM sqlite_master WHERE type = 'table';").fetchall()]
+        assert 'Users' not in tables
+        assert 'PayableSignatures' in tables
+
+
+def test_date_converters():
+    from edusign_webapp.document.metadata.sqlite import convert_date, convert_datetime, convert_timestamp
+
+    assert convert_date(b'2026-07-20') == datetime(2026, 7, 20).date()
+    assert convert_datetime(b'2026-07-20T12:30:00') == datetime(2026, 7, 20, 12, 30)
+    epoch = convert_timestamp(b'1600000000')
+    assert epoch == datetime.fromtimestamp(1600000000)
+
+
+def test_get_old(sqlite_md, sample_metadata_1, sample_owner_1, sample_invites_1):
+    tempdir, test_md = sqlite_md
+    dummy_key = uuid.uuid4()
+
+    with run.app.app_context():
+        test_md.add(dummy_key, sample_metadata_1, sample_owner_1, sample_invites_1, *invitation_flags)
+
+        assert test_md.get_old(0) == [dummy_key]
+        assert test_md.get_old(1) == []
