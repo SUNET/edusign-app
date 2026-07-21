@@ -138,16 +138,16 @@ def get_id_service_usage():
     return {'payload': {'orgs': to_pay}}
 
 
-@admin_edusign_views.route('/migrate-to-redis-and-s3', methods=['POST'])
-def migrate_to_redis_and_s3():
+@admin_edusign_views.route('/migrate-to-postgres-and-s3', methods=['POST'])
+def migrate_to_postgres_and_s3():
     """
     Migrate the invitations contents from SQLite & the local fs
-    to redis and s3.
+    to PostgreSQL and s3.
 
     :return: the number of documents migrated
     """
     assert "S3Storage" in current_app.config['STORAGE_CLASS_PATH']
-    assert "RedisMD" in current_app.config['DOC_METADATA_CLASS_PATH']
+    assert "PostgresqlMD" in current_app.config['DOC_METADATA_CLASS_PATH']
 
     assert 'LOCAL_STORAGE_BASE_DIR' in current_app.config
     assert 'SQLITE_MD_DB_PATH' in current_app.config
@@ -160,7 +160,7 @@ def migrate_to_redis_and_s3():
 
     old_doc_store = DocStore.custom(current_app, local_storage, sqlite_md)
 
-    current_app.logger.info("STARTING MIGRATION TO REDIS AND S3")
+    current_app.logger.info("STARTING MIGRATION TO POSTGRES AND S3")
 
     keys = old_doc_store.get_old_documents(0)
     current_app.logger.info(f"Going to migrate {len(keys)} documents")
@@ -190,7 +190,19 @@ def migrate_to_redis_and_s3():
             current_app.extensions['doc_store'].add_invite_raw(invite)
             migrated_invites += 1
 
-    return f'OK, migrated {migrated_docs} documents and {migrated_invites} invitations'
+    old_signatures = old_doc_store.get_all_signatures()
+    current_app.logger.info(f"Going to migrate {len(old_signatures)} payable signatures")
+
+    migrated_signatures = 0
+    for signature in old_signatures:
+        current_app.extensions['doc_store'].add_signature_raw(signature)
+        migrated_signatures += 1
+
+    return (
+        f'OK, migrated {migrated_docs} documents'
+        f' and {migrated_invites} invitations'
+        f' and {migrated_signatures} payable signatures'
+    )
 
 
 @edusign_views.route('/metrics', methods=['GET'])

@@ -190,6 +190,30 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def add_signature_raw(self, signature: Dict[str, Any]):
+        """
+        Add a payable signature, as retrieved from `get_all_signatures`.
+
+        :param signature: signature data, with keys:
+                 + type: the type of the signature, bankid | freja
+                 + organization: the organization requesting the signature
+                 + doc_name: Name of signed document
+                 + owner_eppn: eduPersonPrincipalName of the person requesting the signature
+                 + user_eppn: eduPersonPrincipalName of the person signing
+                 + timestamp: the timestamp of the signature
+        :return:
+        """
+
+    @abc.abstractmethod
+    def get_all_signatures(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve all payable signature records.
+
+        :return: A list of dictionaries, one for each signature, with the
+                 keys documented in `add_signature_raw`.
+        """
+
+    @abc.abstractmethod
     def get_old(self, days: int) -> List[uuid.UUID]:
         """
         Get the keys identifying stored documents that are older than the provided number of days.
@@ -1251,6 +1275,29 @@ class DocStore(object):
         :param timestamp: the timestamp in the signature
         """
         self.metadata.add_signature(sig_type, organization, doc_name, owner_eppn, user_eppn, timestamp)
+
+    def add_signature_raw(self, signature: Dict[str, Any]):
+        """
+        Add a payable signature, as retrieved from `get_all_signatures`.
+
+        :param signature: signature data, with keys:
+                 + type: the type of the signature, bankid | freja
+                 + organization: the organization requesting the signature
+                 + doc_name: Name of signed document
+                 + owner_eppn: eduPersonPrincipalName of the person requesting the signature
+                 + user_eppn: eduPersonPrincipalName of the person signing
+                 + timestamp: the timestamp of the signature
+        """
+        self.metadata.add_signature_raw(signature)
+
+    def get_all_signatures(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve all payable signature records.
+
+        :return: A list of dictionaries, one for each signature, with the
+                 keys documented in `add_signature_raw`.
+        """
+        return self.metadata.get_all_signatures()
 
     def get_signatures(self, organization: str, sig_type: str):
         """

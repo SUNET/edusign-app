@@ -148,6 +148,7 @@ INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
 
 SIGNATURE_INSERT = "INSERT INTO PayableSignatures (type, organization, doc_name, owner_eppn, user_eppn, timestamp) VALUES (?, ?, ?, ?, ?, ?);"
 SIGNATURES_QUERY = "SELECT owner_eppn, user_eppn, timestamp FROM PayableSignatures WHERE type = ? AND organization = ?;"
+SIGNATURES_QUERY_ALL = "SELECT type, organization, doc_name, owner_eppn, user_eppn, timestamp FROM PayableSignatures;"
 SIGNATURES_QUERY_GLOBAL = "SELECT organization, type, COUNT(*) AS number_of_signatures FROM PayableSignatures GROUP BY organization, type;"
 
 
@@ -293,7 +294,7 @@ class SqlMD(ABCMetadata):
                  + ordered_invitations: Whether to send invitations in order.
                  + allowbankid: Whether to allow BankID signatures.
                  + invitation_text: The custom text to send in the invitation email
-        :return:
+        :return: the id of the new document in the db
         """
         self._db_execute(
             DOCUMENT_INSERT_RAW,
@@ -317,6 +318,9 @@ class SqlMD(ABCMetadata):
                 document['invitation_text'],
             ),
         )
+        self._db_commit()
+
+        return self.get_document_id(uuid.UUID(str(document['key'])))
 
     def add_invite_raw(self, invite: Dict[str, Any]):
         """
@@ -1145,6 +1149,45 @@ class SqlMD(ABCMetadata):
             self.logger.error(f"Problem trying to add payable signature: {e}")
             raise
 
+    def add_signature_raw(self, signature: Dict[str, Any]):
+        """
+        Add a payable signature to the db, as retrieved from `get_all_signatures`.
+
+        :param signature: signature data, with keys:
+                 + type: the type of the signature, bankid | freja
+                 + organization: the organization requesting the signature
+                 + doc_name: Name of signed document
+                 + owner_eppn: eduPersonPrincipalName of the person requesting the signature
+                 + user_eppn: eduPersonPrincipalName of the person signing
+                 + timestamp: the timestamp of the signature
+        """
+        self._db_execute(
+            SIGNATURE_INSERT,
+            (
+                signature['type'],
+                signature['organization'],
+                signature['doc_name'],
+                signature['owner_eppn'],
+                signature['user_eppn'],
+                signature['timestamp'],
+            ),
+        )
+        self._db_commit()
+
+    def get_all_signatures(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve all payable signature records.
+
+        :return: A list of dictionaries, one for each signature, with the
+                 keys documented in `add_signature_raw`.
+        """
+        signatures = self._db_query(SIGNATURES_QUERY_ALL)
+        if signatures is None or isinstance(signatures, dict):
+            self.logger.debug("No payable signatures found")
+            return []
+
+        return signatures
+
     def get_signatures(self, organization: str, sig_type: str) -> List[Dict[str, Any]]:
         """
         Retrieve payable signature records for the provided organization and signature type
@@ -1156,7 +1199,7 @@ class SqlMD(ABCMetadata):
             + user_eppn: eduPersonPrincipalName of the user signing
             + timestamp: timestamp of the signature
         """
-        signatures = self._db_query(SIGNATURES_QUERY, (organization, sig_type))
+        signatures = self._db_query(SIGNATURES_QUERY, (sig_type, organization))
         if signatures is None or isinstance(signatures, dict):
             self.logger.debug(f"No signatures found of type {sig_type} for {organization}")
             return []

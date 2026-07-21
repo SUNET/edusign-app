@@ -80,11 +80,22 @@ class PostgresqlMD(sql.SqlMD):
             database=self.database
         )
 
-        @app.teardown_appcontext
-        def _close_db_connection(exc):
-            conn = g.pop('db_conn', None)
-            if conn is not None:
-                self.connection_pool.putconn(conn)
+        # Register the teardown only once per app: registering on every
+        # instantiation would fail once the app has served its first request
+        # (e.g. when the migration view builds a second DocStore). The pool
+        # owning the pooled connection travels in g alongside it.
+        if not app.extensions.get('edusign_pg_teardown', False):
+            app.extensions['edusign_pg_teardown'] = True
+
+            @app.teardown_appcontext
+            def _close_db_connection(exc):
+                cursor = g.pop('db_cursor', None)
+                if cursor is not None:
+                    cursor.close()
+                conn = g.pop('db_conn', None)
+                conn_pool = g.pop('db_pool', None)
+                if conn is not None and conn_pool is not None:
+                    conn_pool.putconn(conn)
 
     def _database_exists(self):
         """
@@ -115,16 +126,28 @@ class PostgresqlMD(sql.SqlMD):
                 db_exists = cursor.fetchone() is not None
                 cursor.close()
 
+            conn.close()
+            conn = None
+
             if db_exists:
-                with conn.cursor() as cursor:
+                # the tables live in our own database, not in 'postgres'
+                dbconn = psycopg2.connect(
+                    dbname=self.database,
+                    user=self.user,
+                    password=self.password,
+                    host=self.host,
+                    port=self.port
+                )
+                with dbconn.cursor() as cursor:
                     cursor.execute(
                         "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';",
                     )
-                    tables = cursor.fetchall()
-                    tables_exist = "Documents" in tables
+                    # unquoted identifiers are folded to lower case by PostgreSQL
+                    tables = [row[0] for row in cursor.fetchall()]
+                    tables_exist = "documents" in tables
                     cursor.close()
 
-            conn.close()
+                dbconn.close()
 
             return (db_exists, tables_exist)
 
@@ -152,9 +175,8 @@ class PostgresqlMD(sql.SqlMD):
                 with conn.cursor() as cursor:
                     # Use sql.Identifier to safely quote the database name
                     cursor.execute(
-                        pg_sql.SQL("CREATE DATABASE {}".format(pg_sql.Identifier(self.database)))
+                        pg_sql.SQL("CREATE DATABASE {}").format(pg_sql.Identifier(self.database))
                     )
-                conn.close()
 
             dbconn = psycopg2.connect(
                 dbname=self.database,
@@ -188,6 +210,7 @@ class PostgresqlMD(sql.SqlMD):
     def _get_db_connection(self):
         if 'db_conn' not in g:
             g.db_conn = self.connection_pool.getconn()
+            g.db_pool = self.connection_pool
         return g.db_conn
 
     def _get_db_cursor(self):
