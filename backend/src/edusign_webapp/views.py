@@ -100,6 +100,30 @@ edusign_views2 = Blueprint('edusign2', __name__, url_prefix='/sign2', template_f
 edusign_api_views = Blueprint('edusign_api', __name__, url_prefix='/api/v1', template_folder='templates')
 
 
+@admin_edusign_views.before_request
+def check_admin_whitelist():
+    """
+    Only serve the admin views to users listed in the ADMIN_WHITELIST setting.
+
+    The user is identified by the eduPersonPrincipalName header put in the
+    request by the Shibboleth SP app; the /admin location must be secured
+    by Shibboleth in the front nginx.
+    """
+    try:
+        eppn = request.headers['Edupersonprincipalname-20']
+    except KeyError:
+        try:
+            eppn = request.headers['Edupersonprincipalname-11']
+        except KeyError:
+            current_app.logger.error('Missing eduPersonPrincipalName from admin request')
+            abort(401)
+
+    eppn = eppn.strip().lower()
+    if eppn not in current_app.config['ADMIN_WHITELIST']:
+        current_app.logger.error(f'User {eppn} is not in the admin whitelist')
+        abort(403)
+
+
 @admin_edusign_views.route('/cleanup', methods=['POST'])
 def cleanup():
     """

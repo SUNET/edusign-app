@@ -184,6 +184,28 @@ def test_admin_cleanup(client, sample_doc_1, sample_owner_1):
     assert b'Removed 1 documents out of 1' in response.data
 
 
+def test_admin_non_whitelisted(client):
+    client.environ_base["HTTP_EDUPERSONPRINCIPALNAME_20"] = 'not-an-admin@example.org'
+
+    response = client.post('/admin/cleanup')
+    assert response.status == '403 FORBIDDEN'
+
+
+def test_admin_no_eppn_header(client):
+    del client.environ_base["HTTP_EDUPERSONPRINCIPALNAME_20"]
+
+    response = client.post('/admin/cleanup')
+    assert response.status == '401 UNAUTHORIZED'
+
+
+def test_admin_eppn_header_11(client):
+    del client.environ_base["HTTP_EDUPERSONPRINCIPALNAME_20"]
+    client.environ_base["HTTP_EDUPERSONPRINCIPALNAME_11"] = 'dummy-eppn@example.org'
+
+    response = client.post('/admin/cleanup')
+    assert response.status == '200 OK'
+
+
 def test_admin_id_service_usage(client):
     response = client.get('/admin/get-id-service-usage')
     assert response.status == '200 OK'

@@ -54,7 +54,7 @@ from edusign_webapp import run
 from edusign_webapp.doc_store import DocStore
 from edusign_webapp.document.metadata.sqlite import SqliteMD
 from edusign_webapp.document.storage.local import LocalStorage
-from edusign_webapp.tests.conftest import config_dev
+from edusign_webapp.tests.conftest import _environ_base, config_dev
 from edusign_webapp.tests.sample_pdfs import pdf_simple_1, pdf_simple_2
 
 PG_CONFIG = {
@@ -188,6 +188,7 @@ def test_migrate_to_postgres_and_s3(pg_migration_app):
     doc_1, doc_2 = _seed_old_doc_store(app)
 
     client = app.test_client()
+    client.environ_base.update(_environ_base)
     response = client.post('/admin/migrate-to-postgres-and-s3')
 
     assert response.status == '200 OK'
@@ -255,6 +256,7 @@ def test_migrate_to_postgres_and_s3_empty(pg_migration_app):
     app.extensions['doc_store'].storage.s3.create_bucket(Bucket='edusign-storage')
 
     client = app.test_client()
+    client.environ_base.update(_environ_base)
     response = client.post('/admin/migrate-to-postgres-and-s3')
 
     assert response.status == '200 OK'
