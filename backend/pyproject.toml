@@ -9,7 +9,7 @@ name = "edusign-webapp"
 # * create git tag and push
 # * reference new tag in docker-edusign-app/backend/Dockerfile
 # * reference new tag in docker-edusign-app/nginx/Dockerfile
-version = "1.6.2b21"
+version = "1.6.2b22"
 description = "Backend for the eduSign web interface"
 readme = "README.txt"
 license = { text = "bsd" }
