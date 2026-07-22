@@ -223,6 +223,16 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def get_documents_created(self) -> List[Dict[str, Any]]:
+        """
+        Get the creation timestamp and size of all stored documents.
+
+        :return: A list of dictionaries, one for each document, with keys:
+                 + created: creation timestamp, in milliseconds since the epoch
+                 + size: Size of the doc
+        """
+
+    @abc.abstractmethod
     def get_pending(self, emails: List[str]) -> List[Dict[str, str]]:
         """
         Given the email address of some user, return information about the documents
@@ -576,7 +586,9 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def add_signature(self, sig_type: str, organization: str, doc_name: str, owner_eppn: str, user_eppn: str, timestamp: int):
+    def add_signature(
+        self, sig_type: str, organization: str, doc_name: str, owner_eppn: str, user_eppn: str, timestamp: int
+    ):
         """
         Add a payable signature to the db.
 
@@ -681,7 +693,9 @@ class DocStore(object):
         """
         key = uuid.UUID(document['key'])
         self.storage.add(key, document['blob'])
-        return self.metadata.add(key, document, owner, invites, sendsigned, loa, skipfinal, ordered, allowbankid, invitation_text)
+        return self.metadata.add(
+            key, document, owner, invites, sendsigned, loa, skipfinal, ordered, allowbankid, invitation_text
+        )
 
     def add_document_raw(
         self,
@@ -723,6 +737,16 @@ class DocStore(object):
         :return: A list of UUIDs identifying the documents
         """
         return self.metadata.get_old(days)
+
+    def get_documents_created(self) -> List[Dict[str, Any]]:
+        """
+        Get the creation timestamp and size of all stored documents.
+
+        :return: A list of dictionaries, one for each document, with keys:
+                 + created: creation timestamp, in milliseconds since the epoch
+                 + size: Size of the doc
+        """
+        return self.metadata.get_documents_created()
 
     def get_pending_documents(self, emails: List[str]) -> List[Dict[str, Any]]:
         """
@@ -931,7 +955,12 @@ class DocStore(object):
 
         for old in orig_pending:
             for new in new_pending:
-                if new['email'] == old['email'] and new['name'] == old['name'] and new.get('ssn', '') == old.get('ssn', '') and new['lang'] == old['lang']:
+                if (
+                    new['email'] == old['email']
+                    and new['name'] == old['name']
+                    and new.get('ssn', '') == old.get('ssn', '')
+                    and new['lang'] == old['lang']
+                ):
                     new['key'] = old['key']
                     break
             else:
@@ -943,22 +972,37 @@ class DocStore(object):
         for new in new_pending:
             if not ordered:
                 for old in orig_pending:
-                    if new['email'] == old['email'] and new['name'] == old['name'] and new.get('ssn', '') == old.get('ssn', '') and new['lang'] == old['lang']:
+                    if (
+                        new['email'] == old['email']
+                        and new['name'] == old['name']
+                        and new.get('ssn', '') == old.get('ssn', '')
+                        and new['lang'] == old['lang']
+                    ):
                         break
                 else:
                     changed['added'].append(new)
 
             if 'key' in new:
                 self.metadata.add_invitation(
-                    document_key, new['name'], new['email'], new.get('ssn', ''), new['lang'], invite_key=new['key'], order=order
+                    document_key,
+                    new['name'],
+                    new['email'],
+                    new.get('ssn', ''),
+                    new['lang'],
+                    invite_key=new['key'],
+                    order=order,
                 )
             else:
-                self.metadata.add_invitation(document_key, new['name'], new['email'], new.get('ssn', ''), new['lang'], order=order)
+                self.metadata.add_invitation(
+                    document_key, new['name'], new['email'], new.get('ssn', ''), new['lang'], order=order
+                )
             order += 1
 
         return changed
 
-    def delegate(self, invite_key: uuid.UUID, document_key: uuid.UUID, name: str, email: str, ssn: str, lang: str) -> bool:
+    def delegate(
+        self, invite_key: uuid.UUID, document_key: uuid.UUID, name: str, email: str, ssn: str, lang: str
+    ) -> bool:
         """
         Delegate an invitation: remove old invitation and create a new one with the provided name and email.
 
@@ -1263,7 +1307,9 @@ class DocStore(object):
         """
         return self.metadata.get_document_id(key)
 
-    def add_signature(self, sig_type: str, organization: str, doc_name: str, owner_eppn: str, user_eppn: str, timestamp: int):
+    def add_signature(
+        self, sig_type: str, organization: str, doc_name: str, owner_eppn: str, user_eppn: str, timestamp: int
+    ):
         """
         Add a payable signature to the db.
 

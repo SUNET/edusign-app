@@ -40,7 +40,6 @@ from flask import Flask, current_app
 
 from edusign_webapp.doc_store import ABCMetadata
 
-
 CURRENT_DB_VERSION = "11"
 
 DB_SCHEMA = """
@@ -110,6 +109,7 @@ DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id 
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created, ordered_invitations, allowbankid FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created, ordered_invitations, allowbankid, invitation_text FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= (CURRENT_DATE - INTERVAL '%d days');"
+DOCUMENT_QUERY_ALL_CREATED = "SELECT created, size FROM Documents;"
 DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned, allowbankid FROM Documents WHERE owner_eppn = ?;"
 DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned, allowbankid FROM Documents WHERE owner_email = ?;"
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
@@ -124,16 +124,12 @@ DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locking_email = '' WHERE doc_id = ?;"
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
-INVITE_INSERT = (
-    "INSERT INTO Invites (key, doc_id, user_email, user_name, user_ssn, user_lang, order_invitation) VALUES (?, ?, ?, ?, ?, ?, ?)"
-)
+INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_ssn, user_lang, order_invitation) VALUES (?, ?, ?, ?, ?, ?, ?)"
 INVITE_INSERT_RAW = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_ssn, user_lang, signed, declined, order_invitation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
 INVITE_QUERY_FROM_EMAIL = (
     "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0 ORDER BY order_invitation;"
 )
-INVITE_QUERY_KEY = (
-    "SELECT key FROM Invites WHERE user_email = ? AND user_name = ? AND doc_id = ?;"
-)
+INVITE_QUERY_KEY = "SELECT key FROM Invites WHERE user_email = ? AND user_name = ? AND doc_id = ?;"
 INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, user_ssn, user_lang, signed, declined, key, order_invitation FROM Invites WHERE doc_id = ? ORDER BY order_invitation;"
 INVITE_QUERY_UNSIGNED_FROM_DOC = (
     "SELECT inviteID FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0 ORDER BY order_invitation;"
@@ -149,7 +145,9 @@ INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
 SIGNATURE_INSERT = "INSERT INTO PayableSignatures (type, organization, doc_name, owner_eppn, user_eppn, timestamp) VALUES (?, ?, ?, ?, ?, ?);"
 SIGNATURES_QUERY = "SELECT owner_eppn, user_eppn, timestamp FROM PayableSignatures WHERE type = ? AND organization = ?;"
 SIGNATURES_QUERY_ALL = "SELECT type, organization, doc_name, owner_eppn, user_eppn, timestamp FROM PayableSignatures;"
-SIGNATURES_QUERY_GLOBAL = "SELECT organization, type, COUNT(*) AS number_of_signatures FROM PayableSignatures GROUP BY organization, type;"
+SIGNATURES_QUERY_GLOBAL = (
+    "SELECT organization, type, COUNT(*) AS number_of_signatures FROM PayableSignatures GROUP BY organization, type;"
+)
 
 
 class SqlMD(ABCMetadata):
@@ -249,7 +247,10 @@ class SqlMD(ABCMetadata):
 
         for order, user in enumerate(invites):
             invite_key = str(uuid.uuid4())
-            self._db_execute(INVITE_INSERT, (invite_key, document_id, user['email'], user['name'], user.get('ssn', ''), user['lang'], order))
+            self._db_execute(
+                INVITE_INSERT,
+                (invite_key, document_id, user['email'], user['name'], user.get('ssn', ''), user['lang'], order),
+            )
 
             updated_invite = {'key': invite_key, 'order': order}
             updated_invite.update(user)
@@ -368,6 +369,28 @@ class SqlMD(ABCMetadata):
             return []
 
         return [uuid.UUID(doc['key']) for doc in old_docs]
+
+    def get_documents_created(self) -> List[Dict[str, Any]]:
+        """
+        Get the creation timestamp and size of all stored documents.
+
+        :return: A list of dictionaries, one for each document, with keys:
+                 + created: creation timestamp, in milliseconds since the epoch
+                 + size: Size of the doc
+        """
+        documents = self._db_query(DOCUMENT_QUERY_ALL_CREATED)
+
+        if documents is None or isinstance(documents, dict):
+            return []
+
+        results = []
+        for document in documents:
+            created = document['created']
+            if isinstance(created, str):
+                created = datetime.fromisoformat(str(created))
+            results.append({'created': created.timestamp() * 1000, 'size': document['size']})
+
+        return results
 
     def get_pending(self, emails: List[str]) -> List[Dict[str, Any]]:
         """
@@ -596,7 +619,12 @@ class SqlMD(ABCMetadata):
                 document['state'] = state
                 continue
             for invite in invites:
-                email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'ssn': invite.get('user_ssn', ''), 'lang': invite['user_lang']}
+                email_result = {
+                    'email': invite['user_email'],
+                    'name': invite['user_name'],
+                    'ssn': invite.get('user_ssn', ''),
+                    'lang': invite['user_lang'],
+                }
                 if invite['declined'] == 1:
                     document['declined'].append(email_result)
                 elif invite['signed'] == 1:
@@ -642,7 +670,12 @@ class SqlMD(ABCMetadata):
             return invitees
 
         for invite in invites:
-            email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'ssn': invite.get('user_ssn', ''), 'lang': invite['user_lang']}
+            email_result = {
+                'email': invite['user_email'],
+                'name': invite['user_name'],
+                'ssn': invite.get('user_ssn', ''),
+                'lang': invite['user_lang'],
+            }
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
@@ -680,7 +713,12 @@ class SqlMD(ABCMetadata):
             return invitees
 
         for invite in invites:
-            email_result = {'email': invite['user_email'], 'name': invite['user_name'], 'ssn': invite.get('user_ssn', ''), 'lang': invite['user_lang']}
+            email_result = {
+                'email': invite['user_email'],
+                'name': invite['user_name'],
+                'ssn': invite.get('user_ssn', ''),
+                'lang': invite['user_lang'],
+            }
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
             email_result['key'] = invite['key']
@@ -698,7 +736,15 @@ class SqlMD(ABCMetadata):
         :param doc_id: the id of the document to be signed
         :return: The key of the invitation or None
         """
-        result = self._db_query(INVITE_QUERY_KEY, (user_email, user_name, str(doc_id),), one=True)
+        result = self._db_query(
+            INVITE_QUERY_KEY,
+            (
+                user_email,
+                user_name,
+                str(doc_id),
+            ),
+            one=True,
+        )
         if result is None or isinstance(result, list):
             self.logger.error("Trying to access the key of non-existing invitation")
             return None
@@ -753,7 +799,12 @@ class SqlMD(ABCMetadata):
             self.logger.error(f"Retrieving a non-existing document with key {key}")
             return {}
 
-        user = {'name': invite['user_name'], 'email': invite['user_email'], 'ssn': invite.get('user_ssn', ''), 'lang': invite['user_lang']}
+        user = {
+            'name': invite['user_name'],
+            'email': invite['user_email'],
+            'ssn': invite.get('user_ssn', ''),
+            'lang': invite['user_lang'],
+        }
         doc['doc_id'] = invite['doc_id']
         doc['doc_id'] = invite['doc_id']
         doc['owner'] = {
@@ -791,12 +842,10 @@ class SqlMD(ABCMetadata):
                     else:
                         doc['pending'].append(subemail_result)
 
-
         return {'document': doc, 'user': user}
 
-
     def add_invitation(
-            self, document_key: uuid.UUID, name: str, email: str, ssn: str, lang: str, invite_key: str = '', order: int = 0
+        self, document_key: uuid.UUID, name: str, email: str, ssn: str, lang: str, invite_key: str = '', order: int = 0
     ) -> Dict[str, Any]:
         """
         Create a new invitation to sign
@@ -1130,7 +1179,9 @@ class SqlMD(ABCMetadata):
 
         return str(document_result['doc_id'])
 
-    def add_signature(self, sig_type: str, organization: str, doc_name: str, owner_eppn: str, user_eppn: str, timestamp: int):
+    def add_signature(
+        self, sig_type: str, organization: str, doc_name: str, owner_eppn: str, user_eppn: str, timestamp: int
+    ):
         """
         Add a payable signature to the db.
 

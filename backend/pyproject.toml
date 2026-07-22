@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "edusign-webapp"
 # To bump versions:
-# * bump with tbump (updates this file and frontend/package.json)
+# * bump with tbump (updates this file, uv.lock and frontend/package.json)
 # * create git tag and push
 # * reference new tag in docker-edusign-app/backend/Dockerfile
 # * reference new tag in docker-edusign-app/nginx/Dockerfile

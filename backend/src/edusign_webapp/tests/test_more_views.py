@@ -213,6 +213,33 @@ def test_admin_id_service_usage(client):
     assert resp_data['payload']['orgs'] == []
 
 
+def test_admin_dashboard_empty(client):
+    response = client.get('/admin/dashboard')
+    assert response.status == '200 OK'
+    assert b'Number of documents</td><td>0</td>' in response.data
+    assert b'No documents' in response.data
+    assert b'No signatures' in response.data
+
+
+def test_admin_dashboard(client, sample_doc_1, sample_owner_1):
+    _add_document_as_tester_invite(client, sample_doc_1, sample_owner_1)
+    with client.application.test_request_context():
+        client.application.extensions['doc_store'].add_signature(
+            'bankid', 'Test Org', 'test.pdf', 'owner-eppn@example.org', '199001019876', 1752000000000
+        )
+
+    response = client.get('/admin/dashboard')
+    assert response.status == '200 OK'
+    assert b'Number of documents</td><td>1</td>' in response.data
+    # the document created today shows as a bar of height 180 in the graph
+    assert b'id="docs-per-day"' in response.data
+    assert b'height="180.0"' in response.data
+    # the payable signature shows in the usage table
+    assert b'<td>Test Org</td>' in response.data
+    assert b'<td>bankid</td>' in response.data
+    assert b'<td>1</td>' in response.data
+
+
 def test_metrics(client, sample_doc_1, sample_owner_1):
     _add_document_as_tester_invite(client, sample_doc_1, sample_owner_1)
 

@@ -31,15 +31,16 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import asyncio
+import importlib
 import json
 import os
 import uuid
 from base64 import b64decode
 from collections import defaultdict
+from datetime import datetime, timedelta
 from email.utils import formataddr
 from typing import Any, Dict, List, Tuple, Union
 
-import importlib
 import yaml
 from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for
 from flask_babel import force_locale, get_locale, gettext
@@ -64,17 +65,17 @@ from edusign_webapp.schemata import (
     ReferenceSchema,
     ResendMultiSignSchema,
     ReSignRequestSchema,
+    SigGlobalSchema,
     SignedDocumentsSchema,
     SigningSchema,
     SignRequestSchema,
     ToRestartSigningSchema,
     ToSignSchema,
-    SigGlobalSchema,
 )
 from edusign_webapp.utils import (
     MissingDisplayName,
-    WrongSSN,
     NonWhitelisted,
+    WrongSSN,
     add_attributes_to_session,
     add_attributes_to_session_bankid_freja,
     get_invitations,
@@ -160,6 +161,36 @@ def get_id_service_usage():
     """
     to_pay = current_app.extensions['doc_store'].get_signatures_global()
     return {'payload': {'orgs': to_pay}}
+
+
+@admin_edusign_views.route('/dashboard', methods=['GET'])
+def dashboard():
+    """
+    Admin dashboard: the metrics of the /sign/metrics view, a graph with the
+    number of documents created per day, and a table with the BankID and Freja
+    signatures per organization.
+    """
+    docs = current_app.extensions['doc_store'].get_documents_created()
+
+    threshold = (datetime.now() - timedelta(days=current_app.config['MAX_DOCUMENT_AGE'])).timestamp() * 1000
+    old_docs = [doc for doc in docs if doc['created'] <= threshold]
+
+    counts: defaultdict = defaultdict(int)
+    for doc in docs:
+        day = datetime.fromtimestamp(doc['created'] / 1000).date().isoformat()
+        counts[day] += 1
+
+    context = {
+        'company_link': current_app.config['COMPANY_LINK'],
+        'total_docs': len(docs),
+        'total_bytes': sum(doc['size'] for doc in docs),
+        'old_docs': len(old_docs),
+        'old_bytes': sum(doc['size'] for doc in old_docs),
+        'histogram': [{'day': day, 'count': counts[day]} for day in sorted(counts)],
+        'max_count': max(counts.values(), default=0),
+        'usage': current_app.extensions['doc_store'].get_signatures_global(),
+    }
+    return make_response(render_template('admin-dashboard.jinja2', **context))
 
 
 @admin_edusign_views.route('/migrate-to-postgres-and-s3', methods=['POST'])
@@ -379,7 +410,9 @@ def get_home_eid(invite_key: str):
     bankid_entity_id = current_app.config['BANKID_IDP']
     freja_entity_id = current_app.config['FREJA_IDP']
     login_initiator = f"{base_url}/Shibboleth.sso/Login?target=/sign/"
-    login_initiator_bankid = f"{base_url}/Shibboleth.sso/Login/BankID?target={target_bankid}&entityID={bankid_entity_id}"
+    login_initiator_bankid = (
+        f"{base_url}/Shibboleth.sso/Login/BankID?target={target_bankid}&entityID={bankid_entity_id}"
+    )
     login_initiator_freja = f"{base_url}/Shibboleth.sso/Login/Freja?target={target_freja}&entityID={freja_entity_id}"
     context = {
         'body': body,
@@ -478,7 +511,9 @@ def get_index() -> str | Response:
 
     :return: the rendered `index.jinja2` template as a string (or `error-generic.jinja2` in case of errors)
     """
-    if ('using-bankid' in session and session.get('using-bankid')) or ('using-freja' in session and session.get('using-freja')):
+    if ('using-bankid' in session and session.get('using-bankid')) or (
+        'using-freja' in session and session.get('using-freja')
+    ):
         session.clear()
         return redirect(url_for('edusign_anon.get_home'))
 
@@ -543,7 +578,7 @@ def get_index_bankid(invite_key: str) -> Union[str, Response]:
     :param invite_key: Key identifying the invitation to sign.
     :return: Rendered template with UI to start the signature process.
     """
-    if 'using-bankid' in session and  not session.get('using-bankid'):
+    if 'using-bankid' in session and not session.get('using-bankid'):
         session.clear()
 
     company_link = current_app.config['COMPANY_LINK']
@@ -574,16 +609,12 @@ def get_index_bankid(invite_key: str) -> Union[str, Response]:
     except WrongSSN:
         current_app.logger.error('The invited personnumer does not coincide with the one received from the IdP.')
         context['title'] = gettext("Unknown invitation")
-        context['message'] = gettext(
-            'Your identity does not seem to coincide with the invited identity.'
-        )
+        context['message'] = gettext('Your identity does not seem to coincide with the invited identity.')
         return render_template('error-generic.jinja2', **context)
     except current_app.extensions['doc_store'].DocumentLocked:
         current_app.logger.error('User has 2 eID invitations for the same document.')
         context['title'] = gettext("Duplicate invitation")
-        context['message'] = gettext(
-            'You seem to have loaded another invitation to sign the same document.'
-        )
+        context['message'] = gettext('You seem to have loaded another invitation to sign the same document.')
         return render_template('error-generic.jinja2', **context)
     except NonWhitelisted:
         current_app.logger.debug("Authorizing non-whitelisted user")
@@ -617,7 +648,7 @@ def get_index_freja(invite_key: str) -> Union[str, Response]:
     :param invite_key: Key identifying the invitation to sign.
     :return: Rendered template with UI to start the signature process.
     """
-    if 'using-freja' in session and  not session.get('using-freja'):
+    if 'using-freja' in session and not session.get('using-freja'):
         session.clear()
 
     company_link = current_app.config['COMPANY_LINK']
@@ -648,9 +679,7 @@ def get_index_freja(invite_key: str) -> Union[str, Response]:
     except WrongSSN:
         current_app.logger.error('The invited personnumer does not coincide with the one received from the IdP.')
         context['title'] = gettext("Unknown invitation")
-        context['message'] = gettext(
-            'Your identity does not seem to coincide with the invited identity.'
-        )
+        context['message'] = gettext('Your identity does not seem to coincide with the invited identity.')
         return render_template('error-generic.jinja2', **context)
     except NonWhitelisted:
         current_app.logger.debug("Authorizing non-whitelisted user")
@@ -1147,7 +1176,7 @@ def _ready_docs(
     api_views=[
         {"blueprint": edusign_api_views, "route": '/create-sign-request', "methods": ["POST"]},
     ],
-    authn_request=True
+    authn_request=True,
 )
 def recreate_sign_request(data: dict) -> dict:
     """
@@ -1212,7 +1241,9 @@ def recreate_sign_request(data: dict) -> dict:
     if len(new_docs) > 0:
         try:
             current_app.logger.info(f"Re-Creating signature request for user {session['eppn']}")
-            create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request(new_docs, invite_key=data['invite_key'])
+            create_data, documents_with_id = current_app.extensions['api_client'].create_sign_request(
+                new_docs, invite_key=data['invite_key']
+            )
 
         except current_app.extensions['api_client'].UnknownDocType as e:
             current_app.logger.error(f'Problem creating sign request, unsupported doc type: {e}')
@@ -1803,7 +1834,9 @@ def create_multi_sign_request(data: dict) -> dict:
         try:
             if allowbankid:
                 keys = {invite['email']: invite['key'] for invite in invites}
-                _send_invitation_mail(docname, owner, custom_text, recipients, required_loa, allowbankid=True, invite_keys=keys)
+                _send_invitation_mail(
+                    docname, owner, custom_text, recipients, required_loa, allowbankid=True, invite_keys=keys
+                )
             else:
                 _send_invitation_mail(docname, owner, custom_text, recipients, required_loa)
 
@@ -1841,7 +1874,9 @@ def _send_invitation_mail(docname, owner, custom_text, recipients, required_loa,
                         body_txt = render_template('invitation_email.txt.jinja2', **context)
                         body_html = render_template('invitation_email.html.jinja2', **context)
 
-                        messages.append((([formataddr((recipient[0], recipient[1]))], subject, body_txt, body_html), {}))
+                        messages.append(
+                            (([formataddr((recipient[0], recipient[1]))], subject, body_txt, body_html), {})
+                        )
 
                 else:
                     context = {'invited_link': invited_link_index}
@@ -2021,9 +2056,19 @@ def edit_multi_sign_request(data: dict) -> dict:
                 recipient = {current_next_invite['lang']: [(current_next_invite['name'], current_next_invite['email'])]}
                 try:
                     if allowbankid:
-                        invite_key = current_app.extensions['doc_store'].get_invitation_key(current_next_invite['email'], current_next_invite['name'], docid)
+                        invite_key = current_app.extensions['doc_store'].get_invitation_key(
+                            current_next_invite['email'], current_next_invite['name'], docid
+                        )
                         invite_keys = {current_next_invite['email']: invite_key}
-                        _send_invitation_mail(docname, owner, text, recipient, required_loa, allowbankid=allowbankid, invite_keys=invite_keys)
+                        _send_invitation_mail(
+                            docname,
+                            owner,
+                            text,
+                            recipient,
+                            required_loa,
+                            allowbankid=allowbankid,
+                            invite_keys=invite_keys,
+                        )
                     else:
                         _send_invitation_mail(docname, owner, text, recipient, required_loa)
                 except Exception as e:
@@ -2054,7 +2099,9 @@ def edit_multi_sign_request(data: dict) -> dict:
             lang = invite['lang']
             recipient = (invite['name'], invite['email'])
             recipients_added[lang].append(recipient)
-            keys[invite['email']] = current_app.extensions['doc_store'].get_invitation_key(invite['email'], invite['name'], docid)
+            keys[invite['email']] = current_app.extensions['doc_store'].get_invitation_key(
+                invite['email'], invite['name'], docid
+            )
 
         for invite in changed['removed']:
             lang = invite['lang']
@@ -2064,7 +2111,9 @@ def edit_multi_sign_request(data: dict) -> dict:
         if len(recipients_added) > 0:
             try:
                 if allowbankid:
-                    _send_invitation_mail(docname, owner, text, recipients_added, required_loa, allowbankid=allowbankid, invite_keys=keys)
+                    _send_invitation_mail(
+                        docname, owner, text, recipients_added, required_loa, allowbankid=allowbankid, invite_keys=keys
+                    )
                 else:
                     _send_invitation_mail(docname, owner, text, recipients_added, required_loa)
             except Exception as e:
