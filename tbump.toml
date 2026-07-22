@@ -25,3 +25,7 @@ search = '"version": "{current_version}"'
 [[before_commit]]
 name = "Update package-lock.json"
 cmd = "cd frontend ; npm install ; cd"
+
+[[before_commit]]
+name = "Update uv.lock"
+cmd = "cd backend ; uv lock ; cd"
