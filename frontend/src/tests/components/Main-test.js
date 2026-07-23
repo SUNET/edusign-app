@@ -5,7 +5,6 @@ import {
   setupReduxComponent,
   flushPromises,
 } from "tests/test-utils";
-import { expect } from "chai";
 
 import Main from "components/Main";
 import { addNotification } from "slices/Notifications";
@@ -39,7 +38,7 @@ describe("Main Component", function () {
 
     try {
       const splashArray = screen.getAllByTestId("edusign-splash-screen");
-      expect(splashArray.length).to.equal(1);
+      expect(splashArray.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -53,7 +52,7 @@ describe("Main Component", function () {
 
     try {
       const splash = screen.queryByTestId("edusign-splash-screen");
-      expect(splash).to.equal(null);
+      expect(splash).toEqual(null);
     } catch (err) {
       unmount();
       throw err;
@@ -72,7 +71,7 @@ describe("Main Component", function () {
       const splash = await waitFor(() =>
         screen.queryByTestId("edusign-splash-screen"),
       );
-      expect(splash).to.equal(null);
+      expect(splash).toEqual(null);
     } catch (err) {
       unmount();
       throw err;
@@ -106,13 +105,13 @@ describe("Main Component", function () {
 
     try {
       const header = screen.getAllByTestId("edusign-banner-lg");
-      expect(header.length).to.equal(1);
+      expect(header.length).toEqual(1);
 
       const eduSignLogo = screen.getAllByTestId("edusign-logo");
-      expect(eduSignLogo.length).to.equal(1);
+      expect(eduSignLogo.length).toEqual(1);
 
       const sunetLogo = screen.getAllByTestId("sunet-logo");
-      expect(sunetLogo.length).to.equal(1);
+      expect(sunetLogo.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -146,10 +145,10 @@ describe("Main Component", function () {
 
     try {
       const footer = screen.getAllByTestId("edusign-footer");
-      expect(footer.length).to.equal(1);
+      expect(footer.length).toEqual(1);
 
       const langs = screen.getAllByTestId("language-selector");
-      expect(langs.length).to.equal(1);
+      expect(langs.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -184,7 +183,7 @@ describe("Main Component", function () {
 
     try {
       const langSelectorEn = screen.getAllByText("English");
-      expect(langSelectorEn.length).to.equal(1);
+      expect(langSelectorEn.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -198,24 +197,24 @@ describe("Main Component", function () {
 
     try {
       let enText = screen.getAllByText(/Logout/);
-      expect(enText.length).to.equal(1);
+      expect(enText.length).toEqual(1);
 
       let svText = screen.queryByText(/Logga ut/);
-      expect(svText).to.equal(null);
+      expect(svText).toEqual(null);
 
       const langInput = await waitFor(() =>
         screen.getAllByTestId("language-selector"),
       );
-      expect(langInput.length).to.equal(1);
+      expect(langInput.length).toEqual(1);
 
       fireEvent.change(langInput[0], { target: { value: "sv" } });
       await flushPromises(rerender, wrapped);
 
       svText = await waitFor(() => screen.getAllByText(/Logga ut/));
-      expect(svText.length).to.equal(1);
+      expect(svText.length).toEqual(1);
 
       enText = await waitFor(() => screen.queryByText("Logout"));
-      expect(enText).to.equal(null);
+      expect(enText).toEqual(null);
     } catch (err) {
       unmount();
       throw err;
@@ -251,7 +250,7 @@ describe("Main Component", function () {
       const notificationsArea = screen.getAllByTestId(
         "edusign-notifications-area",
       );
-      expect(notificationsArea.length).to.equal(1);
+      expect(notificationsArea.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -269,7 +268,7 @@ describe("Main Component", function () {
 
     try {
       const notification = screen.getAllByText("ho ho ho");
-      expect(notification.length).to.equal(1);
+      expect(notification.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -291,7 +290,7 @@ describe("Main Component", function () {
       await flushPromises(rerender, wrapped);
 
       let notification = await waitFor(() => screen.getAllByText("ho ho ho"));
-      expect(notification.length).to.equal(1);
+      expect(notification.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -320,22 +319,22 @@ describe("Main Component", function () {
       await flushPromises(rerender, wrapped);
 
       let notification = await waitFor(() => screen.queryByText("ho ho ho"));
-      expect(notification).to.equal(null);
+      expect(notification).toEqual(null);
 
       let notification2 = await waitFor(() => screen.getAllByText("hi hi hi"));
-      expect(notification2.length).to.equal(1);
+      expect(notification2.length).toEqual(1);
 
       const closeLink = screen.getAllByRole("button", { name: /close alert/i });
-      expect(closeLink.length).to.equal(1);
+      expect(closeLink.length).toEqual(1);
 
       fireEvent.click(closeLink[0]);
       await flushPromises(rerender, wrapped);
 
       notification = await waitFor(() => screen.queryByText("ho ho ho"));
-      expect(notification).to.equal(null);
+      expect(notification).toEqual(null);
 
       notification2 = await waitFor(() => screen.queryByText("hi hi hi"));
-      expect(notification2).to.equal(null);
+      expect(notification2).toEqual(null);
     } catch (err) {
       unmount();
       throw err;

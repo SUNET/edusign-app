@@ -1,6 +1,5 @@
 import React from "react";
 import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
-import { expect } from "chai";
 import fetchMock from "fetch-mock";
 
 import {
@@ -85,7 +84,7 @@ describe("Multi sign invitations", function () {
       const button = await waitFor(() =>
         screen.getAllByText(/Invite others to sign/),
       );
-      expect(button.length).to.equal(1);
+      expect(button.length).toEqual(1);
 
       fireEvent.click(button[0]);
       await flushPromises(rerender, wrapped);
@@ -93,7 +92,7 @@ describe("Multi sign invitations", function () {
       const emailInput = await waitFor(() =>
         screen.getAllByTestId("invitees.0.email"),
       );
-      expect(emailInput.length).to.equal(1);
+      expect(emailInput.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -163,7 +162,7 @@ describe("Multi sign invitations", function () {
       const button = await waitFor(() =>
         screen.getAllByText(/Invite others to sign/),
       );
-      expect(button.length).to.equal(1);
+      expect(button.length).toEqual(1);
 
       fireEvent.click(button[0]);
       await flushPromises(rerender, wrapped);
@@ -171,7 +170,7 @@ describe("Multi sign invitations", function () {
       const buttonAdd = await waitFor(() =>
         screen.getAllByTestId("button-add-invitation"),
       );
-      expect(buttonAdd.length).to.equal(1);
+      expect(buttonAdd.length).toEqual(1);
 
       fireEvent.click(buttonAdd[0]);
       await flushPromises(rerender, wrapped);
@@ -179,22 +178,22 @@ describe("Multi sign invitations", function () {
       const emailInput1 = await waitFor(() =>
         screen.getAllByTestId("invitees.0.email"),
       );
-      expect(emailInput1.length).to.equal(1);
+      expect(emailInput1.length).toEqual(1);
 
       const emailInput2 = await waitFor(() =>
         screen.getAllByTestId("invitees.1.email"),
       );
-      expect(emailInput2.length).to.equal(1);
+      expect(emailInput2.length).toEqual(1);
 
       const nameInput1 = await waitFor(() =>
         screen.getAllByTestId("invitees.0.name"),
       );
-      expect(nameInput1.length).to.equal(1);
+      expect(nameInput1.length).toEqual(1);
 
       const nameInput2 = await waitFor(() =>
         screen.getAllByTestId("invitees.1.name"),
       );
-      expect(nameInput2.length).to.equal(1);
+      expect(nameInput2.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -268,12 +267,12 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       const filename = await waitFor(() => screen.getAllByText("testost.pdf"));
-      expect(filename.length).to.equal(1);
+      expect(filename.length).toEqual(1);
 
       const button = await waitFor(() =>
         screen.getAllByText(/Invite others to sign/),
       );
-      expect(button.length).to.equal(1);
+      expect(button.length).toEqual(1);
 
       fireEvent.click(button[0]);
       await flushPromises(rerender, wrapped);
@@ -281,7 +280,7 @@ describe("Multi sign invitations", function () {
       let emailInput = await waitFor(() =>
         screen.getAllByTestId("invitees.0.email"),
       );
-      expect(emailInput.length).to.equal(1);
+      expect(emailInput.length).toEqual(1);
 
       fireEvent.change(emailInput[0], {
         target: { value: "dummy@example.com" },
@@ -290,7 +289,7 @@ describe("Multi sign invitations", function () {
       let nameInput = await waitFor(() =>
         screen.getAllByTestId("invitees.0.name"),
       );
-      expect(nameInput.length).to.equal(1);
+      expect(nameInput.length).toEqual(1);
 
       fireEvent.change(nameInput[0], { target: { value: "Dummy Doe" } });
 
@@ -299,7 +298,7 @@ describe("Multi sign invitations", function () {
       let langInput = await waitFor(() =>
         screen.getAllByTestId("invitees.0.lang"),
       );
-      expect(langInput.length).to.equal(1);
+      expect(langInput.length).toEqual(1);
 
       fireEvent.change(langInput[0], { target: { value: "en" } });
 
@@ -308,7 +307,7 @@ describe("Multi sign invitations", function () {
       const buttonSend = await waitFor(() =>
         screen.getAllByTestId("button-send-invites-testost.pdf"),
       );
-      expect(buttonSend.length).to.equal(1);
+      expect(buttonSend.length).toEqual(1);
 
       fireEvent.click(buttonSend[0]);
       await flushPromises(rerender, wrapped);
@@ -316,10 +315,10 @@ describe("Multi sign invitations", function () {
       //const inviteWaiting = await waitFor(() =>
       //screen.getAllByText(/Waiting for signatures by/)
       //);
-      //expect(inviteWaiting.length).to.equal(1);
+      //expect(inviteWaiting.length).toEqual(1);
 
       const inviteName = await waitFor(() => screen.getAllByText(/Dummy Doe/));
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -392,12 +391,12 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       let filename = await waitFor(() => screen.getAllByText("testost.pdf"));
-      expect(filename.length).to.equal(1);
+      expect(filename.length).toEqual(1);
 
       const dropdownButton = await waitFor(() =>
         screen.getAllByText(/Other options/),
       );
-      expect(dropdownButton.length).to.equal(1);
+      expect(dropdownButton.length).toEqual(1);
 
       fireEvent.click(dropdownButton[0]);
       await flushPromises(rerender, wrapped);
@@ -405,16 +404,16 @@ describe("Multi sign invitations", function () {
       const button = await waitFor(() =>
         screen.getAllByText(/Create template/),
       );
-      expect(button.length).to.equal(1);
+      expect(button.length).toEqual(1);
 
       fireEvent.click(button[0]);
       await flushPromises(rerender, wrapped);
 
       const templates = await waitFor(() => screen.getAllByText("Templates"));
-      expect(templates.length).to.equal(1);
+      expect(templates.length).toEqual(1);
 
       filename = await waitFor(() => screen.getAllByText("testost.pdf"));
-      expect(filename.length).to.equal(1);
+      expect(filename.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -487,32 +486,32 @@ describe("Multi sign invitations", function () {
       await flushPromises(rerender, wrapped);
 
       let filename = await waitFor(() => screen.getAllByText("testost.pdf"));
-      expect(filename.length).to.equal(1);
+      expect(filename.length).toEqual(1);
 
       let dropdownButton = await waitFor(() =>
         screen.getAllByText(/Other options/),
       );
-      expect(dropdownButton.length).to.equal(1);
+      expect(dropdownButton.length).toEqual(1);
 
       fireEvent.click(dropdownButton[0]);
       await flushPromises(rerender, wrapped);
 
       let button = await waitFor(() => screen.getAllByText(/Create template/));
-      expect(button.length).to.equal(1);
+      expect(button.length).toEqual(1);
 
       fireEvent.click(button[0]);
       await flushPromises(rerender, wrapped);
 
       const templates = await waitFor(() => screen.getAllByText("Templates"));
-      expect(templates.length).to.equal(1);
+      expect(templates.length).toEqual(1);
 
       filename = await waitFor(() => screen.getAllByText("testost.pdf"));
-      expect(filename.length).to.equal(1);
+      expect(filename.length).toEqual(1);
 
       button = await waitFor(() =>
         screen.getAllByText(/Invite others to sign/),
       );
-      expect(button.length).to.equal(1);
+      expect(button.length).toEqual(1);
 
       fireEvent.click(button[0]);
       await flushPromises(rerender, wrapped);
@@ -520,7 +519,7 @@ describe("Multi sign invitations", function () {
       const emailInput = await waitFor(() =>
         screen.getAllByTestId("invitees.0.email"),
       );
-      expect(emailInput.length).to.equal(1);
+      expect(emailInput.length).toEqual(1);
 
       fireEvent.change(emailInput[0], {
         target: { value: "dummy-2@example.com" },
@@ -529,7 +528,7 @@ describe("Multi sign invitations", function () {
       const nameInput = await waitFor(() =>
         screen.getAllByTestId("invitees.0.name"),
       );
-      expect(nameInput.length).to.equal(1);
+      expect(nameInput.length).toEqual(1);
 
       fireEvent.change(nameInput[0], { target: { value: "Dummy-2 Doe" } });
 
@@ -538,7 +537,7 @@ describe("Multi sign invitations", function () {
       const langInput = await waitFor(() =>
         screen.getAllByTestId("invitees.0.lang"),
       );
-      expect(langInput.length).to.equal(1);
+      expect(langInput.length).toEqual(1);
 
       fireEvent.change(langInput[0], { target: { value: "en" } });
 
@@ -547,7 +546,7 @@ describe("Multi sign invitations", function () {
       const buttonSend = await waitFor(() =>
         screen.getAllByTestId("button-send-invites-testost.pdf"),
       );
-      expect(buttonSend.length).to.equal(1);
+      expect(buttonSend.length).toEqual(1);
 
       fireEvent.click(buttonSend[0]);
       await flushPromises(rerender, wrapped);
@@ -555,12 +554,12 @@ describe("Multi sign invitations", function () {
       const filenameCopy = await waitFor(() =>
         screen.getAllByText("testost-1.pdf"),
       );
-      expect(filenameCopy.length).to.equal(1);
+      expect(filenameCopy.length).toEqual(1);
 
       const inviteName = await waitFor(() =>
         screen.getAllByText(/Dummy-2 Doe/),
       );
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -619,17 +618,17 @@ describe("Multi sign invitations", function () {
       const inviteWaiting = await waitFor(() =>
         screen.getAllByText(/Waiting for signatures by/),
       );
-      expect(inviteWaiting.length).to.equal(1);
+      expect(inviteWaiting.length).toEqual(1);
 
       const inviteName = await waitFor(() =>
         screen.getAllByText(/Tester Invited1/),
       );
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
 
       const signedWaiting = await waitFor(() =>
         screen.queryAllByText(/Signed by/),
       );
-      expect(signedWaiting.length).to.equal(0);
+      expect(signedWaiting.length).toEqual(0);
     } catch (err) {
       unmount();
       throw err;
@@ -690,22 +689,22 @@ describe("Multi sign invitations", function () {
       const inviteWaiting = await waitFor(() =>
         screen.getAllByText(/Waiting for signatures by/),
       );
-      expect(inviteWaiting.length).to.equal(1);
+      expect(inviteWaiting.length).toEqual(1);
 
       const inviteName = await waitFor(() =>
         screen.getAllByText(/Tester Invited1/),
       );
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
 
       let resendLabel = await waitFor(() =>
         screen.queryAllByText(/Send reminders to people pending to sign/),
       );
-      expect(resendLabel.length).to.equal(0);
+      expect(resendLabel.length).toEqual(0);
 
       const dropdownButton = await waitFor(() =>
         screen.getAllByText(/Other options/),
       );
-      expect(dropdownButton.length).to.equal(1);
+      expect(dropdownButton.length).toEqual(1);
 
       fireEvent.click(dropdownButton[0]);
       await flushPromises(rerender, wrapped);
@@ -713,7 +712,7 @@ describe("Multi sign invitations", function () {
       const openResendButton = await waitFor(() =>
         screen.getAllByTestId("menu-item-open-resend-test1.pdf"),
       );
-      expect(openResendButton.length).to.equal(1);
+      expect(openResendButton.length).toEqual(1);
 
       fireEvent.click(openResendButton[0]);
       await flushPromises(rerender, wrapped);
@@ -721,12 +720,12 @@ describe("Multi sign invitations", function () {
       resendLabel = await waitFor(() =>
         screen.queryAllByText(/Send reminders to people pending to sign/),
       );
-      expect(resendLabel.length).to.equal(1);
+      expect(resendLabel.length).toEqual(1);
 
       const resendButton = await waitFor(() =>
         screen.getAllByTestId("button-resend-test1.pdf"),
       );
-      expect(resendButton.length).to.equal(1);
+      expect(resendButton.length).toEqual(1);
 
       fetchMock.post("/sign/send-multisign-reminder", {
         csrf_token: "dummy token",
@@ -740,7 +739,7 @@ describe("Multi sign invitations", function () {
       const message = await waitFor(() =>
         screen.getAllByText(/Success resending invitations to sign/),
       );
-      expect(message.length).to.equal(1);
+      expect(message.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -799,22 +798,22 @@ describe("Multi sign invitations", function () {
       const inviteWaiting = await waitFor(() =>
         screen.getAllByText(/Waiting for signatures by/),
       );
-      expect(inviteWaiting.length).to.equal(1);
+      expect(inviteWaiting.length).toEqual(1);
 
       const inviteName = await waitFor(() =>
         screen.getAllByText(/Tester Invited1/),
       );
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
 
       let resendLabel = await waitFor(() =>
         screen.queryAllByText(/Send reminders to people pending to sign/),
       );
-      expect(resendLabel.length).to.equal(0);
+      expect(resendLabel.length).toEqual(0);
 
       const dropdownButton = await waitFor(() =>
         screen.getAllByText(/Other options/),
       );
-      expect(dropdownButton.length).to.equal(1);
+      expect(dropdownButton.length).toEqual(1);
 
       fireEvent.click(dropdownButton[0]);
       await flushPromises(rerender, wrapped);
@@ -822,7 +821,7 @@ describe("Multi sign invitations", function () {
       const openResendButton = await waitFor(() =>
         screen.getAllByTestId("menu-item-open-resend-test1.pdf"),
       );
-      expect(openResendButton.length).to.equal(1);
+      expect(openResendButton.length).toEqual(1);
 
       fireEvent.click(openResendButton[0]);
       await flushPromises(rerender, wrapped);
@@ -830,17 +829,17 @@ describe("Multi sign invitations", function () {
       resendLabel = await waitFor(() =>
         screen.queryAllByText(/Send reminders to people pending to sign/),
       );
-      expect(resendLabel.length).to.equal(1);
+      expect(resendLabel.length).toEqual(1);
 
       let resendButton = await waitFor(() =>
         screen.getAllByTestId("button-resend-test1.pdf"),
       );
-      expect(resendButton.length).to.equal(1);
+      expect(resendButton.length).toEqual(1);
 
       let cancelButton = await waitFor(() =>
         screen.getAllByTestId("button-cancel-resend-test1.pdf"),
       );
-      expect(cancelButton.length).to.equal(1);
+      expect(cancelButton.length).toEqual(1);
 
       fireEvent.click(cancelButton[0]);
       await flushPromises(rerender, wrapped);
@@ -848,7 +847,7 @@ describe("Multi sign invitations", function () {
       // resendLabel = await waitFor(() =>
       //  screen.queryAllByText(/Send reminders to people pending to sign/)
       // );
-      // expect(resendLabel.length).to.equal(0);
+      // expect(resendLabel.length).toEqual(0);
     } catch (err) {
       unmount();
       throw err;
@@ -911,22 +910,22 @@ describe("Multi sign invitations", function () {
       const inviteWaiting = await waitFor(() =>
         screen.getAllByText(/Waiting for signatures by/),
       );
-      expect(inviteWaiting.length).to.equal(1);
+      expect(inviteWaiting.length).toEqual(1);
 
       const inviteName = await waitFor(() =>
         screen.getAllByText(/Tester Invited1/),
       );
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
 
       const signedWaiting = await waitFor(() =>
         screen.queryAllByText(/Signed by/),
       );
-      expect(signedWaiting.length).to.equal(0);
+      expect(signedWaiting.length).toEqual(0);
 
       const invite2Name = await waitFor(() =>
         screen.getAllByText(/Tester Invited2/),
       );
-      expect(invite2Name.length).to.equal(1);
+      expect(invite2Name.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -990,22 +989,22 @@ describe("Multi sign invitations", function () {
       const inviteWaiting = await waitFor(() =>
         screen.getAllByText(/Waiting for signatures by/),
       );
-      expect(inviteWaiting.length).to.equal(1);
+      expect(inviteWaiting.length).toEqual(1);
 
       const inviteName = await waitFor(() =>
         screen.getAllByText(/Tester Invited1/),
       );
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
 
       const signedWaiting = await waitFor(() =>
         screen.getAllByText(/Signed by/),
       );
-      expect(signedWaiting.length).to.equal(1);
+      expect(signedWaiting.length).toEqual(1);
 
       const invite2Name = await waitFor(() =>
         screen.getAllByText(/Tester Invited2/),
       );
-      expect(invite2Name.length).to.equal(1);
+      expect(invite2Name.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -1068,27 +1067,27 @@ describe("Multi sign invitations", function () {
       const inviteWaiting = await waitFor(() =>
         screen.queryAllByText(/Waiting for signatures by/),
       );
-      expect(inviteWaiting.length).to.equal(0);
+      expect(inviteWaiting.length).toEqual(0);
 
       const inviteName = await waitFor(() =>
         screen.getAllByText(/Tester Invited1/),
       );
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
 
       const signedWaiting = await waitFor(() =>
         screen.getAllByText(/Signed by/),
       );
-      expect(signedWaiting.length).to.equal(1);
+      expect(signedWaiting.length).toEqual(1);
 
       const invite2Name = await waitFor(() =>
         screen.getAllByText(/Tester Invited2/),
       );
-      expect(invite2Name.length).to.equal(1);
+      expect(invite2Name.length).toEqual(1);
 
       const signButton = await waitFor(() =>
         screen.getAllByText(/Sign selected documents/),
       );
-      expect(signButton.length).to.equal(1);
+      expect(signButton.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -1157,7 +1156,7 @@ describe("Multi sign invitations", function () {
           "button-rm-invitation-11111111-1111-1111-1111-111111111111",
         ),
       );
-      expect(rmButton.length).to.equal(1);
+      expect(rmButton.length).toEqual(1);
 
       fireEvent.click(rmButton[0]);
       await flushPromises(rerender, wrapped);
@@ -1165,7 +1164,7 @@ describe("Multi sign invitations", function () {
       const confirmButton2 = await waitFor(() =>
         screen.getAllByTestId("confirm-remove-test1.pdf-confirm-button"),
       );
-      expect(confirmButton2.length).to.equal(1);
+      expect(confirmButton2.length).toEqual(1);
 
       fireEvent.click(confirmButton2[0]);
       await flushPromises(rerender, wrapped);
@@ -1237,7 +1236,7 @@ describe("Multi sign invitations", function () {
           "button-rm-invitation-11111111-1111-1111-1111-111111111111",
         ),
       );
-      expect(rmButton.length).to.equal(1);
+      expect(rmButton.length).toEqual(1);
 
       fireEvent.click(rmButton[0]);
       await flushPromises(rerender, wrapped);
@@ -1245,7 +1244,7 @@ describe("Multi sign invitations", function () {
       const confirmButton2 = await waitFor(() =>
         screen.getAllByTestId("confirm-remove-test1.pdf-cancel-button"),
       );
-      expect(confirmButton2.length).to.equal(1);
+      expect(confirmButton2.length).toEqual(1);
 
       fireEvent.click(confirmButton2[0]);
       await flushPromises(rerender, wrapped);
@@ -1307,12 +1306,12 @@ describe("Multi sign invitations", function () {
       const signedWaiting = await waitFor(() =>
         screen.getAllByText(/Invited by/),
       );
-      expect(signedWaiting.length).to.equal(1);
+      expect(signedWaiting.length).toEqual(1);
 
       const inviteName = await waitFor(() =>
         screen.getAllByText(/Tester Inviter/),
       );
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -1378,12 +1377,12 @@ describe("Multi sign invitations", function () {
       const errorMessage = await waitFor(() =>
         screen.getAllByText(/You don't provide the required securiry level/),
       );
-      expect(errorMessage.length).to.equal(1);
+      expect(errorMessage.length).toEqual(1);
 
       const inviteName = await waitFor(() =>
         screen.getAllByText(/Tester Inviter/),
       );
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -1448,10 +1447,10 @@ describe("Multi sign invitations", function () {
       const loaLevel = await waitFor(() =>
         screen.getAllByText(/Required assurance level/),
       );
-      expect(loaLevel.length).to.equal(1);
+      expect(loaLevel.length).toEqual(1);
 
       const level = await waitFor(() => screen.getAllByText(/High/));
-      expect(level.length).to.equal(1);
+      expect(level.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -1556,7 +1555,7 @@ describe("Multi sign invitations", function () {
           "doc-selector-11111111-1111-1111-1111-111111111111",
         ),
       );
-      expect(selector.length).to.equal(1);
+      expect(selector.length).toEqual(1);
 
       fireEvent.click(selector[0]);
       await flushPromises(rerender, wrapped);
@@ -1564,7 +1563,7 @@ describe("Multi sign invitations", function () {
       const signButton = await waitFor(() =>
         screen.getAllByText(/Sign selected documents/),
       );
-      expect(signButton.length).to.equal(1);
+      expect(signButton.length).toEqual(1);
 
       fireEvent.click(signButton[0]);
       await flushPromises(rerender, wrapped);
@@ -1572,7 +1571,7 @@ describe("Multi sign invitations", function () {
       const inviteForm = await waitFor(() =>
         screen.getAllByTestId("signing-form"),
       );
-      expect(inviteForm.length).to.equal(1);
+      expect(inviteForm.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -1649,7 +1648,7 @@ describe("Multi sign invitations", function () {
       const skipButton = await waitFor(() =>
         screen.getAllByText(/Skip Signature/),
       );
-      expect(skipButton.length).to.equal(1);
+      expect(skipButton.length).toEqual(1);
 
       fireEvent.click(skipButton[0]);
       await flushPromises(rerender, wrapped);
@@ -1657,7 +1656,7 @@ describe("Multi sign invitations", function () {
       const dlButton = await waitFor(() =>
         screen.getAllByTestId("button-download-signed-test1.pdf"),
       );
-      expect(dlButton.length).to.equal(1);
+      expect(dlButton.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -1721,17 +1720,17 @@ describe("Multi sign invitations", function () {
       const signedWaiting = await waitFor(() =>
         screen.getAllByText(/Waiting for signatures by/),
       );
-      expect(signedWaiting.length).to.equal(1);
+      expect(signedWaiting.length).toEqual(1);
 
       const inviteName = await waitFor(() =>
         screen.getAllByText(/Tester Invited1/),
       );
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
 
       const inviteEmail = await waitFor(() =>
         screen.getAllByText(/invited1@example.org/),
       );
-      expect(inviteEmail.length).to.equal(1);
+      expect(inviteEmail.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -1795,17 +1794,17 @@ describe("Multi sign invitations", function () {
       const signedWaiting = await waitFor(() =>
         screen.getAllByText(/Signed by/),
       );
-      expect(signedWaiting.length).to.equal(1);
+      expect(signedWaiting.length).toEqual(1);
 
       const inviteName = await waitFor(() =>
         screen.getAllByText(/Tester Invited1/),
       );
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
 
       const inviteEmail = await waitFor(() =>
         screen.getAllByText(/invited1@example.org/),
       );
-      expect(inviteEmail.length).to.equal(1);
+      expect(inviteEmail.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -1874,32 +1873,32 @@ describe("Multi sign invitations", function () {
       const signedWaiting = await waitFor(() =>
         screen.getAllByText(/Signed by/),
       );
-      expect(signedWaiting.length).to.equal(1);
+      expect(signedWaiting.length).toEqual(1);
 
       const inviteName = await waitFor(() =>
         screen.getAllByText(/Tester Signed/),
       );
-      expect(inviteName.length).to.equal(1);
+      expect(inviteName.length).toEqual(1);
 
       const inviteEmail = await waitFor(() =>
         screen.getAllByText(/invited1@example.org/),
       );
-      expect(inviteEmail.length).to.equal(1);
+      expect(inviteEmail.length).toEqual(1);
 
       const signedWaiting2 = await waitFor(() =>
         screen.getAllByText(/Waiting for signatures by/),
       );
-      expect(signedWaiting2.length).to.equal(1);
+      expect(signedWaiting2.length).toEqual(1);
 
       const inviteName2 = await waitFor(() =>
         screen.getAllByText(/Tester Pending/),
       );
-      expect(inviteName2.length).to.equal(1);
+      expect(inviteName2.length).toEqual(1);
 
       const inviteEmail2 = await waitFor(() =>
         screen.getAllByText(/invited2@example.org/),
       );
-      expect(inviteEmail2.length).to.equal(1);
+      expect(inviteEmail2.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;

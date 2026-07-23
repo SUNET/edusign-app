@@ -1,5 +1,7 @@
 module.exports = function(api) {
-  api.cache(false);
+  // The config only depends on NODE_ENV; declaring that (instead of
+  // api.cache(false)) lets babel-jest cache transforms between test runs.
+  api.cache.using(() => process.env.NODE_ENV);
   const presets = ["@babel/preset-env", "@babel/preset-react"];
   const plugins = [
     [

@@ -1,11 +1,7 @@
 import React from "react";
 import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
-import { expect } from "chai";
 import fetchMock from "fetch-mock";
 import { FileSaver } from "slices/Documents";
-import sinon from "sinon";
-//const referee = require("@sinonjs/referee");
-//const assert = referee.assert;
 
 import {
   setupReduxComponent,
@@ -36,14 +32,14 @@ const logorder = () => {
 
 describe("Document representations", function () {
   beforeEach(async () => {
-    sinon.spy(FileSaver, "saveAs");
+    jest.spyOn(FileSaver, "saveAs").mockImplementation(() => {});
     await resetDb();
   });
 
   afterEach(() => {
     cleanup();
     fetchMock.restore();
-    sinon.restore();
+    jest.restoreAllMocks();
   });
 
   it("It shows the document after createDocument action", async () => {
@@ -615,13 +611,13 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     let filename = screen.queryByText(/test.pdf/i);
-    expect(filename).to.equal(null);
+    expect(filename).toEqual(null);
 
     let buttonPreview = screen.queryByTestId("button-forced-preview-dummy-ref");
-    expect(buttonPreview).to.equal(null);
+    expect(buttonPreview).toEqual(null);
 
     let buttonRemove = screen.queryByTestId("button-forced-preview-dummy-ref");
-    expect(buttonRemove).to.equal(null);
+    expect(buttonRemove).toEqual(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -649,17 +645,17 @@ const showsTheDocumentAfterCreateDocumentAction = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     filename = await waitFor(() => screen.getAllByText(/test.pdf/i));
-    expect(filename.length).to.equal(1);
+    expect(filename.length).toEqual(1);
 
     buttonPreview = await waitFor(() =>
       screen.getAllByTestId("button-forced-preview-dummy-ref"),
     );
-    expect(buttonPreview.length).to.equal(1);
+    expect(buttonPreview.length).toEqual(1);
 
     buttonRemove = await waitFor(() =>
       screen.getAllByTestId("button-rm-invitation-dummy-ref"),
     );
-    expect(buttonRemove.length).to.equal(1);
+    expect(buttonRemove.length).toEqual(1);
   } catch (err) {
     unmount();
     throw err;
@@ -680,7 +676,7 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
       let warning = screen.queryByText(
         /Please do not supply a password protected document/,
       );
-      expect(warning).to.equal(null);
+      expect(warning).toEqual(null);
 
       const fileObj = await new File(
         [samplePasswordPDFData],
@@ -705,8 +701,8 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
         store.getState(),
       );
 
-      expect(doc.state).to.equal("failed-loading");
-      expect(doc.message).to.equal(
+      expect(doc.state).toEqual("failed-loading");
+      expect(doc.message).toEqual(
         "Please do not supply a password protected document",
       );
 
@@ -746,7 +742,7 @@ const showsAWarningAfterCreateDocumentActionWithAPasswordProtectedDocument =
       //     /Please do not supply a password protected document/i
       //   )
       // );
-      // expect(warning.length).to.equal(1);
+      // expect(warning.length).toEqual(1);
     } catch (err) {
       unmount();
       throw err;
@@ -764,13 +760,13 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     let filename = screen.queryByText(/test.pdf/i);
-    expect(filename).to.equal(null);
+    expect(filename).toEqual(null);
 
     let buttonPreview = screen.queryByTestId("button-preview-dummy-ref");
-    expect(buttonPreview).to.equal(null);
+    expect(buttonPreview).toEqual(null);
 
     let buttonRemove = screen.queryByTestId("button-forced-preview-test.pdf");
-    expect(buttonRemove).to.equal(null);
+    expect(buttonRemove).toEqual(null);
 
     let file = {
       name: "test.pdf",
@@ -788,8 +784,8 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
       store.getState(),
     );
 
-    expect(doc.state).to.equal("failed-loading");
-    expect(doc.message).to.equal("Document is unreadable");
+    expect(doc.state).toEqual("failed-loading");
+    expect(doc.message).toEqual("Document is unreadable");
 
     // there is a bug in the stesting framework where Promise.catch clears the redux store
     // uncomment the test below when fixed
@@ -826,10 +822,10 @@ const showsFailedLoadingAfterCreateDocumentWithBadPdf = async (payload) => {
     // buttonRemove = await waitFor(() =>
     //   screen.getAllByTestId("button-rm-invitation-test.pdf")
     // );
-    // expect(buttonRemove.length).to.equal(1);
+    // expect(buttonRemove.length).toEqual(1);
     //
     // buttonRemove = await waitFor(() => screen.getAllByText(/Malformed PDF/i));
-    // expect(buttonRemove.length).to.equal(1);
+    // expect(buttonRemove.length).toEqual(1);
   } catch (err) {
     unmount();
     throw err;
@@ -849,13 +845,13 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
     await flushPromises(rerender, wrapped);
 
     let filename = screen.queryByText("test.pdf");
-    expect(filename).to.equal(null);
+    expect(filename).toEqual(null);
 
     let buttonRetry = screen.queryByTestId("button-retry-test.pdf");
-    expect(buttonRetry).to.equal(null);
+    expect(buttonRetry).toEqual(null);
 
     let buttonRemove = screen.queryByTestId("button-rm-invitation-dummy-ref");
-    expect(buttonRemove).to.equal(null);
+    expect(buttonRemove).toEqual(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -882,12 +878,12 @@ const showsTheFailedDocumentAfterWrongCreateDocumentAction = async (
     buttonRetry = await waitFor(() =>
       screen.getAllByTestId("button-retry-test.pdf"),
     );
-    expect(buttonRetry.length).to.equal(1);
+    expect(buttonRetry.length).toEqual(1);
 
     buttonRemove = await waitFor(() =>
       screen.getAllByTestId("button-rm-invitation-dummy-ref"),
     );
-    expect(buttonRemove.length).to.equal(1);
+    expect(buttonRemove.length).toEqual(1);
   } catch (err) {
     unmount();
     throw err;
@@ -905,7 +901,7 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     let rmButton = screen.queryByTestId("button-forced-preview-test.pdf");
-    expect(rmButton).to.equal(null);
+    expect(rmButton).toEqual(null);
 
     const fileObj = new File([samplePDFData], "test.pdf", {
       type: "application/pdf",
@@ -935,32 +931,32 @@ const hidesTheFileDetailsAfterClickingOnTheRemoveButton = async (payload) => {
     rmButton = await waitFor(() =>
       screen.getAllByTestId("button-rm-invitation-dummy-ref"),
     );
-    expect(rmButton.length).to.equal(1);
+    expect(rmButton.length).toEqual(1);
 
     fireEvent.click(rmButton[0]);
     await flushPromises(rerender, wrapped);
 
     // XXX very weirdly, these lines below hang the tests
     // const filename = await waitFor(() => screen.queryByText("test.pdf"));
-    // expect(filename).to.equal(null);
+    // expect(filename).toEqual(null);
     //
     // const filesize = await waitFor(() => screen.queryByText("1.5 KiB"));
-    // expect(filesize).to.equal(null);
+    // expect(filesize).toEqual(null);
 
     const previewButton = await waitFor(() =>
       screen.queryByTestId("button-preview-dummy-ref"),
     );
-    expect(previewButton).to.equal(null);
+    expect(previewButton).toEqual(null);
 
     const downloadButton = await waitFor(() =>
       screen.queryByTestId("button-dlsigned-dummy-ref"),
     );
-    expect(downloadButton).to.equal(null);
+    expect(downloadButton).toEqual(null);
 
     rmButton = await waitFor(() =>
       screen.queryByText("button-rm-invitation-dummy-ref"),
     );
-    expect(rmButton).to.equal(null);
+    expect(rmButton).toEqual(null);
   } catch (err) {
     unmount();
     throw err;
@@ -1017,7 +1013,7 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     let pdf = await waitFor(() => screen.queryByText(/Sample PDF for testing/));
-    expect(pdf).to.equal(null);
+    expect(pdf).toEqual(null);
 
     store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
     await flushPromises(rerender, wrapped);
@@ -1025,7 +1021,7 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     const dropdownButton = await waitFor(() =>
       screen.getAllByText(/Other options/),
     );
-    expect(dropdownButton.length).to.equal(1);
+    expect(dropdownButton.length).toEqual(1);
 
     fireEvent.click(dropdownButton[0]);
     await flushPromises(rerender, wrapped);
@@ -1033,7 +1029,7 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     const previewButton = await waitFor(() =>
       screen.getAllByTestId("menu-item-preview-dummy-ref"),
     );
-    expect(previewButton.length).to.equal(1);
+    expect(previewButton.length).toEqual(1);
 
     fireEvent.click(previewButton[0]);
     await flushPromises(rerender, wrapped);
@@ -1041,27 +1037,27 @@ const showsThePreviewAfterClickingOnThePreviewButton = async (payload) => {
     const fstButton = await waitFor(() =>
       screen.getAllByTestId("preview-button-first-0"),
     );
-    expect(fstButton.length).to.equal(1);
+    expect(fstButton.length).toEqual(1);
 
     const prevButton = await waitFor(() =>
       screen.getAllByTestId("preview-button-prev-0"),
     );
-    expect(prevButton.length).to.equal(1);
+    expect(prevButton.length).toEqual(1);
 
     const nextButton = await waitFor(() =>
       screen.getAllByTestId("preview-button-next-0"),
     );
-    expect(nextButton.length).to.equal(1);
+    expect(nextButton.length).toEqual(1);
 
     const lastButton = await waitFor(() =>
       screen.getAllByTestId("preview-button-last-0"),
     );
-    expect(lastButton.length).to.equal(1);
+    expect(lastButton.length).toEqual(1);
 
     const closeButton = await waitFor(() =>
       screen.getAllByTestId("preview-button-close-test.pdf"),
     );
-    expect(closeButton.length).to.equal(1);
+    expect(closeButton.length).toEqual(1);
   } catch (err) {
     unmount();
     throw err;
@@ -1108,10 +1104,10 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     await flushPromises(rerender, wrapped);
 
     let pdf = await waitFor(() => screen.queryByText(/Test page 1/));
-    expect(pdf).to.equal(null);
+    expect(pdf).toEqual(null);
 
     let pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
-    expect(pdf2).to.equal(null);
+    expect(pdf2).toEqual(null);
 
     store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
     await flushPromises(rerender, wrapped);
@@ -1119,7 +1115,7 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     const dropdownButton = await waitFor(() =>
       screen.getAllByText(/Other options/),
     );
-    expect(dropdownButton.length).to.equal(1);
+    expect(dropdownButton.length).toEqual(1);
 
     fireEvent.click(dropdownButton[0]);
     await flushPromises(rerender, wrapped);
@@ -1127,44 +1123,44 @@ const changesPagesOfThePreviewWithTheNextAndPrevButtons = async (
     const previewButton = await waitFor(() =>
       screen.getAllByTestId("menu-item-preview-dummy-ref"),
     );
-    expect(previewButton.length).to.equal(1);
+    expect(previewButton.length).toEqual(1);
 
     fireEvent.click(previewButton[0]);
     await flushPromises(rerender, wrapped);
 
     pdf = await waitFor(() => screen.getAllByText(/Test page 1/));
-    expect(pdf.length).to.equal(1);
+    expect(pdf.length).toEqual(1);
 
     pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
-    expect(pdf2).to.equal(null);
+    expect(pdf2).toEqual(null);
 
     const nextButton = await waitFor(() =>
       screen.getAllByTestId("preview-button-" + lst + "-0"),
     );
-    expect(nextButton.length).to.equal(1);
+    expect(nextButton.length).toEqual(1);
 
     fireEvent.click(nextButton[0]);
     await flushPromises(rerender, wrapped);
 
     pdf = await waitFor(() => screen.queryByText(/Test page 1/i));
-    expect(pdf).to.equal(null);
+    expect(pdf).toEqual(null);
 
     pdf2 = await waitFor(() => screen.getAllByText(/Test page 2/));
-    expect(pdf2.length).to.equal(1);
+    expect(pdf2.length).toEqual(1);
 
     const prevButton = await waitFor(() =>
       screen.getAllByTestId("preview-button-" + fst + "-0"),
     );
-    expect(prevButton.length).to.equal(1);
+    expect(prevButton.length).toEqual(1);
 
     fireEvent.click(prevButton[0]);
     await flushPromises(rerender, wrapped);
 
     pdf = await waitFor(() => screen.getAllByText(/Test page 1/));
-    expect(pdf.length).to.equal(1);
+    expect(pdf.length).toEqual(1);
 
     pdf2 = await waitFor(() => screen.queryByText(/Test page 2/));
-    expect(pdf2).to.equal(null);
+    expect(pdf2).toEqual(null);
   } catch (err) {
     unmount();
     throw err;
@@ -1221,7 +1217,7 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     await flushPromises(rerender, wrapped);
 
     let pdf = await waitFor(() => screen.queryByText(/Sample PDF for testing/));
-    expect(pdf).to.equal(null);
+    expect(pdf).toEqual(null);
 
     store.dispatch(setState({ name: "test.pdf", state: "loaded" }));
     await flushPromises(rerender, wrapped);
@@ -1229,7 +1225,7 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     const dropdownButton = await waitFor(() =>
       screen.getAllByText(/Other options/),
     );
-    expect(dropdownButton.length).to.equal(1);
+    expect(dropdownButton.length).toEqual(1);
 
     fireEvent.click(dropdownButton[0]);
     await flushPromises(rerender, wrapped);
@@ -1237,7 +1233,7 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     const previewButton = await waitFor(() =>
       screen.getAllByTestId("menu-item-preview-dummy-ref"),
     );
-    expect(previewButton.length).to.equal(1);
+    expect(previewButton.length).toEqual(1);
 
     fireEvent.click(previewButton[0]);
     await flushPromises(rerender, wrapped);
@@ -1245,18 +1241,20 @@ const hidesThePreviewAfterClickingOnTheCloseButton = async (payload) => {
     let nextButton = await waitFor(() =>
       screen.getAllByTestId("preview-button-next-0"),
     );
-    expect(nextButton.length).to.equal(1);
+    expect(nextButton.length).toEqual(1);
 
     const closeButton = await waitFor(() =>
       screen.getAllByTestId("preview-button-close-test.pdf"),
     );
-    expect(closeButton.length).to.equal(1);
+    expect(closeButton.length).toEqual(1);
 
     fireEvent.click(closeButton[0]);
     await flushPromises(rerender, wrapped);
 
-    pdf = await waitFor(() => screen.queryByText(/Sample PDF for testing/));
-    expect(pdf).to.equal(null);
+    // the preview modal goes away asynchronously (bootstrap fade transition)
+    await waitFor(() =>
+      expect(screen.queryByText(/Sample PDF for testing/)).toEqual(null),
+    );
   } catch (err) {
     unmount();
     throw err;
@@ -1321,12 +1319,12 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     const selector = await waitFor(() =>
       screen.getAllByTestId("doc-selector-dummy-ref"),
     );
-    expect(selector.length).to.equal(1);
+    expect(selector.length).toEqual(1);
 
     const signButton = await waitFor(() =>
       screen.getAllByText("Sign selected documents"),
     );
-    expect(signButton.length).to.equal(1);
+    expect(signButton.length).toEqual(1);
 
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
@@ -1334,7 +1332,7 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     const spinner = await waitFor(() =>
       screen.getAllByTestId("little-spinner-test.pdf"),
     );
-    expect(spinner.length).to.equal(1);
+    expect(spinner.length).toEqual(1);
   } catch (err) {
     unmount();
     throw err;
@@ -1390,12 +1388,12 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     const selector = await waitFor(() =>
       screen.getAllByTestId("doc-selector-dummy-ref"),
     );
-    expect(selector.length).to.equal(1);
+    expect(selector.length).toEqual(1);
 
     const signButton = await waitFor(() =>
       screen.getAllByText("Sign selected documents"),
     );
-    expect(signButton.length).to.equal(1);
+    expect(signButton.length).toEqual(1);
 
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
@@ -1403,7 +1401,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     const text = await waitFor(() =>
       screen.getAllByText("There was a problem signing the document"),
     );
-    expect(text.length).to.equal(1);
+    expect(text.length).toEqual(1);
   } catch (err) {
     unmount();
     throw err;
@@ -1469,12 +1467,12 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     const selector = await waitFor(() =>
       screen.getAllByTestId("doc-selector-dummy-ref"),
     );
-    expect(selector.length).to.equal(1);
+    expect(selector.length).toEqual(1);
 
     const signButton = await waitFor(() =>
       screen.getAllByText("Sign selected documents"),
     );
-    expect(signButton.length).to.equal(1);
+    expect(signButton.length).toEqual(1);
 
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
@@ -1482,7 +1480,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     const spinner = await waitFor(() =>
       screen.getAllByTestId("little-spinner-test.pdf"),
     );
-    expect(spinner.length).to.equal(1);
+    expect(spinner.length).toEqual(1);
   } catch (err) {
     unmount();
     throw err;
@@ -1542,12 +1540,12 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     const selector = await waitFor(() =>
       screen.getAllByTestId("doc-selector-dummy-ref"),
     );
-    expect(selector.length).to.equal(1);
+    expect(selector.length).toEqual(1);
 
     const signButton = await waitFor(() =>
       screen.getAllByText("Sign selected documents"),
     );
-    expect(signButton.length).to.equal(1);
+    expect(signButton.length).toEqual(1);
 
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
@@ -1555,7 +1553,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     const text = await waitFor(() =>
       screen.getAllByText("There was a problem signing the document"),
     );
-    expect(text.length).to.equal(1);
+    expect(text.length).toEqual(1);
   } catch (err) {
     unmount();
     throw err;
@@ -1630,12 +1628,12 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     const selector = await waitFor(() =>
       screen.getAllByTestId("doc-selector-dummy-key"),
     );
-    expect(selector.length).to.equal(1);
+    expect(selector.length).toEqual(1);
 
     const signButton = await waitFor(() =>
       screen.getAllByText("Sign selected documents"),
     );
-    expect(signButton.length).to.equal(1);
+    expect(signButton.length).toEqual(1);
 
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
@@ -1657,7 +1655,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     const buttonSigned = await waitFor(() =>
       screen.getAllByTestId("button-download-signed-test.pdf"),
     );
-    expect(buttonSigned.length).to.equal(1);
+    expect(buttonSigned.length).toEqual(1);
   } catch (err) {
     unmount();
     throw err;
@@ -1720,12 +1718,12 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     const selector = await waitFor(() =>
       screen.getAllByTestId("doc-selector-dummy-ref"),
     );
-    expect(selector.length).to.equal(1);
+    expect(selector.length).toEqual(1);
 
     const signButton = await waitFor(() =>
       screen.getAllByText("Sign selected documents"),
     );
-    expect(signButton.length).to.equal(1);
+    expect(signButton.length).toEqual(1);
 
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
@@ -1747,17 +1745,17 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     const buttonDropdown = await waitFor(() =>
       screen.getAllByText(/Other options/),
     );
-    expect(buttonDropdown.length).to.equal(1);
+    expect(buttonDropdown.length).toEqual(1);
 
     const buttonRemove = await waitFor(() =>
       screen.getAllByTestId("button-rm-invitation-dummy-ref"),
     );
-    expect(buttonRemove.length).to.equal(1);
+    expect(buttonRemove.length).toEqual(1);
 
     const errorMsg = await waitFor(() =>
       screen.getAllByText(/Problem getting signed documents/i),
     );
-    expect(errorMsg.length).to.equal(1);
+    expect(errorMsg.length).toEqual(1);
   } catch (err) {
     unmount();
     throw err;
@@ -1844,7 +1842,7 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
     const buttonDlAll = await waitFor(() =>
       screen.getAllByTestId("button-dlall"),
     );
-    expect(buttonDlAll.length).to.equal(1);
+    expect(buttonDlAll.length).toEqual(1);
 
     fireEvent.click(buttonDlAll[0]);
     await flushPromises(rerender, wrapped);
@@ -1852,8 +1850,8 @@ const downloadsZIPAfterGettingTheSignedDocs = async (payload) => {
     // The downloadAllSigned async thunk is being interrupted before finishing,
     // I do not understand why.
     //
-    //expect(FileSaver.saveAs.called).to.equal(true);
-    //expect(FileSaver.saveAs.getCall(0).args[1]).to.equal("signed.zip");
+    //expect(FileSaver.saveAs.called).toEqual(true);
+    //expect(FileSaver.saveAs.getCall(0).args[1]).toEqual("signed.zip");
   } catch (err) {
     unmount();
     throw err;
