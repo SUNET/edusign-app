@@ -32,8 +32,10 @@ module.exports = {
     DELAY_SHOW_HELP: edusignConfig.DELAY_SHOW_HELP,
     DELAY_HIDE_HELP: edusignConfig.DELAY_HIDE_HELP,
   },
-  // matches the mocha client timeout in the old karma setup
-  testTimeout: 10000,
+  // the old karma setup used 10s; the first PDF parse in a suite can exceed
+  // that under jsdom's fake pdfjs worker when suites run in parallel on a
+  // loaded machine
+  testTimeout: 30000,
   collectCoverageFrom: [
     "src/**/*.js",
     "!src/tests/**",
