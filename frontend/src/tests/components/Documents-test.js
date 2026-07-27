@@ -1398,10 +1398,12 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
 
+    // the message shows up twice: as a notification, and as the failed
+    // document's status message
     const text = await waitFor(() =>
       screen.getAllByText("There was a problem signing the document"),
     );
-    expect(text.length).toEqual(1);
+    expect(text.length).toEqual(2);
   } catch (err) {
     unmount();
     throw err;
@@ -1550,10 +1552,12 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     fireEvent.click(signButton[0]);
     await flushPromises(rerender, wrapped);
 
+    // the message shows up twice: as a notification, and as the failed
+    // document's status message
     const text = await waitFor(() =>
       screen.getAllByText("There was a problem signing the document"),
     );
-    expect(text.length).toEqual(1);
+    expect(text.length).toEqual(2);
   } catch (err) {
     unmount();
     throw err;
