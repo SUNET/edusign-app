@@ -1,6 +1,6 @@
 import React from "react";
 import { Provider, updateIntl } from "react-intl-redux";
-import { render, fireEvent, waitFor } from "@testing-library/react";
+import { render, fireEvent, waitFor, act } from "@testing-library/react";
 import configureStore from "redux-mock-store";
 import rootReducer from "init-app/store";
 import { edusignStore } from "init-app/init-app";
@@ -106,6 +106,40 @@ export function setupComponent(component, stateOverrides) {
 }
 
 /**
+ * @private
+ * @function actWrappedStore
+ * @desc Return a copy of the store whose dispatch runs inside act(), for use
+ * at test level; the rendered components keep the store's plain dispatch.
+ *
+ * The synchronous part of the dispatch runs in a synchronous act. For a
+ * dispatched thunk, awaiting the returned promise must also happen inside
+ * act; the returned thenable only enters act when it is awaited, because an
+ * async act started here would overlap with the act around the test's next
+ * awaited call (waitFor, flushPromises) whenever the test does not await
+ * the dispatch. Updates from unawaited thunks land in those later acts.
+ */
+const actWrappedStore = (store) => {
+  const dispatch = (action) => {
+    let result;
+    act(() => {
+      result = store.dispatch(action);
+    });
+    if (result && typeof result.then === "function") {
+      return {
+        then: (onFulfilled, onRejected) => {
+          let value;
+          return act(async () => {
+            value = await result;
+          }).then(() => (onFulfilled ? onFulfilled(value) : value), onRejected);
+        },
+      };
+    }
+    return result;
+  };
+  return { ...store, dispatch };
+};
+
+/**
  * @public
  * @function setupReduxComponent
  * @desc Render a component for testing, providing it with a real Redux store.
@@ -120,7 +154,7 @@ export function setupReduxComponent(component) {
   );
   const wrapped = <Provider store={store}>{component}</Provider>;
   const { rerender, unmount } = render(wrapped);
-  return { wrapped, rerender, store, unmount };
+  return { wrapped, rerender, store: actWrappedStore(store), unmount };
 }
 
 export function setupReduxComponentFake(component, stateOverrides) {

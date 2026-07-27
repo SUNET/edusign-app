@@ -45,6 +45,8 @@ const blobToBytes = (blob) =>
     reader.readAsArrayBuffer(blob);
   });
 
+// verbosity 0 (errors only): the sample PDFs make pdfjs log warnings like
+// "Indexing all PDF objects", which clutter the test output.
 const getDocument = (src) => {
   if (
     src !== null &&
@@ -53,7 +55,14 @@ const getDocument = (src) => {
     src.url.startsWith("data:")
   ) {
     const { url, ...rest } = src;
-    return realPdfjs.getDocument({ ...rest, data: decodeDataUrl(url) });
+    return realPdfjs.getDocument({
+      verbosity: 0,
+      ...rest,
+      data: decodeDataUrl(url),
+    });
+  }
+  if (src !== null && typeof src === "object" && !ArrayBuffer.isView(src)) {
+    return realPdfjs.getDocument({ verbosity: 0, ...src });
   }
   return realPdfjs.getDocument(src);
 };
