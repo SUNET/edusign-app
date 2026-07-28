@@ -30,6 +30,7 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
+import uuid
 from base64 import b64decode, b64encode
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
@@ -54,11 +55,13 @@ from edusign_webapp.utils import (
     compose_message,
     fix_recipients,
     get_authn_context,
+    get_invitations,
     get_previous_signatures,
     get_previous_signatures_xml,
     get_required_assurance,
     is_whitelisted,
     is_whitelisted_for_bankid,
+    prepare_document,
     pretty_print_any,
     pretty_print_xml,
     sendmail,
@@ -162,6 +165,41 @@ def test_add_attributes_to_session_missing_display_name(app):
             add_attributes_to_session()
 
 
+def test_add_attributes_to_session_missing_mail(app):
+    _, app = app
+    environ = deepcopy(_environ_base)
+    del environ['HTTP_MAIL_20']
+    with app.test_request_context(environ_base=environ):
+        with pytest.raises(KeyError):
+            add_attributes_to_session()
+
+
+def test_add_attributes_to_session_no_org_name(app):
+    _, app = app
+    environ = deepcopy(_environ_base)
+    del environ['HTTP_MD_ORGANIZATIONNAME']
+    del environ['HTTP_MD_REGISTRATIONAUTHORITY']
+    with app.test_request_context(environ_base=environ):
+        add_attributes_to_session()
+
+        assert session['organizationName'] is None
+        assert session['registrationAuthority'] is None
+
+
+def test_add_attributes_to_session_extra_signer_attribute(app):
+    _, app = app
+    app.config['SIGNER_ATTRIBUTES_20'] = {
+        'urn:oid:2.16.840.1.113730.3.1.241': 'displayName',
+        'urn:oid:2.5.4.42': 'givenName',
+    }
+    environ = deepcopy(_environ_base)
+    environ['HTTP_GIVENNAME_20'] = b64encode('<Attribute>Tëster</Attribute>'.encode('utf-8')).decode('ascii')
+    with app.test_request_context(environ_base=environ):
+        add_attributes_to_session()
+
+        assert session['givenName'] == 'Tëster'
+
+
 def test_add_attributes_to_session_non_whitelisted(app):
     _, app = app
     environ = deepcopy(_environ_base)
@@ -231,6 +269,153 @@ def test_add_attributes_to_session_bankid_missing_ssn(doc_store_local_sqlite, sa
             add_attributes_to_session_bankid_freja(invite_key, 'bankid')
 
 
+def test_add_attributes_to_session_bankid_existing_session(app):
+    _, app = app
+    with app.test_request_context():
+        session['eppn'] = 'dummy-eppn@example.org'
+        # with an eppn already in the session this is a no-op
+        add_attributes_to_session_bankid_freja('irrelevant-key', 'bankid')
+        assert 'using-bankid' not in session
+
+
+def test_prepare_document_non_pdf(app):
+    _, app = app
+    with app.test_request_context():
+        assert prepare_document({'type': 'text/xml'}) == {}
+
+
+def _session_for_owner(owner):
+    session['eppn'] = owner['eppn']
+    session['mail'] = owner['email']
+    session['mail_aliases'] = [owner['email']]
+    session['using-bankid'] = False
+    session['using-freja'] = False
+
+
+def test_get_invitations_no_mail_aliases(app, sample_owner_1):
+    tempdir, app = app
+    with app.test_request_context():
+        _session_for_owner(sample_owner_1)
+        del session['mail_aliases']
+        invitations = get_invitations()
+
+        assert invitations['owned_multisign'] == []
+        assert invitations['pending_multisign'] == []
+        assert invitations['skipped'] == []
+        # config_dev/config_pro have POLLING 'always'
+        assert invitations['poll']
+
+
+def test_get_invitations_polling_config(app, sample_owner_1):
+    tempdir, app = app
+    with app.test_request_context():
+        _session_for_owner(sample_owner_1)
+
+        app.config['POLLING'] = 'never'
+        assert not get_invitations()['poll']
+
+        # neither 'never' nor 'always': poll reflects pending signatures
+        app.config['POLLING'] = 'auto'
+        assert not get_invitations()['poll']
+
+
+def test_get_invitations_bankid_standing(app, sample_doc_1, sample_owner_1):
+    tempdir, app = app
+    invites = [{'name': 'invite0', 'email': 'invite0@example.org', 'ssn': '', 'lang': 'en'}]
+    with app.app_context():
+        invitations = app.extensions['doc_store'].add_document(
+            sample_doc_1, sample_owner_1, invites, *invitation_flags
+        )
+    invite_key = invitations[0]['key']
+
+    with app.test_request_context():
+        session['eppn'] = '8112189876'
+        session['mail'] = 'invite0@example.org'
+        session['using-bankid'] = True
+        session['using-freja'] = False
+        result = get_invitations(invite_key=invite_key)
+
+        assert len(result['pending_multisign']) == 1
+        assert result['pending_multisign'][0]['name'] == sample_doc_1['name']
+        assert session['mail_aliases'] == ['invite0@example.org']
+
+
+def test_get_invitations_bankid_not_standing(app, sample_owner_1):
+    tempdir, app = app
+    with app.test_request_context():
+        session['eppn'] = '8112189876'
+        session['mail'] = 'invite0@example.org'
+        session['using-bankid'] = True
+        session['using-freja'] = False
+        result = get_invitations(invite_key=str(uuid.uuid4()))
+
+        assert result['pending_multisign'] == []
+
+
+def test_get_invitations_skipfinal_finished(app, sample_doc_1, sample_owner_1):
+    tempdir, app = app
+    flags = deepcopy(invitation_flags)
+    flags[2] = True  # skipfinal
+    with app.app_context():
+        app.extensions['doc_store'].add_document(sample_doc_1, sample_owner_1, [], *flags)
+
+    with app.test_request_context():
+        _session_for_owner(sample_owner_1)
+
+        # without remove_finished the doc is reported skipped but kept
+        result = get_invitations()
+        assert result['owned_multisign'] == []
+        assert len(result['skipped']) == 1
+
+        result = get_invitations(remove_finished=True)
+
+        # no pending invitations and skipfinal: the doc is finished
+        assert result['owned_multisign'] == []
+        assert len(result['skipped']) == 1
+        assert result['skipped'][0]['name'] == sample_doc_1['name']
+
+        # remove_finished removed it from the store
+        result = get_invitations()
+        assert result['skipped'] == []
+
+
+class _FakeReader:
+    embedded_regular_signatures = []
+
+    def __init__(self, pdf):
+        pass
+
+
+def test_get_previous_signatures_mocked_signature(app, sample_pdf_data):
+    _, app = app
+    sig = mock.MagicMock()
+    sig.signer_cert.subject.human_friendly = 'CN=Test Signer'
+    with mock.patch('edusign_webapp.utils.PdfFileReader', _FakeReader):
+        with mock.patch.object(_FakeReader, 'embedded_regular_signatures', [sig]):
+            with app.test_request_context():
+                result = get_previous_signatures({'name': 'test.pdf', 'blob': sample_pdf_data})
+
+    assert result == 'CN=Test Signer'
+
+
+class _BrokenReader:
+    def __init__(self, pdf):
+        pass
+
+    @property
+    def embedded_regular_signatures(self):
+        raise Exception('broken signatures')
+
+
+def test_get_previous_signatures_reading_error(app, sample_pdf_data):
+    _, app = app
+    with mock.patch('edusign_webapp.utils.PdfFileReader', _BrokenReader):
+        with app.test_request_context():
+            result = get_previous_signatures({'name': 'test.pdf', 'blob': sample_pdf_data})
+
+    assert result == ''
+
+
 def test_get_previous_signatures_none(app, sample_pdf_data):
     _, app = app
     with app.test_request_context():
@@ -269,6 +454,23 @@ def test_get_previous_signatures_xml_unsigned(app):
     blob = 'data:text/xml;base64,' + b64encode(sample_xml).decode('ascii')
     with app.test_request_context():
         assert get_previous_signatures_xml({'name': 'test.xml', 'blob': blob}) == ''
+
+
+def test_get_previous_signatures_xml_no_pem_header(app):
+    _, app = app
+    pem = _make_pem_cert()
+    # strip the PEM armour, leaving the raw base64 body
+    body = '\n'.join(line for line in pem.splitlines() if 'CERTIFICATE' not in line)
+    xml = (
+        '<root xmlns:ds="http://www.w3.org/2000/09/xmldsig#"><ds:Signature>'
+        '<ds:KeyInfo><ds:X509Data>'
+        f'<ds:X509Certificate>{body}</ds:X509Certificate>'
+        '</ds:X509Data></ds:KeyInfo>'
+        '</ds:Signature></root>'
+    )
+    blob = b64encode(xml.encode('ascii')).decode('ascii')
+    with app.test_request_context():
+        assert get_previous_signatures_xml({'name': 'test.xml', 'blob': blob}) == 'CN=Test Signer'
 
 
 def test_is_whitelisted(app):
