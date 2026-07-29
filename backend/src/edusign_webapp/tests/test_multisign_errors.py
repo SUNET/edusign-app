@@ -230,9 +230,7 @@ def test_reminder_pending_raises(client, monkeypatch, sample_doc_1):
 
     resp_data = _post(client, '/sign/send-multisign-reminder', csrf_token, {'key': sample_doc_1['key']})
 
-    # the en catalog translates this msgid to the same text as the
-    # not-pending branch; the log line distinguishes them
-    assert resp_data['message'] == 'Problem finding the users pending to sign'
+    assert resp_data['message'] == 'Problem finding the users pending to sign invitations'
 
 
 def test_reminder_no_pending(client, monkeypatch, sample_doc_1):

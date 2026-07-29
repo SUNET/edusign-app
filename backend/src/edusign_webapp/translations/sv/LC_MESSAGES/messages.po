@@ -196,7 +196,7 @@ msgid "Success sending invitations to sign"
 msgstr "Inbjudningarna att signera har skickats"
 
 #: src/edusign_webapp/views.py:1845
-msgid "Problem finding the users pending to multi sign"
+msgid "Problem finding the users pending to sign invitations"
 msgstr "Ett problem uppstod att hitta användare som inte signerat"
 
 #: src/edusign_webapp/views.py:1849

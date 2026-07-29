@@ -1909,7 +1909,7 @@ def send_multisign_reminder(data: dict) -> dict:
 
     except Exception as e:
         current_app.logger.error(f'Problem finding users pending to multi sign: {e}')
-        return {'error': True, 'message': gettext('Problem finding the users pending to multi sign')}
+        return {'error': True, 'message': gettext('Problem finding the users pending to sign invitations')}
 
     if not pending:
         current_app.logger.error(f"Could not find users pending signing the multi sign request {data['key']}")
