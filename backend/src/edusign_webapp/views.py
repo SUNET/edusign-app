@@ -36,6 +36,7 @@ import os
 import uuid
 from base64 import b64decode
 from collections import defaultdict
+from datetime import datetime, timedelta
 from email.utils import formataddr
 from typing import Any, Dict, List, Tuple, Union
 
@@ -136,6 +137,36 @@ def get_id_service_usage():
     """
     to_pay = current_app.extensions['doc_store'].get_signatures_global()
     return {'payload': {'orgs': to_pay}}
+
+
+@admin_edusign_views.route('/dashboard', methods=['GET'])
+def dashboard():
+    """
+    Admin dashboard: the metrics of the /sign/metrics view, a graph with the
+    number of documents created per day, and a table with the BankID and Freja
+    signatures per organization.
+    """
+    docs = current_app.extensions['doc_store'].get_documents_created()
+
+    threshold = (datetime.now() - timedelta(days=current_app.config['MAX_DOCUMENT_AGE'])).timestamp() * 1000
+    old_docs = [doc for doc in docs if doc['created'] <= threshold]
+
+    counts: defaultdict = defaultdict(int)
+    for doc in docs:
+        day = datetime.fromtimestamp(doc['created'] / 1000).date().isoformat()
+        counts[day] += 1
+
+    context = {
+        'company_link': current_app.config['COMPANY_LINK'],
+        'total_docs': len(docs),
+        'total_bytes': sum(doc['size'] for doc in docs),
+        'old_docs': len(old_docs),
+        'old_bytes': sum(doc['size'] for doc in old_docs),
+        'histogram': [{'day': day, 'count': counts[day]} for day in sorted(counts)],
+        'max_count': max(counts.values(), default=0),
+        'usage': current_app.extensions['doc_store'].get_signatures_global(),
+    }
+    return make_response(render_template('admin-dashboard.jinja2', **context))
 
 
 @admin_edusign_views.route('/migrate-to-redis-and-s3', methods=['POST'])

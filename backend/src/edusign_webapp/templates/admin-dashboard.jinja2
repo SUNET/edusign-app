@@ -1,0 +1,55 @@
+{% extends "base-template.jinja2" %}
+
+    {% block body %}
+          <h1>{{ gettext("Admin dashboard") }}</h1>
+
+          <h2>{{ gettext("Documents") }}</h2>
+          <table>
+            <tr><td>{{ gettext("Number of documents") }}</td><td>{{ total_docs }}</td></tr>
+            <tr><td>{{ gettext("Total bytes") }}</td><td>{{ total_bytes }}</td></tr>
+            <tr><td>{{ gettext("Number of documents to purge") }}</td><td>{{ old_docs }}</td></tr>
+            <tr><td>{{ gettext("Total bytes to purge") }}</td><td>{{ old_bytes }}</td></tr>
+          </table>
+
+          <h2>{{ gettext("Documents created per day") }}</h2>
+          {% if histogram %}
+          <svg id="docs-per-day" viewBox="0 0 {{ 50 + histogram|length * 30 }} 280" width="{{ 50 + histogram|length * 30 }}" height="280" xmlns="http://www.w3.org/2000/svg">
+            <line x1="40" y1="210" x2="{{ 45 + histogram|length * 30 }}" y2="210" stroke="#455" stroke-width="1" />
+            {% for bucket in histogram %}
+            {% set height = (bucket.count / max_count * 180) | round(1) %}
+            {% set x = 45 + loop.index0 * 30 %}
+            <rect x="{{ x }}" y="{{ 210 - height }}" width="24" height="{{ height }}" fill="#28a745" />
+            <text x="{{ x + 12 }}" y="{{ 204 - height }}" font-size="11" text-anchor="middle" fill="#455">{{ bucket.count }}</text>
+            <text x="{{ x + 12 }}" y="222" font-size="10" text-anchor="end" fill="#455" transform="rotate(-45 {{ x + 12 }} 222)">{{ bucket.day }}</text>
+            {% endfor %}
+          </svg>
+          {% else %}
+          <p>{{ gettext("No documents") }}</p>
+          {% endif %}
+
+          <h2>{{ gettext("BankID and Freja signatures") }}</h2>
+          {% if usage %}
+          <table id="id-service-usage">
+            <tr>
+              <th>{{ gettext("Organization") }}</th>
+              <th>{{ gettext("Type") }}</th>
+              <th>{{ gettext("Number of signatures") }}</th>
+            </tr>
+            {% for row in usage %}
+            <tr>
+              <td>{{ row.organization }}</td>
+              <td>{{ row.type }}</td>
+              <td>{{ row.number_of_signatures }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+          {% else %}
+          <p>{{ gettext("No signatures") }}</p>
+          {% endif %}
+    {% endblock %}
+
+    {% block foot_link %}
+              <a href="/">
+                {% trans %}Home{% endtrans %}
+              </a>
+    {% endblock %}

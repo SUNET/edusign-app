@@ -108,6 +108,7 @@ DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id 
 DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created, ordered_invitations, allowbankid FROM Documents WHERE doc_id = ?;"
 DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created, ordered_invitations, allowbankid, invitation_text FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= date('now', '-%d days');"
+DOCUMENT_QUERY_ALL_CREATED = "SELECT created, size FROM Documents;"
 DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned, allowbankid FROM Documents WHERE owner_eppn = ?;"
 DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned, allowbankid FROM Documents WHERE owner_email = ?;"
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
@@ -614,6 +615,28 @@ class SqliteMD(ABCMetadata):
             return []
 
         return [uuid.UUID(doc['key']) for doc in old_docs]
+
+    def get_documents_created(self) -> List[Dict[str, Any]]:
+        """
+        Get the creation timestamp and size of all stored documents.
+
+        :return: A list of dictionaries, one for each document, with keys:
+                 + created: creation timestamp, in milliseconds since the epoch
+                 + size: Size of the doc
+        """
+        documents = self._db_query(DOCUMENT_QUERY_ALL_CREATED)
+
+        if documents is None or isinstance(documents, dict):
+            return []
+
+        results = []
+        for document in documents:
+            created = document['created']
+            if isinstance(created, str):
+                created = datetime.fromisoformat(str(created))
+            results.append({'created': created.timestamp() * 1000, 'size': document['size']})
+
+        return results
 
     def get_pending(self, emails: List[str]) -> List[Dict[str, Any]]:
         """

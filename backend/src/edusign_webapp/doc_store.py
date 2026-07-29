@@ -199,6 +199,16 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def get_documents_created(self) -> List[Dict[str, Any]]:
+        """
+        Get the creation timestamp and size of all stored documents.
+
+        :return: A list of dictionaries, one for each document, with keys:
+                 + created: creation timestamp, in milliseconds since the epoch
+                 + size: Size of the doc
+        """
+
+    @abc.abstractmethod
     def get_pending(self, emails: List[str]) -> List[Dict[str, str]]:
         """
         Given the email address of some user, return information about the documents
@@ -699,6 +709,16 @@ class DocStore(object):
         :return: A list of UUIDs identifying the documents
         """
         return self.metadata.get_old(days)
+
+    def get_documents_created(self) -> List[Dict[str, Any]]:
+        """
+        Get the creation timestamp and size of all stored documents.
+
+        :return: A list of dictionaries, one for each document, with keys:
+                 + created: creation timestamp, in milliseconds since the epoch
+                 + size: Size of the doc
+        """
+        return self.metadata.get_documents_created()
 
     def get_pending_documents(self, emails: List[str]) -> List[Dict[str, Any]]:
         """
