@@ -38,6 +38,7 @@ here the HTTP layer itself is mocked (requests.Session.send and
 requests.post) and the client methods run for real.
 """
 import json
+import logging
 import uuid
 from base64 import b64encode
 from unittest.mock import patch
@@ -245,12 +246,9 @@ def test_prepare_document_freja(client):
 
 
 def test_prepare_document_debug_logging(client):
-    # NOTE: current_app.logger.level == 'DEBUG' compares an int to a str,
-    # so in normal operation this branch never runs (suspected app bug).
-    # The test sets the attribute to the string to exercise the branch.
     app = client.application
     old_level = app.logger.level
-    app.logger.level = 'DEBUG'
+    app.logger.setLevel(logging.DEBUG)
     try:
         _, response, _, _ = _prepare(
             client,
@@ -258,12 +256,10 @@ def test_prepare_document_debug_logging(client):
             response_data={'signedDocuments': [{'signedContent': 'A' * 40}]},
         )
     finally:
-        app.logger.level = old_level
+        app.logger.setLevel(old_level)
 
-    # NOTE: response.copy() is shallow, so scrubbing the copy for the log
-    # truncates the signedContent of the response itself (second suspected
-    # app bug in this branch); this asserts the current behavior.
-    assert response['signedDocuments'][0]['signedContent'] == 'A' * 20 + '...'
+    # the log scrubbing works on a deep copy and must not touch the response
+    assert response['signedDocuments'][0]['signedContent'] == 'A' * 40
 
 
 def _get_sign_request_data(client, session_kwargs, path='/sign/create-sign-request', invite_key='', assurance='none'):
@@ -473,14 +469,13 @@ def test_create_sign_request_expired_cache(client):
 
 
 def test_create_sign_request_debug_logging(client):
-    # see the note in test_prepare_document_debug_logging
     app = client.application
     old_level = app.logger.level
-    app.logger.level = 'DEBUG'
+    app.logger.setLevel(logging.DEBUG)
     try:
         response, _, _ = _create_sign_request(client, sample_documents)
     finally:
-        app.logger.level = old_level
+        app.logger.setLevel(old_level)
 
     assert response['signRequest'] == 'A' * 40
 
@@ -506,18 +501,16 @@ def test_process_sign_request(client):
 
 
 def test_process_sign_request_debug_logging(client):
-    # see the note in test_prepare_document_debug_logging
     app = client.application
     old_level = app.logger.level
-    app.logger.level = 'DEBUG'
+    app.logger.setLevel(logging.DEBUG)
     try:
         response, _ = _process_sign_request(client, {'signedDocuments': [{'signedContent': 'B' * 40}]})
     finally:
-        app.logger.level = old_level
+        app.logger.setLevel(old_level)
 
-    # shallow response.copy(): the log scrubbing truncates the response
-    # itself, see the note in test_prepare_document_debug_logging
-    assert response['signedDocuments'][0]['signedContent'] == 'B' * 20 + '...'
+    # the log scrubbing works on a deep copy and must not touch the response
+    assert response['signedDocuments'][0]['signedContent'] == 'B' * 40
 
 
 def _validate_signatures(client, to_validate, status_code=200, content=b'validated-pdf'):
