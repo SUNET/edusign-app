@@ -155,13 +155,9 @@ def add_attributes_to_session(check_whitelisted=True):
 
         if f'Maillocaladdress-{attr_schema}' in request.headers:
             addresses = get_attr_values(f'Maillocaladdress-{attr_schema}')
-            if 'mail_aliases' not in session:
-                session['mail_aliases'] = []
-
             session['mail_aliases'] += [m.lower() for m in addresses]
 
-        if 'mail_aliases' in session:
-            session['mail_aliases'] = list(set(session['mail_aliases']))
+        session['mail_aliases'] = list(set(session['mail_aliases']))
 
         try:
             assurances = get_attr_values(f'Edupersonassurance-{attr_schema}')
@@ -184,16 +180,12 @@ def add_attributes_to_session(check_whitelisted=True):
 
 
 def common_attributes_to_session():
-    try:
-        session['idp'] = request.headers.get('Shib-Identity-Provider')
-    except KeyError:
+    session['idp'] = request.headers.get('Shib-Identity-Provider')
+    if session['idp'] is None:
         current_app.logger.error('Missing Identity Provider from request')
-        raise
-    try:
-        session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
-    except KeyError:
+    session['authn_context'] = request.headers.get('Shib-Authncontext-Class')
+    if session['authn_context'] is None:
         current_app.logger.error('Missing AuthnContext Class from request')
-        raise
 
     session['organizationName'] = None
     orgName = request.headers.get('Md-Organizationname', None)
@@ -237,7 +229,11 @@ def add_attributes_to_session_bankid_freja(invite_key, stype):
 
         session['mail_aliases'] = [invite['user']['email']]
         session['mail'] = invite['user']['email']
-        session['displayName'] = get_attr_values('Displayname-20')[0]
+        try:
+            session['displayName'] = get_attr_values('Displayname-20')[0]
+        except (KeyError, IndexError):
+            current_app.logger.error('Missing displayName from request')
+            raise MissingDisplayName()
         
         invited_ssn = invite['user'].get('ssn', '')
         if invited_ssn and invited_ssn != ssn:

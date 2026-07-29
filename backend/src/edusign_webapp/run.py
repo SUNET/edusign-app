@@ -64,9 +64,6 @@ class EduSignApp(Flask):
         """
         super().__init__(name, **kwargs)
 
-        if not self.testing:
-            self.url_map.host_matching = False
-
         CORS(self, origins=[])
         Misaka(self)
 

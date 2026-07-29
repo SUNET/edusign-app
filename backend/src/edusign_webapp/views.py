@@ -616,14 +616,6 @@ def get_index_bankid(invite_key: str) -> Union[str, Response]:
         context['title'] = gettext("Duplicate invitation")
         context['message'] = gettext('You seem to have loaded another invitation to sign the same document.')
         return render_template('error-generic.jinja2', **context)
-    except NonWhitelisted:
-        current_app.logger.debug("Authorizing non-whitelisted user")
-        unauthn = True
-
-    if 'invited-unauthn' in session and session['invited-unauthn']:
-        invites = get_invitations()
-        if len(invites['pending_multisign']) > 0:
-            unauthn = True
 
     session['invited-unauthn'] = unauthn
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
@@ -681,14 +673,11 @@ def get_index_freja(invite_key: str) -> Union[str, Response]:
         context['title'] = gettext("Unknown invitation")
         context['message'] = gettext('Your identity does not seem to coincide with the invited identity.')
         return render_template('error-generic.jinja2', **context)
-    except NonWhitelisted:
-        current_app.logger.debug("Authorizing non-whitelisted user")
-        unauthn = True
-
-    if 'invited-unauthn' in session and session['invited-unauthn']:
-        invites = get_invitations()
-        if len(invites['pending_multisign']) > 0:
-            unauthn = True
+    except current_app.extensions['doc_store'].DocumentLocked:
+        current_app.logger.error('User has 2 eID invitations for the same document.')
+        context['title'] = gettext("Duplicate invitation")
+        context['message'] = gettext('You seem to have loaded another invitation to sign the same document.')
+        return render_template('error-generic.jinja2', **context)
 
     session['invited-unauthn'] = unauthn
     current_app.logger.debug("Attributes in session: " + ", ".join([f"{k}: {v}" for k, v in session.items()]))
