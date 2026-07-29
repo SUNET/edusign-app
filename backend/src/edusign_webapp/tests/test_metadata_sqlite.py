@@ -1343,20 +1343,24 @@ def test_get_loa_and_ordered_and_invitation_text(sqlite_md, sample_metadata_1, s
         assert test_md.get_invitation_text(uuid.uuid4()) == ''
 
 
-def test_get_allowbankid_missing_document(sqlite_md):
-    # NOTE: get_allowbankid has no return statement for an existing document
-    # (it returns None), and returns True for a missing one; this documents
-    # current behavior.
+def test_get_allowbankid(sqlite_md):
     _, test_md = sqlite_md
     dummy_key = uuid.uuid4()
+    bankid_key = uuid.uuid4()
+    bankid_flags = list(invitation_flags)
+    bankid_flags[4] = True  # allowbankid
 
     with run.app.app_context():
         test_md.add(dummy_key, {'name': 'a.pdf', 'size': 1, 'type': 'application/pdf'},
                     {'name': 'o', 'email': 'o@example.org', 'eppn': 'o-eppn@example.org', 'lang': 'en'},
                     [], *invitation_flags)
+        test_md.add(bankid_key, {'name': 'b.pdf', 'size': 1, 'type': 'application/pdf'},
+                    {'name': 'o', 'email': 'o@example.org', 'eppn': 'o-eppn@example.org', 'lang': 'en'},
+                    [], *bankid_flags)
 
-        assert test_md.get_allowbankid(uuid.uuid4())
-        assert test_md.get_allowbankid(dummy_key) is None
+        assert test_md.get_allowbankid(uuid.uuid4()) is False
+        assert test_md.get_allowbankid(dummy_key) is False
+        assert test_md.get_allowbankid(bankid_key) is True
 
 
 def test_get_document_id(sqlite_md, sample_metadata_1, sample_owner_1):

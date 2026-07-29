@@ -217,14 +217,6 @@ def test_signed_as_invitee_ordered_next_invitation_bankid(client, monkeypatch):
     ]
     key = _add_doc(client, invites, ordered=True, allowbankid=True)
 
-    # sql.SqlMD.get_allowbankid drops the query result and returns None for
-    # any existing document (missing return, sql.py:1139), so the stored
-    # allowbankid=True never reaches the view; patch the doc store to get
-    # the eID link branch to run.
-    from edusign_webapp.doc_store import DocStore
-
-    monkeypatch.setattr(DocStore, 'get_allowbankid', lambda self, key: True)
-
     sent = []
     _post_get_signed(client, monkeypatch, _process_data(key), sent)
 
