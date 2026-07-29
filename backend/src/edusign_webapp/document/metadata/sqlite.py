@@ -1338,7 +1338,7 @@ class SqliteMD(ABCMetadata):
         document_result = self._db_query(DOCUMENT_QUERY_ALLOWBANKID, (str(key),), one=True)
         if document_result is None or isinstance(document_result, list):
             self.logger.debug(f"Trying to get allowbankid from a non-existing document with key {key}")
-            return True
+            return False
 
         return bool(document_result.get('allowbankid', False))
 
