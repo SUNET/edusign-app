@@ -259,16 +259,6 @@ class SqlMD(ABCMetadata):
         self._db_commit()
         return updated_invites
 
-    def get_document_id(self, key: uuid.UUID) -> str:
-        document_result = self._db_query(DOCUMENT_QUERY_ID, (str(key),), one=True)
-
-        if document_result is None or isinstance(
-            document_result, list
-        ):  # This should never happen, it's just to please mypy
-            raise ValueError('Wrong result')
-
-        return document_result['doc_id']
-
     def add_document_raw(
         self,
         document: Dict[str, str],
