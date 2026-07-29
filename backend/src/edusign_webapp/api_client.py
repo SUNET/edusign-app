@@ -64,6 +64,7 @@ There are 4 basic steps to complete a signature procedure:
 """
 import asyncio
 import json
+import logging
 import uuid
 from base64 import b64decode, b64encode
 from copy import deepcopy
@@ -275,8 +276,10 @@ class APIClient(object):
 
         response = self._post(api_url, request_data, query_params)
 
-        if current_app.logger.level == 'DEBUG':
-            tolog = response.copy()
+        if current_app.logger.isEnabledFor(logging.DEBUG):
+            # deepcopy: the scrubbing below reaches into nested dicts,
+            # a shallow copy would truncate the real signed content
+            tolog = deepcopy(response)
             for doc in tolog['signedDocuments']:
                 doc['signedContent'] = doc['signedContent'][:20] + '...'
             current_app.logger.debug(f"Data returned from the API's prepare endpoint: {pformat(tolog)}")
@@ -447,7 +450,6 @@ class APIClient(object):
             if add_blob:
                 doc_with_id['blob'] = document['blob']
                 doc_with_id['size'] = document['size']
-                doc_with_id['size'] = document['size']
                 doc_with_id['type'] = document['type']
             documents_with_id.append(doc_with_id)
             if document['type'] == 'application/pdf':
@@ -506,7 +508,7 @@ class APIClient(object):
         ):
             raise self.ExpiredCache()
 
-        if current_app.logger.level == 'DEBUG':
+        if current_app.logger.isEnabledFor(logging.DEBUG):
             tolog = response_data.copy()
             tolog['signRequest'] = tolog['signRequest'][:20] + '...'
             current_app.logger.debug(f"Data returned from the API's create endpoint: {pformat(tolog)}")
@@ -549,8 +551,10 @@ class APIClient(object):
 
         response = self._post(api_url, request_data)
 
-        if current_app.logger.level == 'DEBUG':
-            tolog = response.copy()
+        if current_app.logger.isEnabledFor(logging.DEBUG):
+            # deepcopy: the scrubbing below reaches into nested dicts,
+            # a shallow copy would truncate the real signed content
+            tolog = deepcopy(response)
             for doc in tolog['signedDocuments']:
                 doc['signedContent'] = doc['signedContent'][:20] + '...'
             current_app.logger.debug(f"Data returned from the API's process endpoint: {pformat(tolog)}")
