@@ -1468,7 +1468,9 @@ def _next_ordered_invitation_mail(doc_key, docname, invite, owner, allowbankid):
     recipients = [formataddr((invite['name'], invite['email']))]
     custom_text = current_app.extensions['doc_store'].get_invitation_text(doc_key)
 
-    required_loa = current_app.extensions['doc_store'].get_loa(uuid.UUID(doc_key))
+    # doc_key arrives as a str from _process_signed_documents and as a
+    # uuid.UUID from _prepare_declined_emails
+    required_loa = current_app.extensions['doc_store'].get_loa(uuid.UUID(str(doc_key)))
 
     if allowbankid:
         invited_link = url_for('edusign_anon.get_home_eid', invite_key=invite['key'], _external=True)
