@@ -312,10 +312,7 @@ def test_config_eid(app_with_invitation):
     assert attrs['ssn'] == _test_ssn
     assert attrs['using_bankid']
     assert not attrs['using_freja']
-    # schemata.py declares signer_attributes.invite_key as
-    # fields.List(fields.String()), so the string is serialized as a
-    # list of its characters
-    assert attrs['invite_key'] == list(invite_key)
+    assert attrs['invite_key'] == invite_key
     assert data['payload']['unauthn']
     assert len(data['payload']['pending_multisign']) == 1
     assert data['payload']['stale_from'].endswith(f'/home-eid/{invite_key}')
