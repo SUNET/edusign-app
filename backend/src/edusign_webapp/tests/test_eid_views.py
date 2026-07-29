@@ -246,10 +246,6 @@ def test_index_freja_missing_personnummer(app_with_invitation):
 
 
 def test_index_bankid_missing_display_name(app_with_invitation):
-    # add_attributes_to_session_bankid_freja reads the displayName with
-    # get_attr_values, which raises KeyError, not MissingDisplayName; so
-    # this lands on the "Missing information" page, and the
-    # "Missing displayName" branch of the view is unreachable.
     _, app, invitations = app_with_invitation
     client = app.test_client()
     environ = _eid_environ()
@@ -258,7 +254,7 @@ def test_index_bankid_missing_display_name(app_with_invitation):
 
     response = client.get(f"/sign/bankid/{invitations[0]['key']}")
     assert response.status == '200 OK'
-    assert b'Missing information' in response.data
+    assert b'Missing displayName' in response.data
 
 
 def test_index_bankid_nonexistent_invitation(app):
@@ -288,9 +284,7 @@ def test_index_bankid_locked_document(app_with_invitation):
     assert b'Duplicate invitation' in response.data
 
 
-def test_index_freja_locked_document_unhandled(app_with_invitation):
-    # unlike get_index_bankid, get_index_freja has no handler for
-    # doc_store.DocumentLocked, so the same situation crashes the view
+def test_index_freja_locked_document(app_with_invitation):
     _, app, invitations = app_with_invitation
 
     client1 = _eid_client(app)
@@ -298,9 +292,9 @@ def test_index_freja_locked_document_unhandled(app_with_invitation):
     assert response.status == '200 OK'
 
     client2 = _eid_client(app)
-    with pytest.raises(Exception) as excinfo:
-        client2.get(f"/sign/freja/{invitations[1]['key']}")
-    assert excinfo.type.__name__ == 'DocumentLocked'
+    response = client2.get(f"/sign/freja/{invitations[1]['key']}")
+    assert response.status == '200 OK'
+    assert b'Duplicate invitation' in response.data
 
 
 def test_config_eid(app_with_invitation):
