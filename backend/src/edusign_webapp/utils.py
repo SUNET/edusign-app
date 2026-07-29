@@ -475,7 +475,7 @@ def is_whitelisted_for_bankid(app, eppn: str) -> bool:
     if '@' not in eppn:  # BankID / Freja+
         return False
 
-    return eppn.lower().split('@')[1] in app.config['BANKID_WHITELIST']
+    return eppn.lower().split('@')[1] in app.config['EID_WHITELIST']
 
 
 def fix_recipients(recipients):

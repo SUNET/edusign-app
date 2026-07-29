@@ -31,15 +31,29 @@
           {% if usage %}
           <table id="id-service-usage">
             <tr>
-              <th>{{ gettext("Organization") }}</th>
-              <th>{{ gettext("Type") }}</th>
-              <th>{{ gettext("Number of signatures") }}</th>
+              <th rowspan="2">{{ gettext("Organization") }}</th>
+              <th colspan="2">{{ gettext("BankID") }}</th>
+              <th colspan="2">{{ gettext("Freja") }}</th>
+            </tr>
+            <tr>
+              <th>{{ gettext("within quota") }}</th>
+              <th>{{ gettext("over quota") }}</th>
+              <th>{{ gettext("within quota") }}</th>
+              <th>{{ gettext("over quota") }}</th>
             </tr>
             {% for row in usage %}
             <tr>
               <td>{{ row.organization }}</td>
-              <td>{{ row.type }}</td>
-              <td>{{ row.number_of_signatures }}</td>
+              {% for sigs in (row.bankid, row.freja) %}
+              <td>{{ sigs.within }}</td>
+              {% if sigs.over is none %}
+              <td>-</td>
+              {% elif sigs.over > 0 %}
+              <td class="over-quota" style="color: #a00; font-weight: bold;">{{ sigs.over }}</td>
+              {% else %}
+              <td>{{ sigs.over }}</td>
+              {% endif %}
+              {% endfor %}
             </tr>
             {% endfor %}
           </table>
