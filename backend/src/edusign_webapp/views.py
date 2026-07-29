@@ -616,6 +616,13 @@ def get_index_freja(invite_key: str) -> Union[str, Response]:
             'Your identity does not seem to coincide with the invited identity.'
         )
         return render_template('error-generic.jinja2', **context)
+    except current_app.extensions['doc_store'].DocumentLocked:
+        current_app.logger.error('User has 2 eID invitations for the same document.')
+        context['title'] = gettext("Duplicate invitation")
+        context['message'] = gettext(
+            'You seem to have loaded another invitation to sign the same document.'
+        )
+        return render_template('error-generic.jinja2', **context)
     except NonWhitelisted:
         current_app.logger.debug("Authorizing non-whitelisted user")
         unauthn = True
