@@ -175,10 +175,10 @@ RAW_USER_WHITELIST = os.environ.get('USER_WHITELIST', default='whitelisted@eduid
 USER_WHITELIST = [eppn.lower().strip() for eppn in RAW_USER_WHITELIST.split(',')]
 
 # Institutions allowed to invite eID (BankID/Freja) signatures. They pay a
-# flat rate for a certain number of signatures of each type, the caps. Comma
-# separated entries of the form <scope>:<cap bankid>:<cap freja>; with a
-# single cap (<scope>:<cap>) it is common to both types; a bare <scope> is
-# whitelisted with no caps.
+# flat rate for a certain number of signatures of each type, the quotas.
+# Comma separated entries of the form <scope>:<quota bankid>:<quota freja>;
+# with a single quota (<scope>:<quota>) it is common to both types; a bare
+# <scope> is whitelisted with no quotas.
 RAW_EID_WHITELIST = os.environ.get(
     'EID_WHITELIST',
     # BANKID_WHITELIST is the old name of the variable, read as a fallback
@@ -195,12 +195,12 @@ def parse_eid_whitelist(raw: str) -> dict:
         parts = [part.strip() for part in entry.split(':')]
         scope = parts[0].lower()
         if len(parts) == 1:
-            caps = {'bankid': None, 'freja': None}
+            quotas = {'bankid': None, 'freja': None}
         elif len(parts) == 2:
-            caps = {'bankid': int(parts[1]), 'freja': int(parts[1])}
+            quotas = {'bankid': int(parts[1]), 'freja': int(parts[1])}
         else:
-            caps = {'bankid': int(parts[1]), 'freja': int(parts[2])}
-        whitelist[scope] = caps
+            quotas = {'bankid': int(parts[1]), 'freja': int(parts[2])}
+        whitelist[scope] = quotas
     return whitelist
 
 
