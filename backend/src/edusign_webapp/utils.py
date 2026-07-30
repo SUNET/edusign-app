@@ -307,7 +307,6 @@ def get_invitations(remove_finished=False, invite_key=''):
             session['mail'] = invite['user']['email']
             session['mail_aliases'] = [invite['user']['email']]
             mail_addresses = session.get('mail_aliases')
-            session['displayName'] = invite['user']['name']
     else:
         owned = current_app.extensions['doc_store'].get_owned_documents(session['eppn'], mail_addresses)
         invited = current_app.extensions['doc_store'].get_pending_documents(mail_addresses)
