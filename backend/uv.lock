@@ -566,7 +566,7 @@ wheels = [
 
 [[package]]
 name = "edusign-webapp"
-version = "1.6.2b26"
+version = "1.6.2b27"
 source = { editable = "." }
 dependencies = [
     { name = "boto3" },
