@@ -134,3 +134,68 @@ def test_get_partially_signed_doesnt(client, monkeypatch, sample_doc_1):
     resp_data = _test_get_partially_signed_with_problem(client, monkeypatch, sample_doc_1, mock_get_content)
 
     assert resp_data['message'] == 'Cannot find the document being signed'
+
+_invitation_flags = [True, 'none', False, False, False, 'Invitation text']
+
+
+def _seed_document(client, doc, owner, invites):
+    """Add a document to the doc store with an explicit owner and invitees."""
+    app = client.application
+    with app.app_context():
+        app.extensions['doc_store'].add_document(doc, owner, invites, *_invitation_flags)
+
+
+def _post_get_partially_signed(client, monkeypatch, key):
+    """POST /sign/get-partially-signed for `key` as the current session user."""
+    response1 = client.get('/sign/')
+    assert response1.status == '200 OK'
+
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
+
+    from flask.sessions import SecureCookieSession
+
+    def mock_getitem(self, k):
+        if k == 'user_key':
+            return user_key
+        self.accessed = True
+        return super(SecureCookieSession, self).__getitem__(k)
+
+    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+
+    response = client.post(
+        '/sign/get-partially-signed',
+        headers={
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://test.localhost',
+            'X-Forwarded-Host': 'test.localhost',
+        },
+        json={'csrf_token': csrf_token, 'payload': {'key': key}},
+    )
+    return json.loads(response.data)
+
+
+def test_get_partially_signed_denied_for_stranger(client, monkeypatch, sample_doc_1, sample_owner_1):
+    # the session user (tester@example.org) is neither the owner nor an invitee
+    invites = [{'name': 'invite0', 'email': 'invite0@example.org', 'ssn': '', 'lang': 'en'}]
+    _seed_document(client, sample_doc_1, sample_owner_1, invites)
+
+    resp_data = _post_get_partially_signed(client, monkeypatch, sample_doc_1['key'])
+
+    assert resp_data['message'] == 'Cannot find the document being signed'
+    assert 'blob' not in resp_data.get('payload', {})
+
+
+def test_get_partially_signed_allowed_for_invitee(client, monkeypatch, sample_doc_1, sample_owner_1):
+    # the session user (tester@example.org) is one of the invitees
+    invites = [
+        {'name': 'invite0', 'email': 'invite0@example.org', 'ssn': '', 'lang': 'en'},
+        {'name': 'Tëster Kid', 'email': 'tester@example.org', 'ssn': '', 'lang': 'en'},
+    ]
+    _seed_document(client, sample_doc_1, sample_owner_1, invites)
+
+    resp_data = _post_get_partially_signed(client, monkeypatch, sample_doc_1['key'])
+
+    assert resp_data['message'] == 'Success'
+    assert resp_data['payload']['blob']

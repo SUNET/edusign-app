@@ -134,3 +134,53 @@ def test_remove_multi_sign_request_doesnt(client, monkeypatch, sample_doc_1):
     resp_data = _test_remove_multi_sign_request_with_problem(client, monkeypatch, sample_doc_1, mock_remove)
 
     assert resp_data['message'] == 'Problem removing the invitation, please try again'
+
+_seed_flags = [True, 'none', False, False, False, 'Invitation text']
+
+
+def _seed_and_post_remove(client, monkeypatch, sample_doc_1, sample_owner_1):
+    """Seed a doc owned by someone else, then POST remove-multi-sign as the session user."""
+    response1 = client.get('/sign/')
+    assert response1.status == '200 OK'
+
+    app = client.application
+    with app.app_context():
+        invites = [{'name': 'invite0', 'email': 'invite0@example.org', 'ssn': '', 'lang': 'en'}]
+        app.extensions['doc_store'].add_document(sample_doc_1, sample_owner_1, invites, *_seed_flags)
+
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
+
+    from flask.sessions import SecureCookieSession
+
+    def mock_getitem(self, k):
+        if k == 'user_key':
+            return user_key
+        self.accessed = True
+        return super(SecureCookieSession, self).__getitem__(k)
+
+    monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+
+    response = client.post(
+        '/sign/remove-multi-sign',
+        headers={
+            'X-Requested-With': 'XMLHttpRequest',
+            'Origin': 'https://test.localhost',
+            'X-Forwarded-Host': 'test.localhost',
+        },
+        json={'csrf_token': csrf_token, 'payload': {'key': sample_doc_1['key']}},
+    )
+    return json.loads(response.data)
+
+
+def test_remove_multi_sign_request_denied_for_non_owner(client, monkeypatch, sample_doc_1, sample_owner_1):
+    import uuid
+
+    resp_data = _seed_and_post_remove(client, monkeypatch, sample_doc_1, sample_owner_1)
+
+    assert resp_data['message'] == 'Problem removing the invitation, please try again'
+    # the document must not have been removed
+    with client.application.app_context():
+        owner = client.application.extensions['doc_store'].get_owner_data(uuid.UUID(sample_doc_1['key']))
+    assert owner.get('email') == sample_owner_1['email']

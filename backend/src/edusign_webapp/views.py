@@ -2151,6 +2151,13 @@ def remove_multi_sign_request(data: dict) -> dict:
     :return: A message about the result of the procedure
     """
     key = uuid.UUID(data['key'])
+
+    if not _user_owns_document(key):
+        current_app.logger.warning(
+            f"User {session.get('eppn')} tried to remove multi sign request {data['key']} without owning it"
+        )
+        return {'error': True, 'message': gettext('Problem removing the invitation, please try again')}
+
     try:
         pending = current_app.extensions['doc_store'].get_pending_invites(key)
         docname = current_app.extensions['doc_store'].get_document_name(key)
@@ -2224,6 +2231,64 @@ def _send_cancellation_mail(docname, owner_email, recipients):
     return True
 
 
+def _user_can_access_document(key: uuid.UUID) -> bool:
+    """
+    Whether the user in the current session is authorized to read the document
+    identified by `key`: they must be its owner or one of its invitees. Used to
+    gate views that take only a document key, so a key alone does not grant
+    access to another user's document.
+
+    :param key: the key identifying the document
+    :return: whether the session user may access the document
+    """
+    mail_aliases = session.get('mail_aliases')
+    if mail_aliases is None and 'mail' in session:
+        mail_aliases = [session['mail']]
+    aliases = {m.lower() for m in (mail_aliases or [])}
+    eppn = session.get('eppn')
+
+    if not aliases and not eppn:
+        return False
+
+    owner = current_app.extensions['doc_store'].get_owner_data(key)
+    if owner:
+        if eppn and owner.get('eppn') == eppn:
+            return True
+        if owner.get('email', '').lower() in aliases:
+            return True
+
+    for invite in current_app.extensions['doc_store'].get_full_invites(key):
+        if invite.get('email', '').lower() in aliases:
+            return True
+
+    return False
+
+
+def _user_owns_document(key: uuid.UUID) -> bool:
+    """
+    Whether the user in the current session is the owner (inviter) of the
+    document identified by `key`. Used to gate owner-only actions that take
+    only a document key, so a key alone does not let another user act on the
+    document.
+
+    :param key: the key identifying the document
+    :return: whether the session user owns the document
+    """
+    owner = current_app.extensions['doc_store'].get_owner_data(key)
+    if not owner:
+        return False
+
+    eppn = session.get('eppn')
+    if eppn and owner.get('eppn') == eppn:
+        return True
+
+    mail_aliases = session.get('mail_aliases')
+    if mail_aliases is None and 'mail' in session:
+        mail_aliases = [session['mail']]
+    aliases = {m.lower() for m in (mail_aliases or [])}
+    return owner.get('email', '').lower() in aliases
+
+
 @edusign_views.route('/get-partially-signed', methods=['POST'])
 @edusign_views2.route('/get-partially-signed', methods=['POST'])
 @UnMarshal(KeySchema)
@@ -2239,6 +2304,14 @@ def get_partially_signed_doc(data: dict) -> dict:
     :return: A message about the result of the procedure
     """
     key = uuid.UUID(data['key'])
+
+    if not _user_can_access_document(key):
+        current_app.logger.warning(
+            f"User {session.get('eppn')} tried to get partially signed document {data['key']} "
+            "without being its owner or an invitee"
+        )
+        return {'error': True, 'message': gettext('Cannot find the document being signed')}
+
     try:
         doc = current_app.extensions['doc_store'].get_document_content(key)
         doctype = current_app.extensions['doc_store'].get_document_type(key)
@@ -2324,6 +2397,14 @@ def skip_final_signature(data: dict) -> dict:
     """
 
     key = uuid.UUID(data['key'])
+
+    if not _user_owns_document(key):
+        current_app.logger.warning(
+            f"User {session.get('eppn')} tried to skip the final signature of document {data['key']} "
+            "without owning it"
+        )
+        return {'error': True, 'message': gettext('Cannot find the document being signed')}
+
     try:
         doc = current_app.extensions['doc_store'].get_signed_document(key)
         sendsigned = current_app.extensions['doc_store'].get_sendsigned(key)
