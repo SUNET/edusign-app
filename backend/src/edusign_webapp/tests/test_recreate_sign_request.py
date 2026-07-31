@@ -550,3 +550,88 @@ def test_recreate_sign_request_bad_api_response(client, monkeypatch, sample_doc_
 
         assert resp_data['error']
         assert resp_data['message'] == 'dummy message'
+
+
+def test_recreate_sign_request_error_without_message(client, monkeypatch, sample_doc_1):
+    # prepare succeeds, but the create step returns an error response with
+    # neither signRequest nor message; the KeyError handler must not itself
+    # KeyError on the missing message
+    from edusign_webapp.api_client import APIClient
+
+    def mock_post(self, url, *args, **kwargs):
+        if 'prepare' in url:
+            return {
+                'policy': 'edusign-test',
+                'updatedPdfDocumentReference': 'ba26478f-f8e0-43db-991c-08af7c65ed58',
+                'visiblePdfSignatureRequirement': {
+                    'fieldValues': {'idp': 'https://login.idp.eduid.se/idp.xml'},
+                    'page': 2,
+                    'scale': -74,
+                    'signerName': {
+                        'formatting': None,
+                        'signerAttributes': [
+                            {'name': 'urn:oid:2.5.4.42'},
+                            {'name': 'urn:oid:2.5.4.4'},
+                            {'name': 'urn:oid:0.9.2342.19200300.100.1.3'},
+                        ],
+                    },
+                    'templateImageRef': 'eduSign-image',
+                    'xposition': 37,
+                    'yposition': 165,
+                },
+            }
+        return {'status': 400}
+
+    monkeypatch.setattr(APIClient, '_post', mock_post)
+
+    response1 = client.get('/sign/')
+    assert response1.status == '200 OK'
+
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
+
+        from flask.sessions import SecureCookieSession
+
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
+
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'documents': {
+                    'local': [
+                        {
+                            'name': 'test.pdf',
+                            'size': 100,
+                            'type': 'application/pdf',
+                            'blob': sample_doc_1['blob'],
+                            'key': sample_doc_1['key'],
+                        }
+                    ],
+                    'owned': [],
+                    'invited': [],
+                },
+                'invite_key': '',
+            },
+        }
+
+        response = client.post(
+            '/sign/recreate-sign-request',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
+
+        assert response.status == '200 OK'
+        resp_data = json.loads(response.data)
+        assert resp_data['error'] is True
+        assert resp_data['message'] == 'Error re-creating sign request'

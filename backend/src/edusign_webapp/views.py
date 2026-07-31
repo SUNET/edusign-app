@@ -743,7 +743,8 @@ def receive_sign_request():
         abort(404)
 
     if request.method == "GET":
-        return render_template('test-api.jinja2')
+        # wrapped in a real Response so that @Marshal passes it through
+        return make_response(render_template('test-api.jinja2'))
 
     current_app.logger.debug('################################################################################\n\n')
     current_app.logger.debug(f"Binding:\n{request.values['Binding']}")
@@ -1055,7 +1056,7 @@ def create_sign_request(documents: dict) -> dict:
     except KeyError:
         current_app.logger.error(f'Problem creating sign request, got response: {create_data}')
         # XXX translate
-        return {'error': True, 'message': create_data['message']}
+        return {'error': True, 'message': create_data.get('message', "Error creating sign request")}
 
     return {'payload': sign_data}
 
@@ -1288,7 +1289,7 @@ def recreate_sign_request(data: dict) -> dict:
         except KeyError:
             current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
             # XXX translate
-            return {'error': True, 'message': create_data['message']}
+            return {'error': True, 'message': create_data.get('message', "Error re-creating sign request")}
     else:
         sign_data = {
             'relay_state': "unused - nothing signing",
