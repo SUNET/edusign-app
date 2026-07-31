@@ -55,6 +55,33 @@ def _add_document_as_tester_invite(client, doc, owner):
     return invitations
 
 
+# The admin blueprint's before_request (check_admin_whitelist) identifies the
+# user by the Edupersonprincipalname header and 403s / 401s the rest. The test
+# client's eppn (dummy-eppn@example.org) is in the conftest ADMIN_WHITELIST.
+
+
+def test_admin_non_whitelisted(client):
+    client.environ_base["HTTP_EDUPERSONPRINCIPALNAME_20"] = 'not-an-admin@example.org'
+
+    response = client.post('/admin/cleanup')
+    assert response.status == '403 FORBIDDEN'
+
+
+def test_admin_no_eppn_header(client):
+    del client.environ_base["HTTP_EDUPERSONPRINCIPALNAME_20"]
+
+    response = client.post('/admin/cleanup')
+    assert response.status == '401 UNAUTHORIZED'
+
+
+def test_admin_eppn_header_11(client):
+    del client.environ_base["HTTP_EDUPERSONPRINCIPALNAME_20"]
+    client.environ_base["HTTP_EDUPERSONPRINCIPALNAME_11"] = 'dummy-eppn@example.org'
+
+    response = client.post('/admin/cleanup')
+    assert response.status == '200 OK'
+
+
 def test_admin_dashboard_empty(client):
     response = client.get('/admin/dashboard')
     assert response.status == '200 OK'

@@ -206,6 +206,11 @@ def parse_eid_whitelist(raw: str) -> dict:
 
 EID_WHITELIST = parse_eid_whitelist(RAW_EID_WHITELIST)
 
+# eppn's of the users allowed to access the admin views. Empty: no one is.
+RAW_ADMIN_WHITELIST = os.environ.get('ADMIN_WHITELIST', default='')
+
+ADMIN_WHITELIST = [eppn.lower().strip() for eppn in RAW_ADMIN_WHITELIST.split(',') if eppn.strip()]
+
 POLLING = os.environ.get('POLLING', default='always')  # always|inviter|never
 
 # Whether users are allowed to invite to sign with BankID or Freja+
