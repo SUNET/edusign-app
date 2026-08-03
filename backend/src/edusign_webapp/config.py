@@ -174,9 +174,37 @@ RAW_USER_WHITELIST = os.environ.get('USER_WHITELIST', default='whitelisted@eduid
 
 USER_WHITELIST = [eppn.lower().strip() for eppn in RAW_USER_WHITELIST.split(',')]
 
-RAW_BANKID_WHITELIST = os.environ.get('BANKID_WHITELIST', default='eduid.se, sunet.se')
+# Institutions allowed to invite eID (BankID/Freja) signatures. They pay a
+# flat rate for a certain number of signatures of each type, the quotas.
+# Comma separated entries of the form <scope>:<quota bankid>:<quota freja>;
+# with a single quota (<scope>:<quota>) it is common to both types; a bare
+# <scope> is whitelisted with no quotas.
+RAW_EID_WHITELIST = os.environ.get(
+    'EID_WHITELIST',
+    # BANKID_WHITELIST is the old name of the variable, read as a fallback
+    os.environ.get('BANKID_WHITELIST', default='eduid.se: 400 :500, sunet.se:500:250, dev.eduid.se:2'),
+)
 
-BANKID_WHITELIST = [scope.lower().strip() for scope in RAW_BANKID_WHITELIST.split(',')]
+
+def parse_eid_whitelist(raw: str) -> dict:
+    whitelist = {}
+    for raw_entry in raw.split(','):
+        entry = raw_entry.strip()
+        if not entry:
+            continue
+        parts = [part.strip() for part in entry.split(':')]
+        scope = parts[0].lower()
+        if len(parts) == 1:
+            quotas = {'bankid': None, 'freja': None}
+        elif len(parts) == 2:
+            quotas = {'bankid': int(parts[1]), 'freja': int(parts[1])}
+        else:
+            quotas = {'bankid': int(parts[1]), 'freja': int(parts[2])}
+        whitelist[scope] = quotas
+    return whitelist
+
+
+EID_WHITELIST = parse_eid_whitelist(RAW_EID_WHITELIST)
 
 # eppn's of the users allowed to access the admin views. Empty: no one is.
 RAW_ADMIN_WHITELIST = os.environ.get('ADMIN_WHITELIST', default='')

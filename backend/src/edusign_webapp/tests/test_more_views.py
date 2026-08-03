@@ -39,6 +39,7 @@ import json
 import uuid
 from base64 import b64encode
 
+from edusign_webapp.config import parse_eid_whitelist
 from edusign_webapp.marshal import ResponseSchema
 
 invitation_flags = [
@@ -218,7 +219,11 @@ def test_admin_dashboard_empty(client):
     assert response.status == '200 OK'
     assert b'Number of documents</td><td>0</td>' in response.data
     assert b'No documents' in response.data
-    assert b'No signatures' in response.data
+    # the whitelisted institutions show with no signatures
+    assert b'<td>sunet.se</td>' in response.data
+    assert b'<td>eduid.se</td>' in response.data
+    assert b'<td>dev.eduid.se</td>' in response.data
+    assert b'over-quota' not in response.data
 
 
 def test_admin_dashboard(client, sample_doc_1, sample_owner_1):
@@ -234,10 +239,59 @@ def test_admin_dashboard(client, sample_doc_1, sample_owner_1):
     # the document created today shows as a bar of height 180 in the graph
     assert b'id="docs-per-day"' in response.data
     assert b'height="180.0"' in response.data
-    # the payable signature shows in the usage table
-    assert b'<td>Test Org</td>' in response.data
-    assert b'<td>bankid</td>' in response.data
-    assert b'<td>1</td>' in response.data
+    # the payable signature shows in the usage table; Test Org is not in
+    # EID_WHITELIST, so it has no quota, and its over-quota columns show "-"
+    assert b'<td>Test Org</td><td>1</td><td>-</td><td>0</td><td>-</td>' in _terse(response.data)
+
+
+def test_parse_eid_whitelist():
+    parsed = parse_eid_whitelist('eduid.se: 400 :500, sunet.se:500:250, dev.eduid.se:2, Example.org, ')
+    assert parsed == {
+        'eduid.se': {'bankid': 400, 'freja': 500},
+        'sunet.se': {'bankid': 500, 'freja': 250},
+        'dev.eduid.se': {'bankid': 2, 'freja': 2},
+        'example.org': {'bankid': None, 'freja': None},
+    }
+
+
+def _terse(data):
+    """The usage table cells, without inter-tag whitespace."""
+    return b''.join(line.strip() for line in data.split(b'\n'))
+
+
+def _add_signatures(client, org, sig_type, number):
+    with client.application.test_request_context():
+        for i in range(number):
+            client.application.extensions['doc_store'].add_signature(
+                sig_type, org, 'test.pdf', f'owner-eppn@{org}', '199001019876', 1752000000000 + i
+            )
+
+
+def test_admin_dashboard_within_quota(client):
+    # sunet.se has quotas 500 (bankid) and 250 (freja) in the default config
+    _add_signatures(client, 'sunet.se', 'bankid', 3)
+    _add_signatures(client, 'sunet.se', 'freja', 2)
+
+    response = client.get('/admin/dashboard')
+    assert response.status == '200 OK'
+    assert b'<td>sunet.se</td><td>3</td><td>0</td><td>2</td><td>0</td>' in _terse(response.data)
+    assert b'over-quota' not in response.data
+
+
+def test_admin_dashboard_over_quota(client):
+    # dev.eduid.se has the common quota 2 in the default config; the
+    # within-quota column stays at the quota value, the excess goes in the
+    # highlighted over-quota column
+    _add_signatures(client, 'dev.eduid.se', 'bankid', 5)
+
+    response = client.get('/admin/dashboard')
+    assert response.status == '200 OK'
+    terse = _terse(response.data)
+    assert (
+        b'<td>dev.eduid.se</td><td>2</td>'
+        b'<td class="over-quota" style="color: #a00; font-weight: bold;">3</td>'
+        b'<td>0</td><td>0</td>' in terse
+    )
 
 
 def test_metrics(client, sample_doc_1, sample_owner_1):

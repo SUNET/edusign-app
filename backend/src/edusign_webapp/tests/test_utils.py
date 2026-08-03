@@ -493,7 +493,7 @@ def test_is_whitelisted_api_call(app):
 
 def test_is_whitelisted_for_bankid(app):
     _, app = app
-    app.config['BANKID_WHITELIST'] = ['example.org']
+    app.config['EID_WHITELIST'] = {'example.org': {'bankid': None, 'freja': None}}
     with app.test_request_context():
         assert is_whitelisted_for_bankid(app, 'anyone@example.org')
         assert not is_whitelisted_for_bankid(app, 'anyone@other.org')

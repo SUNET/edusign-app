@@ -180,6 +180,28 @@ def dashboard():
         day = datetime.fromtimestamp(doc['created'] / 1000).date().isoformat()
         counts[day] += 1
 
+    # the organization recorded with each signature is the inviter's eppn
+    # scope, the key of the EID_WHITELIST quotas. The table shows the union
+    # of the whitelisted institutions and the organizations with recorded
+    # signatures, one row per institution, and per eID method the number of
+    # signatures within the quota and over it.
+    quotas = current_app.config['EID_WHITELIST']
+    sig_counts: defaultdict = defaultdict(dict)
+    for row in current_app.extensions['doc_store'].get_signatures_global():
+        sig_counts[row['organization']][row['type']] = row['number_of_signatures']
+
+    usage = []
+    for org in sorted(set(quotas) | set(sig_counts)):
+        row = {'organization': org}
+        for sig_type in ('bankid', 'freja'):
+            count = sig_counts[org].get(sig_type, 0)
+            quota = quotas.get(org, {}).get(sig_type)
+            if quota is None:
+                row[sig_type] = {'within': count, 'over': None}
+            else:
+                row[sig_type] = {'within': min(count, quota), 'over': max(0, count - quota)}
+        usage.append(row)
+
     context = {
         'company_link': current_app.config['COMPANY_LINK'],
         'total_docs': len(docs),
@@ -188,7 +210,7 @@ def dashboard():
         'old_bytes': sum(doc['size'] for doc in old_docs),
         'histogram': [{'day': day, 'count': counts[day]} for day in sorted(counts)],
         'max_count': max(counts.values(), default=0),
-        'usage': current_app.extensions['doc_store'].get_signatures_global(),
+        'usage': usage,
     }
     return make_response(render_template('admin-dashboard.jinja2', **context))
 
