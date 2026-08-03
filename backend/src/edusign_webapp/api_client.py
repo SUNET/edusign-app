@@ -277,11 +277,12 @@ class APIClient(object):
         response = self._post(api_url, request_data, query_params)
 
         if current_app.logger.isEnabledFor(logging.DEBUG):
-            # deepcopy: the scrubbing below reaches into nested dicts,
-            # a shallow copy would truncate the real signed content
-            tolog = deepcopy(response)
-            for doc in tolog['signedDocuments']:
-                doc['signedContent'] = doc['signedContent'][:20] + '...'
+            # the prepare response has no signed documents; it carries the
+            # updated document inline only when document references are not
+            # requested (this client always requests them)
+            tolog = response.copy()
+            if 'updatedPdfDocument' in tolog:
+                tolog['updatedPdfDocument'] = str(tolog['updatedPdfDocument'])[:20] + '...'
             current_app.logger.debug(f"Data returned from the API's prepare endpoint: {pformat(tolog)}")
 
         return response
@@ -510,7 +511,8 @@ class APIClient(object):
 
         if current_app.logger.isEnabledFor(logging.DEBUG):
             tolog = response_data.copy()
-            tolog['signRequest'] = tolog['signRequest'][:20] + '...'
+            if 'signRequest' in tolog:
+                tolog['signRequest'] = tolog['signRequest'][:20] + '...'
             current_app.logger.debug(f"Data returned from the API's create endpoint: {pformat(tolog)}")
 
         return response_data, documents_with_id
