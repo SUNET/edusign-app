@@ -1048,7 +1048,7 @@ def create_sign_request(documents: dict) -> dict:
     except KeyError:
         current_app.logger.error(f'Problem creating sign request, got response: {create_data}')
         # XXX translate
-        return {'error': True, 'message': create_data.get('message', "Error creating sign resquest")}
+        return {'error': True, 'message': create_data.get('message', "Error creating sign request")}
 
     return {'payload': sign_data}
 
