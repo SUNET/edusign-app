@@ -555,9 +555,10 @@ class APIClient(object):
 
         if current_app.logger.isEnabledFor(logging.DEBUG):
             # deepcopy: the scrubbing below reaches into nested dicts,
-            # a shallow copy would truncate the real signed content
+            # a shallow copy would truncate the real signed content.
+            # Error responses carry no signedDocuments, hence the get.
             tolog = deepcopy(response)
-            for doc in tolog['signedDocuments']:
+            for doc in tolog.get('signedDocuments', []):
                 doc['signedContent'] = doc['signedContent'][:20] + '...'
             current_app.logger.debug(f"Data returned from the API's process endpoint: {pformat(tolog)}")
 
