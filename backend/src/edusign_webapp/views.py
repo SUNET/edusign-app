@@ -1155,6 +1155,7 @@ def _ready_docs(
         doc_key = doc['key']
 
         if doc_type == 'application/pdf':
+            current_app.logger.info(f"Prepared doc data: {doc_data}")
             ref = doc_data['updatedPdfDocumentReference']
             sign_req = json.dumps(doc_data['visiblePdfSignatureRequirement'])
 
@@ -1282,7 +1283,7 @@ def recreate_sign_request(data: dict) -> dict:
         except KeyError:
             current_app.logger.error(f'Problem re-creating sign request, got response: {create_data}')
             # XXX translate
-            return {'error': True, 'message': create_data['message']}
+            return {'error': True, 'message': create_data.get('message', "Error re-creating sign request")}
     else:
         sign_data = {
             'relay_state': "unused - nothing signing",
