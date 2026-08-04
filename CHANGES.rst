@@ -1,3 +1,34 @@
+In version 1.6.2
+----------------
+
+* PostgreSQL backend for document metadata, with a migration view from sqlite
+* Do not lock the sqlite db on reads (WAL journaling)
+* Migrate the Python environment to uv and upgrade Python dependencies
+* Upgrade the frontend JS test environment and fix frontend tests and warnings
+* Increase backend and frontend test coverage
+* Admin views reachable through Shibboleth, restricted to the eppn's in the new ADMIN_WHITELIST
+* Admin dashboard with document metrics, documents created per day, and payable eID signatures
+* Per-institution eID signature quotas in EID_WHITELIST (renamed from BANKID_WHITELIST, old name still read)
+* Remove PDF contents from logs
+* Harden access to views keyed by uuid
+* Fix SSN field in invite forms and check of user SSN
+* Style for the eID buttons
+* Assorted fixes: session attributes, missing-key errors in API responses, message strings
+* Translations update
+
+In version 1.6.0
+----------------
+
+* Fix handling of two eID invitations for the same user on the same document
+* Prevent duplicate invitations
+* Invitation reminders and invitation edition for eID invitations
+* Require MFA for assurance level AL3, and warn when inviting with AL3
+* Do not redirect stale eID sessions to seamlessaccess
+* No polling for eID signatures
+* Fix encoding of non-latin characters in XML document previews
+* Update invitation email texts
+* Remove PDFs from debug logs
+
 In version 1.5.2
 ----------------
 
