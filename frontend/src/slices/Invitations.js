@@ -273,7 +273,7 @@ const editInvitesBackToPersonal = async (doc, thunkAPI, intl) => {
     const response1 = await esFetch("/sign/get-partially-signed", {
       ...postRequest,
       body: body,
-    });
+    }, state, thunkAPI.dispatch);
     contentData = await checkStatus(response1);
     extractCsrfToken(thunkAPI.dispatch, contentData);
     if (contentData.error) {

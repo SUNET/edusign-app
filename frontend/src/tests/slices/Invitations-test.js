@@ -327,10 +327,7 @@ describe("editInvites thunk", () => {
     });
   });
 
-  it("fails to restore the document to personal when no invitees are left", async () => {
-    // editInvitesBackToPersonal calls esFetch("/sign/get-partially-signed")
-    // without the state and dispatch arguments, so esFetch throws before
-    // fetching and the thunk always takes its error path.
+  it("restores the document to personal when no invitees are left", async () => {
     const store = await setupStore({ owned_multisign: [ownedDoc()] });
     fetchMock
       .post("/sign/get-partially-signed", {
@@ -343,14 +340,17 @@ describe("editInvites thunk", () => {
     );
     await flush();
 
-    expect(fetchMock.called("/sign/get-partially-signed")).toEqual(false);
+    expect(fetchMock.called("/sign/get-partially-signed")).toEqual(true);
+    expect(fetchMock.called("/sign/remove-multi-sign")).toEqual(true);
     const state = store.getState();
-    expect(state.notifications.message).toEqual({
-      level: "danger",
-      message: "Problem editing invitation to sign, please try again",
-    });
-    expect(state.main.owned_multisign.length).toEqual(1);
-    expect(state.documents.documents.length).toEqual(0);
+    expect(state.notifications.message).toEqual(null);
+    expect(state.main.owned_multisign.length).toEqual(0);
+    expect(state.documents.documents.length).toEqual(1);
+    const restored = state.documents.documents[0];
+    expect(restored.state).toEqual("loaded");
+    expect(restored.blob).toEqual("data:application/pdf;base64,cGFydGlhbA==");
+    expect(restored.pprinted).toEqual("dummy pprint");
+    expect(restored.pending).toEqual(undefined);
   });
 });
 
