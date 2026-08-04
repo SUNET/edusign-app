@@ -53,6 +53,7 @@ class Invited extends Component {
               {["loaded", "selected"].includes(doc.state) && (
                 <FastSignatureContainer
                   doc={doc}
+                  intl={this.props.intl}
                 />
               )}
               {doc.state === "unconfirmed" && doc.type.endsWith("/xml") && (
