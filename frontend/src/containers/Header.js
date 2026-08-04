@@ -26,9 +26,9 @@ const mapStateToProps = (state) => {
     company_link: state.main.company_link,
     allowbankid: allowbankid,
   };
-  if (state.main.signer_attributes === undefined) {
+  if (state.main.signer_attributes == null) {
     return {
-      loading: true,
+      loading: false,
       ...common,
     };
   } else {

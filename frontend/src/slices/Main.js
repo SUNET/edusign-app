@@ -439,6 +439,7 @@ const mainSlice = createSlice({
       authn_context: "",
       identity_provider: "",
       using_bankid: false,
+      using_freja: false,
       invite_key: "",
     },
     owned_multisign: [],

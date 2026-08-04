@@ -15,7 +15,7 @@ import "styles/Header.scss";
 class Header extends Component {
   render() {
     let name = "";
-    const userInfoButton = (
+    const userInfoButton = this.props.signer_attributes !== undefined && (
       <span id="user-info-trigger" onClick={this.props.handleOpenUserInfo}>
         {this.props.signer_attributes.name}
       </span>

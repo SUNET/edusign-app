@@ -12,9 +12,9 @@ const mapStateToProps = (state) => {
   return {
     unauthn: state.main.unauthn,
     size: state.main.size,
-    loaded: state.main.signer_attributes !== undefined,
-    using_bankid: state.main.signer_attributes.using_bankid,
-    using_freja: state.main.signer_attributes.using_freja,
+    loaded: state.main.signer_attributes != null,
+    using_bankid: state.main.signer_attributes != null && state.main.signer_attributes.using_bankid,
+    using_freja: state.main.signer_attributes != null && state.main.signer_attributes.using_freja,
   };
 };
 
