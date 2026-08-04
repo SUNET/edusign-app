@@ -43,7 +43,7 @@ const mapStateToProps = (state, props) => {
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handleSendPDFForm: async function () {
-      await this.collectValues();
+      const values = await this.collectValues();
       const form = this.state.formRef.current;
       if (!form.isValid) {
         document
@@ -57,7 +57,7 @@ const mapDispatchToProps = (dispatch, props) => {
       await dispatch(
         sendPDFForm({
           doc: this.props.doc,
-          values: this.state.values,
+          values: values,
           newname: newname,
           intl: this.props.intl,
         }),

@@ -51,7 +51,7 @@ class PDFForm extends React.Component {
   }
 
   async firstPage() {
-    await collectValues();
+    await this.collectValues();
     this.setState({ pageNumber: 1 });
     this.restoreValues();
   }
@@ -131,7 +131,9 @@ class PDFForm extends React.Component {
         }
       }
     });
-    this.setState({ values: { ...this.state.values, ...values } });
+    const allValues = { ...this.state.values, ...values };
+    this.setState({ values: allValues });
+    return allValues;
   }
 
   restoreValues() {
@@ -250,10 +252,10 @@ class PDFForm extends React.Component {
               <Pagination
                 numPages={this.state.numPages}
                 pageNumber={this.state.pageNumber}
-                firstPage={this.firstPage}
-                previousPage={this.previousPage}
-                nextPage={this.nextPage}
-                lastPage={this.lastPage}
+                firstPage={this.firstPage.bind(this)}
+                previousPage={this.previousPage.bind(this)}
+                nextPage={this.nextPage.bind(this)}
+                lastPage={this.lastPage.bind(this)}
                 index={Number(0)}
               />
             </div>
