@@ -93,7 +93,7 @@ export const preparePayload = (state, payload) => {
 
 export const esFetch = async (resource, options, state, dispatch) => {
   if (window.document.location.pathname.includes("/sign2/")) {
-    resource.replace("/sign/", "/sign2/");
+    resource = resource.replace("/sign/", "/sign2/");
   }
   if (state.main.fetch_timer !== null) {
     clearTimeout(state.main.fetch_timer);
@@ -114,7 +114,7 @@ export const esFetch = async (resource, options, state, dispatch) => {
 
 export const getLocation = (resource) => {
   if (window.document.location.pathname.includes("/sign2/")) {
-    resource.replace("/sign/", "/sign2/");
+    resource = resource.replace("/sign/", "/sign2/");
   }
   return resource;
 };
