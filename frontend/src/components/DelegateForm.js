@@ -106,7 +106,7 @@ class DelegateForm extends React.Component {
                         placeholder="Jane Doe"
                         as={BForm.Control}
                         type="text"
-                        validate={validateName}
+                        validate={validateName(this.props)}
                         isValid={
                           fprops.touched.delegationName &&
                           !fprops.errors.delegationName
@@ -139,7 +139,7 @@ class DelegateForm extends React.Component {
                         as={BForm.Control}
                         type="text"
                         validate={validateEmail(
-                          this.props.email,
+                          this.props.mail,
                           this.props.mail_aliases,
                         )}
                         isValid={
