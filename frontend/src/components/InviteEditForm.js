@@ -35,8 +35,23 @@ const initialValues = (props) => {
   return vals;
 };
 
-const validate = () => {
-  return {};
+const validate = (props) => {
+  return (values) => {
+    const errors = {};
+    const max_invitees = values.skipfinalChoice
+      ? props.max_signatures
+      : props.max_signatures - 1;
+    if (values.invitees.length > max_invitees) {
+      errors.dummy = (
+        <FormattedMessage
+          defaultMessage="It is only possible to invite at most {max_signatures} people"
+          key="too-many-invitations"
+          values={{ max_signatures: max_invitees }}
+        />
+      );
+    }
+    return errors;
+  };
 };
 
 const validateBody = (value) => {
@@ -44,19 +59,33 @@ const validateBody = (value) => {
 };
 
 class InviteEditForm extends React.Component {
+  componentDidMount() {
+    this.syncAllowBankID();
+  }
+  componentDidUpdate() {
+    this.syncAllowBankID();
+  }
+  // Dispatching belongs in the lifecycle methods, not in render.
+  syncAllowBankID() {
+    if (
+      this.props.show &&
+      this.props.doc !== undefined &&
+      this.props.doc.use_eid &&
+      !this.props.allowbankid
+    ) {
+      this.props.handleAllowBankID(true);
+    }
+  }
   render() {
     if (!this.props.show)
       return "";
     const formId = "invite-form-" + this.props.doc.name;
-    if (this.props.doc.use_eid) {
-      this.props.handleAllowBankID(true);
-    }
     return (
       <>
         <Formik
           initialValues={initialValues(this.props)}
           onSubmit={this.props.handleSubmit.bind(this)}
-          validate={validate}
+          validate={validate(this.props)}
           enableReinitialize={true}
           validateOnBlur={true}
           validateOnChange={true}

@@ -24,19 +24,25 @@ import { addDocumentToDb, addDocument } from "slices/Documents";
  */
 export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
   try {
-    const state = thunkAPI.getState();
+    let state = thunkAPI.getState();
     if (state.main.signer_attributes.using_freja || state.main.signer_attributes.using_bankid) {
       return thunkAPI.rejectWithValue("No polling for eID invites");
     }
     if (!state.main.signer_attributes.eppn) {
       return thunkAPI.rejectWithValue("Not ready to poll");
     }
-    if (state.main.disablePoll) {
+    if (state.poll.disablePoll) {
       return thunkAPI.rejectWithValue("Polling disabled");
     }
     const response = await esFetch("/sign/poll", getRequest, state, thunkAPI.dispatch);
     const configData = await checkStatus(response);
     extractCsrfToken(thunkAPI.dispatch, configData);
+    // The state may have changed during the fetch: re-read it, and drop the
+    // results if polling was disabled in the meantime.
+    state = thunkAPI.getState();
+    if (state.poll.disablePoll) {
+      return thunkAPI.rejectWithValue("Polling disabled");
+    }
     if (configData.error) {
       return thunkAPI.rejectWithValue(configData.message);
     } else {
@@ -74,10 +80,6 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
       });
       thunkAPI.dispatch(setOwnedDocs(allOwned));
 
-      await configureSkipped(thunkAPI, configData, state.main.owned_multisign);
-
-      delete configData.payload.owned_multisign;
-
       const newInvitedNames = configData.payload.pending_multisign.map(
         (invited) => invited.name,
       );
@@ -107,6 +109,10 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
         }
       });
       thunkAPI.dispatch(setInvitedDocs(allInvited));
+
+      await configureSkipped(thunkAPI, configData, state.main.owned_multisign);
+
+      delete configData.payload.owned_multisign;
       delete configData.payload.pending_multisign;
 
       return configData;

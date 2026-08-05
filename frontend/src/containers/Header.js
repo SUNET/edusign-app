@@ -15,16 +15,16 @@ import { showUserInfo } from "slices/UserInfo";
 import { disablePolling } from "slices/Poll";
 
 const mapStateToProps = (state) => {
-  let allowbankid;
-  if (state.inviteform.allowbankid === null) {
-    allowbankid = state.main.ui_defaults.allow_bankid;
-  } else {
-    allowbankid = state.inviteform.allowbankid;
-  }
+  // Users authenticated through BankID / Freja+ (invited eID signers)
+  // have no SAML session: no greeting, no Logout button.
+  const eid_session =
+    state.main.signer_attributes != null &&
+    (state.main.signer_attributes.using_bankid ||
+      state.main.signer_attributes.using_freja);
   const common = {
     size: state.main.size,
     company_link: state.main.company_link,
-    allowbankid: allowbankid,
+    eid_session: eid_session,
   };
   if (state.main.signer_attributes == null) {
     return {

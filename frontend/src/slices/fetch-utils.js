@@ -20,6 +20,9 @@ export const checkStatus = async function (response) {
   } else if (response.status === 0) {
     const next = document.location.href;
     document.location.assign(next);
+    // The page is navigating away; never settle, so that callers
+    // do not process a missing response in the meantime.
+    return new Promise(() => {});
   } else {
     throw new Error("Error response from backend: " + response.statusText);
   }
@@ -94,9 +97,6 @@ export const preparePayload = (state, payload) => {
 export const esFetch = async (resource, options, state, dispatch) => {
   if (window.document.location.pathname.includes("/sign2/")) {
     resource = resource.replace("/sign/", "/sign2/");
-  }
-  if (state.main.fetch_timer !== null) {
-    clearTimeout(state.main.fetch_timer);
   }
   const timerID = setTimeout(async () => {
     if (state.main.stale_from !== 'none') {

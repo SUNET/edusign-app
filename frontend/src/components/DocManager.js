@@ -106,8 +106,8 @@ class DocManager extends React.Component {
                 </legend>
                 {this.props.templates.map((doc, index) => {
                   return (
-                    <React.Fragment key={index}>
-                      <DocumentTemplate key={index} doc={doc} {...this.props} />
+                    <React.Fragment key={doc.name}>
+                      <DocumentTemplate key={doc.name} doc={doc} {...this.props} />
                       <ConfirmDialogContainer
                         confirmId={"confirm-remove-" + doc.name}
                         title={this.props.intl.formatMessage({
@@ -176,7 +176,7 @@ class DocManager extends React.Component {
                   let docRepr = null;
                   if (doc.hasOwnProperty("pending")) {
                     const _docRepr = (
-                      <DocumentOwned key={index} doc={doc} {...this.props} />
+                      <DocumentOwned key={doc.name} doc={doc} {...this.props} />
                     );
                     if (doc.state === "signed") {
                       docRepr = (
@@ -204,7 +204,7 @@ class DocManager extends React.Component {
                   } else {
                     docRepr = (
                       <>
-                        <DocumentLocal key={index} doc={doc} {...this.props} />
+                        <DocumentLocal key={doc.name} doc={doc} {...this.props} />
                         <ConfirmDialogContainer
                           confirmId={"confirm-remove-" + doc.name}
                           title={this.props.intl.formatMessage({
@@ -225,7 +225,7 @@ class DocManager extends React.Component {
                     );
                   }
                   return (
-                    <React.Fragment key={index}>
+                    <React.Fragment key={doc.name}>
                       {docRepr}
                       {doc.state === "unconfirmed" &&
                         doc.type.endsWith("/pdf") && (

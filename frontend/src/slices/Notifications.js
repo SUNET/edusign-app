@@ -20,11 +20,11 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 export const addNotification = createAsyncThunk(
   "main/addNotification",
   async (arg, thunkAPI) => {
-    window.setTimeout(() => {
+    const timerId = window.setTimeout(() => {
       thunkAPI.dispatch(notificationsSlice.actions.rmNotification());
     }, 5000);
     window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-    return arg;
+    return { message: arg, timerId: timerId };
   },
 );
 
@@ -32,6 +32,7 @@ const notificationsSlice = createSlice({
   name: "notifications",
   initialState: {
     message: null,
+    timerId: null,
   },
   reducers: {
     /**
@@ -41,12 +42,18 @@ const notificationsSlice = createSlice({
      * This will clear a message from the notifications area of the header.
      */
     rmNotification(state) {
+      clearTimeout(state.timerId);
+      state.timerId = null;
       state.message = null;
     },
   },
   extraReducers: (builder) => {
     builder.addCase(addNotification.fulfilled, (state, action) => {
-      state.message = action.payload;
+      // Cancel the removal of the notification this one replaces,
+      // so that it cannot cut this one's 5 seconds short.
+      clearTimeout(state.timerId);
+      state.message = action.payload.message;
+      state.timerId = action.payload.timerId;
     });
   },
 });

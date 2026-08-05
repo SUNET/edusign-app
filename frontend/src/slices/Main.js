@@ -75,18 +75,14 @@ export const fetchConfig = createAsyncThunk(
         return thunkAPI.rejectWithValue(configData.message);
       } else {
         const eppn = configData.payload.signer_attributes.eppn;
-        thunkAPI.dispatch(
-          loadDocuments({
-            intl: intl,
-            eppn: eppn,
-          }),
-        );
         thunkAPI.dispatch(setInitialPolling(configData.payload.poll));
         delete configData.payload.poll;
 
         const allowbankid = configData.payload.ui_defaults.allow_bankid;
         thunkAPI.dispatch(setAllowBankID(allowbankid));
 
+        // The skipped docs are added to the IndexedDB db before dispatching
+        // loadDocuments, so that its read finds them there.
         for (const doc of configData.payload.skipped) {
           let prefix = "data:application/xml;base64,";
           if (doc.type === "application/pdf") {
@@ -106,6 +102,14 @@ export const fetchConfig = createAsyncThunk(
         }
 
         delete configData.payload.skipped;
+
+        thunkAPI.dispatch(
+          loadDocuments({
+            intl: intl,
+            eppn: eppn,
+          }),
+        );
+
         return configData;
       }
     } catch (err) {
@@ -923,6 +927,7 @@ const mainSlice = createSlice({
      *       to avoid reloading the page too often
      */
     setFetchTimer(state, action) {
+      clearTimeout(state.fetch_timer);
       return {
         ...state,
         fetch_timer: action.payload,

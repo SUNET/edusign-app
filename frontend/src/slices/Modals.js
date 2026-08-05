@@ -69,7 +69,18 @@ export const hideEditInvitationForm = createAsyncThunk(
   async (args, thunkAPI) => {
     try {
       const state = thunkAPI.getState();
-      const form_id = state.modals.form_id;
+      // The submit path hides the modal (clearing state.modals.form_id)
+      // before unlocking, so it provides the form_id in the args.
+      let form_id;
+      if (args !== undefined && args.form_id !== undefined) {
+        form_id = args.form_id;
+      } else {
+        form_id = state.modals.form_id;
+      }
+      if (form_id === null) {
+        thunkAPI.dispatch(modalsSlice.actions.hideForm());
+        return;
+      }
       const key = form_id.split("-edit-invitations")[0];
       const toSend = {
         key: key,

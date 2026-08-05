@@ -20,7 +20,7 @@ class Header extends Component {
         {this.props.signer_attributes.name}
       </span>
     );
-    const greeting = this.props.allowbankid
+    const greeting = this.props.eid_session
       ? (
           <span id="signing-with-span">
             { userInfoButton }
@@ -35,7 +35,7 @@ class Header extends Component {
             { userInfoButton }
           </span>
         );
-    const logoutButton = this.props.allowbankid
+    const logoutButton = this.props.eid_session
       ? ""
       : (
           <span id="logout-button-container">

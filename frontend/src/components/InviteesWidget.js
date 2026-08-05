@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import Button from "containers/Button";
@@ -443,12 +443,24 @@ function _InviteesArray(props) {
 
 const InviteesArray = connect(mapStateToProps)(_InviteesArray);
 
+// The next invitee id follows the highest id present in the form, so that
+// ids never collide with those seeded by the form's initial values.
+const nextInviteeId = (invitees) => {
+  let max = -1;
+  invitees.forEach((invitee) => {
+    const n = parseInt(String(invitee.id).replace("id", ""), 10);
+    if (!isNaN(n) && n > max) {
+      max = n;
+    }
+  });
+  return `id${max + 1}`;
+};
+
 function _InviteesWidget(props) {
-  const [n_invites, setNInvites] = useState(1);
   const fprops = useFormikContext();
   let too_many = false;
   const max_invitees = fprops.values.skipfinalChoice ? props.max_signatures : props.max_signatures - 1;
-  if (fprops.values.invitees.length > max_invitees) {
+  if (fprops.values.invitees.length >= max_invitees) {
     too_many = true;
   }
   const button = (arrayHelpers) => (
@@ -472,9 +484,8 @@ function _InviteesWidget(props) {
             email: "",
             ssn: "",
             lang: Cookies.get("lang") || "en",
-            id: `id${n_invites}`,
+            id: nextInviteeId(fprops.values.invitees),
           });
-          setNInvites(n_invites + 1);
         }}
       >
         <FormattedMessage

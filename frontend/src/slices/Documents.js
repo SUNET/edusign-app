@@ -127,8 +127,9 @@ export const loadDocuments = createAsyncThunk(
       // about the (invitation) documents that were sent to be signed. (see the
       // `restartSigningDocuments` thunk, where this information is set).
       //
-      const storageName =
-        "signing-" + hashCode(state.main.signer_attributes.eppn);
+      // The eppn comes in the args: this runs from fetchConfig, before the
+      // fetched signer_attributes have been merged into the state.
+      const storageName = "signing-" + hashCode(args.eppn);
       const stored = JSON.parse(localStorage.getItem(storageName));
       if (stored !== null) {
         [stored.invited, stored.owned].forEach((docs) => {

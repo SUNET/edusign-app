@@ -26,7 +26,7 @@ class Owned extends Component {
               ? DocPreviewContainer
               : XMLPreviewContainer;
           return (
-            <React.Fragment key={index}>
+            <React.Fragment key={doc.name}>
               <DocumentOwned key="0" doc={doc} {...this.props} />
               {doc.show && (
                 <Preview

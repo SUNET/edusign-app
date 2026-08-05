@@ -62,10 +62,10 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const _close = (dispatch) => {
+const _close = (dispatch, form_id) => {
   dispatch(unsetSpinning());
   dispatch(enablePolling());
-  dispatch(hideEditInvitationForm());
+  dispatch(hideEditInvitationForm({ form_id: form_id }));
   dispatch(unsetActiveId());
   dispatch(isNotInviting());
   dispatch(setOrdered(null));
@@ -80,7 +80,12 @@ const mapDispatchToProps = (dispatch, props) => {
       dispatch(enablePolling());
       dispatch(hideForm());
       dispatch(unsetActiveId());
-      setTimeout(_close, this.props.edit_form_timeout, dispatch);
+      setTimeout(
+        _close,
+        this.props.edit_form_timeout,
+        dispatch,
+        this.props.docKey + "-edit-invitations",
+      );
     },
     handleCloseResetting: function (resetForm) {
       return () => {
