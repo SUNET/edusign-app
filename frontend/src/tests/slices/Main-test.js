@@ -555,31 +555,62 @@ describe("getPartiallySignedDoc", () => {
     store.dispatch(
       setInvitedDocs([{ name: "inv.pdf", key: "k1", type: "application/pdf" }]),
     );
-    // retried: true makes the thunk throw instead of retrying. The thunk
-    // swallows the error and returns undefined, which the fulfilled reducer
-    // cannot handle; the dispatch throws. This test documents current
-    // behavior.
-    let threw = null;
-    try {
-      await store.dispatch(
-        getPartiallySignedDoc({
-          key: "k1",
-          stateKey: "pending_multisign",
-          intl: intl,
-          show: false,
-          showForced: false,
-          retried: true,
-        }),
-      );
-    } catch (err) {
-      threw = err;
-    }
-    expect(threw).not.toEqual(null);
+    // retried: true makes the thunk throw instead of retrying; the thunk
+    // rejects and the doc is left untouched.
+    const action = await store.dispatch(
+      getPartiallySignedDoc({
+        key: "k1",
+        stateKey: "pending_multisign",
+        intl: intl,
+        show: false,
+        showForced: false,
+        retried: true,
+      }),
+    );
+    expect(action.type).toEqual("main/getPartiallySignedDoc/rejected");
     await flush();
     expect(store.getState().notifications.message).toEqual({
       level: "danger",
       message: "Problem fetching document from the backend, please try again",
     });
+    const doc = store.getState().main.pending_multisign[0];
+    expect(doc.blob).toEqual(undefined);
+  });
+
+  it("retries once on a transient error response, without a toast", async () => {
+    fetchMock
+      .post(
+        "/sign/get-partially-signed",
+        { error: true, message: "transient" },
+        { repeat: 1 },
+      )
+      .post(
+        "/sign/get-partially-signed",
+        {
+          csrf_token: "csrf-part",
+          payload: { blob: "QUJD", pprinted: "pp-remote" },
+        },
+        { repeat: 1, overwriteRoutes: false },
+      );
+    const store = mkStore();
+    store.dispatch(
+      setInvitedDocs([{ name: "inv.pdf", key: "k1", type: "application/pdf" }]),
+    );
+    await store.dispatch(
+      getPartiallySignedDoc({
+        key: "k1",
+        stateKey: "pending_multisign",
+        intl: intl,
+        show: true,
+        showForced: false,
+      }),
+    );
+    await flush();
+    const state = store.getState();
+    const doc = state.main.pending_multisign[0];
+    expect(doc.blob).toEqual("data:application/pdf;base64,QUJD");
+    expect(doc.pprinted).toEqual("pp-remote");
+    expect(state.notifications.message).toEqual(null);
   });
 });
 
@@ -610,19 +641,17 @@ describe("declineSigning", () => {
     store.dispatch(
       setInvitedDocs([{ name: "inv.pdf", key: "k1", state: "loaded" }]),
     );
-    // same current-behavior caveat as in the getPartiallySignedDoc error test
-    let threw = null;
-    try {
-      await store.dispatch(declineSigning({ key: "k1", intl: intl }));
-    } catch (err) {
-      threw = err;
-    }
-    expect(threw).not.toEqual(null);
+    const action = await store.dispatch(
+      declineSigning({ key: "k1", intl: intl }),
+    );
+    expect(action.type).toEqual("main/declineSigning/rejected");
     await flush();
     expect(store.getState().notifications.message).toEqual({
       level: "danger",
       message: "Problem declining signature",
     });
+    const doc = store.getState().main.pending_multisign[0];
+    expect(doc.state).toEqual("loaded");
   });
 });
 
@@ -667,29 +696,24 @@ describe("delegateSignature", () => {
     store.dispatch(
       setInvitedDocs([{ name: "inv.pdf", key: "dk", state: "loaded" }]),
     );
-    // same current-behavior caveat as in the getPartiallySignedDoc error test
-    let threw = null;
-    try {
-      await store.dispatch(
-        delegateSignature({
-          values: {
-            inviteKey: "ik",
-            documentKey: "dk",
-            delegationName: "Delegate Delegated",
-            delegationEmail: "delegate@example.org",
-          },
-          intl: intl,
-        }),
-      );
-    } catch (err) {
-      threw = err;
-    }
-    expect(threw).not.toEqual(null);
+    const action = await store.dispatch(
+      delegateSignature({
+        values: {
+          inviteKey: "ik",
+          documentKey: "dk",
+          delegationName: "Delegate Delegated",
+          delegationEmail: "delegate@example.org",
+        },
+        intl: intl,
+      }),
+    );
+    expect(action.type).toEqual("main/delegateSignature/rejected");
     await flush();
     expect(store.getState().notifications.message).toEqual({
       level: "danger",
       message: "Problem delegating signature",
     });
+    expect(store.getState().main.pending_multisign.length).toEqual(1);
   });
 });
 

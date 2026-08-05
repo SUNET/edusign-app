@@ -96,7 +96,7 @@ export const loadDocuments = createAsyncThunk(
       const promisedDocuments = new Promise((resolve, reject) => {
         const transaction = db.transaction(["documents"]);
         transaction.onerror = (event) => {
-          resolve([]);
+          resolve({ templates: [], documents: [] });
         };
         const docStore = transaction.objectStore("documents");
         const docs = [];
@@ -528,7 +528,12 @@ export const createDocument = createAsyncThunk(
     // First we validate the document
     const doc = await validateDoc(args.doc, args.intl, state);
     if (doc.state === "failed-loading") {
-      await setChangedDocument(thunkAPI, doc, args.intl);
+      try {
+        await setChangedDocument(thunkAPI, doc, args.intl);
+      } catch (err) {
+        // The IndexedDB write failed; still show the document as failed.
+        thunkAPI.dispatch(documentsSlice.actions.setState(doc));
+      }
       return;
     }
 
@@ -566,7 +571,12 @@ export const createDocument = createAsyncThunk(
         defaultMessage: "Problem adding document, please try again",
         id: "save-doc-problem-db",
       });
-      await setChangedDocument(thunkAPI, doc, args.intl);
+      try {
+        await setChangedDocument(thunkAPI, doc, args.intl);
+      } catch (err) {
+        // The IndexedDB write failed again; still show the document as failed.
+        thunkAPI.dispatch(documentsSlice.actions.setState(doc));
+      }
       return;
     }
     // After loading the document locally in the browser, we send it to the backend
@@ -598,7 +608,12 @@ export const createDocument = createAsyncThunk(
         defaultMessage: "There was a problem signing the document",
         id: "prepare-doc-problem",
       });
-      await setChangedDocument(thunkAPI, doc, args.intl);
+      try {
+        await setChangedDocument(thunkAPI, doc, args.intl);
+      } catch (err) {
+        // The IndexedDB write failed; still show the document as failed.
+        thunkAPI.dispatch(documentsSlice.actions.setState(doc));
+      }
       return;
     }
     // Finally we try to update the document persisted in the IndexedDB database
@@ -621,7 +636,12 @@ export const createDocument = createAsyncThunk(
         defaultMessage: "Problem saving document in session",
         id: "save-doc-problem-session",
       });
-      await setChangedDocument(thunkAPI, doc, args.intl);
+      try {
+        await setChangedDocument(thunkAPI, doc, args.intl);
+      } catch (err) {
+        // The IndexedDB write failed; still show the document as failed.
+        thunkAPI.dispatch(documentsSlice.actions.setState(doc));
+      }
     }
   },
 );
@@ -906,7 +926,11 @@ export const startSigningDocuments = createAsyncThunk(
         id: "problem-signing-doc",
       });
       thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
-      if (data.payload.documents !== undefined) {
+      if (
+        data !== null &&
+        data.payload !== undefined &&
+        data.payload.documents !== undefined
+      ) {
         for (const doc of data.payload.documents) {
           await thunkAPI.dispatch(saveDocument({ docKey: doc.key }));
         }
@@ -1080,6 +1104,7 @@ export const restartSigningDocuments = createAsyncThunk(
       thunkAPI.dispatch(documentsSlice.actions.signFailure(message));
       thunkAPI.dispatch(invitationsSignFailure(message));
       if (
+        data !== null &&
         data.hasOwnProperty("payload") &&
         data.payload.hasOwnProperty("documents")
       ) {
@@ -1609,16 +1634,25 @@ const documentsSlice = createSlice({
       })
 
       .addCase(prepareDocument.rejected, (state, action) => {
+        // The thunk returns "failed-preparing" docs on anticipated errors,
+        // so a rejection carries no payload; recover the doc from the args.
+        let failedDoc = action.payload;
+        if (failedDoc === undefined) {
+          failedDoc = {
+            ...action.meta.arg.doc,
+            state: "failed-preparing",
+          };
+        }
         let added = false;
         state.documents = state.documents.map((doc) => {
-          if (doc.name === action.payload.name) {
+          if (doc.name === failedDoc.name) {
             added = true;
             return {
-              ...action.payload,
+              ...failedDoc,
             };
           } else return doc;
         });
-        if (!added) state.documents.push({ ...action.payload });
+        if (!added) state.documents.push({ ...failedDoc });
       })
       .addCase(downloadAllSigned.fulfilled, (state, action) => {
         console.log("Downloaded all successfully");

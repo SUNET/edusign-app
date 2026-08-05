@@ -164,7 +164,8 @@ export const getPartiallySignedDoc = createAsyncThunk(
             ...args,
             retried: true
           };
-          thunkAPI.dispatch(getPartiallySignedDoc(newArgs));
+          await thunkAPI.dispatch(getPartiallySignedDoc(newArgs));
+          return { key: args.key, stateKey: args.stateKey };
         } else {
           throw new Error(data.message);
         }
@@ -186,6 +187,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
           }),
         }),
       );
+      return thunkAPI.rejectWithValue(err.toString());
     }
   },
 );
@@ -227,6 +229,7 @@ export const declineSigning = createAsyncThunk(
           }),
         }),
       );
+      return thunkAPI.rejectWithValue(err.toString());
     }
   },
 );
@@ -419,6 +422,7 @@ export const delegateSignature = createAsyncThunk(
           }),
         }),
       );
+      return thunkAPI.rejectWithValue(err.toString());
     }
   },
 );

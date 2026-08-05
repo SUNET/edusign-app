@@ -53,14 +53,23 @@ export async function getDb(name) {
   if (!name)
     return null;
   if (db === null) {
+    const newdb = await getNewDb(name);
+    if (newdb === null) {
+      return null;
+    }
     const olddb = await getOldDb();
-    db = await getNewDb(name);
+    db = newdb;
+    if (olddb === null) {
+      return db;
+    }
 
     const oldTransaction = olddb.transaction(["documents"], "readwrite");
-    oldTransaction.onerror = (event) => {};
     const oldStore = oldTransaction.objectStore("documents");
 
     await new Promise((resolve) => {
+      oldTransaction.onerror = (event) => {
+        resolve();
+      };
       oldStore.openCursor().onsuccess = (event) => {
         const cursor = event.target.result;
         if (cursor) {
@@ -80,6 +89,9 @@ export async function getDb(name) {
         if (cursor === null) {
           const docRequest = oldStore.clear();
           docRequest.onsuccess = (e) => {
+            resolve();
+          };
+          docRequest.onerror = (e) => {
             resolve();
           };
         }
