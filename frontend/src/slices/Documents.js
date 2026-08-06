@@ -309,14 +309,29 @@ export const validateDoc = async (doc, intl, state) => {
   });
 
   if (newDoc === null) {
+    // The doc being validated is already in the state, so entries with its
+    // `created` timestamp are not counted as duplicates directly: the doc
+    // accounts for one of them, and only a second one (a same-named file
+    // dropped in the same batch) makes a duplicate.
+    let sameCreated = 0;
     state.documents.documents.forEach((document) => {
-      if (document.name === doc.name && document.created !== doc.created) {
-        newDoc = {
-          ...doc,
-          state: "dup",
-        };
+      if (document.name === doc.name) {
+        if (document.created !== doc.created) {
+          newDoc = {
+            ...doc,
+            state: "dup",
+          };
+        } else {
+          sameCreated += 1;
+        }
       }
     });
+    if (newDoc === null && sameCreated > 1) {
+      newDoc = {
+        ...doc,
+        state: "dup",
+      };
+    }
   }
 
   if (newDoc === null) {
@@ -406,9 +421,14 @@ export const saveDocument = createAsyncThunk(
   async (args, thunkAPI) => {
     const state = thunkAPI.getState();
     const doc = state.documents.documents.find((d) => {
-      return d.key === args.docKey;
+      if (args.docKey !== undefined) {
+        return d.key === args.docKey;
+      }
+      return d.name === args.docName;
     });
-    await dbSaveDocument(doc);
+    if (doc !== undefined) {
+      await dbSaveDocument(doc);
+    }
     return doc;
   },
 );
