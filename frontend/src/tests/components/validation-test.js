@@ -25,6 +25,9 @@ describe("validateEmail", () => {
     expect(validateEmail(props, [], 0)("invited@example.org")).toEqual(
       undefined,
     );
+    expect(validateEmail(props, [], 0)("invited@example.systems")).toEqual(
+      undefined,
+    );
   });
 
   it("requires a value", () => {
@@ -34,7 +37,7 @@ describe("validateEmail", () => {
 
   it("rejects malformed addresses", () => {
     const validate = validateEmail(props, [], 0);
-    ["not-an-email", "a@b", "a@b.c", "a@b.toolong", "a b@example.org"].forEach(
+    ["not-an-email", "a@b", "a@b.c", "a b@example.org"].forEach(
       (value) => {
         expect(msg(validate(value))).toEqual("Invalid email");
       },
