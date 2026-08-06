@@ -349,7 +349,7 @@ class DocManager extends React.Component {
                 {widgets.buttonClearPersonal(
                   disableClearButton,
                   this.props.showConfirm("confirm-clear-session"),
-                  this.props.clearDb,
+                  this.props.clearDb.bind(this),
                   this.props.intl,
                 )}
               </>

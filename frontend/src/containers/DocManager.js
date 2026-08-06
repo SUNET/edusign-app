@@ -127,7 +127,9 @@ const mapDispatchToProps = (dispatch, props) => {
       return async () => {
         dispatch(setState({ name: doc.name, state: "loading" }));
         await dispatch(prepareDocument({ doc: doc, intl: props.intl }));
-        await dispatch(saveDocument({ docKey: doc.key }));
+        // The doc in the closure predates the retry, and a failed-preparing
+        // doc carries no key; the prepared doc is found in the state by name.
+        await dispatch(saveDocument({ docName: doc.name }));
         dispatch(unsetSpinning());
       };
     },
@@ -164,7 +166,7 @@ const mapDispatchToProps = (dispatch, props) => {
       };
     },
     clearDb: function () {
-      clearDocStore(dispatch, props.intl);
+      clearDocStore(dispatch, this.props.intl);
       dispatch(removeAllDocuments());
     },
     showConfirm: function (confirmId) {
