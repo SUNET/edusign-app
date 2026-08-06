@@ -151,7 +151,10 @@ def _post_get_partially_signed(client, monkeypatch, key):
     response1 = client.get('/sign/')
     assert response1.status == '200 OK'
 
-    with client.session_transaction() as sess:
+    # The transaction must be opened at a path the session cookie matches
+    # (SESSION_COOKIE_PATH is /sign); the default fake request at / opens an
+    # empty session and clobbers the cookie on exit.
+    with client.session_transaction(path='/sign') as sess:
         csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
         user_key = sess['user_key']
 
