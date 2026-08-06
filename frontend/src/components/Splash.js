@@ -32,6 +32,18 @@ const spinnerOpts = {
  */
 class Splash extends Component {
   componentDidMount() {
+    this.spin();
+  }
+
+  // The splash div unmounts (taking the spinner with it) when loading
+  // finishes; a new spinner is needed each time loading starts again.
+  componentDidUpdate(prevProps) {
+    if (!prevProps.is_app_loading) {
+      this.spin();
+    }
+  }
+
+  spin() {
     if (this.props.is_app_loading) {
       const splash = document.getElementById("edusign-splash-screen");
       new Spinner(spinnerOpts).spin(splash);
