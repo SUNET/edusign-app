@@ -1344,9 +1344,9 @@ def sign_service_callback_eid(invite_key) -> Union[str, Response]:
              to retrieve the signed documents.
     """
     if request.method == 'GET':
-        if session['using-freja']:
+        if session.get('using-freja', False):
             return redirect(url_for('edusign.get_index_freja', invite_key=invite_key))
-        elif session['using-bankid']:
+        elif session.get('using-bankid', False):
             return redirect(url_for('edusign.get_index_bankid', invite_key=invite_key))
 
     return _common_callback()
@@ -1608,12 +1608,12 @@ def _process_signed_documents(process_data):
                 org = 'unknown'
                 current_app.logger.debug(f"Missing organization info in owner eppn: {owner['eppn']}")
 
-            if session['using-bankid']:
+            if session.get('using-bankid', False):
                 authnInstant = int(process_data['signerAssertionInformation']['authnInstant'])
                 # current_app.extensions['doc_store'].add_signature('bankid', org, doc['name'], owner['eppn'], session['eppn'], authnInstant)
                 current_app.extensions['doc_store'].add_signature('bankid', org, '', '', '', authnInstant)
 
-            if session['using-freja']:
+            if session.get('using-freja', False):
                 authnInstant = int(process_data['signerAssertionInformation']['authnInstant'])
                 # current_app.extensions['doc_store'].add_signature('bankid', org, doc['name'], owner['eppn'], session['eppn'], authnInstant)
                 current_app.extensions['doc_store'].add_signature('freja', org, '', '', '', authnInstant)
