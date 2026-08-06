@@ -1011,7 +1011,7 @@ def create_sign_request(documents: dict) -> dict:
              or information about some error obtained in the process.
     """
     if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
-        if not session['invited-unauthn']:
+        if not session.get('invited-unauthn', False):
             invites = get_invitations()
             if len(invites['pending_multisign']) == 0:
                 return {'error': True, 'message': gettext('Unauthorized')}
@@ -1222,7 +1222,7 @@ def recreate_sign_request(data: dict) -> dict:
              or information about some error obtained in the process.
     """
     if 'mail' not in session or not is_whitelisted(current_app, session['eppn']):
-        if not session['invited-unauthn']:
+        if not session.get('invited-unauthn', False):
             invites = get_invitations()
             if len(invites['pending_multisign']) == 0:
                 return {'error': True, 'message': gettext('Unauthorized')}
