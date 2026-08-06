@@ -35,8 +35,19 @@ const mapDispatchToProps = (dispatch) => {
     handleFileDrop: function (intl) {
       return async (fileObjs) => {
         dispatch(setLoading());
-        const maxIndex = fileObjs.length - 1;
-        let index = 0;
+        if (fileObjs.length === 0) {
+          dispatch(setWaiting());
+          return;
+        }
+        // Back to the waiting state once every file has been read,
+        // successfully or not.
+        let remaining = fileObjs.length;
+        const fileDone = () => {
+          remaining--;
+          if (remaining === 0) {
+            dispatch(setWaiting());
+          }
+        };
         for (const fileObj of fileObjs) {
           const file = {
             name: fileObj.name,
@@ -53,9 +64,7 @@ const mapDispatchToProps = (dispatch) => {
               blob: reader.result,
             };
             await dispatch(createDocument({ doc: updatedFile, intl: intl }));
-            if (index === maxIndex) {
-              dispatch(setWaiting());
-            }
+            fileDone();
           };
           reader.onerror = async (e) => {
             const errorMsg = intl.formatMessage(
@@ -74,11 +83,9 @@ const mapDispatchToProps = (dispatch) => {
             });
             dispatch(setState(file));
             await dispatch(createDocument({ doc: file, intl: intl }));
-            dispatch(setWaiting());
+            fileDone();
           };
           reader.readAsDataURL(fileObj);
-          dispatch(setWaiting());
-          index++;
         }
       };
     },
