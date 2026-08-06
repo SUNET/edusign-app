@@ -12,7 +12,6 @@ class ESDropdownItem extends Component {
     return (
       <Dropdown.Item
         data-testid={props.id}
-        parentid={"dropdown-" + props.doc.key || props.doc.name}
         onClick={doHandleClick.bind(this)}
         {...props}
       >
@@ -24,7 +23,6 @@ class ESDropdownItem extends Component {
 
 ESDropdownItem.propTypes = {
   id: PropTypes.string,
-  parentId: PropTypes.string,
   disabling: PropTypes.bool,
   onClick: PropTypes.func,
 };
