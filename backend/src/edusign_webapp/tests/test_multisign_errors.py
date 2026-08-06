@@ -58,7 +58,10 @@ def _csrf_setup(client, monkeypatch):
     response = client.get('/sign/')
     assert response.status == '200 OK'
 
-    with client.session_transaction() as sess:
+    # The transaction must be opened at a path the session cookie matches
+    # (SESSION_COOKIE_PATH is /sign); the default fake request at / opens an
+    # empty session and clobbers the cookie on exit.
+    with client.session_transaction(path='/sign') as sess:
         csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
         # read the real stored value, bypassing any previously patched
         # SecureCookieSession.__getitem__ from an earlier call to this helper

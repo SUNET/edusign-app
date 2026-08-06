@@ -124,10 +124,10 @@ def _post_get_signed(client, monkeypatch, process_data, sent, using=None):
     assert response1.status == '200 OK'
 
     if using is not None:
-        with client.session_transaction() as sess:
+        with client.session_transaction(path='/sign') as sess:
             sess[f'using-{using}'] = True
 
-    with client.session_transaction() as sess:
+    with client.session_transaction(path='/sign') as sess:
         csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
         user_key = sess['user_key']
 

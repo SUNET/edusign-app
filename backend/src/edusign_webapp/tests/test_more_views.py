@@ -56,7 +56,10 @@ def _csrf_post(client, monkeypatch, url, payload):
     response1 = client.get('/sign/')
     assert response1.status == '200 OK'
 
-    with client.session_transaction() as sess:
+    # The transaction must be opened at a path the session cookie matches
+    # (SESSION_COOKIE_PATH is /sign); the default fake request at / opens an
+    # empty session and clobbers the cookie on exit.
+    with client.session_transaction(path='/sign') as sess:
         csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
         # read the real stored value, bypassing any previously patched
         # SecureCookieSession.__getitem__ from an earlier call to this helper
@@ -163,7 +166,7 @@ def test_index_non_whitelisted(app, environ_base):
 
 
 def test_index_using_bankid_redirects_home(client):
-    with client.session_transaction() as sess:
+    with client.session_transaction(path='/sign') as sess:
         sess['using-bankid'] = True
 
     response = client.get('/sign/')
@@ -334,7 +337,7 @@ def test_callback_post_invalid_data(client):
 
 def test_callback_eid_get_redirects(client):
     invite_key = str(uuid.uuid4())
-    with client.session_transaction() as sess:
+    with client.session_transaction(path='/sign') as sess:
         sess['using-freja'] = True
         sess['using-bankid'] = False
 
@@ -342,7 +345,7 @@ def test_callback_eid_get_redirects(client):
     assert response.status == '302 FOUND'
     assert f'/sign/freja/{invite_key}' in response.location
 
-    with client.session_transaction() as sess:
+    with client.session_transaction(path='/sign') as sess:
         sess['using-freja'] = False
         sess['using-bankid'] = True
 
