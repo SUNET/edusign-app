@@ -1,4 +1,4 @@
-import fetchMock from "fetch-mock";
+import fetchMock from "@fetch-mock/jest";
 
 import { edusignStore } from "init-app/init-app";
 import { resetDb, dbSaveDocument, getDb } from "init-app/database";
@@ -111,7 +111,7 @@ describe("Documents slice", () => {
   });
 
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
     jest.restoreAllMocks();
   });
 
@@ -592,7 +592,7 @@ describe("Documents slice", () => {
       expect(result.payload).toEqual(
         "Document test.pdf missing sign requirement",
       );
-      expect(fetchMock.called("/sign/recreate-sign-request")).toEqual(true);
+      expect(fetchMock.callHistory.called("/sign/recreate-sign-request")).toEqual(true);
     });
 
     it("restarts signing when the preparation has expired", async () => {

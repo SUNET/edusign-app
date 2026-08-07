@@ -13,8 +13,8 @@ import Pagination from "components/Pagination";
 
 import "styles/DocPreview.scss";
 import "styles/PDFForm.scss";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
-import "react-pdf/dist/esm/Page/TextLayer.css";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 
 const initValues = (props) => ({ newfname: nameForCopy(props) });
 
@@ -36,15 +36,15 @@ class PDFForm extends React.Component {
     super(props);
     this.state = {
       formRef: React.createRef(),
-      docRef: React.createRef(),
+      pdf: null,
       numPages: null,
       pageNumber: 1,
       values: {},
     };
   }
 
-  onDocumentLoadSuccess({ numPages }) {
-    this.setState({ numPages });
+  onDocumentLoadSuccess(pdf) {
+    this.setState({ pdf: pdf, numPages: pdf.numPages });
   }
 
   changePage(offset) {
@@ -75,33 +75,8 @@ class PDFForm extends React.Component {
     this.restoreValues();
   }
 
-  // https://github.com/mozilla/pdf.js/issues/15597
-  // remove this function once the fix for the above reaches react-pdf,
-  // which should depend on pdfjs-dist >= 3.0.279
-  async fixCheckboxBug() {
-    const pdf = this.state.docRef.current.state.pdf;
-    const page = await pdf.getPage(this.state.pageNumber);
-    const annotations = await page.getAnnotations();
-    annotations.forEach((ann) => {
-      if (ann.subtype === "Widget" && ann.checkBox) {
-        const elemId = `pdfjs_internal_id_${ann.id}`;
-        window.setTimeout(() => {
-          const elem = document.getElementById(elemId);
-          if (elem) {
-            elem.addEventListener("click", (e) => {
-              const checked = e.target.checked;
-              setTimeout(() => {
-                e.target.checked = checked;
-              }, 100);
-            });
-          }
-        }, 500);
-      }
-    });
-  }
-
   async collectValues() {
-    const pdf = this.state.docRef.current.state.pdf;
+    const pdf = this.state.pdf;
     const page = await pdf.getPage(this.state.pageNumber);
     const annotations = await page.getAnnotations();
     const values = {};
@@ -154,7 +129,6 @@ class PDFForm extends React.Component {
   }
 
   async initPage() {
-    await this.fixCheckboxBug();
     this.restoreValues();
   }
 
@@ -217,7 +191,6 @@ class PDFForm extends React.Component {
 
           <Modal.Body>
             <Document
-              ref={this.state.docRef}
               file={this.props.docFile}
               onLoadSuccess={this.onDocumentLoadSuccess.bind(this)}
               onPassword={(c) => {

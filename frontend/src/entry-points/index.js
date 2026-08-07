@@ -13,7 +13,7 @@ import React from "react";
 
 import { pdfjs } from "react-pdf";
 
-pdfjs.GlobalWorkerOptions.workerSrc = "/js/pdf.worker.min.js";
+pdfjs.GlobalWorkerOptions.workerSrc = "/js/pdf.worker.min.mjs";
 
 // End of PDF.js worker
 

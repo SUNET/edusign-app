@@ -13,13 +13,12 @@
  */
 
 const React = require("react");
-const realPdfjs = require("pdfjs-dist/legacy/build/pdf.js");
+const realPdfjs = require("pdfjs-dist/legacy/build/pdf.mjs");
 
-// No worker in jsdom: pdfjs falls back to its fake worker, which requires
-// this module in the main thread.
-realPdfjs.GlobalWorkerOptions.workerSrc = require.resolve(
-  "pdfjs-dist/legacy/build/pdf.worker.js",
-);
+// No worker in jsdom: pdfjs falls back to its fake worker. Preloading the
+// worker module on globalThis makes pdfjs use it directly, instead of
+// reaching it through a dynamic import that hangs under jest.
+globalThis.pdfjsWorker = require("pdfjs-dist/legacy/build/pdf.worker.mjs");
 
 /**
  * The app loads PDFs from data: URLs ({url: doc.blob}); in jsdom pdfjs's

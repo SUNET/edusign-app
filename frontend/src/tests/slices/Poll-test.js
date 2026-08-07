@@ -2,7 +2,7 @@
  * Tests for slices/Poll: the reducers, and the poll thunk against a real
  * store, with fetch-mock for the backend.
  */
-import fetchMock from "fetch-mock";
+import fetchMock from "@fetch-mock/jest";
 
 import { edusignStore } from "init-app/init-app";
 import { resetDb } from "init-app/database";
@@ -135,7 +135,7 @@ describe("poll thunk", () => {
     await resetDb();
   });
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
     jest.useRealTimers();
   });
 

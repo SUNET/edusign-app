@@ -1,6 +1,6 @@
 import React from "react";
 import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
-import fetchMock from "fetch-mock";
+import fetchMock from "@fetch-mock/jest";
 
 import {
   setupReduxComponent,
@@ -19,7 +19,7 @@ describe("Multi sign invitations", function () {
   });
   afterEach(() => {
     cleanup();
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it("It shows the invites form after clicking the invite button", async () => {

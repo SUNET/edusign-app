@@ -12,7 +12,7 @@ import Pagination from "components/Pagination";
 import { docToFile } from "components/utils";
 
 import "styles/DocPreview.scss";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/AnnotationLayer.css";
 
 const documentOptions = {
   cMapUrl: "/js/cmaps/",

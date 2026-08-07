@@ -8,20 +8,19 @@ module.exports = {
   moduleDirectories: ["node_modules", "<rootDir>/src"],
   moduleFileExtensions: ["js", "mjs", "json"],
   transform: {
-    "^.+\\.m?js$": "babel-jest",
+    // pdfjs-dist 5's bundles take minutes under babel; esbuild does them
+    // in under a second
+    "node_modules/pdfjs-dist/.+\\.mjs$":
+      "<rootDir>/src/tests/esbuild-transformer.js",
+    "^(?!.*node_modules/pdfjs-dist/).+\\.m?js$": "babel-jest",
   },
-  // ESM-only packages need the babel transform. react-intl 10 and its
-  // @formatjs dependencies ship ESM. pdfjs-dist 2.x (react-pdf 6) is CJS and
-  // needs no transform; when react-pdf goes to 10 (ESM pdfjs), add pdfjs-dist
-  // to the exceptions.
+  // ESM-only packages need the babel transform: react-intl 10 with its
+  // @formatjs dependencies, and pdfjs-dist 5 (react-pdf 10).
   transformIgnorePatterns: [
-    "/node_modules/(?!spin\\.js/|react-intl/|@formatjs/|intl-messageformat/)",
+    "/node_modules/(?!spin\\.js/|react-intl/|@formatjs/|intl-messageformat/|pdfjs-dist/)",
   ],
   moduleNameMapper: {
     "^react-pdf$": "<rootDir>/src/tests/mocks/react-pdf.js",
-    // the browser build, wrapping the whatwg-fetch polyfill; the node build
-    // would require node-fetch, which is not installed
-    "^fetch-mock$": "<rootDir>/node_modules/fetch-mock/cjs/client.js",
     "\\.(css|scss|sass)$": "identity-obj-proxy",
     "\\.(svg|png|jpe?g|gif)$": "<rootDir>/src/tests/mocks/fileMock.js",
   },

@@ -1,6 +1,6 @@
 import React from "react";
 import { screen, waitFor, cleanup } from "@testing-library/react";
-import fetchMock from "fetch-mock";
+import fetchMock from "@fetch-mock/jest";
 
 import {
   setupComponent,
@@ -24,7 +24,7 @@ describe("DnDArea Component", function () {
   });
   afterEach(() => {
     cleanup();
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it("Shows dnd area ready to accept documents", function () {
@@ -285,7 +285,7 @@ describe("DnDArea Component", function () {
       rmButton = await waitFor(() => screen.getAllByText("Remove"));
       expect(rmButton.length).toEqual(1);
 
-      fetchMock.restore();
+      fetchMock.hardReset();
     } catch (err) {
       unmount();
       throw err;

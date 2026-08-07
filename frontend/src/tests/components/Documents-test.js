@@ -1,6 +1,6 @@
 import React from "react";
 import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
-import fetchMock from "fetch-mock";
+import fetchMock from "@fetch-mock/jest";
 import { FileSaver } from "slices/Documents";
 
 import {
@@ -38,7 +38,7 @@ describe("Document representations", function () {
 
   afterEach(() => {
     cleanup();
-    fetchMock.restore();
+    fetchMock.hardReset();
     jest.restoreAllMocks();
   });
 

@@ -1,5 +1,5 @@
 import { waitFor } from "@testing-library/react";
-import fetchMock from "fetch-mock";
+import fetchMock from "@fetch-mock/jest";
 
 import { edusignStore } from "init-app/init-app";
 import { resetDb } from "init-app/database";
@@ -133,7 +133,7 @@ describe("Modals slice reducers", function () {
 
 describe("Modals slice thunks", function () {
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
     jest.restoreAllMocks();
   });
 
@@ -298,7 +298,7 @@ describe("PDFForms slice thunks", function () {
     await resetDb();
   });
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   const formArgs = (extra) => {
@@ -393,7 +393,7 @@ describe("PDFForms slice thunks", function () {
 
 describe("fetch-utils", function () {
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it("checkStatus returns the json body on success", async function () {

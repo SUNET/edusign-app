@@ -1,4 +1,4 @@
-import fetchMock from "fetch-mock";
+import fetchMock from "@fetch-mock/jest";
 import { saveAs } from "file-saver";
 import { updateIntl } from "init-app/intl";
 
@@ -364,7 +364,7 @@ describe("fetchConfig", () => {
     await resetDb();
   });
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
     localStorage.clear();
   });
 
@@ -488,7 +488,7 @@ describe("fetchConfig", () => {
 
 describe("getPartiallySignedDoc", () => {
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it("uses the local copy when the doc already has a blob", async () => {
@@ -590,7 +590,7 @@ describe("getPartiallySignedDoc", () => {
           csrf_token: "csrf-part",
           payload: { blob: "QUJD", pprinted: "pp-remote" },
         },
-        { repeat: 1, overwriteRoutes: false },
+        { repeat: 1 },
       );
     const store = mkStore();
     store.dispatch(
@@ -616,7 +616,7 @@ describe("getPartiallySignedDoc", () => {
 
 describe("declineSigning", () => {
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it("marks the doc declined on success", async () => {
@@ -657,7 +657,7 @@ describe("declineSigning", () => {
 
 describe("delegateSignature", () => {
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
   });
 
   it("removes the doc and notifies on success", async () => {
@@ -719,7 +719,7 @@ describe("delegateSignature", () => {
 
 describe("draft downloads", () => {
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
     saveAs.mockClear();
   });
 
@@ -779,7 +779,7 @@ describe("finishInvited", () => {
     await resetDb();
   });
   afterEach(() => {
-    fetchMock.restore();
+    fetchMock.hardReset();
     localStorage.clear();
   });
 

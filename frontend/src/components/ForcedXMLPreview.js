@@ -8,7 +8,7 @@ import Modal from "react-bootstrap/Modal";
 import { ESTooltip } from "containers/Overlay";
 
 import "styles/XMLPreview.scss";
-import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/AnnotationLayer.css";
 
 /**
  * @desc To show a modal dialog with an XML document.
