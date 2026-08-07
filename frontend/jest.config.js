@@ -10,10 +10,13 @@ module.exports = {
   transform: {
     "^.+\\.m?js$": "babel-jest",
   },
-  // ESM-only packages need the babel transform. pdfjs-dist 2.x (react-pdf 6)
-  // is CJS and needs no transform; when react-pdf goes to 10 (ESM pdfjs),
-  // add pdfjs-dist to the exceptions.
-  transformIgnorePatterns: ["/node_modules/(?!spin\\.js/)"],
+  // ESM-only packages need the babel transform. react-intl 10 and its
+  // @formatjs dependencies ship ESM. pdfjs-dist 2.x (react-pdf 6) is CJS and
+  // needs no transform; when react-pdf goes to 10 (ESM pdfjs), add pdfjs-dist
+  // to the exceptions.
+  transformIgnorePatterns: [
+    "/node_modules/(?!spin\\.js/|react-intl/|@formatjs/|intl-messageformat/)",
+  ],
   moduleNameMapper: {
     "^react-pdf$": "<rootDir>/src/tests/mocks/react-pdf.js",
     // the browser build, wrapping the whatwg-fetch polyfill; the node build

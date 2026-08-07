@@ -1,5 +1,5 @@
 import React from "react";
-import { Provider, updateIntl } from "react-intl-redux";
+import { Provider, updateIntl } from "init-app/intl";
 import { render, fireEvent, waitFor, act } from "@testing-library/react";
 import configureStore from "redux-mock-store";
 import rootReducer from "init-app/store";

@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Dropzone from "react-dropzone";
-import { FormattedMessage, injectIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
+import { injectIntl } from "init-app/intl";
 
 import LittleSpinner from "components/LittleSpinner";
 import "styles/DnDArea.scss";

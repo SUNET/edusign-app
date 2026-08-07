@@ -10,7 +10,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { configureStore } from "@reduxjs/toolkit";
-import { Provider, updateIntl } from "react-intl-redux";
+import { Provider, updateIntl } from "init-app/intl";
 import Cookies from "js-cookie";
 import rootReducer from "init-app/store";
 import { appLoading, fetchConfig, resizeWindow, enableContextualHelp, setVisibilityTimer, setFetchTimer } from "slices/Main";
@@ -93,7 +93,7 @@ export const appIsRendered = async function () {
  * @param {React.Component} component: React component to render.
  * @desc Initialize the app.
  * <br />&nbsp;
- * Work out the browser language and dispatch an updateIntl action (from react-intl-redux),
+ * Work out the browser language and dispatch an updateIntl action (from init-app/intl),
  * and render the provided component wrapped in a Redux Provider.
  */
 const init_app = function (target, component) {

@@ -4,7 +4,8 @@ import Modal from "react-bootstrap/Modal";
 import Button from "containers/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { FormattedMessage, injectIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
+import { injectIntl } from "init-app/intl";
 import { ESTooltip } from "containers/Overlay";
 import { validateName } from "components/validation";
 

@@ -1,6 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FormattedMessage, injectIntl } from "react-intl";
+import { FormattedMessage } from "react-intl";
+import { injectIntl } from "init-app/intl";
 
 import ForcedPreviewContainer from "containers/ForcedPreview";
 import ForcedXMLPreviewContainer from "containers/ForcedXMLPreview";

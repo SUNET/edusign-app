@@ -1,5 +1,5 @@
 import { combineReducers } from "redux";
-import { intlReducer } from "react-intl-redux";
+import { intlReducer } from "init-app/intl";
 
 import main from "slices/Main";
 import notifications from "slices/Notifications";

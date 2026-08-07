@@ -1,6 +1,6 @@
 import fetchMock from "fetch-mock";
 import { saveAs } from "file-saver";
-import { updateIntl } from "react-intl-redux";
+import { updateIntl } from "init-app/intl";
 
 // spying on the file-saver namespace does not reach the copy that
 // slices/Main.js imports (babel interop makes one per importer), so the

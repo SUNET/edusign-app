@@ -6,10 +6,10 @@
  * and add it to the props of the component.
  *
  * in mapDispatchToProps we compose the handler to change the UI language making use
- * of the Redux dispatch function and the updateIntl action from react-intl-redux.
+ * of the Redux dispatch function and the updateIntl action from init-app/intl.
  */
 import { connect } from "react-redux";
-import { updateIntl } from "react-intl-redux";
+import { updateIntl } from "init-app/intl";
 import Cookies from "js-cookie";
 
 import Footer from "components/Footer";
