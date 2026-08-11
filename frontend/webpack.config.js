@@ -3,17 +3,11 @@ const path = require("path");
 const webpack = require("webpack");
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 module.exports = {
   mode: "development",
   optimization: {
     minimize: false
-  },
-  devServer: {
-    contentBase: path.join(__dirname, "public"),
-    hot: true,
-    port: 9000
   },
   entry: {
     main: "./src/entry-points/index",
@@ -39,7 +33,6 @@ module.exports = {
         test: /\.js$/,
         use: {
           loader: "babel-loader",
-          options: { plugins: ['react-refresh/babel'] },
         },
         exclude: /node_modules/
       },
@@ -88,8 +81,6 @@ module.exports = {
           NODE_ENV: JSON.stringify('development')
       }
     }),
-    new webpack.HotModuleReplacementPlugin(),
-    new ReactRefreshWebpackPlugin(),
     // new BundleAnalyzerPlugin(),
     new webpack.LoaderOptionsPlugin({
       // test: /\.xxx$/, // may apply this only for some modules
