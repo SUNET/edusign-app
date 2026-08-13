@@ -163,3 +163,23 @@ def validate_swedish_ssn(ssn):
     check_digit = (10 - (checksum % 10)) % 10
 
     return check_digit == int(ssn[-1])
+
+
+def ssns_match(ssn_a: str, ssn_b: str) -> bool:
+    """
+    Whether two Swedish personnummer denote the same identity, tolerant of the
+    formats the invite form accepts (YYYYMMDD-XXXX, YYYYMMDDXXXX, YYMMDD-XXXX,
+    YYMMDDXXXX). Hyphens and spaces are ignored. When both values carry the
+    century (12 digits) the full value is compared, so identities born 100
+    years apart are not conflated; otherwise the comparison falls back to the
+    10 significant digits (YYMMDDXXXX).
+
+    :param ssn_a: one personnummer
+    :param ssn_b: the other personnummer
+    :return: whether they refer to the same identity
+    """
+    a = ssn_a.replace('-', '').replace(' ', '')
+    b = ssn_b.replace('-', '').replace(' ', '')
+    if len(a) == 12 and len(b) == 12:
+        return a == b
+    return a[-10:] == b[-10:]
