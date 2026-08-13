@@ -1164,6 +1164,27 @@ def _ready_docs(
 
         if doc_type == 'application/pdf':
             current_app.logger.info(f"Prepared doc data: {doc_data}")
+            # a prepare response can be neither a success nor our internal
+            # {'error': True} shape - e.g. an error the API returns in its own
+            # format (it carries 'message'), which _post returns verbatim since
+            # it does not raise_for_status. Fail the document gracefully rather
+            # than raising a KeyError (which surfaces to the user as a 500).
+            if 'updatedPdfDocumentReference' not in doc_data or 'visiblePdfSignatureRequirement' not in doc_data:
+                current_app.logger.error(
+                    f"Unexpected prepare response for {doc['name']} for user {session['eppn']}: {doc_data}"
+                )
+                failedDoc = {
+                    'key': doc['key'],
+                    'state': 'failed-signing',
+                    'message': doc_data.get(
+                        'message',
+                        gettext(
+                            "Problem preparing document for signing. Please try again, or contact the site administrator."
+                        ),
+                    ),
+                }
+                failed.append(failedDoc)
+                continue
             ref = doc_data['updatedPdfDocumentReference']
             sign_req = json.dumps(doc_data['visiblePdfSignatureRequirement'])
 
