@@ -37,6 +37,7 @@ import pytest
 from marshmallow import ValidationError
 
 from edusign_webapp.validators import (
+    ssns_match,
     validate_doc_type,
     validate_language,
     validate_nonempty,
@@ -139,3 +140,23 @@ def test_validate_swedish_ssn():
     assert not validate_swedish_ssn('81121898')
     # non-digits
     assert not validate_swedish_ssn('81121a9876')
+
+
+@pytest.mark.parametrize(
+    "invited, asserted, match",
+    [
+        # the IdP returns 12 digits; the invite form may store any of these
+        ('199001019876', '199001019876', True),   # same 12-digit
+        ('9001019876', '199001019876', True),      # invite 10-digit, assertion 12-digit
+        ('19900101-9876', '199001019876', True),   # invite 12-digit hyphenated
+        ('900101-9876', '199001019876', True),     # invite 10-digit hyphenated
+        ('199001019876', '9001019876', True),      # (defensive) assertion 10-digit
+        (' 199001019876 ', '199001019876', True),  # stray spaces
+        # genuine mismatches must still be rejected
+        ('199001019876', '199001019875', False),   # different check digit
+        ('189001019876', '199001019876', False),   # same YYMMDDNNNN, different century (both 12)
+        ('199001019876', '198512121212', False),
+    ],
+)
+def test_ssns_match(invited, asserted, match):
+    assert ssns_match(invited, asserted) is match

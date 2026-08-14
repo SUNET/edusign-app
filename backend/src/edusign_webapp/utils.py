@@ -50,6 +50,7 @@ from pygments.lexers import XmlLexer
 from pyhanko.pdf_utils.reader import PdfFileReader, PdfReadError
 
 from edusign_webapp.mail_backend import ParallelEmailBackend
+from edusign_webapp.validators import ssns_match
 
 
 class MissingDisplayName(Exception):
@@ -236,7 +237,10 @@ def add_attributes_to_session_bankid_freja(invite_key, stype):
             raise MissingDisplayName()
         
         invited_ssn = invite['user'].get('ssn', '')
-        if invited_ssn and invited_ssn != ssn:
+        # compare tolerant of personnummer format (hyphen, 10 vs 12 digits): the
+        # invite form accepts several formats but the IdP returns 12 digits, so
+        # an exact string compare would reject a correct but differently-typed ssn
+        if invited_ssn and not ssns_match(invited_ssn, ssn):
             raise WrongSSN()
 
         session['ssn'] = ssn

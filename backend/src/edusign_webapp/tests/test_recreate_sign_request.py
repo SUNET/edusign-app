@@ -635,3 +635,78 @@ def test_recreate_sign_request_error_without_message(client, monkeypatch, sample
         resp_data = json.loads(response.data)
         assert resp_data['error'] is True
         assert resp_data['message'] == 'Error re-creating sign request'
+def test_recreate_sign_request_prepare_api_error(client, monkeypatch, sample_doc_1):
+    # the API's prepare endpoint returns an error in its own format (carrying
+    # 'message', not our {'error': True} shape, and no PDF references). This must
+    # fail the document gracefully, not raise a KeyError -> 500 (EDUSIGN-...).
+    from edusign_webapp.api_client import APIClient
+
+    def mock_post(self, url, *args, **kwargs):
+        if 'prepare' in url:
+            return {'errorCode': 'dummy', 'message': 'prepare boom', 'status': 400}
+        return {
+            'binding': 'POST/XML/1.0',
+            'destinationUrl': 'https://sig.idsec.se/sigservice-dev/request',
+            'relayState': '31dc573b-ab7d-496c-845e-cae8792ba063',
+            'signRequest': 'DUMMY SIGN REQUEST',
+            'state': {'id': '31dc573b-ab7d-496c-845e-cae8792ba063'},
+        }
+
+    monkeypatch.setattr(APIClient, '_post', mock_post)
+
+    response1 = client.get('/sign/')
+    assert response1.status == '200 OK'
+
+    with client.session_transaction() as sess:
+        csrf_token = ResponseSchema().get_csrf_token({}, sess=sess)['csrf_token']
+        user_key = sess['user_key']
+
+        from flask.sessions import SecureCookieSession
+
+        def mock_getitem(self, key):
+            if key == 'user_key':
+                return user_key
+            self.accessed = True
+            return super(SecureCookieSession, self).__getitem__(key)
+
+        monkeypatch.setattr(SecureCookieSession, '__getitem__', mock_getitem)
+
+        doc_data = {
+            'csrf_token': csrf_token,
+            'payload': {
+                'documents': {
+                    'local': [
+                        {
+                            'name': 'test.pdf',
+                            'size': 100,
+                            'type': 'application/pdf',
+                            'blob': sample_doc_1['blob'],
+                            'key': sample_doc_1['key'],
+                        }
+                    ],
+                    'owned': [],
+                    'invited': [],
+                },
+                'invite_key': '',
+            },
+        }
+
+        response = client.post(
+            '/sign/recreate-sign-request',
+            headers={
+                'X-Requested-With': 'XMLHttpRequest',
+                'Origin': 'https://test.localhost',
+                'X-Forwarded-Host': 'test.localhost',
+            },
+            json=doc_data,
+        )
+
+        # not a 500
+        assert response.status == '200 OK'
+        resp_data = json.loads(response.data)
+        failed = resp_data['payload']['failed']
+        assert len(failed) == 1
+        assert failed[0]['key'] == sample_doc_1['key']
+        assert failed[0]['state'] == 'failed-signing'
+        # the API's own error message is surfaced, not a generic 500
+        assert failed[0]['message'] == 'prepare boom'
