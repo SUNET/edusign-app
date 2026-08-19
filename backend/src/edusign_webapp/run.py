@@ -32,6 +32,7 @@
 import pprint
 from importlib import import_module
 from typing import Callable, Optional
+import logging
 
 from flask import Flask, current_app, request
 from flask_babel import Babel
@@ -124,6 +125,8 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
         app.teardown_appcontext(func)
 
     from edusign_webapp import to_translate
+
+    app.logger.setLevel(logging.INFO)
 
     app.logger.info(f'Init {name} app...')
 
