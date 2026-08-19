@@ -108,11 +108,10 @@ const mapDispatchToProps = (dispatch, props) => {
         return async () => {
           dispatch(confirmForcedInvitedPreview(doc.key));
           dispatch(hideForcedInvitedPreview(doc.name));
-          if (props.using_bankid || props.using_freja) {
-            await dispatch(startSigningDoc({ doc: doc, intl: props.intl }));
-          } else {
-            dispatch(enableFastSignature(doc.key));
-          }
+          // Approving the preview never starts signing on its own. For every
+          // signature method (including eID / BankID / Freja) we open the fast
+          // signature modal, so the user has to click "Sign" to trigger signing.
+          dispatch(enableFastSignature(doc.key));
         };
       };
     },
