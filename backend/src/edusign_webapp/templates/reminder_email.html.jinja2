@@ -1,9 +1,22 @@
 <html>
 <head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body>
+<body style="margin: 0; padding: 0; background-color: #f4f4f4;">
 
-<p>
+{# Rendered once so the VML (Outlook) and non-VML branches share one msgid. #}
+{% set cta_label %}{% trans %}Preview and sign the document{% endtrans %}{% endset %}
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f4f4f4;">
+<tr>
+<td align="center" style="padding: 24px 12px;">
+
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; font-family: Arial, Helvetica, sans-serif; color: #333333; font-size: 16px; line-height: 1.5;">
+<tr>
+<td style="padding: 32px;">
+
+<p style="margin: 0 0 16px 0;">
 {% trans inviter_name=inviter_name, inviter_email=inviter_email, document_name=document_name %}
 This is a reminder that you have been invited by {{ inviter_name }} &lt;{{ inviter_email }}&gt;,
 to digitally sign a document named "{{document_name}}".
@@ -12,32 +25,62 @@ to digitally sign a document named "{{document_name}}".
 
 {% if text != "" %}
 
-<p>
+<p style="margin: 0 0 8px 0;">
 {% trans inviter_name=inviter_name %}
 Message from {{ inviter_name }}:
 {% endtrans %}
 </p>
 
-<p>
-{{ text }}
-</p>
+<p style="margin: 0 0 16px 0; padding: 12px 16px; background-color: #f4f4f4; border-radius: 6px; white-space: pre-wrap;">{{ text }}</p>
 
 {% endif %}
 
-<p>
+<p style="margin: 0 0 20px 0;">
 {% trans %}
-Follow this link to preview and sign the document:
+Follow the button below to preview and sign the document:
 {% endtrans %}
 </p>
 
-<p>
-<a href="{{ invited_link }}">{{ invited_link }}</a>
+{# Bulletproof call-to-action button. #}
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto 24px auto;">
+<tr>
+<td align="center" bgcolor="#1c7430" style="border-radius: 6px;">
+<!--[if mso]>
+<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="{{ invited_link }}" style="height:52px;v-text-anchor:middle;width:340px;" arcsize="12%" strokecolor="#1c7430" fillcolor="#1c7430">
+<w:anchorlock/>
+<center style="color:#ffffff;font-family:Arial,sans-serif;font-size:18px;font-weight:bold;">{{ cta_label }}</center>
+</v:roundrect>
+<![endif]-->
+<!--[if !mso]><!-- -->
+<a href="{{ invited_link }}" style="display: inline-block; padding: 15px 32px; font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: bold; line-height: 1; color: #ffffff; text-decoration: none; border-radius: 6px; background-color: #1c7430;">
+<span style="font-size: 20px;">&#9997;&#65039;</span>&nbsp;&nbsp;{{ cta_label }}
+</a>
+<!--<![endif]-->
+</td>
+</tr>
+</table>
+
+<p style="margin: 0 0 24px 0; font-size: 13px; color: #666666;">
+{% trans %}
+If the button does not work, copy and paste this link into your browser:
+{% endtrans %}
+<br>
+<a href="{{ invited_link }}" style="color: #1c7430; word-break: break-all;">{{ invited_link }}</a>
 </p>
 
-<p>
+<p style="margin: 24px 0 0 0; padding-top: 16px; border-top: 1px solid #ebebeb; font-size: 13px; color: #999999;">
 {% trans %}
 This is an email from eduSign, a service for secure digital signatures, developed by Sunet.
 {% endtrans %}
 </p>
+
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+</table>
+
 </body>
 </html>
