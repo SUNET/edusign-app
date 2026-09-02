@@ -1636,6 +1636,10 @@ def _process_signed_documents(process_data):
         else:
             if '@' in session['eppn']:
                 org = session['eppn'].split('@')[1]
+            elif session.get('using-bankid', False):
+                org = 'BankID'
+            elif session.get('using-freja', False):
+                org = 'Freja+'
             else:
                 org = 'unknown'
                 current_app.logger.debug(f"Missing organization info in user eppn: {session['eppn']}")
