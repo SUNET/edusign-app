@@ -726,6 +726,18 @@ class RedisMD(ABCMetadata):
         """
         return self.client.query_documents_old(days)
 
+    def get_documents_created(self) -> List[Dict[str, Any]]:
+        """
+        Get the creation timestamp and size of all stored documents.
+
+        Not implemented for the deprecated redis backend: the admin
+        dashboard shows no documents graph with this backend.
+
+        :return: An empty list
+        """
+        self.logger.warning("get_documents_created is not implemented for the redis backend")
+        return []
+
     def get_pending(self, emails: List[str]) -> List[Dict[str, Any]]:
         """
         Given the email address of some user, return information about the documents
