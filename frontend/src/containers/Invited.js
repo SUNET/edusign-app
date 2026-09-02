@@ -48,7 +48,7 @@ const mapDispatchToProps = (dispatch, props) => {
         );
       };
     },
-    handleSendToSign: function(props, doc) {
+    handleSendToSign: function (props, doc) {
       return async () => {
         await dispatch(startSigningDoc({ doc: doc, intl: props.intl }));
       };
