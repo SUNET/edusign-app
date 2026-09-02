@@ -853,8 +853,8 @@ def _get_ui_config(payload: dict, invite_key: str = '', stale_from: str = 'none'
         'identity_provider': session['idp'],
         'assurance_levels': loas,
         'authn_context': session['authn_context'],
-        'using_bankid': session['using-bankid'],
-        'using_freja': session['using-freja'],
+        'using_bankid': session.get('using-bankid', False),
+        'using_freja': session.get('using-freja', False),
         'invite_key': invite_key,
     }
 
