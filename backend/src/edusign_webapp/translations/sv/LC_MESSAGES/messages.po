@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-09-02 13:23+0200\n"
+"POT-Creation-Date: 2026-09-02 14:03+0200\n"
 "PO-Revision-Date: 2021-09-20 11:14+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: sv\n"
@@ -431,7 +431,7 @@ msgstr ""
 #: src/edusign_webapp/templates/final_signed_by_email.txt.jinja2:10
 #: src/edusign_webapp/templates/final_signed_by_email_skip.html.jinja2:17
 #: src/edusign_webapp/templates/final_signed_by_email_skip.txt.jinja2:10
-#: src/edusign_webapp/templates/invitation_email.html.jinja2:114
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:122
 #: src/edusign_webapp/templates/invitation_email.txt.jinja2:34
 #: src/edusign_webapp/templates/reminder_email.html.jinja2:72
 #: src/edusign_webapp/templates/reminder_email.txt.jinja2:20
@@ -599,6 +599,7 @@ msgstr ""
 "Klicka på knappen nedan för att förhandsgranska och signera dokumentet:\n"
 
 #: src/edusign_webapp/templates/invitation_email.html.jinja2:64
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:100
 #: src/edusign_webapp/templates/reminder_email.html.jinja2:64
 msgid ""
 "\n"
@@ -626,7 +627,7 @@ msgstr ""
 "väljer du \"eduID Sverige\" som organisation. Har du inget eduID så kan "
 "du kostnadsfritt skapa ett:"
 
-#: src/edusign_webapp/templates/invitation_email.html.jinja2:101
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:109
 #: src/edusign_webapp/templates/invitation_email.txt.jinja2:25
 msgid ""
 "\n"
@@ -640,7 +641,7 @@ msgstr ""
 "Om din IdP inte stöder AL3, så be den som sände dokumentet att sända det "
 "med tillitsnivå \"Medel\" eller \"Låg\" istället."
 
-#: src/edusign_webapp/templates/invitation_email.html.jinja2:108
+#: src/edusign_webapp/templates/invitation_email.html.jinja2:116
 #: src/edusign_webapp/templates/invitation_email.txt.jinja2:30
 msgid ""
 "\n"
