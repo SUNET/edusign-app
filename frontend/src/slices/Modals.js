@@ -67,9 +67,20 @@ export const showEditInvitationForm = createAsyncThunk(
 export const hideEditInvitationForm = createAsyncThunk(
   "main/hideEditInvitationForm",
   async (args, thunkAPI) => {
+    const state = thunkAPI.getState();
+    // The submit path hides the modal (clearing state.modals.form_id)
+    // before unlocking, so it provides the form_id in the args.
+    let form_id;
+    if (args !== undefined && args.form_id !== undefined) {
+      form_id = args.form_id;
+    } else {
+      form_id = state.modals.form_id;
+    }
+    if (form_id === null) {
+      thunkAPI.dispatch(modalsSlice.actions.hideForm());
+      return;
+    }
     try {
-      const state = thunkAPI.getState();
-      const form_id = state.modals.form_id;
       const key = form_id.split("-edit-invitations")[0];
       const toSend = {
         key: key,
@@ -81,8 +92,13 @@ export const hideEditInvitationForm = createAsyncThunk(
       }, state, thunkAPI.dispatch);
       const lockData = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, lockData);
-      thunkAPI.dispatch(modalsSlice.actions.hideForm());
     } catch (err) {
+      // The modal is hidden below whether or not the unlock succeeded.
+    }
+    // Only hide the modal this call is about. The submit path runs this
+    // thunk edit_form_timeout later, by which time the modal state may
+    // belong to a form opened since, for another document.
+    if (thunkAPI.getState().modals.form_id === form_id) {
       thunkAPI.dispatch(modalsSlice.actions.hideForm());
     }
   },

@@ -50,9 +50,8 @@ const mapStateToProps = (state, props) => {
 };
 
 // The edit form has no ordered or eID control, so it never writes the
-// inviteform.ordered / inviteform.allowbankid globals and must not reset
-// them here: after Save this runs edit_form_timeout later, possibly while
-// the create form is open.
+// inviteform.ordered / inviteform.allowbankid globals and does not reset
+// them here.
 const _close = (dispatch) => {
   dispatch(unsetSpinning());
   dispatch(enablePolling());
@@ -69,7 +68,16 @@ const mapDispatchToProps = (dispatch, props) => {
       dispatch(enablePolling());
       dispatch(hideForm());
       dispatch(unsetActiveId());
-      setTimeout(_close, this.props.edit_form_timeout, dispatch);
+      dispatch(isNotInviting());
+      // The document is unlocked edit_form_timeout later. Only the unlock is
+      // deferred: by then the user may have another modal open, and the UI
+      // state dispatched above belongs to that one. The thunk gets the
+      // form_id because hideForm() has already cleared the modal state.
+      const form_id = this.props.docKey + "-edit-invitations";
+      setTimeout(
+        () => dispatch(hideEditInvitationForm({ form_id: form_id })),
+        this.props.edit_form_timeout,
+      );
     },
     handleCloseResetting: function (resetForm) {
       return () => {
