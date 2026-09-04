@@ -209,6 +209,35 @@ describe("Modals slice thunks", function () {
     await store.dispatch(hideEditInvitationForm());
     expect(store.getState().modals.show_form).toEqual(false);
   });
+
+  it("hideEditInvitationForm with a form_id leaves another open form alone", async function () {
+    // The submit path defers the unlock by edit_form_timeout and passes
+    // the form_id of the saved form. A form opened since for another
+    // document must stay open.
+    const store = edusignStore();
+    store.dispatch(showForm("key-2-edit-invitations"));
+    fetchMock.post("/sign/unlock-doc", { csrf_token: "unlock-token" });
+    await store.dispatch(
+      hideEditInvitationForm({ form_id: "key-1-edit-invitations" }),
+    );
+    const state = store.getState();
+    expect(state.modals.show_form).toEqual(true);
+    expect(state.modals.form_id).toEqual("key-2-edit-invitations");
+    expect(state.main.csrf_token).toEqual("unlock-token");
+    const body = JSON.parse(fetchMock.callHistory.lastCall().options.body);
+    expect(body.payload.key).toEqual("key-1");
+  });
+
+  it("hideEditInvitationForm with a form_id hides that same form", async function () {
+    const store = edusignStore();
+    store.dispatch(showForm("key-1-edit-invitations"));
+    fetchMock.post("/sign/unlock-doc", { csrf_token: "unlock-token" });
+    await store.dispatch(
+      hideEditInvitationForm({ form_id: "key-1-edit-invitations" }),
+    );
+    expect(store.getState().modals.show_form).toEqual(false);
+    expect(store.getState().modals.form_id).toEqual(null);
+  });
 });
 
 describe("Templates slice reducers", function () {
