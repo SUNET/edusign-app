@@ -25,7 +25,10 @@ import { addDocumentToDb, addDocument } from "slices/Documents";
 export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
   try {
     let state = thunkAPI.getState();
-    if (state.main.signer_attributes.using_freja || state.main.signer_attributes.using_bankid) {
+    if (
+      state.main.signer_attributes.using_freja ||
+      state.main.signer_attributes.using_bankid
+    ) {
       return thunkAPI.rejectWithValue("No polling for eID invites");
     }
     if (!state.main.signer_attributes.eppn) {
@@ -34,7 +37,12 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
     if (state.poll.disablePoll) {
       return thunkAPI.rejectWithValue("Polling disabled");
     }
-    const response = await esFetch("/sign/poll", getRequest, state, thunkAPI.dispatch);
+    const response = await esFetch(
+      "/sign/poll",
+      getRequest,
+      state,
+      thunkAPI.dispatch,
+    );
     const configData = await checkStatus(response);
     extractCsrfToken(thunkAPI.dispatch, configData);
     // The state may have changed during the fetch: re-read it, and drop the
@@ -64,6 +72,7 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
               ownedCopy.declined = newOwned.declined;
               ownedCopy.sendsigned = newOwned.sendsigned;
               ownedCopy.skipfinal = newOwned.skipfinal;
+              ownedCopy.use_eid = newOwned.use_eid;
               ownedCopy.pprinted = newOwned.pprinted;
             }
           });
@@ -151,7 +160,7 @@ export const configureSkipped = async (thunkAPI, configData, owned) => {
         delete newDoc.skipfinal;
         newDoc = await addDocumentToDb(
           newDoc,
-          state.main.signer_attributes.eppn
+          state.main.signer_attributes.eppn,
         );
         thunkAPI.dispatch(addDocument(newDoc));
         thunkAPI.dispatch(removeOwned({ key: doc.key }));
@@ -234,7 +243,12 @@ const pollSlice = createSlice({
   },
 });
 
-export const { setInitialPolling, setPolling, enablePolling, disablePolling, setTimerId } =
-  pollSlice.actions;
+export const {
+  setInitialPolling,
+  setPolling,
+  enablePolling,
+  disablePolling,
+  setTimerId,
+} = pollSlice.actions;
 
 export default pollSlice.reducer;

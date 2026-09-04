@@ -17,7 +17,7 @@ import { hideForm, hideEditInvitationForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { enablePolling } from "slices/Poll";
 import { unsetActiveId } from "slices/Overlay";
-import { isNotInviting, setOrdered, setAllowBankID } from "slices/InviteForm";
+import { isNotInviting } from "slices/InviteForm";
 
 const mapStateToProps = (state, props) => {
   let show = false;
@@ -33,17 +33,6 @@ const mapStateToProps = (state, props) => {
   } else {
     ordered = state.inviteform.ordered;
   }
-  const show_allowbankid = state.main.allow_bankid_signatures;
-  let allowbankid;
-  if (show_allowbankid) {
-    if (state.inviteform.allowbankid === null) {
-      allowbankid = state.main.ui_defaults.allow_bankid;
-    } else {
-      allowbankid = state.inviteform.allowbankid;
-    }
-  } else {
-    allowbankid = false;
-  }
   const doc = state.main.owned_multisign.filter(
     (d) => d.key === props.docKey,
   )[0];
@@ -57,19 +46,19 @@ const mapStateToProps = (state, props) => {
     ui_defaults: state.main.ui_defaults,
     ordered: ordered,
     edit_form_timeout: state.main.edit_form_timeout,
-    allowbankid: allowbankid,
-    show_allowbankid: show_allowbankid,
   };
 };
 
+// The edit form has no ordered or eID control, so it never writes the
+// inviteform.ordered / inviteform.allowbankid globals and must not reset
+// them here: after Save this runs edit_form_timeout later, possibly while
+// the create form is open.
 const _close = (dispatch, form_id) => {
   dispatch(unsetSpinning());
   dispatch(enablePolling());
   dispatch(hideEditInvitationForm({ form_id: form_id }));
   dispatch(unsetActiveId());
   dispatch(isNotInviting());
-  dispatch(setOrdered(null));
-  dispatch(setAllowBankID(null));
 };
 
 const mapDispatchToProps = (dispatch, props) => {
@@ -92,9 +81,6 @@ const mapDispatchToProps = (dispatch, props) => {
         _close(dispatch);
         resetForm();
       };
-    },
-    handleAllowBankID: function (allowbankid) {
-      dispatch(setAllowBankID(allowbankid));
     },
   };
 };
