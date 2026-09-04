@@ -43,14 +43,15 @@ const validateBody = (value) => {
   return undefined;
 };
 
+// Whether the SSN field is shown is decided per document, from the
+// `docAllowbankid` prop (the owned document's `use_eid`). The form never
+// writes the global inviteform.allowbankid flag: that belongs to the
+// create form's checkbox.
 class InviteEditForm extends React.Component {
   render() {
     if (!this.props.show)
       return "";
     const formId = "invite-form-" + this.props.doc.name;
-    if (this.props.doc.use_eid) {
-      this.props.handleAllowBankID(true);
-    }
     return (
       <>
         <Formik

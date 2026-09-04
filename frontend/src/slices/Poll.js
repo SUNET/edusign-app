@@ -58,6 +58,7 @@ export const poll = createAsyncThunk("main/poll", async (args, thunkAPI) => {
               ownedCopy.declined = newOwned.declined;
               ownedCopy.sendsigned = newOwned.sendsigned;
               ownedCopy.skipfinal = newOwned.skipfinal;
+              ownedCopy.use_eid = newOwned.use_eid;
               ownedCopy.pprinted = newOwned.pprinted;
             }
           });

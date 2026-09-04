@@ -208,6 +208,8 @@ export const sendInvites = createAsyncThunk(
       created: Date.now(),
       loa: `${loa},${display_loa}`,
       ordered: ordered,
+      // Owned documents from the backend carry this flag as `use_eid`.
+      use_eid: allowbankid,
       skipfinal: skipfinal,
       sendsigned: sendsigned,
     };
