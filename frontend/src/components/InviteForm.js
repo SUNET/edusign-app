@@ -13,7 +13,6 @@ import {
   InviteesWidget,
   requiredField,
   optionalField,
-  requiredFieldsLegend,
 } from "components/InviteesWidget";
 import AL3WarningContainer from "containers/AL3Warning";
 import { nameForCopy } from "components/utils";
@@ -370,7 +369,6 @@ class InviteForm extends React.Component {
                   </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                  {requiredFieldsLegend}
                   <div className="invitation-text-holder">
                     <BForm.Group className="invitation-text-group form-group">
                       <BForm.Label

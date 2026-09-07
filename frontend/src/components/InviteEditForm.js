@@ -8,11 +8,7 @@ import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
-import {
-  InviteesWidget,
-  optionalField,
-  requiredFieldsLegend,
-} from "components/InviteesWidget";
+import { InviteesWidget, optionalField } from "components/InviteesWidget";
 import { sendsignedControl, skipFinalControl } from "components/widgets";
 import {
   validateEmail,
@@ -91,7 +87,6 @@ class InviteEditForm extends React.Component {
                   </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                  {requiredFieldsLegend}
                   <div className="invitation-text-holder">
                     <BForm.Group className="invitation-text-group form-group">
                       <BForm.Label

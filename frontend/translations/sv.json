@@ -98,7 +98,6 @@
   "components.InviteesWidget.name-input-field": "Namn",
   "components.InviteesWidget.optional-field-mark": "(valfritt)",
   "components.InviteesWidget.required-field-help": "Detta fält är obligatoriskt",
-  "components.InviteesWidget.required-fields-legend": "Obligatoriskt fält",
   "components.InviteesWidget.rm-invitation-tootip": "Ta bort person från inbjudan",
   "components.InviteesWidget.ssn-input-field": "Personnummer",
   "components.Main.contact-local-it-msg": "Om du upplever problem med eduSign kontakta din lokala IT-support",

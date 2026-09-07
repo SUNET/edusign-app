@@ -44,8 +44,8 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-// Marks placed after a field label. The legend at the top of each
-// form explains the `*`; optional fields say so in words.
+// Marks placed after a field label. Required fields get a `*` with a
+// tooltip; optional fields say so in words.
 export const requiredField = (fid) => (
   <span>
     <ESTooltip
@@ -68,16 +68,6 @@ export const optionalField = (
     {" "}
     <FormattedMessage defaultMessage="(optional)" key="optional-field-mark" />
   </span>
-);
-
-export const requiredFieldsLegend = (
-  <div className="required-fields-legend">
-    <span className="required-field-mark">*</span>{" "}
-    <FormattedMessage
-      defaultMessage="Required field"
-      key="required-fields-legend"
-    />
-  </div>
 );
 
 function _InviteesControl(props) {

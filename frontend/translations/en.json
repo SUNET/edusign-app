@@ -98,7 +98,6 @@
   "components.InviteesWidget.name-input-field": "Name",
   "components.InviteesWidget.optional-field-mark": "(optional)",
   "components.InviteesWidget.required-field-help": "This field is required",
-  "components.InviteesWidget.required-fields-legend": "Required field",
   "components.InviteesWidget.rm-invitation-tootip": "Remove this entry from invitation",
   "components.InviteesWidget.ssn-input-field": "SSN",
   "components.Main.contact-local-it-msg": "If you experience problems with eduSign contact your local IT-support",
