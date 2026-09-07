@@ -29,23 +29,46 @@
     color: $darker-dark-grey;
     padding: 5px;
   }
+  // One row of Name, Email, Language. With the SSN field (eID
+  // allowed) two rows: Name, Email over SSN, Language. Tab order and
+  // visual order agree in both cases.
   .invitee-form-row {
-    flex: none;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    grid-template-areas: "name email lang";
+    column-gap: 1rem;
+    row-gap: 0.75rem;
+    align-items: start;
     margin: 1rem 1rem 0 1rem;
-    align-items: center;
 
+    &.with-ssn {
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas:
+        "name email"
+        "ssn lang";
+    }
+
+    .invitee-form-name {
+      grid-area: name;
+    }
+    .invitee-form-email {
+      grid-area: email;
+    }
     .invitee-form-ssn {
+      grid-area: ssn;
       max-width: 15rem;
+    }
+    .invitee-form-language {
+      grid-area: lang;
+
+      .form-select {
+        width: auto;
+      }
     }
 
     .invitee-form-name,
     .invitee-form-ssn,
     .invitee-form-email {
-      flex: 1 0 auto;
-      margin-right: 1rem;
-
       .form-group {
         .form-control.is-invalid,
         .form-control.is-valid {
@@ -55,13 +78,29 @@
     }
   }
   .field-error {
-    display: inline-block;
+    display: block;
     color: $error-red;
-    margin-left: 2rem;
+    font-size: 0.875em;
+    margin-top: 0.25rem;
   }
   .required-field-mark {
     color: $error-red;
   }
+}
+
+.required-fields-legend {
+  font-size: 0.875em;
+  color: $darker-dark-grey;
+  margin: 0 10% 0.5rem 10%;
+
+  .required-field-mark {
+    color: $error-red;
+  }
+}
+
+.optional-field-mark {
+  font-size: 0.875em;
+  color: $darker-dark-grey;
 }
 
 .invitation-text-group {
@@ -159,10 +198,14 @@
   margin-right: 10%;
   margin-left: 10%;
 
-  .field-error {
-    display: inline-block;
+  .required-field-mark {
     color: $error-red;
-    margin-left: 2rem;
+  }
+  .field-error {
+    display: block;
+    color: $error-red;
+    font-size: 0.875em;
+    margin-top: 0.25rem;
   }
 }
 
@@ -217,14 +260,23 @@
   }
 }
 
+// Below 1200px the app opens the form in the `sm` modal (300px wide,
+// slices/Main.js resizeWindow), so the row becomes one column.
 @media (max-width: 1200px) {
   .invitation-fields {
     margin-left: 0;
     margin-right: 0;
 
-    .invitee-form-row {
+    .invitee-form-row,
+    .invitee-form-row.with-ssn {
       padding-left: 2px;
       margin: 0;
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "name"
+        "email"
+        "ssn"
+        "lang";
     }
   }
 }

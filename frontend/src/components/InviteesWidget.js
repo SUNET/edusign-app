@@ -44,7 +44,9 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-const requiredField = (fid) => (
+// Marks placed after a field label. The legend at the top of each
+// form explains the `*`; optional fields say so in words.
+export const requiredField = (fid) => (
   <span>
     <ESTooltip
       helpId={`required-field-help-${fid}`}
@@ -59,6 +61,23 @@ const requiredField = (fid) => (
       <span className="required-field-mark"> *</span>
     </ESTooltip>
   </span>
+);
+
+export const optionalField = (
+  <span className="optional-field-mark">
+    {" "}
+    <FormattedMessage defaultMessage="(optional)" key="optional-field-mark" />
+  </span>
+);
+
+export const requiredFieldsLegend = (
+  <div className="required-fields-legend">
+    <span className="required-field-mark">*</span>{" "}
+    <FormattedMessage
+      defaultMessage="Required field"
+      key="required-fields-legend"
+    />
+  </div>
 );
 
 function _InviteesControl(props) {
@@ -152,18 +171,16 @@ function _InviteesControl(props) {
         />
       )}
       <Field name="id" value={`invitees.${index}.id`} type="hidden" />
-      <div className="invitee-form-row" key={index}>
+      <div
+        className={"invitee-form-row" + (props.allowbankid ? " with-ssn" : "")}
+        key={index}
+      >
         <div className="invitee-form-name">
           <BForm.Group className="form-group">
             <BForm.Label htmlFor={`invitees.${index}.name`}>
               <FormattedMessage defaultMessage="Name" key="name-input-field" />
             </BForm.Label>
             {requiredField(`name-${index}`)}
-            <ErrorMessage
-              name={`invitees.${index}.name`}
-              component="div"
-              className="field-error"
-            />
             <Field
               name={`invitees.${index}.name`}
               data-testid={`invitees.${index}.name`}
@@ -171,6 +188,7 @@ function _InviteesControl(props) {
               placeholder="Jane Doe"
               as={BForm.Control}
               type="text"
+              aria-required="true"
               validate={validateName(props, index)}
               isValid={
                 fprops.touched.invitees &&
@@ -191,6 +209,11 @@ function _InviteesControl(props) {
                 fprops.errors.invitees[index].name
               }
             />
+            <ErrorMessage
+              name={`invitees.${index}.name`}
+              component="div"
+              className="field-error"
+            />
           </BForm.Group>
         </div>
         <div className="invitee-form-email">
@@ -202,11 +225,6 @@ function _InviteesControl(props) {
               />
             </BForm.Label>
             {requiredField(`email-${index}`)}
-            <ErrorMessage
-              name={`invitees.${index}.email`}
-              component="div"
-              className="field-error"
-            />
             <Field
               name={`invitees.${index}.email`}
               data-testid={`invitees.${index}.email`}
@@ -214,6 +232,7 @@ function _InviteesControl(props) {
               placeholder="jane@example.com"
               as={BForm.Control}
               type="email"
+              aria-required="true"
               validate={validateEmail(
                 props,
                 [...fprops.values.invitees],
@@ -239,6 +258,11 @@ function _InviteesControl(props) {
                 fprops.errors.invitees[index].email
               }
             />
+            <ErrorMessage
+              name={`invitees.${index}.email`}
+              component="div"
+              className="field-error"
+            />
           </BForm.Group>
         </div>
         {props.allowbankid && (
@@ -250,11 +274,7 @@ function _InviteesControl(props) {
                   key="ssn-input-field"
                 />
               </BForm.Label>
-              <ErrorMessage
-                name={`invitees.${index}.ssn`}
-                component="div"
-                className="field-error"
-              />
+              {optionalField}
               <Field
                 name={`invitees.${index}.ssn`}
                 data-testid={`invitees.${index}.ssn`}
@@ -282,6 +302,11 @@ function _InviteesControl(props) {
                   fprops.errors.invitees[index].ssn
                 }
               />
+              <ErrorMessage
+                name={`invitees.${index}.ssn`}
+                component="div"
+                className="field-error"
+              />
             </BForm.Group>
           </div>
         )}
@@ -294,16 +319,12 @@ function _InviteesControl(props) {
               />
             </BForm.Label>
             {requiredField(`lang-${index}`)}
-            <ErrorMessage
-              name={`invitees.${index}.lang`}
-              component="div"
-              className="field-error"
-            />
             <Field
               name={`invitees.${index}.lang`}
               data-testid={`invitees.${index}.lang`}
               value={invitee.lang}
               as={BForm.Select}
+              aria-required="true"
               validate={validateLang}
               isValid={
                 fprops.touched.invitees &&
@@ -330,6 +351,11 @@ function _InviteesControl(props) {
                 </option>
               ))}
             </Field>
+            <ErrorMessage
+              name={`invitees.${index}.lang`}
+              component="div"
+              className="field-error"
+            />
           </BForm.Group>
         </div>
       </div>

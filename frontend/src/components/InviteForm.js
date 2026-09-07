@@ -9,7 +9,12 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { FormattedMessage, injectIntl } from "react-intl";
 import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
-import { InviteesWidget } from "components/InviteesWidget";
+import {
+  InviteesWidget,
+  requiredField,
+  optionalField,
+  requiredFieldsLegend,
+} from "components/InviteesWidget";
 import AL3WarningContainer from "containers/AL3Warning";
 import { nameForCopy } from "components/utils";
 import { sendsignedControl, skipFinalControl } from "components/widgets";
@@ -305,19 +310,21 @@ class InviteForm extends React.Component {
                     key="newname-text-field"
                   />
                 </BForm.Label>
-                <ErrorMessage
-                  name="newnameInput"
-                  component="div"
-                  className="field-error"
-                />
+                {requiredField("newname")}
                 <Field
                   name="newnameInput"
                   data-testid="newnameInput"
                   as={BForm.Control}
                   type="text"
+                  aria-required="true"
                   validate={validateNewname(props)}
                   isValid={!fprops.errors.newnameInput}
                   isInvalid={!props.inviting && fprops.errors.newnameInput}
+                />
+                <ErrorMessage
+                  name="newnameInput"
+                  component="div"
+                  className="field-error"
                 />
               </BForm.Group>
             </div>
@@ -363,6 +370,7 @@ class InviteForm extends React.Component {
                   </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
+                  {requiredFieldsLegend}
                   <div className="invitation-text-holder">
                     <BForm.Group className="invitation-text-group form-group">
                       <BForm.Label
@@ -373,6 +381,7 @@ class InviteForm extends React.Component {
                           defaultMessage="Add a message to send to all invitees"
                           key="invitation-text-field"
                         />
+                        {optionalField}
                       </BForm.Label>
                       <Field
                         name="invitationText"
