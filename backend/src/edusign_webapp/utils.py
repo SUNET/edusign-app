@@ -32,6 +32,7 @@
 #
 import io
 import re
+import time
 import uuid
 from base64 import b64decode, b64encode
 from email.encoders import encode_base64
@@ -255,6 +256,17 @@ def add_attributes_to_session_bankid_freja(invite_key, stype):
         session['registrationAuthority'] = f"dummy-{stype}"
 
         common_attributes_to_session()
+
+        # An eID login costs the inviting institution the same as an eID
+        # signature, so it is recorded in the same table, attributed to
+        # the scope of the invitation owner's eppn like the signatures.
+        owner_eppn = invite['document'].get('owner', {}).get('eppn', '')
+        if '@' in owner_eppn:
+            org = owner_eppn.split('@')[1]
+        else:
+            org = 'unknown'
+            current_app.logger.debug(f"Missing organization info in owner eppn: {owner_eppn}")
+        current_app.extensions['doc_store'].add_signature(stype, org, '', '', '', int(time.time() * 1000))
 
 
 def prepare_document(document: dict) -> dict:

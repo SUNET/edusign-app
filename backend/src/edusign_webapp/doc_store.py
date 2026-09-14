@@ -598,6 +598,17 @@ class ABCMetadata(metaclass=abc.ABCMeta):
             + number_of_signatures: Number of signatures made on request of the responsible organization
         """
 
+    @abc.abstractmethod
+    def get_all_signatures(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve every payable signature record
+
+        :return: A list of dictionaries, one for each record, with keys:
+            + organization: Name of responsible organization
+            + type: bankid / freja
+            + timestamp: timestamp of the signature or login, in milliseconds since the epoch
+        """
+
 
 class DocStore(object):
     """
@@ -1295,3 +1306,14 @@ class DocStore(object):
             + number_of_signatures: Number of signatures made on request of the responsible organization
         """
         return self.metadata.get_signatures_global()
+
+    def get_all_signatures(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve every payable signature record
+
+        :return: A list of dictionaries, one for each record, with keys:
+            + organization: Name of responsible organization
+            + type: bankid / freja
+            + timestamp: timestamp of the signature or login, in milliseconds since the epoch
+        """
+        return self.metadata.get_all_signatures()

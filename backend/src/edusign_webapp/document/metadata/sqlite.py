@@ -148,6 +148,7 @@ INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
 SIGNATURE_INSERT = "INSERT INTO PayableSignatures (type, organization, doc_name, owner_eppn, user_eppn, timestamp) VALUES (?, ?, ?, ?, ?, ?);"
 SIGNATURES_QUERY = "SELECT owner_eppn, user_eppn, timestamp FROM PayableSignatures WHERE type = ? AND organization = ?;"
 SIGNATURES_QUERY_GLOBAL = "SELECT organization, type, COUNT(*) AS number_of_signatures FROM PayableSignatures GROUP BY organization, type;"
+SIGNATURES_QUERY_ALL = "SELECT organization, type, timestamp FROM PayableSignatures;"
 
 
 def convert_date(val):
@@ -1425,7 +1426,7 @@ class SqliteMD(ABCMetadata):
             + user_eppn: eduPersonPrincipalName of the user signing
             + timestamp: timestamp of the signature
         """
-        signatures = self._db_query(SIGNATURES_QUERY, (organization, sig_type))
+        signatures = self._db_query(SIGNATURES_QUERY, (sig_type, organization))
         if signatures is None or isinstance(signatures, dict):
             self.logger.debug(f"No signatures found of type {sig_type} for {organization}")
             return []
@@ -1442,6 +1443,22 @@ class SqliteMD(ABCMetadata):
             + number_of_signatures: Number of signatures made on request of the responsible organization
         """
         signatures = self._db_query(SIGNATURES_QUERY_GLOBAL)
+        if signatures is None or isinstance(signatures, dict):
+            self.logger.debug(f"No signatures found")
+            return []
+
+        return signatures
+
+    def get_all_signatures(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve every payable signature record
+
+        :return: A list of dictionaries, one for each record, with keys:
+            + organization: Name of responsible organization
+            + type: bankid / freja
+            + timestamp: timestamp of the signature or login, in milliseconds since the epoch
+        """
+        signatures = self._db_query(SIGNATURES_QUERY_ALL)
         if signatures is None or isinstance(signatures, dict):
             self.logger.debug(f"No signatures found")
             return []
