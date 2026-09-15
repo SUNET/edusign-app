@@ -180,27 +180,71 @@ def dashboard():
         day = datetime.fromtimestamp(doc['created'] / 1000).date().isoformat()
         counts[day] += 1
 
-    # the organization recorded with each signature is the inviter's eppn
-    # scope, the key of the EID_WHITELIST quotas. The table shows the union
-    # of the whitelisted institutions and the organizations with recorded
-    # signatures, one row per institution, and per eID method the number of
-    # signatures within the quota and over it.
+    # PayableSignatures holds one row per eID login or signature. The
+    # organization recorded with each row is the inviter's eppn scope, the
+    # key of the EID_WHITELIST quotas.
     quotas = current_app.config['EID_WHITELIST']
-    sig_counts: defaultdict = defaultdict(dict)
-    for row in current_app.extensions['doc_store'].get_signatures_global():
-        sig_counts[row['organization']][row['type']] = row['number_of_signatures']
+    records = current_app.extensions['doc_store'].get_all_signatures()
+
+    # The table covers the current month only: the uses still to be paid.
+    # It shows the union of the whitelisted institutions and the
+    # organizations with rows this month, one row per institution, and per
+    # eID method the number of uses within the quota and over it.
+    # The timestamp column is a TIMESTAMP: sqlite returns it as an ISO
+    # string, postgres as a datetime.
+    for rec in records:
+        if isinstance(rec['timestamp'], str):
+            rec['timestamp'] = datetime.fromisoformat(rec['timestamp'])
+    now = datetime.now()
+    month_start = datetime(now.year, now.month, 1)
+    sig_counts: defaultdict = defaultdict(lambda: defaultdict(int))
+    # organization -> 'YYYY-MM' -> uses, all methods together, for the graph
+    monthly: defaultdict = defaultdict(lambda: defaultdict(int))
+    for rec in records:
+        if rec['timestamp'] >= month_start:
+            sig_counts[rec['organization']][rec['type']] += 1
+        month = rec['timestamp'].strftime('%Y-%m')
+        monthly[rec['organization']][month] += 1
 
     usage = []
     for org in sorted(set(quotas) | set(sig_counts)):
         row = {'organization': org}
         for sig_type in ('bankid', 'freja'):
-            count = sig_counts[org].get(sig_type, 0)
+            count = sig_counts[org][sig_type]
             quota = quotas.get(org, {}).get(sig_type)
             if quota is None:
                 row[sig_type] = {'within': count, 'over': None}
             else:
                 row[sig_type] = {'within': min(count, quota), 'over': max(0, count - quota)}
         usage.append(row)
+
+    # One line per institution, one point per calendar month from the
+    # earliest row to the current month, zero-filled.
+    months: List[str] = []
+    if records:
+        first = min(rec['timestamp'] for rec in records)
+        year, month_n = first.year, first.month
+        while (year, month_n) <= (now.year, now.month):
+            months.append(f"{year}-{month_n:02d}")
+            year, month_n = (year + 1, 1) if month_n == 12 else (year, month_n + 1)
+    max_month_count = max((count for org in monthly.values() for count in org.values()), default=0)
+    palette = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
+    series = []
+    for i, org in enumerate(sorted(set(quotas) | set(monthly))):
+        points = []
+        for j, month in enumerate(months):
+            count = monthly[org][month]
+            x = 50 + j * 60
+            y = round(210 - count / max(max_month_count, 1) * 180, 1)
+            points.append({'month': month, 'count': count, 'x': x, 'y': y})
+        series.append(
+            {
+                'organization': org,
+                'color': palette[i % len(palette)],
+                'points': points,
+                'path': ' '.join(f"{p['x']},{p['y']}" for p in points),
+            }
+        )
 
     context = {
         'company_link': current_app.config['COMPANY_LINK'],
@@ -211,6 +255,8 @@ def dashboard():
         'histogram': [{'day': day, 'count': counts[day]} for day in sorted(counts)],
         'max_count': max(counts.values(), default=0),
         'usage': usage,
+        'months': months,
+        'series': series,
     }
     return make_response(render_template('admin-dashboard.jinja2', **context))
 

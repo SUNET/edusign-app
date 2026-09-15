@@ -36,11 +36,14 @@ admin and metrics views, form filling, and document locking.
 """
 
 import json
+import time
 import uuid
 from base64 import b64encode
+from datetime import datetime
 
 from edusign_webapp.config import parse_eid_whitelist
 from edusign_webapp.marshal import ResponseSchema
+from edusign_webapp.utils import add_attributes_to_session_bankid_freja
 
 invitation_flags = [
     True,  # sendsigned
@@ -233,7 +236,7 @@ def test_admin_dashboard(client, sample_doc_1, sample_owner_1):
     _add_document_as_tester_invite(client, sample_doc_1, sample_owner_1)
     with client.application.test_request_context():
         client.application.extensions['doc_store'].add_signature(
-            'bankid', 'Test Org', 'test.pdf', 'owner-eppn@example.org', '199001019876', 1752000000000
+            'bankid', 'Test Org', 'test.pdf', 'owner-eppn@example.org', '199001019876', _now_ms()
         )
 
     response = client.get('/admin/dashboard')
@@ -245,6 +248,9 @@ def test_admin_dashboard(client, sample_doc_1, sample_owner_1):
     # the payable signature shows in the usage table; Test Org is not in
     # EID_WHITELIST, so it has no quota, and its over-quota columns show "-"
     assert b'<td>Test Org</td><td>1</td><td>-</td><td>0</td><td>-</td>' in _terse(response.data)
+    # and as the only point of its line in the monthly graph
+    assert b'<title>Test Org: 1</title>' in response.data
+    assert datetime.now().strftime('%Y-%m').encode() in response.data
 
 
 def test_parse_eid_whitelist():
@@ -262,11 +268,17 @@ def _terse(data):
     return b''.join(line.strip() for line in data.split(b'\n'))
 
 
-def _add_signatures(client, org, sig_type, number):
+def _now_ms():
+    return int(time.time() * 1000)
+
+
+def _add_signatures(client, org, sig_type, number, timestamp=None):
+    if timestamp is None:
+        timestamp = _now_ms()
     with client.application.test_request_context():
         for i in range(number):
             client.application.extensions['doc_store'].add_signature(
-                sig_type, org, 'test.pdf', f'owner-eppn@{org}', '199001019876', 1752000000000 + i
+                sig_type, org, 'test.pdf', f'owner-eppn@{org}', '199001019876', timestamp + i
             )
 
 
@@ -295,6 +307,71 @@ def test_admin_dashboard_over_quota(client):
         b'<td class="over-quota" style="color: #a00; font-weight: bold;">3</td>'
         b'<td>0</td><td>0</td>' in terse
     )
+
+
+def test_admin_dashboard_current_month_only(client):
+    # 1752000000000 is 2025-07-08: a paid-for month. The table counts the
+    # current month only; the graph keeps a point per month since then.
+    _add_signatures(client, 'sunet.se', 'bankid', 4, timestamp=1752000000000)
+    _add_signatures(client, 'sunet.se', 'freja', 1)
+
+    response = client.get('/admin/dashboard')
+    assert response.status == '200 OK'
+    assert b'<td>sunet.se</td><td>0</td><td>0</td><td>1</td><td>0</td>' in _terse(response.data)
+    assert b'id="eid-per-month"' in response.data
+    assert b'>2025-07</text>' in response.data
+    assert b'<title>sunet.se: 4</title>' in response.data
+    assert b'<title>sunet.se: 1</title>' in response.data
+    # the months in between are present with no uses
+    assert b'<title>sunet.se: 0</title>' in response.data
+    # one line per institution in the whitelist, even without uses
+    assert response.data.count(b'class="eid-series"') == 3
+    assert b'<title>eduid.se</title>' in response.data
+
+
+# The eID login, as the Shibboleth SP presents it to the app
+
+
+def _b64attr(value):
+    return b64encode(f'<Attribute>{value}</Attribute>'.encode('utf-8')).decode('ascii')
+
+
+_eid_headers = {
+    'Personalidentitynumber-20': _b64attr('199001019876'),
+    'Displayname-20': _b64attr('Invited Kid'),
+    'Shib-Identity-Provider': 'https://bankid',
+    'Shib-Authncontext-Class': 'dummy',
+    'Md-Organizationname': 'Test Org',
+}
+
+# sendsigned, loa, skipfinal, ordered, allowbankid, invitation_text
+_eid_invitation_flags = [True, 'none', False, False, True, 'Invitation text']
+
+
+def test_eid_login_recorded(client, sample_doc_1, sample_owner_1):
+    invites = [{'name': 'Invited Kid', 'email': 'invite0@example.org', 'ssn': '199001019876', 'lang': 'en'}]
+    app = client.application
+    with app.app_context():
+        invite_key = app.extensions['doc_store'].add_document(
+            sample_doc_1, sample_owner_1, invites, *_eid_invitation_flags
+        )[0]['key']
+
+    with app.test_request_context(f'/sign/bankid/{invite_key}', headers=_eid_headers):
+        add_attributes_to_session_bankid_freja(invite_key, 'bankid')
+        # the login is billed to the scope of the inviter's eppn
+        recorded = app.extensions['doc_store'].get_signatures('example.org', 'bankid')
+
+    assert len(recorded) == 1
+    assert recorded[0]['owner_eppn'] == ''
+    assert recorded[0]['user_eppn'] == ''
+    # a TIMESTAMP column: an ISO string from sqlite, a datetime from postgres
+    when = recorded[0]['timestamp']
+    if isinstance(when, str):
+        when = datetime.fromisoformat(when)
+    assert abs((datetime.now() - when).total_seconds()) < 60
+
+    response = client.get('/admin/dashboard')
+    assert b'<td>example.org</td><td>1</td><td>-</td><td>0</td><td>-</td>' in _terse(response.data)
 
 
 def test_metrics(client, sample_doc_1, sample_owner_1):
