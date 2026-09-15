@@ -10,7 +10,11 @@ import { FormattedMessage } from "react-intl";
 import { injectIntl } from "init-app/intl";
 import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
-import { InviteesWidget } from "components/InviteesWidget";
+import {
+  InviteesWidget,
+  requiredField,
+  optionalField,
+} from "components/InviteesWidget";
 import AL3WarningContainer from "containers/AL3Warning";
 import { nameForCopy } from "components/utils";
 import { sendsignedControl, skipFinalControl } from "components/widgets";
@@ -33,7 +37,9 @@ const validate = (props) => {
   return (values) => {
     let errors = {};
     let emails = [];
-    const max_invitees = values.skipfinalChoice ? props.max_signatures : props.max_signatures - 1;
+    const max_invitees = values.skipfinalChoice
+      ? props.max_signatures
+      : props.max_signatures - 1;
     values.invitees.forEach((val, i) => {
       if (max_invitees <= i) {
         const maxError = (
@@ -102,7 +108,7 @@ const initialValues = (props) => {
         id: "id0",
       },
     ],
-    dummy: 'dummy',
+    dummy: "dummy",
   };
   return values;
 };
@@ -243,7 +249,7 @@ class InviteForm extends React.Component {
                 </BForm.Label>
               </ESTooltip>
 
-              {(this.props.allowbankid) && (
+              {this.props.allowbankid && (
                 <>
                   <span>
                     <FormattedMessage
@@ -258,10 +264,10 @@ class InviteForm extends React.Component {
                     type="hidden"
                     value="none"
                   />
-                </>)
-              }
+                </>
+              )}
 
-              {(!this.props.allowbankid) && (
+              {!this.props.allowbankid && (
                 <Field
                   name="loa"
                   data-testid="loa-select-input"
@@ -283,13 +289,13 @@ class InviteForm extends React.Component {
                       );
                     })}
                   </>
-                </Field>)
-              }
+                </Field>
+              )}
             </BForm.Group>
           </div>
           <div className="loa-select-holder"></div>
         </>
-      )
+      );
     };
     const newNameControl = (props, fprops) => {
       if (props.isTemplate) {
@@ -306,19 +312,21 @@ class InviteForm extends React.Component {
                     key="newname-text-field"
                   />
                 </BForm.Label>
-                <ErrorMessage
-                  name="newnameInput"
-                  component="div"
-                  className="field-error"
-                />
+                {requiredField("newname")}
                 <Field
                   name="newnameInput"
                   data-testid="newnameInput"
                   as={BForm.Control}
                   type="text"
+                  aria-required="true"
                   validate={validateNewname(props)}
                   isValid={!fprops.errors.newnameInput}
                   isInvalid={!props.inviting && fprops.errors.newnameInput}
+                />
+                <ErrorMessage
+                  name="newnameInput"
+                  component="div"
+                  className="field-error"
                 />
               </BForm.Group>
             </div>
@@ -374,6 +382,7 @@ class InviteForm extends React.Component {
                           defaultMessage="Add a message to send to all invitees"
                           key="invitation-text-field"
                         />
+                        {optionalField}
                       </BForm.Label>
                       <Field
                         name="invitationText"

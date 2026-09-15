@@ -9,7 +9,7 @@ import { FormattedMessage } from "react-intl";
 import { injectIntl } from "init-app/intl";
 import Cookies from "js-cookie";
 import { ESTooltip } from "containers/Overlay";
-import { InviteesWidget } from "components/InviteesWidget";
+import { InviteesWidget, optionalField } from "components/InviteesWidget";
 import { sendsignedControl, skipFinalControl } from "components/widgets";
 import {
   validateEmail,
@@ -109,9 +109,10 @@ class InviteEditForm extends React.Component {
                         htmlFor="invitation-text-input"
                       >
                         <FormattedMessage
-                          defaultMessage="Add an (optional) message to send to all new invitees"
+                          defaultMessage="Add a message to send to all new invitees"
                           key="edit-invitation-text-field"
                         />
+                        {optionalField}
                       </BForm.Label>
                       <Field
                         name="invitationText"
