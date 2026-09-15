@@ -206,6 +206,23 @@ def test_admin_dashboard_current_month_only(client):
     assert b'<title>eduid.se</title>' in response.data
 
 
+def test_admin_dashboard_previous_month(client):
+    now = datetime.now()
+    prev = datetime(now.year - 1, 12, 1) if now.month == 1 else datetime(now.year, now.month - 1, 1)
+    prev_ms = int(prev.timestamp() * 1000)
+    _add_signatures(client, 'sunet.se', 'bankid', 3, timestamp=prev_ms)
+    _add_signatures(client, 'sunet.se', 'freja', 1)
+
+    response = client.get('/admin/dashboard')
+    assert response.status == '200 OK'
+    terse = _terse(response.data)
+    current = terse.split(b'id="id-service-usage"')[1].split(b'</table>')[0]
+    previous = terse.split(b'id="id-service-usage-prev"')[1].split(b'</table>')[0]
+    assert b'<td>sunet.se</td><td>0</td><td>0</td><td>1</td><td>0</td>' in current
+    assert b'<td>sunet.se</td><td>3</td><td>0</td><td>0</td><td>0</td>' in previous
+    assert b'(' + prev.strftime('%b %Y').encode() + b')</h2>' in response.data
+
+
 # The eID login, as the Shibboleth SP presents it to the app
 
 

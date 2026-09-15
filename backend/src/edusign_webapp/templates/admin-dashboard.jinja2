@@ -27,13 +27,9 @@
           <p>{{ gettext("No documents") }}</p>
           {% endif %}
 
-          <h2>{{ gettext("BankID and Freja logins and signatures this month") }}</h2>
-          {% if usage %}
-          <style>
-            #id-service-usage { border-collapse: collapse; }
-            #id-service-usage th, #id-service-usage td { border: 1px solid #455; padding: 0.3em 0.8em; text-align: center; }
-          </style>
-          <table id="id-service-usage">
+          {% macro usage_table(table_id, rows) %}
+          {% if rows %}
+          <table id="{{ table_id }}" class="id-service-usage">
             <tr>
               <th rowspan="2">{{ gettext("Organization") }}</th>
               <th colspan="2">{{ gettext("BankID") }}</th>
@@ -45,7 +41,7 @@
               <th>{{ gettext("within quota") }}</th>
               <th>{{ gettext("over quota") }}</th>
             </tr>
-            {% for row in usage %}
+            {% for row in rows %}
             <tr>
               <td>{{ row.organization }}</td>
               {% for sigs in (row.bankid, row.freja) %}
@@ -64,6 +60,18 @@
           {% else %}
           <p>{{ gettext("No signatures") }}</p>
           {% endif %}
+          {% endmacro %}
+
+          <style>
+            .id-service-usage { border-collapse: collapse; }
+            .id-service-usage th, .id-service-usage td { border: 1px solid #455; padding: 0.3em 0.8em; text-align: center; }
+          </style>
+
+          <h2>{{ gettext("BankID and Freja logins and signatures this month") }} ({{ month_label }})</h2>
+          {{ usage_table("id-service-usage", usage) }}
+
+          <h2>{{ gettext("BankID and Freja logins and signatures last month") }} ({{ prev_month_label }})</h2>
+          {{ usage_table("id-service-usage-prev", usage_prev) }}
 
           <h2>{{ gettext("BankID and Freja logins and signatures per month") }}</h2>
           {% if months %}

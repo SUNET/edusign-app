@@ -187,32 +187,42 @@ def dashboard():
     quotas = current_app.config['EID_WHITELIST']
     records = current_app.extensions['doc_store'].get_all_signatures()
 
-    # The table covers the current month only: the uses still to be paid.
-    # It shows the union of the whitelisted institutions and the
-    # organizations with rows this month, one row per institution, and per
-    # eID method the number of uses within the quota and over it.
+    # A usage table covers one calendar month. It shows the union of the
+    # whitelisted institutions and the organizations with rows in the
+    # month, one row per institution, and per eID method the number of
+    # uses within the quota and over it. There is one for the current
+    # month, the uses still to be paid, and one for the previous month.
+    def usage_between(start: float, end: float) -> List[Dict[str, Any]]:
+        sig_counts: defaultdict = defaultdict(lambda: defaultdict(int))
+        for rec in records:
+            if start <= rec['timestamp'] < end:
+                sig_counts[rec['organization']][rec['type']] += 1
+        rows = []
+        for org in sorted(set(quotas) | set(sig_counts)):
+            row = {'organization': org}
+            for sig_type in ('bankid', 'freja'):
+                count = sig_counts[org][sig_type]
+                quota = quotas.get(org, {}).get(sig_type)
+                if quota is None:
+                    row[sig_type] = {'within': count, 'over': None}
+                else:
+                    row[sig_type] = {'within': min(count, quota), 'over': max(0, count - quota)}
+            rows.append(row)
+        return rows
+
     now = datetime.now()
-    month_start = datetime(now.year, now.month, 1).timestamp() * 1000
-    sig_counts: defaultdict = defaultdict(lambda: defaultdict(int))
+    month_start_dt = datetime(now.year, now.month, 1)
+    prev_month_dt = datetime(now.year - 1, 12, 1) if now.month == 1 else datetime(now.year, now.month - 1, 1)
+    month_start = month_start_dt.timestamp() * 1000
+    prev_month_start = prev_month_dt.timestamp() * 1000
+    usage = usage_between(month_start, float('inf'))
+    usage_prev = usage_between(prev_month_start, month_start)
+
     # organization -> 'YYYY-MM' -> uses, all methods together, for the graph
     monthly: defaultdict = defaultdict(lambda: defaultdict(int))
     for rec in records:
-        if rec['timestamp'] >= month_start:
-            sig_counts[rec['organization']][rec['type']] += 1
         month = datetime.fromtimestamp(rec['timestamp'] / 1000).strftime('%Y-%m')
         monthly[rec['organization']][month] += 1
-
-    usage = []
-    for org in sorted(set(quotas) | set(sig_counts)):
-        row = {'organization': org}
-        for sig_type in ('bankid', 'freja'):
-            count = sig_counts[org][sig_type]
-            quota = quotas.get(org, {}).get(sig_type)
-            if quota is None:
-                row[sig_type] = {'within': count, 'over': None}
-            else:
-                row[sig_type] = {'within': min(count, quota), 'over': max(0, count - quota)}
-        usage.append(row)
 
     # One line per institution, one point per calendar month from the
     # earliest row to the current month, zero-filled.
@@ -271,6 +281,9 @@ def dashboard():
         'histogram': [{'day': day, 'count': counts[day]} for day in sorted(counts)],
         'max_count': max(counts.values(), default=0),
         'usage': usage,
+        'month_label': month_start_dt.strftime('%b %Y'),
+        'usage_prev': usage_prev,
+        'prev_month_label': prev_month_dt.strftime('%b %Y'),
         'months': months,
         'series': series,
         'y_ticks': y_ticks,
