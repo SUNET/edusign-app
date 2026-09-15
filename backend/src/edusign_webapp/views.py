@@ -32,6 +32,7 @@
 #
 import asyncio
 import json
+import math
 import os
 import uuid
 from base64 import b64decode
@@ -223,15 +224,35 @@ def dashboard():
             months.append(f"{year}-{month_n:02d}")
             year, month_n = (year + 1, 1) if month_n == 12 else (year, month_n + 1)
     max_month_count = max((count for org in monthly.values() for count in org.values()), default=0)
+
+    # Vertical axis: a 1-2-5 step, at least 1, giving about four ticks up
+    # to the maximum; the top tick is the top of the scale.
+    if max_month_count < 4:
+        step = 1
+    else:
+        raw_step = max_month_count / 4
+        magnitude = 10 ** math.floor(math.log10(raw_step))
+        step = next(m * magnitude for m in (1, 2, 5, 10) if m * magnitude >= raw_step)
+    y_top = max(step, math.ceil(max_month_count / step) * step)
+    y_ticks = [{'value': t, 'y': round(210 - t / y_top * 180, 1)} for t in range(0, y_top + 1, step)]
+
+    # Horizontal axis: years only, under January and under the first
+    # month of the range.
+    x_labels = []
+    for j, month in enumerate(months):
+        if j == 0 or month.endswith('-01'):
+            x_labels.append({'x': 70 + j * 60, 'label': month[:4]})
+
     palette = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
     series = []
     for i, org in enumerate(sorted(set(quotas) | set(monthly))):
         points = []
         for j, month in enumerate(months):
             count = monthly[org][month]
-            x = 50 + j * 60
-            y = round(210 - count / max(max_month_count, 1) * 180, 1)
-            points.append({'month': month, 'count': count, 'x': x, 'y': y})
+            x = 70 + j * 60
+            y = round(210 - count / y_top * 180, 1)
+            label = datetime(int(month[:4]), int(month[5:]), 1).strftime('%b %Y')
+            points.append({'month': month, 'label': label, 'count': count, 'x': x, 'y': y})
         series.append(
             {
                 'organization': org,
@@ -252,6 +273,8 @@ def dashboard():
         'usage': usage,
         'months': months,
         'series': series,
+        'y_ticks': y_ticks,
+        'x_labels': x_labels,
     }
     return make_response(render_template('admin-dashboard.jinja2', **context))
 

@@ -116,8 +116,8 @@ def test_admin_dashboard(client, sample_doc_1, sample_owner_1):
     # EID_WHITELIST, so it has no quota, and its over-quota columns show "-"
     assert b'<td>Test Org</td><td>1</td><td>-</td><td>0</td><td>-</td>' in _terse(response.data)
     # and as the only point of its line in the monthly graph
-    assert b'<title>Test Org: 1</title>' in response.data
-    assert datetime.now().strftime('%Y-%m').encode() in response.data
+    assert b'<title>Test Org: 1, ' + datetime.now().strftime('%b %Y').encode() + b'</title>' in response.data
+    assert b'>' + datetime.now().strftime('%Y').encode() + b'</text>' in response.data
 
 
 def test_parse_eid_whitelist():
@@ -186,11 +186,21 @@ def test_admin_dashboard_current_month_only(client):
     assert response.status == '200 OK'
     assert b'<td>sunet.se</td><td>0</td><td>0</td><td>1</td><td>0</td>' in _terse(response.data)
     assert b'id="eid-per-month"' in response.data
-    assert b'>2025-07</text>' in response.data
-    assert b'<title>sunet.se: 4</title>' in response.data
-    assert b'<title>sunet.se: 1</title>' in response.data
+    # years only on the horizontal axis: under the first month, and under
+    # each January
+    assert b'class="x-label" x="70" y="226" font-size="10" text-anchor="middle" fill="#455">2025</text>' in response.data
+    assert b'>2026</text>' in response.data
+    assert b'>2025-07</text>' not in response.data
+    # the month and year are in the point's hover
+    assert b'<title>sunet.se: 4, Jul 2025</title>' in response.data
+    assert b'<title>sunet.se: 1, ' + datetime.now().strftime('%b %Y').encode() + b'</title>' in response.data
     # the months in between are present with no uses
-    assert b'<title>sunet.se: 0</title>' in response.data
+    assert b'<title>sunet.se: 0, ' in response.data
+    # vertical axis: a maximum of 4 gives ticks 0 to 4, step 1, and the
+    # top tick is the top of the scale, so the maximum sits at y=30
+    assert response.data.count(b'class="y-tick"') == 5
+    assert b'>4</text>' in response.data
+    assert b'cy="30.0"' in response.data
     # one line per institution in the whitelist, even without uses
     assert response.data.count(b'class="eid-series"') == 3
     assert b'<title>eduid.se</title>' in response.data
