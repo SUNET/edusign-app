@@ -33,6 +33,7 @@
 import asyncio
 import importlib
 import json
+import math
 import os
 import uuid
 from base64 import b64decode
@@ -186,37 +187,46 @@ def dashboard():
     quotas = current_app.config['EID_WHITELIST']
     records = current_app.extensions['doc_store'].get_all_signatures()
 
-    # The table covers the current month only: the uses still to be paid.
-    # It shows the union of the whitelisted institutions and the
-    # organizations with rows this month, one row per institution, and per
-    # eID method the number of uses within the quota and over it.
     # The timestamp column is a TIMESTAMP: sqlite returns it as an ISO
     # string, postgres as a datetime.
     for rec in records:
         if isinstance(rec['timestamp'], str):
             rec['timestamp'] = datetime.fromisoformat(rec['timestamp'])
+
+    # A usage table covers one calendar month. It shows the union of the
+    # whitelisted institutions and the organizations with rows in the
+    # month, one row per institution, and per eID method the number of
+    # uses within the quota and over it. There is one for the current
+    # month, the uses still to be paid, and one for the previous month.
+    def usage_between(start: datetime, end: datetime) -> List[Dict[str, Any]]:
+        sig_counts: defaultdict = defaultdict(lambda: defaultdict(int))
+        for rec in records:
+            if start <= rec['timestamp'] < end:
+                sig_counts[rec['organization']][rec['type']] += 1
+        rows = []
+        for org in sorted(set(quotas) | set(sig_counts)):
+            row = {'organization': org}
+            for sig_type in ('bankid', 'freja'):
+                count = sig_counts[org][sig_type]
+                quota = quotas.get(org, {}).get(sig_type)
+                if quota is None:
+                    row[sig_type] = {'within': count, 'over': None}
+                else:
+                    row[sig_type] = {'within': min(count, quota), 'over': max(0, count - quota)}
+            rows.append(row)
+        return rows
+
     now = datetime.now()
     month_start = datetime(now.year, now.month, 1)
-    sig_counts: defaultdict = defaultdict(lambda: defaultdict(int))
+    prev_month_start = datetime(now.year - 1, 12, 1) if now.month == 1 else datetime(now.year, now.month - 1, 1)
+    usage = usage_between(month_start, datetime.max)
+    usage_prev = usage_between(prev_month_start, month_start)
+
     # organization -> 'YYYY-MM' -> uses, all methods together, for the graph
     monthly: defaultdict = defaultdict(lambda: defaultdict(int))
     for rec in records:
-        if rec['timestamp'] >= month_start:
-            sig_counts[rec['organization']][rec['type']] += 1
         month = rec['timestamp'].strftime('%Y-%m')
         monthly[rec['organization']][month] += 1
-
-    usage = []
-    for org in sorted(set(quotas) | set(sig_counts)):
-        row = {'organization': org}
-        for sig_type in ('bankid', 'freja'):
-            count = sig_counts[org][sig_type]
-            quota = quotas.get(org, {}).get(sig_type)
-            if quota is None:
-                row[sig_type] = {'within': count, 'over': None}
-            else:
-                row[sig_type] = {'within': min(count, quota), 'over': max(0, count - quota)}
-        usage.append(row)
 
     # One line per institution, one point per calendar month from the
     # earliest row to the current month, zero-filled.
@@ -228,15 +238,35 @@ def dashboard():
             months.append(f"{year}-{month_n:02d}")
             year, month_n = (year + 1, 1) if month_n == 12 else (year, month_n + 1)
     max_month_count = max((count for org in monthly.values() for count in org.values()), default=0)
+
+    # Vertical axis: a 1-2-5 step, at least 1, giving about four ticks up
+    # to the maximum; the top tick is the top of the scale.
+    if max_month_count < 4:
+        step = 1
+    else:
+        raw_step = max_month_count / 4
+        magnitude = 10 ** math.floor(math.log10(raw_step))
+        step = next(m * magnitude for m in (1, 2, 5, 10) if m * magnitude >= raw_step)
+    y_top = max(step, math.ceil(max_month_count / step) * step)
+    y_ticks = [{'value': t, 'y': round(210 - t / y_top * 180, 1)} for t in range(0, y_top + 1, step)]
+
+    # Horizontal axis: years only, under January and under the first
+    # month of the range.
+    x_labels = []
+    for j, month in enumerate(months):
+        if j == 0 or month.endswith('-01'):
+            x_labels.append({'x': 70 + j * 60, 'label': month[:4]})
+
     palette = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
     series = []
     for i, org in enumerate(sorted(set(quotas) | set(monthly))):
         points = []
         for j, month in enumerate(months):
             count = monthly[org][month]
-            x = 50 + j * 60
-            y = round(210 - count / max(max_month_count, 1) * 180, 1)
-            points.append({'month': month, 'count': count, 'x': x, 'y': y})
+            x = 70 + j * 60
+            y = round(210 - count / y_top * 180, 1)
+            label = datetime(int(month[:4]), int(month[5:]), 1).strftime('%b %Y')
+            points.append({'month': month, 'label': label, 'count': count, 'x': x, 'y': y})
         series.append(
             {
                 'organization': org,
@@ -255,8 +285,13 @@ def dashboard():
         'histogram': [{'day': day, 'count': counts[day]} for day in sorted(counts)],
         'max_count': max(counts.values(), default=0),
         'usage': usage,
+        'month_label': month_start.strftime('%b %Y'),
+        'usage_prev': usage_prev,
+        'prev_month_label': prev_month_start.strftime('%b %Y'),
         'months': months,
         'series': series,
+        'y_ticks': y_ticks,
+        'x_labels': x_labels,
     }
     return make_response(render_template('admin-dashboard.jinja2', **context))
 
