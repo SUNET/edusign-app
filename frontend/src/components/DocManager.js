@@ -95,6 +95,46 @@ class DocManager extends React.Component {
             </div>
           </>
         )}
+        {/* The groups that need action come first: documents the user is
+            invited to sign, then documents the user is waiting on others
+            to sign. The personal documents, which can be many, come last. */}
+        <div className={"multisign-container-" + this.props.size}>
+          {this.props.pending.length > 0 && (
+            <fieldset className="invited-multisign-container">
+              {!this.props.using_bankid && !this.props.using_freja && (
+                <legend data-testid="legend-invited">
+                  <FormattedMessage
+                    defaultMessage="Documents you are invited to sign"
+                    key="invited-multisign-legend"
+                  />
+                </legend>
+              ) || (this.props.pending[0].state === 'signed' && (
+                <p className="invited-legend-title">
+                  <FormattedMessage
+                    defaultMessage="The draft document can be downloaded now, but will disappear when this window is closed. The fully signed document will be available from the person who invited the signature."
+                    key="local-invited-legend-title"
+                  />
+                </p>
+              ))}
+              <InvitedContainer />
+            </fieldset>
+          )}
+          {!this.props.unauthn && (
+            <>
+              {this.props.owned.length > 0 && (
+                <fieldset className="owned-multisign-container">
+                  <legend data-testid="legend-inviter">
+                    <FormattedMessage
+                      defaultMessage="Documents you have invited others to sign"
+                      key="owned-multisign-legend"
+                    />
+                  </legend>
+                  <OwnedContainer />
+                </fieldset>
+              )}
+            </>
+          )}
+        </div>
         {!this.props.unauthn && (
           <>
             {this.props.templates.length > 0 && (
@@ -297,43 +337,6 @@ class DocManager extends React.Component {
             )}
           </>
         )}
-        <div className={"multisign-container-" + this.props.size}>
-          {!this.props.unauthn && (
-            <>
-              {this.props.owned.length > 0 && (
-                <fieldset className="owned-multisign-container">
-                  <legend data-testid="legend-inviter">
-                    <FormattedMessage
-                      defaultMessage="Documents you have invited others to sign"
-                      key="owned-multisign-legend"
-                    />
-                  </legend>
-                  <OwnedContainer />
-                </fieldset>
-              )}
-            </>
-          )}
-          {this.props.pending.length > 0 && (
-            <fieldset className="invited-multisign-container">
-              {!this.props.using_bankid && !this.props.using_freja && (
-                <legend data-testid="legend-invited">
-                  <FormattedMessage
-                    defaultMessage="Documents you are invited to sign"
-                    key="invited-multisign-legend"
-                  />
-                </legend>
-              ) || (this.props.pending[0].state === 'signed' && (
-                <p className="invited-legend-title">
-                  <FormattedMessage
-                    defaultMessage="The draft document can be downloaded now, but will disappear when this window is closed. The fully signed document will be available from the person who invited the signature."
-                    key="local-invited-legend-title"
-                  />
-                </p>
-              ))}
-              <InvitedContainer />
-            </fieldset>
-          )}
-        </div>
         <div id="adjust-vertical-space" />
         {!this.props.using_bankid && !this.props.using_freja && (
           <div id="global-buttons-wrapper">
