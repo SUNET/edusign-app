@@ -31,6 +31,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import asyncio
+import csv
+import io
 import json
 import math
 import os
@@ -301,6 +303,49 @@ def dashboard():
         'x_labels': x_labels,
     }
     return make_response(render_template('admin-dashboard.jinja2', **context))
+
+
+@admin_edusign_views.route('/eid-signatures-report', methods=['GET'])
+def eid_signatures_report():
+    """
+    CSV report of the eID logins and signatures in one calendar month,
+    given as the query parameters `year` and `month`: one row per
+    institution, with the counts within and over the quota for BankID and
+    for Freja+. An institution without a quota has its whole count in the
+    within column and an empty over column.
+
+    :return: the CSV as an attachment, or 400 on bad parameters
+    """
+    try:
+        year = int(request.args['year'])
+        month = int(request.args['month'])
+        start = datetime(year, month, 1)
+    except (KeyError, ValueError):
+        return make_response(('year and month are required; month is 1 to 12', 400, {'Content-Type': 'text/plain'}))
+    end = datetime(year + 1, 1, 1) if month == 12 else datetime(year, month + 1, 1)
+
+    records = current_app.extensions['doc_store'].get_all_signatures()
+    quotas = current_app.config['EID_WHITELIST']
+    rows = _eid_usage(records, quotas, start.timestamp() * 1000, end.timestamp() * 1000)
+
+    out = io.StringIO()
+    writer = csv.writer(out)
+    writer.writerow(['institution', 'bankid_within_quota', 'bankid_over_quota', 'freja_within_quota', 'freja_over_quota'])
+    for row in rows:
+        writer.writerow(
+            [
+                row['organization'],
+                row['bankid']['within'],
+                '' if row['bankid']['over'] is None else row['bankid']['over'],
+                row['freja']['within'],
+                '' if row['freja']['over'] is None else row['freja']['over'],
+            ]
+        )
+
+    response = make_response(out.getvalue())
+    response.headers['Content-Type'] = 'text/csv; charset=utf-8'
+    response.headers['Content-Disposition'] = f'attachment; filename="eid-signatures-{year}-{month:02d}.csv"'
+    return response
 
 
 @admin_edusign_views.route('/migrate-to-redis-and-s3', methods=['POST'])
