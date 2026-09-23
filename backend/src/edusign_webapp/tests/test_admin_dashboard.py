@@ -223,6 +223,44 @@ def test_admin_dashboard_previous_month(client):
     assert b'(' + prev.strftime('%b %Y').encode() + b')</h2>' in response.data
 
 
+def test_eid_signatures_report(client):
+    # 1752000000000 is 2025-07-08. dev.eduid.se has quota 2, sunet.se 500,
+    # Test Org none; the row from the current month stays out.
+    _add_signatures(client, 'dev.eduid.se', 'bankid', 5, timestamp=1752000000000)
+    _add_signatures(client, 'sunet.se', 'bankid', 4, timestamp=1752000000000)
+    _add_signatures(client, 'Test Org', 'freja', 1, timestamp=1752000000000)
+    _add_signatures(client, 'sunet.se', 'freja', 1)
+
+    response = client.get('/admin/eid-signatures-report?year=2025&month=7')
+    assert response.status == '200 OK'
+    assert response.headers['Content-Type'] == 'text/csv; charset=utf-8'
+    assert response.headers['Content-Disposition'] == 'attachment; filename="eid-signatures-2025-07.csv"'
+    assert response.data.decode().splitlines() == [
+        'institution,bankid_within_quota,bankid_over_quota,freja_within_quota,freja_over_quota',
+        'Test Org,0,,1,',
+        'dev.eduid.se,2,3,0,0',
+        'eduid.se,0,0,0,0',
+        'sunet.se,4,0,0,0',
+    ]
+
+
+def test_eid_signatures_report_empty_month(client):
+    response = client.get('/admin/eid-signatures-report?year=2025&month=1')
+    assert response.status == '200 OK'
+    assert response.data.decode().splitlines()[1:] == [
+        'dev.eduid.se,0,0,0,0',
+        'eduid.se,0,0,0,0',
+        'sunet.se,0,0,0,0',
+    ]
+
+
+def test_eid_signatures_report_bad_parameters(client):
+    for query in ('', '?year=2025', '?month=7', '?year=2025&month=13', '?year=x&month=7'):
+        response = client.get('/admin/eid-signatures-report' + query)
+        assert response.status == '400 BAD REQUEST', query
+        assert b'year and month are required' in response.data
+
+
 # The eID login, as the Shibboleth SP presents it to the app
 
 
