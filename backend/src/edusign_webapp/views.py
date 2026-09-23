@@ -164,6 +164,38 @@ def get_id_service_usage():
     return {'payload': {'orgs': to_pay}}
 
 
+def _eid_usage(records: List[Dict[str, Any]], quotas: dict, start: float, end: float) -> List[Dict[str, Any]]:
+    """
+    Count the eID logins and signatures with a timestamp in [start, end),
+    milliseconds since the epoch, per organization and method, and split
+    each count into the part within the organization's quota and the
+    part over it.
+
+    :param records: the PayableSignatures rows, with organization, type and timestamp
+    :param quotas: EID_WHITELIST, organization -> {'bankid': quota, 'freja': quota}
+    :return: one row per organization in the union of the quotas and the
+             records in the window, sorted, each with keys organization,
+             bankid and freja; the last two are {'within': n, 'over': n},
+             with over None for an organization without a quota.
+    """
+    sig_counts: defaultdict = defaultdict(lambda: defaultdict(int))
+    for rec in records:
+        if start <= rec['timestamp'] < end:
+            sig_counts[rec['organization']][rec['type']] += 1
+    rows = []
+    for org in sorted(set(quotas) | set(sig_counts)):
+        row = {'organization': org}
+        for sig_type in ('bankid', 'freja'):
+            count = sig_counts[org][sig_type]
+            quota = quotas.get(org, {}).get(sig_type)
+            if quota is None:
+                row[sig_type] = {'within': count, 'over': None}
+            else:
+                row[sig_type] = {'within': min(count, quota), 'over': max(0, count - quota)}
+        rows.append(row)
+    return rows
+
+
 @admin_edusign_views.route('/dashboard', methods=['GET'])
 def dashboard():
     """
@@ -187,36 +219,15 @@ def dashboard():
     quotas = current_app.config['EID_WHITELIST']
     records = current_app.extensions['doc_store'].get_all_signatures()
 
-    # A usage table covers one calendar month. It shows the union of the
-    # whitelisted institutions and the organizations with rows in the
-    # month, one row per institution, and per eID method the number of
-    # uses within the quota and over it. There is one for the current
-    # month, the uses still to be paid, and one for the previous month.
-    def usage_between(start: float, end: float) -> List[Dict[str, Any]]:
-        sig_counts: defaultdict = defaultdict(lambda: defaultdict(int))
-        for rec in records:
-            if start <= rec['timestamp'] < end:
-                sig_counts[rec['organization']][rec['type']] += 1
-        rows = []
-        for org in sorted(set(quotas) | set(sig_counts)):
-            row = {'organization': org}
-            for sig_type in ('bankid', 'freja'):
-                count = sig_counts[org][sig_type]
-                quota = quotas.get(org, {}).get(sig_type)
-                if quota is None:
-                    row[sig_type] = {'within': count, 'over': None}
-                else:
-                    row[sig_type] = {'within': min(count, quota), 'over': max(0, count - quota)}
-            rows.append(row)
-        return rows
-
+    # A usage table covers one calendar month: one for the current month,
+    # the uses still to be paid, and one for the previous month.
     now = datetime.now()
     month_start_dt = datetime(now.year, now.month, 1)
     prev_month_dt = datetime(now.year - 1, 12, 1) if now.month == 1 else datetime(now.year, now.month - 1, 1)
     month_start = month_start_dt.timestamp() * 1000
     prev_month_start = prev_month_dt.timestamp() * 1000
-    usage = usage_between(month_start, float('inf'))
-    usage_prev = usage_between(prev_month_start, month_start)
+    usage = _eid_usage(records, quotas, month_start, float('inf'))
+    usage_prev = _eid_usage(records, quotas, prev_month_start, month_start)
 
     # organization -> 'YYYY-MM' -> uses, all methods together, for the graph
     monthly: defaultdict = defaultdict(lambda: defaultdict(int))
