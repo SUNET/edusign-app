@@ -204,6 +204,14 @@ def test_admin_dashboard_current_month_only(client):
     # one line per institution in the whitelist, even without uses
     assert response.data.count(b'class="eid-series"') == 3
     assert b'<title>eduid.se</title>' in response.data
+    # the report dialog offers the years from the earliest row to now, and
+    # preselects the previous month
+    now = datetime.now()
+    prev = datetime(now.year - 1, 12, 1) if now.month == 1 else datetime(now.year, now.month - 1, 1)
+    assert b'action="/admin/eid-signatures-report"' in response.data
+    assert b'<option value="2025"' in response.data
+    assert (b'<option value="%d" selected>' % prev.year) in response.data
+    assert (b'<option value="%d" selected>%s</option>' % (prev.month, prev.strftime('%B').encode())) in response.data
 
 
 def test_admin_dashboard_previous_month(client):

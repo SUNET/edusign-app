@@ -301,6 +301,12 @@ def dashboard():
         'series': series,
         'y_ticks': y_ticks,
         'x_labels': x_labels,
+        # the report dialog: years from the earliest row to now, and the
+        # previous month preselected, the month most likely to be billed
+        'report_years': list(range(int(months[0][:4]) if months else now.year, now.year + 1)),
+        'report_months': [(m, datetime(2000, m, 1).strftime('%B')) for m in range(1, 13)],
+        'report_default_year': prev_month_dt.year,
+        'report_default_month': prev_month_dt.month,
     }
     return make_response(render_template('admin-dashboard.jinja2', **context))
 

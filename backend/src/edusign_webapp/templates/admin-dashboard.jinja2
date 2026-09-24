@@ -67,6 +67,34 @@
             .id-service-usage th, .id-service-usage td { border: 1px solid #455; padding: 0.3em 0.8em; text-align: center; }
           </style>
 
+          <p>
+            <button type="button" id="eid-report-button" onclick="document.getElementById('eid-report-dialog').showModal()">
+              {{ gettext("Download eID signatures report") }}
+            </button>
+          </p>
+          <dialog id="eid-report-dialog">
+            <form method="get" action="{{ url_for('edusign_admin.eid_signatures_report') }}">
+              <p>
+                <label for="eid-report-year">{{ gettext("Year") }}</label>
+                <select id="eid-report-year" name="year">
+                  {% for year in report_years %}
+                  <option value="{{ year }}"{% if year == report_default_year %} selected{% endif %}>{{ year }}</option>
+                  {% endfor %}
+                </select>
+                <label for="eid-report-month">{{ gettext("Month") }}</label>
+                <select id="eid-report-month" name="month">
+                  {% for number, name in report_months %}
+                  <option value="{{ number }}"{% if number == report_default_month %} selected{% endif %}>{{ name }}</option>
+                  {% endfor %}
+                </select>
+              </p>
+              <p>
+                <button type="submit">{{ gettext("Generate") }}</button>
+                <button type="button" onclick="document.getElementById('eid-report-dialog').close()">{{ gettext("Cancel") }}</button>
+              </p>
+            </form>
+          </dialog>
+
           <h2>{{ gettext("BankID and Freja logins and signatures this month") }} ({{ month_label }})</h2>
           {{ usage_table("id-service-usage", usage) }}
 
