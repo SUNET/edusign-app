@@ -31,8 +31,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 import asyncio
-import csv
-import io
 import json
 import math
 import os
@@ -40,6 +38,7 @@ import uuid
 from base64 import b64decode
 from collections import defaultdict
 from datetime import datetime, timedelta
+from decimal import Decimal
 from email.utils import formataddr
 from typing import Any, Dict, List, Tuple, Union
 
@@ -321,13 +320,15 @@ def dashboard():
 @admin_edusign_views.route('/eid-signatures-report', methods=['GET'])
 def eid_signatures_report():
     """
-    CSV report of the eID logins and signatures in one calendar month,
-    given as the query parameters `year` and `month`: one row per
-    institution, with the BankID, Freja+ and total counts, and the total
-    within and over the joint quota. An institution without a quota has
-    its whole total in the within column and an empty over column.
+    Billing report of the eID logins and signatures in one calendar month,
+    given as the query parameters `year` and `month`, as a text file: a
+    DATE line, a title line, and one line per institution with a customer
+    id in EID_WHITELIST, sorted by customer id:
+    Customer id;Agreement number;Basis;Cost;Quantity. Basis is
+    EID_BASE_PRICE, Quantity the uses over the joint EID_QUOTA, and Cost
+    Basis + EXTRA_EID_COST x Quantity, in SEK with two decimals.
 
-    :return: the CSV as an attachment, or 400 on bad parameters
+    :return: the text file as an attachment, or 400 on bad parameters
     """
     try:
         year = int(request.args['year'])
@@ -340,26 +341,30 @@ def eid_signatures_report():
     records = current_app.extensions['doc_store'].get_all_signatures()
     whitelist = current_app.config['EID_WHITELIST']
     quota = current_app.config['EID_QUOTA']
-    rows = _eid_usage(records, whitelist, quota, start.timestamp() * 1000, end.timestamp() * 1000)
+    basis = current_app.config['EID_BASE_PRICE']
+    extra_cost = current_app.config['EXTRA_EID_COST']
+    usage = {
+        row['organization']: row
+        for row in _eid_usage(records, whitelist, quota, start.timestamp() * 1000, end.timestamp() * 1000)
+    }
 
-    out = io.StringIO()
-    writer = csv.writer(out)
-    writer.writerow(['institution', 'bankid', 'freja', 'total', 'within_quota', 'over_quota'])
-    for row in rows:
-        writer.writerow(
-            [
-                row['organization'],
-                row['bankid'],
-                row['freja'],
-                row['total'],
-                row['within'],
-                '' if row['over'] is None else row['over'],
-            ]
-        )
+    cents = Decimal('0.01')
+    lines = [
+        f"DATE:{datetime.now().date().isoformat()}",
+        '',
+        f"Report on eID usage for {start.strftime('%B %Y')}",
+        '',
+        'Customer id;Agreement number;Basis;Cost;Quantity',
+    ]
+    billed = sorted((entry['customer_id'], entry['agreement'], scope) for scope, entry in whitelist.items() if entry['customer_id'])
+    for customer_id, agreement, scope in billed:
+        quantity = usage[scope]['over']
+        cost = basis + extra_cost * quantity
+        lines.append(f"{customer_id};{agreement};{basis.quantize(cents)};{cost.quantize(cents)};{quantity}")
 
-    response = make_response(out.getvalue())
-    response.headers['Content-Type'] = 'text/csv; charset=utf-8'
-    response.headers['Content-Disposition'] = f'attachment; filename="eid-signatures-{year}-{month:02d}.csv"'
+    response = make_response('\n'.join(lines) + '\n')
+    response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+    response.headers['Content-Disposition'] = f'attachment; filename="eid-usage-{year}-{month:02d}.txt"'
     return response
 
 

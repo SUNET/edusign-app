@@ -247,35 +247,40 @@ def test_admin_dashboard_previous_month(client):
     assert b'(' + prev.strftime('%b %Y').encode() + b')</h2>' in response.data
 
 
-def test_eid_signatures_report(client):
-    # 1752000000000 is 2025-07-08. sunet.se is billed with the joint test
-    # quota of 3, dev.eduid.se is whitelisted without billing, Test Org is
-    # not whitelisted; the row from the current month stays out.
+def test_eid_usage_report(client):
+    # 1752000000000 is 2025-07-08. The test config bills sunet.se (AA) and
+    # eduid.se (BB) with a joint quota of 3, a base price of 100 and 1.00
+    # per extra use. dev.eduid.se is whitelisted without billing and Test
+    # Org not at all: no lines. The row from the current month stays out.
+    _add_signatures(client, 'sunet.se', 'bankid', 3, timestamp=1752000000000)
+    _add_signatures(client, 'sunet.se', 'freja', 2, timestamp=1752000000000)
+    _add_signatures(client, 'eduid.se', 'freja', 2, timestamp=1752000000000)
     _add_signatures(client, 'dev.eduid.se', 'bankid', 5, timestamp=1752000000000)
-    _add_signatures(client, 'sunet.se', 'bankid', 4, timestamp=1752000000000)
     _add_signatures(client, 'Test Org', 'freja', 1, timestamp=1752000000000)
     _add_signatures(client, 'sunet.se', 'freja', 1)
 
     response = client.get('/admin/eid-signatures-report?year=2025&month=7')
     assert response.status == '200 OK'
-    assert response.headers['Content-Type'] == 'text/csv; charset=utf-8'
-    assert response.headers['Content-Disposition'] == 'attachment; filename="eid-signatures-2025-07.csv"'
-    assert response.data.decode().splitlines() == [
-        'institution,bankid,freja,total,within_quota,over_quota',
-        'Test Org,0,1,1,1,',
-        'dev.eduid.se,5,0,5,5,',
-        'eduid.se,0,0,0,0,0',
-        'sunet.se,4,0,4,3,1',
-    ]
+    assert response.headers['Content-Type'] == 'text/plain; charset=utf-8'
+    assert response.headers['Content-Disposition'] == 'attachment; filename="eid-usage-2025-07.txt"'
+    assert response.data.decode() == (
+        f"DATE:{datetime.now().date().isoformat()}\n"
+        "\n"
+        "Report on eID usage for July 2025\n"
+        "\n"
+        "Customer id;Agreement number;Basis;Cost;Quantity\n"
+        "AA;ES-020-T;100.00;102.00;2\n"
+        "BB;ES-021-T;100.00;100.00;0\n"
+    )
 
 
-def test_eid_signatures_report_empty_month(client):
+def test_eid_usage_report_empty_month(client):
     response = client.get('/admin/eid-signatures-report?year=2025&month=1')
     assert response.status == '200 OK'
-    assert response.data.decode().splitlines()[1:] == [
-        'dev.eduid.se,0,0,0,0,',
-        'eduid.se,0,0,0,0,0',
-        'sunet.se,0,0,0,0,0',
+    assert response.data.decode().splitlines()[4:] == [
+        'Customer id;Agreement number;Basis;Cost;Quantity',
+        'AA;ES-020-T;100.00;100.00;0',
+        'BB;ES-021-T;100.00;100.00;0',
     ]
 
 
