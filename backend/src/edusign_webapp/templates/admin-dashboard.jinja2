@@ -31,29 +31,27 @@
           {% if rows %}
           <table id="{{ table_id }}" class="id-service-usage">
             <tr>
-              <th rowspan="2">{{ gettext("Organization") }}</th>
-              <th colspan="2">{{ gettext("BankID") }}</th>
-              <th colspan="2">{{ gettext("Freja") }}</th>
-            </tr>
-            <tr>
-              <th>{{ gettext("within quota") }}</th>
-              <th>{{ gettext("over quota") }}</th>
+              <th>{{ gettext("Organization") }}</th>
+              <th>{{ gettext("BankID") }}</th>
+              <th>{{ gettext("Freja+") }}</th>
+              <th>{{ gettext("Total") }}</th>
               <th>{{ gettext("within quota") }}</th>
               <th>{{ gettext("over quota") }}</th>
             </tr>
             {% for row in rows %}
             <tr>
               <td>{{ row.organization }}</td>
-              {% for sigs in (row.bankid, row.freja) %}
-              <td>{{ sigs.within }}</td>
-              {% if sigs.over is none %}
+              <td>{{ row.bankid }}</td>
+              <td>{{ row.freja }}</td>
+              <td>{{ row.total }}</td>
+              <td>{{ row.within }}</td>
+              {% if row.over is none %}
               <td>-</td>
-              {% elif sigs.over > 0 %}
-              <td class="over-quota" style="color: #a00; font-weight: bold;">{{ sigs.over }}</td>
+              {% elif row.over > 0 %}
+              <td class="over-quota" style="color: #a00; font-weight: bold;">{{ row.over }}</td>
               {% else %}
-              <td>{{ sigs.over }}</td>
+              <td>{{ row.over }}</td>
               {% endif %}
-              {% endfor %}
             </tr>
             {% endfor %}
           </table>

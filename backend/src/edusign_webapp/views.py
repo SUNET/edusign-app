@@ -166,35 +166,41 @@ def get_id_service_usage():
     return {'payload': {'orgs': to_pay}}
 
 
-def _eid_usage(records: List[Dict[str, Any]], quotas: dict, start: float, end: float) -> List[Dict[str, Any]]:
+def _eid_usage(
+    records: List[Dict[str, Any]], whitelist: dict, quota: int, start: float, end: float
+) -> List[Dict[str, Any]]:
     """
     Count the eID logins and signatures with a timestamp in [start, end),
-    milliseconds since the epoch, per organization and method, and split
-    each count into the part within the organization's quota and the
-    part over it.
+    milliseconds since the epoch, per organization, and split the total
+    over all methods into the part within the quota and the part over it.
+    Only an organization billed in the whitelist, with a customer id, has
+    the quota.
 
     :param records: the PayableSignatures rows, with organization, type and timestamp
-    :param quotas: EID_WHITELIST, organization -> {'bankid': quota, 'freja': quota}
-    :return: one row per organization in the union of the quotas and the
-             records in the window, sorted, each with keys organization,
-             bankid and freja; the last two are {'within': n, 'over': n},
-             with over None for an organization without a quota.
+    :param whitelist: EID_WHITELIST, scope -> {'customer_id': str, 'agreement': str}
+    :param quota: EID_QUOTA, the joint monthly quota
+    :return: one row per organization in the union of the whitelist and the
+             records in the window, sorted, with keys organization, bankid,
+             freja, total, within and over; over is None without a quota.
     """
-    sig_counts: defaultdict = defaultdict(lambda: defaultdict(int))
+    counts: defaultdict = defaultdict(lambda: defaultdict(int))
     for rec in records:
         if start <= rec['timestamp'] < end:
-            sig_counts[rec['organization']][rec['type']] += 1
+            counts[rec['organization']][rec['type']] += 1
     rows = []
-    for org in sorted(set(quotas) | set(sig_counts)):
-        row = {'organization': org}
-        for sig_type in ('bankid', 'freja'):
-            count = sig_counts[org][sig_type]
-            quota = quotas.get(org, {}).get(sig_type)
-            if quota is None:
-                row[sig_type] = {'within': count, 'over': None}
-            else:
-                row[sig_type] = {'within': min(count, quota), 'over': max(0, count - quota)}
-        rows.append(row)
+    for org in sorted(set(whitelist) | set(counts)):
+        total = sum(counts[org].values())
+        billed = bool(whitelist.get(org, {}).get('customer_id'))
+        rows.append(
+            {
+                'organization': org,
+                'bankid': counts[org]['bankid'],
+                'freja': counts[org]['freja'],
+                'total': total,
+                'within': min(total, quota) if billed else total,
+                'over': max(0, total - quota) if billed else None,
+            }
+        )
     return rows
 
 
@@ -217,8 +223,9 @@ def dashboard():
 
     # PayableSignatures holds one row per eID login or signature. The
     # organization recorded with each row is the inviter's eppn scope, the
-    # key of the EID_WHITELIST quotas.
-    quotas = current_app.config['EID_WHITELIST']
+    # key of EID_WHITELIST.
+    whitelist = current_app.config['EID_WHITELIST']
+    quota = current_app.config['EID_QUOTA']
     records = current_app.extensions['doc_store'].get_all_signatures()
 
     # A usage table covers one calendar month: one for the current month,
@@ -228,8 +235,8 @@ def dashboard():
     prev_month_dt = datetime(now.year - 1, 12, 1) if now.month == 1 else datetime(now.year, now.month - 1, 1)
     month_start = month_start_dt.timestamp() * 1000
     prev_month_start = prev_month_dt.timestamp() * 1000
-    usage = _eid_usage(records, quotas, month_start, float('inf'))
-    usage_prev = _eid_usage(records, quotas, prev_month_start, month_start)
+    usage = _eid_usage(records, whitelist, quota, month_start, float('inf'))
+    usage_prev = _eid_usage(records, whitelist, quota, prev_month_start, month_start)
 
     # organization -> 'YYYY-MM' -> uses, all methods together, for the graph
     monthly: defaultdict = defaultdict(lambda: defaultdict(int))
@@ -268,7 +275,7 @@ def dashboard():
 
     palette = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf']
     series = []
-    for i, org in enumerate(sorted(set(quotas) | set(monthly))):
+    for i, org in enumerate(sorted(set(whitelist) | set(monthly))):
         points = []
         for j, month in enumerate(months):
             count = monthly[org][month]
@@ -316,9 +323,9 @@ def eid_signatures_report():
     """
     CSV report of the eID logins and signatures in one calendar month,
     given as the query parameters `year` and `month`: one row per
-    institution, with the counts within and over the quota for BankID and
-    for Freja+. An institution without a quota has its whole count in the
-    within column and an empty over column.
+    institution, with the BankID, Freja+ and total counts, and the total
+    within and over the joint quota. An institution without a quota has
+    its whole total in the within column and an empty over column.
 
     :return: the CSV as an attachment, or 400 on bad parameters
     """
@@ -331,20 +338,22 @@ def eid_signatures_report():
     end = datetime(year + 1, 1, 1) if month == 12 else datetime(year, month + 1, 1)
 
     records = current_app.extensions['doc_store'].get_all_signatures()
-    quotas = current_app.config['EID_WHITELIST']
-    rows = _eid_usage(records, quotas, start.timestamp() * 1000, end.timestamp() * 1000)
+    whitelist = current_app.config['EID_WHITELIST']
+    quota = current_app.config['EID_QUOTA']
+    rows = _eid_usage(records, whitelist, quota, start.timestamp() * 1000, end.timestamp() * 1000)
 
     out = io.StringIO()
     writer = csv.writer(out)
-    writer.writerow(['institution', 'bankid_within_quota', 'bankid_over_quota', 'freja_within_quota', 'freja_over_quota'])
+    writer.writerow(['institution', 'bankid', 'freja', 'total', 'within_quota', 'over_quota'])
     for row in rows:
         writer.writerow(
             [
                 row['organization'],
-                row['bankid']['within'],
-                '' if row['bankid']['over'] is None else row['bankid']['over'],
-                row['freja']['within'],
-                '' if row['freja']['over'] is None else row['freja']['over'],
+                row['bankid'],
+                row['freja'],
+                row['total'],
+                row['within'],
+                '' if row['over'] is None else row['over'],
             ]
         )
 
