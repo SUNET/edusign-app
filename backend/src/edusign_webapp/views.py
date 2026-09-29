@@ -1778,7 +1778,8 @@ def _process_signed_documents(process_data):
         )
         if owner:
             if '@' in owner['eppn']:
-                org = owner['eppn'].split('@')[1]
+                # lowercased, as the EID_WHITELIST scopes are
+                org = owner['eppn'].split('@')[1].lower()
             else:
                 org = 'unknown'
                 current_app.logger.debug(f"Missing organization info in owner eppn: {owner['eppn']}")

@@ -258,7 +258,8 @@ def add_attributes_to_session_bankid_freja(invite_key, stype):
         # the scope of the invitation owner's eppn like the signatures.
         owner_eppn = invite['document'].get('owner', {}).get('eppn', '')
         if '@' in owner_eppn:
-            org = owner_eppn.split('@')[1]
+            # lowercased, as the EID_WHITELIST scopes are
+            org = owner_eppn.split('@')[1].lower()
         else:
             org = 'unknown'
             current_app.logger.debug(f"Missing organization info in owner eppn: {owner_eppn}")

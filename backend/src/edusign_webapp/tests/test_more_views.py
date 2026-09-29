@@ -469,6 +469,23 @@ def test_eid_login_recorded(client, sample_doc_1, sample_owner_1):
     assert b'<td>example.org</td><td>1</td><td>0</td><td>1</td><td>1</td><td>-</td>' in _terse(response.data)
 
 
+def test_eid_login_recorded_scope_lowercased(client, sample_doc_1):
+    # an IdP may send the inviter's eppn scope in mixed case; the use is
+    # recorded under the lowercased scope, as EID_WHITELIST has it
+    owner = {'name': 'owner', 'email': 'owner@sunet.se', 'eppn': 'owner-eppn@SUNET.se', 'lang': 'en'}
+    invites = [{'name': 'Invited Kid', 'email': 'invite0@example.org', 'ssn': '199001019876', 'lang': 'en'}]
+    app = client.application
+    with app.app_context():
+        invite_key = app.extensions['doc_store'].add_document(sample_doc_1, owner, invites, *_eid_invitation_flags)[0][
+            'key'
+        ]
+
+    with app.test_request_context(f'/sign/bankid/{invite_key}', headers=_eid_headers):
+        add_attributes_to_session_bankid_freja(invite_key, 'bankid')
+        assert len(app.extensions['doc_store'].get_signatures('sunet.se', 'bankid')) == 1
+        assert app.extensions['doc_store'].get_signatures('SUNET.se', 'bankid') == []
+
+
 def test_metrics(client, sample_doc_1, sample_owner_1):
     _add_document_as_tester_invite(client, sample_doc_1, sample_owner_1)
 
