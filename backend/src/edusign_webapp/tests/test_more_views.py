@@ -41,6 +41,8 @@ import uuid
 from base64 import b64encode
 from datetime import datetime
 
+import pytest
+
 from edusign_webapp.config import parse_eid_whitelist
 from edusign_webapp.marshal import ResponseSchema
 from edusign_webapp.utils import add_attributes_to_session_bankid_freja
@@ -246,21 +248,27 @@ def test_admin_dashboard(client, sample_doc_1, sample_owner_1):
     assert b'id="docs-per-day"' in response.data
     assert b'height="180.0"' in response.data
     # the payable signature shows in the usage table; Test Org is not in
-    # EID_WHITELIST, so it has no quota, and its over-quota columns show "-"
-    assert b'<td>Test Org</td><td>1</td><td>-</td><td>0</td><td>-</td>' in _terse(response.data)
+    # EID_WHITELIST, so it has no quota, and its over-quota column shows "-"
+    assert b'<td>Test Org</td><td>1</td><td>0</td><td>1</td><td>1</td><td>-</td>' in _terse(response.data)
     # and as the only point of its line in the monthly graph
     assert b'<title>Test Org: 1, ' + datetime.now().strftime('%b %Y').encode() + b'</title>' in response.data
     assert b'>' + datetime.now().strftime('%Y').encode() + b'</text>' in response.data
 
 
 def test_parse_eid_whitelist():
-    parsed = parse_eid_whitelist('eduid.se: 400 :500, sunet.se:500:250, dev.eduid.se:2, Example.org, ')
+    parsed = parse_eid_whitelist('AA:ES-020-T:sunet.se, BB : ES-021-T : Eduid.se, Example.org, ')
     assert parsed == {
-        'eduid.se': {'bankid': 400, 'freja': 500},
-        'sunet.se': {'bankid': 500, 'freja': 250},
-        'dev.eduid.se': {'bankid': 2, 'freja': 2},
-        'example.org': {'bankid': None, 'freja': None},
+        'sunet.se': {'customer_id': 'AA', 'agreement': 'ES-020-T'},
+        'eduid.se': {'customer_id': 'BB', 'agreement': 'ES-021-T'},
+        'example.org': {'customer_id': '', 'agreement': ''},
     }
+
+
+def test_parse_eid_whitelist_rejects_other_forms():
+    # the old per-method quota forms, a missing field, too many fields
+    for raw in ('sunet.se:500', 'sunet.se:500:250', 'AA::sunet.se', 'AA:ES-020-T:sunet.se:100'):
+        with pytest.raises(ValueError):
+            parse_eid_whitelist(raw)
 
 
 def _terse(data):
@@ -283,30 +291,38 @@ def _add_signatures(client, org, sig_type, number, timestamp=None):
 
 
 def test_admin_dashboard_within_quota(client):
-    # sunet.se has quotas 500 (bankid) and 250 (freja) in the default config
+    # sunet.se is billed, and the test quota of 3 is joint for both methods
+    _add_signatures(client, 'sunet.se', 'bankid', 2)
+    _add_signatures(client, 'sunet.se', 'freja', 1)
+
+    response = client.get('/admin/dashboard')
+    assert response.status == '200 OK'
+    assert b'<td>sunet.se</td><td>2</td><td>1</td><td>3</td><td>3</td><td>0</td>' in _terse(response.data)
+    assert b'over-quota' not in response.data
+
+
+def test_admin_dashboard_over_quota(client):
+    # 3 BankID and 2 Freja+ uses against the joint quota of 3: the
+    # within-quota column stays at the quota, the excess goes in the
+    # highlighted over-quota column
     _add_signatures(client, 'sunet.se', 'bankid', 3)
     _add_signatures(client, 'sunet.se', 'freja', 2)
 
     response = client.get('/admin/dashboard')
     assert response.status == '200 OK'
-    assert b'<td>sunet.se</td><td>3</td><td>0</td><td>2</td><td>0</td>' in _terse(response.data)
-    assert b'over-quota' not in response.data
+    assert (
+        b'<td>sunet.se</td><td>3</td><td>2</td><td>5</td><td>3</td>'
+        b'<td class="over-quota" style="color: #a00; font-weight: bold;">2</td>' in _terse(response.data)
+    )
 
 
-def test_admin_dashboard_over_quota(client):
-    # dev.eduid.se has the common quota 2 in the default config; the
-    # within-quota column stays at the quota value, the excess goes in the
-    # highlighted over-quota column
+def test_admin_dashboard_whitelisted_without_billing(client):
+    # dev.eduid.se is a bare scope: no customer id, so no quota
     _add_signatures(client, 'dev.eduid.se', 'bankid', 5)
 
     response = client.get('/admin/dashboard')
-    assert response.status == '200 OK'
-    terse = _terse(response.data)
-    assert (
-        b'<td>dev.eduid.se</td><td>2</td>'
-        b'<td class="over-quota" style="color: #a00; font-weight: bold;">3</td>'
-        b'<td>0</td><td>0</td>' in terse
-    )
+    assert b'<td>dev.eduid.se</td><td>5</td><td>0</td><td>5</td><td>5</td><td>-</td>' in _terse(response.data)
+    assert b'over-quota' not in response.data
 
 
 def test_admin_dashboard_current_month_only(client):
@@ -317,7 +333,7 @@ def test_admin_dashboard_current_month_only(client):
 
     response = client.get('/admin/dashboard')
     assert response.status == '200 OK'
-    assert b'<td>sunet.se</td><td>0</td><td>0</td><td>1</td><td>0</td>' in _terse(response.data)
+    assert b'<td>sunet.se</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td>' in _terse(response.data)
     assert b'id="eid-per-month"' in response.data
     # years only on the horizontal axis: under the first month, and under
     # each January
@@ -351,8 +367,8 @@ def test_admin_dashboard_previous_month(client):
     terse = _terse(response.data)
     current = terse.split(b'id="id-service-usage"')[1].split(b'</table>')[0]
     previous = terse.split(b'id="id-service-usage-prev"')[1].split(b'</table>')[0]
-    assert b'<td>sunet.se</td><td>0</td><td>0</td><td>1</td><td>0</td>' in current
-    assert b'<td>sunet.se</td><td>3</td><td>0</td><td>0</td><td>0</td>' in previous
+    assert b'<td>sunet.se</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td>' in current
+    assert b'<td>sunet.se</td><td>3</td><td>0</td><td>3</td><td>3</td><td>0</td>' in previous
     assert b'(' + prev.strftime('%b %Y').encode() + b')</h2>' in response.data
 
 
@@ -398,7 +414,7 @@ def test_eid_login_recorded(client, sample_doc_1, sample_owner_1):
     assert abs((datetime.now() - when).total_seconds()) < 60
 
     response = client.get('/admin/dashboard')
-    assert b'<td>example.org</td><td>1</td><td>-</td><td>0</td><td>-</td>' in _terse(response.data)
+    assert b'<td>example.org</td><td>1</td><td>0</td><td>1</td><td>1</td><td>-</td>' in _terse(response.data)
 
 
 def test_metrics(client, sample_doc_1, sample_owner_1):

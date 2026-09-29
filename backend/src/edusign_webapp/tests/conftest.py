@@ -37,10 +37,12 @@ import uuid
 from base64 import b64decode, b64encode
 from copy import copy, deepcopy
 from datetime import timedelta
+from decimal import Decimal
 
 import pytest
 
 from edusign_webapp import run
+from edusign_webapp.config import parse_eid_whitelist
 from edusign_webapp.doc_store import DocStore
 from edusign_webapp.document.metadata.redis_client import RedisMD
 from edusign_webapp.document.metadata.sqlite import SqliteMD
@@ -65,6 +67,11 @@ config_dev = {
     'SERVER_NAME': 'test.localhost',
     'SQLITE_MD_DB_PATH': '/tmp/test.db',
     'POLLING': 'always',
+    # two billed institutions and one whitelisted without billing
+    'EID_WHITELIST': parse_eid_whitelist('AA:ES-020-T:sunet.se, BB:ES-021-T:eduid.se, dev.eduid.se'),
+    'EID_QUOTA': 3,
+    'EID_BASE_PRICE': Decimal('100'),
+    'EXTRA_EID_COST': Decimal('1.00'),
 }
 
 
@@ -83,6 +90,11 @@ config_pro = {
     'SERVER_NAME': 'test.localhost',
     'SQLITE_MD_DB_PATH': '/tmp/test.db',
     'POLLING': 'always',
+    # two billed institutions and one whitelisted without billing
+    'EID_WHITELIST': parse_eid_whitelist('AA:ES-020-T:sunet.se, BB:ES-021-T:eduid.se, dev.eduid.se'),
+    'EID_QUOTA': 3,
+    'EID_BASE_PRICE': Decimal('100'),
+    'EXTRA_EID_COST': Decimal('1.00'),
 }
 
 
