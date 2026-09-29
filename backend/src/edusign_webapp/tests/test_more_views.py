@@ -353,6 +353,14 @@ def test_admin_dashboard_current_month_only(client):
     # one line per institution in the whitelist, even without uses
     assert response.data.count(b'class="eid-series"') == 3
     assert b'<title>eduid.se</title>' in response.data
+    # the report dialog offers the years from the earliest row to now, and
+    # preselects the previous month
+    now = datetime.now()
+    prev = datetime(now.year - 1, 12, 1) if now.month == 1 else datetime(now.year, now.month - 1, 1)
+    assert b'action="/admin/eid-signatures-report"' in response.data
+    assert b'<option value="2025"' in response.data
+    assert (b'<option value="%d" selected>' % prev.year) in response.data
+    assert (b'<option value="%d" selected>%s</option>' % (prev.month, prev.strftime('%B').encode())) in response.data
 
 
 def test_admin_dashboard_previous_month(client):
@@ -370,6 +378,50 @@ def test_admin_dashboard_previous_month(client):
     assert b'<td>sunet.se</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td>' in current
     assert b'<td>sunet.se</td><td>3</td><td>0</td><td>3</td><td>3</td><td>0</td>' in previous
     assert b'(' + prev.strftime('%b %Y').encode() + b')</h2>' in response.data
+
+
+def test_eid_usage_report(client):
+    # 1752000000000 is 2025-07-08. The test config bills sunet.se (AA) and
+    # eduid.se (BB) with a joint quota of 3, a base price of 100 and 1.00
+    # per extra use. dev.eduid.se is whitelisted without billing and Test
+    # Org not at all: no lines. The row from the current month stays out.
+    _add_signatures(client, 'sunet.se', 'bankid', 3, timestamp=1752000000000)
+    _add_signatures(client, 'sunet.se', 'freja', 2, timestamp=1752000000000)
+    _add_signatures(client, 'eduid.se', 'freja', 2, timestamp=1752000000000)
+    _add_signatures(client, 'dev.eduid.se', 'bankid', 5, timestamp=1752000000000)
+    _add_signatures(client, 'Test Org', 'freja', 1, timestamp=1752000000000)
+    _add_signatures(client, 'sunet.se', 'freja', 1)
+
+    response = client.get('/admin/eid-signatures-report?year=2025&month=7')
+    assert response.status == '200 OK'
+    assert response.headers['Content-Type'] == 'text/plain; charset=utf-8'
+    assert response.headers['Content-Disposition'] == 'attachment; filename="eid-usage-2025-07.txt"'
+    assert response.data.decode() == (
+        f"DATE:{datetime.now().date().isoformat()}\n"
+        "\n"
+        "Report on eID usage for July 2025\n"
+        "\n"
+        "Customer id;Agreement number;Basis;Cost;Quantity\n"
+        "AA;ES-020-T;100.00;102.00;2\n"
+        "BB;ES-021-T;100.00;100.00;0\n"
+    )
+
+
+def test_eid_usage_report_empty_month(client):
+    response = client.get('/admin/eid-signatures-report?year=2025&month=1')
+    assert response.status == '200 OK'
+    assert response.data.decode().splitlines()[4:] == [
+        'Customer id;Agreement number;Basis;Cost;Quantity',
+        'AA;ES-020-T;100.00;100.00;0',
+        'BB;ES-021-T;100.00;100.00;0',
+    ]
+
+
+def test_eid_signatures_report_bad_parameters(client):
+    for query in ('', '?year=2025', '?month=7', '?year=2025&month=13', '?year=x&month=7'):
+        response = client.get('/admin/eid-signatures-report' + query)
+        assert response.status == '400 BAD REQUEST', query
+        assert b'year and month are required' in response.data
 
 
 # The eID login, as the Shibboleth SP presents it to the app

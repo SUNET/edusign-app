@@ -39,6 +39,7 @@ import uuid
 from base64 import b64decode
 from collections import defaultdict
 from datetime import datetime, timedelta
+from decimal import Decimal
 from email.utils import formataddr
 from typing import Any, Dict, List, Tuple, Union
 
@@ -202,6 +203,19 @@ def _eid_usage(
     return rows
 
 
+def _payable_records() -> List[Dict[str, Any]]:
+    """
+    The PayableSignatures rows, with the timestamp as a datetime. The
+    timestamp column is a TIMESTAMP: sqlite returns it as an ISO string,
+    postgres as a datetime.
+    """
+    records = current_app.extensions['doc_store'].get_all_signatures()
+    for rec in records:
+        if isinstance(rec['timestamp'], str):
+            rec['timestamp'] = datetime.fromisoformat(rec['timestamp'])
+    return records
+
+
 @admin_edusign_views.route('/dashboard', methods=['GET'])
 def dashboard():
     """
@@ -224,13 +238,7 @@ def dashboard():
     # key of EID_WHITELIST.
     whitelist = current_app.config['EID_WHITELIST']
     quota = current_app.config['EID_QUOTA']
-    records = current_app.extensions['doc_store'].get_all_signatures()
-
-    # The timestamp column is a TIMESTAMP: sqlite returns it as an ISO
-    # string, postgres as a datetime.
-    for rec in records:
-        if isinstance(rec['timestamp'], str):
-            rec['timestamp'] = datetime.fromisoformat(rec['timestamp'])
+    records = _payable_records()
 
     # A usage table covers one calendar month: one for the current month,
     # the uses still to be paid, and one for the previous month.
@@ -310,8 +318,61 @@ def dashboard():
         'series': series,
         'y_ticks': y_ticks,
         'x_labels': x_labels,
+        # the report dialog: years from the earliest row to now, and the
+        # previous month preselected, the month most likely to be billed
+        'report_years': list(range(int(months[0][:4]) if months else now.year, now.year + 1)),
+        'report_months': [(m, datetime(2000, m, 1).strftime('%B')) for m in range(1, 13)],
+        'report_default_year': prev_month_start.year,
+        'report_default_month': prev_month_start.month,
     }
     return make_response(render_template('admin-dashboard.jinja2', **context))
+
+
+@admin_edusign_views.route('/eid-signatures-report', methods=['GET'])
+def eid_signatures_report():
+    """
+    Billing report of the eID logins and signatures in one calendar month,
+    given as the query parameters `year` and `month`, as a text file: a
+    DATE line, a title line, and one line per institution with a customer
+    id in EID_WHITELIST, sorted by customer id:
+    Customer id;Agreement number;Basis;Cost;Quantity. Basis is
+    EID_BASE_PRICE, Quantity the uses over the joint EID_QUOTA, and Cost
+    Basis + EXTRA_EID_COST x Quantity, in SEK with two decimals.
+
+    :return: the text file as an attachment, or 400 on bad parameters
+    """
+    try:
+        year = int(request.args['year'])
+        month = int(request.args['month'])
+        start = datetime(year, month, 1)
+    except (KeyError, ValueError):
+        return make_response(('year and month are required; month is 1 to 12', 400, {'Content-Type': 'text/plain'}))
+    end = datetime(year + 1, 1, 1) if month == 12 else datetime(year, month + 1, 1)
+
+    whitelist = current_app.config['EID_WHITELIST']
+    quota = current_app.config['EID_QUOTA']
+    basis = current_app.config['EID_BASE_PRICE']
+    extra_cost = current_app.config['EXTRA_EID_COST']
+    usage = {row['organization']: row for row in _eid_usage(_payable_records(), whitelist, quota, start, end)}
+
+    cents = Decimal('0.01')
+    lines = [
+        f"DATE:{datetime.now().date().isoformat()}",
+        '',
+        f"Report on eID usage for {start.strftime('%B %Y')}",
+        '',
+        'Customer id;Agreement number;Basis;Cost;Quantity',
+    ]
+    billed = sorted((entry['customer_id'], entry['agreement'], scope) for scope, entry in whitelist.items() if entry['customer_id'])
+    for customer_id, agreement, scope in billed:
+        quantity = usage[scope]['over']
+        cost = basis + extra_cost * quantity
+        lines.append(f"{customer_id};{agreement};{basis.quantize(cents)};{cost.quantize(cents)};{quantity}")
+
+    response = make_response('\n'.join(lines) + '\n')
+    response.headers['Content-Type'] = 'text/plain; charset=utf-8'
+    response.headers['Content-Disposition'] = f'attachment; filename="eid-usage-{year}-{month:02d}.txt"'
+    return response
 
 
 @admin_edusign_views.route('/migrate-to-postgres-and-s3', methods=['POST'])
