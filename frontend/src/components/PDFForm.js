@@ -16,6 +16,15 @@ import "styles/PDFForm.scss";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 
+// One object for the life of the module: react-pdf reloads the document
+// when it gets a new options object, and a reload reuses the buffer the
+// pdf.js worker has already taken over.
+const documentOptions = {
+  cMapUrl: "/js/cmaps/",
+  cMapPacked: true,
+  enableXfa: true,
+};
+
 const initValues = (props) => ({ newfname: nameForCopy(props) });
 
 const validate = (props) => {
@@ -196,11 +205,7 @@ class PDFForm extends React.Component {
               onPassword={(c) => {
                 throw new Error("Never password");
               }}
-              options={{
-                cMapUrl: "/js/cmaps/",
-                cMapPacked: true,
-                enableXfa: true,
-              }}
+              options={documentOptions}
             >
               {(this.props.width < 550 && (
                 <Page

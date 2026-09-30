@@ -18,13 +18,25 @@ import { disablePolling, enablePolling } from "slices/Poll";
 import { isNotInviting } from "slices/InviteForm";
 import { docToFile } from "components/utils";
 
+// One File per document object. A new File on every store change would
+// make react-pdf reload the document each time.
+let lastDoc = null;
+let lastFile = null;
+const fileForDoc = (doc) => {
+  if (doc !== lastDoc) {
+    lastDoc = doc;
+    lastFile = docToFile(doc);
+  }
+  return lastFile;
+};
+
 const mapStateToProps = (state, props) => {
   const doc = state.pdfform.document;
   let docFile = null,
     docName = "",
     show = false;
   if (doc !== null) {
-    docFile = docToFile(doc);
+    docFile = fileForDoc(doc);
     docName = doc.name;
     show = true;
   }
