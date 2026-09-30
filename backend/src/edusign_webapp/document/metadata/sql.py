@@ -150,6 +150,18 @@ SIGNATURES_QUERY_GLOBAL = (
 )
 
 
+def _bool_flags(document: Dict[str, Any]):
+    """
+    Convert the flag columns of a document row to booleans, in place.
+
+    sqlite stores them as INTEGER, and marshmallow 4 serializes a Boolean
+    field as it is, so without this the frontend would get 0 and 1.
+    """
+    for flag in ('sendsigned', 'skipfinal', 'ordered_invitations', 'allowbankid'):
+        if flag in document:
+            document[flag] = bool(document[flag])
+
+
 class SqlMD(ABCMetadata):
     """
     Sql abstract backend to deal with the metadata associated to documents
@@ -444,6 +456,7 @@ class SqlMD(ABCMetadata):
                 if isinstance(created, str):
                     created = datetime.fromisoformat(str(created))
                 document['created'] = created.timestamp() * 1000
+                _bool_flags(document)
                 document['ordered'] = document['ordered_invitations']
 
                 subinvites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
@@ -600,6 +613,7 @@ class SqlMD(ABCMetadata):
                 created = datetime.fromisoformat(str(created))
             document['created'] = created.timestamp() * 1000
             state = 'loaded'
+            _bool_flags(document)
             document['ordered'] = document['ordered_invitations']
             document['use_eid'] = document['allowbankid']
             document_id = document['doc_id']
@@ -806,6 +820,7 @@ class SqlMD(ABCMetadata):
         doc['key'] = uuid.UUID(doc['key'])
         doc['invite_key'] = key
         doc['created'] = datetime.fromisoformat(str(doc['created'])).timestamp() * 1000
+        _bool_flags(doc)
         doc['ordered'] = doc['ordered_invitations']
         doc['state'] = 'unconfirmed'
 

@@ -149,8 +149,15 @@ def test_create_invited_signature(app_and_client, environ_base, monkeypatch, sam
         app_and_client, environ_base, monkeypatch, sample_owned_doc_1, sample_invites_1, 'low'
     )
 
-    assert 'test1.pdf' == json.loads(response.data)['payload']['owned_multisign'][0]['name']
-    assert 'low,Low' == json.loads(response.data)['payload']['owned_multisign'][0]['loa']
+    owned = json.loads(response.data)['payload']['owned_multisign'][0]
+    assert 'test1.pdf' == owned['name']
+    assert 'low,Low' == owned['loa']
+    # the flags reach the browser as JSON booleans, not as the sqlite
+    # integers; marshmallow 4 does not coerce them
+    assert owned['use_eid'] is False
+    assert owned['ordered'] is False
+    assert owned['sendsigned'] is True
+    assert owned['skipfinal'] is True
 
 
 def test_create_invited_signature_insifficient_loa(

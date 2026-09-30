@@ -165,6 +165,9 @@ def test_get_invitations_none_no_loa(
                                             sample_owner_1, sample_invites_1, headers, invitation_flags)
 
     assert invitations['pending_multisign'][0]['state'] == 'unconfirmed'
+    # the flags are booleans, not the sqlite integers
+    assert invitations['pending_multisign'][0]['ordered'] is False
+    assert invitations['pending_multisign'][0]['allowbankid'] is False
 
 
 def test_get_invitations_low_no_loa(
