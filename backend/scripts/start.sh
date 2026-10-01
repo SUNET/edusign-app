@@ -3,7 +3,7 @@
 set -e
 set -x
 
-. /opt/edusign/bin/activate
+. /opt/edusign/venv/bin/activate
 
 edusign_name=${edusign_name-'edusign-webapp'}
 app_name=${app_name-'webapp'}
@@ -27,7 +27,7 @@ echo "PYTHONPATH=${PYTHONPATH}"
 
 # nice to have in docker run output, to check what
 # version of something is actually running.
-/opt/edusign/bin/pip freeze
+/opt/edusign/venv/bin/pip freeze
 
 extra_args=""
 if [ -f "/opt/edusign/edusign-webapp/pyproject.toml" ]; then
@@ -39,7 +39,7 @@ echo ""
 echo "$0: Starting ${edusign_name}"
 
 exec start-stop-daemon --start -c edusign:edusign --exec \
-     /opt/edusign/bin/gunicorn \
+     /opt/edusign/venv/bin/gunicorn \
      --pidfile "${state_dir}/${edusign_name}.pid" \
      --user=edusign --group=edusign -- \
      --bind 0.0.0.0:8080 \

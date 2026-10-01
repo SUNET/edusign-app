@@ -1,11 +1,15 @@
-FROM debian:11
+# Only the C libraries come from Debian; uv installs the Python named in
+# .python-version. Debian 11 left security support in 2026 and its
+# packages moved to the archive, so the base is Debian 12 now, as in
+# docker-edusign-app.
+FROM debian:bookworm
 
 MAINTAINER eperez@emergya.com
 
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get -y update && apt-get -y upgrade && \
-    apt-get -y install libffi-dev libfreetype6-dev libjpeg62-turbo-dev libssl-dev \
+    apt-get -y install libffi-dev libfreetype6-dev libjpeg62-turbo-dev libssl-dev libpq-dev \
       libtiff5-dev libxml2-dev libxml2-utils libxslt1-dev swig xmlsec1 zlib1g-dev \
       git build-essential libpython3-dev python3-cffi python3-venv iputils-ping \
       procps bind9-host netcat-openbsd net-tools curl locales && \
@@ -52,9 +56,11 @@ WORKDIR /opt/edusign/edusign-webapp
 # with the locked dependencies and the project installed editable (the uv
 # equivalent of the old `setup.py develop`). pip is seeded into the venv
 # because start.sh runs `pip freeze` for the startup log.
-ENV UV_PROJECT_ENVIRONMENT=/opt/edusign
+# A directory of its own: uv refuses to create the environment in
+# /opt/edusign, which already holds the sources and the run directory.
+ENV UV_PROJECT_ENVIRONMENT=/opt/edusign/venv
 RUN uv sync --frozen --no-dev
-RUN uv pip install --python /opt/edusign pip gunicorn
+RUN uv pip install --python /opt/edusign/venv pip gunicorn
 
 ADD ./scripts/start.sh /start.sh
 

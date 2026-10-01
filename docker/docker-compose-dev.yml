@@ -1,5 +1,4 @@
 ---
-version: '3.8'
 services:
 
   sp:
@@ -12,16 +11,11 @@ services:
     volumes:
       - edusignlogs:/var/log/edusign:rw
       - ../frontend/build:/opt/edusign/jsbuild:ro
+      - ../../docker-edusign-app/example-customization:/opt/edusign/assets:ro
     environment:
       - "HOSTNAME=sp.edusign.docker"
     depends_on:
       - www
-
-  redis:
-    image: redis:latest
-    networks:
-      edusign-dev:
-        ipv4_address: 172.20.10.205
 
   www:
     build: ../backend/.
@@ -46,10 +40,21 @@ services:
       - "MAIL_SUPPRESS_SEND=True"
       - "MAIL_BACKEND=dummy"
       - "APP_IN_TWO_PATHS=True"
-    env_file:
-      - .env
+      - "EDUSIGN_API_BASE_URL=http://fakeapi:8080/v1/"
+      - "VALIDATOR_API_BASE_URL=http://fakeapi:8080/"
     depends_on:
-      - redis
+      - fakeapi
+
+  # Fake eduSign API and sign service, see fake-api/app.py.
+  fakeapi:
+    build: ./fake-api
+    networks:
+      edusign-dev:
+        ipv4_address: 172.20.10.205
+    expose:
+      - 8080
+    environment:
+      - "FAKE_SIGN_BASE_URL=http://sp.edusign.docker"
 
 volumes:
   edusignlogs:

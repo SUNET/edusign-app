@@ -24,14 +24,14 @@ args=`arg="$(filter-out $@,$(MAKECMDGOALS))" && echo $${arg:-${1}}`
 .PHONY: dev-env-start
 dev-env-start:
 	@cd $(ENV_DIR); \
-    docker-compose -f docker-compose-dev.yml rm -s -f; \
-    docker-compose -f docker-compose-dev.yml up --build
+    docker compose -f docker-compose-dev.yml rm -s -f; \
+    docker compose -f docker-compose-dev.yml up --build
 
 ## Stop the docker environment
 .PHONY: dev-env-stop
 dev-env-stop:
 	@cd $(ENV_DIR); \
-    docker-compose -f docker-compose-dev.yml  rm -s -f; \
+    docker compose -f docker-compose-dev.yml rm -s -f; \
 
 ## -- Logging commands --
 
