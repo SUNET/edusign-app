@@ -1,0 +1,7 @@
+/*
+ * Site overrides for the local development environment: none.
+ *
+ * Served as /assets/custom.css in place of docker-edusign-app's
+ * example-customization/custom.css, whose demonstration rule paints
+ * the main area brown. Add rules here to try a customization locally.
+ */

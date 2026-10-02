@@ -63,7 +63,11 @@ SESSION_COOKIE_DOMAIN = os.environ.get('SP_HOSTNAME', default='edusign.sunet.se'
 SESSION_COOKIE_PATH = os.environ.get('SESSION_COOKIE_PATH', default='/sign')
 SESSION_COOKIE_SECURE_RAW = os.environ.get('SESSION_COOKIE_SECURE', default=True)
 SESSION_COOKIE_NAME = os.environ.get('SESSION_COOKIE_NAME', default='session')
-SESSION_COOKIE_SAMESITE = 'None'
+# None: the sign service POSTs back to /sign/callback from another site, so
+# the session cookie must travel with a cross-site request. Browsers accept
+# SameSite=None only with Secure, so a plain-HTTP development setup needs
+# Lax (its fake sign service is same-site).
+SESSION_COOKIE_SAMESITE = os.environ.get('SESSION_COOKIE_SAMESITE', default='None')
 
 SESSION_COOKIE_SECURE = get_boolean(SESSION_COOKIE_SECURE_RAW)
 
