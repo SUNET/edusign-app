@@ -80,7 +80,7 @@ footer {
 #app-version {
   padding: 1rem 2rem;
   font-size: .7rem;
-  color: #999;
+  color: #5e5e5e;
 }
 #lang-selector:hover,
 #faq-link:hover {
@@ -135,11 +135,11 @@ footer {
       <div id="container">
         <header>
           <div id="edusign-logo">
-            <img src="/assets/app-logo.png">
+            <img src="/assets/app-logo.png" alt="eduSign">
           </div>
           <div id="sunet-logo">
             <a href="{{ company_link }}">
-              <img id="sunet-logo-img" src="/assets/company-logo.png" />
+              <img id="sunet-logo-img" src="/assets/company-logo.png" alt="SUNET" />
             </a>
           </div>
         </header>
@@ -159,11 +159,11 @@ footer {
               {% endblock %}
             </div>
             <div id="lang-selector">
-              <select name="lang-selector">
+              <select name="lang-selector" aria-label="{% trans %}Select language{% endtrans %}">
                 {% for lang in langs.items() %}
                 <option value="{{ lang[0] }}" {% if lang[0] == current_lang %}selected{% endif %}>{{ lang[1] }}</option>
                 {% endfor %}
-              </select
+              </select>
             </div>
           </div>
         </footer>
