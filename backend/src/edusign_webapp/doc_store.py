@@ -734,9 +734,10 @@ class DocStore(object):
         :param content: base64 string with the contents of the document, with a newly added signature.
         :return: new document id
         """
-        doc_id = self.metadata.add_document_raw(document)
+        # content first: a metadata row then means the content is in storage,
+        # which the migration relies on to skip documents already migrated
         self.storage.add(document['key'], content)
-        return doc_id
+        return self.metadata.add_document_raw(document)
 
     def get_old_documents(self, days: int) -> List[uuid.UUID]:
         """

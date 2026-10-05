@@ -45,6 +45,7 @@ is reachable, the tests are skipped. A suitable throwaway server:
 import os
 import tempfile
 import uuid
+from datetime import datetime
 
 import psycopg2
 import pytest
@@ -261,6 +262,88 @@ def test_migrate_to_postgres_and_s3_empty(pg_migration_app):
 
     assert response.status == '200 OK'
     assert b'OK, migrated 0 documents and 0 invitations and 0 payable signatures' in response.data
+
+
+@mock_aws
+def test_migrate_to_postgres_and_s3_rerun(pg_migration_app):
+    # a second run migrates nothing and duplicates nothing: the document key
+    # is found in PostgreSQL, and so are the signatures
+    tempdir, app = pg_migration_app
+    app.extensions['doc_store'].storage.s3.create_bucket(Bucket='edusign-storage')
+    doc_1, doc_2 = _seed_old_doc_store(app)
+
+    client = app.test_client()
+    client.environ_base.update(_environ_base)
+    response = client.post('/admin/migrate-to-postgres-and-s3')
+    assert b'OK, migrated 1 documents and 2 invitations and 2 payable signatures;' in response.data
+
+    response = client.post('/admin/migrate-to-postgres-and-s3')
+    assert response.status == '200 OK'
+    assert (
+        b'OK, migrated 0 documents and 0 invitations and 0 payable signatures;'
+        b' skipped 2 documents and 2 payable signatures' in response.data
+    )
+
+    with app.test_request_context():
+        new_store = app.extensions['doc_store']
+        assert len(new_store.get_full_invites(uuid.UUID(doc_1['key']))) == 2
+        assert sorted(row['number_of_signatures'] for row in new_store.get_signatures_global()) == [1, 1]
+
+
+@mock_aws
+def test_migrate_to_postgres_and_s3_integer_timestamp(pg_migration_app):
+    # a sqlite database from version152 holds signature timestamps as
+    # integers, milliseconds since the epoch; PostgreSQL gets a datetime
+    tempdir, app = pg_migration_app
+    app.extensions['doc_store'].storage.s3.create_bucket(Bucket='edusign-storage')
+    with app.test_request_context():
+        _old_doc_store(app).add_signature_raw(
+            {
+                'type': 'bankid',
+                'organization': 'sunet.se',
+                'doc_name': '',
+                'owner_eppn': '',
+                'user_eppn': '',
+                'timestamp': 1752000000000,
+            }
+        )
+
+    client = app.test_client()
+    client.environ_base.update(_environ_base)
+    response = client.post('/admin/migrate-to-postgres-and-s3')
+    assert response.status == '200 OK'
+    assert b'and 1 payable signatures;' in response.data
+
+    with app.test_request_context():
+        migrated = app.extensions['doc_store'].get_all_signatures()
+        assert len(migrated) == 1
+        assert migrated[0]['timestamp'] == datetime.fromtimestamp(1752000000)
+
+    # and a second run finds it
+    response = client.post('/admin/migrate-to-postgres-and-s3')
+    assert b'and 0 payable signatures; skipped 0 documents and 1 payable signatures' in response.data
+
+
+@mock_aws
+def test_migrate_to_postgres_and_s3_missing_content(pg_migration_app):
+    # a document whose file is gone from the local storage is skipped, and
+    # the run goes on with the rest
+    tempdir, app = pg_migration_app
+    app.extensions['doc_store'].storage.s3.create_bucket(Bucket='edusign-storage')
+    doc_1, doc_2 = _seed_old_doc_store(app)
+    os.remove(os.path.join(tempdir.name, doc_1['key']))
+
+    client = app.test_client()
+    client.environ_base.update(_environ_base)
+    response = client.post('/admin/migrate-to-postgres-and-s3')
+    assert response.status == '200 OK'
+    assert (
+        b'OK, migrated 0 documents and 0 invitations and 2 payable signatures;'
+        b' skipped 2 documents and 0 payable signatures' in response.data
+    )
+
+    with app.test_request_context():
+        assert app.extensions['doc_store'].get_full_document(uuid.UUID(doc_1['key'])) == {}
 
 
 def test_migrate_wrong_target_backends(client):

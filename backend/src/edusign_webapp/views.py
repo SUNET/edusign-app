@@ -384,7 +384,16 @@ def migrate_to_postgres_and_s3():
     Migrate the invitations contents from SQLite & the local fs
     to PostgreSQL and s3.
 
-    :return: the number of documents migrated
+    Stop the app for the run: document locks are not migrated. The run
+    can be repeated: a document whose key is already in PostgreSQL is
+    skipped, invitations included, and so is a payable signature already
+    there (same type, organization, doc_name, owner_eppn, user_eppn and
+    timestamp). So a run cut short, by a worker timeout for instance, is
+    resumed by running again until nothing is left to migrate. A document
+    whose content is missing from the local storage is skipped and logged.
+
+    :return: the numbers of documents, invitations and payable signatures
+             migrated and skipped
     """
     assert "S3Storage" in current_app.config['STORAGE_CLASS_PATH']
     assert "PostgresqlMD" in current_app.config['DOC_METADATA_CLASS_PATH']
@@ -399,6 +408,7 @@ def migrate_to_postgres_and_s3():
     local_storage = LocalStorage(current_app.config, current_app.logger)
 
     old_doc_store = DocStore.custom(current_app, local_storage, sqlite_md)
+    new_doc_store = current_app.extensions['doc_store']
 
     current_app.logger.info("STARTING MIGRATION TO POSTGRES AND S3")
 
@@ -406,42 +416,70 @@ def migrate_to_postgres_and_s3():
     current_app.logger.info(f"Going to migrate {len(keys)} documents")
 
     migrated_docs = 0
+    skipped_docs = 0
     migrated_invites = 0
     for doc_key in keys:
         current_app.logger.info(f"Migrating document with key {doc_key}")
+        if new_doc_store.get_document_id(doc_key) is not None:
+            current_app.logger.info(f"    Document with key {doc_key} already migrated, skipping")
+            skipped_docs += 1
+            continue
+
         old_document = old_doc_store.get_full_document(doc_key)
         if not old_document:
             current_app.logger.info(f"    Document with key {doc_key} not found, skipping")
+            skipped_docs += 1
             continue
 
-        content = old_doc_store.get_document_content(doc_key)
         old_invites = old_doc_store.get_full_invites(doc_key)
         if len(old_invites) == 0:
             current_app.logger.info(f"    Document with key {doc_key} has no invitations, skipping")
+            skipped_docs += 1
             continue
 
-        doc_id = current_app.extensions['doc_store'].add_document_raw(old_document, content)
+        content = old_doc_store.get_document_content(doc_key)
+        if content is None:
+            current_app.logger.warning(f"    Document with key {doc_key} has no content in the local storage, skipping")
+            skipped_docs += 1
+            continue
+
+        doc_id = new_doc_store.add_document_raw(old_document, content)
         migrated_docs += 1
         current_app.logger.info(f"    Document with key {doc_key} added to db and storage")
 
         current_app.logger.info(f"Going to migrate {len(old_invites)} invites for document with key {doc_key}")
         for invite in old_invites:
             invite['doc_id'] = doc_id
-            current_app.extensions['doc_store'].add_invite_raw(invite)
+            new_doc_store.add_invite_raw(invite)
             migrated_invites += 1
 
     old_signatures = old_doc_store.get_all_signatures()
     current_app.logger.info(f"Going to migrate {len(old_signatures)} payable signatures")
 
     migrated_signatures = 0
+    skipped_signatures = 0
     for signature in old_signatures:
-        current_app.extensions['doc_store'].add_signature_raw(signature)
+        # a sqlite database from version152 holds the timestamp as an
+        # integer, milliseconds since the epoch; PostgreSQL wants a datetime
+        if isinstance(signature['timestamp'], (int, float)):
+            signature['timestamp'] = datetime.fromtimestamp(signature['timestamp'] / 1000)
+        if new_doc_store.has_signature(signature):
+            skipped_signatures += 1
+            continue
+        new_doc_store.add_signature_raw(signature)
         migrated_signatures += 1
 
+    current_app.logger.info(
+        f"MIGRATION DONE: {migrated_docs} documents, {migrated_invites} invitations, "
+        f"{migrated_signatures} payable signatures migrated; "
+        f"{skipped_docs} documents, {skipped_signatures} payable signatures skipped"
+    )
     return (
         f'OK, migrated {migrated_docs} documents'
         f' and {migrated_invites} invitations'
-        f' and {migrated_signatures} payable signatures'
+        f' and {migrated_signatures} payable signatures;'
+        f' skipped {skipped_docs} documents'
+        f' and {skipped_signatures} payable signatures'
     )
 
 
