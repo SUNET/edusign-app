@@ -203,6 +203,22 @@ def _eid_usage(
     return rows
 
 
+def _migration_available() -> bool:
+    """
+    Whether the migration from sqlite and the local filesystem can run: the
+    PostgreSQL and S3 backends are configured, which the migration view
+    asserts, and SQLITE_MD_DB_PATH is a readable sqlite database file.
+    """
+    config = current_app.config
+    if 'PostgresqlMD' not in config['DOC_METADATA_CLASS_PATH'] or 'S3Storage' not in config['STORAGE_CLASS_PATH']:
+        return False
+    try:
+        with open(config['SQLITE_MD_DB_PATH'], 'rb') as f:
+            return f.read(16) == b'SQLite format 3\x00'
+    except OSError:
+        return False
+
+
 def _payable_records() -> List[Dict[str, Any]]:
     """
     The PayableSignatures rows, with the timestamp as a datetime. The
@@ -327,6 +343,7 @@ def dashboard():
         'report_months': [(m, datetime(2000, m, 1).strftime('%B')) for m in range(1, 13)],
         'report_default_year': prev_month_start.year,
         'report_default_month': prev_month_start.month,
+        'migration_available': _migration_available(),
     }
     return make_response(render_template('admin-dashboard.jinja2', **context))
 

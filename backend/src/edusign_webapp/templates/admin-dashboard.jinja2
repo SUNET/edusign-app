@@ -3,6 +3,14 @@
     {% block body %}
           <h1>{{ gettext("Admin dashboard") }}</h1>
 
+          {% if migration_available %}
+          <form method="post" action="{{ url_for('edusign_admin.migrate_to_postgres_and_s3') }}" onsubmit="return confirm('{{ gettext("Migrate the documents, invitations and payable signatures from sqlite and the local files to PostgreSQL and S3? Stop the app for the run. Running again migrates only what is left.") }}')">
+            <p>
+              <button type="submit" id="migration-button">{{ gettext("Migrate from sqlite and local files") }}</button>
+            </p>
+          </form>
+          {% endif %}
+
           <h2>{{ gettext("Documents") }}</h2>
           <table>
             <tr><td>{{ gettext("Number of documents") }}</td><td>{{ total_docs }}</td></tr>

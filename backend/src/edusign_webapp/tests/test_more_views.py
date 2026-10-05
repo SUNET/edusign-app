@@ -234,6 +234,29 @@ def test_admin_dashboard_empty(client):
     assert b'over-quota' not in response.data
 
 
+def test_admin_dashboard_migration_button(client, tmp_path):
+    # with the sqlite backend, the test default, there is nothing to migrate
+    response = client.get('/admin/dashboard')
+    assert b'migration-button' not in response.data
+
+    # the PostgreSQL and S3 backends configured, and the sqlite database to
+    # migrate from present: the test database is a real sqlite file
+    config = client.application.config
+    config['DOC_METADATA_CLASS_PATH'] = 'edusign_webapp.document.metadata.postgres.PostgresqlMD'
+    config['STORAGE_CLASS_PATH'] = 'edusign_webapp.document.storage.s3.S3Storage'
+    response = client.get('/admin/dashboard')
+    assert b'id="migration-button"' in response.data
+    assert b'action="/admin/migrate-to-postgres-and-s3"' in response.data
+
+    # no sqlite file, or a file that is not a sqlite database: no button
+    config['SQLITE_MD_DB_PATH'] = str(tmp_path / 'missing.db')
+    assert b'migration-button' not in client.get('/admin/dashboard').data
+    not_a_db = tmp_path / 'not-a-db'
+    not_a_db.write_bytes(b'hello')
+    config['SQLITE_MD_DB_PATH'] = str(not_a_db)
+    assert b'migration-button' not in client.get('/admin/dashboard').data
+
+
 def test_admin_dashboard(client, sample_doc_1, sample_owner_1):
     _add_document_as_tester_invite(client, sample_doc_1, sample_owner_1)
     with client.application.test_request_context():
