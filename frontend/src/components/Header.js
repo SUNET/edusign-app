@@ -21,37 +21,27 @@ class Header extends Component {
         {this.props.signer_attributes.name}
       </span>
     );
-    const greeting = this.props.eid_session
-      ? (
-          <span id="signing-with-span">
-            { userInfoButton }
-          </span>
-        )
-      : (
-          <span id="signing-with-span">
-            <FormattedMessage
-              defaultMessage="Signed in as "
-              key="signing-with"
-            />
-            { userInfoButton }
-          </span>
-        );
-    const logoutButton = this.props.eid_session
-      ? ""
-      : (
-          <span id="logout-button-container">
-            <Button
-              variant="outline-dark"
-              onClick={this.props.handleLogout}
-              data-testid="button-logout"
-            >
-              <FormattedMessage
-                defaultMessage="Logout"
-                key="logout-button"
-              />
-            </Button>
-          </span>
-        );
+    const greeting = this.props.eid_session ? (
+      <span id="signing-with-span">{userInfoButton}</span>
+    ) : (
+      <span id="signing-with-span">
+        <FormattedMessage defaultMessage="Signed in as " key="signing-with" />
+        {userInfoButton}
+      </span>
+    );
+    const logoutButton = this.props.eid_session ? (
+      ""
+    ) : (
+      <span id="logout-button-container">
+        <Button
+          variant="outline-dark"
+          onClick={this.props.handleLogout}
+          data-testid="button-logout"
+        >
+          <FormattedMessage defaultMessage="Logout" key="logout-button" />
+        </Button>
+      </span>
+    );
     if (!this.props.loading) {
       name = (
         <div id="name-and-clear-in-header">
@@ -85,12 +75,12 @@ class Header extends Component {
         >
           <div id="logos-and-name">
             <div id="edusign-logo" data-testid="edusign-logo">
-              <img src="/assets/app-logo.png" />
+              <img src="/assets/app-logo.png" alt="eduSign" />
             </div>
             <div id="header-right" data-testid="header-right">
               <a href={this.props.company_link}>
                 <div id="sunet-logo" data-testid="sunet-logo">
-                  <img src="/assets/company-logo.png" />
+                  <img src="/assets/company-logo.png" alt="SUNET" />
                 </div>
               </a>
               {name}
@@ -108,11 +98,11 @@ class Header extends Component {
         >
           <div id="edusign-logos" data-testid="edusign-logos">
             <div id="edusign-logo" data-testid="edusign-logo">
-              <img src="/assets/app-logo.png" />
+              <img src="/assets/app-logo.png" alt="eduSign" />
             </div>
             <a href={this.props.company_link}>
               <div id="sunet-logo" data-testid="sunet-logo">
-                <img src="/assets/company-logo.png" />
+                <img src="/assets/company-logo.png" alt="SUNET" />
               </div>
             </a>
           </div>
