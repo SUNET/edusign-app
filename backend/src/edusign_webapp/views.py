@@ -207,12 +207,15 @@ def _payable_records() -> List[Dict[str, Any]]:
     """
     The PayableSignatures rows, with the timestamp as a datetime. The
     timestamp column is a TIMESTAMP: sqlite returns it as an ISO string,
-    postgres as a datetime.
+    postgres as a datetime. A sqlite database from version152 holds rows
+    with the timestamp as an integer, milliseconds since the epoch.
     """
     records = current_app.extensions['doc_store'].get_all_signatures()
     for rec in records:
         if isinstance(rec['timestamp'], str):
             rec['timestamp'] = datetime.fromisoformat(rec['timestamp'])
+        elif isinstance(rec['timestamp'], (int, float)):
+            rec['timestamp'] = datetime.fromtimestamp(rec['timestamp'] / 1000)
     return records
 
 

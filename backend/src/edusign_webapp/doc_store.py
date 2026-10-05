@@ -214,6 +214,15 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
+    def has_signature(self, signature: Dict[str, Any]) -> bool:
+        """
+        Whether a payable signature record with the same type, organization,
+        doc_name, owner_eppn, user_eppn and timestamp is already stored.
+
+        :param signature: signature data, with the keys of `add_signature_raw`
+        """
+
+    @abc.abstractmethod
     def get_old(self, days: int) -> List[uuid.UUID]:
         """
         Get the keys identifying stored documents that are older than the provided number of days.
@@ -1344,6 +1353,15 @@ class DocStore(object):
                  keys documented in `add_signature_raw`.
         """
         return self.metadata.get_all_signatures()
+
+    def has_signature(self, signature: Dict[str, Any]) -> bool:
+        """
+        Whether a payable signature record with the same type, organization,
+        doc_name, owner_eppn, user_eppn and timestamp is already stored.
+
+        :param signature: signature data, with the keys of `add_signature_raw`
+        """
+        return self.metadata.has_signature(signature)
 
     def get_signatures(self, organization: str, sig_type: str):
         """

@@ -145,6 +145,7 @@ INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
 SIGNATURE_INSERT = "INSERT INTO PayableSignatures (type, organization, doc_name, owner_eppn, user_eppn, timestamp) VALUES (?, ?, ?, ?, ?, ?);"
 SIGNATURES_QUERY = "SELECT owner_eppn, user_eppn, timestamp FROM PayableSignatures WHERE type = ? AND organization = ?;"
 SIGNATURES_QUERY_ALL = "SELECT type, organization, doc_name, owner_eppn, user_eppn, timestamp FROM PayableSignatures;"
+SIGNATURE_EXISTS = "SELECT 1 AS found FROM PayableSignatures WHERE type = ? AND organization = ? AND doc_name = ? AND owner_eppn = ? AND user_eppn = ? AND timestamp = ? LIMIT 1;"
 SIGNATURES_QUERY_GLOBAL = (
     "SELECT organization, type, COUNT(*) AS number_of_signatures FROM PayableSignatures GROUP BY organization, type;"
 )
@@ -1245,6 +1246,29 @@ class SqlMD(ABCMetadata):
             return []
 
         return signatures
+
+    def has_signature(self, signature: Dict[str, Any]) -> bool:
+        """
+        Whether a payable signature record with the same type, organization,
+        doc_name, owner_eppn, user_eppn and timestamp is already stored. The
+        app leaves doc_name and the eppns empty, so in practice the identity
+        is type, organization and timestamp.
+
+        :param signature: signature data, with the keys of `add_signature_raw`
+        """
+        row = self._db_query(
+            SIGNATURE_EXISTS,
+            (
+                signature['type'],
+                signature['organization'],
+                signature['doc_name'],
+                signature['owner_eppn'],
+                signature['user_eppn'],
+                signature['timestamp'],
+            ),
+            one=True,
+        )
+        return isinstance(row, dict)
 
     def get_signatures(self, organization: str, sig_type: str) -> List[Dict[str, Any]]:
         """

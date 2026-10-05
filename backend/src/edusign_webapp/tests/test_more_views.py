@@ -486,6 +486,38 @@ def test_eid_login_recorded_scope_lowercased(client, sample_doc_1):
         assert app.extensions['doc_store'].get_signatures('SUNET.se', 'bankid') == []
 
 
+def test_has_signature(client):
+    # identity is the six columns; the app leaves doc_name and the eppns empty
+    _add_signatures(client, 'sunet.se', 'bankid', 1)
+    with client.application.test_request_context():
+        store = client.application.extensions['doc_store']
+        stored = store.get_all_signatures()[0]
+        assert store.has_signature(stored)
+        assert not store.has_signature({**stored, 'organization': 'eduid.se'})
+        assert not store.has_signature({**stored, 'type': 'freja'})
+        assert not store.has_signature({**stored, 'timestamp': datetime(2025, 7, 8)})
+
+
+def test_admin_dashboard_integer_timestamp(client):
+    # a sqlite database from version152 holds the timestamp as an integer,
+    # milliseconds since the epoch; the dashboard must still count the row
+    with client.application.test_request_context():
+        client.application.extensions['doc_store'].add_signature_raw(
+            {
+                'type': 'bankid',
+                'organization': 'sunet.se',
+                'doc_name': '',
+                'owner_eppn': '',
+                'user_eppn': '',
+                'timestamp': _now_ms(),
+            }
+        )
+
+    response = client.get('/admin/dashboard')
+    assert response.status == '200 OK'
+    assert b'<td>sunet.se</td><td>1</td><td>0</td><td>1</td><td>1</td><td>0</td>' in _terse(response.data)
+
+
 def test_metrics(client, sample_doc_1, sample_owner_1):
     _add_document_as_tester_invite(client, sample_doc_1, sample_owner_1)
 
