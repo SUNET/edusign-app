@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
+import { injectIntl } from "init-app/intl";
 import Form from "react-bootstrap/Form";
 
 import "styles/Footer.scss";
@@ -11,18 +12,18 @@ import "styles/Footer.scss";
  */
 class Footer extends Component {
   render() {
-    const langElems = AVAILABLE_LANGUAGES.map((lang, index) => {
+    const langElems = AVAILABLE_LANGUAGES.map((lang) => {
       if (lang[0] === this.props.language) {
         // sets the < html lang=""> to the interface language
         document.documentElement.lang = this.props.language;
         return (
-          <option value={lang[0]} key={index}>
+          <option value={lang[0]} key={lang[0]}>
             {lang[1]}
           </option>
         );
       } else {
         return (
-          <option value={lang[0]} key={index}>
+          <option value={lang[0]} key={lang[0]}>
             {lang[1]}
           </option>
         );
@@ -52,6 +53,10 @@ class Footer extends Component {
             onChange={this.props.changeLanguage}
             value={this.props.language}
             data-testid="language-selector"
+            aria-label={this.props.intl.formatMessage({
+              defaultMessage: "Select language",
+              id: "footer-language-selector",
+            })}
           >
             {langElems}
           </Form.Select>
@@ -70,4 +75,4 @@ Footer.propTypes = {
   showHelp: PropTypes.bool,
 };
 
-export default Footer;
+export default injectIntl(Footer);
