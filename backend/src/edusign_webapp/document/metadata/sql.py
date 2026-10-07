@@ -138,7 +138,6 @@ INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, user_lang, user_ssn, doc_
 INVITE_STATUS_QUERY_FROM_KEY = "SELECT signed, declined FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_email IN (%s) and doc_id = ?;"
 INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_email IN (%s) and doc_id = ?;"
-INVITE_DELETE = "DELETE FROM Invites WHERE user_id = ? and doc_id = ?;"
 INVITE_DELETE_FROM_KEY = "DELETE FROM Invites WHERE key = ?;"
 INVITE_DELETE_ALL = "DELETE FROM Invites WHERE doc_id = ?;"
 
