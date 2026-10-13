@@ -2,7 +2,7 @@
    v2.0 | 20110126
    License: none (public domain)
 */
-@import "./variables.scss";
+@use "./variables" as *;
 
 html,
 body,

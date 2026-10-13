@@ -1,4 +1,4 @@
-@import "./variables.scss";
+@use "./variables" as *;
 
 html,
 body,
@@ -7,23 +7,39 @@ div#root {
   font-family: Helvetica, sans-serif;
 }
 
-section#panel-lg {
-  margin: 2.5rem 9rem;
+div#panel-lg,
+div#panel-sm {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  min-height: 90%;
+  min-height: 100%;
 }
 
-section#panel-sm {
-  margin: 7% 5% 0;
-  flex: 1 0 auto;
-  display: flex;
-  flex-direction: column;
-  min-height: 90%;
+div#panel-lg {
+  header,
+  main#main-content {
+    margin-left: 9rem;
+    margin-right: 9rem;
+  }
+
+  header {
+    margin-top: 2.5rem;
+  }
 }
 
-div#main-content {
+div#panel-sm {
+  header,
+  main#main-content {
+    margin-left: 5%;
+    margin-right: 5%;
+  }
+
+  header {
+    margin-top: 7%;
+  }
+}
+
+main#main-content {
   flex: 1 0 auto;
   display: flex;
   flex-direction: column;

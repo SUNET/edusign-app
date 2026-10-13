@@ -1,13 +1,11 @@
-@import "./variables.scss";
+@use "./variables" as *;
 
 .modal-55w {
   width: 55%;
 }
 
 .al3-warning-holder {
-
   .al3-warning-text {
     line-height: 1.5rem;
   }
 }
-

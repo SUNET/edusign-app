@@ -46,12 +46,10 @@ class Header extends Component {
       name = (
         <div id="name-and-clear-in-header">
           {(this.props.signer_attributes !== undefined && (
-            <>
-              <span id="name-in-header">
-                {greeting}
-                {logoutButton}
-              </span>
-            </>
+            <span id="name-in-header">
+              {greeting}
+              {logoutButton}
+            </span>
           )) || (
             <span id="name-in-header">
               <span id="signing-with-span">
@@ -68,7 +66,7 @@ class Header extends Component {
     let banner = undefined;
     if (this.props.size === "lg") {
       banner = (
-        <section
+        <header
           id="edusign-banner-lg"
           className="banner-lg"
           data-testid="edusign-banner-lg"
@@ -87,11 +85,11 @@ class Header extends Component {
             </div>
           </div>
           <NotificationsContainer />
-        </section>
+        </header>
       );
     } else if (this.props.size === "sm") {
       banner = (
-        <section
+        <header
           id="edusign-banner-sm"
           className="banner-sm"
           data-testid="edusign-banner-sm"
@@ -108,7 +106,7 @@ class Header extends Component {
           </div>
           {name}
           <NotificationsContainer />
-        </section>
+        </header>
       );
     }
     return <>{banner}</>;

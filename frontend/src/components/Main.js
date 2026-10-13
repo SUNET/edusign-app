@@ -33,10 +33,12 @@ class Main extends Component {
     return (
       <>
         <SplashContainer />
-        <section id={panelId}>
+        <div id={panelId}>
           <HeaderContainer />
-          <div id="main-content">
-            {!this.props.unauthn && !this.props.using_freja && !this.props.using_bankid && <DnDAreaContainer />}
+          <main id="main-content">
+            {!this.props.unauthn &&
+              !this.props.using_freja &&
+              !this.props.using_bankid && <DnDAreaContainer />}
             <div id="contact-local-it-msg">
               <FormattedMessage
                 defaultMessage="If you experience problems with eduSign contact your local IT-support"
@@ -44,9 +46,9 @@ class Main extends Component {
               />
             </div>
             <DocManagerContainer />
-          </div>
+          </main>
           <FooterContainer />
-        </section>
+        </div>
         <PollContainer />
         <UserInfoContainer />
       </>

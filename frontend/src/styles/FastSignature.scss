@@ -1,5 +1,4 @@
-@import "./variables.scss";
-
+@use "./variables" as *;
 
 .user-info-holder-2 {
   margin-top: 1rem;

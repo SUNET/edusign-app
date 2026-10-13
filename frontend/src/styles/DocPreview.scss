@@ -1,4 +1,4 @@
-@import "./variables.scss";
+@use "./variables" as *;
 
 .pdf-navigation {
   width: 100%;
