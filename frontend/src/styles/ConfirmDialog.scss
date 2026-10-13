@@ -13,3 +13,11 @@ div.confirm-buttons {
     flex: none;
   }
 }
+
+.modal .modal-dialog {
+  display: flex;
+  align-items: center;
+  min-height: 70vh;
+  margin-top: auto;
+  margin-bottom: auto;
+}
