@@ -1,4 +1,4 @@
-@import "./variables.scss";
+@use "./variables" as *;
 
 .doc-flex-container-local {
   border: $orange-opaque solid 2px;
@@ -274,8 +274,8 @@ div.selected {
   }
 }
 
-section#panel-lg {
-  div#main-content {
+div#panel-lg {
+  main#main-content {
     fieldset.local-monosign-container,
     fieldset.local-template-container,
     fieldset.owned-multisign-container,
@@ -285,8 +285,8 @@ section#panel-lg {
   }
 }
 
-section#panel-sm {
-  div#main-content {
+div#panel-sm {
+  main#main-content {
     fieldset.local-monosign-container,
     fieldset.local-template-container,
     fieldset.owned-multisign-container,

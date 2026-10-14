@@ -1,4 +1,4 @@
-@import "./variables.scss";
+@use "./variables" as *;
 
 button.button-with-spinner {
   display: block;

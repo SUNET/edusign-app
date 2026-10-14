@@ -1,4 +1,4 @@
-@import "./variables.scss";
+@use "./variables" as *;
 
 .re-invitation-text-group {
   display: flex;

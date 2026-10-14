@@ -1,6 +1,11 @@
-@import "./variables.scss";
+@use "./variables" as *;
 
-section#edusign-banner-lg {
+header#edusign-banner-lg,
+header#edusign-banner-sm {
+  margin: 1.5rem;
+}
+
+header#edusign-banner-lg {
   flex: none;
   display: flex;
   flex-direction: column;
@@ -22,7 +27,7 @@ section#edusign-banner-lg {
 
       img {
         height: 50px;
-        width: 201px;
+        width: auto;
       }
     }
 
@@ -40,7 +45,7 @@ section#edusign-banner-lg {
 
         img {
           height: 50px;
-          width: 50px;
+          width: auto;
         }
       }
 
@@ -59,12 +64,11 @@ section#edusign-banner-lg {
   }
 }
 
-section#edusign-banner-sm {
+header#edusign-banner-sm {
   flex: none;
   background-color: $white;
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
 
   #edusign-logos {
     flex: none;
@@ -79,7 +83,6 @@ section#edusign-banner-sm {
 
       img {
         height: 50px;
-        width: 160px;
       }
     }
 
@@ -90,7 +93,6 @@ section#edusign-banner-sm {
       display: inline-block;
 
       img {
-        height: 50px;
         width: 50px;
       }
     }

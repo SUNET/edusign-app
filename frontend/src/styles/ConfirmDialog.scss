@@ -1,4 +1,4 @@
-@import "./variables.scss";
+@use "./variables" as *;
 
 div.modal-header {
   font-size: 1.3rem;
@@ -12,4 +12,12 @@ div.confirm-buttons {
   button {
     flex: none;
   }
+}
+
+.modal .modal-dialog {
+  display: flex;
+  align-items: center;
+  min-height: 70vh;
+  margin-top: auto;
+  margin-bottom: auto;
 }

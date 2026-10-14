@@ -1,4 +1,4 @@
-@import "./variables.scss";
+@use "./variables" as *;
 
 #dnd-arrow-up {
   width: 35px;
