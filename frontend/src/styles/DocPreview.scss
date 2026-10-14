@@ -25,6 +25,12 @@
 
 .modal-body {
   align-self: center;
+  max-width: 100%;
+
+  .react-pdf__Page canvas {
+    max-width: 100%;
+    height: auto !important;
+  }
 }
 
 #mock-disabled-confirm-button {
