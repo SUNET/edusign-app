@@ -2,16 +2,14 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { injectIntl } from "init-app/intl";
-
-import HeaderContainer from "containers/Header";
+import Header from "components/Header";
 import SplashContainer from "containers/Splash";
-import FooterContainer from "containers/Footer";
+import Footer from "components/Footer";
 import DnDAreaContainer from "containers/DnDArea";
 import DocManagerContainer from "containers/DocManager";
 import PollContainer from "containers/Poll";
 import UserInfoContainer from "containers/UserInfo";
 import { appIsRendered } from "init-app/init-app";
-
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "styles/reset.scss";
 import "styles/Main.scss";
@@ -34,7 +32,7 @@ class Main extends Component {
       <>
         <SplashContainer />
         <div id={panelId}>
-          <HeaderContainer />
+          <Header />
           <main id="main-content">
             {!this.props.unauthn &&
               !this.props.using_freja &&
@@ -47,7 +45,7 @@ class Main extends Component {
             </div>
             <DocManagerContainer />
           </main>
-          <FooterContainer />
+          <Footer />
         </div>
         <PollContainer />
         <UserInfoContainer />

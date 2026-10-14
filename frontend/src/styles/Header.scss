@@ -22,7 +22,7 @@ header.banner {
       flex: 0 0 auto;
 
       img {
-        height: 50px;
+        height: 45px;
         width: auto;
       }
     }
@@ -32,18 +32,6 @@ header.banner {
       display: flex;
       flex-direction: row-reverse;
       align-items: center;
-
-      #sunet-logo {
-        background-size: contain;
-        background-repeat: no-repeat;
-        margin: 0;
-        display: inline-block;
-
-        img {
-          height: 50px;
-          width: auto;
-        }
-      }
 
       #name-in-header {
         margin-right: 1rem;
