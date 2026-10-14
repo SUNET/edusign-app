@@ -1,5 +1,10 @@
 @use "./variables" as *;
 
+header#edusign-banner-lg,
+header#edusign-banner-sm {
+  margin: 1.5rem;
+}
+
 header#edusign-banner-lg {
   flex: none;
   display: flex;
@@ -64,7 +69,6 @@ header#edusign-banner-sm {
   background-color: $white;
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
 
   #edusign-logos {
     flex: none;
