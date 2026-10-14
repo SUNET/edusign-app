@@ -1,11 +1,7 @@
 @use "./variables" as *;
 
-header#edusign-banner-lg,
-header#edusign-banner-sm {
+header.banner {
   margin: 1.5rem;
-}
-
-header#edusign-banner-lg {
   flex: none;
   display: flex;
   flex-direction: column;
@@ -54,6 +50,11 @@ header#edusign-banner-lg {
 
         #user-info-trigger {
           cursor: pointer;
+          border: none;
+          background: none;
+          padding: 0;
+          font: inherit;
+          color: inherit;
         }
       }
 
@@ -64,68 +65,31 @@ header#edusign-banner-lg {
   }
 }
 
-header#edusign-banner-sm {
-  flex: none;
-  background-color: $white;
-  display: flex;
-  flex-direction: column;
+// sm: same breakpoint as slices/Main.js (window.innerWidth > 1200 ? "lg" : "sm")
+@media (max-width: 1200px) {
+  header.banner {
+    margin: 1rem;
 
-  #edusign-logos {
-    flex: none;
-    display: flex;
-    justify-content: space-between;
+    div#logos-and-name {
+      margin: 0 0 0.5rem;
 
-    #edusign-logo {
-      background-size: contain;
-      background-repeat: no-repeat;
-      margin: 0;
-      flex: 0 1 auto;
+      #header-right {
+        flex-direction: column;
+        align-items: flex-end;
 
-      img {
-        height: 50px;
-      }
-    }
+        #name-in-header {
+          margin-right: 0;
+          margin-top: 0.5rem;
+          display: flex;
+          flex-wrap: wrap;
+          line-height: 1.5rem;
+          align-items: center;
+        }
 
-    #sunet-logo {
-      background-size: contain;
-      background-repeat: no-repeat;
-      margin: 0;
-      display: inline-block;
-
-      img {
-        width: 50px;
-      }
-    }
-  }
-
-  #name-and-clear-in-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1rem;
-    margin-top: 0.5rem;
-
-    #name-in-header {
-      display: flex;
-      flex-wrap: wrap;
-      line-height: 1.5rem;
-      justify-content: space-between;
-      width: 100%;
-
-      #signing-with-span {
-        align-self: center;
-
-        #user-info-trigger {
-          cursor: pointer;
+        #logout-button-container {
+          padding: 0 0 0 1rem;
         }
       }
-    }
-
-    #sep-in-header {
-      display: none;
-    }
-
-    #logout-button-container {
-      padding-left: 1rem;
     }
   }
 }

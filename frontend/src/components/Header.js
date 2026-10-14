@@ -1,11 +1,9 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { injectIntl } from "init-app/intl";
 import Button from "react-bootstrap/Button";
-
 import NotificationsContainer from "containers/Notifications";
-
 import "styles/Header.scss";
 
 /**
@@ -16,9 +14,13 @@ import "styles/Header.scss";
 function Header(props) {
   let name = "";
   const userInfoButton = props.signer_attributes !== undefined && (
-    <span id="user-info-trigger" onClick={props.handleOpenUserInfo}>
+    <button
+      type="button"
+      id="user-info-trigger"
+      onClick={props.handleOpenUserInfo}
+    >
       {props.signer_attributes.name}
-    </span>
+    </button>
   );
   const greeting = props.eid_session ? (
     <span id="signing-with-span">{userInfoButton}</span>
@@ -62,53 +64,24 @@ function Header(props) {
       </div>
     );
   }
-  let banner = undefined;
-  if (props.size === "lg") {
-    banner = (
-      <header
-        id="edusign-banner-lg"
-        className="banner-lg"
-        data-testid="edusign-banner-lg"
-      >
-        <div id="logos-and-name">
-          <div id="edusign-logo" data-testid="edusign-logo">
-            <img src="/assets/app-logo.png" alt="eduSign" />
-          </div>
-          <div id="header-right" data-testid="header-right">
-            <a href={this.props.company_link}>
-              <div id="sunet-logo" data-testid="sunet-logo">
-                <img src="/assets/company-logo.png" alt="SUNET" />
-              </div>
-            </a>
-            {name}
-          </div>
+  return (
+    <header id="edusign-banner" className="banner" data-testid="edusign-banner">
+      <div id="logos-and-name">
+        <div id="edusign-logo" data-testid="edusign-logo">
+          <img src="/assets/app-logo.png" alt="eduSign" />
         </div>
-        <NotificationsContainer />
-      </header>
-    );
-  } else if (props.size === "sm") {
-    banner = (
-      <header
-        id="edusign-banner-sm"
-        className="banner-sm"
-        data-testid="edusign-banner-sm"
-      >
-        <div id="edusign-logos" data-testid="edusign-logos">
-          <div id="edusign-logo" data-testid="edusign-logo">
-            <img src="/assets/app-logo.png" alt="eduSign" />
-          </div>
-          <a href={this.props.company_link}>
+        <div id="header-right" data-testid="header-right">
+          <a href={props.company_link}>
             <div id="sunet-logo" data-testid="sunet-logo">
               <img src="/assets/company-logo.png" alt="SUNET" />
             </div>
           </a>
+          {name}
         </div>
-        {name}
-        <NotificationsContainer />
-      </header>
-    );
-  }
-  return <>{banner}</>;
+      </div>
+      <NotificationsContainer />
+    </header>
+  );
 }
 
 Header.propTypes = {
@@ -124,7 +97,6 @@ Header.propTypes = {
    * Whether the app has finished loading in the browser
    */
   loading: PropTypes.bool,
-  clearDb: PropTypes.func,
 };
 
 export default injectIntl(Header);
