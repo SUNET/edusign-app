@@ -49,7 +49,7 @@
   "components.FastSignature.fast-signature-desc": "You have approved the preview of \"{docName}\". Do you want to sign it?",
   "components.FastSignature.fast-signature-desc-2": "If you press \"Sign\" you will be redirected to your identity provider to authenticate and sign.",
   "components.FastSignature.fast-signature-question": "Do you want to sign the document?",
-  "components.Footer.show-help": "Show tips",
+  "components.Footer.show-help": "Show tips on hover",
   "components.ForcedPreview.button-confirm": "Approve",
   "components.ForcedPreview.button-confirm-bankid": "Approve",
   "components.ForcedPreview.button-dissaprove": "Reject",
