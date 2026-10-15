@@ -77,11 +77,11 @@ function Footer() {
             onChange={handleHelpControl}
             checked={showHelp}
             data-on-label={intl.formatMessage({
-              id: "components.Footer.help-on",
+              id: "footer-help-switch-on",
               defaultMessage: "On",
             })}
             data-off-label={intl.formatMessage({
-              id: "components.Footer.help-off",
+              id: "footer-help-switch-off",
               defaultMessage: "Off",
             })}
           />
