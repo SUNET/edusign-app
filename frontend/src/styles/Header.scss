@@ -10,10 +10,9 @@ header.banner {
   div#logos-and-name {
     background-color: $white;
     display: flex;
-    align-items: start;
+    align-items: center;
     justify-content: space-between;
     width: 100%;
-    margin: 1rem;
 
     #edusign-logo {
       background-size: contain;
@@ -22,39 +21,33 @@ header.banner {
       flex: 0 0 auto;
 
       img {
-        height: 45px;
+        height: 35px;
         width: auto;
       }
     }
 
     #header-right {
-      flex: 0 0 auto;
+      flex: 0 1 auto;
       display: flex;
       flex-direction: row-reverse;
-      align-items: center;
+      align-items: flex-end;
+      min-width: 0;
 
-      #name-in-header {
-        margin-right: 1rem;
-
-        #user-info-trigger {
-          cursor: pointer;
-          border: none;
-          background: none;
-          padding: 0;
-          font: inherit;
-          color: inherit;
-        }
+      #name-and-clear-in-header {
+        min-width: 0;
+        max-width: 100%;
       }
 
-      #logout-button-container {
-        padding: 1rem;
+      #name-in-header {
+        display: flex;
+        align-items: center;
+        min-width: 0;
       }
     }
   }
 }
 
-// sm: same breakpoint as slices/Main.js (window.innerWidth > 1200 ? "lg" : "sm")
-@media (max-width: 1200px) {
+@media (max-width: $breakpoint-xl) {
   header.banner {
     margin: 1rem;
 
@@ -67,15 +60,16 @@ header.banner {
 
         #name-in-header {
           margin-right: 0;
-          margin-top: 0.5rem;
           display: flex;
           flex-wrap: wrap;
           line-height: 1.5rem;
           align-items: center;
-        }
 
-        #logout-button-container {
-          padding: 0 0 0 1rem;
+          @media (max-width: $breakpoint-md) {
+            #user-info-trigger span {
+              display: none;
+            }
+          }
         }
       }
     }
@@ -84,4 +78,66 @@ header.banner {
 
 #signing-with-span {
   color: $darker-dark-grey;
+}
+
+.btn.logout-button {
+  --bs-btn-hover-bg: var(--bs-btn-bg);
+  --bs-btn-hover-border-color: var(--bs-btn-border-color);
+  --bs-btn-hover-color: var(--bs-btn-color);
+  margin-left: 0.5rem;
+
+  &:hover,
+  &:focus-visible {
+    background-color: var(--bs-btn-bg);
+    border-color: var(--bs-btn-border-color);
+    color: var(--bs-btn-color);
+  }
+
+  .svg-inline--fa {
+    transition:
+      transform 0.2s ease,
+      color 0.2s ease;
+  }
+
+  &:hover .svg-inline--fa,
+  &:focus-visible .svg-inline--fa {
+    transform: translateX(2px);
+    color: #c23400;
+  }
+}
+
+#user-info-trigger {
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: 50rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: inherit;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-height: calc(1.5em + 0.5rem + 2px);
+  display: inline-flex;
+  min-width: 0;
+
+  .svg-inline--fa {
+    flex-shrink: 0;
+  }
+
+  span {
+    min-width: 0;
+    max-width: 12rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &:hover,
+  &:focus-visible {
+    background-color: #f0f0f0;
+  }
 }

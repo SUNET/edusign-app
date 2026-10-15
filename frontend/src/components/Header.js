@@ -1,11 +1,13 @@
 import React from "react";
 import { FormattedMessage } from "react-intl";
-import { injectIntl } from "init-app/intl";
 import Button from "react-bootstrap/Button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
 import NotificationsContainer from "containers/Notifications";
 import { showUserInfo } from "slices/UserInfo";
 import { disablePolling } from "slices/Poll";
+import { faUser } from "@fortawesome/free-regular-svg-icons";
 import "styles/Header.scss";
 
 /**
@@ -31,39 +33,35 @@ function Header() {
     document.location = "logout";
   };
 
-  const userInfoButton = signer_attributes != null && (
-    <button type="button" id="user-info-trigger" onClick={handleOpenUserInfo}>
-      {signer_attributes.name}
-    </button>
-  );
-
-  const greeting = eid_session ? (
-    <span id="signing-with-span">{userInfoButton}</span>
-  ) : (
-    <span id="signing-with-span">
-      <FormattedMessage defaultMessage="Signed in as " key="signing-with" />
-      {userInfoButton}
-    </span>
-  );
-
   const logoutButton = eid_session ? (
-    ""
+    <></>
   ) : (
-    <span id="logout-button-container">
-      <Button
-        variant="outline-dark"
-        onClick={handleLogout}
-        data-testid="button-logout"
-      >
-        <FormattedMessage defaultMessage="Logout" key="logout-button" />
-      </Button>
-    </span>
+    <Button
+      className="rounded-pill logout-button"
+      size="sm"
+      variant="dark"
+      onClick={handleLogout}
+      data-testid="button-logout"
+    >
+      <FormattedMessage defaultMessage="Logout" key="logout-button" />
+      &nbsp;
+      <FontAwesomeIcon icon={faArrowRightFromBracket} />
+    </Button>
   );
   const nameInHeader = (
     <div id="name-and-clear-in-header">
       {(signer_attributes != null && (
         <span id="name-in-header">
-          {greeting}
+          <button
+            type="button"
+            id="user-info-trigger"
+            onClick={handleOpenUserInfo}
+            aria-label={signer_attributes.name}
+          >
+            <FontAwesomeIcon icon={faUser} />
+            <span>{signer_attributes.name}</span>
+          </button>
+
           {logoutButton}
         </span>
       )) || (
@@ -93,4 +91,4 @@ function Header() {
   );
 }
 
-export default injectIntl(Header);
+export default Header;
