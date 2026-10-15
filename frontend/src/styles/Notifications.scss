@@ -22,7 +22,7 @@ header.banner {
   }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: $breakpoint-xl) {
   header.banner {
     .notifications-area {
       min-height: 2rem;
