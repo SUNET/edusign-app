@@ -24,13 +24,14 @@ module.exports = {
     // import Example from 'components/Example';
     modules: [path.resolve(__dirname, "src"), "node_modules"],
     // allow us to avoid including extension name
-    extensions: [".js", ".jsx", ".json"],
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
     mainFields: ["browser", "module", "main"]
   },
   module: {
     rules: [
       {
-        test: /\.js$/,
+        // JS and TS alike: babel compiles TypeScript, tsc only type-checks
+        test: /\.[jt]sx?$/,
         use: {
           loader: "babel-loader",
         },

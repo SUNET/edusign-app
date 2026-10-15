@@ -3,16 +3,17 @@ const edusignConfig = require("./edusign.config.js");
 module.exports = {
   testEnvironment: "jsdom",
   roots: ["<rootDir>/src"],
-  testMatch: ["**/*-test.js"],
+  testMatch: ["**/*-test.[jt]s?(x)"],
   // replicates webpack's resolve.modules, for bare imports like "components/Main"
   moduleDirectories: ["node_modules", "<rootDir>/src"],
-  moduleFileExtensions: ["js", "mjs", "json"],
+  moduleFileExtensions: ["ts", "tsx", "js", "mjs", "json"],
   transform: {
     // pdfjs-dist 5's bundles take minutes under babel; esbuild does them
     // in under a second
     "node_modules/pdfjs-dist/.+\\.mjs$":
       "<rootDir>/src/tests/esbuild-transformer.js",
-    "^(?!.*node_modules/pdfjs-dist/).+\\.m?js$": "babel-jest",
+    // JS and TS alike: babel compiles TypeScript (see typescript-notes.md)
+    "^(?!.*node_modules/pdfjs-dist/).+\\.(m?js|[jt]sx?)$": "babel-jest",
   },
   // ESM-only packages need the babel transform: react-intl 10 with its
   // @formatjs dependencies, and pdfjs-dist 5 (react-pdf 10).
@@ -39,7 +40,8 @@ module.exports = {
   // loaded machine
   testTimeout: 30000,
   collectCoverageFrom: [
-    "src/**/*.js",
+    "src/**/*.{js,ts,tsx}",
+    "!src/**/*.d.ts",
     "!src/tests/**",
     "!src/entry-points/**",
   ],

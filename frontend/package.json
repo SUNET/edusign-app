@@ -12,7 +12,8 @@
     "debug": "node --inspect-brk node_modules/.bin/jest --runInBand",
     "coverage": "jest --coverage",
     "serve": "webpack-dev-server --open",
-    "extract-msgs": "extract-messages -l=en,sv,es -o translations -d en --flat true 'src/**/!(*-test).js'",
+    "typecheck": "tsc --noEmit",
+    "extract-msgs": "extract-messages -l=en,sv,es -o translations -d en --flat true 'src/**/!(*-test).{js,ts,tsx}'",
     "prettier": "npx prettier --write src/",
     "build-docs": "jsdoc -c jsdoc.config.json src/"
   },

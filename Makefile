@@ -79,6 +79,12 @@ front-test:
 	@cd $(FRONT_DIR); \
     npm test
 
+## Type-check the front side code with tsc (babel compiles it, this only checks)
+.PHONY: front-typecheck
+front-typecheck:
+	@cd $(FRONT_DIR); \
+    npm run typecheck
+
 ## Extract translatable messages from the sources
 .PHONY: front-extract-msgs
 front-extract-msgs:
