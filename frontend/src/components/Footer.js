@@ -1,6 +1,6 @@
 import React from "react";
-import { FormattedMessage } from "react-intl";
-import { injectIntl, updateIntl } from "init-app/intl";
+import { FormattedMessage, useIntl } from "react-intl";
+import { updateIntl } from "init-app/intl";
 import Form from "react-bootstrap/Form";
 import Cookies from "js-cookie";
 import { enableContextualHelp } from "slices/Main";
@@ -11,11 +11,12 @@ import { useDispatch, useSelector } from "react-redux";
  * @desc Footer, with the copyright and the language selector
  * @component
  */
-function Footer(props) {
+function Footer() {
   const language = useSelector((state) => state.intl.locale);
   const showHelp = useSelector((state) => state.main.showHelp);
-  const company_link = useSelector((state) => state.main.company_link);
+  const sunetLink = useSelector((state) => state.main.company_link);
   const dispatch = useDispatch();
+  const intl = useIntl();
 
   const langElements = AVAILABLE_LANGUAGES.map((lang) => {
     if (lang[0] === language) {
@@ -64,31 +65,38 @@ function Footer(props) {
 
   return (
     <footer key="0" id="footer" data-testid="edusign-footer">
-      <a href={company_link}>
+      <a href={sunetLink}>
         <div id="sunet-logo" data-testid="sunet-logo">
           <img src="/assets/company-logo.png" alt="SUNET" />
         </div>
       </a>
       <div id="help-control">
-        <label className="help-control-container">
-          <FormattedMessage
-            defaultMessage="Show contextual help"
-            key="show-help"
-          />
-          <input
+        <Form.Check type="switch" id="contextual-help-switch">
+          <Form.Check.Input
             type="checkbox"
             onChange={handleHelpControl}
             checked={showHelp}
+            data-on-label={intl.formatMessage({
+              id: "components.Footer.help-on",
+              defaultMessage: "On",
+            })}
+            data-off-label={intl.formatMessage({
+              id: "components.Footer.help-off",
+              defaultMessage: "Off",
+            })}
           />
-          <span className="help-control-checkmark"></span>
-        </label>
+          <Form.Check.Label>
+            <FormattedMessage defaultMessage="Show tips" key="show-help" />
+          </Form.Check.Label>
+        </Form.Check>
       </div>
       <nav key="1">
         <Form.Select
+          size="sm"
           onChange={changeLanguage}
           value={language}
           data-testid="language-selector"
-          aria-label={props.intl.formatMessage({
+          aria-label={intl.formatMessage({
             defaultMessage: "Select language",
             id: "footer-language-selector",
           })}
@@ -100,4 +108,4 @@ function Footer(props) {
   );
 }
 
-export default injectIntl(Footer);
+export default Footer;
