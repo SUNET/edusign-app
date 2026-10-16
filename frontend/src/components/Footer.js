@@ -67,7 +67,7 @@ function Footer() {
     <footer key="0" id="footer" data-testid="edusign-footer">
       <a href={sunetLink}>
         <div id="sunet-logo" data-testid="sunet-logo">
-          <img src="/assets/company-logo.png" alt="SUNET" />
+          <img src="/assets/company-logo.svg" alt="SUNET" />
         </div>
       </a>
       <div id="help-control">
