@@ -1,8 +1,8 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React from "react";
 import Alert from "react-bootstrap/Alert";
-
+import { rmNotification } from "slices/Notifications";
 import "styles/Notifications.scss";
+import { useSelector, useDispatch } from "react-redux";
 
 /**
  * @desc Area for notifications to the user.
@@ -10,38 +10,37 @@ import "styles/Notifications.scss";
  * Notifications to be shown are added to the system via the notifications/addNotification Redux action.
  * @component
  */
-class Notifications extends Component {
-  render() {
-    let message = "";
-    if (this.props.message !== null) {
-      message = (
-        <Alert
-          variant={this.props.message.level}
-          dismissible={true}
-          onClose={this.props.handleRMNotification}
-          className="notification"
-        >
-          {this.props.message.message}
-        </Alert>
-      );
-    }
-    return (
-      <div
-        className="notifications-area"
-        data-testid="edusign-notifications-area"
+function Notifications() {
+  const message = useSelector((state) => state.notifications.message);
+  const dispatch = useDispatch();
+  let alertMessage = "";
+
+  const handleRMNotification = () => {
+    dispatch(rmNotification());
+  };
+
+  if (message !== null) {
+    alertMessage = (
+      <Alert
+        variant={message.level}
+        dismissible={true}
+        onClose={handleRMNotification}
+        className="notification"
+        role="status"
+        aria-live="polite"
       >
-        {message}
-      </div>
+        {message.message}
+      </Alert>
     );
   }
+  return (
+    <div
+      className="notifications-area"
+      data-testid="edusign-notifications-area"
+    >
+      {alertMessage}
+    </div>
+  );
 }
-
-Notifications.propTypes = {
-  /**
-   * Notification to show
-   */
-  message: PropTypes.object,
-  handleRMNotification: PropTypes.func,
-};
 
 export default Notifications;

@@ -4,7 +4,6 @@ import Button from "react-bootstrap/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { useDispatch, useSelector } from "react-redux";
-import NotificationsContainer from "containers/Notifications";
 import { showUserInfo } from "slices/UserInfo";
 import { disablePolling } from "slices/Poll";
 import { faUser } from "@fortawesome/free-regular-svg-icons";
@@ -85,7 +84,6 @@ function Header() {
           {nameInHeader}
         </div>
       </div>
-      <NotificationsContainer />
     </header>
   );
 }

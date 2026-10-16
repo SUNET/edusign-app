@@ -3,33 +3,12 @@
 .notifications-area {
   display: flex;
   flex-direction: column;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
   color: transparent;
   background-color: transparent;
-}
-
-header.banner {
-  .notifications-area {
-    min-height: 3rem;
-    min-width: 80%;
-    margin-bottom: 0.75rem;
-    margin-left: 2rem;
-    margin-right: 2rem;
-
-    .notification.alert.alert-dismissible {
-      max-width: 100%;
-    }
-  }
-}
-
-@media (max-width: $breakpoint-xl) {
-  header.banner {
-    .notifications-area {
-      min-height: 2rem;
-      min-width: 0;
-      margin: 0;
-    }
-  }
 }
 
 .alert.alert-dismissible {
