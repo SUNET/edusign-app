@@ -86,10 +86,7 @@ function Footer() {
             })}
           />
           <Form.Check.Label>
-            <FormattedMessage
-              defaultMessage="Show tips on hover"
-              key="show-help"
-            />
+            <FormattedMessage defaultMessage="Show tips" key="show-help" />
           </Form.Check.Label>
         </Form.Check>
       </div>
