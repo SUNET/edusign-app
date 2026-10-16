@@ -95,7 +95,6 @@ function Footer() {
       </div>
       <nav key="1">
         <Form.Select
-          size="sm"
           onChange={changeLanguage}
           value={language}
           data-testid="language-selector"

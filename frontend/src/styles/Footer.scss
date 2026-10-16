@@ -55,14 +55,14 @@ footer p {
   padding-bottom: 0;
 }
 #help-control {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: $darker-dark-grey;
 
   .form-check {
     display: flex;
     flex-direction: row-reverse;
     align-items: center;
-    gap: 0.2rem;
+    gap: 0.5rem;
     padding-left: 0;
     margin-bottom: 0;
   }
@@ -70,7 +70,7 @@ footer p {
   .form-check-input,
   .form-check-label {
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 1rem;
   }
 
   #contextual-help-switch:checked {
@@ -92,9 +92,9 @@ select.form-select {
   position: relative;
   flex-shrink: 0;
   float: none;
-  width: 60px;
-  height: 31px;
-  font-size: 0.875rem;
+  width: 72px;
+  height: 38px;
+  font-size: 1rem;
   border-radius: 999px;
   margin: 0;
   background-image: none;
@@ -105,9 +105,9 @@ select.form-select {
     content: "";
     position: absolute;
     top: 50%;
-    width: 25px;
-    height: 25px;
-    left: 2px;
+    width: 30px;
+    height: 30px;
+    left: 3px;
     border-radius: 50%;
     background-color: $darker-dark-grey;
     transform: translateY(-50%);
@@ -118,10 +118,10 @@ select.form-select {
     content: attr(data-off-label);
     position: absolute;
     top: 50%;
-    right: 2px;
-    width: 29px;
+    right: 3px;
+    width: 34px;
     color: $darker-dark-grey;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 400;
     line-height: 1;
     text-align: center;
@@ -134,14 +134,14 @@ select.form-select {
     border-color: $orange-highlight;
 
     &::before {
-      left: calc(100% - 27px);
+      left: calc(100% - 33px);
       background-color: $white;
     }
 
     &::after {
       content: attr(data-on-label);
       right: auto;
-      left: 2px;
+      left: 3px;
       color: $white;
     }
   }

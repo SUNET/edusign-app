@@ -38,7 +38,6 @@ function Header() {
   ) : (
     <Button
       className="rounded-pill logout-button"
-      size="sm"
       variant="dark"
       onClick={handleLogout}
       data-testid="button-logout"
