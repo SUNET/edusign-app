@@ -30,6 +30,7 @@ $light-orange: #ffe1f8;
 $light-green-shadow: rgba(221, 101, 14, 0.1);
 $orange: #dd650e;
 $btn-grey: #f8f9fa;
+$dark-orange: #c23400;
 
 $light-green: #58b78c;
 $light-green-shadow: rgba(88, 183, 140, 0.25);
@@ -59,6 +60,12 @@ $cancel-color-shadow: rgba(183, 183, 183, 0.25);
 $form-field-border: #80bdff;
 $form-field-border-unfocused: #ced4da;
 $form-field-text: #495057;
+
+/*
+ *   Breakpoints
+ * ========================================================================== */
+$breakpoint-md: 768px;
+$breakpoint-xl: 1200px;
 
 /*
  * Typography

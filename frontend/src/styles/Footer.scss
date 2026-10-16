@@ -3,10 +3,22 @@
 #footer {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   padding: 16px;
   border-top: 6px solid $orange-highlight;
   background-color: $light-gray;
+}
+
+#footer #sunet-logo {
+  background-size: contain;
+  background-repeat: no-repeat;
+  margin: 0;
+  display: inline-block;
+
+  img {
+    height: 35px;
+    width: auto;
+  }
 }
 
 nav a {
@@ -43,75 +55,98 @@ footer p {
   padding-bottom: 0;
 }
 #help-control {
-  z-index: 999;
+  font-size: 1rem;
+  color: $darker-dark-grey;
 
-  .help-control-container {
-    display: block;
-    position: relative;
-    padding-left: 22px;
-    margin-bottom: 12px;
+  .form-check {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 0.5rem;
+    padding-left: 0;
+    margin-bottom: 0;
+  }
+
+  .form-check-input,
+  .form-check-label {
     cursor: pointer;
-    font-size: 0.9rem;
-    color: $darker-dark-grey;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+    font-size: 1rem;
   }
 
-  /* Hide the browser's default checkbox */
-  .help-control-container input {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-    height: 0;
-    width: 0;
+  #contextual-help-switch:checked {
+    background-color: $dark-orange;
+    border-color: $dark-orange;
   }
+}
 
-  /* Create a custom checkbox */
-  .help-control-checkmark {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 0.9rem;
-    width: 0.9rem;
-    border: solid 2px #888;
-    border-radius: 1px;
-    background-color: #ddd;
+select.form-select {
+  border-radius: 25px;
+  &:focus {
+    box-shadow: none;
+    border-color: var(--bs-border-color);
   }
+}
 
-  /* On mouse-over, add a grey background color */
-  .help-control-container:hover input ~ .help-control-checkmark {
-    background-color: #999;
-  }
+#help-control #contextual-help-switch {
+  appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  float: none;
+  width: 72px;
+  height: 38px;
+  font-size: 1rem;
+  border-radius: 999px;
+  margin: 0;
+  background-image: none;
+  background-color: $white;
+  border-color: var(--bs-border-color);
 
-  /* When the checkbox is checked, add a blue background */
-  .help-control-container input:checked ~ .help-control-checkmark {
-    background-color: #ddd;
-  }
-
-  /* Create the checkmark/indicator (hidden when not checked) */
-  .help-control-checkmark:after {
+  &::before {
     content: "";
     position: absolute;
-    display: none;
+    top: 50%;
+    width: 30px;
+    height: 30px;
+    left: 3px;
+    border-radius: 50%;
+    background-color: $darker-dark-grey;
+    transform: translateY(-50%);
+    transition: left 0.15s ease;
   }
 
-  /* Show the checkmark when checked */
-  .help-control-container input:checked ~ .help-control-checkmark:after {
-    display: block;
+  &::after {
+    content: attr(data-off-label);
+    position: absolute;
+    top: 50%;
+    right: 3px;
+    width: 34px;
+    color: $darker-dark-grey;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1;
+    text-align: center;
+    transform: translateY(-50%);
+    pointer-events: none;
   }
 
-  /* Style the checkmark/indicator */
-  .help-control-container .help-control-checkmark:after {
-    left: 2px;
-    top: 0;
-    width: 5px;
-    height: 8px;
-    border: solid #447;
-    border-width: 0 2px 2px 0;
-    -webkit-transform: rotate(45deg);
-    -ms-transform: rotate(45deg);
-    transform: rotate(45deg);
+  &:checked {
+    background-color: $orange-highlight;
+    border-color: $orange-highlight;
+
+    &::before {
+      left: calc(100% - 33px);
+      background-color: $white;
+    }
+
+    &::after {
+      content: attr(data-on-label);
+      right: auto;
+      left: 3px;
+      color: $white;
+    }
+  }
+
+  &:focus {
+    box-shadow: none;
   }
 }

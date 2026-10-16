@@ -32,7 +32,7 @@ describe("Main Component", function () {
         pending_multisign: [],
         multisign_buttons: true,
         showHelp: true,
-        user_info_detail: '',
+        user_info_detail: "",
       },
     });
 
@@ -99,12 +99,12 @@ describe("Main Component", function () {
         },
         multisign_buttons: true,
         showHelp: true,
-        user_info_detail: '',
+        user_info_detail: "",
       },
     });
 
     try {
-      const header = screen.getAllByTestId("edusign-banner-lg");
+      const header = screen.getAllByTestId("edusign-banner");
       expect(header.length).toEqual(1);
 
       const eduSignLogo = screen.getAllByTestId("edusign-logo");
@@ -139,7 +139,7 @@ describe("Main Component", function () {
         },
         multisign_buttons: true,
         showHelp: true,
-        user_info_detail: '',
+        user_info_detail: "",
       },
     });
 
@@ -176,7 +176,7 @@ describe("Main Component", function () {
         },
         multisign_buttons: true,
         showHelp: true,
-        user_info_detail: '',
+        user_info_detail: "",
       },
       intl: { locale: "sv" },
     });
@@ -242,7 +242,7 @@ describe("Main Component", function () {
         },
         multisign_buttons: true,
         showHelp: true,
-        user_info_detail: '',
+        user_info_detail: "",
       },
     });
 

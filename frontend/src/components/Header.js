@@ -1,132 +1,93 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React from "react";
 import { FormattedMessage } from "react-intl";
-import { injectIntl } from "init-app/intl";
 import Button from "react-bootstrap/Button";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
+import { useDispatch, useSelector } from "react-redux";
 import NotificationsContainer from "containers/Notifications";
-
+import { showUserInfo } from "slices/UserInfo";
+import { disablePolling } from "slices/Poll";
+import { faUser } from "@fortawesome/free-regular-svg-icons";
 import "styles/Header.scss";
 
 /**
- * @desc Header, with the eduSign and SUNET logos, the container for notifications to the user,
+ * @desc Header, with the eduSign, the container for notifications to the user,
  *       info on the attributes to be used for signing, and a link to clear the stored documents.
  * @component
  */
-class Header extends Component {
-  render() {
-    let name = "";
-    const userInfoButton = this.props.signer_attributes !== undefined && (
-      <span id="user-info-trigger" onClick={this.props.handleOpenUserInfo}>
-        {this.props.signer_attributes.name}
-      </span>
-    );
-    const greeting = this.props.eid_session ? (
-      <span id="signing-with-span">{userInfoButton}</span>
-    ) : (
-      <span id="signing-with-span">
-        <FormattedMessage defaultMessage="Signed in as " key="signing-with" />
-        {userInfoButton}
-      </span>
-    );
-    const logoutButton = this.props.eid_session ? (
-      ""
-    ) : (
-      <span id="logout-button-container">
-        <Button
-          variant="outline-dark"
-          onClick={this.props.handleLogout}
-          data-testid="button-logout"
-        >
-          <FormattedMessage defaultMessage="Logout" key="logout-button" />
-        </Button>
-      </span>
-    );
-    if (!this.props.loading) {
-      name = (
-        <div id="name-and-clear-in-header">
-          {(this.props.signer_attributes !== undefined && (
-            <span id="name-in-header">
-              {greeting}
-              {logoutButton}
-            </span>
-          )) || (
-            <span id="name-in-header">
-              <span id="signing-with-span">
-                <FormattedMessage
-                  defaultMessage="You don't seem to be authorized to use this site at this moment"
-                  key="header-unauthz-for-site"
-                />
-              </span>
-            </span>
-          )}
+function Header() {
+  const signer_attributes = useSelector(
+    (state) => state.main.signer_attributes,
+  );
+  const eid_session =
+    signer_attributes != null &&
+    (signer_attributes.using_bankid || signer_attributes.using_freja);
+  const dispatch = useDispatch();
+
+  const handleOpenUserInfo = () => {
+    dispatch(disablePolling());
+    dispatch(showUserInfo());
+  };
+
+  const handleLogout = () => {
+    document.location = "logout";
+  };
+
+  const logoutButton = eid_session ? (
+    <></>
+  ) : (
+    <Button
+      className="rounded-pill logout-button"
+      variant="dark"
+      onClick={handleLogout}
+      data-testid="button-logout"
+    >
+      <FormattedMessage defaultMessage="Logout" key="logout-button" />
+      &nbsp;
+      <FontAwesomeIcon icon={faArrowRightFromBracket} />
+    </Button>
+  );
+  const nameInHeader = (
+    <div id="name-and-clear-in-header">
+      {(signer_attributes != null && (
+        <span id="name-in-header">
+          <button
+            type="button"
+            id="user-info-trigger"
+            onClick={handleOpenUserInfo}
+            aria-label={signer_attributes.name}
+          >
+            <FontAwesomeIcon icon={faUser} />
+            <span>{signer_attributes.name}</span>
+          </button>
+
+          {logoutButton}
+        </span>
+      )) || (
+        <span id="name-in-header">
+          <span id="signing-with-span">
+            <FormattedMessage
+              defaultMessage="You don't seem to be authorized to use this site at this moment"
+              key="header-unauthz-for-site"
+            />
+          </span>
+        </span>
+      )}
+    </div>
+  );
+  return (
+    <header id="edusign-banner" className="banner" data-testid="edusign-banner">
+      <div id="logos-and-name">
+        <div id="edusign-logo" data-testid="edusign-logo">
+          <img src="/assets/app-logo.png" alt="eduSign" />
         </div>
-      );
-    }
-    let banner = undefined;
-    if (this.props.size === "lg") {
-      banner = (
-        <header
-          id="edusign-banner-lg"
-          className="banner-lg"
-          data-testid="edusign-banner-lg"
-        >
-          <div id="logos-and-name">
-            <div id="edusign-logo" data-testid="edusign-logo">
-              <img src="/assets/app-logo.png" alt="eduSign" />
-            </div>
-            <div id="header-right" data-testid="header-right">
-              <a href={this.props.company_link}>
-                <div id="sunet-logo" data-testid="sunet-logo">
-                  <img src="/assets/company-logo.png" alt="SUNET" />
-                </div>
-              </a>
-              {name}
-            </div>
-          </div>
-          <NotificationsContainer />
-        </header>
-      );
-    } else if (this.props.size === "sm") {
-      banner = (
-        <header
-          id="edusign-banner-sm"
-          className="banner-sm"
-          data-testid="edusign-banner-sm"
-        >
-          <div id="edusign-logos" data-testid="edusign-logos">
-            <div id="edusign-logo" data-testid="edusign-logo">
-              <img src="/assets/app-logo.png" alt="eduSign" />
-            </div>
-            <a href={this.props.company_link}>
-              <div id="sunet-logo" data-testid="sunet-logo">
-                <img src="/assets/company-logo.png" alt="SUNET" />
-              </div>
-            </a>
-          </div>
-          {name}
-          <NotificationsContainer />
-        </header>
-      );
-    }
-    return <>{banner}</>;
-  }
+        <div id="header-right" data-testid="header-right">
+          {nameInHeader}
+        </div>
+      </div>
+      <NotificationsContainer />
+    </header>
+  );
 }
 
-Header.propTypes = {
-  /**
-   * The attributes used for signing the docs
-   */
-  signer_attributes: PropTypes.object,
-  /**
-   * Size of the window: lg | sm
-   */
-  size: PropTypes.string,
-  /**
-   * Whether the app has finished loading in the browser
-   */
-  loading: PropTypes.bool,
-  clearDb: PropTypes.func,
-};
-
-export default injectIntl(Header);
+export default Header;
