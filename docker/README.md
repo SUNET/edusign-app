@@ -10,8 +10,8 @@ dev-env-notes.md.
 - Docker with the compose plugin.
 - Node and npm for the frontend build.
 - The docker-edusign-app repository checked out next to this one
-  (`../docker-edusign-app`), for its `example-customization`
-  directory.
+  (`../docker-edusign-app`), for the default assets in
+  `nginx/docker/assets` and the `example-customization` directory.
 - This line in `/etc/hosts`, since the session cookie is bound to
   that name:
 
@@ -48,5 +48,5 @@ Backend edits are picked up too: the backend source is mounted into
 
 The page loads `/assets/custom.css`, which is `docker/custom.css`
 here and empty. Put rules in it to try a site customization; the
-logos and favicon come from docker-edusign-app's
-`example-customization`.
+logos and favicon are the production image's defaults, from
+docker-edusign-app's `nginx/docker/assets`.

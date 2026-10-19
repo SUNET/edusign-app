@@ -8,8 +8,9 @@ services:
     volumes:
       - edusignlogs:/var/log/edusign:rw
       - ../frontend/build:/opt/edusign/jsbuild:ro
-      - ../../docker-edusign-app/example-customization:/opt/edusign/assets:ro
-      # the example stylesheet paints the main area brown; serve an empty one
+      # the default assets of the production image (logos, favicon)
+      - ../../docker-edusign-app/nginx/docker/assets:/opt/edusign/assets:ro
+      # a stylesheet to try site customizations in; empty by default
       - ./custom.css:/opt/edusign/assets/custom.css:ro
     environment:
       - "HOSTNAME=sp.edusign.docker"
