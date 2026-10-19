@@ -10,6 +10,7 @@ import DocManagerContainer from "containers/DocManager";
 import PollContainer from "containers/Poll";
 import UserInfoContainer from "containers/UserInfo";
 import { appIsRendered } from "init-app/init-app";
+import Notifications from "components/Notifications";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import "styles/reset.scss";
 import "styles/Main.scss";
@@ -33,6 +34,7 @@ class Main extends Component {
         <SplashContainer />
         <div id={panelId}>
           <Header />
+          <Notifications />
           <main id="main-content">
             {!this.props.unauthn &&
               !this.props.using_freja &&
