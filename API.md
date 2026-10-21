@@ -27,7 +27,7 @@ POST to `/api/v1/create-sign-request` with a JSON body with the form of the foll
         "saml_attr_schema": "20",
         "return_url": "https://dev.drive.sunet.se/edusign-test-api-callback",
         "authn_attr_name": "urn:oid:1.3.6.1.4.1.5923.1.1.1.6",
-        "authn_attr_value": "pugoj-hutat@eduid.se",
+        "authn_attr_value": "pugoj-hutat@eduid.se"
       },
       "payload": {
         "documents": {
@@ -36,13 +36,14 @@ POST to `/api/v1/create-sign-request` with a JSON body with the form of the foll
           "local": [
             {
               "name": "test.pdf",
-              "size": "1503",
+              "size": 1503,
               "type": "application/pdf",
               "key": "ca954d99-29c9-405f-ae35-ddd93e61f00d",
               "blob": "data:application/pdf;base64,JVBERi0xLjQKJZOMi [...] CjEwNzYKJSVFT0YK"
             }
           ]
-        }
+        },
+        "invite_key": ""
       }
     }
 ```
@@ -56,25 +57,26 @@ An example curl request (setting the above JSON in a file `create.json`):
 Keys in the JSON sent to the `create-sign-request` endpoint:
 
 - `api_key`: Secret shared between the API and the client app.
-- `personal_data.idp`: entityID of the SAML IdP that the user will use to sign the document. This is the has to be the same IdP that the user did choose when they logged in to the Drive.
+- `personal_data.idp`: entityID of the SAML IdP that the user will use to sign the document. This has to be the same IdP that the user did choose when they logged in to the Drive.
 - `personal_data.display_name`: displayName of the signing party in the IdP, provided in the AttributeStatement in the SAML authentication assertion. It will be required to coincide with the attribute value in the SAML authn assertion for the signature.
-- `personal_data.mail`: List of emails known to be controlled by the signing party. Used for communication with them.
+- `personal_data.mail`: List of emails known to be controlled by the signing party. Used for communication with them. At least one address is required.
 - `personal_data.authn_context`: Authentication context class in the SAML authn assertion issued by the chosen IdP when the user logged in to the Drive. It will be required to be the same as the one in the authn assertion for the signature.
 - `personal_data.organization`: String that will appear in the PDF in the image representation of the signature as reference to the signing party's organization. Can be obtained from the metadata for the IdP that the user chose when logging in to the Drive.
-- `personal_data.assurance`: eduPersonAssurance of the signing party in the IdP, provided in the AttributeStatement in the SAML authentication assertion issued by the IdP when the user logged in to the Drive. It will be used in the invitations to sign, in which the inviter can require an assurance level for the signatures, to check whether the invitee meets the requirement.
-- `personal_data.registration_authority`: registrationAuthority of the chosen IdP, obtained from the metadata for the IdP. This is used in invitations to sign, in which the inviter can require an assurance level for the signatures. The inviter can specify low, medium, or high assurance, and depending on the registrationAuthority, these values are transated to actual assurance values.
+- `personal_data.assurance`: eduPersonAssurance of the signing party in the IdP, provided in the AttributeStatement in the SAML authentication assertion issued by the IdP when the user logged in to the Drive. It will be used in the invitations to sign, in which the inviter can require an assurance level for the signatures, to check whether the invitee meets the requirement. Required; the list may be empty.
+- `personal_data.registration_authority`: registrationAuthority of the chosen IdP, obtained from the metadata for the IdP. This is used in invitations to sign, in which the inviter can require an assurance level for the signatures. The inviter can specify low, medium, or high assurance, and depending on the registrationAuthority, these values are translated to actual assurance values.
 - `personal_data.saml_attr_schema`: Some (very few) IdPs do not release attributes in the SAML2.0 format (`urn:oid:` followed by some numbers) but in the SAML1.1 format (`urn:mace:dir:attribute-def:` followed by the friendly name of the attribute). If the chosen IdP releases the attributes in the SAML2.0 format, this key should be set as "20", otherwise it should be set as "11". This will almost always be "20".
 - `personal_data.return_url`: URL in the app using the API to which the sign service will send the user once it has signed the document.
-- `personal_data.authn_attr_name`: Attribute used as unique identifier of the signing party in the chosen IdP, provided in the AttributeStatement in the SAML authentication assertion issued when the user loggd in to the Drive. In the example we use the eppn, `urn:oid:1.3.6.1.4.1.5923.1.1.1.6`.
-- `personal_data.authn_attr_value`: Value of the attribute used as unique identifier of the signing party in the chosen IdP, provided in the AttributeStatement in the SAML authentication assertion issued when the user loggd in to the Drive. It will be required to coincide with the attribute value in the SAML authn assertion for the signature.
+- `personal_data.authn_attr_name`: Attribute used as unique identifier of the signing party in the chosen IdP, provided in the AttributeStatement in the SAML authentication assertion issued when the user logged in to the Drive. In the example we use the eppn, `urn:oid:1.3.6.1.4.1.5923.1.1.1.6`.
+- `personal_data.authn_attr_value`: Value of the attribute used as unique identifier of the signing party in the chosen IdP, provided in the AttributeStatement in the SAML authentication assertion issued when the user logged in to the Drive. It will be required to coincide with the attribute value in the SAML authn assertion for the signature.
 - `payload.documents.local`: List of documents to be signed. Each document is characterized by the following keys:
   - `name`: Name of the document.
   - `type`: MIME type of the document. Either `application/pdf` or `application/xml`.
   - `size`: Size of document in bytes.
   - `key`: A unique identifier for the document.
   - `blob`: Contents of the document base64 encoded.
-- `payload.documents.owned`: Reserved for future use when the API allows to make invitation to sign.
-- `payload.documents.invited`: Reserved for future use when the API allows to make invitation to sign.
+- `payload.documents.owned`: Reserved for future use when the API allows to make invitation to sign. Must be present, as an empty list.
+- `payload.documents.invited`: Reserved for future use when the API allows to make invitation to sign. Must be present, as an empty list.
+- `payload.invite_key`: Key of a signing invitation. Used by the eduSign web app; API clients must send it as the empty string. Required since version 1.5.2.
 
 
 In case of success creating the sign request, the API will return JSON document with the form of the following example:
@@ -107,10 +109,10 @@ Keys in the JSON response for a successful request:
 - `payload.binding`: Binding, again to be relayed back to the sign service.
 - `payload.destination_url`: Endpoint at the sign service to which the sign request must be sent to trigger the signing procedure.
 - `payload.documents`: List of documents that have successfully been prepared for signing, identified by a name (`name`) and a unique identifier (`key`).
-- `payload.failed`: List of documents that have failed to be prepared for signing, identified by a name (`name`) and a unique identifier (`key`).
+- `payload.failed`: List of documents that have failed to be prepared for signing. Each entry has the unique identifier of the document (`key`), a `state`, always `failed-signing`, and a `message` with the reason.
 
 
-In case of success creating the sign request, the API will return JSON document with the form of the following example:
+In case of failure creating the sign request, the API will return JSON document with the form of the following example:
 
 ```json
     {
@@ -122,7 +124,7 @@ In case of success creating the sign request, the API will return JSON document 
 Keys in the JSON response for a failed request:
 
 - `error`: Whether this is an error or a success response.
-- `massage`: Massage stating the reason for the failure.
+- `message`: Message stating the reason for the failure.
 
 
 ### Using the sign request
@@ -211,7 +213,7 @@ To achieve that, it has to POST to `/api/v1/get-signed` with a JSON body with th
         "registration_authority": "http://www.swamid.se/",
         "saml_attr_schema": "20",
         "authn_attr_name": "urn:oid:1.3.6.1.4.1.5923.1.1.1.6",
-        "authn_attr_value": "pugoj-hutat@eduid.se",
+        "authn_attr_value": "pugoj-hutat@eduid.se"
       },
       "payload": {
         "sign_response": "PD94bWwgdmV [...] c3BvbnNlPg==",
@@ -229,9 +231,11 @@ The response from the API will have the form of the following example:
             "documents": [
                 {
                     "id": "ca954d99-29c9-405f-ae35-ddd93e61f00d",
+                    "name": "test.pdf",
+                    "type": "application/pdf",
                     "signed_content": "JVBERi0xLjQKJZOMi [...] CjEwNzYKJSVFT0YK",
                     "validated": true,
-                    "pprinted": "[...]"
+                    "pprinted": "not-needed-for-pdf"
                 }
             ]
         }
@@ -241,11 +245,14 @@ The response from the API will have the form of the following example:
 For each signed document, the keys in the response are:
 
 - `id`: unique identifier for the document.
+- `name`: name of the document, as given in the request to create the sign request.
+- `type`: MIME type of the document.
 - `signed_content`: the base64 encoded signed document.
 - `validated`: whether the document has been validated by the validator configured in the API.
-- `pprinted`: In the case of an XML document, this key carries an HTML representation of the document.
+- `pprinted`: In the case of an XML document, this key carries an HTML representation of the document. For a PDF it is the string `not-needed-for-pdf`.
+- `signed`: list of signers (`name`, `email`) of a document that was signed through an invitation. Only present for such documents, never for documents signed through this API.
 
-In case of error, the response from the API would be someting like:
+In case of error, the response from the API would be something like:
 
 ```json
     {
