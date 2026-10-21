@@ -228,6 +228,7 @@
   "load-doc-problem-preparing": "There was a problem preparing the document",
   "malformed-pdf": "Malformed PDF",
   "no-persistent-state": "no persistent state",
+  "notifications-close-alert": "Close alert",
   "prepare-big-doc-problem": "Problem preparing document, it is too big",
   "prepare-doc-problem": "There was a problem signing the document",
   "problem-clearing-db": "problem clearing db, please try again",

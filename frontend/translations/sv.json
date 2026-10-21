@@ -228,6 +228,7 @@
   "load-doc-problem-preparing": "",
   "malformed-pdf": "Felaktigt PDF",
   "no-persistent-state": "Inget persistent tillstånd",
+  "notifications-close-alert": "Stäng meddelande",
   "prepare-big-doc-problem": "Problem att förbereda dokumentet, det är för stort.",
   "prepare-doc-problem": "Ett problem uppstod att ladda dokumentet.",
   "problem-clearing-db": "Problem med att rensa db, vänligen försök igen",

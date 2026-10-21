@@ -228,6 +228,7 @@
   "load-doc-problem-preparing": "Huboi un problema preparando el dcumento, por favor inténtalo de nuevo",
   "malformed-pdf": "PDF Inválido",
   "no-persistent-state": "no hay estado persistente",
+  "notifications-close-alert": "Cerrar aviso",
   "prepare-big-doc-problem": "",
   "prepare-doc-problem": "Problema preparando el documento, por favor inténtalo de nuevo",
   "problem-clearing-db": "problema vaciando bbdd, por favor inténtalo de nuevo",
