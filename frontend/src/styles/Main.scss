@@ -43,10 +43,11 @@ main#main-content {
   z-index: 99999 !important;
 }
 
-#contact-local-it-msg {
+p.help-text {
   margin-bottom: 4rem;
   text-align: center;
   font-size: 0.9rem;
+  font-weight: 100;
 }
 
 .form-group {
