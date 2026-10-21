@@ -5,7 +5,7 @@ import { injectIntl } from "init-app/intl";
 import Header from "components/Header";
 import SplashContainer from "containers/Splash";
 import Footer from "components/Footer";
-import DnDAreaContainer from "containers/DnDArea";
+import DnDArea from "components/DnDArea";
 import DocManagerContainer from "containers/DocManager";
 import PollContainer from "containers/Poll";
 import UserInfoContainer from "containers/UserInfo";
@@ -36,9 +36,7 @@ class Main extends Component {
           <Header />
           <Notifications />
           <main id="main-content">
-            {!this.props.unauthn &&
-              !this.props.using_freja &&
-              !this.props.using_bankid && <DnDAreaContainer />}
+            {!this.props.unauthn && !this.props.using_freja && !this.props.using_bankid && <DnDArea />}
             <div id="contact-local-it-msg">
               <FormattedMessage
                 defaultMessage="If you experience problems with eduSign contact your local IT-support"

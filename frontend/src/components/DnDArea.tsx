@@ -29,7 +29,6 @@ const createDoc = createDocument as unknown as (arg: {
  */
 function DnDArea() {
   const status = useAppSelector((state) => state.dnd.state);
-  const size = useAppSelector((state) => state.main.size);
   const intl = useIntl();
   const configured = Boolean(useAppSelector((state) => state.main.environment) !== undefined);
   const useFsAccessApi = Boolean(useAppSelector((state) => state.main.environment) !== "e2e");
@@ -101,8 +100,8 @@ function DnDArea() {
     }
   };
 
-  const handleRejected = (rejecteds: FileRejection[]) => {
-    rejecteds.forEach((rejected) => {
+  const handleRejected = (rejects: FileRejection[]) => {
+    rejects.forEach((rejected) => {
       const errorMsg = intl.formatMessage(
         {
           id: "containers.DnDArea.rejected-doc",
@@ -141,7 +140,7 @@ function DnDArea() {
             {({ getRootProps, getInputProps }) => {
               if (status === "waiting") {
                 return (
-                  <section id={"edusign-dnd-wrapper-" + size}>
+                  <section id="edusign-dnd-wrapper">
                     <div
                       {...getRootProps({
                         id: "edusign-dnd-area",
@@ -155,38 +154,37 @@ function DnDArea() {
                         })}
                       />
                       <FontAwesomeIcon id="dnd-arrow-up" icon={faArrowUpFromBracket} />
-                      {size === "lg" ? (
-                        <div id="dnd-message-head-lg">
-                          <div id="dnd-area-head-1">
-                            <FormattedMessage
-                              defaultMessage="Drag and drop files to be signed here"
-                              key="dnd-area-head-1"
-                            />
-                          </div>
-                          <div id="dnd-area-head-2">
-                            <FormattedMessage defaultMessage="or" key="dnd-area-head-2" />
-                          </div>
-                          <div id="dnd-area-head-3">
-                            <FormattedMessage
-                              defaultMessage="click here to choose files to be signed"
-                              key="dnd-area-head-3"
-                            />
-                          </div>
+                      <div className="dnd-message dnd-message-pointer">
+                        <div className="dnd-area-head">
+                          <FormattedMessage
+                            defaultMessage="Drag and drop files to be signed here"
+                            key="dnd-area-head-1"
+                          />
                         </div>
-                      ) : (
-                        <div id="dnd-area-head-1">
+                        <div className="dnd-area-head">
+                          <FormattedMessage defaultMessage="or" key="dnd-area-head-2" />
+                        </div>
+                        <div className="dnd-area-head">
+                          <FormattedMessage
+                            defaultMessage="click here to choose files to be signed"
+                            key="dnd-area-head-3"
+                          />
+                        </div>
+                      </div>
+                      <div className="dnd-message dnd-message-touch">
+                        <div className="dnd-area-head">
                           <FormattedMessage
                             defaultMessage="Tap here to choose files to be signed"
                             key="dnd-area-head-sm"
                           />
                         </div>
-                      )}
+                      </div>
                     </div>
                   </section>
                 );
               } else if (status === "receiving") {
                 return (
-                  <section id={"edusign-dnd-wrapper-" + size}>
+                  <section id="edusign-dnd-wrapper">
                     <div
                       {...getRootProps({
                         id: "edusign-dnd-area-receiving",
@@ -201,7 +199,7 @@ function DnDArea() {
                 );
               } else {
                 return (
-                  <section id={"edusign-dnd-wrapper-" + size}>
+                  <section id="edusign-dnd-wrapper">
                     <div
                       {...getRootProps({
                         id: "edusign-dnd-area-receiving",
@@ -219,7 +217,7 @@ function DnDArea() {
           </Dropzone>
         </>
       )) || (
-        <section id={"edusign-dnd-wrapper-" + size}>
+        <section id="edusign-dnd-wrapper">
           <div id="edusign-dnd-area" data-testid="edusign-dnd-area">
             <span id="dnd-message-dropping">
               <FormattedMessage defaultMessage="Drop documents here" key="dnd-area-dropping" />

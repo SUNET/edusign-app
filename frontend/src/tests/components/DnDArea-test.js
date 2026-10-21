@@ -13,7 +13,7 @@ import {
 } from "tests/test-utils";
 import Main from "components/Main";
 import { docToFile } from "components/utils";
-import DnDAreaContainer from "containers/DnDArea";
+import DnDArea from "components/DnDArea";
 import * as edusignLogo from "../../../images/eduSign_logo.svg";
 import { resetDb } from "init-app/database";
 import { fetchConfig } from "slices/Main";
@@ -28,23 +28,19 @@ describe("DnDArea Component", function () {
   });
 
   it("Shows dnd area ready to accept documents", function () {
-    const { unmount } = setupComponent(<DnDAreaContainer />, {
+    const { unmount } = setupComponent(<DnDArea />, {
       main: { loading: false, size: "lg", environment: "testing" },
       dnd: { state: "waiting" },
     });
 
     try {
-      const dndArea1 = screen.getAllByText(
-        "Drag and drop files to be signed here",
-      );
+      const dndArea1 = screen.getAllByText("Drag and drop files to be signed here");
       expect(dndArea1.length).toEqual(1);
 
       const dndArea2 = screen.getAllByText("or");
       expect(dndArea2.length).toEqual(1);
 
-      const dndArea3 = screen.getAllByText(
-        "click here to choose files to be signed",
-      );
+      const dndArea3 = screen.getAllByText("click here to choose files to be signed");
       expect(dndArea3.length).toEqual(1);
 
       const dndAreaDropping = screen.queryByText("Drop documents here");
@@ -58,7 +54,7 @@ describe("DnDArea Component", function () {
   });
 
   it("Shows dnd area ready to drop documents", function () {
-    const { unmount } = setupComponent(<DnDAreaContainer />, {
+    const { unmount } = setupComponent(<DnDArea />, {
       dnd: { state: "receiving" },
     });
 
@@ -66,15 +62,11 @@ describe("DnDArea Component", function () {
       const dndAreaDropping = screen.getAllByText("Drop documents here");
       expect(dndAreaDropping.length).toEqual(1);
 
-      const dndArea1 = screen.queryByText(
-        "Drag and drop files to be signed here",
-      );
+      const dndArea1 = screen.queryByText("Drag and drop files to be signed here");
       expect(dndArea1).toEqual(null);
       const dndArea2 = screen.queryByText("or");
       expect(dndArea2).toEqual(null);
-      const dndArea3 = screen.queryByText(
-        "click here to choose files to be signed",
-      );
+      const dndArea3 = screen.queryByText("click here to choose files to be signed");
       expect(dndArea3).toEqual(null);
     } catch (err) {
       unmount();
@@ -85,20 +77,14 @@ describe("DnDArea Component", function () {
   });
 
   it("It shows dnd area ready to drop documents on drag enter event ", async () => {
-    const { wrapped, rerender, unmount } = setupReduxComponent(
-      <DnDAreaContainer />,
-    );
+    const { wrapped, rerender, unmount } = setupReduxComponent(<DnDArea />);
 
     try {
-      let dndArea1 = screen.getAllByText(
-        "Drag and drop files to be signed here",
-      );
+      let dndArea1 = screen.getAllByText("Drag and drop files to be signed here");
       expect(dndArea1.length).toEqual(1);
       let dndArea2 = screen.getAllByText("or");
       expect(dndArea2.length).toEqual(1);
-      let dndArea3 = screen.getAllByText(
-        "click here to choose files to be signed",
-      );
+      let dndArea3 = screen.getAllByText("click here to choose files to be signed");
       expect(dndArea3.length).toEqual(1);
 
       let dndAreaDropping = screen.queryByText("Drop documents here");
@@ -114,24 +100,16 @@ describe("DnDArea Component", function () {
       dispatchEvtWithData(dnd, "dragenter", data);
       await flushPromises(rerender, wrapped);
 
-      dndAreaDropping = await waitFor(() =>
-        screen.getAllByText("Drop documents here"),
-      );
+      dndAreaDropping = await waitFor(() => screen.getAllByText("Drop documents here"));
       expect(dndAreaDropping.length).toEqual(1);
 
-      dndArea1 = await waitFor(() =>
-        screen.queryByText("Drag and drop files to be signed here"),
-      );
+      dndArea1 = await waitFor(() => screen.queryByText("Drag and drop files to be signed here"));
       expect(dndArea1).toEqual(null);
 
-      dndArea2 = await waitFor(() =>
-        screen.queryByText("Drag and drop files to be signed here"),
-      );
+      dndArea2 = await waitFor(() => screen.queryByText("Drag and drop files to be signed here"));
       expect(dndArea2).toEqual(null);
 
-      dndArea3 = await waitFor(() =>
-        screen.queryByText("Drag and drop files to be signed here"),
-      );
+      dndArea3 = await waitFor(() => screen.queryByText("Drag and drop files to be signed here"));
       expect(dndArea3).toEqual(null);
     } catch (err) {
       unmount();
@@ -142,20 +120,14 @@ describe("DnDArea Component", function () {
   });
 
   it("It shows dnd area back to waiting after a dragLeave event", async () => {
-    const { wrapped, rerender, unmount } = setupReduxComponent(
-      <DnDAreaContainer />,
-    );
+    const { wrapped, rerender, unmount } = setupReduxComponent(<DnDArea />);
 
     try {
-      let dndArea1 = screen.getAllByText(
-        "Drag and drop files to be signed here",
-      );
+      let dndArea1 = screen.getAllByText("Drag and drop files to be signed here");
       expect(dndArea1.length).toEqual(1);
       let dndArea2 = screen.getAllByText("or");
       expect(dndArea2.length).toEqual(1);
-      let dndArea3 = screen.getAllByText(
-        "click here to choose files to be signed",
-      );
+      let dndArea3 = screen.getAllByText("click here to choose files to be signed");
       expect(dndArea3.length).toEqual(1);
 
       let dndAreaDropping = screen.queryByText("Drop documents here");
@@ -175,22 +147,16 @@ describe("DnDArea Component", function () {
       dispatchEvtWithData(dnd, "dragenter", data);
       await flushPromises(rerender, wrapped);
 
-      dndAreaDropping = await waitFor(() =>
-        screen.getAllByText("Drop documents here"),
-      );
+      dndAreaDropping = await waitFor(() => screen.getAllByText("Drop documents here"));
       expect(dndAreaDropping.length).toEqual(1);
 
-      dndArea1 = await waitFor(() =>
-        screen.queryByText("Drag and drop files to be signed here"),
-      );
+      dndArea1 = await waitFor(() => screen.queryByText("Drag and drop files to be signed here"));
       expect(dndArea1).toEqual(null);
 
       dndArea2 = await waitFor(() => screen.queryByText("or"));
       expect(dndArea2).toEqual(null);
 
-      dndArea3 = await waitFor(() =>
-        screen.queryByText("click here to choose files to be signed"),
-      );
+      dndArea3 = await waitFor(() => screen.queryByText("click here to choose files to be signed"));
       expect(dndArea3).toEqual(null);
 
       dispatchEvtWithData(dnd, "dragleave", data);
@@ -276,10 +242,7 @@ describe("DnDArea Component", function () {
 
       // the drop handler is not awaited by the test, and the first PDF parse
       // in the process can take pdfjs longer than the default 1s
-      previewButton = await waitFor(
-        () => screen.getAllByText("Preview and approve"),
-        { timeout: 5000 },
-      );
+      previewButton = await waitFor(() => screen.getAllByText("Preview and approve"), { timeout: 5000 });
       expect(previewButton.length).toEqual(1);
 
       rmButton = await waitFor(() => screen.getAllByText("Remove"));

@@ -34,23 +34,28 @@ h2.heading {
   color: $white;
 }
 
-#dnd-area-head-1 {
+.dnd-area-head {
   margin-top: 1rem;
   font-weight: 400;
 }
 
-#dnd-area-head-2 {
-  margin-top: 1rem;
+// Only one set of instructions is shown; which one depends on the viewport
+// rather than on a size prop, so the markup stays the same everywhere.
+.dnd-message-touch {
+  display: none;
 }
 
-#dnd-area-head-3 {
-  margin-top: 1rem;
-  font-weight: 400;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+@media (max-width: $breakpoint-md) {
+  .dnd-message-pointer {
+    display: none;
+  }
+
+  .dnd-message-touch {
+    display: block;
+  }
 }
 
-#edusign-dnd-wrapper-lg {
+#edusign-dnd-wrapper {
   flex: none;
   display: flex;
   align-items: top;
@@ -58,16 +63,16 @@ h2.heading {
   width: 100%;
   text-align: center;
   margin-bottom: 1rem;
-}
 
-#edusign-dnd-wrapper-sm {
-  flex: none;
-  display: flex;
-  align-items: top;
-  justify-content: center;
-  width: 100%;
-  text-align: center;
-  margin-bottom: 1rem;
+  @media (max-width: $breakpoint-md) {
+    flex: none;
+    display: flex;
+    align-items: top;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
 }
 
 #edusign-dnd-area {
@@ -111,4 +116,13 @@ h2.heading {
 #dnd-message-head {
   flex: none;
   margin-top: 2rem;
+}
+
+@media (max-width: $breakpoint-md) {
+  .dnd-message-pointer {
+    display: none;
+  }
+  .dnd-message-touch {
+    display: block;
+  }
 }
