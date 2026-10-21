@@ -25,9 +25,7 @@ div#panel-lg {
 
 div#panel-sm {
   main#main-content {
-    width: 90%;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 1rem;
   }
 }
 
@@ -46,9 +44,9 @@ main#main-content {
 }
 
 #contact-local-it-msg {
-  margin-bottom: 3rem;
-  font-weight: 400;
+  margin-bottom: 4rem;
   text-align: center;
+  font-size: 0.9rem;
 }
 
 .form-group {

@@ -274,17 +274,6 @@ div.selected {
   }
 }
 
-// div#panel-lg {
-//   main#main-content {
-//     fieldset.local-monosign-container,
-//     fieldset.local-template-container,
-//     fieldset.owned-multisign-container,
-//     fieldset.invited-multisign-container {
-//       width: 80%;
-//     }
-//   }
-// }
-
 div#panel-sm {
   main#main-content {
     fieldset.local-monosign-container,
@@ -296,30 +285,9 @@ div#panel-sm {
   }
 }
 
-// fieldset.local-monosign-container,
-// fieldset.local-template-container,
-// fieldset.owned-multisign-container,
-// fieldset.invited-multisign-container {
-//   border: $darker-grey solid 1px;
-//   border-radius: 3px;
-//   padding-top: 0.6rem;
-//   padding-left: 0.4rem;
-//   padding-right: 0.4rem;
-//   padding-bottom: 0.4rem;
-//   margin-bottom: 1.5rem;
-
-//   legend {
-//     width: auto;
-//     font-size: 0.8rem;
-//     font-weight: bold;
-//     color: $darker-dark-grey;
-//     float: unset;
-//   }
-// }
-
 fieldset.local-monosign-container {
   border-top: 2px solid $mid-gray;
-  padding-top: 3rem;
+  padding-top: 4rem;
 }
 
 div.invited-unauthn-title {

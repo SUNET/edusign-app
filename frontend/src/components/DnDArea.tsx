@@ -11,6 +11,7 @@ import { useAppDispatch, useAppSelector } from "init-app/hooks";
 import { addNotification } from "slices/Notifications";
 import { setLoading, setWaiting, setReceiving } from "slices/DnDArea";
 import { addDocument, createDocument, setState } from "slices/Documents";
+import Button from "react-bootstrap/Button";
 
 // `slices/Documents` is still JavaScript, so its thunks carry no argument
 // types. Give `createDocument` the signature it actually has, until that
@@ -121,10 +122,7 @@ function DnDArea() {
             <FormattedMessage defaultMessage="Add documents to sign" key="heading-1" />
           </h2>
           <p className="lead-text">
-            <FormattedMessage
-              defaultMessage="Please choose the PDF or XML documents you would like to sign."
-              key="dnd-area-lead"
-            />
+            <FormattedMessage defaultMessage="You can upload PDF and XML documents." key="dnd-area-lead" />
           </p>
           <Dropzone
             accept={{
@@ -137,7 +135,7 @@ function DnDArea() {
             onDropRejected={handleRejected}
             useFsAccessApi={useFsAccessApi}
           >
-            {({ getRootProps, getInputProps }) => {
+            {({ getRootProps, getInputProps, open }) => {
               if (status === "waiting") {
                 return (
                   <section id="edusign-dnd-wrapper">
@@ -155,29 +153,21 @@ function DnDArea() {
                       />
                       <FontAwesomeIcon id="dnd-arrow-up" icon={faArrowUpFromBracket} />
                       <div className="dnd-message dnd-message-pointer">
-                        <div className="dnd-area-head">
-                          <FormattedMessage
-                            defaultMessage="Drag and drop files to be signed here"
-                            key="dnd-area-head-1"
-                          />
-                        </div>
-                        <div className="dnd-area-head">
-                          <FormattedMessage defaultMessage="or" key="dnd-area-head-2" />
-                        </div>
-                        <div className="dnd-area-head">
-                          <FormattedMessage
-                            defaultMessage="click here to choose files to be signed"
-                            key="dnd-area-head-3"
-                          />
-                        </div>
+                        <FormattedMessage defaultMessage="Choose files or drag and drop" key="dnd-area-head-1" />
+                        <br />
+                        <Button
+                          type="button"
+                          variant="outline-dark"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            open();
+                          }}
+                        >
+                          <FormattedMessage defaultMessage="Browse Files" key="dnd-area-head-2" />
+                        </Button>
                       </div>
                       <div className="dnd-message dnd-message-touch">
-                        <div className="dnd-area-head">
-                          <FormattedMessage
-                            defaultMessage="Tap here to choose files to be signed"
-                            key="dnd-area-head-sm"
-                          />
-                        </div>
+                        <FormattedMessage defaultMessage="Tap to choose files" key="dnd-area-head-sm" />
                       </div>
                     </div>
                   </section>

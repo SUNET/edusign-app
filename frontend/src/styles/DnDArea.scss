@@ -7,7 +7,7 @@ h2.heading {
 }
 
 .lead-text {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 300;
   margin-bottom: 2rem;
   color: $black;
@@ -16,13 +16,11 @@ h2.heading {
 
 #dnd-arrow-up {
   box-sizing: content-box;
-  width: 1.5rem;
-  height: 1.5rem;
-  padding: 0.875rem;
-  border-radius: 50%;
-  background-color: $mid-gray;
-  color: $orange-highlight;
-  font-size: 1.5rem;
+  width: 2rem;
+  height: 2rem;
+  color: $darker-grey;
+  font-size: 1.8rem;
+  margin-bottom: 0.8rem;
   transition:
     background-color 0.2s ease,
     color 0.2s ease;
@@ -30,17 +28,17 @@ h2.heading {
 
 #edusign-dnd-area:hover #dnd-arrow-up,
 #edusign-dnd-area-receiving #dnd-arrow-up {
-  background-color: $orange-highlight;
-  color: $white;
-}
-
-.dnd-area-head {
-  margin-top: 1rem;
-  font-weight: 400;
+  color: $orange-highlight;
 }
 
 // Only one set of instructions is shown; which one depends on the viewport
 // rather than on a size prop, so the markup stays the same everywhere.
+
+.dnd-message {
+  line-height: 2.5;
+  color: $black;
+}
+
 .dnd-message-touch {
   display: none;
 }
@@ -111,6 +109,7 @@ h2.heading {
 #dnd-message-foot,
 #dnd-message-dropping {
   flex: none;
+  color: $black;
 }
 
 #dnd-message-head {
