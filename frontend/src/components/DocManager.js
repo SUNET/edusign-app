@@ -190,12 +190,14 @@ class DocManager extends React.Component {
             {this.props.documents.length > 0 && (
               <fieldset className="local-monosign-container">
                 <legend data-testid="legend-personal">
-                  <FormattedMessage
-                    defaultMessage="Personal documents"
-                    key="local-monosign-legend"
-                  />
+                  <h2 className="heading">
+                    <FormattedMessage
+                      defaultMessage="Personal documents"
+                      key="local-monosign-legend"
+                    />
+                  </h2>
                 </legend>
-                <p className="docset-legend-title">
+                <p className="lead-text">
                   <FormattedMessage
                     defaultMessage="Personal documents are stored in your browser. When signed, we recommend to store them in a separate place for later use."
                     key="local-monosign-legend-title"

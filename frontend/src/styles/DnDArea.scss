@@ -1,13 +1,37 @@
 @use "./variables" as *;
 
+h2.heading {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: $black;
+}
+
+.lead-text {
+  font-size: 1.125rem;
+  font-weight: 300;
+  margin-bottom: 2rem;
+  color: $black;
+  line-height: 1.4;
+}
+
 #dnd-arrow-up {
-  width: 35px;
-  height: 35px;
-  background-image: url(../../images/dragndrop.png);
-  background-size: contain;
-  background-repeat: no-repeat;
-  margin: 0;
-  display: inline-block;
+  box-sizing: content-box;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0.875rem;
+  border-radius: 50%;
+  background-color: $mid-gray;
+  color: $orange-highlight;
+  font-size: 1.5rem;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+#edusign-dnd-area:hover #dnd-arrow-up,
+#edusign-dnd-area-receiving #dnd-arrow-up {
+  background-color: $orange-highlight;
+  color: $white;
 }
 
 #dnd-area-head-1 {
@@ -31,7 +55,7 @@
   display: flex;
   align-items: top;
   justify-content: center;
-  min-width: 80%;
+  width: 100%;
   text-align: center;
   margin-bottom: 1rem;
 }
@@ -41,7 +65,7 @@
   display: flex;
   align-items: top;
   justify-content: center;
-  min-width: 100%;
+  width: 100%;
   text-align: center;
   margin-bottom: 1rem;
 }
@@ -54,10 +78,17 @@
   flex-direction: column;
   height: 12rem;
   width: 100%;
-  border: solid $darker-grey;
+  border: 3px dotted $darker-grey;
   border-radius: 5px;
-  border-width: 1px;
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    background-color: $orange-opaque;
+    border-color: $orange-highlight;
+  }
 }
 
 #edusign-dnd-area-receiving {
@@ -67,7 +98,8 @@
   justify-content: center;
   height: 12rem;
   width: 100%;
-  border: dashed $dark-green;
+  background-color: $orange-opaque;
+  border: 2px dashed $orange-highlight;
   border-radius: 5px;
 }
 

@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import Dropzone from "react-dropzone";
 import { FormattedMessage } from "react-intl";
 import { injectIntl } from "init-app/intl";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpFromBracket } from "@fortawesome/free-solid-svg-icons";
 
 import LittleSpinner from "components/LittleSpinner";
 import "styles/DnDArea.scss";
@@ -14,26 +16,38 @@ import "styles/DnDArea.scss";
  * I has 2 states, the initial "waiting" state,
  * and the "receiving" state triggered by a dragEnter event.
  */
-class DnDArea extends Component {
-  render() {
-    return (
-      <>
-        {(this.props.configured && (
+function DnDArea(props) {
+  return (
+    <>
+      {(props.configured && (
+        <>
+          <h2 className="heading">
+            <FormattedMessage
+              defaultMessage="Add documents to sign"
+              key="heading-1"
+            />
+          </h2>
+          <p className="lead-text">
+            <FormattedMessage
+              defaultMessage="Please choose the PDF or XML documents you would like to sign."
+              key="dnd-area-lead"
+            />
+          </p>
           <Dropzone
             accept={{
               "application/pdf": [".pdf"],
               "application/xml": [".xml"],
             }}
-            onDrop={this.props.handleFileDrop(this.props.intl)}
-            onDragEnter={this.props.handleDragEnter}
-            onDragLeave={this.props.handleDragLeave}
-            onDropRejected={this.props.handleRejected(this.props.intl)}
-            useFsAccessApi={this.props.useFsAccessApi}
+            onDrop={props.handleFileDrop(props.intl)}
+            onDragEnter={props.handleDragEnter}
+            onDragLeave={props.handleDragLeave}
+            onDropRejected={props.handleRejected(props.intl)}
+            useFsAccessApi={props.useFsAccessApi}
           >
             {({ getRootProps, getInputProps }) => {
-              if (this.props.status === "waiting") {
+              if (props.status === "waiting") {
                 return (
-                  <section id={"edusign-dnd-wrapper-" + this.props.size}>
+                  <section id={"edusign-dnd-wrapper-" + props.size}>
                     <div
                       {...getRootProps({
                         id: "edusign-dnd-area",
@@ -46,8 +60,11 @@ class DnDArea extends Component {
                           "data-testid": "edusign-dnd-input",
                         })}
                       />
-                      <div id="dnd-arrow-up" />
-                      {this.props.size === "lg" ? (
+                      <FontAwesomeIcon
+                        id="dnd-arrow-up"
+                        icon={faArrowUpFromBracket}
+                      />
+                      {props.size === "lg" ? (
                         <div id="dnd-message-head-lg">
                           <div id="dnd-area-head-1">
                             <FormattedMessage
@@ -79,9 +96,9 @@ class DnDArea extends Component {
                     </div>
                   </section>
                 );
-              } else if (this.props.status === "receiving") {
+              } else if (props.status === "receiving") {
                 return (
-                  <section id={"edusign-dnd-wrapper-" + this.props.size}>
+                  <section id={"edusign-dnd-wrapper-" + props.size}>
                     <div
                       {...getRootProps({
                         id: "edusign-dnd-area-receiving",
@@ -97,7 +114,7 @@ class DnDArea extends Component {
                     </div>
                   </section>
                 );
-              } else if (this.props.status === "loading") {
+              } else if (props.status === "loading") {
                 return (
                   <section id={"edusign-dnd-wrapper-" + this.props.size}>
                     <div
@@ -115,21 +132,21 @@ class DnDArea extends Component {
               }
             }}
           </Dropzone>
-        )) || (
-          <section id={"edusign-dnd-wrapper-" + this.props.size}>
-            <div id="edusign-dnd-area" data-testid="edusign-dnd-area">
-              <span id="dnd-message-dropping">
-                <FormattedMessage
-                  defaultMessage="Drop documents here"
-                  key="dnd-area-dropping"
-                />
-              </span>
-            </div>
-          </section>
-        )}
-      </>
-    );
-  }
+        </>
+      )) || (
+        <section id={"edusign-dnd-wrapper-" + props.size}>
+          <div id="edusign-dnd-area" data-testid="edusign-dnd-area">
+            <span id="dnd-message-dropping">
+              <FormattedMessage
+                defaultMessage="Drop documents here"
+                key="dnd-area-dropping"
+              />
+            </span>
+          </div>
+        </section>
+      )}
+    </>
+  );
 }
 
 DnDArea.propTypes = {
