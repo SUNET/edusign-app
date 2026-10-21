@@ -34,16 +34,16 @@ const initialState: NotificationsState = {
  * @desc Redux async thunk to show transient notification
  * This notification will show in the notifications area, above the main content.
  */
-export const addNotification = createAsyncThunk<{ message: Notification; timerId: number }, Notification>(
-  "main/addNotification",
-  (arg, thunkAPI) => {
-    const timerId = window.setTimeout(() => {
-      thunkAPI.dispatch(notificationsSlice.actions.rmNotification());
-    }, 50000);
-    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-    return { message: arg, timerId: timerId };
-  },
-);
+export const addNotification = createAsyncThunk<
+  { message: Notification; timerId: number },
+  Notification
+>("main/addNotification", (arg, thunkAPI) => {
+  const timerId = window.setTimeout(() => {
+    thunkAPI.dispatch(notificationsSlice.actions.rmNotification());
+  }, 5000);
+  window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  return { message: arg, timerId: timerId };
+});
 
 const notificationsSlice = createSlice({
   name: "notifications",
@@ -66,7 +66,10 @@ const notificationsSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(
       addNotification.fulfilled,
-      (state, action: PayloadAction<{ message: Notification; timerId: number }>) => {
+      (
+        state,
+        action: PayloadAction<{ message: Notification; timerId: number }>,
+      ) => {
         // Cancel the removal of the notification this one replaces,
         // so that it cannot cut this one's 5 seconds short.
         if (state.timerId !== null) {
