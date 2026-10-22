@@ -31,4 +31,3 @@ const UserInfoSlice = createSlice({
 export const { showUserInfo, hideUserInfo } = UserInfoSlice.actions;
 
 export default UserInfoSlice.reducer;
-

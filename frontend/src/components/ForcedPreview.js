@@ -60,10 +60,7 @@ function ForcedPreview(props) {
   }
 
   let rejectButtonLabel = (
-    <FormattedMessage
-      defaultMessage="Reject"
-      key="button-dissaprove"
-    />
+    <FormattedMessage defaultMessage="Reject" key="button-dissaprove" />
   );
   let rejectButtonHelpText = (
     <FormattedMessage
@@ -72,10 +69,7 @@ function ForcedPreview(props) {
     />
   );
   let acceptButtonLabel = (
-    <FormattedMessage
-      defaultMessage="Approve"
-      key="button-confirm"
-    />
+    <FormattedMessage defaultMessage="Approve" key="button-confirm" />
   );
   let acceptButtonHelpText = (
     <FormattedMessage
@@ -105,10 +99,7 @@ function ForcedPreview(props) {
       />
     );
     acceptButtonLabel = (
-      <FormattedMessage
-        defaultMessage="Approve"
-        key="button-confirm-bankid"
-      />
+      <FormattedMessage defaultMessage="Approve" key="button-confirm-bankid" />
     );
     acceptButtonHelpText = (
       <FormattedMessage

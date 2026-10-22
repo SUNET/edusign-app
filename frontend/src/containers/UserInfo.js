@@ -6,11 +6,11 @@ import { enablePolling } from "slices/Poll";
 import { hideUserInfo } from "slices/UserInfo";
 
 const mapStateToProps = (state) => {
-  const details = state.main.user_info_detail.split(',');
+  const details = state.main.user_info_detail.split(",");
   return {
     show: state.userinfo.show,
     display_name: state.main.signer_attributes.name,
-    eppn : state.main.signer_attributes.eppn,
+    eppn: state.main.signer_attributes.eppn,
     mail: state.main.signer_attributes.mail,
     mail_aliases: state.main.signer_attributes.mail_aliases,
     identity_provider: state.main.signer_attributes.identity_provider,

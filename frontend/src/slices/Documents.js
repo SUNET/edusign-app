@@ -444,7 +444,7 @@ export const saveTemplate = async (thunkAPI, doc, intl) => {
     doc,
     state.main.signer_attributes.eppn,
     thunkAPI,
-    intl
+    intl,
   );
   thunkAPI.dispatch(addTemplate(newTemplate));
   return doc;
@@ -487,7 +487,8 @@ export const addDocumentToDb = async (doc, name, thunkAPI, intl) => {
       addNotification({
         level: "success",
         message: intl.formatMessage({
-          defaultMessage: "Temporary network problem, please try again in a few aseconds",
+          defaultMessage:
+            "Temporary network problem, please try again in a few aseconds",
           id: "add-doc-to-db-problem",
         }),
       }),
@@ -530,8 +531,13 @@ const setChangedDocument = async (thunkAPI, doc, intl) => {
   if (docElem !== null) {
     docElem.scrollIntoView({ behavior: "smooth", block: "center" });
   }
-  let state = thunkAPI.getState()
-  const newDoc = await addDocumentToDb(doc, state.main.signer_attributes.eppn, thunkAPI, intl);
+  let state = thunkAPI.getState();
+  const newDoc = await addDocumentToDb(
+    doc,
+    state.main.signer_attributes.eppn,
+    thunkAPI,
+    intl,
+  );
   thunkAPI.dispatch(documentsSlice.actions.setState(newDoc));
   return newDoc;
 };
@@ -609,7 +615,9 @@ export const createDocument = createAsyncThunk(
         prepareDocument({ doc: newDoc, intl: args.intl }),
       );
       state = thunkAPI.getState();
-      preparedDoc = state.documents.documents.find(doc => doc.name === newDoc.name);
+      preparedDoc = state.documents.documents.find(
+        (doc) => doc.name === newDoc.name,
+      );
       if (preparedDoc === undefined) {
         throw new Error(`Document ${newDoc.name} could not be prepared`);
       }
@@ -689,10 +697,15 @@ export const prepareDocument = createAsyncThunk(
     let data = null;
     try {
       const state = thunkAPI.getState();
-      const response = await esFetch("/sign/add-doc", {
-        ...postRequest,
-        body: body,
-      }, state, thunkAPI.dispatch);
+      const response = await esFetch(
+        "/sign/add-doc",
+        {
+          ...postRequest,
+          body: body,
+        },
+        state,
+        thunkAPI.dispatch,
+      );
       if (response.status === 413) {
         return {
           ...doc,
@@ -816,19 +829,23 @@ export const startSigningDoc = createAsyncThunk(
     let found = false;
     const doc = args.doc;
 
-    const inDocs = state.documents.documents.filter(d => d.key === doc.key);
+    const inDocs = state.documents.documents.filter((d) => d.key === doc.key);
     if (inDocs.length > 0) {
       thunkAPI.dispatch(documentsSlice.actions.startSigningDocument(doc.key));
       await thunkAPI.dispatch(saveDocument({ docKey: doc.key }));
       found = true;
     } else {
-      const inOwned = state.main.owned_multisign.filter(d => d.key === doc.key);
+      const inOwned = state.main.owned_multisign.filter(
+        (d) => d.key === doc.key,
+      );
       if (inOwned.length > 0) {
         thunkAPI.dispatch(startSigningOwned(doc.name));
         found = true;
         invited = true;
       } else {
-        const inInvited = state.main.pending_multisign.filter(d => d.key === doc.key);
+        const inInvited = state.main.pending_multisign.filter(
+          (d) => d.key === doc.key,
+        );
         if (inInvited.length > 0) {
           thunkAPI.dispatch(startSigningInvited(doc.key));
           found = true;
@@ -881,7 +898,9 @@ export const startSigningDocuments = createAsyncThunk(
     for (const doc of state.documents.documents) {
       if (!doc.sign_requirement) {
         await thunkAPI.dispatch(restartSigningDocuments({ intl: args.intl }));
-        return thunkAPI.rejectWithValue(`Document ${doc.name} missing sign requirement`);
+        return thunkAPI.rejectWithValue(
+          `Document ${doc.name} missing sign requirement`,
+        );
       }
       if (doc.state === "signing") {
         const docToSign = {
@@ -899,10 +918,15 @@ export const startSigningDocuments = createAsyncThunk(
     }
     const body = preparePayload(state, { documents: docsToSign });
     try {
-      const response = await esFetch("/sign/create-sign-request", {
-        ...postRequest,
-        body: body,
-      }, state, thunkAPI.dispatch);
+      const response = await esFetch(
+        "/sign/create-sign-request",
+        {
+          ...postRequest,
+          body: body,
+        },
+        state,
+        thunkAPI.dispatch,
+      );
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
 
@@ -1027,12 +1051,20 @@ export const restartSigningDocuments = createAsyncThunk(
     });
     // send data about documents to be signed to the backend
     const invite_key = getInviteKey();
-    const body = preparePayload(state, { documents: docsToSign, invite_key: invite_key });
+    const body = preparePayload(state, {
+      documents: docsToSign,
+      invite_key: invite_key,
+    });
     try {
-      const response = await esFetch("/sign/recreate-sign-request", {
-        ...postRequest,
-        body: body,
-      }, state, thunkAPI.dispatch);
+      const response = await esFetch(
+        "/sign/recreate-sign-request",
+        {
+          ...postRequest,
+          body: body,
+        },
+        state,
+        thunkAPI.dispatch,
+      );
       // Get data from the response. These data consists mainly of documents successfully
       // preprocessed for signing, and documents that for some reason have failed to be
       // prepared.
@@ -1157,10 +1189,15 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
   let data = null;
   try {
     // Send request to the `get-signed` endpoint to get the signed documents
-    const response = await esFetch("/sign/get-signed", {
-      ...postRequest,
-      body: body,
-    }, state, thunkAPI.dispatch);
+    const response = await esFetch(
+      "/sign/get-signed",
+      {
+        ...postRequest,
+        body: body,
+      },
+      state,
+      thunkAPI.dispatch,
+    );
     data = await checkStatus(response);
     extractCsrfToken(thunkAPI.dispatch, data);
     if (data.error) {
@@ -1219,7 +1256,7 @@ const fetchSignedDocuments = async (thunkAPI, dataElem, intl) => {
           thunkAPI.dispatch(removeOwned({ key: doc.id }));
           newDoc = await addDocumentToDb(
             newDoc,
-            state.main.signer_attributes.eppn
+            state.main.signer_attributes.eppn,
           );
           thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
         }
@@ -1333,10 +1370,15 @@ export const skipOwnedSignature = createAsyncThunk(
     // `skip-final-signature` endpoint in the backend.
     const body = preparePayload(state, docToSkip);
     try {
-      const response = await esFetch("/sign/skip-final-signature", {
-        ...postRequest,
-        body: body,
-      }, state, thunkAPI.dispatch);
+      const response = await esFetch(
+        "/sign/skip-final-signature",
+        {
+          ...postRequest,
+          body: body,
+        },
+        state,
+        thunkAPI.dispatch,
+      );
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
@@ -1375,7 +1417,7 @@ export const skipOwnedSignature = createAsyncThunk(
         doc,
         state.main.signer_attributes.eppn,
         thunkAPI,
-        args.intl
+        args.intl,
       );
       thunkAPI.dispatch(documentsSlice.actions.addDocument(newDoc));
 

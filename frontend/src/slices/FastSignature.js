@@ -28,6 +28,7 @@ const FastSignatureSlice = createSlice({
   },
 });
 
-export const { enableFastSignature, disableFastSignature } = FastSignatureSlice.actions;
+export const { enableFastSignature, disableFastSignature } =
+  FastSignatureSlice.actions;
 
 export default FastSignatureSlice.reducer;

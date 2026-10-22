@@ -34,7 +34,7 @@ import {
   showTemplatePreview,
   hideTemplatePreview,
 } from "slices/Templates";
-import { downloadPersonalDraft, } from "slices/Main";
+import { downloadPersonalDraft } from "slices/Main";
 import { showForm } from "slices/Modals";
 import { clearDocStore } from "init-app/database";
 import { askConfirmation } from "slices/ConfirmDialog";
@@ -151,7 +151,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
       };
     },
-    handleSendToSign: function(props, doc) {
+    handleSendToSign: function (props, doc) {
       return async () => {
         await dispatch(startSigningDoc({ doc: doc, intl: props.intl }));
       };

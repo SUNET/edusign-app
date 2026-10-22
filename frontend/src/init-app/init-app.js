@@ -13,7 +13,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import { Provider, updateIntl } from "init-app/intl";
 import Cookies from "js-cookie";
 import rootReducer from "init-app/store";
-import { appLoading, fetchConfig, resizeWindow, enableContextualHelp, setVisibilityTimer, setFetchTimer } from "slices/Main";
+import {
+  appLoading,
+  fetchConfig,
+  resizeWindow,
+  enableContextualHelp,
+  setVisibilityTimer,
+  setFetchTimer,
+} from "slices/Main";
 import { enablePolling, disablePolling } from "slices/Poll";
 import { getConfigPath } from "components/utils";
 
@@ -47,10 +54,9 @@ const store = edusignStore();
  * It will trigger retrieving configuration parameters from the backend and loading documents from the IndeedBD db.
  */
 export const appIsRendered = async function () {
-
   let configPath = getConfigPath();
 
-  await store.dispatch(fetchConfig({configPath: configPath}));
+  await store.dispatch(fetchConfig({ configPath: configPath }));
 
   const now = Date.now();
   store.dispatch(setVisibilityTimer(now));
@@ -73,10 +79,10 @@ export const appIsRendered = async function () {
       const before = state.main.visibility_timer;
       if (now - before > 10 * 60 * 1000) {
         store.dispatch(appLoading());
-        if (state.main.stale_from !== 'none') {
+        if (state.main.stale_from !== "none") {
           window.location.href = state.main.stale_from;
         } else {
-          await store.dispatch(fetchConfig({configPath: configPath}));
+          await store.dispatch(fetchConfig({ configPath: configPath }));
         }
       } else {
         store.dispatch(enablePolling());

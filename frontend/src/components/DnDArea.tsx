@@ -31,8 +31,12 @@ const createDoc = createDocument as unknown as (arg: {
 function DnDArea() {
   const status = useAppSelector((state) => state.dnd.state);
   const intl = useIntl();
-  const configured = Boolean(useAppSelector((state) => state.main.environment) !== undefined);
-  const useFsAccessApi = Boolean(useAppSelector((state) => state.main.environment) !== "e2e");
+  const configured = Boolean(
+    useAppSelector((state) => state.main.environment) !== undefined,
+  );
+  const useFsAccessApi = Boolean(
+    useAppSelector((state) => state.main.environment) !== "e2e",
+  );
   const dispatch = useAppDispatch();
 
   const handleDragEnter = () => {
@@ -119,10 +123,16 @@ function DnDArea() {
       {(configured && (
         <>
           <h2 className="heading">
-            <FormattedMessage defaultMessage="Add documents to sign" key="heading-1" />
+            <FormattedMessage
+              defaultMessage="Add documents to sign"
+              key="heading-1"
+            />
           </h2>
           <p className="lead-text">
-            <FormattedMessage defaultMessage="You can upload PDF and XML documents." key="dnd-area-lead" />
+            <FormattedMessage
+              defaultMessage="You can upload PDF and XML documents."
+              key="dnd-area-lead"
+            />
           </p>
           <Dropzone
             accept={{
@@ -151,9 +161,15 @@ function DnDArea() {
                           "data-testid": "edusign-dnd-input",
                         })}
                       />
-                      <FontAwesomeIcon id="dnd-arrow-up" icon={faArrowUpFromBracket} />
+                      <FontAwesomeIcon
+                        id="dnd-arrow-up"
+                        icon={faArrowUpFromBracket}
+                      />
                       <div className="dnd-message dnd-message-pointer">
-                        <FormattedMessage defaultMessage="Choose files or drag and drop" key="dnd-area-head-1" />
+                        <FormattedMessage
+                          defaultMessage="Choose files or drag and drop"
+                          key="dnd-area-head-1"
+                        />
                         <br />
                         <Button
                           type="button"
@@ -163,11 +179,17 @@ function DnDArea() {
                             open();
                           }}
                         >
-                          <FormattedMessage defaultMessage="Browse Files" key="dnd-area-head-2" />
+                          <FormattedMessage
+                            defaultMessage="Browse Files"
+                            key="dnd-area-head-2"
+                          />
                         </Button>
                       </div>
                       <div className="dnd-message dnd-message-touch">
-                        <FormattedMessage defaultMessage="Tap to choose files" key="dnd-area-head-sm" />
+                        <FormattedMessage
+                          defaultMessage="Tap to choose files"
+                          key="dnd-area-head-sm"
+                        />
                       </div>
                     </div>
                   </section>
@@ -182,7 +204,10 @@ function DnDArea() {
                     >
                       <input {...getInputProps()} />
                       <span id="dnd-message-dropping">
-                        <FormattedMessage defaultMessage="Drop documents here" key="dnd-area-dropping" />
+                        <FormattedMessage
+                          defaultMessage="Drop documents here"
+                          key="dnd-area-dropping"
+                        />
                       </span>
                     </div>
                   </section>
@@ -210,7 +235,10 @@ function DnDArea() {
         <section id="edusign-dnd-wrapper">
           <div id="edusign-dnd-area" data-testid="edusign-dnd-area">
             <span id="dnd-message-dropping">
-              <FormattedMessage defaultMessage="Drop documents here" key="dnd-area-dropping" />
+              <FormattedMessage
+                defaultMessage="Drop documents here"
+                key="dnd-area-dropping"
+              />
             </span>
           </div>
         </section>

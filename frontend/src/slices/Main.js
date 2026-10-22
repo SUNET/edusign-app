@@ -36,7 +36,13 @@ import {
   esFetch,
 } from "slices/fetch-utils";
 import { addNotification } from "slices/Notifications";
-import { loadDocuments, addDocumentToDb, addDocument, setState, createDocument } from "slices/Documents";
+import {
+  loadDocuments,
+  addDocumentToDb,
+  addDocument,
+  setState,
+  createDocument,
+} from "slices/Documents";
 import { setInitialPolling } from "slices/Poll";
 import { setAllowBankID } from "slices/InviteForm";
 import { b64toBlob, nameForDownload } from "components/utils";
@@ -59,12 +65,17 @@ export const fetchConfig = createAsyncThunk(
     }
     let configPath;
     if (args === undefined || args.configPath === undefined) {
-      configPath = '/sign/config';
+      configPath = "/sign/config";
     } else {
       configPath = args.configPath;
     }
     try {
-      const response = await esFetch(configPath, getRequest, state, thunkAPI.dispatch);
+      const response = await esFetch(
+        configPath,
+        getRequest,
+        state,
+        thunkAPI.dispatch,
+      );
       const configData = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, configData);
       thunkAPI.dispatch(mainSlice.actions.appLoaded());
@@ -94,10 +105,7 @@ export const fetchConfig = createAsyncThunk(
           doc.show = false;
           doc.showForced = false;
           doc.pprinted = doc.pprinted;
-          const newDoc = await addDocumentToDb(
-            doc,
-            eppn
-          );
+          const newDoc = await addDocumentToDb(doc, eppn);
           thunkAPI.dispatch(addDocument(newDoc));
         }
 
@@ -156,17 +164,22 @@ export const getPartiallySignedDoc = createAsyncThunk(
     }
     const body = preparePayload(state, { key: args.key });
     try {
-      const response = await esFetch("/sign/get-partially-signed", {
-        ...postRequest,
-        body: body,
-      }, state, thunkAPI.dispatch);
+      const response = await esFetch(
+        "/sign/get-partially-signed",
+        {
+          ...postRequest,
+          body: body,
+        },
+        state,
+        thunkAPI.dispatch,
+      );
       const data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
         if (args.retried === undefined) {
           const newArgs = {
             ...args,
-            retried: true
+            retried: true,
           };
           await thunkAPI.dispatch(getPartiallySignedDoc(newArgs));
           return { key: args.key, stateKey: args.stateKey };
@@ -207,10 +220,15 @@ export const declineSigning = createAsyncThunk(
     const state = thunkAPI.getState();
     const body = preparePayload(state, { key: args.key });
     try {
-      const response = await esFetch("/sign/decline-invitation", {
-        ...postRequest,
-        body: body,
-      }, state, thunkAPI.dispatch);
+      const response = await esFetch(
+        "/sign/decline-invitation",
+        {
+          ...postRequest,
+          body: body,
+        },
+        state,
+        thunkAPI.dispatch,
+      );
       let data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
@@ -311,10 +329,13 @@ export const finishInvited = createAsyncThunk(
     if (oldDoc === undefined) {
       return;
     }
-    if (state.main.signer_attributes.using_bankid || state.main.signer_attributes.using_freja) {
+    if (
+      state.main.signer_attributes.using_bankid ||
+      state.main.signer_attributes.using_freja
+    ) {
       const newDoc = {
         ...oldDoc,
-        state: 'signed',
+        state: "signed",
       };
       thunkAPI.dispatch(setInvitedState(newDoc));
     } else {
@@ -354,19 +375,36 @@ export const finishInvited = createAsyncThunk(
 
       try {
         thunkAPI.dispatch(addDocument(newDoc));
-        await thunkAPI.dispatch(createDocument({ doc: newDoc, intl: args.intl }));
+        await thunkAPI.dispatch(
+          createDocument({ doc: newDoc, intl: args.intl }),
+        );
         state = thunkAPI.getState();
-        const preparedDoc = state.documents.documents.find(doc => doc.name === newDoc.name);
+        const preparedDoc = state.documents.documents.find(
+          (doc) => doc.name === newDoc.name,
+        );
         if (preparedDoc === undefined) {
           throw new Error(`Document ${newDoc.name} could not be prepared`);
         }
-        if (preparedDoc.state === 'unconfirmed') {
-          thunkAPI.dispatch(setState({name: newDoc.name, state: 'loaded', signed_draft: true}));
+        if (preparedDoc.state === "unconfirmed") {
+          thunkAPI.dispatch(
+            setState({
+              name: newDoc.name,
+              state: "loaded",
+              signed_draft: true,
+            }),
+          );
         }
         state = thunkAPI.getState();
-        newDoc = state.documents.documents.find(doc => doc.name === newDoc.name);
+        newDoc = state.documents.documents.find(
+          (doc) => doc.name === newDoc.name,
+        );
         await dbRemoveDocument(newDoc);
-        await addDocumentToDb(newDoc, state.main.signer_attributes.eppn, thunkAPI, args.intl);
+        await addDocumentToDb(
+          newDoc,
+          state.main.signer_attributes.eppn,
+          thunkAPI,
+          args.intl,
+        );
       } catch (err) {
         thunkAPI.dispatch(
           addNotification({
@@ -398,10 +436,15 @@ export const delegateSignature = createAsyncThunk(
       email: args.values.delegationEmail,
     });
     try {
-      const response = await esFetch("/sign/delegate-invitation", {
-        ...postRequest,
-        body: body,
-      }, state, thunkAPI.dispatch);
+      const response = await esFetch(
+        "/sign/delegate-invitation",
+        {
+          ...postRequest,
+          body: body,
+        },
+        state,
+        thunkAPI.dispatch,
+      );
       let data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
       if (data.error) {
@@ -469,8 +512,8 @@ const mainSlice = createSlice({
     environment: "production",
     visibility_timer: 0,
     fetch_timer: null,
-    user_info_detail: '',
-    stale_from: 'none',
+    user_info_detail: "",
+    stale_from: "none",
   },
   reducers: {
     /**
@@ -918,7 +961,7 @@ const mainSlice = createSlice({
       return {
         ...state,
         visibility_timer: action.payload,
-      }
+      };
     },
     /**
      * @public
@@ -931,7 +974,7 @@ const mainSlice = createSlice({
       return {
         ...state,
         fetch_timer: action.payload,
-      }
+      };
     },
   },
   extraReducers: (builder) => {

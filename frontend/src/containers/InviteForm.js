@@ -74,8 +74,7 @@ const _close = (dispatch) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     handleSubmit: async function (values, actions) {
-      if (values.allowBankIDChoice)
-        values.loa = 'none';
+      if (values.allowBankIDChoice) values.loa = "none";
       await dispatch(sendInvites({ values: values, intl: this.props.intl }));
       actions.setSubmitting(false);
       actions.resetForm();
@@ -93,8 +92,8 @@ const mapDispatchToProps = (dispatch) => {
     handleAllowBankID: function (allowbankid) {
       dispatch(setAllowBankID(allowbankid));
     },
-    handleLoaChange: function(loa) {
-      if (loa === 'high') {
+    handleLoaChange: function (loa) {
+      if (loa === "high") {
         dispatch(showAL3Warning());
       }
     },

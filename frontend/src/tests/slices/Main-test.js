@@ -171,7 +171,9 @@ describe("Main slice plain reducers", () => {
 
   it("selectOwnedDoc toggles between selected and loaded", () => {
     const store = mkStore();
-    store.dispatch(setOwnedDocs([{ name: "a.pdf", key: "k1", state: "loaded" }]));
+    store.dispatch(
+      setOwnedDocs([{ name: "a.pdf", key: "k1", state: "loaded" }]),
+    );
     store.dispatch(selectOwnedDoc("k1"));
     expect(store.getState().main.owned_multisign[0].state).toEqual("selected");
     store.dispatch(selectOwnedDoc("k1"));
@@ -244,7 +246,9 @@ describe("Main slice plain reducers", () => {
     store.dispatch(
       setInvitedDocs([{ name: "a.pdf", key: "k1", state: "loaded" }]),
     );
-    store.dispatch(setOwnedDocs([{ name: "b.pdf", key: "k2", state: "loaded" }]));
+    store.dispatch(
+      setOwnedDocs([{ name: "b.pdf", key: "k2", state: "loaded" }]),
+    );
     store.dispatch(setInvitedState({ key: "k1", state: "declined" }));
     store.dispatch(setOwnedState({ name: "b.pdf", state: "signed" }));
     expect(store.getState().main.pending_multisign[0].state).toEqual(
@@ -321,7 +325,9 @@ describe("Main slice plain reducers", () => {
 
   it("invitationsSignFailure fails all signing docs", () => {
     const store = mkStore();
-    store.dispatch(setOwnedDocs([{ name: "a.pdf", key: "o1", state: "signing" }]));
+    store.dispatch(
+      setOwnedDocs([{ name: "a.pdf", key: "o1", state: "signing" }]),
+    );
     store.dispatch(
       setInvitedDocs([{ name: "c.pdf", key: "i1", state: "signing" }]),
     );
@@ -785,9 +791,7 @@ describe("finishInvited", () => {
 
   it("does nothing when the doc is not among the pending invitations", async () => {
     const store = mkStore();
-    await store.dispatch(
-      finishInvited({ doc: { id: "missing" }, intl: intl }),
-    );
+    await store.dispatch(finishInvited({ doc: { id: "missing" }, intl: intl }));
     expect(store.getState().main.pending_multisign).toEqual([]);
   });
 
@@ -809,7 +813,12 @@ describe("finishInvited", () => {
     await flush();
     store.dispatch(
       setInvitedDocs([
-        { name: "inv.pdf", key: "k1", type: "application/pdf", state: "signing" },
+        {
+          name: "inv.pdf",
+          key: "k1",
+          type: "application/pdf",
+          state: "signing",
+        },
       ]),
     );
     await store.dispatch(

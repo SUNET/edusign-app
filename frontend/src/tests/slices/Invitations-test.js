@@ -114,7 +114,9 @@ describe("sendInvites thunk", () => {
   it("sends the form data and moves the document to owned_multisign", async () => {
     const store = await sendInvitesSuccess(inviteValues());
 
-    const body = JSON.parse(fetchMock.callHistory.lastCall("/sign/create-multi-sign").options.body);
+    const body = JSON.parse(
+      fetchMock.callHistory.lastCall("/sign/create-multi-sign").options.body,
+    );
     expect(body.payload.owner).toEqual("tester@example.org");
     expect(body.payload.invites).toEqual([
       {
@@ -157,14 +159,18 @@ describe("sendInvites thunk", () => {
 
   it("labels the invitation with the low loa", async () => {
     const store = await sendInvitesSuccess(inviteValues({ loa: "low" }));
-    const body = JSON.parse(fetchMock.callHistory.lastCall("/sign/create-multi-sign").options.body);
+    const body = JSON.parse(
+      fetchMock.callHistory.lastCall("/sign/create-multi-sign").options.body,
+    );
     expect(body.payload.loa).toEqual("low");
     expect(store.getState().main.owned_multisign[0].loa).toEqual("low,Low");
   });
 
   it("labels the invitation with the medium loa", async () => {
     const store = await sendInvitesSuccess(inviteValues({ loa: "medium" }));
-    expect(store.getState().main.owned_multisign[0].loa).toEqual("medium,Medium");
+    expect(store.getState().main.owned_multisign[0].loa).toEqual(
+      "medium,Medium",
+    );
   });
 
   it("labels the invitation with the high loa", async () => {
@@ -204,8 +210,12 @@ describe("sendInvites thunk", () => {
     await store.dispatch(sendInvites({ values: inviteValues(), intl: intl }));
     await flush();
 
-    expect(fetchMock.callHistory.called("/sign/remove-multi-sign")).toEqual(true);
-    const body = JSON.parse(fetchMock.callHistory.lastCall("/sign/remove-multi-sign").options.body);
+    expect(fetchMock.callHistory.called("/sign/remove-multi-sign")).toEqual(
+      true,
+    );
+    const body = JSON.parse(
+      fetchMock.callHistory.lastCall("/sign/remove-multi-sign").options.body,
+    );
     expect(body.payload).toEqual({ key: localDoc.key });
     const state = store.getState();
     expect(state.notifications.message).toEqual({
@@ -246,9 +256,7 @@ describe("editInvites thunk", () => {
     invitationText: "changed text",
     sendsignedChoice: true,
     skipfinalChoice: true,
-    invitees: [
-      { name: "New Invitee", email: "new@example.org", lang: "sv" },
-    ],
+    invitees: [{ name: "New Invitee", email: "new@example.org", lang: "sv" }],
     ...overrides,
   });
 
@@ -259,7 +267,9 @@ describe("editInvites thunk", () => {
     await store.dispatch(editInvites({ values: editValues(), intl: intl }));
     await flush();
 
-    const body = JSON.parse(fetchMock.callHistory.lastCall("/sign/edit-multi-sign").options.body);
+    const body = JSON.parse(
+      fetchMock.callHistory.lastCall("/sign/edit-multi-sign").options.body,
+    );
     expect(body.payload).toEqual({
       key: ownedKey,
       text: "changed text",
@@ -288,7 +298,9 @@ describe("editInvites thunk", () => {
     );
     await flush();
 
-    const body = JSON.parse(fetchMock.callHistory.lastCall("/sign/edit-multi-sign").options.body);
+    const body = JSON.parse(
+      fetchMock.callHistory.lastCall("/sign/edit-multi-sign").options.body,
+    );
     expect(body.payload.invites).toEqual([]);
     const owned = store.getState().main.owned_multisign[0];
     expect(owned.pending).toEqual([]);
@@ -340,8 +352,12 @@ describe("editInvites thunk", () => {
     );
     await flush();
 
-    expect(fetchMock.callHistory.called("/sign/get-partially-signed")).toEqual(true);
-    expect(fetchMock.callHistory.called("/sign/remove-multi-sign")).toEqual(true);
+    expect(fetchMock.callHistory.called("/sign/get-partially-signed")).toEqual(
+      true,
+    );
+    expect(fetchMock.callHistory.called("/sign/remove-multi-sign")).toEqual(
+      true,
+    );
     const state = store.getState();
     expect(state.notifications.message).toEqual(null);
     expect(state.main.owned_multisign.length).toEqual(0);
@@ -371,7 +387,9 @@ describe("removeInvites thunk", () => {
     );
     await flush();
 
-    const body = JSON.parse(fetchMock.callHistory.lastCall("/sign/remove-multi-sign").options.body);
+    const body = JSON.parse(
+      fetchMock.callHistory.lastCall("/sign/remove-multi-sign").options.body,
+    );
     expect(body.payload).toEqual({ key: ownedKey });
     expect(result.payload).toEqual(ownedKey);
     const state = store.getState();
@@ -402,9 +420,7 @@ describe("removeInvites thunk", () => {
       error: true,
     });
 
-    await store.dispatch(
-      removeInvites({ doc: { key: ownedKey }, intl: intl }),
-    );
+    await store.dispatch(removeInvites({ doc: { key: ownedKey }, intl: intl }));
     await flush();
 
     const state = store.getState();
@@ -425,7 +441,9 @@ describe("removeInvites thunk", () => {
     await flush();
 
     expect(result.payload).toEqual(undefined);
-    expect(fetchMock.callHistory.called("/sign/remove-multi-sign")).toEqual(false);
+    expect(fetchMock.callHistory.called("/sign/remove-multi-sign")).toEqual(
+      false,
+    );
     expect(store.getState().main.owned_multisign.length).toEqual(1);
   });
 });
@@ -455,7 +473,8 @@ describe("resendInvitations thunk", () => {
     await flush();
 
     const body = JSON.parse(
-      fetchMock.callHistory.lastCall("/sign/send-multisign-reminder").options.body,
+      fetchMock.callHistory.lastCall("/sign/send-multisign-reminder").options
+        .body,
     );
     expect(body.payload).toEqual({ key: ownedKey, text: "reminder text" });
     expect(result.payload).toEqual(ownedKey);
@@ -498,6 +517,8 @@ describe("resendInvitations thunk", () => {
     await flush();
 
     expect(result.payload).toEqual(undefined);
-    expect(fetchMock.callHistory.called("/sign/send-multisign-reminder")).toEqual(false);
+    expect(
+      fetchMock.callHistory.called("/sign/send-multisign-reminder"),
+    ).toEqual(false);
   });
 });

@@ -24,7 +24,11 @@ function Notifications() {
 
   if (message !== null) {
     alertMessage = (
-      <div className={`notification notification-${message.level}`} role="status" aria-live="polite">
+      <div
+        className={`notification notification-${message.level}`}
+        role="status"
+        aria-live="polite"
+      >
         <div className="notification-content">{message.message}</div>
         <button
           type="button"
@@ -41,7 +45,10 @@ function Notifications() {
     );
   }
   return (
-    <div className="notifications-area" data-testid="edusign-notifications-area">
+    <div
+      className="notifications-area"
+      data-testid="edusign-notifications-area"
+    >
       {alertMessage}
     </div>
   );

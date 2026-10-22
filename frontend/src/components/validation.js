@@ -89,15 +89,12 @@ export const validateLang = (value) => {
 
 export function validateSSN(value) {
   const error = (
-    <FormattedMessage
-      defaultMessage="Invalid SSN"
-      key="invalid-pin"
-    />
+    <FormattedMessage defaultMessage="Invalid SSN" key="invalid-pin" />
   );
 
   if (!value) return;
 
-  const cleaned = value.replace(/\s/g, '');
+  const cleaned = value.replace(/\s/g, "");
 
   // Match 12-digit or 10-digit formats, with optional -/+ separator
   const match = cleaned.match(/^(\d{2})?(\d{2})(\d{2})(\d{2})([-+]?)(\d{4})$/);
@@ -127,7 +124,11 @@ export function validateSSN(value) {
     }
   }
   // Luhn algorithm always on the 10-digit form: YYMMDDXXXX
-  const digits = year + String(month).padStart(2, '0') + String(parseInt(match[4])).toString().padStart(2, '0') + last4;
+  const digits =
+    year +
+    String(month).padStart(2, "0") +
+    String(parseInt(match[4])).toString().padStart(2, "0") +
+    last4;
 
   let sum = 0;
   for (let i = 0; i < 10; i++) {

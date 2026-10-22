@@ -117,7 +117,11 @@ export const hashCode = function (s) {
  *
  */
 export const preparePrevSigs = (doc, size) => {
-  if (doc.prev_signatures === undefined || doc.prev_signatures === null || doc.prev_signatures === "pdf read error")
+  if (
+    doc.prev_signatures === undefined ||
+    doc.prev_signatures === null ||
+    doc.prev_signatures === "pdf read error"
+  )
     return "";
   try {
     const sigStrs = doc.prev_signatures
@@ -388,9 +392,8 @@ export const getOrdinal = (lang, num) => {
   return formatOrdinals(num, suffixes);
 };
 
-
 export const getInviteKey = () => {
-  let invite_key = '';
+  let invite_key = "";
 
   const path = window.location.pathname;
   const bankid_regex = /\/bankid\/([^/]*)/;
@@ -413,12 +416,11 @@ export const getInviteKey = () => {
   return invite_key;
 };
 
-
 export const getConfigPath = () => {
-  let configPath = '/sign/config';
+  let configPath = "/sign/config";
   const invite_key = getInviteKey();
   if (invite_key) {
     configPath = `/sign/config-eid/${invite_key}`;
   }
-  return configPath
+  return configPath;
 };

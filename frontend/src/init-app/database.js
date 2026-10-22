@@ -50,8 +50,7 @@ async function getOldDb() {
  *
  */
 export async function getDb(name) {
-  if (!name)
-    return null;
+  if (!name) return null;
   if (db === null) {
     const newdb = await getNewDb(name);
     if (newdb === null) {

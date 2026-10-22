@@ -126,7 +126,9 @@ describe("widgets", function () {
     const doc = {
       info_message: ["flattened-acroform", "removed-encryption-dictionary"],
     };
-    const { unmount } = renderWidget(infoLine2(doc, { intl: intl, size: "lg" }));
+    const { unmount } = renderWidget(
+      infoLine2(doc, { intl: intl, size: "lg" }),
+    );
     try {
       expect(screen.getAllByText("Info:").length).toEqual(1);
       expect(
@@ -144,9 +146,7 @@ describe("widgets", function () {
   });
 
   it("infoLine2 shows nothing without an info message", function () {
-    const { unmount } = renderWidget(
-      infoLine2({}, { intl: intl, size: "lg" }),
-    );
+    const { unmount } = renderWidget(infoLine2({}, { intl: intl, size: "lg" }));
     try {
       expect(screen.queryByText("Info:")).toEqual(null);
     } catch (err) {

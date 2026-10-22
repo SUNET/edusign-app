@@ -8,10 +8,7 @@ import { ESTooltip } from "containers/Overlay";
 
 import "styles/UserInfo.scss";
 
-
-
 class UserInfo extends React.Component {
-
   render() {
     return (
       <>
@@ -34,11 +31,11 @@ class UserInfo extends React.Component {
           <Modal.Body>
             <>
               <div className="user-info-holder">
-                {this.props.details.includes('display_name') && (
+                {this.props.details.includes("display_name") && (
                   <div className="user-attr-holder">
                     <div className="user-attr-name-holder">
                       <FormattedMessage
-                        defaultMessage={'Display name'}
+                        defaultMessage={"Display name"}
                         key="user-info-display-name"
                       />
                     </div>
@@ -47,11 +44,11 @@ class UserInfo extends React.Component {
                     </div>
                   </div>
                 )}
-                {this.props.details.includes('mail') && (
+                {this.props.details.includes("mail") && (
                   <div className="user-attr-holder">
                     <div className="user-attr-name-holder">
                       <FormattedMessage
-                        defaultMessage={'Mail'}
+                        defaultMessage={"Mail"}
                         key="user-info-mail"
                       />
                     </div>
@@ -60,28 +57,30 @@ class UserInfo extends React.Component {
                     </div>
                   </div>
                 )}
-                {this.props.details.includes('mail_aliases') && (
+                {this.props.details.includes("mail_aliases") && (
                   <div className="user-attr-holder">
                     <div className="user-attr-name-holder">
                       <FormattedMessage
-                        defaultMessage={'Mail aliases'}
+                        defaultMessage={"Mail aliases"}
                         key="user-info-mail-aliases"
                       />
                     </div>
                     <div className="user-attr-value-holder">
                       <div className="user-attr-value-list-holder">
                         {this.props.mail_aliases.map((alias, i) => (
-                          <div className="user-attr-value-list-item" key={i}>{alias}</div>
+                          <div className="user-attr-value-list-item" key={i}>
+                            {alias}
+                          </div>
                         ))}
                       </div>
                     </div>
                   </div>
                 )}
-                {this.props.details.includes('idp') && (
+                {this.props.details.includes("idp") && (
                   <div className="user-attr-holder">
                     <div className="user-attr-name-holder">
                       <FormattedMessage
-                        defaultMessage={'Identity Provider'}
+                        defaultMessage={"Identity Provider"}
                         key="user-info-identity-provider"
                       />
                     </div>
@@ -90,11 +89,11 @@ class UserInfo extends React.Component {
                     </div>
                   </div>
                 )}
-                {this.props.details.includes('eppn') && (
+                {this.props.details.includes("eppn") && (
                   <div className="user-attr-holder">
                     <div className="user-attr-name-holder">
                       <FormattedMessage
-                        defaultMessage={'User identity'}
+                        defaultMessage={"User identity"}
                         key="user-info-user-identity"
                       />
                     </div>
@@ -103,28 +102,30 @@ class UserInfo extends React.Component {
                     </div>
                   </div>
                 )}
-                {this.props.details.includes('loa') && (
+                {this.props.details.includes("loa") && (
                   <div className="user-attr-holder">
                     <div className="user-attr-name-holder">
                       <FormattedMessage
-                        defaultMessage={'Assurance levels'}
+                        defaultMessage={"Assurance levels"}
                         key="user-info-assurance-levels"
                       />
                     </div>
                     <div className="user-attr-value-holder">
                       <div className="user-attr-value-list-holder">
                         {this.props.assurance_levels.map((level, i) => (
-                          <div className="user-attr-value-list-item" key={i}>{level}</div>
+                          <div className="user-attr-value-list-item" key={i}>
+                            {level}
+                          </div>
                         ))}
                       </div>
                     </div>
                   </div>
                 )}
-                {this.props.details.includes('authn_context') && (
+                {this.props.details.includes("authn_context") && (
                   <div className="user-attr-holder">
                     <div className="user-attr-name-holder">
                       <FormattedMessage
-                        defaultMessage={'Authn Context'}
+                        defaultMessage={"Authn Context"}
                         key="user-info-authn-context"
                       />
                     </div>
@@ -169,4 +170,3 @@ UserInfo.propTypes = {
 };
 
 export default injectIntl(UserInfo);
-

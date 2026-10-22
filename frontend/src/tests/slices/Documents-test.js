@@ -398,7 +398,11 @@ describe("Documents slice", () => {
     it("loads documents and templates from the db", async () => {
       await dbSaveDocument({ name: "a.pdf", state: "loaded" });
       await dbSaveDocument({ name: "b.pdf", state: "loading" });
-      await dbSaveDocument({ name: "t.pdf", state: "loaded", isTemplate: true });
+      await dbSaveDocument({
+        name: "t.pdf",
+        state: "loaded",
+        isTemplate: true,
+      });
       await store.dispatch(loadDocuments({ eppn: eppn, intl: intl }));
       expect(docs().length).toEqual(2);
       const byName = Object.fromEntries(docs().map((d) => [d.name, d]));
@@ -530,7 +534,12 @@ describe("Documents slice", () => {
         storageName,
         JSON.stringify({
           owned: [
-            { name: "o.pdf", key: "O1", state: "failed-signing", message: "m1" },
+            {
+              name: "o.pdf",
+              key: "O1",
+              state: "failed-signing",
+              message: "m1",
+            },
           ],
           invited: [{ key: "I1", state: "failed-signing", message: "m2" }],
         }),
@@ -592,7 +601,9 @@ describe("Documents slice", () => {
       expect(result.payload).toEqual(
         "Document test.pdf missing sign requirement",
       );
-      expect(fetchMock.callHistory.called("/sign/recreate-sign-request")).toEqual(true);
+      expect(
+        fetchMock.callHistory.called("/sign/recreate-sign-request"),
+      ).toEqual(true);
     });
 
     it("restarts signing when the preparation has expired", async () => {
@@ -839,7 +850,9 @@ describe("Documents slice", () => {
 
   describe("downloads", () => {
     it("downloadSigned hands the document to the user", async () => {
-      const saveAs = jest.spyOn(FileSaver, "saveAs").mockImplementation(() => {});
+      const saveAs = jest
+        .spyOn(FileSaver, "saveAs")
+        .mockImplementation(() => {});
       store.dispatch(
         addDocument(
           sampleDoc({ state: "signed", signedContent: samplePDFBlob }),
@@ -851,7 +864,9 @@ describe("Documents slice", () => {
     });
 
     it("downloadAllSigned hands a zip with all signed documents", async () => {
-      const saveAs = jest.spyOn(FileSaver, "saveAs").mockImplementation(() => {});
+      const saveAs = jest
+        .spyOn(FileSaver, "saveAs")
+        .mockImplementation(() => {});
       // the downloadAllSigned.fulfilled reducer logs to the console
       jest.spyOn(console, "log").mockImplementation(() => {});
       store.dispatch(
@@ -896,7 +911,9 @@ describe("Documents slice", () => {
           ],
         },
       });
-      await store.dispatch(skipOwnedSignature({ doc: { key: "O1" }, intl: intl }));
+      await store.dispatch(
+        skipOwnedSignature({ doc: { key: "O1" }, intl: intl }),
+      );
       expect(store.getState().main.owned_multisign).toEqual([]);
       expect(docs()[0].state).toEqual("signed");
       expect(docs()[0].signedContent).toEqual(
@@ -907,14 +924,21 @@ describe("Documents slice", () => {
     it("notifies the user on failure", async () => {
       seedMain(store, {
         owned_multisign: [
-          { name: "o.pdf", key: "O1", type: "application/pdf", state: "loaded" },
+          {
+            name: "o.pdf",
+            key: "O1",
+            type: "application/pdf",
+            state: "loaded",
+          },
         ],
       });
       fetchMock.post("/sign/skip-final-signature", {
         message: "cannot skip",
         error: true,
       });
-      await store.dispatch(skipOwnedSignature({ doc: { key: "O1" }, intl: intl }));
+      await store.dispatch(
+        skipOwnedSignature({ doc: { key: "O1" }, intl: intl }),
+      );
       expect(store.getState().main.owned_multisign.length).toEqual(1);
       expect(store.getState().notifications.message.message).toEqual(
         "Problem skipping final signature, please try again",

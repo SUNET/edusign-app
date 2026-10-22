@@ -46,10 +46,15 @@ export const sendPDFForm = createAsyncThunk(
     const body = preparePayload(state, dataToSend);
     let data = null;
     try {
-      const response = await esFetch("/sign/update-form", {
-        ...postRequest,
-        body: body,
-      }, state, thunkAPI.dispatch);
+      const response = await esFetch(
+        "/sign/update-form",
+        {
+          ...postRequest,
+          body: body,
+        },
+        state,
+        thunkAPI.dispatch,
+      );
       data = await checkStatus(response);
       extractCsrfToken(thunkAPI.dispatch, data);
     } catch (err) {

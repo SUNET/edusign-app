@@ -98,14 +98,17 @@ export const esFetch = async (resource, options, state, dispatch) => {
   if (window.document.location.pathname.includes("/sign2/")) {
     resource = resource.replace("/sign/", "/sign2/");
   }
-  const timerID = setTimeout(async () => {
-    if (state.main.stale_from !== 'none') {
-      window.location.href = state.main.stale_from;
-    } else {
-      const configPath = getConfigPath();
-      await dispatch(fetchConfig({configPath: configPath}));
-    }
-  }, 10 * 60 * 1000);
+  const timerID = setTimeout(
+    async () => {
+      if (state.main.stale_from !== "none") {
+        window.location.href = state.main.stale_from;
+      } else {
+        const configPath = getConfigPath();
+        await dispatch(fetchConfig({ configPath: configPath }));
+      }
+    },
+    10 * 60 * 1000,
+  );
 
   dispatch(setFetchTimer(timerID));
 

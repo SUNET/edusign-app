@@ -46,22 +46,23 @@ class Invited extends Component {
                   doc={doc}
                   index={Number(index)}
                   handleClose={this.props.handleCloseForcedPreview}
-                  handleConfirm={this.props.handleConfirmForcedPreview(this.props)}
+                  handleConfirm={this.props.handleConfirmForcedPreview(
+                    this.props,
+                  )}
                   handleUnConfirm={this.props.handleUnConfirmForcedPreview}
                 />
               )}
               {["loaded", "selected"].includes(doc.state) && (
-                <FastSignatureContainer
-                  doc={doc}
-                  intl={this.props.intl}
-                />
+                <FastSignatureContainer doc={doc} intl={this.props.intl} />
               )}
               {doc.state === "unconfirmed" && doc.type.endsWith("/xml") && (
                 <ForcedXMLPreviewContainer
                   doc={doc}
                   index={Number(index)}
                   handleClose={this.props.handleCloseForcedPreview}
-                  handleConfirm={this.props.handleConfirmForcedPreview(this.props)}
+                  handleConfirm={this.props.handleConfirmForcedPreview(
+                    this.props,
+                  )}
                   handleUnConfirm={this.props.handleUnConfirmForcedPreview}
                 />
               )}

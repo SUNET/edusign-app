@@ -37,11 +37,9 @@ describe("validateEmail", () => {
 
   it("rejects malformed addresses", () => {
     const validate = validateEmail(props, [], 0);
-    ["not-an-email", "a@b", "a@b.c", "a b@example.org"].forEach(
-      (value) => {
-        expect(msg(validate(value))).toEqual("Invalid email");
-      },
-    );
+    ["not-an-email", "a@b", "a@b.c", "a b@example.org"].forEach((value) => {
+      expect(msg(validate(value))).toEqual("Invalid email");
+    });
   });
 
   it("rejects the inviter's own address", () => {

@@ -33,7 +33,7 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(selectOwnedDoc(docKey));
       };
     },
-    handleSendToSign: function(props, doc) {
+    handleSendToSign: function (props, doc) {
       return async () => {
         await dispatch(startSigningDoc({ doc: doc, intl: props.intl }));
       };

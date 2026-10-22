@@ -134,10 +134,7 @@ describe("preparePrevSigs", () => {
   it("returns an empty string without previous signatures", () => {
     expect(preparePrevSigs({ type: "application/pdf" }, "lg")).toEqual("");
     expect(
-      preparePrevSigs(
-        { type: "application/pdf", prev_signatures: null },
-        "lg",
-      ),
+      preparePrevSigs({ type: "application/pdf", prev_signatures: null }, "lg"),
     ).toEqual("");
     expect(
       preparePrevSigs(

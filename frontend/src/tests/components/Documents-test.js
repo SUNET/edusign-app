@@ -1652,7 +1652,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     await store.dispatch(
       loadDocuments({
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-        eppn: 'tester@example.org',
+        eppn: "tester@example.org",
       }),
     );
 
@@ -1742,7 +1742,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     await store.dispatch(
       loadDocuments({
         intl: { formatMessage: ({ defaultMessage, id }) => defaultMessage },
-        eppn: 'tester@example.org',
+        eppn: "tester@example.org",
       }),
     );
 

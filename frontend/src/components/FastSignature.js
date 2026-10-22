@@ -8,10 +8,7 @@ import { ESTooltip } from "containers/Overlay";
 
 import "styles/FastSignature.scss";
 
-
-
 class FastSignature extends React.Component {
-
   render() {
     return (
       <>
@@ -35,14 +32,18 @@ class FastSignature extends React.Component {
             <div className="user-info-holder">
               <div className="user-info-holder-1">
                 <FormattedMessage
-                  defaultMessage={"You have approved the preview of \"{docName}\". Do you want to sign it?"}
+                  defaultMessage={
+                    'You have approved the preview of "{docName}". Do you want to sign it?'
+                  }
                   key="fast-signature-desc"
                   values={{ docName: this.props.doc.name }}
                 />
               </div>
               <div className="user-info-holder-2">
                 <FormattedMessage
-                  defaultMessage={"If you press \"Sign\" you will be redirected to your identity provider to authenticate and sign."}
+                  defaultMessage={
+                    'If you press "Sign" you will be redirected to your identity provider to authenticate and sign.'
+                  }
                   key="fast-signature-desc-2"
                 />
               </div>
@@ -79,10 +80,7 @@ class FastSignature extends React.Component {
                 />
               }
             >
-              <Button
-                variant="outline-success"
-                onClick={this.props.handleSign}
-              >
+              <Button variant="outline-success" onClick={this.props.handleSign}>
                 <FormattedMessage
                   defaultMessage="Sign"
                   key="accept-fast-signature-label"

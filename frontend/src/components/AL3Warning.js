@@ -8,10 +8,7 @@ import { ESTooltip } from "containers/Overlay";
 
 import "styles/AL3Warning.scss";
 
-
-
 class AL3Warning extends React.Component {
-
   render() {
     return (
       <>
@@ -36,7 +33,9 @@ class AL3Warning extends React.Component {
               <div className="al3-warning-holder">
                 <div className="al3-warning-text">
                   <FormattedMessage
-                    defaultMessage={"You are choosing to send an invitation requiring high assurance. Please keep in mind that many IdP will crash when requested for high assurance, so make sure that all your invitees will be able to fulfil the requirement."}
+                    defaultMessage={
+                      "You are choosing to send an invitation requiring high assurance. Please keep in mind that many IdP will crash when requested for high assurance, so make sure that all your invitees will be able to fulfil the requirement."
+                    }
                     key="al3-warning-text"
                   />
                 </div>

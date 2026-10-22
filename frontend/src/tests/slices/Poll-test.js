@@ -104,7 +104,10 @@ describe("Poll slice reducers", () => {
     const timer2 = setTimeout(() => {}, 10000);
     expect(jest.getTimerCount()).toEqual(2);
 
-    const state = reducer({ ...initialState, timerId: timer1 }, setTimerId(timer2));
+    const state = reducer(
+      { ...initialState, timerId: timer1 },
+      setTimerId(timer2),
+    );
     expect(state.timerId).toBe(timer2);
     expect(jest.getTimerCount()).toEqual(1);
   });
