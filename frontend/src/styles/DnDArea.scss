@@ -1,49 +1,76 @@
 @use "./variables" as *;
 
+h2.heading {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: $black;
+}
+
+.lead-text {
+  font-size: 1rem;
+  font-weight: 300;
+  margin-bottom: 2rem;
+  color: $black;
+  line-height: 1.4;
+}
+
 #dnd-arrow-up {
-  width: 35px;
-  height: 35px;
-  background-image: url(../../images/dragndrop.png);
-  background-size: contain;
-  background-repeat: no-repeat;
-  margin: 0;
-  display: inline-block;
+  box-sizing: content-box;
+  width: 2rem;
+  height: 2rem;
+  color: $darker-grey;
+  font-size: 1.8rem;
+  margin-bottom: 0.8rem;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
-#dnd-area-head-1 {
-  margin-top: 1rem;
-  font-weight: 400;
+#edusign-dnd-area:hover #dnd-arrow-up,
+#edusign-dnd-area-receiving #dnd-arrow-up {
+  color: $orange-highlight;
 }
 
-#dnd-area-head-2 {
-  margin-top: 1rem;
+// Only one set of instructions is shown; which one depends on the viewport
+// rather than on a size prop, so the markup stays the same everywhere.
+
+.dnd-message {
+  line-height: 2.5;
+  color: $black;
 }
 
-#dnd-area-head-3 {
-  margin-top: 1rem;
-  font-weight: 400;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+.dnd-message-touch {
+  display: none;
 }
 
-#edusign-dnd-wrapper-lg {
+@media (max-width: $breakpoint-md) {
+  .dnd-message-pointer {
+    display: none;
+  }
+
+  .dnd-message-touch {
+    display: block;
+  }
+}
+
+#edusign-dnd-wrapper {
   flex: none;
   display: flex;
   align-items: top;
   justify-content: center;
-  min-width: 80%;
+  width: 100%;
   text-align: center;
   margin-bottom: 1rem;
-}
 
-#edusign-dnd-wrapper-sm {
-  flex: none;
-  display: flex;
-  align-items: top;
-  justify-content: center;
-  min-width: 100%;
-  text-align: center;
-  margin-bottom: 1rem;
+  @media (max-width: $breakpoint-md) {
+    flex: none;
+    display: flex;
+    align-items: top;
+    justify-content: center;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 1rem;
+  }
 }
 
 #edusign-dnd-area {
@@ -54,10 +81,17 @@
   flex-direction: column;
   height: 12rem;
   width: 100%;
-  border: solid $darker-grey;
+  border: 3px dotted $darker-grey;
   border-radius: 5px;
-  border-width: 1px;
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+
+  &:hover {
+    background-color: $orange-opaque;
+    border-color: $orange-highlight;
+  }
 }
 
 #edusign-dnd-area-receiving {
@@ -67,16 +101,27 @@
   justify-content: center;
   height: 12rem;
   width: 100%;
-  border: dashed $dark-green;
+  background-color: $orange-opaque;
+  border: 2px dashed $orange-highlight;
   border-radius: 5px;
 }
 
 #dnd-message-foot,
 #dnd-message-dropping {
   flex: none;
+  color: $black;
 }
 
 #dnd-message-head {
   flex: none;
   margin-top: 2rem;
+}
+
+@media (max-width: $breakpoint-md) {
+  .dnd-message-pointer {
+    display: none;
+  }
+  .dnd-message-touch {
+    display: block;
+  }
 }

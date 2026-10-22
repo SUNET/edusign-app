@@ -17,23 +17,20 @@ div#panel-sm {
 
 div#panel-lg {
   main#main-content {
-    margin-left: 9rem;
-    margin-right: 9rem;
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
 div#panel-sm {
   main#main-content {
-    margin-left: 5%;
-    margin-right: 5%;
+    margin: 0 1rem;
   }
 }
 
 main#main-content {
   flex: 1 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
 .popover,
@@ -46,9 +43,11 @@ main#main-content {
   z-index: 99999 !important;
 }
 
-#contact-local-it-msg {
-  margin-bottom: 1rem;
-  font-weight: 400;
+p.help-text {
+  margin-bottom: 4rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 100;
 }
 
 .form-group {
