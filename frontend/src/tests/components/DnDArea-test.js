@@ -18,6 +18,22 @@ import * as edusignLogo from "../../../images/eduSign_logo.svg";
 import { resetDb } from "init-app/database";
 import { fetchConfig } from "slices/Main";
 
+const expectWaitingForDocuments = () => {
+  expect(screen.getAllByText("Choose files or drag and drop").length).toEqual(
+    1,
+  );
+  expect(screen.getAllByText("Browse Files").length).toEqual(1);
+  expect(screen.getAllByText("Tap to choose files").length).toEqual(1);
+  expect(screen.queryByText("Drop documents here")).toEqual(null);
+};
+
+const expectReadyToReceiveDocuments = () => {
+  expect(screen.getAllByText("Drop documents here").length).toEqual(1);
+  expect(screen.queryByText("Choose files or drag and drop")).toEqual(null);
+  expect(screen.queryByText("Browse Files")).toEqual(null);
+  expect(screen.queryByText("Tap to choose files")).toEqual(null);
+};
+
 describe("DnDArea Component", function () {
   beforeEach(async () => {
     await resetDb();
@@ -34,17 +50,7 @@ describe("DnDArea Component", function () {
     });
 
     try {
-      const dndArea1 = screen.getAllByText("Choose files or drag and drop");
-      expect(dndArea1.length).toEqual(1);
-
-      const dndArea2 = screen.getAllByText("Browse Files");
-      expect(dndArea2.length).toEqual(1);
-
-      const dndArea3 = screen.getAllByText("Tap to choose files");
-      expect(dndArea3.length).toEqual(1);
-
-      const dndAreaDropping = screen.queryByText("Drop documents here");
-      expect(dndAreaDropping).toEqual(null);
+      expectWaitingForDocuments();
     } catch (err) {
       unmount();
       throw err;
@@ -59,15 +65,7 @@ describe("DnDArea Component", function () {
     });
 
     try {
-      const dndAreaDropping = screen.getAllByText("Drop documents here");
-      expect(dndAreaDropping.length).toEqual(1);
-
-      const dndArea1 = screen.queryByText("Choose files or drag and drop");
-      expect(dndArea1).toEqual(null);
-      const dndArea2 = screen.queryByText("Browse Files");
-      expect(dndArea2).toEqual(null);
-      const dndArea3 = screen.queryByText("Tap to choose files");
-      expect(dndArea3).toEqual(null);
+      expectReadyToReceiveDocuments();
     } catch (err) {
       unmount();
       throw err;
@@ -80,15 +78,7 @@ describe("DnDArea Component", function () {
     const { wrapped, rerender, unmount } = setupReduxComponent(<DnDArea />);
 
     try {
-      let dndArea1 = screen.getAllByText("Choose files or drag and drop");
-      expect(dndArea1.length).toEqual(1);
-      let dndArea2 = screen.getAllByText("Browse Files");
-      expect(dndArea2.length).toEqual(1);
-      let dndArea3 = screen.getAllByText("Tap to choose files");
-      expect(dndArea3.length).toEqual(1);
-
-      let dndAreaDropping = screen.queryByText("Drop documents here");
-      expect(dndAreaDropping).toEqual(null);
+      expectWaitingForDocuments();
 
       const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
 
@@ -100,17 +90,7 @@ describe("DnDArea Component", function () {
       dispatchEvtWithData(dnd, "dragenter", data);
       await flushPromises(rerender, wrapped);
 
-      dndAreaDropping = await waitFor(() => screen.getAllByText("Drop documents here"));
-      expect(dndAreaDropping.length).toEqual(1);
-
-      dndArea1 = await waitFor(() => screen.queryByText("Choose files or drag and drop"));
-      expect(dndArea1).toEqual(null);
-
-      dndArea2 = await waitFor(() => screen.queryByText("Browse Files"));
-      expect(dndArea2).toEqual(null);
-
-      dndArea3 = await waitFor(() => screen.queryByText("Tap to choose files"));
-      expect(dndArea3).toEqual(null);
+      await waitFor(() => expectReadyToReceiveDocuments());
     } catch (err) {
       unmount();
       throw err;
@@ -123,15 +103,7 @@ describe("DnDArea Component", function () {
     const { wrapped, rerender, unmount } = setupReduxComponent(<DnDArea />);
 
     try {
-      let dndArea1 = screen.getAllByText("Choose files or drag and drop");
-      expect(dndArea1.length).toEqual(1);
-      let dndArea2 = screen.getAllByText("Browse Files");
-      expect(dndArea2.length).toEqual(1);
-      let dndArea3 = screen.getAllByText("Tap to choose files");
-      expect(dndArea3.length).toEqual(1);
-
-      let dndAreaDropping = screen.queryByText("Drop documents here");
-      expect(dndAreaDropping).toEqual(null);
+      expectWaitingForDocuments();
 
       const dnd = screen.getAllByTestId("edusign-dnd-area")[0];
 
@@ -147,30 +119,12 @@ describe("DnDArea Component", function () {
       dispatchEvtWithData(dnd, "dragenter", data);
       await flushPromises(rerender, wrapped);
 
-      dndAreaDropping = await waitFor(() => screen.getAllByText("Drop documents here"));
-      expect(dndAreaDropping.length).toEqual(1);
-
-      dndArea1 = await waitFor(() => screen.queryByText("Choose files or drag and drop"));
-      expect(dndArea1).toEqual(null);
-
-      dndArea2 = await waitFor(() => screen.queryByText("Browse Files"));
-      expect(dndArea2).toEqual(null);
-
-      dndArea3 = await waitFor(() => screen.queryByText("Tap to choose files"));
-      expect(dndArea3).toEqual(null);
+      await waitFor(() => expectReadyToReceiveDocuments());
 
       dispatchEvtWithData(dnd, "dragleave", data);
       await flushPromises(rerender, wrapped);
 
-      dndArea1 = screen.getAllByText("Choose files or drag and drop");
-      expect(dndArea1.length).toEqual(1);
-      dndArea2 = screen.getAllByText("Browse Files");
-      expect(dndArea2.length).toEqual(1);
-      dndArea3 = screen.getAllByText("Tap to choose files");
-      expect(dndArea3.length).toEqual(1);
-
-      dndAreaDropping = screen.queryByText("Drop documents here");
-      expect(dndAreaDropping).toEqual(null);
+      expectWaitingForDocuments();
     } catch (err) {
       unmount();
       throw err;
@@ -242,7 +196,10 @@ describe("DnDArea Component", function () {
 
       // the drop handler is not awaited by the test, and the first PDF parse
       // in the process can take pdfjs longer than the default 1s
-      previewButton = await waitFor(() => screen.getAllByText("Preview and approve"), { timeout: 5000 });
+      previewButton = await waitFor(
+        () => screen.getAllByText("Preview and approve"),
+        { timeout: 5000 },
+      );
       expect(previewButton.length).toEqual(1);
 
       rmButton = await waitFor(() => screen.getAllByText("Remove"));
