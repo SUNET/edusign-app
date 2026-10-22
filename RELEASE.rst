@@ -53,6 +53,12 @@ New Version
 * translations
 * changes
 * errors
+* API changes. Compare `backend/src/edusign_webapp/api.py` and the schemata
+  used by the API views with the previous release. If a request or response
+  changed, update `API.md`, add a section for the new version to
+  `API-upgrades.md`, and notify the operators of the API clients before
+  deploying. The requirement of `payload.invite_key`, introduced in 1.5.2,
+  was only documented in 1.6.2.
 
 
 .. [1] https://semver.org

@@ -1,6 +1,25 @@
 
 # API
 
+## Compatibility
+
+Clients of this API are deployed by third parties and are not updated
+in step with eduSign. A new eduSign version must accept every request
+that the previous version accepted, with the same result. Rules for
+changes:
+
+- A new request key is optional, with a default that reproduces the
+  previous behaviour. In the marshmallow schemas this means
+  `load_default`, never `required=True`, for keys that API clients may
+  omit.
+- A new response key may be added. Existing keys keep their name, type
+  and meaning.
+- Removing a key or an endpoint, or changing the type or meaning of a
+  value, needs a new endpoint version (`/api/v2/...`); the old one
+  stays until every client has moved.
+
+Each change to the API is recorded in `API-upgrades.md`.
+
 ## Signing a document
 
 To sign a document, an external app has to take 3 steps:
