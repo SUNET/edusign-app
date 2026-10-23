@@ -317,25 +317,20 @@ def dashboard():
     return make_response(render_template('admin-dashboard.jinja2', **context))
 
 
-@admin_edusign_views.route('/eid-signatures-report', methods=['GET'])
-def eid_signatures_report():
+def _eid_usage_report(year, month):
     """
     Billing report of the eID logins and signatures in one calendar month,
-    given as the query parameters `year` and `month`, as a text file: a
-    DATE line, a title line, and one line per institution with a customer
-    id in EID_WHITELIST, sorted by customer id:
+    as text: a DATE line, a title line, and one line per institution with
+    a customer id in EID_WHITELIST, sorted by customer id:
     Customer id;Agreement number;Basis;Cost;Quantity. Basis is
     EID_BASE_PRICE, Quantity the uses over the joint EID_QUOTA, and Cost
     Basis + EXTRA_EID_COST x Quantity, in SEK with two decimals.
 
-    :return: the text file as an attachment, or 400 on bad parameters
+    :param year: the year of the month
+    :param month: the month, 1 to 12
+    :return: the file name and the text
     """
-    try:
-        year = int(request.args['year'])
-        month = int(request.args['month'])
-        start = datetime(year, month, 1)
-    except (KeyError, ValueError):
-        return make_response(('year and month are required; month is 1 to 12', 400, {'Content-Type': 'text/plain'}))
+    start = datetime(year, month, 1)
     end = datetime(year + 1, 1, 1) if month == 12 else datetime(year, month + 1, 1)
 
     records = current_app.extensions['doc_store'].get_all_signatures()
@@ -362,9 +357,41 @@ def eid_signatures_report():
         cost = basis + extra_cost * quantity
         lines.append(f"{customer_id};{agreement};{basis.quantize(cents)};{cost.quantize(cents)};{quantity}")
 
-    response = make_response('\n'.join(lines) + '\n')
+    return f"eid-usage-{year}-{month:02d}.txt", '\n'.join(lines) + '\n'
+
+
+def _report_month(params):
+    """
+    The `year` and `month` of a report request.
+
+    :param params: the query string or the form of the request
+    :return: the year and the month, or None on bad parameters
+    """
+    try:
+        year = int(params['year'])
+        month = int(params['month'])
+        datetime(year, month, 1)
+    except (KeyError, ValueError):
+        return None
+    return year, month
+
+
+@admin_edusign_views.route('/eid-signatures-report', methods=['GET'])
+def eid_signatures_report():
+    """
+    The eID usage report of the month given by the query parameters
+    `year` and `month`, see `_eid_usage_report`, as a text attachment.
+
+    :return: the text file as an attachment, or 400 on bad parameters
+    """
+    year_month = _report_month(request.args)
+    if year_month is None:
+        return make_response(('year and month are required; month is 1 to 12', 400, {'Content-Type': 'text/plain'}))
+    filename, text = _eid_usage_report(*year_month)
+
+    response = make_response(text)
     response.headers['Content-Type'] = 'text/plain; charset=utf-8'
-    response.headers['Content-Disposition'] = f'attachment; filename="eid-usage-{year}-{month:02d}.txt"'
+    response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
 
 
