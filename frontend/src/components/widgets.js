@@ -543,7 +543,7 @@ export const buttonSignSelected = (disableSigning, onClick) => {
         onClick={onClick}
       >
         <FormattedMessage
-          defaultMessage="Sign selected documents"
+          defaultMessage="Sign selected"
           key="sign-selected-button"
         />
       </Button>
@@ -614,7 +614,7 @@ export const buttonClearPersonal = (
           onClick={onClick}
         >
           <FormattedMessage
-            defaultMessage="Clear personal documents list"
+            defaultMessage="Clear list"
             key="clear-session-button"
           />
         </Button>

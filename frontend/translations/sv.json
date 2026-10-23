@@ -144,7 +144,7 @@
   "components.widgets.button-remove-tootip": "Ta bort dokument",
   "components.widgets.button-sign-tootip": "Välj dokument ovan och klicka här för att signera dem. Du kommer bli omdirigerad att logga in igen för att autentisera dig när du signerar.",
   "components.widgets.clear-docs-tootip": "Ta bort alla dokument i \"Personliga dokument\" listan",
-  "components.widgets.clear-session-button": "Rensa personlig dokumentlista",
+  "components.widgets.clear-session-button": "Rensa listan",
   "components.widgets.creation-date-label": "Skapad:",
   "components.widgets.decline-sign-button": "Neka signering",
   "components.widgets.delegate-sign-button": "",
