@@ -27,3 +27,6 @@ playwright-report/
 blob-report/
 playwright/
 backend/.venv/
+*-notes.md
+*-plan.md
+*-report.md
