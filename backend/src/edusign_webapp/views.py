@@ -43,6 +43,7 @@ from decimal import Decimal
 from email.utils import formataddr
 from typing import Any, Dict, List, Tuple, Union
 
+import requests
 import yaml
 from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for
 from flask_babel import force_locale, get_locale, gettext
@@ -344,29 +345,25 @@ def dashboard():
         'report_default_year': prev_month_start.year,
         'report_default_month': prev_month_start.month,
         'migration_available': _migration_available(),
+        'nextcloud': bool(current_app.config['NEXTCLOUD_URL']),
     }
     return make_response(render_template('admin-dashboard.jinja2', **context))
 
 
-@admin_edusign_views.route('/eid-signatures-report', methods=['GET'])
-def eid_signatures_report():
+def _eid_usage_report(year, month):
     """
     Billing report of the eID logins and signatures in one calendar month,
-    given as the query parameters `year` and `month`, as a text file: a
-    DATE line, a title line, and one line per institution with a customer
-    id in EID_WHITELIST, sorted by customer id:
+    as text: a DATE line, a title line, and one line per institution with
+    a customer id in EID_WHITELIST, sorted by customer id:
     Customer id;Agreement number;Basis;Cost;Quantity. Basis is
     EID_BASE_PRICE, Quantity the uses over the joint EID_QUOTA, and Cost
     Basis + EXTRA_EID_COST x Quantity, in SEK with two decimals.
 
-    :return: the text file as an attachment, or 400 on bad parameters
+    :param year: the year of the month
+    :param month: the month, 1 to 12
+    :return: the file name and the text
     """
-    try:
-        year = int(request.args['year'])
-        month = int(request.args['month'])
-        start = datetime(year, month, 1)
-    except (KeyError, ValueError):
-        return make_response(('year and month are required; month is 1 to 12', 400, {'Content-Type': 'text/plain'}))
+    start = datetime(year, month, 1)
     end = datetime(year + 1, 1, 1) if month == 12 else datetime(year, month + 1, 1)
 
     whitelist = current_app.config['EID_WHITELIST']
@@ -389,10 +386,81 @@ def eid_signatures_report():
         cost = basis + extra_cost * quantity
         lines.append(f"{customer_id};{agreement};{basis.quantize(cents)};{cost.quantize(cents)};{quantity}")
 
-    response = make_response('\n'.join(lines) + '\n')
+    return f"eid-usage-{year}-{month:02d}.txt", '\n'.join(lines) + '\n'
+
+
+def _report_month(params):
+    """
+    The `year` and `month` of a report request.
+
+    :param params: the query string or the form of the request
+    :return: the year and the month, or None on bad parameters
+    """
+    try:
+        year = int(params['year'])
+        month = int(params['month'])
+        datetime(year, month, 1)
+    except (KeyError, ValueError):
+        return None
+    return year, month
+
+
+@admin_edusign_views.route('/eid-signatures-report', methods=['GET'])
+def eid_signatures_report():
+    """
+    The eID usage report of the month given by the query parameters
+    `year` and `month`, see `_eid_usage_report`, as a text attachment.
+
+    :return: the text file as an attachment, or 400 on bad parameters
+    """
+    year_month = _report_month(request.args)
+    if year_month is None:
+        return make_response(('year and month are required; month is 1 to 12', 400, {'Content-Type': 'text/plain'}))
+    filename, text = _eid_usage_report(*year_month)
+
+    response = make_response(text)
     response.headers['Content-Type'] = 'text/plain; charset=utf-8'
-    response.headers['Content-Disposition'] = f'attachment; filename="eid-usage-{year}-{month:02d}.txt"'
+    response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
+
+@admin_edusign_views.route('/eid-signatures-report-to-nextcloud', methods=['POST'])
+def eid_signatures_report_to_nextcloud():
+    """
+    Store the eID usage report of the month given by the form fields
+    `year` and `month`, see `_eid_usage_report`, in the folder
+    NEXTCLOUD_FOLDER of the Nextcloud instance at NEXTCLOUD_URL, over
+    WebDAV as NEXTCLOUD_USER. The folder is created if it does not exist
+    (MKCOL answers 405 when it does). The file is overwritten if it exists.
+
+    :return: a text line naming the file and the folder; 400 on bad
+             parameters, 502 when Nextcloud does not take the file
+    """
+    year_month = _report_month(request.form)
+    if year_month is None:
+        return make_response(('year and month are required; month is 1 to 12', 400, {'Content-Type': 'text/plain'}))
+    filename, text = _eid_usage_report(*year_month)
+
+    config = current_app.config
+    folder = config['NEXTCLOUD_FOLDER']
+    folder_url = f"{config['NEXTCLOUD_URL']}/remote.php/dav/files/{config['NEXTCLOUD_USER']}/{folder}"
+    auth = (config['NEXTCLOUD_USER'], config['NEXTCLOUD_PASSWORD'])
+    steps = (
+        ('MKCOL', folder_url, None, (201, 405)),
+        ('PUT', f"{folder_url}/{filename}", text.encode('utf-8'), (201, 204)),
+    )
+    for method, url, data, accepted in steps:
+        try:
+            response = requests.request(method, url, data=data, auth=auth, timeout=30)
+        except requests.RequestException as e:
+            current_app.logger.error(f"Could not reach Nextcloud for {method} {url}: {e}")
+            return make_response((f"Could not reach Nextcloud: {e}", 502, {'Content-Type': 'text/plain'}))
+        if response.status_code not in accepted:
+            current_app.logger.error(f"Nextcloud answered {response.status_code} to {method} {url}: {response.text[:500]}")
+            return make_response((f"Nextcloud answered {response.status_code} to {method} of {filename}", 502, {'Content-Type': 'text/plain'}))
+
+    current_app.logger.info(f"Stored {filename} in the Nextcloud folder {folder}")
+    return make_response((f"Stored {filename} in the Nextcloud folder {folder}\n", 200, {'Content-Type': 'text/plain; charset=utf-8'}))
 
 
 @admin_edusign_views.route('/migrate-to-postgres-and-s3', methods=['POST'])
