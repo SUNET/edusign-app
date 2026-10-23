@@ -70,14 +70,12 @@ class DocManager extends React.Component {
     return (
       <>
         {this.props.unauthn && this.props.invitedUnauthn && (
-          <>
-            <div className="invited-unauthn-title">
-              <FormattedMessage
-                defaultMessage="You have been invited to sign the following document(s)"
-                key="invited-unauthn-title"
-              />
-            </div>
-          </>
+          <div className="invited-unauthn-title">
+            <FormattedMessage
+              defaultMessage="You have been invited to sign the following document(s)"
+              key="invited-unauthn-title"
+            />
+          </div>
         )}
         {this.props.unauthn && !this.props.invitedUnauthn && (
           <>
@@ -349,28 +347,30 @@ class DocManager extends React.Component {
           </>
         )}
         <div id="adjust-vertical-space" />
-        {!this.props.using_bankid && !this.props.using_freja && (
-          <div id="global-buttons-wrapper" className="buttons-wrapper">
-            {widgets.buttonSignSelected(
-              disableSigning,
-              this.props.handleSubmitToSign.bind(this),
-            )}
-            {!this.props.unauthn && (
-              <>
-                {widgets.buttonDownloadAll(
-                  disableDlAllButton,
-                  this.props.handleDownloadAll.bind(this),
-                )}
-                {widgets.buttonClearPersonal(
-                  disableClearButton,
-                  this.props.showConfirm("confirm-clear-session"),
-                  this.props.clearDb.bind(this),
-                  this.props.intl,
-                )}
-              </>
-            )}
-          </div>
-        )}
+        {!this.props.using_bankid &&
+          !this.props.using_freja &&
+          this.props.documents.length > 0 && (
+            <div id="global-buttons-wrapper" className="buttons-wrapper">
+              {widgets.buttonSignSelected(
+                disableSigning,
+                this.props.handleSubmitToSign.bind(this),
+              )}
+              {!this.props.unauthn && (
+                <>
+                  {widgets.buttonDownloadAll(
+                    disableDlAllButton,
+                    this.props.handleDownloadAll.bind(this),
+                  )}
+                  {widgets.buttonClearPersonal(
+                    disableClearButton,
+                    this.props.showConfirm("confirm-clear-session"),
+                    this.props.clearDb.bind(this),
+                    this.props.intl,
+                  )}
+                </>
+              )}
+            </div>
+          )}
         {/**
          * This is the form that is sent to the sign service.
          * Both the data sent in the form (`binding`, `relayState`, and `signRequest`)
