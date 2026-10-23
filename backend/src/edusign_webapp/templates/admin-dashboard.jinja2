@@ -88,6 +88,9 @@
               </p>
               <p>
                 <button type="submit">{{ gettext("Generate") }}</button>
+                {% if nextcloud %}
+                <button type="submit" formmethod="post" formaction="{{ url_for('edusign_admin.eid_signatures_report_to_nextcloud') }}">{{ gettext("Send to Nextcloud") }}</button>
+                {% endif %}
                 <button type="button" onclick="document.getElementById('eid-report-dialog').close()">{{ gettext("Cancel") }}</button>
               </p>
             </form>

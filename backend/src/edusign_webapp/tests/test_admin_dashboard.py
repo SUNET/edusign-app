@@ -226,9 +226,19 @@ def test_admin_dashboard_current_month_only(client):
     now = datetime.now()
     prev = datetime(now.year - 1, 12, 1) if now.month == 1 else datetime(now.year, now.month - 1, 1)
     assert b'action="/admin/eid-signatures-report"' in response.data
+    assert b'eid-signatures-report-to-nextcloud' not in response.data
     assert b'<option value="2025"' in response.data
     assert (b'<option value="%d" selected>' % prev.year) in response.data
     assert (b'<option value="%d" selected>%s</option>' % (prev.month, prev.strftime('%B').encode())) in response.data
+
+
+def test_admin_dashboard_nextcloud_button(client):
+    client.application.config['NEXTCLOUD_URL'] = 'https://cloud.example.se'
+
+    response = client.get('/admin/dashboard')
+    assert response.status == '200 OK'
+    assert b'formmethod="post" formaction="/admin/eid-signatures-report-to-nextcloud"' in response.data
+    assert b'Send to Nextcloud' in response.data
 
 
 def test_admin_dashboard_previous_month(client):

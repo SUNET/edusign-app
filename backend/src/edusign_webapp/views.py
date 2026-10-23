@@ -314,6 +314,7 @@ def dashboard():
         'report_months': [(m, datetime(2000, m, 1).strftime('%B')) for m in range(1, 13)],
         'report_default_year': prev_month_dt.year,
         'report_default_month': prev_month_dt.month,
+        'nextcloud': bool(current_app.config['NEXTCLOUD_URL']),
     }
     return make_response(render_template('admin-dashboard.jinja2', **context))
 
