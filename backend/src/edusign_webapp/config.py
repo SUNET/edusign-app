@@ -225,6 +225,14 @@ EID_QUOTA = int(os.environ.get('EID_QUOTA', default='100'))
 EID_BASE_PRICE = Decimal(os.environ.get('EID_BASE_PRICE', default='0'))
 EXTRA_EID_COST = Decimal(os.environ.get('EXTRA_EID_COST', default='0'))
 
+# Nextcloud instance where the admin dashboard can store the eID usage
+# report, over WebDAV with an app password. Empty URL: the option is not
+# offered.
+NEXTCLOUD_URL = os.environ.get('NEXTCLOUD_URL', default='').rstrip('/')
+NEXTCLOUD_USER = os.environ.get('NEXTCLOUD_USER', default='')
+NEXTCLOUD_PASSWORD = os.environ.get('NEXTCLOUD_PASSWORD', default='')
+NEXTCLOUD_FOLDER = os.environ.get('NEXTCLOUD_FOLDER', default='eid-reports').strip('/')
+
 # eppn's of the users allowed to access the admin views. Empty: no one is.
 RAW_ADMIN_WHITELIST = os.environ.get('ADMIN_WHITELIST', default='')
 
