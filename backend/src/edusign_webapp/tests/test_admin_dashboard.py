@@ -39,6 +39,7 @@ from base64 import b64encode
 from datetime import datetime
 
 import pytest
+import requests
 
 from edusign_webapp.config import parse_eid_whitelist
 from edusign_webapp.utils import add_attributes_to_session_bankid_freja
@@ -289,6 +290,89 @@ def test_eid_signatures_report_bad_parameters(client):
         response = client.get('/admin/eid-signatures-report' + query)
         assert response.status == '400 BAD REQUEST', query
         assert b'year and month are required' in response.data
+
+
+# The report sent to Nextcloud: the WebDAV calls are recorded and answered
+# with canned statuses
+
+
+class _DavResponse:
+    def __init__(self, status_code):
+        self.status_code = status_code
+        self.text = ''
+
+
+def _nextcloud(client, monkeypatch, statuses):
+    client.application.config.update(
+        {
+            'NEXTCLOUD_URL': 'https://cloud.example.se',
+            'NEXTCLOUD_USER': 'billing',
+            'NEXTCLOUD_PASSWORD': 'app-pw',
+            'NEXTCLOUD_FOLDER': 'eid-reports',
+        }
+    )
+    calls = []
+
+    def fake_request(method, url, data=None, auth=None, timeout=None):
+        calls.append((method, url, data, auth))
+        status = statuses[len(calls) - 1]
+        if isinstance(status, Exception):
+            raise status
+        return _DavResponse(status)
+
+    monkeypatch.setattr(requests, 'request', fake_request)
+    return calls
+
+
+_folder_url = 'https://cloud.example.se/remote.php/dav/files/billing/eid-reports'
+
+
+@pytest.mark.parametrize('mkcol_status', [201, 405])
+def test_eid_usage_report_to_nextcloud(client, monkeypatch, mkcol_status):
+    _add_signatures(client, 'sunet.se', 'bankid', 5, timestamp=1752000000000)
+    calls = _nextcloud(client, monkeypatch, [mkcol_status, 201])
+
+    response = client.post('/admin/eid-signatures-report-to-nextcloud', data={'year': '2025', 'month': '7'})
+    assert response.status == '200 OK'
+    assert response.data == b'Stored eid-usage-2025-07.txt in the Nextcloud folder eid-reports\n'
+    assert [(c[0], c[1], c[3]) for c in calls] == [
+        ('MKCOL', _folder_url, ('billing', 'app-pw')),
+        ('PUT', _folder_url + '/eid-usage-2025-07.txt', ('billing', 'app-pw')),
+    ]
+    assert calls[0][2] is None
+    assert calls[1][2].decode().splitlines()[2:] == [
+        'Report on eID usage for July 2025',
+        '',
+        'Customer id;Agreement number;Basis;Cost;Quantity',
+        'AA;ES-020-T;100.00;102.00;2',
+        'BB;ES-021-T;100.00;100.00;0',
+    ]
+
+
+@pytest.mark.parametrize(
+    'statuses, message',
+    [
+        ([401], b'Nextcloud answered 401 to MKCOL of eid-usage-2025-07.txt'),
+        ([405, 507], b'Nextcloud answered 507 to PUT of eid-usage-2025-07.txt'),
+        ([requests.ConnectionError('refused')], b'Could not reach Nextcloud: refused'),
+    ],
+)
+def test_eid_usage_report_to_nextcloud_failure(client, monkeypatch, statuses, message):
+    calls = _nextcloud(client, monkeypatch, statuses)
+
+    response = client.post('/admin/eid-signatures-report-to-nextcloud', data={'year': '2025', 'month': '7'})
+    assert response.status == '502 BAD GATEWAY'
+    assert response.data == message
+    assert len(calls) == len(statuses)
+
+
+def test_eid_usage_report_to_nextcloud_bad_parameters(client, monkeypatch):
+    calls = _nextcloud(client, monkeypatch, [])
+    for data in ({}, {'year': '2025'}, {'year': '2025', 'month': '13'}):
+        response = client.post('/admin/eid-signatures-report-to-nextcloud', data=data)
+        assert response.status == '400 BAD REQUEST', data
+        assert b'year and month are required' in response.data
+    assert calls == []
 
 
 # The eID login, as the Shibboleth SP presents it to the app

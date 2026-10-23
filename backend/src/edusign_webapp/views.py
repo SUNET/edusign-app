@@ -43,6 +43,7 @@ from email.utils import formataddr
 from typing import Any, Dict, List, Tuple, Union
 
 import importlib
+import requests
 import yaml
 from flask import Blueprint, abort, current_app, make_response, redirect, render_template, request, session, url_for
 from flask_babel import force_locale, get_locale, gettext
@@ -393,6 +394,45 @@ def eid_signatures_report():
     response.headers['Content-Type'] = 'text/plain; charset=utf-8'
     response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
+
+@admin_edusign_views.route('/eid-signatures-report-to-nextcloud', methods=['POST'])
+def eid_signatures_report_to_nextcloud():
+    """
+    Store the eID usage report of the month given by the form fields
+    `year` and `month`, see `_eid_usage_report`, in the folder
+    NEXTCLOUD_FOLDER of the Nextcloud instance at NEXTCLOUD_URL, over
+    WebDAV as NEXTCLOUD_USER. The folder is created if it does not exist
+    (MKCOL answers 405 when it does). The file is overwritten if it exists.
+
+    :return: a text line naming the file and the folder; 400 on bad
+             parameters, 502 when Nextcloud does not take the file
+    """
+    year_month = _report_month(request.form)
+    if year_month is None:
+        return make_response(('year and month are required; month is 1 to 12', 400, {'Content-Type': 'text/plain'}))
+    filename, text = _eid_usage_report(*year_month)
+
+    config = current_app.config
+    folder = config['NEXTCLOUD_FOLDER']
+    folder_url = f"{config['NEXTCLOUD_URL']}/remote.php/dav/files/{config['NEXTCLOUD_USER']}/{folder}"
+    auth = (config['NEXTCLOUD_USER'], config['NEXTCLOUD_PASSWORD'])
+    steps = (
+        ('MKCOL', folder_url, None, (201, 405)),
+        ('PUT', f"{folder_url}/{filename}", text.encode('utf-8'), (201, 204)),
+    )
+    for method, url, data, accepted in steps:
+        try:
+            response = requests.request(method, url, data=data, auth=auth, timeout=30)
+        except requests.RequestException as e:
+            current_app.logger.error(f"Could not reach Nextcloud for {method} {url}: {e}")
+            return make_response((f"Could not reach Nextcloud: {e}", 502, {'Content-Type': 'text/plain'}))
+        if response.status_code not in accepted:
+            current_app.logger.error(f"Nextcloud answered {response.status_code} to {method} {url}: {response.text[:500]}")
+            return make_response((f"Nextcloud answered {response.status_code} to {method} of {filename}", 502, {'Content-Type': 'text/plain'}))
+
+    current_app.logger.info(f"Stored {filename} in the Nextcloud folder {folder}")
+    return make_response((f"Stored {filename} in the Nextcloud folder {folder}\n", 200, {'Content-Type': 'text/plain; charset=utf-8'}))
 
 
 @admin_edusign_views.route('/migrate-to-redis-and-s3', methods=['POST'])
