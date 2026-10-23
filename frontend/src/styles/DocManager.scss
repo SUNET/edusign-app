@@ -1,8 +1,8 @@
 @use "./variables" as *;
 
 .doc-flex-container-local {
-  border: $orange-opaque solid 2px;
-  border-radius: 3px;
+  border: $mid-gray solid 2px;
+  border-radius: 5px;
   margin-bottom: 0.3rem;
   min-height: 3rem;
   display: flex;
@@ -239,12 +239,14 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  margin-top: 1.5rem;
 
   button {
     margin: 0 1rem 1rem 0;
 
     @media (max-width: $breakpoint-md) {
       width: 100%;
+      margin-right: 0;
     }
   }
 }
