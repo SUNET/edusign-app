@@ -350,7 +350,7 @@ class DocManager extends React.Component {
         )}
         <div id="adjust-vertical-space" />
         {!this.props.using_bankid && !this.props.using_freja && (
-          <div id="global-buttons-wrapper">
+          <div id="global-buttons-wrapper" className="buttons-wrapper">
             {widgets.buttonSignSelected(
               disableSigning,
               this.props.handleSubmitToSign.bind(this),

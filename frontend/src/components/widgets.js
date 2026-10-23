@@ -228,27 +228,27 @@ export const multiSignButton = (props, doc) => {
 
 export const signButton = (props, doc) => {
   return (
-    <div className="button-sign-flex-item">
-      <ESTooltip
-        helpId={"button-sign-" + doc.name}
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Click here to sign the document"
-            key="sign-button-tootip"
-          />
-        }
+    // <div className="button-sign-flex-item">
+    <ESTooltip
+      helpId={"button-sign-" + doc.name}
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Click here to sign the document"
+          key="sign-button-tootip"
+        />
+      }
+    >
+      <Button
+        variant="outline-success"
+        id={"button-sign-" + doc.name}
+        size="sm"
+        disabling={true}
+        onClick={props.handleSendToSign(props, doc)}
       >
-        <Button
-          variant="outline-success"
-          id={"button-sign-" + doc.name}
-          size="sm"
-          disabling={true}
-          onClick={props.handleSendToSign(props, doc)}
-        >
-          <FormattedMessage defaultMessage="Sign" key="sign-button" />
-        </Button>
-      </ESTooltip>
-    </div>
+        <FormattedMessage defaultMessage="Sign" key="sign-button" />
+      </Button>
+    </ESTooltip>
+    // </div>
   );
 };
 
@@ -523,66 +523,66 @@ export const delegateButton = (props, doc) => {
 
 export const buttonSignSelected = (disableSigning, onClick) => {
   return (
-    <div className="button-sign-flex-item">
-      <ESTooltip
-        helpId="button-sign-selected"
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Select documents above and click here to send them for signing. You will be redirected to login again to authenticate yourself when signing."
-            key="button-sign-tootip"
-          />
-        }
+    // <div className="button-sign-flex-item">
+    <ESTooltip
+      helpId="button-sign-selected"
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Select documents above and click here to send them for signing. You will be redirected to login again to authenticate yourself when signing."
+          key="button-sign-tootip"
+        />
+      }
+    >
+      {/* <div id="button-sign-wrapper"> */}
+      <Button
+        variant="success"
+        id="button-sign"
+        size="lg"
+        disabled={disableSigning}
+        style={disableSigning ? { pointerEvents: "none" } : {}}
+        onClick={onClick}
       >
-        <div id="button-sign-wrapper">
-          <Button
-            variant="success"
-            id="button-sign"
-            size="lg"
-            disabled={disableSigning}
-            style={disableSigning ? { pointerEvents: "none" } : {}}
-            onClick={onClick}
-          >
-            <FormattedMessage
-              defaultMessage="Sign selected documents"
-              key="sign-selected-button"
-            />
-          </Button>
-        </div>
-      </ESTooltip>
-    </div>
+        <FormattedMessage
+          defaultMessage="Sign selected documents"
+          key="sign-selected-button"
+        />
+      </Button>
+      {/* </div> */}
+    </ESTooltip>
+    // </div>
   );
 };
 
 export const buttonDownloadAll = (disableDlAllButton, onClick) => {
   return (
-    <div className="button-dlall-flex-item">
-      <ESTooltip
-        helpId="button-dlall"
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Download all signed documents."
-            key="button-dlall-tootip"
-          />
-        }
+    // <div className="button-dlall-flex-item">
+    <ESTooltip
+      helpId="button-dlall"
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Download all signed documents."
+          key="button-dlall-tootip"
+        />
+      }
+    >
+      {/* <div id="button-dlall-wrapper"> */}
+      <Button
+        variant="success"
+        id="button-dlall"
+        disabled={disableDlAllButton}
+        data-testid="button-dlall"
+        style={disableDlAllButton ? { pointerEvents: "none" } : {}}
+        size="lg"
+        onClick={onClick}
       >
-        <div id="button-dlall-wrapper">
-          <Button
-            variant="success"
-            id="button-dlall"
-            disabled={disableDlAllButton}
-            data-testid="button-dlall"
-            style={disableDlAllButton ? { pointerEvents: "none" } : {}}
-            size="lg"
-            onClick={onClick}
-          >
-            <FormattedMessage
-              defaultMessage="Download all signed"
-              key="dlall-selected-button"
-            />
-          </Button>
-        </div>
-      </ESTooltip>
-    </div>
+        <FormattedMessage
+          defaultMessage="Download all signed"
+          key="dlall-selected-button"
+        />
+      </Button>
+      {/* </div> */}
+    </ESTooltip>
+    // </div>
   );
 };
 
@@ -593,7 +593,8 @@ export const buttonClearPersonal = (
   intl,
 ) => {
   return (
-    <div className="button-clear-flex-item">
+    <>
+      {/* <div className="button-clear-flex-item"> */}
       <ESTooltip
         helpId="clear-session-button"
         tooltip={
@@ -603,21 +604,21 @@ export const buttonClearPersonal = (
           />
         }
       >
-        <div id="button-clear-wrapper">
-          <Button
-            variant="primary"
-            id="clear-session-button"
-            disabled={disableClearButton}
-            size="lg"
-            style={disableClearButton ? { pointerEvents: "none" } : {}}
-            onClick={onClick}
-          >
-            <FormattedMessage
-              defaultMessage="Clear personal documents list"
-              key="clear-session-button"
-            />
-          </Button>
-        </div>
+        {/* <div id="button-clear-wrapper"> */}
+        <Button
+          variant="primary"
+          id="clear-session-button"
+          disabled={disableClearButton}
+          size="lg"
+          style={disableClearButton ? { pointerEvents: "none" } : {}}
+          onClick={onClick}
+        >
+          <FormattedMessage
+            defaultMessage="Clear personal documents list"
+            key="clear-session-button"
+          />
+        </Button>
+        {/* </div> */}
       </ESTooltip>
       <ConfirmDialogContainer
         confirmId="confirm-clear-session"
@@ -632,7 +633,8 @@ export const buttonClearPersonal = (
         })}
         confirm={clearDb}
       />
-    </div>
+    </>
+    // </div>
   );
 };
 
