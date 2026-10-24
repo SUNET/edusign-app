@@ -14,4 +14,4 @@ Jinja2==3.1.6
 idna==3.10
 cffi==1.17.1
 setuptools_rust==1.10.2
-certifi==2025.1.31
+certifi==2026.10.19
