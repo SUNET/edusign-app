@@ -34,8 +34,10 @@
 Tests for the app factory and WSGI helpers in run.py.
 """
 import io
+import logging
 from copy import copy
 
+import pytest
 from werkzeug.test import create_environ
 
 from edusign_webapp import run
@@ -64,6 +66,21 @@ def test_app_in_two_paths_registers_second_blueprint():
     config['APP_IN_TWO_PATHS'] = True
     app = run.edusign_init_app('testing', config)
     assert 'edusign2' in app.blueprints
+
+
+def test_app_logger_level_from_config():
+    config = copy(config_dev)
+    config['LOG_LEVEL'] = 'WARNING'
+    app = run.edusign_init_app('testing', config)
+    assert app.logger.level == logging.WARNING
+
+
+def test_app_rejects_unknown_log_level():
+    # an override skips the check in config.py; the logger rejects the name
+    config = copy(config_dev)
+    config['LOG_LEVEL'] = 'verbose'
+    with pytest.raises(ValueError):
+        run.edusign_init_app('testing', config)
 
 
 def test_logging_middleware():

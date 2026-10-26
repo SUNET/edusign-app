@@ -29,7 +29,6 @@
 # ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 #
-import logging
 import pprint
 from importlib import import_module
 from typing import Callable, Optional
@@ -123,7 +122,7 @@ def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:
 
     from edusign_webapp import to_translate
 
-    app.logger.setLevel(logging.INFO)
+    app.logger.setLevel(app.config['LOG_LEVEL'])
 
     app.logger.info(f'Init {name} app...')
 
