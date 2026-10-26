@@ -13,6 +13,7 @@ import {
   faDownload,
   faFileSignature,
 } from "@fortawesome/free-solid-svg-icons";
+import { useAppSelector } from "init-app/hooks";
 
 export const docName = (doc) => {
   return <div className="name-flex-item">{doc.name}</div>;
@@ -24,7 +25,7 @@ export const docCreated = (props) => {
   const creationDate = getCreationDate(props.doc);
   if (creationDate !== null) {
     return (
-      <div className={"doc-container-info-row-" + props.size}>
+      <div className="doc-container-info-row">
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Created:"
@@ -39,12 +40,12 @@ export const docCreated = (props) => {
   } else return "";
 };
 
-export const infoLine = (doc, size) => {
+export const InfoLine = ({ doc }) => {
   const creationDate = getCreationDate(doc);
   let created = "";
   if (creationDate !== null) {
     created = (
-      <div className={"info-line info-line-1 doc-container-info-row-" + size}>
+      <div className="info-line info-line-1 doc-container-info-row">
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Created:"
@@ -63,7 +64,7 @@ export const infoLine = (doc, size) => {
     const loaName = loa[1];
     const loaValue = loa[0];
     requiredLoa = (
-      <div className={"info-line info-line-2 doc-container-info-row-" + size}>
+      <div className="info-line info-line-2 doc-container-info-row">
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Required assurance level:"
@@ -79,7 +80,7 @@ export const infoLine = (doc, size) => {
   let ordered = "";
   if (doc.ordered) {
     ordered = (
-      <div className={"info-line info-line-3 doc-container-info-row-" + size}>
+      <div className="info-line info-line-3 doc-container-info-row">
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Workflow invitation"
@@ -98,7 +99,7 @@ export const infoLine = (doc, size) => {
   );
 };
 
-export const infoLine2 = (doc, props) => {
+export const InfoLine2 = ({ doc }) => {
   const info = doc.info_message;
   if (!info) return "";
   const infos = [];
@@ -123,9 +124,7 @@ export const infoLine2 = (doc, props) => {
   const info_t = infos.join("; ");
   return (
     <div className="doc-info-line">
-      <div
-        className={"info-line info-line-2 doc-container-info-row-" + props.size}
-      >
+      <div className="info-line info-line-2 doc-container-info-row">
         <span className="info-row-label">
           <FormattedMessage defaultMessage="Info:" key="info-line-2-label" />
         </span>
@@ -233,7 +232,6 @@ export const multiSignButton = (props, doc) => {
 
 export const signButton = (props, doc) => {
   return (
-    // <div className="button-sign-flex-item">
     <ESTooltip
       helpId={"button-sign-" + doc.name}
       tooltip={
@@ -253,7 +251,6 @@ export const signButton = (props, doc) => {
         <FormattedMessage defaultMessage="Sign" key="sign-button" />
       </Button>
     </ESTooltip>
-    // </div>
   );
 };
 
@@ -528,7 +525,6 @@ export const delegateButton = (props, doc) => {
 
 export const buttonSignSelected = (disableSigning, onClick) => {
   return (
-    // <div className="button-sign-flex-item">
     <ESTooltip
       helpId="button-sign-selected"
       tooltip={
@@ -538,7 +534,6 @@ export const buttonSignSelected = (disableSigning, onClick) => {
         />
       }
     >
-      {/* <div id="button-sign-wrapper"> */}
       <Button
         variant="primary"
         id="button-sign"
@@ -554,15 +549,12 @@ export const buttonSignSelected = (disableSigning, onClick) => {
         &nbsp;
         <FontAwesomeIcon icon={faFileSignature} />
       </Button>
-      {/* </div> */}
     </ESTooltip>
-    // </div>
   );
 };
 
 export const buttonDownloadAll = (disableDlAllButton, onClick) => {
   return (
-    // <div className="button-dlall-flex-item">
     <ESTooltip
       helpId="button-dlall"
       tooltip={
@@ -572,7 +564,6 @@ export const buttonDownloadAll = (disableDlAllButton, onClick) => {
         />
       }
     >
-      {/* <div id="button-dlall-wrapper"> */}
       <Button
         variant="primary"
         id="button-dlall"
@@ -589,9 +580,7 @@ export const buttonDownloadAll = (disableDlAllButton, onClick) => {
         />
         <FontAwesomeIcon icon={faDownload} />
       </Button>
-      {/* </div> */}
     </ESTooltip>
-    // </div>
   );
 };
 
@@ -603,7 +592,6 @@ export const buttonClearPersonal = (
 ) => {
   return (
     <>
-      {/* <div className="button-clear-flex-item"> */}
       <ESTooltip
         helpId="clear-session-button"
         tooltip={
@@ -613,8 +601,6 @@ export const buttonClearPersonal = (
           />
         }
       >
-        {/* <div id="button-clear-wrapper"> */}
-
         <Button
           variant="primary"
           id="clear-session-button"
@@ -630,7 +616,6 @@ export const buttonClearPersonal = (
           &nbsp;
           <FontAwesomeIcon icon={faTrashCan} />
         </Button>
-        {/* </div> */}
       </ESTooltip>
       <ConfirmDialogContainer
         confirmId="confirm-clear-session"
@@ -646,7 +631,6 @@ export const buttonClearPersonal = (
         confirm={clearDb}
       />
     </>
-    // </div>
   );
 };
 

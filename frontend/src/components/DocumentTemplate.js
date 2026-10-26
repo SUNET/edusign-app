@@ -36,7 +36,7 @@ class DocumentTemplate extends React.Component {
     const doc = this.props.doc;
     const signed =
       (doc.state === "signed" && (
-        <div className={"doc-container-info-row-" + this.props.size} key="-1">
+        <div className="doc-container-info-row" key="-1">
           <span className="info-row-label">
             <FormattedMessage
               defaultMessage="Signed by:"
@@ -53,24 +53,46 @@ class DocumentTemplate extends React.Component {
       "";
 
     return (
-      <>
-        <ESPopover
-          helpId={"template-doc-container-" + doc.name}
-          key={doc.name}
-          title={this.getHelp("template-title")}
-          body={this.getHelp("template-body")}
-        >
-          {(this.props.size === "lg" && (
-            <div
-              className={"doc-flex-container-local " + doc.state}
-              data-testid={`representation-for-doc-${doc.name}`}
-              key="0"
-            >
-              <div className="doc-flex-container">
-                {widgets.dummySelectDoc()}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-                <div className="doc-manager-buttons">
+      <ESPopover
+        helpId={"template-doc-container-" + doc.name}
+        key={doc.name}
+        title={this.getHelp("template-title")}
+        body={this.getHelp("template-body")}
+      >
+        {(this.props.size === "lg" && (
+          <div
+            className={"doc-flex-container-local " + doc.state}
+            data-testid={`representation-for-doc-${doc.name}`}
+            key="0"
+          >
+            <div className="doc-flex-container">
+              {widgets.dummySelectDoc()}
+              {widgets.docSize(doc)}
+              {widgets.docName(doc)}
+              <div className="doc-manager-buttons">
+                <ESDropdown doc={doc}>
+                  {(doc.has_form && menu.fillFormMenuItem(this.props, doc)) ||
+                    ""}
+                  {menu.previewTemplateMenuItem(this.props, doc)}
+                </ESDropdown>
+                {widgets.multiSignButton(this.props, doc)}
+                {widgets.removeTemplate(this.props, doc)}
+              </div>
+            </div>
+            {widgets.docCreated(this.props)}
+            {signed}
+            {preparePrevSigs(doc, this.props.size)}
+          </div>
+        )) || (
+          <div className={"doc-flex-container-sm " + doc.state} key="0">
+            {(doc.state === "loaded" || doc.state === "selected") && (
+              <>
+                <div className="doc-container-md-row">
+                  {widgets.dummySelectDoc()}
+                  {widgets.docSize(doc)}
+                  {widgets.docName(doc)}
+                </div>
+                <div className="doc-container-button-row">
                   <ESDropdown doc={doc}>
                     {(doc.has_form && menu.fillFormMenuItem(this.props, doc)) ||
                       ""}
@@ -79,39 +101,14 @@ class DocumentTemplate extends React.Component {
                   {widgets.multiSignButton(this.props, doc)}
                   {widgets.removeTemplate(this.props, doc)}
                 </div>
-              </div>
-              {widgets.docCreated(this.props)}
-              {signed}
-              {preparePrevSigs(doc, this.props.size)}
-            </div>
-          )) || (
-            <div className={"doc-flex-container-sm " + doc.state} key="0">
-              {(doc.state === "loaded" || doc.state === "selected") && (
-                <>
-                  <div className="doc-container-md-row">
-                    {widgets.dummySelectDoc()}
-                    {widgets.docSize(doc)}
-                    {widgets.docName(doc)}
-                  </div>
-                  <div className="doc-container-button-row">
-                    <ESDropdown doc={doc}>
-                      {(doc.has_form &&
-                        menu.fillFormMenuItem(this.props, doc)) ||
-                        ""}
-                      {menu.previewTemplateMenuItem(this.props, doc)}
-                    </ESDropdown>
-                    {widgets.multiSignButton(this.props, doc)}
-                    {widgets.removeTemplate(this.props, doc)}
-                  </div>
-                </>
-              )}
-              {widgets.docCreated(this.props)}
-              {signed}
-              {preparePrevSigs(doc, this.props.size)}
-            </div>
-          )}
-        </ESPopover>
-      </>
+              </>
+            )}
+            {widgets.docCreated(this.props)}
+            {signed}
+            {preparePrevSigs(doc, this.props.size)}
+          </div>
+        )}
+      </ESPopover>
     );
   }
 }

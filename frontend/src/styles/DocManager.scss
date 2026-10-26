@@ -65,15 +65,11 @@
       .button-resend-flex-item,
       .button-remove-flex-item,
       .button-retry-flex-item,
-      // .button-sign-flex-item,
-      // .button-clear-flex-item,
-      // .button-dlall-flex-item,
       .button-download-flex-item,
       .button-create-template-flex-item,
       .button-decline-flex-item,
       .button-skip-flex-item,
       .button-edit-invitations-flex-item,
-      // .button-sign-flex-item,
       .button-multisign-flex-item {
         flex: none;
         button {
@@ -89,15 +85,11 @@
 .button-resend-flex-item,
 .button-remove-flex-item,
 .button-retry-flex-item,
-// .button-sign-flex-item,
-// .button-clear-flex-item,
-// .button-dlall-flex-item,
 .button-download-flex-item,
 .button-create-template-flex-item,
 .button-decline-flex-item,
 .button-skip-flex-item,
 .button-edit-invitations-flex-item,
-// .button-sign-flex-item,
 .button-multisign-flex-item {
   margin-right: 0.5rem;
 }
@@ -126,15 +118,11 @@
     .button-resend-flex-item,
     .button-remove-flex-item,
     .button-retry-flex-item,
-    // .button-sign-flex-item,
-    // .button-clear-flex-item,
-    // .button-dlall-flex-item,
     .button-download-flex-item,
     .button-create-template-flex-item,
     .button-decline-flex-item,
     .button-skip-flex-item,
     .button-edit-invitations-flex-item,
-    // .button-sign-flex-item,
     .button-multisign-flex-item {
       flex: none;
       button {
@@ -185,12 +173,7 @@
   }
 }
 
-.doc-container-info-row-sm {
-  line-height: 1.4rem;
-}
-
-.doc-container-info-row-lg,
-.doc-container-info-row-sm {
+.doc-container-info-row {
   flex: none;
   margin-top: 0.2rem;
   margin-bottom: 0.2rem;
@@ -211,6 +194,10 @@
   .info-row-item {
     font-size: 0.8rem;
     display: inline-block;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    line-height: 1.4rem;
   }
 }
 
