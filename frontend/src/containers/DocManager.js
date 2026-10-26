@@ -44,28 +44,6 @@ import { setActiveId, unsetActiveId } from "slices/Overlay";
 import { isNotInviting } from "slices/InviteForm";
 import { showPDFForm } from "slices/PDFForms";
 
-const mapStateToProps = (state) => {
-  return {
-    documents: state.documents.documents,
-    templates: state.template.documents,
-    destinationUrl: state.main.signingData.destination_url,
-    binding: state.main.signingData.binding,
-    relayState: state.main.signingData.relay_state,
-    signRequest: state.main.signingData.sign_request,
-    size: state.main.size,
-    multisign_buttons: state.main.multisign_buttons,
-    pending: state.main.pending_multisign,
-    owned: state.main.owned_multisign,
-    unauthn: state.main.unauthn,
-    invitedUnauthn: state.main.pending_multisign.length > 0,
-    name: state.main.signer_attributes.name,
-    mail: state.main.signer_attributes.mail,
-    inviting: state.inviteform.inviting,
-    using_bankid: state.main.signer_attributes.using_bankid,
-    using_freja: state.main.signer_attributes.using_freja,
-  };
-};
-
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handlePreview: function (key) {
@@ -237,4 +215,4 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(DocManager);
+export default connect(null, mapDispatchToProps)(DocManager);

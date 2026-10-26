@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import { injectIntl } from "init-app/intl";
 
 import ForcedPreviewContainer from "containers/ForcedPreview";
@@ -20,6 +20,7 @@ import { docToFile } from "components/utils";
 
 import "styles/DocManager.scss";
 import "styles/Invitation.scss";
+import { useAppSelector } from "init-app/hooks";
 
 /**
  * @desc This component provides a representation of the documents in the session.
@@ -41,6 +42,34 @@ function DocManager(props) {
   // the sign service needs, and submitting it hands the user over to that
   // service. The effect has no dependency array because the previous
   // componentDidUpdate ran after every update.
+
+  const documents = useAppSelector((state) => state.documents.documents);
+  const templates = useAppSelector((state) => state.template.documents);
+  const destinationUrl = useAppSelector(
+    (state) => state.main.signingData.destination_url,
+  );
+  const binding = useAppSelector((state) => state.main.signingData.binding);
+  const relayState = useAppSelector(
+    (state) => state.main.signingData.relay_state,
+  );
+  const signRequest = useAppSelector(
+    (state) => state.main.signingData.sign_request,
+  );
+  const size = useAppSelector((state) => state.main.size);
+  const pending = useAppSelector((state) => state.main.pending_multisign);
+  const owned = useAppSelector((state) => state.main.owned_multisign);
+  const unauthn = useAppSelector((state) => state.main.unauthn);
+  const invitedUnauthn = useAppSelector(
+    (state) => state.main.pending_multisign.length > 0,
+  );
+  const using_bankid = useAppSelector(
+    (state) => state.main.signer_attributes.using_bankid,
+  );
+  const using_freja = useAppSelector(
+    (state) => state.main.signer_attributes.using_freja,
+  );
+  const intl = useIntl();
+
   useEffect(() => {
     const form = document.getElementById("signing-form");
     if (!form) return;
@@ -54,7 +83,7 @@ function DocManager(props) {
 
   let disableSigning = true;
   let disableDlAllButton = true;
-  [props.pending, props.owned].forEach((docs) => {
+  [pending, owned].forEach((docs) => {
     docs.forEach((doc) => {
       if (doc.state === "selected") {
         disableSigning = false;
@@ -67,7 +96,7 @@ function DocManager(props) {
 
   return (
     <>
-      {props.unauthn && props.invitedUnauthn && (
+      {unauthn && invitedUnauthn && (
         <div className="invited-unauthn-title">
           <FormattedMessage
             defaultMessage="You have been invited to sign the following document(s)"
@@ -75,7 +104,7 @@ function DocManager(props) {
           />
         </div>
       )}
-      {props.unauthn && !props.invitedUnauthn && (
+      {unauthn && !invitedUnauthn && (
         <>
           <div className="invited-unauthn-title">
             <FormattedMessage
@@ -94,10 +123,10 @@ function DocManager(props) {
       {/* The groups that need action come first: documents the user is
             invited to sign, then documents the user is waiting on others
             to sign. The personal documents, which can be many, come last. */}
-      <div className={"multisign-container-" + props.size}>
-        {props.pending.length > 0 && (
+      <div className={"multisign-container-" + size}>
+        {pending.length > 0 && (
           <fieldset className="invited-multisign-container">
-            {(!props.using_bankid && !props.using_freja && (
+            {(!using_bankid && !using_freja && (
               <legend data-testid="legend-invited">
                 <FormattedMessage
                   defaultMessage="Documents you are invited to sign"
@@ -105,7 +134,7 @@ function DocManager(props) {
                 />
               </legend>
             )) ||
-              (props.pending[0].state === "signed" && (
+              (pending[0].state === "signed" && (
                 <p className="invited-legend-title">
                   <FormattedMessage
                     defaultMessage="The draft document can be downloaded now, but will disappear when this window is closed. The fully signed document will be available from the person who invited the signature."
@@ -116,9 +145,9 @@ function DocManager(props) {
             <InvitedContainer />
           </fieldset>
         )}
-        {!props.unauthn && (
+        {!unauthn && (
           <>
-            {props.owned.length > 0 && (
+            {owned.length > 0 && (
               <fieldset className="owned-multisign-container">
                 <legend data-testid="legend-inviter">
                   <FormattedMessage
@@ -132,9 +161,9 @@ function DocManager(props) {
           </>
         )}
       </div>
-      {!props.unauthn && (
+      {!unauthn && (
         <>
-          {props.templates.length > 0 && (
+          {templates.length > 0 && (
             <fieldset className="local-template-container">
               <legend data-testid="legend-templates">
                 <FormattedMessage
@@ -142,29 +171,22 @@ function DocManager(props) {
                   key="local-templates-legend"
                 />
               </legend>
-              {props.templates.map((doc, index) => {
+              {templates.map((doc, index) => {
                 return (
                   <React.Fragment key={doc.name}>
-                    <DocumentTemplate
-                      key={doc.name}
-                      doc={doc}
-                      {...props}
-                    />
+                    <DocumentTemplate key={doc.name} doc={doc} {...props} />
                     <ConfirmDialogContainer
                       confirmId={"confirm-remove-" + doc.name}
-                      title={props.intl.formatMessage({
+                      title={intl.formatMessage({
                         defaultMessage: "Confirm Removal of template",
                         id: "header-confirm-remove-template-title",
                       })}
-                      mainText={props.intl.formatMessage({
+                      mainText={intl.formatMessage({
                         defaultMessage:
                           'Clicking "Confirm" will remove the template',
                         id: "header-confirm-remove-template-text",
                       })}
-                      confirm={props.handleTemplateRemove(
-                        doc.id,
-                        props,
-                      )}
+                      confirm={props.handleTemplateRemove(doc.id, props)}
                     />
                     <DocPreviewContainer
                       doc={doc}
@@ -183,7 +205,7 @@ function DocManager(props) {
               })}
             </fieldset>
           )}
-          {props.documents.length > 0 && (
+          {documents.length > 0 && (
             <fieldset className="local-monosign-container">
               <legend data-testid="legend-personal">
                 <h2 className="heading">
@@ -199,7 +221,7 @@ function DocManager(props) {
                   key="local-monosign-legend-title"
                 />
               </p>
-              {props.documents.map((doc, index) => {
+              {documents.map((doc, index) => {
                 disableClearButton = false;
                 if (doc.state === "signed") {
                   disableDlAllButton = false;
@@ -209,7 +231,7 @@ function DocManager(props) {
                   doc = {
                     ...doc,
                     state: "failed-loading",
-                    message: props.intl.formatMessage({
+                    message: intl.formatMessage({
                       defaultMessage: "Malformed PDF",
                       id: "malformed-pdf",
                     }),
@@ -228,12 +250,12 @@ function DocManager(props) {
                         {_docRepr}
                         <ConfirmDialogContainer
                           confirmId={"confirm-remove-" + doc.name}
-                          title={props.intl.formatMessage({
+                          title={intl.formatMessage({
                             defaultMessage:
                               "Confirm Removal of signed invitation",
                             id: "header-confirm-remove-signed-owned-title",
                           })}
-                          mainText={props.intl.formatMessage({
+                          mainText={intl.formatMessage({
                             defaultMessage:
                               'Clicking "Confirm" will remove the document',
                             id: "header-confirm-remove-owned-signed-text",
@@ -251,19 +273,16 @@ function DocManager(props) {
                       <DocumentLocal key={doc.name} doc={doc} {...props} />
                       <ConfirmDialogContainer
                         confirmId={"confirm-remove-" + doc.name}
-                        title={props.intl.formatMessage({
+                        title={intl.formatMessage({
                           defaultMessage: "Confirm Removal of document",
                           id: "header-confirm-remove-document-title",
                         })}
-                        mainText={props.intl.formatMessage({
+                        mainText={intl.formatMessage({
                           defaultMessage:
                             'Clicking "Confirm" will remove the document',
                           id: "header-confirm-remove-document-text",
                         })}
-                        confirm={props.handleRemoveDocument(
-                          doc,
-                          props,
-                        )}
+                        confirm={props.handleRemoveDocument(doc, props)}
                       />
                     </>
                   );
@@ -278,9 +297,7 @@ function DocManager(props) {
                           index={Number(index)}
                           handleClose={props.handleCloseForcedPreview}
                           handleConfirm={props.handleConfirmForcedPreview}
-                          handleUnConfirm={
-                            props.handleUnConfirmForcedPreview
-                          }
+                          handleUnConfirm={props.handleUnConfirmForcedPreview}
                         />
                       )}
                     {doc.state === "unconfirmed" &&
@@ -290,9 +307,7 @@ function DocManager(props) {
                           index={Number(index)}
                           handleClose={props.handleCloseForcedPreview}
                           handleConfirm={props.handleConfirmForcedPreview}
-                          handleUnConfirm={
-                            props.handleUnConfirmForcedPreview
-                          }
+                          handleUnConfirm={props.handleUnConfirmForcedPreview}
                         />
                       )}
                     {[
@@ -337,30 +352,25 @@ function DocManager(props) {
         </>
       )}
       <div id="adjust-vertical-space" />
-      {!props.using_bankid &&
-        !props.using_freja &&
-        props.documents.length > 0 && (
-          <div id="global-buttons-wrapper" className="buttons-wrapper">
-            {widgets.buttonSignSelected(
-              disableSigning,
-              props.handleSubmitToSign,
-            )}
-            {!props.unauthn && (
-              <>
-                {widgets.buttonDownloadAll(
-                  disableDlAllButton,
-                  props.handleDownloadAll,
-                )}
-                {widgets.buttonClearPersonal(
-                  disableClearButton,
-                  props.showConfirm("confirm-clear-session"),
-                  props.clearDb,
-                  props.intl,
-                )}
-              </>
-            )}
-          </div>
-        )}
+      {!using_bankid && !using_freja && documents.length > 0 && (
+        <div id="global-buttons-wrapper" className="buttons-wrapper">
+          {widgets.buttonSignSelected(disableSigning, props.handleSubmitToSign)}
+          {!unauthn && (
+            <>
+              {widgets.buttonDownloadAll(
+                disableDlAllButton,
+                props.handleDownloadAll,
+              )}
+              {widgets.buttonClearPersonal(
+                disableClearButton,
+                props.showConfirm("confirm-clear-session"),
+                props.clearDb,
+                intl,
+              )}
+            </>
+          )}
+        </div>
+      )}
       {/**
        * This is the form that is sent to the sign service.
        * Both the data sent in the form (`binding`, `relayState`, and `signRequest`)
@@ -375,33 +385,25 @@ function DocManager(props) {
        * This callback was provided to the API in the call to the `create` method, as `returnUrl`;
        * and the API included it in the returned signRequest, which we are here in this form sending to the sign service.
        **/}
-      {props.destinationUrl !== undefined &&
-        props.destinationUrl !== "https://dummy.destination.url" && (
+      {destinationUrl !== undefined &&
+        destinationUrl !== "https://dummy.destination.url" && (
           <div>
             <form
               id="signing-form"
               data-testid="signing-form"
-              action={props.destinationUrl}
+              action={destinationUrl}
               method="post"
             >
-              <input type="hidden" name="Binding" value={props.binding} />
-              <input
-                type="hidden"
-                name="RelayState"
-                value={props.relayState}
-              />
-              <input
-                type="hidden"
-                name="EidSignRequest"
-                value={props.signRequest}
-              />
+              <input type="hidden" name="Binding" value={binding} />
+              <input type="hidden" name="RelayState" value={relayState} />
+              <input type="hidden" name="EidSignRequest" value={signRequest} />
             </form>
           </div>
         )}
       {/**
        * Dummy form rendered when there's been no call to the `create` API method.
        **/}
-      {props.destinationUrl === "https://dummy.destination.url" && (
+      {destinationUrl === "https://dummy.destination.url" && (
         <div>
           <form
             id="signing-form"
