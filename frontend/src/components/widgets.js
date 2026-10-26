@@ -3,11 +3,16 @@ import { FormattedMessage } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
 import BForm from "react-bootstrap/Form";
 import { Field } from "formik";
-
 import Button from "containers/Button";
 import { humanFileSize, getCreationDate } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faTrashCan,
+  faDownload,
+  faFileSignature,
+} from "@fortawesome/free-solid-svg-icons";
 
 export const docName = (doc) => {
   return <div className="name-flex-item">{doc.name}</div>;
@@ -535,7 +540,7 @@ export const buttonSignSelected = (disableSigning, onClick) => {
     >
       {/* <div id="button-sign-wrapper"> */}
       <Button
-        variant="success"
+        variant="primary"
         id="button-sign"
         size="lg"
         disabled={disableSigning}
@@ -546,6 +551,8 @@ export const buttonSignSelected = (disableSigning, onClick) => {
           defaultMessage="Sign selected"
           key="sign-selected-button"
         />
+        &nbsp;
+        <FontAwesomeIcon icon={faFileSignature} />
       </Button>
       {/* </div> */}
     </ESTooltip>
@@ -567,7 +574,7 @@ export const buttonDownloadAll = (disableDlAllButton, onClick) => {
     >
       {/* <div id="button-dlall-wrapper"> */}
       <Button
-        variant="success"
+        variant="primary"
         id="button-dlall"
         disabled={disableDlAllButton}
         data-testid="button-dlall"
@@ -575,10 +582,12 @@ export const buttonDownloadAll = (disableDlAllButton, onClick) => {
         size="lg"
         onClick={onClick}
       >
+        &nbsp;
         <FormattedMessage
           defaultMessage="Download all signed"
           key="dlall-selected-button"
         />
+        <FontAwesomeIcon icon={faDownload} />
       </Button>
       {/* </div> */}
     </ESTooltip>
@@ -605,6 +614,7 @@ export const buttonClearPersonal = (
         }
       >
         {/* <div id="button-clear-wrapper"> */}
+
         <Button
           variant="primary"
           id="clear-session-button"
@@ -617,6 +627,8 @@ export const buttonClearPersonal = (
             defaultMessage="Clear list"
             key="clear-session-button"
           />
+          &nbsp;
+          <FontAwesomeIcon icon={faTrashCan} />
         </Button>
         {/* </div> */}
       </ESTooltip>

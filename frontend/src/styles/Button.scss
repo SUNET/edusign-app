@@ -19,3 +19,12 @@ button.btn:disabled {
   background-color: $dark-gray;
   border: 1px solid $light-gray;
 }
+
+button.btn-primary {
+  background-color: $btn-orange;
+  border: none;
+  border-radius: 25px;
+  &:hover {
+    background-color: $dark-orange;
+  }
+}
