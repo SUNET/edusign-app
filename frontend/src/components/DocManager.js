@@ -56,7 +56,6 @@ function DocManager(props) {
     (state) => state.main.signingData.sign_request,
   );
   const size = useAppSelector((state) => state.main.size);
-  console.log("size:", size);
   const pending = useAppSelector((state) => state.main.pending_multisign);
   const owned = useAppSelector((state) => state.main.owned_multisign);
   const unauthn = useAppSelector((state) => state.main.unauthn);
