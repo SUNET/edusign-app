@@ -53,6 +53,26 @@ DEBUG = os.environ.get('DEBUG', default=False)
 
 DEBUG = get_boolean(DEBUG)
 
+# Level of the app logger, a Python logging level name.
+LOG_LEVELS = ('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL')
+
+
+def parse_log_level(raw: str) -> str:
+    """
+    Normalize LOG_LEVEL to a Python logging level name.
+
+    :param raw: the value of the LOG_LEVEL environment variable
+    :return: the level name, upper case
+    :raises ValueError: for a name that is not a logging level
+    """
+    level = raw.strip().upper()
+    if level not in LOG_LEVELS:
+        raise ValueError(f"LOG_LEVEL {raw!r}: expected one of {', '.join(LOG_LEVELS)}")
+    return level
+
+
+LOG_LEVEL = parse_log_level(os.environ.get('LOG_LEVEL', default='INFO'))
+
 ENVIRONMENT = os.environ.get('ENVIRONMENT', default='production')
 
 API_KEY = os.environ.get('API_KEY', default='dummy')

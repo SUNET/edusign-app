@@ -44,7 +44,7 @@ from datetime import datetime
 import pytest
 import requests
 
-from edusign_webapp.config import parse_eid_whitelist
+from edusign_webapp.config import parse_eid_whitelist, parse_log_level
 from edusign_webapp.marshal import ResponseSchema
 from edusign_webapp.utils import add_attributes_to_session_bankid_freja
 
@@ -293,6 +293,18 @@ def test_parse_eid_whitelist_rejects_other_forms():
     for raw in ('sunet.se:500', 'sunet.se:500:250', 'AA::sunet.se', 'AA:ES-020-T:sunet.se:100'):
         with pytest.raises(ValueError):
             parse_eid_whitelist(raw)
+
+
+def test_parse_log_level():
+    assert parse_log_level('debug') == 'DEBUG'
+    assert parse_log_level(' Info ') == 'INFO'
+    assert parse_log_level('CRITICAL') == 'CRITICAL'
+
+
+def test_parse_log_level_rejects_unknown():
+    for raw in ('verbose', '', '20', 'WARN'):
+        with pytest.raises(ValueError, match='LOG_LEVEL'):
+            parse_log_level(raw)
 
 
 def _terse(data):
