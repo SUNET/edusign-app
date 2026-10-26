@@ -312,7 +312,8 @@ TO_TEAR_DOWN_WITH_APP_CONTEXT = os.environ.get(
     'TO_TEAR_DOWN_WITH_APP_CONTEXT', default='edusign_webapp.document.metadata.sqlite.close_connection'
 ).split(',')
 
-MAIL_DEBUG = DEBUG
+# The SMTP conversation of outgoing mail, printed to the error log.
+MAIL_DEBUG = get_boolean(os.environ.get('MAIL_DEBUG', default=False))
 
 MAIL_BACKEND = os.environ.get('MAIL_BACKEND', default='smtp')
 MAIL_SERVER = os.environ.get('MAIL_SERVER', default='localhost')
