@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { injectIntl } from "init-app/intl";
@@ -36,401 +36,386 @@ import "styles/Invitation.scss";
  * Depending on the state, it will show a different set of controls.
  * @component
  */
-class DocManager extends React.Component {
-  shouldComponentUpdate(nextProps) {
-    return !nextProps.inviting;
-  }
-
-  componentDidUpdate() {
+function DocManager(props) {
+  // The signing form is only rendered once the backend has returned the data
+  // the sign service needs, and submitting it hands the user over to that
+  // service. The effect has no dependency array because the previous
+  // componentDidUpdate ran after every update.
+  useEffect(() => {
     const form = document.getElementById("signing-form");
-    if (form) {
-      if (form.requestSubmit) {
-        form.requestSubmit();
-      } else {
-        // Safari does not implement the requestSubmit API
-        form.submit();
-      }
+    if (!form) return;
+    if (form.requestSubmit) {
+      form.requestSubmit();
+    } else {
+      // Safari does not implement the requestSubmit API
+      form.submit();
     }
-  }
+  });
 
-  render() {
-    let disableSigning = true;
-    let disableDlAllButton = true;
-    [this.props.pending, this.props.owned].forEach((docs) => {
-      docs.forEach((doc) => {
-        if (doc.state === "selected") {
-          disableSigning = false;
-        } else if (doc.state === "signed") {
-          disableDlAllButton = false;
-        }
-      });
+  let disableSigning = true;
+  let disableDlAllButton = true;
+  [props.pending, props.owned].forEach((docs) => {
+    docs.forEach((doc) => {
+      if (doc.state === "selected") {
+        disableSigning = false;
+      } else if (doc.state === "signed") {
+        disableDlAllButton = false;
+      }
     });
-    let disableClearButton = true;
+  });
+  let disableClearButton = true;
 
-    return (
-      <>
-        {this.props.unauthn && this.props.invitedUnauthn && (
+  return (
+    <>
+      {props.unauthn && props.invitedUnauthn && (
+        <div className="invited-unauthn-title">
+          <FormattedMessage
+            defaultMessage="You have been invited to sign the following document(s)"
+            key="invited-unauthn-title"
+          />
+        </div>
+      )}
+      {props.unauthn && !props.invitedUnauthn && (
+        <>
           <div className="invited-unauthn-title">
             <FormattedMessage
-              defaultMessage="You have been invited to sign the following document(s)"
-              key="invited-unauthn-title"
+              defaultMessage="No documents to sign"
+              key="unauthn-title"
             />
           </div>
-        )}
-        {this.props.unauthn && !this.props.invitedUnauthn && (
-          <>
-            <div className="invited-unauthn-title">
-              <FormattedMessage
-                defaultMessage="No documents to sign"
-                key="unauthn-title"
-              />
-            </div>
-            <div className="invited-unauthn-text">
-              <FormattedMessage
-                defaultMessage="You are currently not invited to sign any documents. The organization/identity provider you are affiliated with does not have permission to upload your own documents into eduSign to sign. Please contact your IT-department if you would like to be able to sign your own documents or invite others to sign your documents."
-                key="unauthn-text"
-              />
-            </div>
-          </>
-        )}
-        {/* The groups that need action come first: documents the user is
+          <div className="invited-unauthn-text">
+            <FormattedMessage
+              defaultMessage="You are currently not invited to sign any documents. The organization/identity provider you are affiliated with does not have permission to upload your own documents into eduSign to sign. Please contact your IT-department if you would like to be able to sign your own documents or invite others to sign your documents."
+              key="unauthn-text"
+            />
+          </div>
+        </>
+      )}
+      {/* The groups that need action come first: documents the user is
             invited to sign, then documents the user is waiting on others
             to sign. The personal documents, which can be many, come last. */}
-        <div className={"multisign-container-" + this.props.size}>
-          {this.props.pending.length > 0 && (
-            <fieldset className="invited-multisign-container">
-              {(!this.props.using_bankid && !this.props.using_freja && (
-                <legend data-testid="legend-invited">
+      <div className={"multisign-container-" + props.size}>
+        {props.pending.length > 0 && (
+          <fieldset className="invited-multisign-container">
+            {(!props.using_bankid && !props.using_freja && (
+              <legend data-testid="legend-invited">
+                <FormattedMessage
+                  defaultMessage="Documents you are invited to sign"
+                  key="invited-multisign-legend"
+                />
+              </legend>
+            )) ||
+              (props.pending[0].state === "signed" && (
+                <p className="invited-legend-title">
                   <FormattedMessage
-                    defaultMessage="Documents you are invited to sign"
-                    key="invited-multisign-legend"
+                    defaultMessage="The draft document can be downloaded now, but will disappear when this window is closed. The fully signed document will be available from the person who invited the signature."
+                    key="local-invited-legend-title"
+                  />
+                </p>
+              ))}
+            <InvitedContainer />
+          </fieldset>
+        )}
+        {!props.unauthn && (
+          <>
+            {props.owned.length > 0 && (
+              <fieldset className="owned-multisign-container">
+                <legend data-testid="legend-inviter">
+                  <FormattedMessage
+                    defaultMessage="Documents you have invited others to sign"
+                    key="owned-multisign-legend"
                   />
                 </legend>
-              )) ||
-                (this.props.pending[0].state === "signed" && (
-                  <p className="invited-legend-title">
-                    <FormattedMessage
-                      defaultMessage="The draft document can be downloaded now, but will disappear when this window is closed. The fully signed document will be available from the person who invited the signature."
-                      key="local-invited-legend-title"
+                <OwnedContainer />
+              </fieldset>
+            )}
+          </>
+        )}
+      </div>
+      {!props.unauthn && (
+        <>
+          {props.templates.length > 0 && (
+            <fieldset className="local-template-container">
+              <legend data-testid="legend-templates">
+                <FormattedMessage
+                  defaultMessage="Templates"
+                  key="local-templates-legend"
+                />
+              </legend>
+              {props.templates.map((doc, index) => {
+                return (
+                  <React.Fragment key={doc.name}>
+                    <DocumentTemplate
+                      key={doc.name}
+                      doc={doc}
+                      {...props}
                     />
-                  </p>
-                ))}
-              <InvitedContainer />
+                    <ConfirmDialogContainer
+                      confirmId={"confirm-remove-" + doc.name}
+                      title={props.intl.formatMessage({
+                        defaultMessage: "Confirm Removal of template",
+                        id: "header-confirm-remove-template-title",
+                      })}
+                      mainText={props.intl.formatMessage({
+                        defaultMessage:
+                          'Clicking "Confirm" will remove the template',
+                        id: "header-confirm-remove-template-text",
+                      })}
+                      confirm={props.handleTemplateRemove(
+                        doc.id,
+                        props,
+                      )}
+                    />
+                    <DocPreviewContainer
+                      doc={doc}
+                      handleClose={props.handleCloseTemplatePreview}
+                      index={Number(index)}
+                    />
+                    <InviteFormContainer
+                      docId={doc.id}
+                      docName={doc.name}
+                      docOrdered={doc.ordered}
+                      docAllowbankid={doc.allowbankid}
+                      isTemplate={true}
+                    />
+                  </React.Fragment>
+                );
+              })}
             </fieldset>
           )}
-          {!this.props.unauthn && (
-            <>
-              {this.props.owned.length > 0 && (
-                <fieldset className="owned-multisign-container">
-                  <legend data-testid="legend-inviter">
-                    <FormattedMessage
-                      defaultMessage="Documents you have invited others to sign"
-                      key="owned-multisign-legend"
-                    />
-                  </legend>
-                  <OwnedContainer />
-                </fieldset>
-              )}
-            </>
-          )}
-        </div>
-        {!this.props.unauthn && (
-          <>
-            {this.props.templates.length > 0 && (
-              <fieldset className="local-template-container">
-                <legend data-testid="legend-templates">
+          {props.documents.length > 0 && (
+            <fieldset className="local-monosign-container">
+              <legend data-testid="legend-personal">
+                <h2 className="heading">
                   <FormattedMessage
-                    defaultMessage="Templates"
-                    key="local-templates-legend"
+                    defaultMessage="Personal documents"
+                    key="local-monosign-legend"
                   />
-                </legend>
-                {this.props.templates.map((doc, index) => {
-                  return (
-                    <React.Fragment key={doc.name}>
-                      <DocumentTemplate
-                        key={doc.name}
-                        doc={doc}
-                        {...this.props}
-                      />
+                </h2>
+              </legend>
+              <p className="lead-text">
+                <FormattedMessage
+                  defaultMessage="Personal documents are stored in your browser. When signed, we recommend to store them in a separate place for later use."
+                  key="local-monosign-legend-title"
+                />
+              </p>
+              {props.documents.map((doc, index) => {
+                disableClearButton = false;
+                if (doc.state === "signed") {
+                  disableDlAllButton = false;
+                }
+                const docFile = docToFile(doc);
+                if (docFile === null) {
+                  doc = {
+                    ...doc,
+                    state: "failed-loading",
+                    message: props.intl.formatMessage({
+                      defaultMessage: "Malformed PDF",
+                      id: "malformed-pdf",
+                    }),
+                  };
+                }
+                if (doc.state === "selected") disableSigning = false;
+
+                let docRepr = null;
+                if (doc.hasOwnProperty("pending")) {
+                  const _docRepr = (
+                    <DocumentOwned key={doc.name} doc={doc} {...props} />
+                  );
+                  if (doc.state === "signed") {
+                    docRepr = (
+                      <>
+                        {_docRepr}
+                        <ConfirmDialogContainer
+                          confirmId={"confirm-remove-" + doc.name}
+                          title={props.intl.formatMessage({
+                            defaultMessage:
+                              "Confirm Removal of signed invitation",
+                            id: "header-confirm-remove-signed-owned-title",
+                          })}
+                          mainText={props.intl.formatMessage({
+                            defaultMessage:
+                              'Clicking "Confirm" will remove the document',
+                            id: "header-confirm-remove-owned-signed-text",
+                          })}
+                          confirm={props.handleSignedRemove(doc.name)}
+                        />
+                      </>
+                    );
+                  } else {
+                    docRepr = _docRepr;
+                  }
+                } else {
+                  docRepr = (
+                    <>
+                      <DocumentLocal key={doc.name} doc={doc} {...props} />
                       <ConfirmDialogContainer
                         confirmId={"confirm-remove-" + doc.name}
-                        title={this.props.intl.formatMessage({
-                          defaultMessage: "Confirm Removal of template",
-                          id: "header-confirm-remove-template-title",
+                        title={props.intl.formatMessage({
+                          defaultMessage: "Confirm Removal of document",
+                          id: "header-confirm-remove-document-title",
                         })}
-                        mainText={this.props.intl.formatMessage({
+                        mainText={props.intl.formatMessage({
                           defaultMessage:
-                            'Clicking "Confirm" will remove the template',
-                          id: "header-confirm-remove-template-text",
+                            'Clicking "Confirm" will remove the document',
+                          id: "header-confirm-remove-document-text",
                         })}
-                        confirm={this.props.handleTemplateRemove(
-                          doc.id,
-                          this.props,
+                        confirm={props.handleRemoveDocument(
+                          doc,
+                          props,
                         )}
                       />
-                      <DocPreviewContainer
-                        doc={doc}
-                        handleClose={this.props.handleCloseTemplatePreview}
-                        index={Number(index)}
-                      />
+                    </>
+                  );
+                }
+                return (
+                  <React.Fragment key={doc.name}>
+                    {docRepr}
+                    {doc.state === "unconfirmed" &&
+                      doc.type.endsWith("/pdf") && (
+                        <ForcedPreviewContainer
+                          doc={doc}
+                          index={Number(index)}
+                          handleClose={props.handleCloseForcedPreview}
+                          handleConfirm={props.handleConfirmForcedPreview}
+                          handleUnConfirm={
+                            props.handleUnConfirmForcedPreview
+                          }
+                        />
+                      )}
+                    {doc.state === "unconfirmed" &&
+                      doc.type.endsWith("/xml") && (
+                        <ForcedXMLPreviewContainer
+                          doc={doc}
+                          index={Number(index)}
+                          handleClose={props.handleCloseForcedPreview}
+                          handleConfirm={props.handleConfirmForcedPreview}
+                          handleUnConfirm={
+                            props.handleUnConfirmForcedPreview
+                          }
+                        />
+                      )}
+                    {[
+                      "loaded",
+                      "selected",
+                      "failed-signing",
+                      "signed",
+                    ].includes(doc.state) &&
+                      doc.type.endsWith("/pdf") && (
+                        <DocPreviewContainer
+                          doc={doc}
+                          handleClose={props.handleClosePreview}
+                          index={Number(index)}
+                        />
+                      )}
+                    {[
+                      "loaded",
+                      "selected",
+                      "failed-signing",
+                      "signed",
+                    ].includes(doc.state) &&
+                      doc.type.endsWith("/xml") && (
+                        <XMLPreviewContainer
+                          doc={doc}
+                          handleClose={props.handleClosePreview}
+                          index={Number(index)}
+                        />
+                      )}
+                    {["loaded", "selected", "signed"].includes(doc.state) && (
                       <InviteFormContainer
                         docId={doc.id}
                         docName={doc.name}
                         docOrdered={doc.ordered}
                         docAllowbankid={doc.allowbankid}
-                        isTemplate={true}
                       />
-                    </React.Fragment>
-                  );
-                })}
-              </fieldset>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </fieldset>
+          )}
+        </>
+      )}
+      <div id="adjust-vertical-space" />
+      {!props.using_bankid &&
+        !props.using_freja &&
+        props.documents.length > 0 && (
+          <div id="global-buttons-wrapper" className="buttons-wrapper">
+            {widgets.buttonSignSelected(
+              disableSigning,
+              props.handleSubmitToSign,
             )}
-            {this.props.documents.length > 0 && (
-              <fieldset className="local-monosign-container">
-                <legend data-testid="legend-personal">
-                  <h2 className="heading">
-                    <FormattedMessage
-                      defaultMessage="Personal documents"
-                      key="local-monosign-legend"
-                    />
-                  </h2>
-                </legend>
-                <p className="lead-text">
-                  <FormattedMessage
-                    defaultMessage="Personal documents are stored in your browser. When signed, we recommend to store them in a separate place for later use."
-                    key="local-monosign-legend-title"
-                  />
-                </p>
-                {this.props.documents.map((doc, index) => {
-                  disableClearButton = false;
-                  if (doc.state === "signed") {
-                    disableDlAllButton = false;
-                  }
-                  const docFile = docToFile(doc);
-                  if (docFile === null) {
-                    doc = {
-                      ...doc,
-                      state: "failed-loading",
-                      message: this.props.intl.formatMessage({
-                        defaultMessage: "Malformed PDF",
-                        id: "malformed-pdf",
-                      }),
-                    };
-                  }
-                  if (doc.state === "selected") disableSigning = false;
-
-                  let docRepr = null;
-                  if (doc.hasOwnProperty("pending")) {
-                    const _docRepr = (
-                      <DocumentOwned key={doc.name} doc={doc} {...this.props} />
-                    );
-                    if (doc.state === "signed") {
-                      docRepr = (
-                        <>
-                          {_docRepr}
-                          <ConfirmDialogContainer
-                            confirmId={"confirm-remove-" + doc.name}
-                            title={this.props.intl.formatMessage({
-                              defaultMessage:
-                                "Confirm Removal of signed invitation",
-                              id: "header-confirm-remove-signed-owned-title",
-                            })}
-                            mainText={this.props.intl.formatMessage({
-                              defaultMessage:
-                                'Clicking "Confirm" will remove the document',
-                              id: "header-confirm-remove-owned-signed-text",
-                            })}
-                            confirm={this.props.handleSignedRemove(doc.name)}
-                          />
-                        </>
-                      );
-                    } else {
-                      docRepr = _docRepr;
-                    }
-                  } else {
-                    docRepr = (
-                      <>
-                        <DocumentLocal
-                          key={doc.name}
-                          doc={doc}
-                          {...this.props}
-                        />
-                        <ConfirmDialogContainer
-                          confirmId={"confirm-remove-" + doc.name}
-                          title={this.props.intl.formatMessage({
-                            defaultMessage: "Confirm Removal of document",
-                            id: "header-confirm-remove-document-title",
-                          })}
-                          mainText={this.props.intl.formatMessage({
-                            defaultMessage:
-                              'Clicking "Confirm" will remove the document',
-                            id: "header-confirm-remove-document-text",
-                          })}
-                          confirm={this.props.handleRemoveDocument(
-                            doc,
-                            this.props,
-                          )}
-                        />
-                      </>
-                    );
-                  }
-                  return (
-                    <React.Fragment key={doc.name}>
-                      {docRepr}
-                      {doc.state === "unconfirmed" &&
-                        doc.type.endsWith("/pdf") && (
-                          <ForcedPreviewContainer
-                            doc={doc}
-                            index={Number(index)}
-                            handleClose={this.props.handleCloseForcedPreview}
-                            handleConfirm={
-                              this.props.handleConfirmForcedPreview
-                            }
-                            handleUnConfirm={
-                              this.props.handleUnConfirmForcedPreview
-                            }
-                          />
-                        )}
-                      {doc.state === "unconfirmed" &&
-                        doc.type.endsWith("/xml") && (
-                          <ForcedXMLPreviewContainer
-                            doc={doc}
-                            index={Number(index)}
-                            handleClose={this.props.handleCloseForcedPreview}
-                            handleConfirm={
-                              this.props.handleConfirmForcedPreview
-                            }
-                            handleUnConfirm={
-                              this.props.handleUnConfirmForcedPreview
-                            }
-                          />
-                        )}
-                      {[
-                        "loaded",
-                        "selected",
-                        "failed-signing",
-                        "signed",
-                      ].includes(doc.state) &&
-                        doc.type.endsWith("/pdf") && (
-                          <DocPreviewContainer
-                            doc={doc}
-                            handleClose={this.props.handleClosePreview}
-                            index={Number(index)}
-                          />
-                        )}
-                      {[
-                        "loaded",
-                        "selected",
-                        "failed-signing",
-                        "signed",
-                      ].includes(doc.state) &&
-                        doc.type.endsWith("/xml") && (
-                          <XMLPreviewContainer
-                            doc={doc}
-                            handleClose={this.props.handleClosePreview}
-                            index={Number(index)}
-                          />
-                        )}
-                      {["loaded", "selected", "signed"].includes(doc.state) && (
-                        <InviteFormContainer
-                          docId={doc.id}
-                          docName={doc.name}
-                          docOrdered={doc.ordered}
-                          docAllowbankid={doc.allowbankid}
-                        />
-                      )}
-                    </React.Fragment>
-                  );
-                })}
-              </fieldset>
+            {!props.unauthn && (
+              <>
+                {widgets.buttonDownloadAll(
+                  disableDlAllButton,
+                  props.handleDownloadAll,
+                )}
+                {widgets.buttonClearPersonal(
+                  disableClearButton,
+                  props.showConfirm("confirm-clear-session"),
+                  props.clearDb,
+                  props.intl,
+                )}
+              </>
             )}
-          </>
+          </div>
         )}
-        <div id="adjust-vertical-space" />
-        {!this.props.using_bankid &&
-          !this.props.using_freja &&
-          this.props.documents.length > 0 && (
-            <div id="global-buttons-wrapper" className="buttons-wrapper">
-              {widgets.buttonSignSelected(
-                disableSigning,
-                this.props.handleSubmitToSign.bind(this),
-              )}
-              {!this.props.unauthn && (
-                <>
-                  {widgets.buttonDownloadAll(
-                    disableDlAllButton,
-                    this.props.handleDownloadAll.bind(this),
-                  )}
-                  {widgets.buttonClearPersonal(
-                    disableClearButton,
-                    this.props.showConfirm("confirm-clear-session"),
-                    this.props.clearDb.bind(this),
-                    this.props.intl,
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        {/**
-         * This is the form that is sent to the sign service.
-         * Both the data sent in the form (`binding`, `relayState`, and `signRequest`)
-         * and the `destinationUrl` are obtained in the response to the call to the `create` API method.
-         * This form is automatically submitted after receiving the above data from the backend
-         * (see the functions -thunks- `startSigningDocuments` and `restartSigningDocuments`
-         * in `frontend/src/slices/Documents.js`).
-         *
-         * Once this form is submitted, we loose control of the user agent in favor of the sign service;
-         * and after the user finishes their interaction with the sign service, it redirects the user to the
-         * callback in the backend (see the `sign_service_callback` function -view- in backend/src/edusign_webapp/views.py).
-         * This callback was provided to the API in the call to the `create` method, as `returnUrl`;
-         * and the API included it in the returned signRequest, which we are here in this form sending to the sign service.
-         **/}
-        {this.props.destinationUrl !== undefined &&
-          this.props.destinationUrl !== "https://dummy.destination.url" && (
-            <div>
-              <form
-                id="signing-form"
-                data-testid="signing-form"
-                action={this.props.destinationUrl}
-                method="post"
-              >
-                <input
-                  type="hidden"
-                  name="Binding"
-                  value={this.props.binding}
-                />
-                <input
-                  type="hidden"
-                  name="RelayState"
-                  value={this.props.relayState}
-                />
-                <input
-                  type="hidden"
-                  name="EidSignRequest"
-                  value={this.props.signRequest}
-                />
-              </form>
-            </div>
-          )}
-        {/**
-         * Dummy form rendered when there's been no call to the `create` API method.
-         **/}
-        {this.props.destinationUrl === "https://dummy.destination.url" && (
+      {/**
+       * This is the form that is sent to the sign service.
+       * Both the data sent in the form (`binding`, `relayState`, and `signRequest`)
+       * and the `destinationUrl` are obtained in the response to the call to the `create` API method.
+       * This form is automatically submitted after receiving the above data from the backend
+       * (see the functions -thunks- `startSigningDocuments` and `restartSigningDocuments`
+       * in `frontend/src/slices/Documents.js`).
+       *
+       * Once this form is submitted, we loose control of the user agent in favor of the sign service;
+       * and after the user finishes their interaction with the sign service, it redirects the user to the
+       * callback in the backend (see the `sign_service_callback` function -view- in backend/src/edusign_webapp/views.py).
+       * This callback was provided to the API in the call to the `create` method, as `returnUrl`;
+       * and the API included it in the returned signRequest, which we are here in this form sending to the sign service.
+       **/}
+      {props.destinationUrl !== undefined &&
+        props.destinationUrl !== "https://dummy.destination.url" && (
           <div>
             <form
               id="signing-form"
               data-testid="signing-form"
-              onSubmit={(e) => {
-                e.preventDefault();
-                return false;
-              }}
-            />
+              action={props.destinationUrl}
+              method="post"
+            >
+              <input type="hidden" name="Binding" value={props.binding} />
+              <input
+                type="hidden"
+                name="RelayState"
+                value={props.relayState}
+              />
+              <input
+                type="hidden"
+                name="EidSignRequest"
+                value={props.signRequest}
+              />
+            </form>
           </div>
         )}
-        <PDFFormContainer />
-      </>
-    );
-  }
+      {/**
+       * Dummy form rendered when there's been no call to the `create` API method.
+       **/}
+      {props.destinationUrl === "https://dummy.destination.url" && (
+        <div>
+          <form
+            id="signing-form"
+            data-testid="signing-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              return false;
+            }}
+          />
+        </div>
+      )}
+      <PDFFormContainer />
+    </>
+  );
 }
 
 DocManager.propTypes = {
