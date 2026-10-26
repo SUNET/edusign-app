@@ -1,5 +1,5 @@
 import React from "react";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
 import BForm from "react-bootstrap/Form";
 import { Field } from "formik";
@@ -100,12 +100,13 @@ export const InfoLine = ({ doc }) => {
 };
 
 export const InfoLine2 = ({ doc }) => {
+  const intl = useIntl();
   const info = doc.info_message;
   if (!info) return "";
   const infos = [];
   if (info.includes("flattened-acroform")) {
     infos.push(
-      props.intl.formatMessage({
+      intl.formatMessage({
         defaultMessage:
           "The document contained an active form that became locked within the document",
         id: "flattened-acroform",
@@ -114,7 +115,7 @@ export const InfoLine2 = ({ doc }) => {
   }
   if (info.includes("removed-encryption-dictionary")) {
     infos.push(
-      props.intl.formatMessage({
+      intl.formatMessage({
         defaultMessage:
           "The document contained an encryption dictionary. This was removed",
         id: "removed-encryption-dictionary",

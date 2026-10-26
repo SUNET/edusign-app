@@ -263,7 +263,7 @@ class DocumentInvited extends Component {
               {failedLoA}
               {invites}
               {preparePrevSigs(doc, this.props.size)}
-              {widgets.InfoLine(doc)}
+              {widgets.InfoLine({ doc })}
             </div>
           </div>
         )) || (
