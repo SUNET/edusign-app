@@ -94,6 +94,9 @@ function DocManager(props) {
   });
   let disableClearButton = true;
 
+  const hasDocuments =
+    documents.length > 0 || owned.length > 0 || pending.length > 0;
+
   return (
     <>
       {unauthn && invitedUnauthn && (
@@ -352,19 +355,20 @@ function DocManager(props) {
         </>
       )}
       <div id="adjust-vertical-space" />
-      {!using_bankid && !using_freja && documents.length > 0 && (
+      {!using_bankid && !using_freja && hasDocuments && (
         <div id="global-buttons-wrapper" className="buttons-wrapper">
-          {widgets.buttonSignSelected(disableSigning, props.handleSubmitToSign)}
+          {widgets.buttonSignSelected(disableSigning, () =>
+            props.handleSubmitToSign(intl),
+          )}
           {!unauthn && (
             <>
-              {widgets.buttonDownloadAll(
-                disableDlAllButton,
-                props.handleDownloadAll,
+              {widgets.buttonDownloadAll(disableDlAllButton, () =>
+                props.handleDownloadAll(intl),
               )}
               {widgets.buttonClearPersonal(
                 disableClearButton,
                 props.showConfirm("confirm-clear-session"),
-                props.clearDb,
+                () => props.clearDb(intl),
                 intl,
               )}
             </>
