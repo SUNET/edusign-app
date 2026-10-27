@@ -240,8 +240,8 @@ class DocumentOwned extends Component {
                 </div>
                 {invites}
                 {preparePrevSigs(doc, this.props.size)}
-                {widgets.InfoLine({ doc })}
-                {widgets.InfoLine2({ doc })}
+                <widgets.InfoLine doc={doc} />
+                <widgets.InfoLine2 doc={doc} />
               </div>
             </div>
           )) || (
@@ -314,8 +314,8 @@ class DocumentOwned extends Component {
               )}
               {invites}
               {preparePrevSigs(doc, this.props.size)}
-              {widgets.InfoLine({ doc })}
-              {widgets.InfoLine2({ doc })}
+              <widgets.InfoLine doc={doc} />
+              <widgets.InfoLine2 doc={doc} />
             </div>
           )}
         </ESPopover>
