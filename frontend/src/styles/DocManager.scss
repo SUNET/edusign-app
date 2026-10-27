@@ -236,6 +236,9 @@
       margin-right: 0;
     }
   }
+  @media (max-width: $breakpoint-md) {
+    margin-bottom: 4rem;
+  }
 }
 
 div.failed-loading,
