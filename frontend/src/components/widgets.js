@@ -101,7 +101,7 @@ export const InfoLine = ({ doc }) => {
 export const InfoLine2 = ({ doc }) => {
   const intl = useIntl();
   const info = doc.info_message;
-  if (!info) return "";
+  if (!info) return null;
   const infos = [];
   if (info.includes("flattened-acroform")) {
     infos.push(
