@@ -44,6 +44,12 @@ import { setActiveId, unsetActiveId } from "slices/Overlay";
 import { isNotInviting } from "slices/InviteForm";
 import { showPDFForm } from "slices/PDFForms";
 
+const mapStateToProps = (state) => {
+  return {
+    size: state.main.size,
+  };
+};
+
 const mapDispatchToProps = (dispatch, props) => {
   return {
     handlePreview: function (key) {
@@ -117,11 +123,11 @@ const mapDispatchToProps = (dispatch, props) => {
         await dispatch(saveDocument({ docKey: key }));
       };
     },
-    handleSubmitToSign: async function () {
-      await dispatch(startSigning({ intl: this.props.intl }));
+    handleSubmitToSign: async function (intl) {
+      await dispatch(startSigning({ intl: intl }));
     },
-    handleDownloadAll: async function () {
-      await dispatch(downloadAllSigned({ intl: this.props.intl }));
+    handleDownloadAll: async function (intl) {
+      await dispatch(downloadAllSigned({ intl: intl }));
     },
     handleDlSigned: function (args) {
       return async () => {
@@ -143,8 +149,8 @@ const mapDispatchToProps = (dispatch, props) => {
         dispatch(unsetSpinning());
       };
     },
-    clearDb: function () {
-      clearDocStore(dispatch, this.props.intl);
+    clearDb: function (intl) {
+      clearDocStore(dispatch, intl);
       dispatch(removeAllDocuments());
     },
     showConfirm: function (confirmId) {
@@ -215,4 +221,4 @@ const mapDispatchToProps = (dispatch, props) => {
   };
 };
 
-export default connect(null, mapDispatchToProps)(DocManager);
+export default connect(mapStateToProps, mapDispatchToProps)(DocManager);
