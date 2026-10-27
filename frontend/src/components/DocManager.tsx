@@ -1,8 +1,5 @@
 import React, { useEffect } from "react";
-import PropTypes from "prop-types";
-import { FormattedMessage, useIntl } from "react-intl";
-import { injectIntl } from "init-app/intl";
-
+import { FormattedMessage, useIntl, IntlShape } from "react-intl";
 import ForcedPreviewContainer from "containers/ForcedPreview";
 import ForcedXMLPreviewContainer from "containers/ForcedXMLPreview";
 import DocPreviewContainer from "containers/DocPreview";
@@ -17,7 +14,6 @@ import DocumentOwned from "components/DocumentOwned";
 import * as widgets from "components/widgets";
 import PDFFormContainer from "containers/PDFForm";
 import { docToFile } from "components/utils";
-
 import "styles/DocManager.scss";
 import "styles/Invitation.scss";
 import { useAppSelector } from "init-app/hooks";
@@ -37,14 +33,125 @@ import { useAppSelector } from "init-app/hooks";
  * Depending on the state, it will show a different set of controls.
  * @component
  */
-function DocManager(props) {
+
+export interface EduSignDocument {
+  id: number;
+  key: string;
+  ref: string;
+  name: string;
+  type: string;
+  size: number;
+  created: number;
+  blob: string;
+  pprinted: string;
+  prev_signatures: string;
+  sign_requirement: string;
+  has_form: boolean;
+  show: boolean;
+  state: DocumentState;
+  message: string;
+  info_message: string;
+  signedContent?: string;
+  showForced?: boolean;
+  ordered?: boolean;
+  allowbankid?: boolean;
+  signed_draft?: boolean;
+  loa?: string;
+  pending?: Invitee[];
+  signed?: Invitee[];
+  declined?: Invitee[];
+  owner?: { name: string; email: string };
+  invite_key?: string;
+}
+
+export type DocumentState =
+  | "loading"
+  | "failed-loading"
+  | "unconfirmed"
+  | "loaded"
+  | "selected"
+  | "failed-preparing"
+  | "signing"
+  | "failed-signing"
+  | "signed"
+  | "declined"
+  | "failed-loa"
+  | "incomplete";
+
+export interface Invitee {
+  name: string;
+  email: string;
+  lang?: string;
+}
+
+/**
+ * Props supplied by containers/DocManager.
+ *
+ * Everything else the component needs (documents, invitations,
+ * signing data, window size) is read straight from the store with
+ * useAppSelector, so it does not belong here.
+ */
+interface DocManagerProps {
+  size: "lg" | "sm";
+  handleSubmitToSign: (intl: IntlShape) => Promise<void>;
+  handleDownloadAll: (intl: IntlShape) => Promise<void>;
+  clearDb: (intl: IntlShape) => void;
+  showConfirm: (confirmId: string) => () => void;
+  handleSignedRemove: (name: string) => () => Promise<void>;
+  handleRemoveDocument: (
+    doc: EduSignDocument,
+    props: DocManagerProps,
+  ) => () => Promise<void>;
+  handleTemplateRemove: (
+    docid: number,
+    props: DocManagerProps,
+  ) => () => Promise<void>;
+  handleClosePreview: (name: string) => () => void;
+  handleCloseTemplatePreview: (name: string) => () => void;
+  handleCloseForcedPreview: (name: string) => () => void;
+  handleConfirmForcedPreview: (doc: EduSignDocument) => () => Promise<void>;
+  handleUnConfirmForcedPreview: (args: {
+    doc: EduSignDocument;
+  }) => () => Promise<void>;
+  handlePreview: (key: string) => () => Promise<void>;
+  handleTemplatePreview: (key: string) => () => Promise<void>;
+  handleRemove: (name: string) => () => Promise<void>;
+  handleDlSigned: (args: { docName: string }) => () => Promise<void>;
+  handleDlPersonalDraft: (args: { docKey: string }) => () => Promise<void>;
+  handleCreateTemplate: (
+    key: string,
+    props: DocManagerProps,
+  ) => () => Promise<void>;
+  handleRetry: (
+    doc: EduSignDocument,
+    props: DocManagerProps,
+  ) => () => Promise<void>;
+  handleDocSelection: (
+    name: string,
+    key: string,
+  ) => (e: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
+  handleSendToSign: (
+    props: DocManagerProps,
+    doc: EduSignDocument,
+  ) => () => Promise<void>;
+  openInviteForm: (doc: EduSignDocument) => () => void;
+  handleFillForm: (doc: EduSignDocument) => () => void;
+}
+
+function DocManager(props: Readonly<DocManagerProps>) {
   // The signing form is only rendered once the backend has returned the data
   // the sign service needs, and submitting it hands the user over to that
   // service. The effect has no dependency array because the previous
   // componentDidUpdate ran after every update.
 
-  const documents = useAppSelector((state) => state.documents.documents);
-  const templates = useAppSelector((state) => state.template.documents);
+  // The slices these come from are still plain JS, so their empty-array
+  // initial state infers as never[]; annotate until they are converted.
+  const documents: EduSignDocument[] = useAppSelector(
+    (state) => state.documents.documents,
+  );
+  const templates: EduSignDocument[] = useAppSelector(
+    (state) => state.template.documents,
+  );
   const destinationUrl = useAppSelector(
     (state) => state.main.signingData.destination_url,
   );
@@ -63,15 +170,17 @@ function DocManager(props) {
     (state) => state.main.pending_multisign.length > 0,
   );
   const using_bankid = useAppSelector(
-    (state) => state.main.signer_attributes.using_bankid,
+    (state) => state.main.signer_attributes?.using_bankid,
   );
   const using_freja = useAppSelector(
-    (state) => state.main.signer_attributes.using_freja,
+    (state) => state.main.signer_attributes?.using_freja,
   );
   const intl = useIntl();
 
   useEffect(() => {
-    const form = document.getElementById("signing-form");
+    const form = document.getElementById(
+      "signing-form",
+    ) as HTMLFormElement | null;
     if (!form) return;
     if (form.requestSubmit) {
       form.requestSubmit();
@@ -424,15 +533,4 @@ function DocManager(props) {
   );
 }
 
-DocManager.propTypes = {
-  /**
-   * The documents to manage
-   */
-  documents: PropTypes.array,
-  handlePreview: PropTypes.func,
-  handleRemove: PropTypes.func,
-  handleDlSigned: PropTypes.func,
-  handleSubmitToSign: PropTypes.func,
-};
-
-export default injectIntl(DocManager);
+export default DocManager;

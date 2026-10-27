@@ -23,8 +23,8 @@
  * + failed-signing: invitation has had problems while being signed
  *
  */
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createIntl } from "react-intl";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createIntl, IntlShape } from "react-intl";
 import * as FileSaver from "file-saver";
 
 import {
@@ -49,21 +49,127 @@ import { b64toBlob, nameForDownload } from "components/utils";
 import { dbRemoveDocument } from "init-app/database";
 
 /**
+ * The slices this one talks to are still plain JS, so the values that cross
+ * that boundary (documents, API payloads, the thunk API) are not typed here.
+ */
+type AnyDoc = Record<string, any>;
+
+/** The two state keys holding multisign invitations. */
+export type InvitationKey = "owned_multisign" | "pending_multisign";
+
+export interface SignerAttributes {
+  eppn: string;
+  ssn: string;
+  name: string;
+  mail: string;
+  mail_aliases: string[];
+  assurance_levels: string[];
+  authn_context: string;
+  identity_provider: string;
+  using_bankid: boolean;
+  using_freja: boolean;
+  invite_key: string;
+}
+
+export interface UiDefaults {
+  skip_final: boolean;
+  send_signed: boolean;
+  ordered_invitations: boolean;
+  allow_bankid?: boolean;
+  sendsigned?: boolean;
+}
+
+export interface Loa {
+  name: string;
+  value: string;
+}
+
+export interface MainState {
+  unauthn: boolean;
+  loading: boolean;
+  csrf_token: string | null;
+  signer_attributes: SignerAttributes | null;
+  owned_multisign: AnyDoc[];
+  pending_multisign: AnyDoc[];
+  signingData: Record<string, any>;
+  size: "lg" | "sm";
+  width: number;
+  multisign_buttons: string;
+  showHelp: boolean;
+  max_file_size: number;
+  max_signatures: number;
+  company_link: string;
+  available_loas: Loa[];
+  ui_defaults: UiDefaults;
+  environment: string;
+  visibility_timer: number;
+  fetch_timer: ReturnType<typeof setTimeout> | null;
+  user_info_detail: string;
+  stale_from: string;
+  [key: string]: any;
+}
+
+const initialState: MainState = {
+  unauthn: false,
+  loading: true,
+  csrf_token: null,
+  signer_attributes: {
+    eppn: "",
+    ssn: "",
+    name: "",
+    mail: "",
+    mail_aliases: [],
+    assurance_levels: [],
+    authn_context: "",
+    identity_provider: "",
+    using_bankid: false,
+    using_freja: false,
+    invite_key: "",
+  },
+  owned_multisign: [],
+  pending_multisign: [],
+  signingData: {},
+  size: "lg",
+  width: 0,
+  multisign_buttons: "yes",
+  showHelp: true,
+  max_file_size: 20971520,
+  max_signatures: 12,
+  company_link: "https://sunet.se",
+  available_loas: [],
+  ui_defaults: {
+    skip_final: false,
+    send_signed: true,
+    ordered_invitations: false,
+  },
+  environment: "production",
+  visibility_timer: 0,
+  fetch_timer: null,
+  user_info_detail: "",
+  stale_from: "none",
+};
+
+interface FetchConfigArgs {
+  intl?: IntlShape;
+  configPath?: string;
+}
+
+/**
  * @public
  * @function fetchConfig
  * @desc Redux async thunk to get configuration data from the backend.
  */
 export const fetchConfig = createAsyncThunk(
   "main/fetchConfig",
-  async (args, thunkAPI) => {
-    const state = thunkAPI.getState();
-    let intl;
+  async (args: FetchConfigArgs | undefined, thunkAPI) => {
+    const state = thunkAPI.getState() as any;
+    let intl: IntlShape;
     if (args === undefined || args.intl === undefined) {
       intl = createIntl(state.intl);
     } else {
       intl = args.intl;
     }
-    let configPath;
+    let configPath: string;
     if (args === undefined || args.configPath === undefined) {
       configPath = "/sign/config";
     } else {
@@ -115,7 +221,7 @@ export const fetchConfig = createAsyncThunk(
           loadDocuments({
             intl: intl,
             eppn: eppn,
-          }),
+          } as any),
         );
 
         return configData;
@@ -130,10 +236,20 @@ export const fetchConfig = createAsyncThunk(
           }),
         }),
       );
-      return thunkAPI.rejectWithValue(err.toString());
+      return thunkAPI.rejectWithValue(String(err));
     }
   },
 );
+
+interface GetPartiallySignedDocArgs {
+  key: string;
+  stateKey: InvitationKey;
+  intl: IntlShape;
+  show?: boolean;
+  showForced?: boolean;
+  retried?: boolean;
+  payload?: AnyDoc;
+}
 
 /**
  * @public
@@ -142,9 +258,9 @@ export const fetchConfig = createAsyncThunk(
  */
 export const getPartiallySignedDoc = createAsyncThunk(
   "main/getPartiallySignedDoc",
-  async (args, thunkAPI) => {
-    const state = thunkAPI.getState();
-    const oldDocs = state.main[args.stateKey].filter((doc) => {
+  async (args: GetPartiallySignedDocArgs, thunkAPI) => {
+    const state = thunkAPI.getState() as any;
+    const oldDocs = state.main[args.stateKey].filter((doc: AnyDoc) => {
       return doc.key === args.key;
     });
     if (oldDocs.length == 1 && oldDocs[0].blob) {
@@ -160,7 +276,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
           show: true,
         };
       }
-      return args;
+      return args as any;
     }
     const body = preparePayload(state, { key: args.key });
     try {
@@ -182,7 +298,7 @@ export const getPartiallySignedDoc = createAsyncThunk(
             retried: true,
           };
           await thunkAPI.dispatch(getPartiallySignedDoc(newArgs));
-          return { key: args.key, stateKey: args.stateKey };
+          return { key: args.key, stateKey: args.stateKey } as any;
         } else {
           throw new Error(data.message);
         }
@@ -204,10 +320,15 @@ export const getPartiallySignedDoc = createAsyncThunk(
           }),
         }),
       );
-      return thunkAPI.rejectWithValue(err.toString());
+      return thunkAPI.rejectWithValue(String(err));
     }
   },
 );
+
+interface DeclineSigningArgs {
+  key: string;
+  intl: IntlShape;
+}
 
 /**
  * @public
@@ -216,8 +337,8 @@ export const getPartiallySignedDoc = createAsyncThunk(
  */
 export const declineSigning = createAsyncThunk(
   "main/declineSigning",
-  async (args, thunkAPI) => {
-    const state = thunkAPI.getState();
+  async (args: DeclineSigningArgs, thunkAPI) => {
+    const state = thunkAPI.getState() as any;
     const body = preparePayload(state, { key: args.key });
     try {
       const response = await esFetch(
@@ -251,10 +372,15 @@ export const declineSigning = createAsyncThunk(
           }),
         }),
       );
-      return thunkAPI.rejectWithValue(err.toString());
+      return thunkAPI.rejectWithValue(String(err));
     }
   },
 );
+
+interface DownloadDraftArgs {
+  docKey: string;
+  intl: IntlShape;
+}
 
 /**
  * @public
@@ -263,9 +389,9 @@ export const declineSigning = createAsyncThunk(
  */
 export const downloadInvitedDraft = createAsyncThunk(
   "main/downloadInvitedDraft",
-  async (args, thunkAPI) => {
-    let state = thunkAPI.getState();
-    let doc = state.main.pending_multisign.find((d) => {
+  async (args: DownloadDraftArgs, thunkAPI) => {
+    let state = thunkAPI.getState() as any;
+    let doc = state.main.pending_multisign.find((d: AnyDoc) => {
       return d.key === args.docKey;
     });
     if (!doc.signedContent) {
@@ -279,8 +405,8 @@ export const downloadInvitedDraft = createAsyncThunk(
         }),
       );
     }
-    state = thunkAPI.getState();
-    doc = state.main.pending_multisign.find((d) => {
+    state = thunkAPI.getState() as any;
+    doc = state.main.pending_multisign.find((d: AnyDoc) => {
       return d.key === args.docKey;
     });
     const b64content =
@@ -300,9 +426,9 @@ export const downloadInvitedDraft = createAsyncThunk(
  */
 export const downloadPersonalDraft = createAsyncThunk(
   "main/downloadPersonalDraft",
-  async (args, thunkAPI) => {
-    let state = thunkAPI.getState();
-    let doc = state.documents.documents.find((d) => {
+  async (args: DownloadDraftArgs, thunkAPI) => {
+    let state = thunkAPI.getState() as any;
+    let doc = state.documents.documents.find((d: AnyDoc) => {
       return d.key === args.docKey;
     });
     const b64content =
@@ -314,6 +440,11 @@ export const downloadPersonalDraft = createAsyncThunk(
   },
 );
 
+interface FinishInvitedArgs {
+  doc: AnyDoc;
+  intl: IntlShape;
+}
+
 /**
  * @public
  * @function finishInvited
@@ -321,10 +452,10 @@ export const downloadPersonalDraft = createAsyncThunk(
  */
 export const finishInvited = createAsyncThunk(
   "main/finishInvited",
-  async (args, thunkAPI) => {
-    let state = thunkAPI.getState();
+  async (args: FinishInvitedArgs, thunkAPI) => {
+    let state = thunkAPI.getState() as any;
     const oldDoc = state.main.pending_multisign.find(
-      (doc) => doc.key === args.doc.id,
+      (doc: AnyDoc) => doc.key === args.doc.id,
     );
     if (oldDoc === undefined) {
       return;
@@ -345,7 +476,7 @@ export const finishInvited = createAsyncThunk(
         prefix = "data:application/pdf;base64,";
       }
       const content = prefix + args.doc.signed_content;
-      let newDoc = {
+      let newDoc: AnyDoc = {
         ...oldDoc,
         name: nameForDownload(oldDoc.name, "draft", state),
         size: content.length,
@@ -376,11 +507,11 @@ export const finishInvited = createAsyncThunk(
       try {
         thunkAPI.dispatch(addDocument(newDoc));
         await thunkAPI.dispatch(
-          createDocument({ doc: newDoc, intl: args.intl }),
+          createDocument({ doc: newDoc, intl: args.intl } as any),
         );
-        state = thunkAPI.getState();
+        state = thunkAPI.getState() as any;
         const preparedDoc = state.documents.documents.find(
-          (doc) => doc.name === newDoc.name,
+          (doc: AnyDoc) => doc.name === newDoc.name,
         );
         if (preparedDoc === undefined) {
           throw new Error(`Document ${newDoc.name} could not be prepared`);
@@ -394,9 +525,9 @@ export const finishInvited = createAsyncThunk(
             }),
           );
         }
-        state = thunkAPI.getState();
+        state = thunkAPI.getState() as any;
         newDoc = state.documents.documents.find(
-          (doc) => doc.name === newDoc.name,
+          (doc: AnyDoc) => doc.name === newDoc.name,
         );
         await dbRemoveDocument(newDoc);
         await addDocumentToDb(
@@ -420,6 +551,16 @@ export const finishInvited = createAsyncThunk(
   },
 );
 
+interface DelegateSignatureArgs {
+  values: {
+    inviteKey: string;
+    documentKey: string;
+    delegationName: string;
+    delegationEmail: string;
+  };
+  intl: IntlShape;
+}
+
 /**
  * @public
  * @function delegateSignature
@@ -427,8 +568,8 @@ export const finishInvited = createAsyncThunk(
  */
 export const delegateSignature = createAsyncThunk(
   "main/delegateSignature",
-  async (args, thunkAPI) => {
-    const state = thunkAPI.getState();
+  async (args: DelegateSignatureArgs, thunkAPI) => {
+    const state = thunkAPI.getState() as any;
     const body = preparePayload(state, {
       invite_key: args.values.inviteKey,
       document_key: args.values.documentKey,
@@ -469,52 +610,14 @@ export const delegateSignature = createAsyncThunk(
           }),
         }),
       );
-      return thunkAPI.rejectWithValue(err.toString());
+      return thunkAPI.rejectWithValue(String(err));
     }
   },
 );
 
 const mainSlice = createSlice({
   name: "main",
-  initialState: {
-    unauthn: false,
-    loading: true,
-    csrf_token: null,
-    signer_attributes: {
-      eppn: "",
-      ssn: "",
-      name: "",
-      mail: "",
-      mail_aliases: [],
-      assurance_levels: [],
-      authn_context: "",
-      identity_provider: "",
-      using_bankid: false,
-      using_freja: false,
-      invite_key: "",
-    },
-    owned_multisign: [],
-    pending_multisign: [],
-    signingData: {},
-    size: "lg",
-    width: 0,
-    multisign_buttons: "yes",
-    showHelp: true,
-    max_file_size: 20971520,
-    max_signatures: 12,
-    company_link: "https://sunet.se",
-    available_loas: [],
-    ui_defaults: {
-      skip_final: false,
-      send_signed: true,
-      ordered_invitations: false,
-    },
-    environment: "production",
-    visibility_timer: 0,
-    fetch_timer: null,
-    user_info_detail: "",
-    stale_from: "none",
-  },
+  initialState,
   reducers: {
     /**
      * @public
@@ -537,7 +640,7 @@ const mainSlice = createSlice({
      * @function setCsrfToken
      * @desc Redux action to keep the csrf token in the state
      */
-    setCsrfToken(state, action) {
+    setCsrfToken(state, action: PayloadAction<string>) {
       state.csrf_token = action.payload;
     },
     /**
@@ -545,7 +648,7 @@ const mainSlice = createSlice({
      * @function updateSigningForm
      * @desc Redux action to pass input values to the signing form
      */
-    updateSigningForm(state, action) {
+    updateSigningForm(state, action: PayloadAction<Record<string, any>>) {
       state.signingData = action.payload;
     },
     /**
@@ -562,7 +665,7 @@ const mainSlice = createSlice({
      * @function addOwned
      * @desc Redux action to add an owned multisign request
      */
-    addOwned(state, action) {
+    addOwned(state, action: PayloadAction<AnyDoc>) {
       let present = false;
       const doc = action.payload;
       state.owned_multisign.forEach((owned) => {
@@ -577,7 +680,7 @@ const mainSlice = createSlice({
      * @function removeOwned
      * @desc Redux action to remove an owned multisign request
      */
-    removeOwned(state, action) {
+    removeOwned(state, action: PayloadAction<{ key: string }>) {
       state.owned_multisign = state.owned_multisign.filter((doc) => {
         return doc.key !== action.payload.key;
       });
@@ -587,7 +690,7 @@ const mainSlice = createSlice({
      * @function removeInvited
      * @desc Redux action to remove an invited multisign request
      */
-    removeInvited(state, action) {
+    removeInvited(state, action: PayloadAction<{ key: string }>) {
       state.pending_multisign = state.pending_multisign.filter((doc) => {
         return doc.key !== action.payload.key;
       });
@@ -597,7 +700,7 @@ const mainSlice = createSlice({
      * @function updateOwned
      * @desc Redux action to update an owned multisign request
      */
-    updateOwned(state, action) {
+    updateOwned(state, action: PayloadAction<AnyDoc>) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
         if (doc.key === action.payload.key) {
           return {
@@ -612,7 +715,7 @@ const mainSlice = createSlice({
      * @function selectOwnedDoc
      * @desc Redux action to select an owned invitation
      */
-    selectOwnedDoc(state, action) {
+    selectOwnedDoc(state, action: PayloadAction<string>) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
         if (doc.key === action.payload) {
           const state = doc.state === "selected" ? "loaded" : "selected";
@@ -629,7 +732,7 @@ const mainSlice = createSlice({
      * @function selectInvitedDoc
      * @desc Redux action to select an invited invitation
      */
-    selectInvitedDoc(state, action) {
+    selectInvitedDoc(state, action: PayloadAction<string>) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.key === action.payload) {
           const st = doc.state === "selected" ? "loaded" : "selected";
@@ -646,7 +749,7 @@ const mainSlice = createSlice({
      * @function setInvitedSigning
      * @desc Redux action to mark and invitee doc as being signed
      */
-    setInvitedSigning(state, action) {
+    setInvitedSigning(state, action: PayloadAction<string>) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.invite_key === action.payload) {
           return {
@@ -662,7 +765,7 @@ const mainSlice = createSlice({
      * @function setOwnedSigning
      * @desc Redux action to mark and invited doc as being signed
      */
-    setOwnedSigning(state, action) {
+    setOwnedSigning(state, action: PayloadAction<string>) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
         if (doc.key === action.payload) {
           return {
@@ -678,7 +781,7 @@ const mainSlice = createSlice({
      * @function hideInvitedPreview
      * @desc Redux action to hide the previewed document
      */
-    hideInvitedPreview(state, action) {
+    hideInvitedPreview(state, action: PayloadAction<string>) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.name === action.payload) {
           return {
@@ -693,7 +796,7 @@ const mainSlice = createSlice({
      * @function hideOwnedPreview
      * @desc Redux action to hide the owned previewed document
      */
-    hideOwnedPreview(state, action) {
+    hideOwnedPreview(state, action: PayloadAction<string>) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
         if (doc.name === action.payload) {
           return {
@@ -708,7 +811,7 @@ const mainSlice = createSlice({
      * @desc Redux action to update a document in the store
      * setting the state key to "signing"
      */
-    startSigningInvited(state, action) {
+    startSigningInvited(state, action: PayloadAction<string>) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.key === action.payload) {
           const document = {
@@ -726,7 +829,7 @@ const mainSlice = createSlice({
      * @desc Redux action to update a document in the store
      * setting the state key to "signing"
      */
-    startSigningOwned(state, action) {
+    startSigningOwned(state, action: PayloadAction<string>) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
         if (doc.name === action.payload) {
           const document = {
@@ -743,7 +846,7 @@ const mainSlice = createSlice({
      * @desc Redux action to update a document in the store
      * setting the state key to whatever
      */
-    setInvitedState(state, action) {
+    setInvitedState(state, action: PayloadAction<AnyDoc>) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.key === action.payload.key) {
           const newDoc = {
@@ -760,7 +863,7 @@ const mainSlice = createSlice({
      * @desc Redux action to update a document in the store
      * setting the state key to whatever
      */
-    setOwnedState(state, action) {
+    setOwnedState(state, action: PayloadAction<AnyDoc>) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
         if (doc.name === action.payload.name) {
           const document = {
@@ -777,7 +880,7 @@ const mainSlice = createSlice({
      * @desc Redux action to update an invited document in the documents state key,
      * setting the show key to true (so that the UI will show the forced preview of the document).
      */
-    showForcedInvitedPreview(state, action) {
+    showForcedInvitedPreview(state, action: PayloadAction<string>) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.name === action.payload) {
           return {
@@ -793,7 +896,7 @@ const mainSlice = createSlice({
      * @desc Redux action to update an invited document in the documents state key,
      * setting the showForced key to false (so that the UI will hide the forced preview of the document).
      */
-    hideForcedInvitedPreview(state, action) {
+    hideForcedInvitedPreview(state, action: PayloadAction<string>) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.name === action.payload) {
           return {
@@ -810,7 +913,7 @@ const mainSlice = createSlice({
      * setting the showForced key to false (so that the UI will hide the forced preview of the document,
      * and the document will end in the 'selected' state).
      */
-    confirmForcedInvitedPreview(state, action) {
+    confirmForcedInvitedPreview(state, action: PayloadAction<string>) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.key === action.payload) {
           return {
@@ -829,7 +932,10 @@ const mainSlice = createSlice({
      * after having signed some at the IdP,
      * with data kept in localStorage while we were away at the IdP.
      */
-    updateInvitations(state, action) {
+    updateInvitations(
+      state,
+      action: PayloadAction<{ owned: AnyDoc[]; invited: AnyDoc[] }>,
+    ) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
         if (doc.state !== "signed") {
           action.payload.owned.forEach((storedDoc) => {
@@ -864,7 +970,7 @@ const mainSlice = createSlice({
      * after having interrumped signature at the IdP,
      * with failed-signing state
      */
-    updateInvitationsFailed(state, action) {
+    updateInvitationsFailed(state, action: PayloadAction<{ message: string }>) {
       state.owned_multisign = state.owned_multisign.map((doc) => {
         if (doc.state === "signing") {
           doc.state = "failed-signing";
@@ -886,9 +992,10 @@ const mainSlice = createSlice({
      * @desc Redux action to update owned and invited documents,
      * after encountering a general problem while trying to create a sign request
      */
-    invitationsSignFailure(state, action) {
-      ["pending_multisign", "owned_multisign"].forEach((key) => {
-        state[key] = state[key].map((doc) => {
+    invitationsSignFailure(state, action: PayloadAction<string>) {
+      const keys: InvitationKey[] = ["pending_multisign", "owned_multisign"];
+      keys.forEach((key) => {
+        state[key] = state[key].map((doc: AnyDoc) => {
           if (doc.state === "signing") {
             doc.state = "failed-signing";
             doc.message = action.payload;
@@ -902,7 +1009,7 @@ const mainSlice = createSlice({
      * @function enableContextualHelp
      * @desc Redux action to enable / disable contextual help
      */
-    enableContextualHelp(state, action) {
+    enableContextualHelp(state, action: PayloadAction<boolean>) {
       state.showHelp = action.payload;
     },
     /**
@@ -910,7 +1017,7 @@ const mainSlice = createSlice({
      * @function setOwnedDocs
      * @desc Redux action to set the owned_multisign key
      */
-    setOwnedDocs(state, action) {
+    setOwnedDocs(state, action: PayloadAction<AnyDoc[]>) {
       state.owned_multisign = action.payload;
     },
     /**
@@ -918,7 +1025,7 @@ const mainSlice = createSlice({
      * @function setInvitedDocs
      * @desc Redux action to set the pending_multisign key
      */
-    setInvitedDocs(state, action) {
+    setInvitedDocs(state, action: PayloadAction<AnyDoc[]>) {
       state.pending_multisign = action.payload;
     },
     /**
@@ -926,7 +1033,7 @@ const mainSlice = createSlice({
      * @function startDelegating
      * @desc Redux action to open a delegation form
      */
-    startDelegating(state, action) {
+    startDelegating(state, action: PayloadAction<string>) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.key === action.payload) {
           return {
@@ -941,7 +1048,7 @@ const mainSlice = createSlice({
      * @function stopDelegating
      * @desc Redux action to close a delegation form
      */
-    stopDelegating(state, action) {
+    stopDelegating(state, action: PayloadAction<string>) {
       state.pending_multisign = state.pending_multisign.map((doc) => {
         if (doc.key === action.payload) {
           return {
@@ -957,7 +1064,7 @@ const mainSlice = createSlice({
      * @desc Redux action to set the visibility timer
      *       to avoid reloading the page too often
      */
-    setVisibilityTimer(state, action) {
+    setVisibilityTimer(state, action: PayloadAction<number>) {
       return {
         ...state,
         visibility_timer: action.payload,
@@ -969,8 +1076,13 @@ const mainSlice = createSlice({
      * @desc Redux action to set the fetch timer
      *       to avoid reloading the page too often
      */
-    setFetchTimer(state, action) {
-      clearTimeout(state.fetch_timer);
+    setFetchTimer(
+      state,
+      action: PayloadAction<ReturnType<typeof setTimeout> | null>,
+    ) {
+      if (state.fetch_timer !== null) {
+        clearTimeout(state.fetch_timer);
+      }
       return {
         ...state,
         fetch_timer: action.payload,
@@ -979,21 +1091,23 @@ const mainSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchConfig.fulfilled, (state, action) => {
+      .addCase(fetchConfig.fulfilled, (state, action: PayloadAction<any>) => {
         return {
           ...state,
           ...action.payload.payload,
         };
       })
-      .addCase(fetchConfig.rejected, (state, action) => {
+      .addCase(fetchConfig.rejected, (state) => {
         return {
           ...state,
           signer_attributes: null,
         };
       })
-      .addCase(getPartiallySignedDoc.fulfilled, (state, action) => {
-        state[action.payload.stateKey] = state[action.payload.stateKey].map(
-          (doc) => {
+      .addCase(
+        getPartiallySignedDoc.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          const stateKey = action.payload.stateKey as InvitationKey;
+          state[stateKey] = state[stateKey].map((doc: AnyDoc) => {
             if (doc.key === action.payload.key) {
               let newDoc = { ...doc };
               if (action.payload.payload) {
@@ -1012,25 +1126,31 @@ const mainSlice = createSlice({
               }
               return newDoc;
             } else return doc;
-          },
-        );
-      })
-      .addCase(declineSigning.fulfilled, (state, action) => {
-        state.pending_multisign = state.pending_multisign.map((doc) => {
-          if (doc.key === action.payload.key) {
-            return {
-              ...doc,
-              state: "declined",
-              message: action.payload.message,
-            };
-          } else return doc;
-        });
-      })
-      .addCase(delegateSignature.fulfilled, (state, action) => {
-        state.pending_multisign = state.pending_multisign.filter((doc) => {
-          return doc.key !== action.payload.key;
-        });
-      });
+          });
+        },
+      )
+      .addCase(
+        declineSigning.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.pending_multisign = state.pending_multisign.map((doc) => {
+            if (doc.key === action.payload.key) {
+              return {
+                ...doc,
+                state: "declined",
+                message: action.payload.message,
+              };
+            } else return doc;
+          });
+        },
+      )
+      .addCase(
+        delegateSignature.fulfilled,
+        (state, action: PayloadAction<any>) => {
+          state.pending_multisign = state.pending_multisign.filter((doc) => {
+            return doc.key !== action.payload.key;
+          });
+        },
+      );
   },
 });
 

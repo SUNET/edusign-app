@@ -1,7 +1,5 @@
 import React from "react";
-import PropTypes from "prop-types";
 import { FormattedMessage, useIntl } from "react-intl";
-import { injectIntl } from "init-app/intl";
 import { ESPopover } from "containers/Overlay";
 import ESDropdown from "components/Dropdown";
 import * as menu from "components/dropdownItems";
@@ -26,8 +24,9 @@ import "styles/DocManager.scss";
  * Depending on the state, it will show a different set of controls.
  * @component
  */
-function DocumentLocal(props) {
+function DocumentLocal(ownProps) {
   const intl = useIntl();
+  const props = { ...ownProps, intl };
   const getHelp = (msg) => {
     const msgs = {
       "loading-title": intl.formatMessage({
@@ -478,16 +477,5 @@ function DocumentLocal(props) {
     </ESPopover>
   );
 }
-
-DocumentLocal.propTypes = {
-  /**
-   * The documents to manage
-   */
-  documents: PropTypes.array,
-  handlePreview: PropTypes.func,
-  handleRemove: PropTypes.func,
-  handleDlSigned: PropTypes.func,
-  handleSubmitToSign: PropTypes.func,
-};
 
 export default DocumentLocal;
