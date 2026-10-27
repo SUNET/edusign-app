@@ -7,8 +7,6 @@ import {
   docName,
   docSize,
   docCreated,
-  infoLine,
-  infoLine2,
   namedSpinner,
   selectDoc,
   dummySelectDoc,
@@ -31,6 +29,8 @@ import {
   buttonClearPersonal,
   skipFinalControl,
   sendsignedControl,
+  InfoLine,
+  InfoLine2,
 } from "components/widgets";
 
 const intl = { formatMessage: ({ defaultMessage }) => defaultMessage };
@@ -94,7 +94,7 @@ describe("widgets", function () {
       loa: "http://example.org/loa/low,Low",
       ordered: true,
     };
-    const { unmount } = renderWidget(infoLine(doc, "lg"));
+    const { unmount } = renderWidget(<InfoLine doc={doc} />);
     try {
       expect(screen.getAllByText("Created:").length).toEqual(1);
       expect(screen.getAllByText("Required assurance level:").length).toEqual(
@@ -110,7 +110,7 @@ describe("widgets", function () {
   });
 
   it("infoLine shows none of the optional lines for a bare document", function () {
-    const { unmount } = renderWidget(infoLine({}, "lg"));
+    const { unmount } = renderWidget(<InfoLine doc={{}} />);
     try {
       expect(screen.queryByText("Created:")).toEqual(null);
       expect(screen.queryByText("Required assurance level:")).toEqual(null);
@@ -126,9 +126,7 @@ describe("widgets", function () {
     const doc = {
       info_message: ["flattened-acroform", "removed-encryption-dictionary"],
     };
-    const { unmount } = renderWidget(
-      infoLine2(doc, { intl: intl, size: "lg" }),
-    );
+    const { unmount } = renderWidget(<InfoLine2 doc={doc} />);
     try {
       expect(screen.getAllByText("Info:").length).toEqual(1);
       expect(
@@ -146,7 +144,7 @@ describe("widgets", function () {
   });
 
   it("infoLine2 shows nothing without an info message", function () {
-    const { unmount } = renderWidget(infoLine2({}, { intl: intl, size: "lg" }));
+    const { unmount } = renderWidget(<InfoLine2 doc={{}} />);
     try {
       expect(screen.queryByText("Info:")).toEqual(null);
     } catch (err) {
@@ -459,7 +457,7 @@ describe("widgets", function () {
     const onClick = jest.fn();
     const { unmount } = renderWidget(buttonSignSelected(false, onClick));
     try {
-      const button = screen.getByText("Sign selected documents");
+      const button = screen.getByText("Sign selected");
       fireEvent.click(button);
       expect(onClick).toHaveBeenCalled();
     } catch (err) {
@@ -520,7 +518,7 @@ describe("widgets", function () {
       buttonClearPersonal(false, onClick, clearDb, intl),
     );
     try {
-      const button = screen.getByText("Clear personal documents list");
+      const button = screen.getByText("Clear list");
       fireEvent.click(button);
       expect(onClick).toHaveBeenCalled();
       // the confirmation dialog stays hidden until confirm state is set

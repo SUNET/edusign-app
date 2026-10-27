@@ -1322,7 +1322,7 @@ const showsTheSpinnerAfterClickingOnTheSignButton = async (payload) => {
     expect(selector.length).toEqual(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents"),
+      screen.getAllByText("Sign selected"),
     );
     expect(signButton.length).toEqual(1);
 
@@ -1391,7 +1391,7 @@ const showsErrorMessageAfterCreateSignRequestReturnsErrorMessage = async (
     expect(selector.length).toEqual(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents"),
+      screen.getAllByText("Sign selected"),
     );
     expect(signButton.length).toEqual(1);
 
@@ -1472,7 +1472,7 @@ const showsTheSpinnerAfterCreateSignRequestReturnsExpiredCache = async (
     expect(selector.length).toEqual(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents"),
+      screen.getAllByText("Sign selected"),
     );
     expect(signButton.length).toEqual(1);
 
@@ -1545,7 +1545,7 @@ const showsErrorMessageAfterRecreateSignRequestReturnsError = async (
     expect(selector.length).toEqual(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents"),
+      screen.getAllByText("Sign selected"),
     );
     expect(signButton.length).toEqual(1);
 
@@ -1635,7 +1635,7 @@ const carriesTheSignResponseAfterGettingTheSignedDocs = async (payload) => {
     expect(selector.length).toEqual(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents"),
+      screen.getAllByText("Sign selected"),
     );
     expect(signButton.length).toEqual(1);
 
@@ -1725,7 +1725,7 @@ const showsErrorAfterAfailureAtTheGetSignedEndpoint = async (payload) => {
     expect(selector.length).toEqual(1);
 
     const signButton = await waitFor(() =>
-      screen.getAllByText("Sign selected documents"),
+      screen.getAllByText("Sign selected"),
     );
     expect(signButton.length).toEqual(1);
 
