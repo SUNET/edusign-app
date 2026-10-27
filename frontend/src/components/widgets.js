@@ -13,7 +13,6 @@ import {
   faDownload,
   faFileSignature,
 } from "@fortawesome/free-solid-svg-icons";
-import { useAppSelector } from "init-app/hooks";
 
 export const docName = (doc) => {
   return <div className="name-flex-item">{doc.name}</div>;
