@@ -9,10 +9,6 @@ button.button-with-spinner {
   }
 }
 
-button.btn.btn-outline-dark {
-  border: 2px solid $darker-grey;
-}
-
 button.btn:disabled {
   color: $darker-dark-grey;
   pointer-events: none;

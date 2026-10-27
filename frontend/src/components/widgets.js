@@ -539,7 +539,6 @@ export const buttonSignSelected = (disableSigning, onClick) => {
         id="button-sign"
         size="lg"
         disabled={disableSigning}
-        style={disableSigning ? { pointerEvents: "none" } : {}}
         onClick={onClick}
       >
         <FormattedMessage
@@ -569,7 +568,6 @@ export const buttonDownloadAll = (disableDlAllButton, onClick) => {
         id="button-dlall"
         disabled={disableDlAllButton}
         data-testid="button-dlall"
-        style={disableDlAllButton ? { pointerEvents: "none" } : {}}
         size="lg"
         onClick={onClick}
       >
@@ -606,7 +604,6 @@ export const buttonClearPersonal = (
           id="clear-session-button"
           disabled={disableClearButton}
           size="lg"
-          style={disableClearButton ? { pointerEvents: "none" } : {}}
           onClick={onClick}
         >
           <FormattedMessage
