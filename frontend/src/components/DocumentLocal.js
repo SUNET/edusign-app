@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import { injectIntl } from "init-app/intl";
 import { ESPopover } from "containers/Overlay";
 import ESDropdown from "components/Dropdown";
@@ -27,82 +27,83 @@ import "styles/DocManager.scss";
  * @component
  */
 function DocumentLocal(props) {
+  const intl = useIntl();
   const getHelp = (msg) => {
     const msgs = {
-      "loading-title": props.intl.formatMessage({
+      "loading-title": intl.formatMessage({
         defaultMessage: "Loading document",
         id: "docmanager-help-loading-title",
       }),
-      loading: props.intl.formatMessage({
+      loading: intl.formatMessage({
         defaultMessage: "Please wait while the document loads",
         id: "docmanager-help-loading",
       }),
-      "loaded-title": props.intl.formatMessage({
+      "loaded-title": intl.formatMessage({
         defaultMessage: "Document loaded",
         id: "docmanager-help-loaded-title",
       }),
-      loaded: props.intl.formatMessage({
+      loaded: intl.formatMessage({
         defaultMessage:
           'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign selected documents"',
         id: "docmanager-help-loaded",
       }),
-      "failed-loading-title": props.intl.formatMessage({
+      "failed-loading-title": intl.formatMessage({
         defaultMessage: "Failed loading document",
         id: "docmanager-help-failed-loading-title",
       }),
-      "failed-loading": props.intl.formatMessage({
+      "failed-loading": intl.formatMessage({
         defaultMessage: "This does not seem to be a valid document",
         id: "docmanager-help-failed-loading",
       }),
-      "unconfirmed-title": props.intl.formatMessage({
+      "unconfirmed-title": intl.formatMessage({
         defaultMessage: "This document has not yet been approved",
         id: "docmanager-help-unconfirmed-title",
       }),
-      unconfirmed: props.intl.formatMessage({
+      unconfirmed: intl.formatMessage({
         defaultMessage:
           'Click on the button labeled "Preview and approve" to review the document and confirm that you approve it for signature',
         id: "docmanager-help-unconfirmed",
       }),
-      "selected-title": props.intl.formatMessage({
+      "selected-title": intl.formatMessage({
         defaultMessage: "Document selected for signing",
         id: "docmanager-help-selected-title",
       }),
-      selected: props.intl.formatMessage({
+      selected: intl.formatMessage({
         defaultMessage:
           'Click on the button below labelled "Sign selected documents" to sign this document',
         id: "docmanager-help-selected",
       }),
-      "failed-preparing-title": props.intl.formatMessage({
+      "failed-preparing-title": intl.formatMessage({
         defaultMessage: "Failed preparing document",
         id: "docmanager-help-failed-preparing-title",
       }),
-      "failed-preparing": props.intl.formatMessage({
+      "failed-preparing": intl.formatMessage({
         defaultMessage:
           'There was a problem preparing the document for signing, clik on the button labelled "retry" to try again',
         id: "docmanager-help-failed-preparing",
       }),
-      "signing-title": props.intl.formatMessage({
+      "signing-title": intl.formatMessage({
         defaultMessage: "Signing document",
         id: "docmanager-help-signing-title",
       }),
-      signing: props.intl.formatMessage({
+      signing: intl.formatMessage({
         defaultMessage: "Please wait while the document is signed",
         id: "docmanager-help-signing",
       }),
-      "failed-signing-title": props.intl.formatMessage({
+      "failed-signing-title": intl.formatMessage({
         defaultMessage: "Failed signing document",
         id: "docmanager-help-failed-signing-title",
       }),
-      "failed-signing": props.intl.formatMessage({
+      "failed-signing": intl.formatMessage({
         defaultMessage:
           'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign selected documents"',
         id: "docmanager-help-failed-signing",
       }),
-      "signed-title": props.intl.formatMessage({
+      "signed-title": intl.formatMessage({
         defaultMessage: "Document signed",
         id: "docmanager-help-signed-title",
       }),
-      signed: props.intl.formatMessage({
+      signed: intl.formatMessage({
         defaultMessage:
           'Document succesfully signed, click on the button labelled "Download (signed)" to download it',
         id: "docmanager-help-signed",
@@ -317,8 +318,8 @@ function DocumentLocal(props) {
           </div>
           {signed}
           {preparePrevSigs(doc, props.size)}
-          {widgets.InfoLine({ doc })}
-          {widgets.InfoLine2({ doc })}
+          <widgets.InfoLine doc={doc} />
+          <widgets.InfoLine2 doc={doc} />
         </div>
       )) || (
         <div className={"doc-flex-container-sm " + doc.state} key="0">
@@ -470,8 +471,8 @@ function DocumentLocal(props) {
           )}
           {signed}
           {preparePrevSigs(doc, props.size)}
-          {widgets.InfoLine({ doc })}
-          {widgets.InfoLine2({ doc })}
+          <widgets.InfoLine doc={doc} />
+          <widgets.InfoLine2 doc={doc} />
         </div>
       )}
     </ESPopover>
@@ -489,4 +490,4 @@ DocumentLocal.propTypes = {
   handleSubmitToSign: PropTypes.func,
 };
 
-export default injectIntl(DocumentLocal);
+export default DocumentLocal;
