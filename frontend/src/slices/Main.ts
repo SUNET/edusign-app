@@ -163,18 +163,8 @@ export const fetchConfig = createAsyncThunk(
   "main/fetchConfig",
   async (args: FetchConfigArgs | undefined, thunkAPI) => {
     const state = thunkAPI.getState() as any;
-    let intl: IntlShape;
-    if (args === undefined || args.intl === undefined) {
-      intl = createIntl(state.intl);
-    } else {
-      intl = args.intl;
-    }
-    let configPath: string;
-    if (args === undefined || args.configPath === undefined) {
-      configPath = "/sign/config";
-    } else {
-      configPath = args.configPath;
-    }
+    const intl: IntlShape = args?.intl ?? createIntl(state.intl);
+    const configPath: string = args?.configPath ?? "/sign/config";
     try {
       const response = await esFetch(
         configPath,
@@ -200,20 +190,28 @@ export const fetchConfig = createAsyncThunk(
 
         // The skipped docs are added to the IndexedDB db before dispatching
         // loadDocuments, so that its read finds them there.
-        for (const doc of configData.payload.skipped) {
-          let prefix = "data:application/xml;base64,";
-          if (doc.type === "application/pdf") {
-            prefix = "data:application/pdf;base64,";
-          }
-          doc.signedContent = prefix + doc.signed_content;
-          doc.blob = prefix + doc.signed_content;
-          doc.state = "signed";
-          doc.show = false;
-          doc.showForced = false;
-          doc.pprinted = doc.pprinted;
-          const newDoc = await addDocumentToDb(doc, eppn);
+        const skipped: AnyDoc[] = configData.payload.skipped.map(
+          (doc: AnyDoc) => {
+            let prefix = "data:application/xml;base64,";
+            if (doc.type === "application/pdf") {
+              prefix = "data:application/pdf;base64,";
+            }
+            return {
+              ...doc,
+              signedContent: prefix + doc.signed_content,
+              blob: prefix + doc.signed_content,
+              state: "signed",
+              show: false,
+              showForced: false,
+            };
+          },
+        );
+        const newDocs = await Promise.all(
+          skipped.map((doc) => addDocumentToDb(doc, eppn)),
+        );
+        newDocs.forEach((newDoc) => {
           thunkAPI.dispatch(addDocument(newDoc));
-        }
+        });
 
         delete configData.payload.skipped;
 
@@ -426,9 +424,9 @@ export const downloadInvitedDraft = createAsyncThunk(
  */
 export const downloadPersonalDraft = createAsyncThunk(
   "main/downloadPersonalDraft",
-  async (args: DownloadDraftArgs, thunkAPI) => {
-    let state = thunkAPI.getState() as any;
-    let doc = state.documents.documents.find((d: AnyDoc) => {
+  (args: DownloadDraftArgs, thunkAPI) => {
+    const state = thunkAPI.getState() as any;
+    const doc = state.documents.documents.find((d: AnyDoc) => {
       return d.key === args.docKey;
     });
     const b64content =
@@ -537,6 +535,7 @@ export const finishInvited = createAsyncThunk(
           args.intl,
         );
       } catch (err) {
+        console.error("Problem saving draft of signed invitation", err);
         thunkAPI.dispatch(
           addNotification({
             level: "danger",
