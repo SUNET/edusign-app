@@ -263,7 +263,7 @@ class DocumentInvited extends Component {
               {failedLoA}
               {invites}
               {preparePrevSigs(doc, this.props.size)}
-              {widgets.InfoLine({ doc })}
+              <widgets.InfoLine doc={doc} />
             </div>
           </div>
         )) || (
@@ -362,7 +362,7 @@ class DocumentInvited extends Component {
             )}
             {invites}
             {preparePrevSigs(doc, this.props.size)}
-            {widgets.InfoLine({ doc })}
+            <widgets.InfoLine doc={doc} />
           </div>
         )}
       </ESPopover>
