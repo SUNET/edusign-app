@@ -262,10 +262,12 @@ function DocManager(props: Readonly<DocManagerProps>) {
             {owned.length > 0 && (
               <fieldset className="owned-multisign-container">
                 <legend data-testid="legend-inviter">
-                  <FormattedMessage
-                    defaultMessage="Documents you have invited others to sign"
-                    key="owned-multisign-legend"
-                  />
+                  <h2 className="heading">
+                    <FormattedMessage
+                      defaultMessage="Documents you have invited others to sign"
+                      key="owned-multisign-legend"
+                    />
+                  </h2>
                 </legend>
                 <OwnedContainer />
               </fieldset>
@@ -278,10 +280,12 @@ function DocManager(props: Readonly<DocManagerProps>) {
           {templates.length > 0 && (
             <fieldset className="local-template-container">
               <legend data-testid="legend-templates">
-                <FormattedMessage
-                  defaultMessage="Templates"
-                  key="local-templates-legend"
-                />
+                <h2 className="heading">
+                  <FormattedMessage
+                    defaultMessage="Templates"
+                    key="local-templates-legend"
+                  />
+                </h2>
               </legend>
               {templates.map((doc, index) => {
                 return (
