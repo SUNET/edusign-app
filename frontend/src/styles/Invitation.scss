@@ -1,13 +1,5 @@
 @use "./variables" as *;
 
-// .invitation-multisign {
-// border: $dark-gray solid 1px;
-// margin-bottom: 0.3rem;
-// min-height: 3rem;
-// display: flex;
-// flex-direction: column;
-// padding-left: 1rem;
-
 .doc-detail-block {
   flex: auto;
   display: flex;
@@ -20,7 +12,6 @@
   }
 
   .name-and-buttons-lg {
-    padding: 0.5rem;
     flex: none;
     display: flex;
     flex-wrap: wrap;
@@ -96,7 +87,6 @@
     }
   }
 }
-// }
 
 div.failed-signing {
   background-color: $orange-opaque;

@@ -88,7 +88,7 @@ class DocumentTemplate extends React.Component {
             {preparePrevSigs(doc, this.props.size)}
           </div>
         )) || (
-          <div className={"doc-flex-container sm " + doc.state} key="0">
+          <div className={"doc-flex-container " + doc.state} key="0">
             {(doc.state === "loaded" || doc.state === "selected") && (
               <>
                 <div className="doc-container-md-row">

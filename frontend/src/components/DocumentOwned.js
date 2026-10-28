@@ -243,7 +243,7 @@ class DocumentOwned extends Component {
               </div>
             </div>
           )) || (
-            <div className={"doc-flex-container sm " + doc.state}>
+            <div className={"doc-flex-container  " + doc.state}>
               {doc.state === "incomplete" && (
                 <>
                   <div className="doc-container-md-row">

@@ -321,7 +321,7 @@ function DocumentLocal(ownProps) {
           <widgets.InfoLine2 doc={doc} />
         </div>
       )) || (
-        <div className={"doc-flex-container sm " + doc.state} key="0">
+        <div className={"doc-flex-container " + doc.state} key="0">
           {doc.state === "loading" && (
             <div className="name-and-buttons-lg">
               <div className="doc-container-md-row">

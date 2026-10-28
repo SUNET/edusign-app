@@ -267,7 +267,7 @@ class DocumentInvited extends Component {
             </div>
           </div>
         )) || (
-          <div className={"doc-flex-container sm " + doc.state}>
+          <div className={"doc-flex-container " + doc.state}>
             {doc.state === "unconfirmed" && (
               <>
                 <div className="doc-container-md-row">
