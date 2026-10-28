@@ -35,6 +35,36 @@
           <p>{{ gettext("No documents") }}</p>
           {% endif %}
 
+          <h2>{{ gettext("Scopes allowed to sign") }}</h2>
+          <table id="scope-whitelist" class="id-service-usage">
+            <tr>
+              <th>{{ gettext("Scope") }}</th>
+            </tr>
+            {% for scope in scope_whitelist %}
+            <tr>
+              <td>{{ scope }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+
+          <h2>{{ gettext("Institutions allowed eID signatures") }}</h2>
+          <table id="eid-whitelist" class="id-service-usage">
+            <tr>
+              <th>{{ gettext("Organization") }}</th>
+              <th>{{ gettext("Customer id") }}</th>
+              <th>{{ gettext("Agreement number") }}</th>
+              <th>{{ gettext("Billed") }}</th>
+            </tr>
+            {% for row in eid_whitelist %}
+            <tr>
+              <td>{{ row.scope }}</td>
+              <td>{{ row.customer_id }}</td>
+              <td>{{ row.agreement }}</td>
+              <td>{{ gettext("yes") if row.billed else gettext("no") }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+
           {% macro usage_table(table_id, rows) %}
           {% if rows %}
           <table id="{{ table_id }}" class="id-service-usage">
