@@ -322,6 +322,20 @@ def dashboard():
             }
         )
 
+    # The whitelists as configured. SCOPE_WHITELIST may hold empty entries
+    # from a trailing comma. EID_WHITELIST is shown sorted by scope, like the
+    # usage tables; the billing report sorts billed entries by customer id.
+    scope_whitelist = sorted(scope for scope in current_app.config['SCOPE_WHITELIST'] if scope)
+    eid_whitelist = [
+        {
+            'scope': scope,
+            'customer_id': entry['customer_id'],
+            'agreement': entry['agreement'],
+            'billed': bool(entry['customer_id']),
+        }
+        for scope, entry in sorted(whitelist.items())
+    ]
+
     context = {
         'company_link': current_app.config['COMPANY_LINK'],
         'total_docs': len(docs),
@@ -330,6 +344,8 @@ def dashboard():
         'old_bytes': sum(doc['size'] for doc in old_docs),
         'histogram': [{'day': day, 'count': counts[day]} for day in sorted(counts)],
         'max_count': max(counts.values(), default=0),
+        'scope_whitelist': scope_whitelist,
+        'eid_whitelist': eid_whitelist,
         'usage': usage,
         'month_label': month_start.strftime('%b %Y'),
         'usage_prev': usage_prev,
