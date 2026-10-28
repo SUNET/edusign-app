@@ -55,7 +55,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 config_dev = {
     'TESTING': True,
     'ENVIRONMENT': 'development',
-    'SCOPE_WHITELIST': 'example.org',
+    'SCOPE_WHITELIST': ['example.org'],
     'USER_BLACKLIST': 'blacklisted@example.org',
     'USER_WHITELIST': 'whitelisted@example.org',
     'ADMIN_WHITELIST': ['dummy-eppn@example.org'],
@@ -78,7 +78,7 @@ config_dev = {
 config_pro = {
     'TESTING': True,
     'ENVIRONMENT': 'production',
-    'SCOPE_WHITELIST': 'example.org',
+    'SCOPE_WHITELIST': ['example.org'],
     'USER_BLACKLIST': 'blacklisted@example.org',
     'USER_WHITELIST': 'whitelisted@example.org',
     'ADMIN_WHITELIST': ['dummy-eppn@example.org'],
