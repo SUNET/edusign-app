@@ -144,7 +144,7 @@
   "components.widgets.button-remove-tootip": "Deshechar documento",
   "components.widgets.button-sign-tootip": "Selecciona documentos arriba y haz click aquí para mandarlos a firmar.",
   "components.widgets.clear-docs-tootip": "Deshechar todos los documentos en la lista de \"Documento personales\" más arriba",
-  "components.widgets.clear-session-button": "Vaciar lista de documentos personales",
+  "components.widgets.clear-session-button": "Vaciar la lista",
   "components.widgets.creation-date-label": "Creado:",
   "components.widgets.decline-sign-button": "Declinar firma",
   "components.widgets.delegate-sign-button": "Delegar",

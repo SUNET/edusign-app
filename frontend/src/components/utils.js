@@ -143,7 +143,7 @@ export const preparePrevSigs = (doc, size) => {
     });
     return (
       (doc.prev_signatures && doc.prev_signatures.length > 0 && (
-        <div className={"doc-container-info-row-" + size} key="-1">
+        <div className="doc-container-info-row" key="-1">
           <span className="info-row-label">
             <FormattedMessage
               defaultMessage="Previously signed by:"
@@ -157,7 +157,7 @@ export const preparePrevSigs = (doc, size) => {
     );
   } catch (err) {
     return (
-      <div className={"doc-container-info-row-" + size} key="-1">
+      <div className="doc-container-info-row" key="-1">
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Previously signed by:"

@@ -91,7 +91,7 @@ class DocumentOwned extends Component {
       "";
     const pending =
       (doc.state === "incomplete" && (
-        <div className={"doc-container-info-row-" + this.props.size}>
+        <div className="doc-container-info-row">
           <span className="info-row-label">
             <FormattedMessage
               defaultMessage="Waiting for signatures by:"
@@ -112,7 +112,7 @@ class DocumentOwned extends Component {
       )) ||
       "";
     const signed = (
-      <div className={"doc-container-info-row-" + this.props.size}>
+      <div className="doc-container-info-row">
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Signed by:"
@@ -132,7 +132,7 @@ class DocumentOwned extends Component {
       </div>
     );
     const declined = (
-      <div className={"doc-container-info-row-" + this.props.size}>
+      <div className="doc-container-info-row">
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Declined to sign by:"
@@ -183,14 +183,12 @@ class DocumentOwned extends Component {
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
                       <div className="owned-container-buttons-lg">
-                        <>
-                          <ESDropdown doc={doc}>
-                            {menu.editInvitationMenuItem(this.props, doc)}
-                            {menu.resendMenuItem(this.props, doc)}
-                            {menu.previewMenuItem(this.props, doc)}
-                          </ESDropdown>
-                          {widgets.removeConfirmButton(this.props, doc)}
-                        </>
+                        <ESDropdown doc={doc}>
+                          {menu.editInvitationMenuItem(this.props, doc)}
+                          {menu.resendMenuItem(this.props, doc)}
+                          {menu.previewMenuItem(this.props, doc)}
+                        </ESDropdown>
+                        {widgets.removeConfirmButton(this.props, doc)}
                       </div>
                     </>
                   )}
@@ -203,14 +201,12 @@ class DocumentOwned extends Component {
                       {widgets.docName(doc)}
                       {widgets.showMessage(doc)}
                       <div className="owned-container-buttons-lg">
-                        <>
-                          <ESDropdown doc={doc}>
-                            {menu.editInvitationMenuItem(this.props, doc)}
-                            {menu.previewMenuItem(this.props, doc)}
-                          </ESDropdown>
-                          {widgets.skipSignatureButton(this.props, doc)}
-                          {widgets.removeConfirmButton(this.props, doc)}
-                        </>
+                        <ESDropdown doc={doc}>
+                          {menu.editInvitationMenuItem(this.props, doc)}
+                          {menu.previewMenuItem(this.props, doc)}
+                        </ESDropdown>
+                        {widgets.skipSignatureButton(this.props, doc)}
+                        {widgets.removeConfirmButton(this.props, doc)}
                       </div>
                     </>
                   )}
@@ -244,8 +240,8 @@ class DocumentOwned extends Component {
                 </div>
                 {invites}
                 {preparePrevSigs(doc, this.props.size)}
-                {widgets.infoLine(doc, this.props.size)}
-                {widgets.infoLine2(doc, this.props)}
+                <widgets.InfoLine doc={doc} />
+                <widgets.InfoLine2 doc={doc} />
               </div>
             </div>
           )) || (
@@ -318,8 +314,8 @@ class DocumentOwned extends Component {
               )}
               {invites}
               {preparePrevSigs(doc, this.props.size)}
-              {widgets.infoLine(doc, this.props.size)}
-              {widgets.infoLine2(doc, this.props)}
+              <widgets.InfoLine doc={doc} />
+              <widgets.InfoLine2 doc={doc} />
             </div>
           )}
         </ESPopover>

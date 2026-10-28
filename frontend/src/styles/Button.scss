@@ -9,6 +9,18 @@ button.button-with-spinner {
   }
 }
 
-button.btn.btn-outline-dark {
-  border: 2px solid $darker-grey;
+button.btn:disabled {
+  color: $darker-dark-grey;
+  pointer-events: none;
+  background-color: $dark-gray;
+  border: 1px solid $light-gray;
+}
+
+button.btn-primary {
+  background-color: $btn-orange;
+  border: none;
+  border-radius: 25px;
+  &:hover {
+    background-color: $dark-orange;
+  }
 }

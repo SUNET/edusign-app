@@ -1,8 +1,8 @@
 @use "./variables" as *;
 
 .doc-flex-container-local {
-  border: $orange-opaque solid 2px;
-  border-radius: 3px;
+  border: $dark-gray solid 1px;
+  border-radius: 5px;
   margin-bottom: 0.3rem;
   min-height: 3rem;
   display: flex;
@@ -65,15 +65,11 @@
       .button-resend-flex-item,
       .button-remove-flex-item,
       .button-retry-flex-item,
-      .button-sign-flex-item,
-      .button-clear-flex-item,
-      .button-dlall-flex-item,
       .button-download-flex-item,
       .button-create-template-flex-item,
       .button-decline-flex-item,
       .button-skip-flex-item,
       .button-edit-invitations-flex-item,
-      .button-sign-flex-item,
       .button-multisign-flex-item {
         flex: none;
         button {
@@ -89,15 +85,11 @@
 .button-resend-flex-item,
 .button-remove-flex-item,
 .button-retry-flex-item,
-.button-sign-flex-item,
-.button-clear-flex-item,
-.button-dlall-flex-item,
 .button-download-flex-item,
 .button-create-template-flex-item,
 .button-decline-flex-item,
 .button-skip-flex-item,
 .button-edit-invitations-flex-item,
-.button-sign-flex-item,
 .button-multisign-flex-item {
   margin-right: 0.5rem;
 }
@@ -108,8 +100,8 @@
   margin-top: 0.5rem;
   margin-bottom: 0.3rem;
   padding: 0.5rem;
-  border: $orange-opaque solid 2px;
-  border-radius: 3px;
+  border: $dark-gray solid 1px;
+  border-radius: 5px;
   width: 100%;
   align-items: flex-start;
 
@@ -126,15 +118,11 @@
     .button-resend-flex-item,
     .button-remove-flex-item,
     .button-retry-flex-item,
-    .button-sign-flex-item,
-    .button-clear-flex-item,
-    .button-dlall-flex-item,
     .button-download-flex-item,
     .button-create-template-flex-item,
     .button-decline-flex-item,
     .button-skip-flex-item,
     .button-edit-invitations-flex-item,
-    .button-sign-flex-item,
     .button-multisign-flex-item {
       flex: none;
       button {
@@ -185,12 +173,7 @@
   }
 }
 
-.doc-container-info-row-sm {
-  line-height: 1.4rem;
-}
-
-.doc-container-info-row-lg,
-.doc-container-info-row-sm {
+.doc-container-info-row {
   flex: none;
   margin-top: 0.2rem;
   margin-bottom: 0.2rem;
@@ -211,6 +194,10 @@
   .info-row-item {
     font-size: 0.8rem;
     display: inline-block;
+  }
+
+  @media (max-width: $breakpoint-md) {
+    line-height: 1.4rem;
   }
 }
 
@@ -235,23 +222,29 @@
   height: 3rem;
 }
 
-#global-buttons-wrapper {
+.buttons-wrapper {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  margin-top: 1.5rem;
 
-  #button-dlall-wrapper,
-  #button-clear-wrapper,
-  #button-sign-wrapper {
-    flex: none;
-    margin: 1rem;
+  button {
+    margin: 0 1rem 1rem 0;
+
+    @media (max-width: $breakpoint-md) {
+      width: 100%;
+      margin-right: 0;
+    }
+  }
+  @media (max-width: $breakpoint-md) {
+    margin-bottom: 4rem;
   }
 }
 
 div.failed-loading,
 div.failed-signing,
 div.failed-preparing {
-  background-color: $light-orange;
+  background-color: $orange-opaque;
 }
 
 div.selected {

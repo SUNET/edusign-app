@@ -1,13 +1,18 @@
 import React from "react";
-import { FormattedMessage } from "react-intl";
+import { FormattedMessage, useIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
 import BForm from "react-bootstrap/Form";
 import { Field } from "formik";
-
 import Button from "containers/Button";
 import { humanFileSize, getCreationDate } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
 import ConfirmDialogContainer from "containers/ConfirmDialog";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faTrashCan,
+  faDownload,
+  faFileSignature,
+} from "@fortawesome/free-solid-svg-icons";
 
 export const docName = (doc) => {
   return <div className="name-flex-item">{doc.name}</div>;
@@ -19,7 +24,7 @@ export const docCreated = (props) => {
   const creationDate = getCreationDate(props.doc);
   if (creationDate !== null) {
     return (
-      <div className={"doc-container-info-row-" + props.size}>
+      <div className="doc-container-info-row">
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Created:"
@@ -34,12 +39,12 @@ export const docCreated = (props) => {
   } else return "";
 };
 
-export const infoLine = (doc, size) => {
+export const InfoLine = ({ doc }) => {
   const creationDate = getCreationDate(doc);
   let created = "";
   if (creationDate !== null) {
     created = (
-      <div className={"info-line info-line-1 doc-container-info-row-" + size}>
+      <div className="info-line info-line-1 doc-container-info-row">
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Created:"
@@ -58,7 +63,7 @@ export const infoLine = (doc, size) => {
     const loaName = loa[1];
     const loaValue = loa[0];
     requiredLoa = (
-      <div className={"info-line info-line-2 doc-container-info-row-" + size}>
+      <div className="info-line info-line-2 doc-container-info-row">
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Required assurance level:"
@@ -74,7 +79,7 @@ export const infoLine = (doc, size) => {
   let ordered = "";
   if (doc.ordered) {
     ordered = (
-      <div className={"info-line info-line-3 doc-container-info-row-" + size}>
+      <div className="info-line info-line-3 doc-container-info-row">
         <span className="info-row-label">
           <FormattedMessage
             defaultMessage="Workflow invitation"
@@ -93,13 +98,14 @@ export const infoLine = (doc, size) => {
   );
 };
 
-export const infoLine2 = (doc, props) => {
+export const InfoLine2 = ({ doc }) => {
+  const intl = useIntl();
   const info = doc.info_message;
-  if (!info) return "";
+  if (!info) return null;
   const infos = [];
   if (info.includes("flattened-acroform")) {
     infos.push(
-      props.intl.formatMessage({
+      intl.formatMessage({
         defaultMessage:
           "The document contained an active form that became locked within the document",
         id: "flattened-acroform",
@@ -108,7 +114,7 @@ export const infoLine2 = (doc, props) => {
   }
   if (info.includes("removed-encryption-dictionary")) {
     infos.push(
-      props.intl.formatMessage({
+      intl.formatMessage({
         defaultMessage:
           "The document contained an encryption dictionary. This was removed",
         id: "removed-encryption-dictionary",
@@ -118,9 +124,7 @@ export const infoLine2 = (doc, props) => {
   const info_t = infos.join("; ");
   return (
     <div className="doc-info-line">
-      <div
-        className={"info-line info-line-2 doc-container-info-row-" + props.size}
-      >
+      <div className="info-line info-line-2 doc-container-info-row">
         <span className="info-row-label">
           <FormattedMessage defaultMessage="Info:" key="info-line-2-label" />
         </span>
@@ -228,27 +232,25 @@ export const multiSignButton = (props, doc) => {
 
 export const signButton = (props, doc) => {
   return (
-    <div className="button-sign-flex-item">
-      <ESTooltip
-        helpId={"button-sign-" + doc.name}
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Click here to sign the document"
-            key="sign-button-tootip"
-          />
-        }
+    <ESTooltip
+      helpId={"button-sign-" + doc.name}
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Click here to sign the document"
+          key="sign-button-tootip"
+        />
+      }
+    >
+      <Button
+        variant="outline-success"
+        id={"button-sign-" + doc.name}
+        size="sm"
+        disabling={true}
+        onClick={props.handleSendToSign(props, doc)}
       >
-        <Button
-          variant="outline-success"
-          id={"button-sign-" + doc.name}
-          size="sm"
-          disabling={true}
-          onClick={props.handleSendToSign(props, doc)}
-        >
-          <FormattedMessage defaultMessage="Sign" key="sign-button" />
-        </Button>
-      </ESTooltip>
-    </div>
+        <FormattedMessage defaultMessage="Sign" key="sign-button" />
+      </Button>
+    </ESTooltip>
   );
 };
 
@@ -523,66 +525,60 @@ export const delegateButton = (props, doc) => {
 
 export const buttonSignSelected = (disableSigning, onClick) => {
   return (
-    <div className="button-sign-flex-item">
-      <ESTooltip
-        helpId="button-sign-selected"
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Select documents above and click here to send them for signing. You will be redirected to login again to authenticate yourself when signing."
-            key="button-sign-tootip"
-          />
-        }
+    <ESTooltip
+      helpId="button-sign-selected"
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Select documents above and click here to send them for signing. You will be redirected to login again to authenticate yourself when signing."
+          key="button-sign-tootip"
+        />
+      }
+    >
+      <Button
+        variant="primary"
+        id="button-sign"
+        size="lg"
+        disabled={disableSigning}
+        onClick={onClick}
       >
-        <div id="button-sign-wrapper">
-          <Button
-            variant="success"
-            id="button-sign"
-            size="lg"
-            disabled={disableSigning}
-            style={disableSigning ? { pointerEvents: "none" } : {}}
-            onClick={onClick}
-          >
-            <FormattedMessage
-              defaultMessage="Sign selected documents"
-              key="sign-selected-button"
-            />
-          </Button>
-        </div>
-      </ESTooltip>
-    </div>
+        <FormattedMessage
+          defaultMessage="Sign selected"
+          key="sign-selected-button"
+        />
+        &nbsp;
+        <FontAwesomeIcon icon={faFileSignature} />
+      </Button>
+    </ESTooltip>
   );
 };
 
 export const buttonDownloadAll = (disableDlAllButton, onClick) => {
   return (
-    <div className="button-dlall-flex-item">
-      <ESTooltip
-        helpId="button-dlall"
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Download all signed documents."
-            key="button-dlall-tootip"
-          />
-        }
+    <ESTooltip
+      helpId="button-dlall"
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Download all signed documents."
+          key="button-dlall-tootip"
+        />
+      }
+    >
+      <Button
+        variant="primary"
+        id="button-dlall"
+        disabled={disableDlAllButton}
+        data-testid="button-dlall"
+        size="lg"
+        onClick={onClick}
       >
-        <div id="button-dlall-wrapper">
-          <Button
-            variant="success"
-            id="button-dlall"
-            disabled={disableDlAllButton}
-            data-testid="button-dlall"
-            style={disableDlAllButton ? { pointerEvents: "none" } : {}}
-            size="lg"
-            onClick={onClick}
-          >
-            <FormattedMessage
-              defaultMessage="Download all signed"
-              key="dlall-selected-button"
-            />
-          </Button>
-        </div>
-      </ESTooltip>
-    </div>
+        &nbsp;
+        <FormattedMessage
+          defaultMessage="Download all signed"
+          key="dlall-selected-button"
+        />
+        <FontAwesomeIcon icon={faDownload} />
+      </Button>
+    </ESTooltip>
   );
 };
 
@@ -593,7 +589,7 @@ export const buttonClearPersonal = (
   intl,
 ) => {
   return (
-    <div className="button-clear-flex-item">
+    <>
       <ESTooltip
         helpId="clear-session-button"
         tooltip={
@@ -603,21 +599,20 @@ export const buttonClearPersonal = (
           />
         }
       >
-        <div id="button-clear-wrapper">
-          <Button
-            variant="primary"
-            id="clear-session-button"
-            disabled={disableClearButton}
-            size="lg"
-            style={disableClearButton ? { pointerEvents: "none" } : {}}
-            onClick={onClick}
-          >
-            <FormattedMessage
-              defaultMessage="Clear personal documents list"
-              key="clear-session-button"
-            />
-          </Button>
-        </div>
+        <Button
+          variant="primary"
+          id="clear-session-button"
+          disabled={disableClearButton}
+          size="lg"
+          onClick={onClick}
+        >
+          <FormattedMessage
+            defaultMessage="Clear list"
+            key="clear-session-button"
+          />
+          &nbsp;
+          <FontAwesomeIcon icon={faTrashCan} />
+        </Button>
       </ESTooltip>
       <ConfirmDialogContainer
         confirmId="confirm-clear-session"
@@ -632,7 +627,7 @@ export const buttonClearPersonal = (
         })}
         confirm={clearDb}
       />
-    </div>
+    </>
   );
 };
 
