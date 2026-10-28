@@ -264,11 +264,17 @@ function DocManager(props: Readonly<DocManagerProps>) {
               <legend data-testid="legend-inviter">
                 <h2 className="heading">
                   <FormattedMessage
-                    defaultMessage="Documents you have invited others to sign"
+                    defaultMessage="Waiting for others to sign"
                     key="owned-multisign-legend"
                   />
                 </h2>
               </legend>
+              <p className="lead-text">
+                <FormattedMessage
+                  defaultMessage="You sent these documents for signing. You can send a reminder to anyone who hasn't signed yet, or remove the invitation to cancel it."
+                  key="owned-multisign-lead-text"
+                />
+              </p>
               <OwnedContainer />
             </fieldset>
           )}
@@ -287,6 +293,12 @@ function DocManager(props: Readonly<DocManagerProps>) {
                   />
                 </h2>
               </legend>
+              <p className="lead-text">
+                <FormattedMessage
+                  defaultMessage="Templates are reusable document structures that can be filled out and signed."
+                  key="local-templates-legend-title"
+                />
+              </p>
               {templates.map((doc, index) => {
                 return (
                   <React.Fragment key={doc.name}>
