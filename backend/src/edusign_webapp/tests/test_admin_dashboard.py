@@ -95,11 +95,29 @@ def test_admin_dashboard_empty(client):
     assert response.status == '200 OK'
     assert b'Number of documents</td><td>0</td>' in response.data
     assert b'No documents' in response.data
-    # the whitelisted institutions show with no signatures
-    assert b'<td>sunet.se</td>' in response.data
-    assert b'<td>eduid.se</td>' in response.data
-    assert b'<td>dev.eduid.se</td>' in response.data
+    # the whitelisted institutions show in the usage table with no signatures
+    usage = _terse(response.data).split(b'id="id-service-usage"')[1].split(b'</table>')[0]
+    for org in (b'sunet.se', b'eduid.se', b'dev.eduid.se'):
+        assert b'<td>' + org + b'</td><td>0</td><td>0</td><td>0</td><td>0</td>' in usage
     assert b'over-quota' not in response.data
+
+
+def test_admin_dashboard_whitelists(client):
+    # the configured whitelists: SCOPE_WHITELIST as one scope per row, and
+    # EID_WHITELIST with customer id and agreement, sorted by scope; an
+    # entry without a customer id is whitelisted but not billed
+    response = client.get('/admin/dashboard')
+    assert response.status == '200 OK'
+    terse = _terse(response.data)
+    scopes = terse.split(b'id="scope-whitelist"')[1].split(b'</table>')[0]
+    assert scopes.count(b'<tr>') == 2  # the header row and one scope
+    assert b'<tr><td>example.org</td></tr>' in scopes
+    eid = terse.split(b'id="eid-whitelist"')[1].split(b'</table>')[0]
+    assert eid.count(b'<tr>') == 4
+    assert b'<td>dev.eduid.se</td><td></td><td></td><td>no</td>' in eid
+    assert b'<td>eduid.se</td><td>BB</td><td>ES-021-T</td><td>yes</td>' in eid
+    assert b'<td>sunet.se</td><td>AA</td><td>ES-020-T</td><td>yes</td>' in eid
+    assert eid.index(b'<td>dev.eduid.se') < eid.index(b'<td>eduid.se') < eid.index(b'<td>sunet.se')
 
 
 def test_admin_dashboard(client, sample_doc_1, sample_owner_1):
