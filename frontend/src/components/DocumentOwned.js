@@ -170,19 +170,17 @@ class DocumentOwned extends Component {
         >
           {(this.props.size === "lg" && (
             <div
-              className={"invitation-multisign " + doc.state}
+              className={"doc-flex-container invitation-multisign " + doc.state}
               data-testid={`representation-for-doc-${doc.name}`}
             >
-              <div className="invitation-multisign-request">
-                <div
-                  className={"invitation-name-and-buttons-" + this.props.size}
-                >
+              <div className="doc-detail-block">
+                <div className={"name-and-buttons-" + this.props.size}>
                   {doc.state === "incomplete" && (
-                    <>
+                    <div className={"name-and-buttons-" + this.props.size}>
                       {widgets.dummySelectDoc()}
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
-                      <div className="owned-container-buttons-lg">
+                      <div className="buttons-flex">
                         <ESDropdown doc={doc}>
                           {menu.editInvitationMenuItem(this.props, doc)}
                           {menu.resendMenuItem(this.props, doc)}
@@ -190,7 +188,7 @@ class DocumentOwned extends Component {
                         </ESDropdown>
                         {widgets.removeConfirmButton(this.props, doc)}
                       </div>
-                    </>
+                    </div>
                   )}
                   {["loaded", "selected", "failed-signing"].includes(
                     doc.state,
@@ -200,7 +198,7 @@ class DocumentOwned extends Component {
                       {widgets.docSize(doc)}
                       {widgets.docName(doc)}
                       {widgets.showMessage(doc)}
-                      <div className="owned-container-buttons-lg">
+                      <div className="buttons-flex">
                         <ESDropdown doc={doc}>
                           {menu.editInvitationMenuItem(this.props, doc)}
                           {menu.previewMenuItem(this.props, doc)}
@@ -245,7 +243,7 @@ class DocumentOwned extends Component {
               </div>
             </div>
           )) || (
-            <div className={"doc-flex-container-sm " + doc.state}>
+            <div className={"doc-flex-container sm " + doc.state}>
               {doc.state === "incomplete" && (
                 <>
                   <div className="doc-container-md-row">

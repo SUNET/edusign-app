@@ -1,104 +1,102 @@
 @use "./variables" as *;
 
-.invitation-multisign {
-  padding-left: 1rem;
-  display: flex;
-  flex: none;
-  min-height: 3rem;
-  width: 100%;
-  margin-bottom: 0.3rem;
-  border: $orange-opaque solid 2px;
-  border-radius: 3px;
+// .invitation-multisign {
+// border: $dark-gray solid 1px;
+// margin-bottom: 0.3rem;
+// min-height: 3rem;
+// display: flex;
+// flex-direction: column;
+// padding-left: 1rem;
 
-  .invitation-multisign-request {
-    flex: auto;
+.doc-detail-block {
+  flex: auto;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+  line-height: 1.5rem;
+
+  .message-flex-item {
+    color: $error-red;
+  }
+
+  .name-and-buttons-lg {
+    padding: 0.5rem;
+    flex: none;
     display: flex;
-    flex-flow: column nowrap;
-    align-items: flex-start;
-    line-height: 1.5rem;
+    flex-wrap: wrap;
+    width: 100%;
+
+    .docname-plus-message {
+      display: flex;
+      flex-direction: column;
+      align-items: baseline;
+    }
+
+    .doc-selector-flex-item {
+      flex: none;
+      width: 2rem;
+    }
+
+    .button-dummy-flex-item {
+      flex: none;
+      width: 8rem;
+    }
+
+    .name-flex-item {
+      flex: 5 1 auto;
+    }
 
     .message-flex-item {
+      flex: none;
+      margin-left: 1rem;
+      margin-right: 1rem;
       color: $error-red;
     }
 
-    .invitation-name-and-buttons-lg {
-      padding: 0.5rem;
+    .size-flex-item {
       flex: none;
+      margin-right: 1rem;
+      color: $darker-dark-grey;
+    }
+
+    .date-flex-item {
+      flex: none;
+      margin-right: 1rem;
+      color: $darker-dark-grey;
+    }
+
+    .spinner-flex-item {
+      flex: none;
+      width: 2rem;
+      margin-bottom: -2rem;
+    }
+    .spinning-flex-item {
+      flex: none;
+      width: 5rem;
+    }
+
+    .button-preview-flex-item,
+    .button-remove-flex-item,
+    .button-resend-flex-item,
+    .button-skip-flex-item,
+    .button-download-flex-item,
+    .button-decline-flex-item,
+    .button-dummy-flex-item,
+    .button-edit-invitations-flex-item,
+    .button-forced-preview-flex-item {
+      flex: none;
+    }
+
+    .buttons-flex {
+      flex: 3 1 auto;
       display: flex;
+      flex-direction: row;
+      justify-content: flex-end;
       flex-wrap: wrap;
-      width: 100%;
-
-      .docname-plus-message {
-        display: flex;
-        flex-direction: column;
-        align-items: baseline;
-      }
-
-      .doc-selector-flex-item {
-        flex: none;
-        width: 2rem;
-      }
-
-      .button-dummy-flex-item {
-        flex: none;
-        width: 8rem;
-      }
-
-      .name-flex-item {
-        flex: 5 1 auto;
-      }
-
-      .message-flex-item {
-        flex: none;
-        margin-left: 1rem;
-        margin-right: 1rem;
-        color: $error-red;
-      }
-
-      .size-flex-item {
-        flex: none;
-        margin-right: 1rem;
-        color: $darker-dark-grey;
-      }
-
-      .date-flex-item {
-        flex: none;
-        margin-right: 1rem;
-        color: $darker-dark-grey;
-      }
-
-      .spinner-flex-item {
-        flex: none;
-        width: 2rem;
-        margin-bottom: -2rem;
-      }
-      .spinning-flex-item {
-        flex: none;
-        width: 5rem;
-      }
-
-      .button-preview-flex-item,
-      .button-remove-flex-item,
-      .button-resend-flex-item,
-      .button-skip-flex-item,
-      .button-download-flex-item,
-      .button-decline-flex-item,
-      .button-dummy-flex-item,
-      .button-edit-invitations-flex-item,
-      .button-forced-preview-flex-item {
-        flex: none;
-      }
-
-      .owned-container-buttons-lg {
-        flex: 3 1 auto;
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
-        flex-wrap: wrap;
-      }
     }
   }
 }
+// }
 
 div.failed-signing {
   background-color: $orange-opaque;

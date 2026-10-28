@@ -1,13 +1,14 @@
 @use "./variables" as *;
 
-.doc-flex-container-local {
+.doc-flex-container {
   border: $dark-gray solid 1px;
-  border-radius: 5px;
   margin-bottom: 0.3rem;
   min-height: 3rem;
   display: flex;
   flex-direction: column;
-  padding-left: 1rem;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 16px;
 
   .doc-flex-container {
     padding: 0.5rem;
@@ -46,7 +47,7 @@
       color: $darker-dark-grey;
     }
 
-    .doc-manager-buttons {
+    .buttons-flex {
       flex: 3 1 auto;
       display: flex;
       justify-content: flex-end;
@@ -94,15 +95,7 @@
   margin-right: 0.5rem;
 }
 
-.doc-flex-container-sm {
-  display: flex;
-  flex-direction: column;
-  margin-top: 0.5rem;
-  margin-bottom: 0.3rem;
-  padding: 0.5rem;
-  border: $dark-gray solid 1px;
-  border-radius: 5px;
-  width: 100%;
+.doc-flex-container.sm {
   align-items: flex-start;
 
   .doc-container-button-row {
@@ -258,25 +251,25 @@ div.selected {
   flex-direction: column;
   align-items: center;
 
-  .owned-multisign-container,
-  .invited-multisign-container {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
+  // .owned-multisign-container,
+  // .invited-multisign-container {
+  //   flex: 1 1 auto;
+  //   display: flex;
+  //   flex-direction: column;
+  //   align-items: center;
+  // }
 }
 
-div#panel-sm {
-  main#main-content {
-    fieldset.local-monosign-container,
-    fieldset.local-template-container,
-    fieldset.owned-multisign-container,
-    fieldset.invited-multisign-container {
-      width: 100%;
-    }
-  }
-}
+// div#panel-sm {
+//   main#main-content {
+//     fieldset.local-monosign-container,
+//     fieldset.local-template-container,
+//     fieldset.owned-multisign-container,
+//     fieldset.invited-multisign-container {
+//       width: 100%;
+//     }
+//   }
+// }
 
 legend {
   width: auto;
@@ -285,10 +278,10 @@ legend {
   float: unset;
 }
 
-fieldset.local-monosign-container {
-  border-top: 2px solid $mid-gray;
-  padding-top: 4rem;
-}
+// fieldset.local-monosign-container {
+//   border-top: 2px solid $mid-gray;
+//   padding-top: 4rem;
+// }
 
 div.invited-unauthn-title {
   font-size: 2rem;

@@ -186,12 +186,12 @@ class DocumentInvited extends Component {
       >
         {(this.props.size === "lg" && (
           <div
-            className={"doc-flex-container invitation-multisign " + doc.state}
+            className={"doc-flex-container " + doc.state}
             data-testid={`representation-for-doc-${doc.key}`}
           >
-            <div className="invitation-multisign-request">
+            <div className="doc-detail-block">
               <div
-                className={"invitation-name-and-buttons-" + this.props.size}
+                className={"name-and-buttons-" + this.props.size}
                 id={"invitee-doc-" + doc.key}
               >
                 {doc.state === "unconfirmed" && (
@@ -254,7 +254,7 @@ class DocumentInvited extends Component {
                     {widgets.dummySelectDoc()}
                     {widgets.docSize(doc)}
                     {widgets.docName(doc)}
-                    <div className="doc-manager-buttons">
+                    <div className="buttons-flex">
                       {widgets.declineSignatureButton(this.props, doc)}
                     </div>
                   </>
@@ -267,7 +267,7 @@ class DocumentInvited extends Component {
             </div>
           </div>
         )) || (
-          <div className={"doc-flex-container-sm " + doc.state}>
+          <div className={"doc-flex-container sm " + doc.state}>
             {doc.state === "unconfirmed" && (
               <>
                 <div className="doc-container-md-row">

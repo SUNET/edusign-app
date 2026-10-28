@@ -61,22 +61,26 @@ class DocumentTemplate extends React.Component {
       >
         {(this.props.size === "lg" && (
           <div
-            className={"doc-flex-container-local " + doc.state}
+            className={"doc-flex-container " + doc.state}
             data-testid={`representation-for-doc-${doc.name}`}
             key="0"
           >
-            <div className="doc-flex-container">
-              {widgets.dummySelectDoc()}
-              {widgets.docSize(doc)}
-              {widgets.docName(doc)}
-              <div className="doc-manager-buttons">
-                <ESDropdown doc={doc}>
-                  {(doc.has_form && menu.fillFormMenuItem(this.props, doc)) ||
-                    ""}
-                  {menu.previewTemplateMenuItem(this.props, doc)}
-                </ESDropdown>
-                {widgets.multiSignButton(this.props, doc)}
-                {widgets.removeTemplate(this.props, doc)}
+            <div className="doc-detail-block">
+              <div className="name-and-buttons-lg">
+                {widgets.dummySelectDoc()}
+
+                {widgets.docSize(doc)}
+                {widgets.docName(doc)}
+
+                <div className="buttons-flex">
+                  <ESDropdown doc={doc}>
+                    {(doc.has_form && menu.fillFormMenuItem(this.props, doc)) ||
+                      ""}
+                    {menu.previewTemplateMenuItem(this.props, doc)}
+                  </ESDropdown>
+                  {widgets.multiSignButton(this.props, doc)}
+                  {widgets.removeTemplate(this.props, doc)}
+                </div>
               </div>
             </div>
             {widgets.docCreated(this.props)}
@@ -84,7 +88,7 @@ class DocumentTemplate extends React.Component {
             {preparePrevSigs(doc, this.props.size)}
           </div>
         )) || (
-          <div className={"doc-flex-container-sm " + doc.state} key="0">
+          <div className={"doc-flex-container sm " + doc.state} key="0">
             {(doc.state === "loaded" || doc.state === "selected") && (
               <>
                 <div className="doc-container-md-row">
