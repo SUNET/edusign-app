@@ -200,7 +200,6 @@ class SqlMD(ABCMetadata):
         loa: str,
         skipfinal: bool,
         ordered: bool,
-        allowbankid: bool,
         invitation_text: str,
     ) -> List[Dict[str, str]]:
         """
@@ -213,14 +212,13 @@ class SqlMD(ABCMetadata):
                          + type: Content type of the doc
                          + prev_signatures: previous signatures
         :param owner: Name and email address and language and eppn of the user that has uploaded the document.
-        :param invites: List of the names and emails and languages of the users that have been invited to sign the document.
+        :param invites: List of the names, emails, languages and eID permission (`alloweid`) of the users that have been invited to sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :param skipfinal: Whether to request signature from the user who is inviting.
-        :param allowbankid: Whether to allow BankID signatures.
         :param ordered: Whether to send invitations in order.
         :param invitation_text: The custom text to send in the invitation email
-        :return: The list of invitations as dicts with 5 keys: name, email, lang, order, and generated key (UUID)
+        :return: The list of invitations as dicts with 6 keys: name, email, lang, alloweid, order, and generated key (UUID)
         """
         prev_sigs = document.get("prev_signatures", "")
 
@@ -240,7 +238,6 @@ class SqlMD(ABCMetadata):
                 loa,
                 skipfinal,
                 ordered,
-                allowbankid,
                 invitation_text,
             ),
         )
@@ -260,11 +257,21 @@ class SqlMD(ABCMetadata):
             invite_key = str(uuid.uuid4())
             self._db_execute(
                 INVITE_INSERT,
-                (invite_key, document_id, user['email'], user['name'], user.get('ssn', ''), user['lang'], order),
+                (
+                    invite_key,
+                    document_id,
+                    user['email'],
+                    user['name'],
+                    user.get('ssn', ''),
+                    user['lang'],
+                    order,
+                    bool(user.get('alloweid', False)),
+                ),
             )
 
             updated_invite = {'key': invite_key, 'order': order}
             updated_invite.update(user)
+            updated_invite['alloweid'] = bool(user.get('alloweid', False))
             updated_invites.append(updated_invite)
 
         self._db_commit()
@@ -294,7 +301,6 @@ class SqlMD(ABCMetadata):
                  + updated: modification timestamp
                  + created: creation timestamp
                  + ordered_invitations: Whether to send invitations in order.
-                 + allowbankid: Whether to allow BankID signatures.
                  + invitation_text: The custom text to send in the invitation email
         :return: the id of the new document in the db
         """
@@ -316,7 +322,6 @@ class SqlMD(ABCMetadata):
                 document['loa'],
                 document['skipfinal'],
                 document['ordered_invitations'],
-                document.get('allowbankid', False),
                 document['invitation_text'],
             ),
         )
@@ -338,6 +343,7 @@ class SqlMD(ABCMetadata):
                  + key: the key identifying the invite
                  + doc_id: the id of the document.
                  + order: the order of the invitation.
+                 + alloweid: whether the user may sign with eID (default False)
         :return:
         """
         self._db_execute(
@@ -352,6 +358,7 @@ class SqlMD(ABCMetadata):
                 invite['signed'],
                 invite['declined'],
                 invite['order'],
+                bool(invite.get('alloweid', False)),
             ),
         )
 
@@ -414,7 +421,6 @@ class SqlMD(ABCMetadata):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
                  + ordered: Whether to send invitations in order.
-                 + allowbankid: Whether to allow BankID signatures.
         """
         pending = []
         doc_ids = []
@@ -477,6 +483,7 @@ class SqlMD(ABCMetadata):
                             'name': subinvite['user_name'],
                             'ssn': subinvite.get('user_ssn', ''),
                             'lang': subinvite['user_lang'],
+                            'alloweid': bool(subinvite.get('alloweid', 0)),
                             'order': int(subinvite['order_invitation']),
                         }
                         if subemail_result['email'] == email:
@@ -565,7 +572,6 @@ class SqlMD(ABCMetadata):
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
                  + sendsigned: Whether to send signed documents in final email
-                 + allowbankid: Whether to allow BankID signatures.
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER, (eppn,))
         if documents is None or isinstance(documents, dict):
@@ -593,7 +599,6 @@ class SqlMD(ABCMetadata):
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
                  + sendsigned: Whether to send signed documents in final email
-                 + allowbankid: Whether to allow BankID signatures.
         """
         documents = self._db_query(DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL, (email,))
         if documents is None or isinstance(documents, dict):
@@ -614,7 +619,6 @@ class SqlMD(ABCMetadata):
             state = 'loaded'
             _bool_flags(document)
             document['ordered'] = document['ordered_invitations']
-            document['use_eid'] = document['allowbankid']
             document_id = document['doc_id']
             invites = self._db_query(INVITE_QUERY_FROM_DOC, (document_id,))
             del document['doc_id']
@@ -627,6 +631,7 @@ class SqlMD(ABCMetadata):
                     'name': invite['user_name'],
                     'ssn': invite.get('user_ssn', ''),
                     'lang': invite['user_lang'],
+                    'alloweid': bool(invite.get('alloweid', 0)),
                 }
                 if invite['declined'] == 1:
                     document['declined'].append(email_result)
@@ -657,6 +662,7 @@ class SqlMD(ABCMetadata):
                  + key: the key identifying the invite
                  + doc_id: the id of the invited document
                  + order: the order of the invitation
+                 + alloweid: whether the user may sign with eID
         """
         invitees: List[Dict[str, Any]] = []
 
@@ -678,6 +684,7 @@ class SqlMD(ABCMetadata):
                 'name': invite['user_name'],
                 'ssn': invite.get('user_ssn', ''),
                 'lang': invite['user_lang'],
+                'alloweid': bool(invite.get('alloweid', 0)),
             }
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
@@ -702,6 +709,7 @@ class SqlMD(ABCMetadata):
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + order: the order of the invitation
+                 + alloweid: whether the user may sign with eID
         """
         invitees: List[Dict[str, Any]] = []
 
@@ -721,6 +729,7 @@ class SqlMD(ABCMetadata):
                 'name': invite['user_name'],
                 'ssn': invite.get('user_ssn', ''),
                 'lang': invite['user_lang'],
+                'alloweid': bool(invite.get('alloweid', 0)),
             }
             email_result['signed'] = bool(invite['signed'])
             email_result['declined'] = bool(invite['declined'])
@@ -807,6 +816,7 @@ class SqlMD(ABCMetadata):
             'email': invite['user_email'],
             'ssn': invite.get('user_ssn', ''),
             'lang': invite['user_lang'],
+            'alloweid': bool(invite.get('alloweid', 0)),
         }
         doc['doc_id'] = invite['doc_id']
         doc['doc_id'] = invite['doc_id']
@@ -835,6 +845,7 @@ class SqlMD(ABCMetadata):
                         'name': subinvite['user_name'],
                         'ssn': subinvite.get('user_ssn', ''),
                         'lang': subinvite['user_lang'],
+                        'alloweid': bool(subinvite.get('alloweid', 0)),
                         'order': int(subinvite['order_invitation']),
                     }
                     if subemail_result['email'] == invite['user_email']:
@@ -849,7 +860,15 @@ class SqlMD(ABCMetadata):
         return {'document': doc, 'user': user}
 
     def add_invitation(
-        self, document_key: uuid.UUID, name: str, email: str, ssn: str, lang: str, invite_key: str = '', order: int = 0
+        self,
+        document_key: uuid.UUID,
+        name: str,
+        email: str,
+        ssn: str,
+        lang: str,
+        invite_key: str = '',
+        order: int = 0,
+        alloweid: bool = False,
     ) -> Dict[str, Any]:
         """
         Create a new invitation to sign
@@ -860,6 +879,7 @@ class SqlMD(ABCMetadata):
         :param lang: The language for the new invitation
         :param invite_key: The invite key for the new invitation
         :param order: The order for the new invitation
+        :param alloweid: Whether the invited user may sign with eID
         :return: data on the new invitation
         """
         document_result = self._db_query(DOCUMENT_QUERY_ID, (str(document_key),), one=True)
@@ -872,7 +892,7 @@ class SqlMD(ABCMetadata):
         if invite_key == '':
             invite_key = str(uuid.uuid4())
 
-        self._db_execute(INVITE_INSERT, (invite_key, document_id, email, name, ssn, lang, order))
+        self._db_execute(INVITE_INSERT, (invite_key, document_id, email, name, ssn, lang, order, bool(alloweid)))
         self._db_commit()
 
         return {'key': invite_key, 'name': name, 'email': email}
@@ -925,7 +945,6 @@ class SqlMD(ABCMetadata):
                  + created: creation timestamp
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered_invitations: send invitations in order
-                 + allowbankid: Whether to allow BankID signatures.
                  + invitation_text: The custom text to send in the invitation email
         """
         document_result = self._db_query(DOCUMENT_QUERY_FULL, (str(key),), one=True)
@@ -1139,20 +1158,6 @@ class SqlMD(ABCMetadata):
             return False
 
         return bool(document_result['ordered_invitations'])
-
-    def get_allowbankid(self, key: uuid.UUID) -> bool:
-        """
-        Whether to allow BankID signatures
-
-        :param key: The key identifying the document
-        :return: whether BankID signatures are allowed
-        """
-        document_result = self._db_query(DOCUMENT_QUERY_ALLOWBANKID, (str(key),), one=True)
-        if document_result is None or isinstance(document_result, list):
-            self.logger.debug(f"Trying to get allowbankid from a non-existing document with key {key}")
-            return False
-
-        return bool(document_result['allowbankid'])
 
     def get_invitation_text(self, key: uuid.UUID) -> str:
         """
