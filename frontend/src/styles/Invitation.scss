@@ -11,7 +11,7 @@
     color: $error-red;
   }
 
-  .name-and-buttons-lg {
+  .name-and-buttons {
     flex: none;
     display: flex;
     flex-wrap: wrap;
@@ -84,6 +84,17 @@
       flex-direction: row;
       justify-content: flex-end;
       flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    // On narrow screens the buttons wrap onto their own line, where they sit
+    // side by side and aligned to the start of the row.
+    @media (max-width: $breakpoint-xl) {
+      .buttons-flex {
+        flex: 1 0 100%;
+        justify-content: flex-start;
+        margin-top: 0.5rem;
+      }
     }
   }
 }

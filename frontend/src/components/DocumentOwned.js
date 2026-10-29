@@ -168,90 +168,17 @@ class DocumentOwned extends Component {
           title={this.getHelp(doc.state + "-title")}
           body={this.getHelp(doc.state)}
         >
-          {(this.props.size === "lg" && (
-            <div
-              className={"doc-flex-container invitation-multisign " + doc.state}
-              data-testid={`representation-for-doc-${doc.name}`}
-            >
-              <div className="doc-detail-block">
-                <div className={"name-and-buttons-" + this.props.size}>
-                  {doc.state === "incomplete" && (
-                    <div className={"name-and-buttons-" + this.props.size}>
-                      {widgets.dummySelectDoc()}
-                      {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                      <div className="buttons-flex">
-                        <ESDropdown doc={doc}>
-                          {menu.editInvitationMenuItem(this.props, doc)}
-                          {menu.resendMenuItem(this.props, doc)}
-                          {menu.previewMenuItem(this.props, doc)}
-                        </ESDropdown>
-                        {widgets.removeConfirmButton(this.props, doc)}
-                      </div>
-                    </div>
-                  )}
-                  {["loaded", "selected", "failed-signing"].includes(
-                    doc.state,
-                  ) && (
-                    <>
-                      {widgets.selectDoc(this.props, doc)}
-                      {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                      {widgets.showMessage(doc)}
-                      <div className="buttons-flex">
-                        <ESDropdown doc={doc}>
-                          {menu.editInvitationMenuItem(this.props, doc)}
-                          {menu.previewMenuItem(this.props, doc)}
-                        </ESDropdown>
-                        {widgets.skipSignatureButton(this.props, doc)}
-                        {widgets.removeConfirmButton(this.props, doc)}
-                      </div>
-                    </>
-                  )}
-                  {doc.state === "signing" && (
-                    <>
-                      {widgets.dummySelectDoc()}
-                      {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                      {widgets.namedSpinner(doc.name, "signing")}
-                    </>
-                  )}
-                  {doc.state === "signed" && (
-                    <>
-                      {widgets.dummySelectDoc()}
-                      {widgets.docSize(doc)}
-                      {widgets.docName(doc)}
-                      <ESDropdown doc={doc}>
-                        {menu.previewMenuItem(this.props, doc)}
-                      </ESDropdown>
-                      {widgets.multiSignButton(this.props, doc)}
-                      {(doc.signed.length > 0 &&
-                        widgets.downloadSignedButton(this.props, doc)) ||
-                        ""}
-                      {widgets.removeConfirmButton(
-                        this.props,
-                        doc,
-                        "confirm-remove-" + doc.name,
-                      )}
-                    </>
-                  )}
-                </div>
-                {invites}
-                {preparePrevSigs(doc, this.props.size)}
-                <widgets.InfoLine doc={doc} />
-                <widgets.InfoLine2 doc={doc} />
-              </div>
-            </div>
-          )) || (
-            <div className={"doc-flex-container  " + doc.state}>
+          <div
+            className={"doc-flex-container invitation-multisign " + doc.state}
+            data-testid={`representation-for-doc-${doc.name}`}
+          >
+            <div className="doc-detail-block">
               {doc.state === "incomplete" && (
-                <>
-                  <div className="doc-container-md-row">
-                    {widgets.dummySelectDoc()}
-                    {widgets.docSize(doc)}
-                    {widgets.docName(doc)}
-                  </div>
-                  <div className="doc-container-button-row">
+                <div className="name-and-buttons">
+                  {widgets.dummySelectDoc()}
+                  {widgets.docSize(doc)}
+                  {widgets.docName(doc)}
+                  <div className="buttons-flex">
                     <ESDropdown doc={doc}>
                       {menu.editInvitationMenuItem(this.props, doc)}
                       {menu.resendMenuItem(this.props, doc)}
@@ -259,19 +186,15 @@ class DocumentOwned extends Component {
                     </ESDropdown>
                     {widgets.removeConfirmButton(this.props, doc)}
                   </div>
-                </>
+                </div>
               )}
               {["loaded", "selected", "failed-signing"].includes(doc.state) && (
                 <>
-                  <div className="doc-container-md-row">
-                    {widgets.selectDoc(this.props, doc)}
-                    {widgets.docSize(doc)}
-                    {widgets.docName(doc)}
-                  </div>
-                  <div className="doc-container-msg-row">
-                    {widgets.showMessage(doc)}
-                  </div>
-                  <div className="doc-container-button-row">
+                  {widgets.selectDoc(this.props, doc)}
+                  {widgets.docSize(doc)}
+                  {widgets.docName(doc)}
+                  {widgets.showMessage(doc)}
+                  <div className="buttons-flex">
                     <ESDropdown doc={doc}>
                       {menu.editInvitationMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
@@ -283,39 +206,38 @@ class DocumentOwned extends Component {
               )}
               {doc.state === "signing" && (
                 <>
-                  <div className="doc-container-md-row">
-                    {widgets.dummySelectDoc()}
-                    {widgets.docSize(doc)}
-                    {widgets.docName(doc)}
-                  </div>
-                  <div className="doc-container-msg-row">
-                    {widgets.namedSpinner(doc.name, "signing")}
-                  </div>
+                  {widgets.dummySelectDoc()}
+                  {widgets.docSize(doc)}
+                  {widgets.docName(doc)}
+                  {widgets.namedSpinner(doc.name, "signing")}
                 </>
               )}
               {doc.state === "signed" && (
                 <>
-                  <div className="doc-container-md-row">
-                    {widgets.dummySelectDoc()}
-                    {widgets.docSize(doc)}
-                    {widgets.docName(doc)}
-                  </div>
-                  <div className="doc-container-button-row">
-                    {widgets.downloadSignedButton(this.props, doc)}
-                    {widgets.removeConfirmButton(
-                      this.props,
-                      doc,
-                      "confirm-remove-" + doc.name,
-                    )}
-                  </div>
+                  {widgets.dummySelectDoc()}
+                  {widgets.docSize(doc)}
+                  {widgets.docName(doc)}
+                  <ESDropdown doc={doc}>
+                    {menu.previewMenuItem(this.props, doc)}
+                  </ESDropdown>
+                  {widgets.multiSignButton(this.props, doc)}
+                  {(doc.signed.length > 0 &&
+                    widgets.downloadSignedButton(this.props, doc)) ||
+                    ""}
+                  {widgets.removeConfirmButton(
+                    this.props,
+                    doc,
+                    "confirm-remove-" + doc.name,
+                  )}
                 </>
               )}
+
               {invites}
               {preparePrevSigs(doc, this.props.size)}
               <widgets.InfoLine doc={doc} />
               <widgets.InfoLine2 doc={doc} />
             </div>
-          )}
+          </div>
         </ESPopover>
         {editForm}
       </>
