@@ -239,26 +239,7 @@ div.selected {
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  // .owned-multisign-container,
-  // .invited-multisign-container {
-  //   flex: 1 1 auto;
-  //   display: flex;
-  //   flex-direction: column;
-  //   align-items: center;
-  // }
 }
-
-// div#panel-sm {
-//   main#main-content {
-//     fieldset.local-monosign-container,
-//     fieldset.local-template-container,
-//     fieldset.owned-multisign-container,
-//     fieldset.invited-multisign-container {
-//       width: 100%;
-//     }
-//   }
-// }
 
 legend {
   width: auto;
@@ -266,11 +247,6 @@ legend {
   color: $darker-dark-grey;
   float: unset;
 }
-
-// fieldset.local-monosign-container {
-//   border-top: 2px solid $mid-gray;
-//   padding-top: 4rem;
-// }
 
 div.invited-unauthn-title {
   font-size: 2rem;
