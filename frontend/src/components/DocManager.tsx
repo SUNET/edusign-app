@@ -235,54 +235,70 @@ function DocManager(props: Readonly<DocManagerProps>) {
       {/* The groups that need action come first: documents the user is
             invited to sign, then documents the user is waiting on others
             to sign. The personal documents, which can be many, come last. */}
-      <div className={"multisign-container-" + size}>
-        {pending.length > 0 && (
-          <fieldset className="invited-multisign-container">
-            {(!using_bankid && !using_freja && (
-              <legend data-testid="legend-invited">
+      {/* <div className={"multisign-container-" + size}> */}
+      {pending.length > 0 && (
+        <fieldset className="invited-multisign-container">
+          {(!using_bankid && !using_freja && (
+            <legend data-testid="legend-invited">
+              <FormattedMessage
+                defaultMessage="Documents you are invited to sign"
+                key="invited-multisign-legend"
+              />
+            </legend>
+          )) ||
+            (pending[0].state === "signed" && (
+              <p className="invited-legend-title">
                 <FormattedMessage
-                  defaultMessage="Documents you are invited to sign"
-                  key="invited-multisign-legend"
+                  defaultMessage="The draft document can be downloaded now, but will disappear when this window is closed. The fully signed document will be available from the person who invited the signature."
+                  key="local-invited-legend-title"
                 />
-              </legend>
-            )) ||
-              (pending[0].state === "signed" && (
-                <p className="invited-legend-title">
+              </p>
+            ))}
+          <InvitedContainer />
+        </fieldset>
+      )}
+      {!unauthn && (
+        <>
+          {owned.length > 0 && (
+            <fieldset className="owned-multisign-container">
+              <legend data-testid="legend-inviter">
+                <h2 className="heading">
                   <FormattedMessage
-                    defaultMessage="The draft document can be downloaded now, but will disappear when this window is closed. The fully signed document will be available from the person who invited the signature."
-                    key="local-invited-legend-title"
-                  />
-                </p>
-              ))}
-            <InvitedContainer />
-          </fieldset>
-        )}
-        {!unauthn && (
-          <>
-            {owned.length > 0 && (
-              <fieldset className="owned-multisign-container">
-                <legend data-testid="legend-inviter">
-                  <FormattedMessage
-                    defaultMessage="Documents you have invited others to sign"
+                    defaultMessage="Waiting for others to sign"
                     key="owned-multisign-legend"
                   />
-                </legend>
-                <OwnedContainer />
-              </fieldset>
-            )}
-          </>
-        )}
-      </div>
+                </h2>
+              </legend>
+              <p className="lead-text">
+                <FormattedMessage
+                  defaultMessage="You sent these documents for signing. You can send a reminder to anyone who hasn't signed yet, or remove the invitation to cancel it."
+                  key="owned-multisign-lead-text"
+                />
+              </p>
+              <OwnedContainer />
+            </fieldset>
+          )}
+        </>
+      )}
+      {/* </div> */}
       {!unauthn && (
         <>
           {templates.length > 0 && (
             <fieldset className="local-template-container">
               <legend data-testid="legend-templates">
-                <FormattedMessage
-                  defaultMessage="Templates"
-                  key="local-templates-legend"
-                />
+                <h2 className="heading">
+                  <FormattedMessage
+                    defaultMessage="Templates"
+                    key="local-templates-legend"
+                  />
+                </h2>
               </legend>
+              <p className="lead-text">
+                <FormattedMessage
+                  defaultMessage="Templates are reusable document structures that can be filled out and signed."
+                  key="local-templates-legend-title"
+                />
+              </p>
               {templates.map((doc, index) => {
                 return (
                   <React.Fragment key={doc.name}>

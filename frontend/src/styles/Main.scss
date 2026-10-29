@@ -53,3 +53,9 @@ p.help-text {
 .form-group {
   margin-bottom: 1rem;
 }
+
+fieldset {
+  margin-top: 2rem;
+  border-top: 2px solid $mid-gray;
+  padding-top: 2rem;
+}

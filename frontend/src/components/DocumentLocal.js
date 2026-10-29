@@ -181,188 +181,44 @@ function DocumentLocal(ownProps) {
       title={getHelp(doc.state + "-title")}
       body={getHelp(doc.state)}
     >
-      {(props.size === "lg" && (
-        <div
-          className={"doc-flex-container-local " + doc.state}
-          data-testid={`representation-for-doc-${doc.name}`}
-          id={"local-doc-" + doc.name}
-          key="0"
-        >
-          <div className="doc-flex-container">
-            {doc.state === "loading" && (
-              <>
-                {widgets.dummySelectDoc()}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-                <div className="doc-manager-buttons">
-                  {widgets.namedSpinner(doc.name, "loading")}
-                </div>
-              </>
-            )}
-            {doc.state === "failed-loading" && (
-              <>
-                {widgets.dummySelectDoc()}
-                {widgets.docName(doc)}
-                {widgets.showMessage(doc)}
-                <div className="doc-manager-buttons">
-                  {widgets.removeConfirmButton(
-                    props,
-                    doc,
-                    `confirm-remove-${doc.name}`,
-                  )}
-                </div>
-              </>
-            )}
-            {doc.state === "failed-preparing" && (
-              <>
-                {widgets.dummySelectDoc()}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-                {widgets.showMessage(doc)}
-                <div className="doc-manager-buttons">
-                  {widgets.retryButton(props, doc)}
-                  {widgets.removeConfirmButton(
-                    props,
-                    doc,
-                    `confirm-remove-${doc.name}`,
-                  )}
-                </div>
-              </>
-            )}
-            {doc.state === "unconfirmed" && (
-              <>
-                {widgets.dummySelectDoc()}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-                {widgets.showMessage(doc)}
-                <div className="doc-manager-buttons">
-                  {widgets.forcedPreviewButton(props, doc)}
-                  {widgets.removeConfirmButton(
-                    props,
-                    doc,
-                    `confirm-remove-${doc.name}`,
-                  )}
-                </div>
-              </>
-            )}
-            {(doc.state === "loaded" || doc.state === "selected") && (
-              <>
-                {widgets.selectDoc(props, doc)}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-                <div className="doc-manager-buttons">
-                  <ESDropdown doc={doc}>
-                    {doc.type === "application/pdf" &&
-                      menu.createTemplateMenuItem(props, doc)}
-                    {doc.signed_draft &&
-                      menu.downloadPersonalDraftMenuItem(props, doc)}
-                    {menu.previewMenuItem(props, doc)}
-                  </ESDropdown>
-                  {widgets.multiSignButton(props, doc)}
-                  {widgets.removeConfirmButton(
-                    props,
-                    doc,
-                    `confirm-remove-${doc.name}`,
-                  )}
-                </div>
-              </>
-            )}
-            {doc.state === "signing" && (
-              <>
-                {widgets.dummySelectDoc()}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-                <div className="doc-manager-buttons">
-                  {widgets.namedSpinner(doc.name, "signing")}
-                </div>
-              </>
-            )}
-            {doc.state === "signed" && (
-              <>
-                {widgets.dummySelectDoc()}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-                <div className="doc-manager-buttons">
-                  <ESDropdown doc={doc}>
-                    {menu.previewMenuItem(props, doc)}
-                  </ESDropdown>
-                  {widgets.multiSignButton(props, doc)}
-                  {widgets.downloadSignedButton(props, doc)}
-                  {widgets.removeConfirmButton(
-                    props,
-                    doc,
-                    `confirm-remove-${doc.name}`,
-                  )}
-                </div>
-              </>
-            )}
-            {doc.state === "failed-signing" && (
-              <>
-                {widgets.selectDoc(props, doc)}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-                {widgets.showMessage(doc)}
-                <div className="doc-manager-buttons">
-                  <ESDropdown doc={doc}>
-                    {menu.previewMenuItem(props, doc)}
-                  </ESDropdown>
-                  {widgets.removeConfirmButton(
-                    props,
-                    doc,
-                    `confirm-remove-${doc.name}`,
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-          {signed}
-          {preparePrevSigs(doc, props.size)}
-          <widgets.InfoLine doc={doc} />
-          <widgets.InfoLine2 doc={doc} />
-        </div>
-      )) || (
-        <div className={"doc-flex-container-sm " + doc.state} key="0">
+      <div
+        className={"doc-flex-container " + doc.state}
+        data-testid={`representation-for-doc-${doc.name}`}
+        id={"local-doc-" + doc.name}
+        key="0"
+      >
+        <div className="doc-detail-block">
           {doc.state === "loading" && (
-            <>
-              <div className="doc-container-md-row">
-                {widgets.dummySelectDoc()}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-              </div>
-              <div className="doc-container-msg-row">
+            <div className="name-and-buttons">
+              {widgets.dummySelectDoc()}
+              {widgets.docSize(doc)}
+              {widgets.docName(doc)}
+              <div className="buttons-flex">
                 {widgets.namedSpinner(doc.name, "loading")}
               </div>
-            </>
+            </div>
           )}
           {doc.state === "failed-loading" && (
-            <>
-              <div className="doc-container-md-row">
-                {widgets.dummySelectDoc()}
-                {widgets.docName(doc)}
-              </div>
-              <div className="doc-container-msg-row">
-                {widgets.showMessage(doc)}
-              </div>
-              <div className="doc-container-button-row">
+            <div className="name-and-buttons">
+              {widgets.dummySelectDoc()}
+              {widgets.docName(doc)}
+              {widgets.showMessage(doc)}
+              <div className="buttons-flex">
                 {widgets.removeConfirmButton(
                   props,
                   doc,
                   `confirm-remove-${doc.name}`,
                 )}
               </div>
-            </>
+            </div>
           )}
           {doc.state === "failed-preparing" && (
-            <>
-              <div className="doc-container-md-row">
-                {widgets.dummySelectDoc()}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-              </div>
-              <div className="doc-container-msg-row">
-                {widgets.showMessage(doc)}
-              </div>
-              <div className="doc-container-button-row">
+            <div className="name-and-buttons">
+              {widgets.dummySelectDoc()}
+              {widgets.docSize(doc)}
+              {widgets.docName(doc)}
+              {widgets.showMessage(doc)}
+              <div className="buttons-flex">
                 {widgets.retryButton(props, doc)}
                 {widgets.removeConfirmButton(
                   props,
@@ -370,16 +226,15 @@ function DocumentLocal(ownProps) {
                   `confirm-remove-${doc.name}`,
                 )}
               </div>
-            </>
+            </div>
           )}
           {doc.state === "unconfirmed" && (
-            <>
-              <div className="doc-container-md-row">
-                {widgets.dummySelectDoc()}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-              </div>
-              <div className="doc-container-button-row">
+            <div className="name-and-buttons">
+              {widgets.dummySelectDoc()}
+              {widgets.docSize(doc)}
+              {widgets.docName(doc)}
+              {widgets.showMessage(doc)}
+              <div className="buttons-flex">
                 {widgets.forcedPreviewButton(props, doc)}
                 {widgets.removeConfirmButton(
                   props,
@@ -387,16 +242,14 @@ function DocumentLocal(ownProps) {
                   `confirm-remove-${doc.name}`,
                 )}
               </div>
-            </>
+            </div>
           )}
           {(doc.state === "loaded" || doc.state === "selected") && (
-            <>
-              <div className="doc-container-md-row">
-                {widgets.selectDoc(props, doc)}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-              </div>
-              <div className="doc-container-button-row">
+            <div className="name-and-buttons">
+              {widgets.selectDoc(props, doc)}
+              {widgets.docSize(doc)}
+              {widgets.docName(doc)}
+              <div className="buttons-flex">
                 <ESDropdown doc={doc}>
                   {doc.type === "application/pdf" &&
                     menu.createTemplateMenuItem(props, doc)}
@@ -411,28 +264,24 @@ function DocumentLocal(ownProps) {
                   `confirm-remove-${doc.name}`,
                 )}
               </div>
-            </>
+            </div>
           )}
           {doc.state === "signing" && (
-            <>
-              <div className="doc-container-md-row">
-                {widgets.dummySelectDoc()}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-              </div>
-              <div className="doc-container-msg-row">
+            <div className="name-and-buttons">
+              {widgets.dummySelectDoc()}
+              {widgets.docSize(doc)}
+              {widgets.docName(doc)}
+              <div className="buttons-flex">
                 {widgets.namedSpinner(doc.name, "signing")}
               </div>
-            </>
+            </div>
           )}
           {doc.state === "signed" && (
-            <>
-              <div className="doc-container-md-row">
-                {widgets.dummySelectDoc()}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-              </div>
-              <div className="doc-container-button-row">
+            <div className="name-and-buttons">
+              {widgets.dummySelectDoc()}
+              {widgets.docSize(doc)}
+              {widgets.docName(doc)}
+              <div className="buttons-flex">
                 <ESDropdown doc={doc}>
                   {menu.previewMenuItem(props, doc)}
                 </ESDropdown>
@@ -444,19 +293,15 @@ function DocumentLocal(ownProps) {
                   `confirm-remove-${doc.name}`,
                 )}
               </div>
-            </>
+            </div>
           )}
           {doc.state === "failed-signing" && (
-            <>
-              <div className="doc-container-md-row">
-                {widgets.selectDoc(props, doc)}
-                {widgets.docSize(doc)}
-                {widgets.docName(doc)}
-              </div>
-              <div className="doc-container-msg-row">
-                {widgets.showMessage(doc)}
-              </div>
-              <div className="doc-container-button-row">
+            <div className="name-and-buttons">
+              {widgets.selectDoc(props, doc)}
+              {widgets.docSize(doc)}
+              {widgets.docName(doc)}
+              {widgets.showMessage(doc)}
+              <div className="buttons-flex">
                 <ESDropdown doc={doc}>
                   {menu.previewMenuItem(props, doc)}
                 </ESDropdown>
@@ -466,14 +311,14 @@ function DocumentLocal(ownProps) {
                   `confirm-remove-${doc.name}`,
                 )}
               </div>
-            </>
+            </div>
           )}
-          {signed}
-          {preparePrevSigs(doc, props.size)}
-          <widgets.InfoLine doc={doc} />
-          <widgets.InfoLine2 doc={doc} />
         </div>
-      )}
+        {signed}
+        {preparePrevSigs(doc, props.size)}
+        <widgets.InfoLine doc={doc} />
+        <widgets.InfoLine2 doc={doc} />
+      </div>
     </ESPopover>
   );
 }

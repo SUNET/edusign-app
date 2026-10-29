@@ -1,118 +1,60 @@
 @use "./variables" as *;
 
-.doc-flex-container-local {
+.doc-flex-container {
   border: $dark-gray solid 1px;
-  border-radius: 5px;
-  margin-bottom: 0.3rem;
-  min-height: 3rem;
-  display: flex;
-  flex-direction: column;
-  padding-left: 1rem;
-
-  .doc-flex-container {
-    padding: 0.5rem;
-    flex: none;
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-    justify-content: left;
-
-    .doc-selector-flex-item {
-      flex: none;
-      width: 2rem;
-    }
-
-    .name-flex-item {
-      flex: 5 1 auto;
-      margin: 0.5rem 0;
-    }
-
-    .message-flex-item {
-      flex: none;
-      margin-left: 1rem;
-      margin-right: 1rem;
-      color: $error-red;
-    }
-
-    .size-flex-item {
-      flex: none;
-      margin-right: 1rem;
-      color: $darker-dark-grey;
-    }
-
-    .date-flex-item {
-      flex: none;
-      margin-right: 1rem;
-      color: $darker-dark-grey;
-    }
-
-    .doc-manager-buttons {
-      flex: 3 1 auto;
-      display: flex;
-      justify-content: flex-end;
-
-      .spinner-flex-item {
-        flex: none;
-        width: 2rem;
-        margin-bottom: -2rem;
-      }
-      .spinning-flex-item {
-        flex: none;
-        width: 5rem;
-      }
-      .button-forced-preview-flex-item,
-      .button-preview-flex-item,
-      .button-resend-flex-item,
-      .button-remove-flex-item,
-      .button-retry-flex-item,
-      .button-download-flex-item,
-      .button-create-template-flex-item,
-      .button-decline-flex-item,
-      .button-skip-flex-item,
-      .button-edit-invitations-flex-item,
-      .button-multisign-flex-item {
-        flex: none;
-        button {
-          padding: inherit 0.5rem;
-        }
-      }
-    }
-  }
-}
-
-.button-forced-preview-flex-item,
-.button-preview-flex-item,
-.button-resend-flex-item,
-.button-remove-flex-item,
-.button-retry-flex-item,
-.button-download-flex-item,
-.button-create-template-flex-item,
-.button-decline-flex-item,
-.button-skip-flex-item,
-.button-edit-invitations-flex-item,
-.button-multisign-flex-item {
-  margin-right: 0.5rem;
-}
-
-.doc-flex-container-sm {
-  display: flex;
-  flex-direction: column;
   margin-top: 0.5rem;
-  margin-bottom: 0.3rem;
-  padding: 0.5rem;
-  border: $dark-gray solid 1px;
-  border-radius: 5px;
-  width: 100%;
-  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 16px;
 
-  .doc-container-button-row {
-    line-height: 2.5rem;
-    margin-bottom: 0.5rem;
+  @media (max-width: $breakpoint-xl) {
+    align-items: flex-start;
+  }
+
+  .doc-selector-flex-item {
     flex: none;
+    width: 2rem;
+  }
+
+  .name-flex-item {
+    flex: 5 1 auto;
+  }
+
+  .message-flex-item {
+    flex: none;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    color: $error-red;
+  }
+
+  .size-flex-item {
+    flex: none;
+    margin-right: 1rem;
+    color: $darker-dark-grey;
+  }
+
+  .date-flex-item {
+    flex: none;
+    margin-right: 1rem;
+    color: $darker-dark-grey;
+  }
+
+  .buttons-flex {
+    flex: 3 1 auto;
     display: flex;
     justify-content: flex-end;
-    flex-wrap: wrap;
 
+    .spinner-flex-item {
+      flex: none;
+      width: 2rem;
+      margin-bottom: -2rem;
+    }
+    .spinning-flex-item {
+      flex: none;
+      width: 5rem;
+    }
     .button-forced-preview-flex-item,
     .button-preview-flex-item,
     .button-resend-flex-item,
@@ -130,46 +72,86 @@
       }
     }
   }
+}
+// }
 
-  .doc-container-md-row,
-  .doc-container-msg-row {
-    line-height: 1.4rem;
-    margin-bottom: 0.5rem;
+.button-forced-preview-flex-item,
+.button-preview-flex-item,
+.button-resend-flex-item,
+.button-remove-flex-item,
+.button-retry-flex-item,
+.button-download-flex-item,
+.button-create-template-flex-item,
+.button-decline-flex-item,
+.button-skip-flex-item,
+.button-edit-invitations-flex-item,
+.button-multisign-flex-item {
+  margin-right: 0.5rem;
+}
+
+.doc-container-button-row {
+  line-height: 2.5rem;
+  margin-bottom: 0.5rem;
+  flex: none;
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+
+  .button-forced-preview-flex-item,
+  .button-preview-flex-item,
+  .button-resend-flex-item,
+  .button-remove-flex-item,
+  .button-retry-flex-item,
+  .button-download-flex-item,
+  .button-create-template-flex-item,
+  .button-decline-flex-item,
+  .button-skip-flex-item,
+  .button-edit-invitations-flex-item,
+  .button-multisign-flex-item {
     flex: none;
-    display: flex;
-    justify-content: flex-start;
-    flex-wrap: wrap;
+    button {
+      padding: inherit 0.5rem;
+    }
+  }
+}
 
-    .doc-selector-flex-item {
-      flex: none;
-      width: 2rem;
-    }
+.doc-container-msg-row {
+  line-height: 1.4rem;
+  margin-bottom: 0.5rem;
+  flex: none;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
 
-    .message-flex-item {
-      color: $error-red;
-    }
+  .doc-selector-flex-item {
+    flex: none;
+    width: 2rem;
+  }
 
-    .size-flex-item {
-      flex: none;
-      margin-right: 1rem;
-      color: $darker-dark-grey;
-    }
+  .message-flex-item {
+    color: $error-red;
+  }
 
-    .date-flex-item {
-      flex: none;
-      margin-right: 1rem;
-      color: $darker-dark-grey;
-    }
+  .size-flex-item {
+    flex: none;
+    margin-right: 1rem;
+    color: $darker-dark-grey;
+  }
 
-    .spinner-flex-item {
-      flex: none;
-      width: 2rem;
-      margin-bottom: -2rem;
-    }
-    .spinning-flex-item {
-      flex: none;
-      width: 5rem;
-    }
+  .date-flex-item {
+    flex: none;
+    margin-right: 1rem;
+    color: $darker-dark-grey;
+  }
+
+  .spinner-flex-item {
+    flex: none;
+    width: 2rem;
+    margin-bottom: -2rem;
+  }
+  .spinning-flex-item {
+    flex: none;
+    width: 5rem;
   }
 }
 
@@ -226,7 +208,7 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  margin-top: 1.5rem;
+  margin: 1rem 0 4rem 0;
 
   button {
     margin: 0 1rem 1rem 0;
@@ -257,50 +239,13 @@ div.selected {
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  .owned-multisign-container,
-  .invited-multisign-container {
-    flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
 }
 
-div#panel-sm {
-  main#main-content {
-    fieldset.local-monosign-container,
-    fieldset.local-template-container,
-    fieldset.owned-multisign-container,
-    fieldset.invited-multisign-container {
-      width: 100%;
-    }
-  }
-}
-
-fieldset.local-template-container,
-fieldset.owned-multisign-container,
-fieldset.invited-multisign-container {
-  border: $darker-grey solid 1px;
-  border-radius: 3px;
-  padding-top: 0.6rem;
-  padding-left: 0.4rem;
-  padding-right: 0.4rem;
-  padding-bottom: 0.4rem;
-  margin-bottom: 1.5rem;
-
-  legend {
-    width: auto;
-    font-size: 0.8rem;
-    font-weight: bold;
-    color: $darker-dark-grey;
-    float: unset;
-  }
-}
-
-fieldset.local-monosign-container {
-  border-top: 2px solid $mid-gray;
-  padding-top: 4rem;
+legend {
+  width: auto;
+  font-size: 0.8rem;
+  color: $darker-dark-grey;
+  float: unset;
 }
 
 div.invited-unauthn-title {
