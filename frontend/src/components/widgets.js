@@ -12,7 +12,9 @@ import {
   faTrashCan,
   faDownload,
   faFileSignature,
+  faFile,
 } from "@fortawesome/free-solid-svg-icons";
+import { faFileAlt } from "@fortawesome/free-regular-svg-icons";
 
 export const docName = (doc) => {
   return <div className="name-flex-item">{doc.name}</div>;
@@ -169,7 +171,11 @@ export const selectDoc = (props, doc) => {
 };
 
 export const dummySelectDoc = () => {
-  return <div className="doc-selector-flex-item" />;
+  return (
+    <div className="doc-selector-flex-item">
+      <FontAwesomeIcon icon={faFileAlt} />
+    </div>
+  );
 };
 
 export const forcedPreviewButton = (props, doc) => {
