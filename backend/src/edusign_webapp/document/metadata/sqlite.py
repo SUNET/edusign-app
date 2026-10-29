@@ -234,6 +234,18 @@ def upgrade(db):
         cur.close()
         db.commit()
 
+    if version == 11:
+        # eID permission moves from the document to each invite
+        cur = db.cursor()
+        cur.execute("ALTER TABLE [Invites] ADD COLUMN [alloweid] INTEGER DEFAULT 0;")
+        cur.execute(
+            "UPDATE [Invites] SET alloweid = (SELECT allowbankid FROM [Documents] WHERE [Documents].doc_id = [Invites].doc_id);"
+        )
+        cur.execute("ALTER TABLE [Documents] DROP COLUMN [allowbankid];")
+        cur.execute("PRAGMA user_version = 12;")
+        cur.close()
+        db.commit()
+
 
 def drop_owner_and_locked_by_in_documents(cur):
     cur.execute(

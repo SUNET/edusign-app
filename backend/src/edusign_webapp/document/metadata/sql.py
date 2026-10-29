@@ -40,7 +40,7 @@ from flask import Flask, current_app
 
 from edusign_webapp.doc_store import ABCMetadata
 
-CURRENT_DB_VERSION = "11"
+CURRENT_DB_VERSION = "12"
 
 DB_SCHEMA = """
 CREATE TABLE IF NOT EXISTS Documents
@@ -62,7 +62,6 @@ CREATE TABLE IF NOT EXISTS Documents
        locked TIMESTAMP DEFAULT NULL,
        locking_email VARCHAR(255) DEFAULT NULL,
        ordered_invitations INTEGER DEFAULT 0,
-       allowbankid INTEGER DEFAULT 0,
        invitation_text TEXT
 );
 CREATE TABLE IF NOT EXISTS Invites
@@ -76,6 +75,7 @@ CREATE TABLE IF NOT EXISTS Invites
        signed INTEGER DEFAULT 0,
        declined INTEGER DEFAULT 0,
        order_invitation INTEGER DEFAULT 0,
+       alloweid INTEGER DEFAULT 0,
             FOREIGN KEY (doc_id) REFERENCES Documents (doc_id)
               ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -99,42 +99,41 @@ CREATE INDEX IF NOT EXISTS SignaturesIX ON PayableSignatures (type, organization
 """
 
 
-DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, allowbankid, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
-DOCUMENT_INSERT_RAW = "INSERT INTO Documents (key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, allowbankid, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT = "INSERT INTO Documents (key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
+DOCUMENT_INSERT_RAW = "INSERT INTO Documents (key, name, size, type, created, updated, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, ordered_invitations, invitation_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);"
 DOCUMENT_QUERY_ID = "SELECT doc_id FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_ALL = (
     "SELECT key, name, size, type, doc_id, owner_email, owner_name, owner_lang FROM Documents WHERE key = ?;"
 )
 DOCUMENT_QUERY_LOCK = "SELECT locked, locking_email FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created, ordered_invitations, allowbankid FROM Documents WHERE doc_id = ?;"
-DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created, ordered_invitations, allowbankid, invitation_text FROM Documents WHERE key = ?;"
+DOCUMENT_QUERY = "SELECT key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, loa, created, ordered_invitations FROM Documents WHERE doc_id = ?;"
+DOCUMENT_QUERY_FULL = "SELECT doc_id, key, name, size, type, owner_email, owner_name, owner_lang, owner_eppn, prev_signatures, sendsigned, loa, skipfinal, updated, created, ordered_invitations, invitation_text FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_OLD = "SELECT key FROM Documents WHERE date(created) <= (CURRENT_DATE - INTERVAL '%d days');"
 DOCUMENT_QUERY_ALL_CREATED = "SELECT created, size FROM Documents;"
-DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned, allowbankid FROM Documents WHERE owner_eppn = ?;"
-DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned, allowbankid FROM Documents WHERE owner_email = ?;"
+DOCUMENT_QUERY_FROM_OWNER = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned FROM Documents WHERE owner_eppn = ?;"
+DOCUMENT_QUERY_FROM_OWNER_BY_EMAIL = "SELECT doc_id, key, name, size, type, prev_signatures, loa, created, skipfinal, ordered_invitations, sendsigned FROM Documents WHERE owner_email = ?;"
 DOCUMENT_QUERY_SENDSIGNED = "SELECT sendsigned FROM Documents WHERE key = ?;"
 DOCUMENT_SET_SENDSIGNED = "UPDATE Documents SET sendsigned = ? WHERE key = ?;"
 DOCUMENT_QUERY_SKIPFINAL = "SELECT skipfinal FROM Documents WHERE key = ?;"
 DOCUMENT_SET_SKIPFINAL = "UPDATE Documents SET skipfinal = ? WHERE key = ?;"
 DOCUMENT_QUERY_ORDERED = "SELECT ordered_invitations FROM Documents WHERE key = ?;"
-DOCUMENT_QUERY_ALLOWBANKID = "SELECT allowbankid FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_INVITATION_TEXT = "SELECT invitation_text FROM Documents WHERE key = ?;"
 DOCUMENT_QUERY_LOA = "SELECT loa FROM Documents WHERE key = ?;"
 DOCUMENT_UPDATE = "UPDATE Documents SET updated = ? WHERE key = ?;"
 DOCUMENT_RM_LOCK = "UPDATE Documents SET locked = NULL, locking_email = '' WHERE doc_id = ?;"
 DOCUMENT_ADD_LOCK = "UPDATE Documents SET locked = ?, locking_email = ? WHERE doc_id = ?;"
 DOCUMENT_DELETE = "DELETE FROM Documents WHERE key = ?;"
-INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_ssn, user_lang, order_invitation) VALUES (?, ?, ?, ?, ?, ?, ?)"
-INVITE_INSERT_RAW = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_ssn, user_lang, signed, declined, order_invitation) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+INVITE_INSERT = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_ssn, user_lang, order_invitation, alloweid) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+INVITE_INSERT_RAW = "INSERT INTO Invites (key, doc_id, user_email, user_name, user_ssn, user_lang, signed, declined, order_invitation, alloweid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 INVITE_QUERY_FROM_EMAIL = (
-    "SELECT doc_id, key FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0 ORDER BY order_invitation;"
+    "SELECT doc_id, key, alloweid FROM Invites WHERE user_email = ? AND signed = 0 AND declined = 0 ORDER BY order_invitation;"
 )
 INVITE_QUERY_KEY = "SELECT key FROM Invites WHERE user_email = ? AND user_name = ? AND doc_id = ?;"
-INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, user_ssn, user_lang, signed, declined, key, order_invitation FROM Invites WHERE doc_id = ? ORDER BY order_invitation;"
+INVITE_QUERY_FROM_DOC = "SELECT user_email, user_name, user_ssn, user_lang, signed, declined, key, order_invitation, alloweid FROM Invites WHERE doc_id = ? ORDER BY order_invitation;"
 INVITE_QUERY_UNSIGNED_FROM_DOC = (
     "SELECT inviteID FROM Invites WHERE doc_id = ? AND signed = 0 AND declined = 0 ORDER BY order_invitation;"
 )
-INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, user_lang, user_ssn, doc_id FROM Invites WHERE key = ?;"
+INVITE_QUERY_FROM_KEY = "SELECT user_name, user_email, user_lang, user_ssn, doc_id, alloweid FROM Invites WHERE key = ?;"
 INVITE_STATUS_QUERY_FROM_KEY = "SELECT signed, declined FROM Invites WHERE key = ?;"
 INVITE_UPDATE = "UPDATE Invites SET signed = 1 WHERE user_email IN (%s) and doc_id = ?;"
 INVITE_DECLINE = "UPDATE Invites SET declined = 1 WHERE user_email IN (%s) and doc_id = ?;"
@@ -157,7 +156,7 @@ def _bool_flags(document: Dict[str, Any]):
     sqlite stores them as INTEGER, and marshmallow 4 serializes a Boolean
     field as it is, so without this the frontend would get 0 and 1.
     """
-    for flag in ('sendsigned', 'skipfinal', 'ordered_invitations', 'allowbankid'):
+    for flag in ('sendsigned', 'skipfinal', 'ordered_invitations'):
         if flag in document:
             document[flag] = bool(document[flag])
 
