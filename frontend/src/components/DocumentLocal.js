@@ -191,8 +191,8 @@ function DocumentLocal(ownProps) {
           {doc.state === "loading" && (
             <div className="name-and-buttons">
               {widgets.dummySelectDoc()}
-              {widgets.docSize(doc)}
               {widgets.docName(doc)}
+              {widgets.docSize(doc)}
               <div className="buttons-flex">
                 {widgets.namedSpinner(doc.name, "loading")}
               </div>
@@ -215,8 +215,8 @@ function DocumentLocal(ownProps) {
           {doc.state === "failed-preparing" && (
             <div className="name-and-buttons">
               {widgets.dummySelectDoc()}
-              {widgets.docSize(doc)}
               {widgets.docName(doc)}
+              {widgets.docSize(doc)}
               {widgets.showMessage(doc)}
               <div className="buttons-flex">
                 {widgets.retryButton(props, doc)}
@@ -231,8 +231,8 @@ function DocumentLocal(ownProps) {
           {doc.state === "unconfirmed" && (
             <div className="name-and-buttons">
               {widgets.dummySelectDoc()}
-              {widgets.docSize(doc)}
               {widgets.docName(doc)}
+              {widgets.docSize(doc)}
               {widgets.showMessage(doc)}
               <div className="buttons-flex">
                 {widgets.forcedPreviewButton(props, doc)}
@@ -247,8 +247,8 @@ function DocumentLocal(ownProps) {
           {(doc.state === "loaded" || doc.state === "selected") && (
             <div className="name-and-buttons">
               {widgets.selectDoc(props, doc)}
-              {widgets.docSize(doc)}
               {widgets.docName(doc)}
+              {widgets.docSize(doc)}
               <div className="buttons-flex">
                 <ESDropdown doc={doc}>
                   {doc.type === "application/pdf" &&
@@ -269,8 +269,8 @@ function DocumentLocal(ownProps) {
           {doc.state === "signing" && (
             <div className="name-and-buttons">
               {widgets.dummySelectDoc()}
-              {widgets.docSize(doc)}
               {widgets.docName(doc)}
+              {widgets.docSize(doc)}
               <div className="buttons-flex">
                 {widgets.namedSpinner(doc.name, "signing")}
               </div>
@@ -279,8 +279,8 @@ function DocumentLocal(ownProps) {
           {doc.state === "signed" && (
             <div className="name-and-buttons">
               {widgets.dummySelectDoc()}
-              {widgets.docSize(doc)}
               {widgets.docName(doc)}
+              {widgets.docSize(doc)}
               <div className="buttons-flex">
                 <ESDropdown doc={doc}>
                   {menu.previewMenuItem(props, doc)}
@@ -298,8 +298,8 @@ function DocumentLocal(ownProps) {
           {doc.state === "failed-signing" && (
             <div className="name-and-buttons">
               {widgets.selectDoc(props, doc)}
-              {widgets.docSize(doc)}
               {widgets.docName(doc)}
+              {widgets.docSize(doc)}
               {widgets.showMessage(doc)}
               <div className="buttons-flex">
                 <ESDropdown doc={doc}>

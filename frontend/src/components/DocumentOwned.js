@@ -176,8 +176,8 @@ class DocumentOwned extends Component {
               {doc.state === "incomplete" && (
                 <div className="name-and-buttons">
                   {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
                   {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
                   <div className="buttons-flex">
                     <ESDropdown doc={doc}>
                       {menu.editInvitationMenuItem(this.props, doc)}
@@ -191,8 +191,8 @@ class DocumentOwned extends Component {
               {["loaded", "selected", "failed-signing"].includes(doc.state) && (
                 <>
                   {widgets.selectDoc(this.props, doc)}
-                  {widgets.docSize(doc)}
                   {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
                   {widgets.showMessage(doc)}
                   <div className="buttons-flex">
                     <ESDropdown doc={doc}>
@@ -207,16 +207,16 @@ class DocumentOwned extends Component {
               {doc.state === "signing" && (
                 <>
                   {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
                   {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
                   {widgets.namedSpinner(doc.name, "signing")}
                 </>
               )}
               {doc.state === "signed" && (
                 <>
                   {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
                   {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
                   <ESDropdown doc={doc}>
                     {menu.previewMenuItem(this.props, doc)}
                   </ESDropdown>

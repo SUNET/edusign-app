@@ -67,10 +67,8 @@ class DocumentTemplate extends React.Component {
           <div className="doc-detail-block">
             <div className="name-and-buttons">
               {widgets.dummySelectDoc()}
-
-              {widgets.docSize(doc)}
               {widgets.docName(doc)}
-
+              {widgets.docSize(doc)}
               <div className="buttons-flex">
                 <ESDropdown doc={doc}>
                   {(doc.has_form && menu.fillFormMenuItem(this.props, doc)) ||

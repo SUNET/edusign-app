@@ -193,8 +193,8 @@ class DocumentInvited extends Component {
               {doc.state === "unconfirmed" && (
                 <>
                   {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
                   {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
                   <ESDropdown doc={doc}>
                     {menu.downloadDraftMenuItem(this.props, doc)}
                   </ESDropdown>
@@ -205,8 +205,8 @@ class DocumentInvited extends Component {
               {["loaded", "selected", "failed-signing"].includes(doc.state) && (
                 <>
                   {widgets.selectDoc(this.props, doc)}
-                  {widgets.docSize(doc)}
                   {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
                   {widgets.showMessage(doc)}
                   <ESDropdown doc={doc}>
                     {menu.previewMenuItem(this.props, doc)}
@@ -221,24 +221,24 @@ class DocumentInvited extends Component {
               {doc.state === "signing" && (
                 <>
                   {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
                   {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
                   {widgets.namedSpinner(doc.key, "signing")}
                 </>
               )}
               {doc.state === "signed" && (
                 <>
                   {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
                   {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
                   {widgets.downloadDraftButton(this.props, doc)}
                 </>
               )}
               {doc.state === "declined" && (
                 <>
                   {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
                   {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
                   {widgets.showMessage(doc)}
                   {widgets.dummyButton()}
                 </>
@@ -246,8 +246,8 @@ class DocumentInvited extends Component {
               {doc.state === "failed-loa" && (
                 <>
                   {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
                   {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
                   <div className="buttons-flex">
                     {widgets.declineSignatureButton(this.props, doc)}
                   </div>
