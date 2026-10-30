@@ -120,7 +120,6 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         loa: str,
         skipfinal: bool,
         ordered: bool,
-        allowbankid: bool,
         invitation_text: str,
     ) -> List[Dict[str, str]]:
         """
@@ -138,9 +137,8 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :param loa: The "authentication for signature" required LoA.
         :param skipfinal: Whether to request signature from the user who is inviting.
         :param ordered: Whether to send invitations in order.
-        :param allowbankid: Whether to allow BankID signatures.
         :param invitation_text: The custom text to send in the invitation email
-        :return: The list of invitations as dicts with 5 keys: name, email, lang, order, and generated key (UUID)
+        :return: The list of invitations as dicts with 6 keys: name, email, lang, alloweid, order, and generated key (UUID)
         """
 
     @abc.abstractmethod
@@ -166,7 +164,6 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + updated: modification timestamp
                  + created: creation timestamp
                  + ordered: Whether to send invitations in order.
-                 + allowbankid: Whether to allow BankID signatures.
                  + invitation_text: The custom text to send in the invitation email
         :return: new document id
         """
@@ -186,6 +183,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + key: the key identifying the invite
                  + doc_id: the id of the document.
                  + order: the order of the invitation.
+                 + alloweid: whether the user may sign with eID (default False)
         :return:
         """
 
@@ -263,7 +261,6 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
                  + ordered: Whether to send invitations in order.
-                 + allowbankid: Whether to allow BankID signatures.
         """
 
     @abc.abstractmethod
@@ -305,7 +302,6 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
                  + sendsigned: Whether to send signed documents in final email
-                 + allowbankid: Whether to allow BankID signatures.
         """
 
     @abc.abstractmethod
@@ -329,7 +325,6 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
                  + sendsigned: Whether to send signed documents in final email
-                 + allowbankid: Whether to allow BankID signatures.
         """
 
     @abc.abstractmethod
@@ -348,6 +343,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + key: the key identifying the invite
                  + doc_id: the id of the invited document
                  + order: the order of the invitation
+                 + alloweid: whether the user may sign with eID
         """
 
     @abc.abstractmethod
@@ -365,6 +361,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + declined: Whether the user has declined signing the document
                  + key: the key identifying the invite
                  + order: the order of the invitation
+                 + alloweid: whether the user may sign with eID
         """
 
     @abc.abstractmethod
@@ -401,7 +398,15 @@ class ABCMetadata(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def add_invitation(
-        self, document_key: uuid.UUID, name: str, email: str, ssn: str, lang: str, invite_key: str = '', order: int = 0
+        self,
+        document_key: uuid.UUID,
+        name: str,
+        email: str,
+        ssn: str,
+        lang: str,
+        invite_key: str = '',
+        order: int = 0,
+        alloweid: bool = False,
     ) -> Dict[str, Any]:
         """
         Create a new invitation to sign
@@ -413,6 +418,7 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         :param lang: The lang for the new invitation
         :param invite_key: The invite key for the new invitation
         :param order: The order for the new invitation
+        :param alloweid: Whether the invited user may sign with eID
         :return: data on the new invitation
         """
 
@@ -457,7 +463,6 @@ class ABCMetadata(metaclass=abc.ABCMeta):
                  + created: creation timestamp
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered_invitations: send invitations in order
-                 + allowbankid: Whether to allow BankID signatures.
                  + invitation_text: The custom text to send in the invitation email
         """
 
@@ -568,15 +573,6 @@ class ABCMetadata(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def get_allowbankid(self, key: uuid.UUID) -> bool:
-        """
-        Whether to allow BankID signatures
-
-        :param key: The key identifying the document
-        :return: whether BankID signatures are allowed
-        """
-
-    @abc.abstractmethod
     def get_invitation_text(self, key: uuid.UUID) -> str:
         """
         The custom text to send in the invitation email
@@ -680,7 +676,6 @@ class DocStore(object):
         loa: str,
         skipfinal: bool,
         ordered: bool,
-        allowbankid: bool,
         invitation_text: str,
     ) -> List[Dict[str, str]]:
         """
@@ -694,7 +689,7 @@ class DocStore(object):
                          + blob: Contents of the document, as a base64 string.
                          + prev_signatures: previous signatures
         :param owner: Email address and name and language and eppn of the user that has uploaded the document.
-        :param invites: List of names and email addresses and languages of the users that should sign the document.
+        :param invites: List of names, email addresses, languages and eID permission (`alloweid`) of the users that should sign the document.
         :param sendsigned: Whether to send by email the final signed document to all who signed it.
         :param loa: The "authentication for signature" required LoA.
         :param skipfinal: Whether to request signature from the user who is inviting.
@@ -703,7 +698,7 @@ class DocStore(object):
         key = uuid.UUID(document['key'])
         self.storage.add(key, document['blob'])
         return self.metadata.add(
-            key, document, owner, invites, sendsigned, loa, skipfinal, ordered, allowbankid, invitation_text
+            key, document, owner, invites, sendsigned, loa, skipfinal, ordered, invitation_text
         )
 
     def add_document_raw(
@@ -729,7 +724,6 @@ class DocStore(object):
                  + updated: modification timestamp
                  + created: creation timestamp
                  + ordered_invitations: Whether to send invitations in order.
-                 + allowbankid: Whether to allow BankID signatures.
                  + invitation_text: The custom text to send in the invitation email
         :param content: base64 string with the contents of the document, with a newly added signature.
         :return: new document id
@@ -779,7 +773,6 @@ class DocStore(object):
                  + loa: required LoA for the signature
                  + created: creation timestamp for the invitation
                  + ordered: Whether to send invitations in order.
-                 + allowbankid: Whether to allow BankID signatures.
         """
         return self.metadata.get_pending(emails)
 
@@ -842,7 +835,6 @@ class DocStore(object):
                  + skipfinal: whether to skip the final signature by the inviter user
                  + ordered: Whether to send invitations in order.
                  + sendsigned: Whether to send signed documents in final email
-                 + allowbankid: Whether to allow BankID signatures.
         """
         invites = []
         for email in emails:
@@ -889,7 +881,9 @@ class DocStore(object):
         """
         return self.metadata.add_invite_raw(invite)
 
-    def add_invitation(self, document_key: uuid.UUID, name: str, email: str, ssn: str, lang: str) -> Dict[str, Any]:
+    def add_invitation(
+        self, document_key: uuid.UUID, name: str, email: str, ssn: str, lang: str, alloweid: bool = False
+    ) -> Dict[str, Any]:
         """
         Add new invitation to document identified by key,
         with the provided name and email.
@@ -899,9 +893,10 @@ class DocStore(object):
         :param email: Email of newly invited person
         :param ssn: Swedish SSN of newly invited person
         :param lang: Language of newly invited person
+        :param alloweid: Whether the newly invited person may sign with eID
         :return: A dict with data on the user and the document
         """
-        return self.metadata.add_invitation(document_key, name, email, ssn, lang)
+        return self.metadata.add_invitation(document_key, name, email, ssn, lang, alloweid=alloweid)
 
     def get_invitation(self, key: uuid.UUID, include_others: bool = False) -> Dict[str, Any]:
         """
@@ -970,6 +965,7 @@ class DocStore(object):
                     and new['name'] == old['name']
                     and new.get('ssn', '') == old.get('ssn', '')
                     and new['lang'] == old['lang']
+                    and bool(new.get('alloweid', False)) == bool(old.get('alloweid', False))
                 ):
                     new['key'] = old['key']
                     break
@@ -987,6 +983,7 @@ class DocStore(object):
                         and new['name'] == old['name']
                         and new.get('ssn', '') == old.get('ssn', '')
                         and new['lang'] == old['lang']
+                        and bool(new.get('alloweid', False)) == bool(old.get('alloweid', False))
                     ):
                         break
                 else:
@@ -1001,10 +998,17 @@ class DocStore(object):
                     new['lang'],
                     invite_key=new['key'],
                     order=order,
+                    alloweid=bool(new.get('alloweid', False)),
                 )
             else:
                 self.metadata.add_invitation(
-                    document_key, new['name'], new['email'], new.get('ssn', ''), new['lang'], order=order
+                    document_key,
+                    new['name'],
+                    new['email'],
+                    new.get('ssn', ''),
+                    new['lang'],
+                    order=order,
+                    alloweid=bool(new.get('alloweid', False)),
                 )
             order += 1
 
@@ -1026,7 +1030,9 @@ class DocStore(object):
         if not invitation:
             return False
 
-        created = self.metadata.add_invitation(document_key, name, email, ssn, lang)
+        created = self.metadata.add_invitation(
+            document_key, name, email, ssn, lang, alloweid=invitation['user'].get('alloweid', False)
+        )
 
         if created:
             self.metadata.rm_invitation(invite_key, document_key)
@@ -1097,7 +1103,6 @@ class DocStore(object):
                  + updated: modification timestamp
                  + created: creation timestamp
                  + ordered_invitations: send invitations in order
-                 + allowbankid: Whether to allow BankID signatures.
                  + invitation_text: The custom text to send in the invitation email
         """
         doc = self.metadata.get_full_document(key)
@@ -1202,6 +1207,7 @@ class DocStore(object):
                  + key: the key identifying the invite
                  + doc_id: the id of the invited document
                  + order: the order of the invitation
+                 + alloweid: whether the user may sign with eID
         """
         invites = self.metadata.get_full_invites(key)
         return invites
@@ -1289,15 +1295,6 @@ class DocStore(object):
         :return: whether the invitations for signing the document are ordered
         """
         return self.metadata.get_ordered(key)
-
-    def get_allowbankid(self, key: uuid.UUID) -> bool:
-        """
-        Whether to allow BankID signatures
-
-        :param key: The key identifying the document
-        :return: whether BankID signatures are allowed
-        """
-        return self.metadata.get_allowbankid(key)
 
     def get_invitation_text(self, key: uuid.UUID) -> str:
         """
