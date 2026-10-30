@@ -128,7 +128,6 @@ invitation_flags = [
     'high',  # loa
     True,  # skipfinal
     True,  # ordered
-    True,  # allowbankid
     'A custom invitation text',  # invitation_text
 ]
 
@@ -160,8 +159,8 @@ def _seed_old_doc_store(app):
     }
     owner = {'name': 'Owner', 'email': 'owner@example.org', 'eppn': 'owner-eppn@example.org', 'lang': 'en'}
     invites = [
-        {'name': 'invite0', 'email': 'invite0@example.org', 'ssn': '8112189876', 'lang': 'en'},
-        {'name': 'invite1', 'email': 'invite1@example.org', 'ssn': '', 'lang': 'sv'},
+        {'name': 'invite0', 'email': 'invite0@example.org', 'ssn': '8112189876', 'lang': 'en', 'alloweid': True},
+        {'name': 'invite1', 'email': 'invite1@example.org', 'ssn': '', 'lang': 'sv', 'alloweid': False},
     ]
 
     with app.test_request_context():
@@ -213,7 +212,6 @@ def test_migrate_to_postgres_and_s3(pg_migration_app):
         assert doc['loa'] == 'high'
         assert bool(doc['skipfinal'])
         assert bool(doc['ordered_invitations'])
-        assert bool(doc['allowbankid'])
         assert doc['invitation_text'] == 'A custom invitation text'
 
         invites = new_store.get_full_invites(key)
@@ -227,12 +225,14 @@ def test_migrate_to_postgres_and_s3(pg_migration_app):
         assert not invites[0]['signed']
         assert not invites[0]['declined']
         assert invites[0]['order'] == 0
+        assert invites[0]['alloweid'] is True
 
         assert invites[1]['email'] == 'invite1@example.org'
         assert invites[1]['ssn'] == ''
         assert invites[1]['lang'] == 'sv'
         assert invites[1]['declined']
         assert invites[1]['order'] == 1
+        assert invites[1]['alloweid'] is False
 
         # the contents have been migrated to (mocked) s3
         assert new_store.get_document_content(key) == pdf_simple_1
@@ -350,3 +350,90 @@ def test_migrate_wrong_target_backends(client):
     # the view refuses to run against the sqlite / local fs backends
     with pytest.raises(AssertionError):
         client.post('/admin/migrate-to-postgres-and-s3')
+
+
+# The schema upgrade machinery of the postgres backend, run against a fake
+# connection, so that these tests need no server.
+
+
+class _FakeCursor:
+    def __init__(self, conn):
+        self.conn = conn
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        pass
+
+    def execute(self, statement, *args):
+        if not isinstance(statement, str):
+            statement = 'alter database ... set my.version from current'
+        self.conn.executed.append(' '.join(statement.split()))
+
+    def fetchone(self):
+        return (self.conn.version,)
+
+
+class _FakeConnection:
+    def __init__(self, version):
+        self.version = version
+        self.executed = []
+        self.closed = False
+
+    def cursor(self):
+        return _FakeCursor(self)
+
+    def commit(self):
+        pass
+
+    def close(self):
+        self.closed = True
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        pass
+
+
+def _upgrade_with(version, upgrades):
+    from unittest import mock
+
+    from edusign_webapp.document.metadata import postgres, sql
+
+    conn = _FakeConnection(version)
+    md = postgres.PostgresqlMD.__new__(postgres.PostgresqlMD)
+    md.database, md.user, md.password, md.host, md.port = 'edusign', 'u', 'p', 'h', '5432'
+    md.logger = run.app.logger
+    with mock.patch.object(postgres.psycopg2, 'connect', return_value=conn):
+        with mock.patch.dict(postgres.UPGRADES, upgrades, clear=True):
+            with mock.patch.object(sql, 'CURRENT_DB_VERSION', '12'):
+                md._upgrade()
+    return conn
+
+
+def test_pg_upgrade_current_version_does_nothing():
+    conn = _upgrade_with('12', {11: 'ALTER TABLE Invites ADD COLUMN alloweid INTEGER DEFAULT 0;'})
+    assert conn.executed == ["SELECT current_setting('my.version', true);"]
+    assert conn.closed
+
+
+def test_pg_upgrade_applies_steps_and_records_version():
+    conn = _upgrade_with('10', {10: 'CREATE TABLE A (a INTEGER);', 11: 'CREATE TABLE B (b INTEGER);'})
+    assert conn.executed == [
+        "SELECT current_setting('my.version', true);",
+        'CREATE TABLE A (a INTEGER);',
+        'set my.version to 11;',
+        'alter database ... set my.version from current',
+        'CREATE TABLE B (b INTEGER);',
+        'set my.version to 12;',
+        'alter database ... set my.version from current',
+    ]
+
+
+def test_pg_upgrade_stops_without_step_or_version():
+    conn = _upgrade_with('10', {11: 'CREATE TABLE B (b INTEGER);'})
+    assert conn.executed == ["SELECT current_setting('my.version', true);"]
+    conn = _upgrade_with(None, {11: 'CREATE TABLE B (b INTEGER);'})
+    assert conn.executed == ["SELECT current_setting('my.version', true);"]

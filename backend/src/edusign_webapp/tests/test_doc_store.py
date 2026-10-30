@@ -46,7 +46,6 @@ invitation_flags = [
     'none',  # loa
     False,  # skipfinal
     False,  # ordered
-    False,  # allowbankid
     'Invitation text',  # invitation_text
 ]
 
@@ -409,7 +408,6 @@ def test_add_document_raw(doc_store_local_sqlite):
         'loa': 'none',
         'skipfinal': False,
         'ordered_invitations': False,
-        'allowbankid': False,
         'invitation_text': 'Invitation text',
     }
     content = base64.b64encode(b'raw content').decode('utf8')
@@ -449,10 +447,12 @@ def test_add_invite_raw(doc_store_local_sqlite, sample_doc_1, sample_owner_1):
             'signed': False,
             'declined': False,
             'order': 0,
+            'alloweid': True,
         }
         doc_store.add_invite_raw(invite)
 
         pending = doc_store.get_pending_invites(sample_doc_1['key'])
+        assert pending[0]['alloweid'] is True
 
     assert len(pending) == 1
     assert pending[0]['email'] == 'raw-invite@example.org'

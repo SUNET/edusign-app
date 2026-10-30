@@ -43,7 +43,6 @@ invitation_flags = [
     'any',  # loa
     False,  # skipfinal
     False,  # ordered
-    False,  # allowbankid
     'Invitation text',  # invitation_text
 ]
 
@@ -319,6 +318,7 @@ def test_add_document_and_invitation_raw_and_get_full_invites(
             'key': str(dummy_invitation_key),
             'doc_id': document_id,
             'order': 0,
+            'alloweid': True,
         }
 
         test_md.add_invite_raw(invite)
@@ -333,6 +333,7 @@ def test_add_document_and_invitation_raw_and_get_full_invites(
     assert invites[0]['ssn'] == ''
     assert not invites[0]['declined']
     assert not invites[0]['signed']
+    assert invites[0]['alloweid'] is True
 
 
 def test_add_document_and_2_invitation_raw_and_get_full_invites(
@@ -826,6 +827,13 @@ def test_upgrade_from_v0(sqlite_md):
         assert 'Users' not in tables
         assert 'PayableSignatures' in tables
 
+        # v11 -> 12 moved the eID permission from the document to each invite
+        doc_columns = [r['name'] for r in db.execute("PRAGMA table_info(Documents);").fetchall()]
+        assert 'allowbankid' not in doc_columns
+        invite_columns = [r['name'] for r in db.execute("PRAGMA table_info(Invites);").fetchall()]
+        assert 'alloweid' in invite_columns
+        assert invite['alloweid'] == 0
+
 
 def test_date_converters():
     from edusign_webapp.document.metadata.sqlite import convert_date, convert_datetime, convert_timestamp
@@ -887,7 +895,6 @@ def test_add_document_raw_and_get_full_document(sqlite_md):
         'loa': 'none',
         'skipfinal': False,
         'ordered_invitations': False,
-        'allowbankid': False,
         'invitation_text': 'raw text',
     }
 
@@ -1343,24 +1350,41 @@ def test_get_loa_and_ordered_and_invitation_text(sqlite_md, sample_metadata_1, s
         assert test_md.get_invitation_text(uuid.uuid4()) == ''
 
 
-def test_get_allowbankid(sqlite_md):
+def test_alloweid_per_invite(sqlite_md, sample_owner_1):
+    # eID permission is recorded per invite, default False, and returned by
+    # every read path that lists invites
     _, test_md = sqlite_md
-    dummy_key = uuid.uuid4()
-    bankid_key = uuid.uuid4()
-    bankid_flags = list(invitation_flags)
-    bankid_flags[4] = True  # allowbankid
+    key = uuid.uuid4()
+    invites = [
+        {'name': 'eid', 'email': 'eid@example.org', 'ssn': '', 'lang': 'en', 'alloweid': True},
+        {'name': 'plain', 'email': 'plain@example.org', 'ssn': '', 'lang': 'sv'},
+    ]
 
     with run.app.app_context():
-        test_md.add(dummy_key, {'name': 'a.pdf', 'size': 1, 'type': 'application/pdf'},
-                    {'name': 'o', 'email': 'o@example.org', 'eppn': 'o-eppn@example.org', 'lang': 'en'},
-                    [], *invitation_flags)
-        test_md.add(bankid_key, {'name': 'b.pdf', 'size': 1, 'type': 'application/pdf'},
-                    {'name': 'o', 'email': 'o@example.org', 'eppn': 'o-eppn@example.org', 'lang': 'en'},
-                    [], *bankid_flags)
+        added = test_md.add(key, {'name': 'a.pdf', 'size': 1, 'type': 'application/pdf'}, sample_owner_1,
+                            invites, *invitation_flags)
+        assert [i['alloweid'] for i in added] == [True, False]
 
-        assert test_md.get_allowbankid(uuid.uuid4()) is False
-        assert test_md.get_allowbankid(dummy_key) is False
-        assert test_md.get_allowbankid(bankid_key) is True
+        assert {i['email']: i['alloweid'] for i in test_md.get_invited(key)} == {
+            'eid@example.org': True, 'plain@example.org': False}
+        assert {i['email']: i['alloweid'] for i in test_md.get_full_invites(key)} == {
+            'eid@example.org': True, 'plain@example.org': False}
+
+        invitation = test_md.get_invitation(uuid.UUID(added[0]['key']), include_others=True)
+        assert invitation['user']['alloweid'] is True
+        assert invitation['document']['pending'][0]['alloweid'] is False
+
+        pending = test_md.get_pending(['plain@example.org'])
+        assert pending[0]['pending'][0]['alloweid'] is True
+
+        owned = test_md.get_owned(sample_owner_1['eppn'])
+        assert {i['email']: i['alloweid'] for i in owned[0]['pending']} == {
+            'eid@example.org': True, 'plain@example.org': False}
+        assert 'use_eid' not in owned[0]
+        assert 'allowbankid' not in test_md.get_full_document(key)
+
+        test_md.add_invitation(key, 'later', 'later@example.org', '', 'en', alloweid=True)
+        assert [i['alloweid'] for i in test_md.get_invited(key) if i['email'] == 'later@example.org'] == [True]
 
 
 def test_get_document_id(sqlite_md, sample_metadata_1, sample_owner_1):
