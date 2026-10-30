@@ -45,6 +45,14 @@ from psycopg2.extras import RealDictCursor
 PRIMARY_KEY_AUTOINCREMENT = "BIGSERIAL PRIMARY KEY"
 
 
+# Schema upgrades, keyed by the version they start from. Each entry is the SQL
+# that brings the database to the next version; it runs in one transaction.
+# The version is kept in the database setting `my.version`, set when the
+# database is created. The sqlite counterpart is `sqlite.upgrade`. No postgres
+# database older than version 12 exists, so there are no steps yet.
+UPGRADES: Dict[int, str] = {}
+
+
 class PostgresqlMD(sql.SqlMD):
     """
     Postgresql backend to deal with the metadata associated to documents
@@ -69,6 +77,8 @@ class PostgresqlMD(sql.SqlMD):
         db_exists, tables_exist = self._database_exists()
         if not tables_exist:
             self._create_database(db_exists)
+        else:
+            self._upgrade()
 
         self.connection_pool = pool.ThreadedConnectionPool(
             minconn=1,
@@ -202,6 +212,51 @@ class PostgresqlMD(sql.SqlMD):
 
         except Exception as e:
             self.logger.error(f"Error creating database: {e}")
+
+        finally:
+            if conn:
+                conn.close()
+
+    def _upgrade(self):
+        """
+        Bring an existing database up to `sql.CURRENT_DB_VERSION`, one step
+        of `UPGRADES` at a time, recording each step in `my.version`.
+        """
+        conn = None
+        try:
+            conn = psycopg2.connect(
+                dbname=self.database,
+                user=self.user,
+                password=self.password,
+                host=self.host,
+                port=self.port
+            )
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT current_setting('my.version', true);")
+                row = cursor.fetchone()
+            conn.commit()
+            if row is None or not row[0]:
+                self.logger.warning(f"Database '{self.database}' has no my.version setting, not upgrading")
+                return
+            version = int(row[0])
+            while version < int(sql.CURRENT_DB_VERSION):
+                if version not in UPGRADES:
+                    self.logger.error(f"No upgrade from database version {version}")
+                    return
+                with conn:
+                    with conn.cursor() as cursor:
+                        cursor.execute(UPGRADES[version])
+                        version += 1
+                        cursor.execute(f"set my.version to {version};")
+                        cursor.execute(
+                            pg_sql.SQL("alter database {} set my.version from current").format(
+                                pg_sql.Identifier(self.database)
+                            )
+                        )
+                self.logger.info(f"Database '{self.database}' upgraded to version {version}")
+
+        except Exception as e:
+            self.logger.error(f"Error upgrading database: {e}")
 
         finally:
             if conn:
