@@ -65,7 +65,7 @@ class DocumentTemplate extends React.Component {
           key="0"
         >
           <div className="doc-detail-block">
-            <div className="name-and-buttons">
+            <div className="select-column">
               {widgets.dummySelectDoc()}
               {widgets.docName(doc)}
               {widgets.docSize(doc)}
@@ -76,8 +76,8 @@ class DocumentTemplate extends React.Component {
                   {menu.previewTemplateMenuItem(this.props, doc)}
                 </ESDropdown>
                 {widgets.multiSignButton(this.props, doc)}
-                {widgets.removeTemplate(this.props, doc)}
               </div>
+              {widgets.removeTemplate(this.props, doc)}
             </div>
           </div>
           {widgets.docCreated(this.props)}

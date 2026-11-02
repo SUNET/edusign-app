@@ -13,14 +13,16 @@ import {
   faDownload,
   faFileSignature,
   faFile,
+  faTrashAlt,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { faFileAlt } from "@fortawesome/free-regular-svg-icons";
 
 export const docName = (doc) => {
-  return <div className="name-flex-item">{doc.name}</div>;
+  return <div className="doc-name">{doc.name}</div>;
 };
 export const docSize = (doc) => {
-  return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
+  return <div className="doc-size">{humanFileSize(doc.size)}</div>;
 };
 export const docCreated = (props) => {
   const creationDate = getCreationDate(props.doc);
@@ -149,33 +151,27 @@ export const namedSpinner = (index, name) => {
 
 export const selectDoc = (props, doc) => {
   return (
-    <div className="doc-selector-flex-item">
-      <ESTooltip
-        helpId={"doc-selector-" + doc.key}
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Select the document for signing"
-            key="select-doc-tootip"
-          />
-        }
-      >
-        <input
-          type="checkbox"
-          data-testid={"doc-selector-" + doc.key}
-          onChange={props.handleDocSelection(doc.name, doc.key)}
-          checked={doc.state === "selected"}
+    <ESTooltip
+      helpId={"doc-selector-" + doc.key}
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Select the document for signing"
+          key="select-doc-tootip"
         />
-      </ESTooltip>
-    </div>
+      }
+    >
+      <input
+        type="checkbox"
+        data-testid={"doc-selector-" + doc.key}
+        onChange={props.handleDocSelection(doc.name, doc.key)}
+        checked={doc.state === "selected"}
+      />
+    </ESTooltip>
   );
 };
 
 export const dummySelectDoc = () => {
-  return (
-    <div className="doc-selector-flex-item">
-      <FontAwesomeIcon icon={faFileAlt} />
-    </div>
-  );
+  return <FontAwesomeIcon icon={faFileAlt} />;
 };
 
 export const forcedPreviewButton = (props, doc) => {
@@ -265,76 +261,71 @@ export const removeConfirmButton = (props, doc, id) => {
     id = "confirm-remove-" + doc.name;
   }
   return (
-    <div className="button-remove-flex-item">
-      <ESTooltip
-        helpId={id}
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Remove document"
-            key="owned-remove-button-help"
-          />
-        }
+    <ESTooltip
+      helpId={id}
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Remove document"
+          key="owned-remove-button-help"
+        />
+      }
+    >
+      <Button
+        variant="link"
+        className="text-danger"
+        onClick={props.showConfirm(id)}
+        id={"button-rm-invitation-" + doc.key}
       >
-        <Button
-          variant="outline-danger"
-          size="sm"
-          onClick={props.showConfirm(id)}
-          id={"button-rm-invitation-" + doc.key}
-        >
-          <FormattedMessage defaultMessage="Remove" key="remove-button" />
-        </Button>
-      </ESTooltip>
-    </div>
+        <FontAwesomeIcon icon={faTrashCan} />
+      </Button>
+    </ESTooltip>
   );
 };
 
 export const removeTemplate = (props, doc) => {
   const id = "confirm-remove-" + doc.name;
   return (
-    <div className="button-remove-flex-item">
-      <ESTooltip
-        helpId={id}
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Remove template"
-            key="template-remove-button-help"
-          />
-        }
+    <ESTooltip
+      helpId={id}
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Remove template"
+          key="template-remove-button-help"
+        />
+      }
+    >
+      <Button
+        variant="link"
+        className="text-danger"
+        onClick={props.showConfirm(id)}
+        id={"button-rm-template-" + doc.name}
       >
-        <Button
-          variant="outline-danger"
-          size="sm"
-          onClick={props.showConfirm(id)}
-          id={"button-rm-template-" + doc.name}
-        >
-          <FormattedMessage defaultMessage="Remove" key="remove-button" />
-        </Button>
-      </ESTooltip>
-    </div>
+        <FontAwesomeIcon icon={faTrashCan} />
+      </Button>
+    </ESTooltip>
   );
 };
 export const removeButton = (props, doc) => {
   return (
-    <div className="button-remove-flex-item">
-      <ESTooltip
-        helpId={"rm-button-" + doc.name}
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Discard document"
-            key="button-remove-tootip"
-          />
-        }
+    <ESTooltip
+      helpId={"rm-button-" + doc.name}
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Discard document"
+          key="button-remove-tootip"
+        />
+      }
+    >
+      <Button
+        variant="link"
+        className="text-danger"
+        data-testid={"rm-button-" + doc.name}
+        onClick={props.handleRemove(doc.name)}
+        id={"button-rm-template-" + doc.name}
       >
-        <Button
-          variant="outline-danger"
-          size="sm"
-          data-testid={"rm-button-" + doc.name}
-          onClick={props.handleRemove(doc.name)}
-        >
-          <FormattedMessage defaultMessage="Remove" key="remove-button" />
-        </Button>
-      </ESTooltip>
-    </div>
+        <FontAwesomeIcon icon={faTrashCan} />
+      </Button>
+    </ESTooltip>
   );
 };
 

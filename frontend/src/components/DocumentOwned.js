@@ -174,7 +174,7 @@ class DocumentOwned extends Component {
           >
             <div className="doc-detail-block">
               {doc.state === "incomplete" && (
-                <div className="name-and-buttons">
+                <div className="select-column">
                   {widgets.dummySelectDoc()}
                   {widgets.docName(doc)}
                   {widgets.docSize(doc)}
@@ -184,12 +184,12 @@ class DocumentOwned extends Component {
                       {menu.resendMenuItem(this.props, doc)}
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
-                    {widgets.removeConfirmButton(this.props, doc)}
                   </div>
+                  {widgets.removeConfirmButton(this.props, doc)}
                 </div>
               )}
               {["loaded", "selected", "failed-signing"].includes(doc.state) && (
-                <>
+                <div className="select-column">
                   {widgets.selectDoc(this.props, doc)}
                   {widgets.docName(doc)}
                   {widgets.docSize(doc)}
@@ -200,23 +200,30 @@ class DocumentOwned extends Component {
                       {menu.previewMenuItem(this.props, doc)}
                     </ESDropdown>
                     {widgets.skipSignatureButton(this.props, doc)}
-                    {widgets.removeConfirmButton(this.props, doc)}
                   </div>
-                </>
+                  {widgets.removeConfirmButton(this.props, doc)}
+                </div>
               )}
               {doc.state === "signing" && (
-                <>
+                <div className="select-column">
                   {widgets.dummySelectDoc()}
                   {widgets.docName(doc)}
                   {widgets.docSize(doc)}
                   {widgets.namedSpinner(doc.name, "signing")}
-                </>
+                </div>
               )}
               {doc.state === "signed" && (
                 <>
-                  {widgets.dummySelectDoc()}
-                  {widgets.docName(doc)}
-                  {widgets.docSize(doc)}
+                  <div className="select-column">
+                    {widgets.dummySelectDoc()}
+                    {widgets.docName(doc)}
+                    {widgets.docSize(doc)}
+                    {widgets.removeConfirmButton(
+                      this.props,
+                      doc,
+                      "confirm-remove-" + doc.name,
+                    )}
+                  </div>
                   <ESDropdown doc={doc}>
                     {menu.previewMenuItem(this.props, doc)}
                   </ESDropdown>
@@ -224,11 +231,6 @@ class DocumentOwned extends Component {
                   {(doc.signed.length > 0 &&
                     widgets.downloadSignedButton(this.props, doc)) ||
                     ""}
-                  {widgets.removeConfirmButton(
-                    this.props,
-                    doc,
-                    "confirm-remove-" + doc.name,
-                  )}
                 </>
               )}
 

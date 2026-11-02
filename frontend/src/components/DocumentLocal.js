@@ -189,7 +189,7 @@ function DocumentLocal(ownProps) {
       >
         <div className="doc-detail-block">
           {doc.state === "loading" && (
-            <div className="name-and-buttons">
+            <div className="select-column">
               {widgets.dummySelectDoc()}
               {widgets.docName(doc)}
               {widgets.docSize(doc)}
@@ -199,53 +199,51 @@ function DocumentLocal(ownProps) {
             </div>
           )}
           {doc.state === "failed-loading" && (
-            <div className="name-and-buttons">
+            <div className="select-column">
               {widgets.dummySelectDoc()}
               {widgets.docName(doc)}
               {widgets.showMessage(doc)}
-              <div className="buttons-flex">
-                {widgets.removeConfirmButton(
-                  props,
-                  doc,
-                  `confirm-remove-${doc.name}`,
-                )}
-              </div>
+              {widgets.removeConfirmButton(
+                props,
+                doc,
+                `confirm-remove-${doc.name}`,
+              )}
             </div>
           )}
           {doc.state === "failed-preparing" && (
-            <div className="name-and-buttons">
+            <div className="select-column">
               {widgets.dummySelectDoc()}
               {widgets.docName(doc)}
               {widgets.docSize(doc)}
               {widgets.showMessage(doc)}
               <div className="buttons-flex">
                 {widgets.retryButton(props, doc)}
-                {widgets.removeConfirmButton(
-                  props,
-                  doc,
-                  `confirm-remove-${doc.name}`,
-                )}
               </div>
+              {widgets.removeConfirmButton(
+                props,
+                doc,
+                `confirm-remove-${doc.name}`,
+              )}
             </div>
           )}
           {doc.state === "unconfirmed" && (
-            <div className="name-and-buttons">
+            <div className="select-column">
               {widgets.dummySelectDoc()}
               {widgets.docName(doc)}
               {widgets.docSize(doc)}
               {widgets.showMessage(doc)}
               <div className="buttons-flex">
                 {widgets.forcedPreviewButton(props, doc)}
-                {widgets.removeConfirmButton(
-                  props,
-                  doc,
-                  `confirm-remove-${doc.name}`,
-                )}
               </div>
+              {widgets.removeConfirmButton(
+                props,
+                doc,
+                `confirm-remove-${doc.name}`,
+              )}
             </div>
           )}
           {(doc.state === "loaded" || doc.state === "selected") && (
-            <div className="name-and-buttons">
+            <div className="select-column">
               {widgets.selectDoc(props, doc)}
               {widgets.docName(doc)}
               {widgets.docSize(doc)}
@@ -258,16 +256,16 @@ function DocumentLocal(ownProps) {
                   {menu.previewMenuItem(props, doc)}
                 </ESDropdown>
                 {widgets.multiSignButton(props, doc)}
-                {widgets.removeConfirmButton(
-                  props,
-                  doc,
-                  `confirm-remove-${doc.name}`,
-                )}
               </div>
+              {widgets.removeConfirmButton(
+                props,
+                doc,
+                `confirm-remove-${doc.name}`,
+              )}
             </div>
           )}
           {doc.state === "signing" && (
-            <div className="name-and-buttons">
+            <div className="select-column">
               {widgets.dummySelectDoc()}
               {widgets.docName(doc)}
               {widgets.docSize(doc)}
@@ -277,7 +275,7 @@ function DocumentLocal(ownProps) {
             </div>
           )}
           {doc.state === "signed" && (
-            <div className="name-and-buttons">
+            <div className="select-column">
               {widgets.dummySelectDoc()}
               {widgets.docName(doc)}
               {widgets.docSize(doc)}
@@ -287,16 +285,16 @@ function DocumentLocal(ownProps) {
                 </ESDropdown>
                 {widgets.multiSignButton(props, doc)}
                 {widgets.downloadSignedButton(props, doc)}
-                {widgets.removeConfirmButton(
-                  props,
-                  doc,
-                  `confirm-remove-${doc.name}`,
-                )}
               </div>
+              {widgets.removeConfirmButton(
+                props,
+                doc,
+                `confirm-remove-${doc.name}`,
+              )}
             </div>
           )}
           {doc.state === "failed-signing" && (
-            <div className="name-and-buttons">
+            <div className="select-column">
               {widgets.selectDoc(props, doc)}
               {widgets.docName(doc)}
               {widgets.docSize(doc)}
@@ -305,12 +303,12 @@ function DocumentLocal(ownProps) {
                 <ESDropdown doc={doc}>
                   {menu.previewMenuItem(props, doc)}
                 </ESDropdown>
-                {widgets.removeConfirmButton(
-                  props,
-                  doc,
-                  `confirm-remove-${doc.name}`,
-                )}
               </div>
+              {widgets.removeConfirmButton(
+                props,
+                doc,
+                `confirm-remove-${doc.name}`,
+              )}
             </div>
           )}
         </div>

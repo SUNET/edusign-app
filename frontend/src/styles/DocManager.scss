@@ -9,30 +9,11 @@
   border-radius: 8px;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 16px;
 
-  @media (max-width: $breakpoint-xl) {
-    align-items: flex-start;
-  }
-
-  .doc-selector-flex-item {
-    flex: none;
-    width: 2rem;
-  }
-
-  .name-flex-item {
-    margin-right: 1rem;
-  }
-
   .message-flex-item {
     flex: none;
     margin-left: 1rem;
     margin-right: 1rem;
     color: $error-red;
-  }
-
-  .size-flex-item {
-    flex: none;
-    margin-right: 1rem;
-    color: $darker-dark-grey;
   }
 
   .date-flex-item {
@@ -123,19 +104,8 @@
   justify-content: flex-start;
   flex-wrap: wrap;
 
-  .doc-selector-flex-item {
-    flex: none;
-    width: 2rem;
-  }
-
   .message-flex-item {
     color: $error-red;
-  }
-
-  .size-flex-item {
-    flex: none;
-    margin-right: 1rem;
-    color: $darker-dark-grey;
   }
 
   .date-flex-item {
@@ -267,4 +237,99 @@ p.invited-legend-title {
   font-size: 0.8rem;
   color: $darker-dark-grey;
   margin-bottom: 6px;
+}
+
+.select-column {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  grid-template-areas:
+    "icon name action remove"
+    "icon size action remove";
+  align-items: center;
+  column-gap: 0.75rem;
+  width: 100%;
+
+  > div {
+    width: 100%;
+  }
+
+  > svg,
+  > input[type="checkbox"],
+  .doc-selector-flex-item {
+    grid-area: icon;
+    align-self: center;
+    justify-self: center;
+    width: auto;
+  }
+
+  > svg {
+    font-size: 1.5rem;
+    color: $darker-grey;
+  }
+
+  .doc-selector-flex-item {
+    align-self: stretch;
+    min-width: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  input[type="checkbox"] {
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .doc-name {
+    grid-area: name;
+    align-self: end;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+  }
+
+  .doc-size {
+    grid-area: size;
+    align-self: start;
+    font-size: 0.85rem;
+    color: $darker-dark-grey;
+  }
+
+  .buttons-flex {
+    grid-area: action;
+    justify-self: end;
+    align-self: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+  }
+
+  // The remove button keeps its place at the far right on every viewport.
+  .button-remove-flex-item,
+  > button {
+    grid-area: remove;
+    justify-self: end;
+    align-self: center;
+    width: auto;
+  }
+
+  // On narrow screens there is no room for the other actions next to the name,
+  // so they move to a row of their own while remove stays where it is.
+  @media (max-width: $breakpoint-md) {
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas:
+      "icon name   remove"
+      "icon size   remove"
+      "action action action";
+
+    .buttons-flex {
+      justify-self: start;
+      justify-content: flex-start;
+      margin-bottom: 1.5rem;
+    }
+  }
 }
