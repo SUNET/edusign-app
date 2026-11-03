@@ -158,10 +158,6 @@ export const validateOrdered = (value) => {
   return undefined;
 };
 
-export const validateAllowBankID = (value) => {
-  return undefined;
-};
-
 export const validateNewname = (props) => {
   return (value) => {
     let error;

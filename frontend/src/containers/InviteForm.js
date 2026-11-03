@@ -16,7 +16,7 @@ import { sendInvites } from "slices/Invitations";
 import { hideForm } from "slices/Modals";
 import { unsetSpinning } from "slices/Button";
 import { enablePolling } from "slices/Poll";
-import { isNotInviting, setOrdered, setAllowBankID } from "slices/InviteForm";
+import { isNotInviting, setOrdered } from "slices/InviteForm";
 import { unsetActiveId } from "slices/Overlay";
 import { showAL3Warning } from "slices/AL3Warning";
 
@@ -30,17 +30,6 @@ const mapStateToProps = (state, props) => {
     ordered = state.main.ui_defaults.ordered_invitations;
   } else {
     ordered = state.inviteform.ordered;
-  }
-  const show_allowbankid = state.main.allow_bankid_signatures;
-  let allowbankid;
-  if (show_allowbankid) {
-    if (state.inviteform.allowbankid === null) {
-      allowbankid = state.main.ui_defaults.allow_bankid;
-    } else {
-      allowbankid = state.inviteform.allowbankid;
-    }
-  } else {
-    allowbankid = false;
   }
   return {
     size: state.main.size,
@@ -56,8 +45,8 @@ const mapStateToProps = (state, props) => {
     max_signatures: state.main.max_signatures,
     ui_defaults: state.main.ui_defaults,
     ordered: ordered,
-    allowbankid: allowbankid,
-    show_allowbankid: show_allowbankid,
+    // whether the inviter may offer eID signatures, per invitee
+    show_alloweid: Boolean(state.main.allow_bankid_signatures),
   };
 };
 
@@ -68,13 +57,11 @@ const _close = (dispatch) => {
   dispatch(unsetActiveId());
   dispatch(isNotInviting());
   dispatch(setOrdered(null));
-  dispatch(setAllowBankID(null));
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     handleSubmit: async function (values, actions) {
-      if (values.allowBankIDChoice) values.loa = "none";
       await dispatch(sendInvites({ values: values, intl: this.props.intl }));
       actions.setSubmitting(false);
       actions.resetForm();
@@ -88,9 +75,6 @@ const mapDispatchToProps = (dispatch) => {
     },
     handleSetOrdered: function (ordered) {
       dispatch(setOrdered(ordered));
-    },
-    handleAllowBankID: function (allowbankid) {
-      dispatch(setAllowBankID(allowbankid));
     },
     handleLoaChange: function (loa) {
       if (loa === "high") {
