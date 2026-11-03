@@ -338,7 +338,7 @@ def get_invitations(remove_finished=False, invite_key=''):
         doc['pprinted'] = pretty_print_any(content, doc['type'])
         loa = doc['loa']
         doc['loa'] = f"{loa},{display_levels[loa]}"
-        if loa != 'none':
+        if loa != 'none' and not is_eid_session():
             required_level = levels[loa]
             required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
             if required_loa not in session['eduPersonAssurance']:
@@ -476,6 +476,19 @@ def is_whitelisted(app, eppn: str) -> bool:
     return eppn.lower().split('@')[1] in app.config['SCOPE_WHITELIST']
 
 
+def is_eid_session() -> bool:
+    """
+    Whether the current session was opened with an eID (BankID / Freja+)
+    login, see `add_attributes_to_session_bankid_freja`. Such a session has
+    no eduPersonAssurance, and the LoA required by an invitation does not
+    apply to it: the LoA concerns the invitees that sign with their
+    institutional account.
+
+    :return: whether this is an eID session
+    """
+    return str(session.get('registrationAuthority') or '').startswith('dummy-')
+
+
 def is_whitelisted_for_bankid(app, eppn: str) -> bool:
     """
     Check whether a given eppn is whitelisted for inviting to sign with BankID
@@ -599,6 +612,9 @@ def get_authn_context(docs) -> list:
     :param docs: list of dicts with the data for the documents to be signed.
     :return: a list with the authn context classes
     """
+    if is_eid_session():
+        return [session['authn_context']]
+
     levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
     for doc in docs:
         key = uuid.UUID(doc['key'])
@@ -621,6 +637,9 @@ def get_required_assurance(docs: list) -> str:
     :param docs: list of dicts with the data for the documents to be signed.
     :return: the required level of assurance
     """
+    if is_eid_session():
+        return 'none'
+
     assurance = 0
     required_assurance = 'none'
     levels = {'none': 0, 'low': 1, 'medium': 2, 'high': 3}
