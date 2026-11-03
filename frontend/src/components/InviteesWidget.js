@@ -28,19 +28,14 @@ const mapStateToProps = (state, props) => {
   } else {
     ordered = props.docOrdered;
   }
-  let allowbankid;
-  if (props.docAllowbankid === undefined || props.docAllowbankid === null) {
-    if (state.inviteform.allowbankid === null) {
-      allowbankid = state.main.ui_defaults.allow_bankid;
-    } else {
-      allowbankid = state.inviteform.allowbankid;
-    }
-  } else {
-    allowbankid = props.docAllowbankid;
-  }
+  // eID permission is per invitee. The checkbox is shown when the inviter
+  // may offer eID at all; its default for a new invitee comes from the UI
+  // defaults of the inviter's IdP.
+  const ui_defaults = state.main.ui_defaults || {};
   return {
     ordered: ordered,
-    allowbankid: allowbankid,
+    show_alloweid: Boolean(state.main.allow_bankid_signatures),
+    default_alloweid: Boolean(ui_defaults.allow_bankid),
   };
 };
 
@@ -75,6 +70,10 @@ function _InviteesControl(props) {
   const arrayHelpers = props.arrayHelpers;
   const index = props.index;
   const invitee = props.invitee;
+  // the live value of this invitee's eID checkbox decides the SSN field
+  const current =
+    (fprops.values.invitees && fprops.values.invitees[index]) || {};
+  const alloweid = Boolean(props.show_alloweid && current.alloweid);
   const inviteOrdinal = (
     <div className="invite-ordinal">
       <span className="">
@@ -160,7 +159,7 @@ function _InviteesControl(props) {
       )}
       <Field name="id" value={`invitees.${index}.id`} type="hidden" />
       <div
-        className={"invitee-form-row" + (props.allowbankid ? " with-ssn" : "")}
+        className={"invitee-form-row" + (alloweid ? " with-ssn" : "")}
         key={index}
       >
         <div className="invitee-form-name">
@@ -253,7 +252,7 @@ function _InviteesControl(props) {
             />
           </BForm.Group>
         </div>
-        {props.allowbankid && (
+        {alloweid && (
           <div className="invitee-form-ssn">
             <BForm.Group className="form-group">
               <BForm.Label htmlFor={`invitees.${index}.ssn`}>
@@ -343,6 +342,49 @@ function _InviteesControl(props) {
             />
           </BForm.Group>
         </div>
+        {props.show_alloweid && (
+          <div className="invitee-form-eid">
+            <BForm.Group className="alloweid-choice-group form-group">
+              <ESTooltip
+                helpId={`alloweid-choice-help-${index}`}
+                inModal={true}
+                tooltip={
+                  <FormattedMessage
+                    defaultMessage="This person will be allowed to sign the document with Swedish eID."
+                    key="alloweid-choice-help"
+                  />
+                }
+              >
+                <BForm.Label
+                  className="alloweid-choice-label"
+                  htmlFor={`invitees.${index}.alloweid`}
+                >
+                  <FormattedMessage
+                    defaultMessage="Allow Swedish eID signature"
+                    key="alloweid-choice-field"
+                  />
+                </BForm.Label>
+              </ESTooltip>
+              <Field
+                name={`invitees.${index}.alloweid`}
+                id={`invitees.${index}.alloweid`}
+                data-testid={`invitees.${index}.alloweid`}
+                className="alloweid-choice"
+                type="checkbox"
+                onChange={(e) => {
+                  fprops.setFieldValue(
+                    `invitees.${index}.alloweid`,
+                    e.target.checked,
+                  );
+                  if (!e.target.checked) {
+                    fprops.setFieldValue(`invitees.${index}.ssn`, "");
+                  }
+                  fprops.validateForm();
+                }}
+              />
+            </BForm.Group>
+          </div>
+        )}
       </div>
     </>
   );
@@ -497,6 +539,7 @@ function _InviteesWidget(props) {
             email: "",
             ssn: "",
             lang: Cookies.get("lang") || "en",
+            alloweid: props.show_alloweid && props.default_alloweid,
             id: nextInviteeId(fprops.values.invitees),
           });
         }}
