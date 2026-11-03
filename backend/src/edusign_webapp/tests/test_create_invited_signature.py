@@ -118,7 +118,6 @@ def _test_create_invited_signature(
                 "skipfinal": True,
                 "loa": loa,
                 "ordered": False,
-                "allowbankid": False,
             },
         }
 
@@ -154,7 +153,8 @@ def test_create_invited_signature(app_and_client, environ_base, monkeypatch, sam
     assert 'low,Low' == owned['loa']
     # the flags reach the browser as JSON booleans, not as the sqlite
     # integers; marshmallow 4 does not coerce them
-    assert owned['use_eid'] is False
+    assert 'use_eid' not in owned
+    assert owned['pending'][0]['alloweid'] is False
     assert owned['ordered'] is False
     assert owned['sendsigned'] is True
     assert owned['skipfinal'] is True

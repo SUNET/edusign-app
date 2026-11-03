@@ -64,7 +64,6 @@ def _test_remove_multi_sign_request(client, monkeypatch, sample_doc_1):
                 'skipfinal': False,
                 'loa': 'low',
                 'ordered': False,
-                'allowbankid': False,
                 'invites': [
                     {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en', 'ssn': ''},
                     {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en', 'ssn': ''},
@@ -135,7 +134,7 @@ def test_remove_multi_sign_request_doesnt(client, monkeypatch, sample_doc_1):
 
     assert resp_data['message'] == 'Problem removing the invitation, please try again'
 
-_seed_flags = [True, 'none', False, False, False, 'Invitation text']
+_seed_flags = [True, 'none', False, False, 'Invitation text']
 
 
 def _seed_and_post_remove(client, monkeypatch, sample_doc_1, sample_owner_1):

@@ -58,8 +58,8 @@ TESTER_ADDR = formataddr(('Tëster Kid', TESTER_EMAIL))
 OWNER = {'name': 'Owning User', 'email': 'owner@example.org', 'eppn': 'owner-eppn@example.org', 'lang': 'en'}
 
 
-def _invite(name, email, lang='en'):
-    return {'name': name, 'email': email, 'ssn': '', 'lang': lang}
+def _invite(name, email, lang='en', alloweid=False):
+    return {'name': name, 'email': email, 'ssn': '', 'lang': lang, 'alloweid': alloweid}
 
 
 def _add_doc(
@@ -68,7 +68,6 @@ def _add_doc(
     sendsigned=True,
     skipfinal=False,
     ordered=False,
-    allowbankid=False,
     owner=OWNER,
     name='test1.pdf',
 ):
@@ -78,7 +77,7 @@ def _add_doc(
     app = client.application
     with app.app_context():
         app.extensions['doc_store'].add_document(
-            doc, owner, invites, sendsigned, 'none', skipfinal, ordered, allowbankid, 'Invitation text'
+            doc, owner, invites, sendsigned, 'none', skipfinal, ordered, 'Invitation text'
         )
     return key
 
@@ -200,7 +199,7 @@ def test_signed_as_invitee_ordered_next_invitation(client, monkeypatch):
     assert recipients == ['invite1 <invite1@example.org>']
     assert subject == 'You have been invited to sign "test1.pdf"'
     assert 'Invitation text' in body_txt
-    # without allowbankid the invited link is the plain index
+    # an invitee without eID gets the plain index link
     assert '/home-eid/' not in body_txt
 
     (recipients2, subject2, _, _), _ = sent[1]
@@ -208,14 +207,14 @@ def test_signed_as_invitee_ordered_next_invitation(client, monkeypatch):
     assert subject2 == "Tëster Kid signed 'test1.pdf'"
 
 
-def test_signed_as_invitee_ordered_next_invitation_bankid(client, monkeypatch):
-    """Ordered invitations with allowbankid: the next invitee gets the eID home link."""
+def test_signed_as_invitee_ordered_next_invitation_alloweid(client, monkeypatch):
+    """Ordered invitations: a next invitee allowed eID gets the eID home link."""
     invites = [
         _invite('Tëster Kid', TESTER_EMAIL),
-        _invite('invite1', 'invite1@example.org'),
+        _invite('invite1', 'invite1@example.org', alloweid=True),
         _invite('invite2', 'invite2@example.org'),
     ]
-    key = _add_doc(client, invites, ordered=True, allowbankid=True)
+    key = _add_doc(client, invites, ordered=True)
 
     sent = []
     _post_get_signed(client, monkeypatch, _process_data(key), sent)

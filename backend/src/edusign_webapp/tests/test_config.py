@@ -182,7 +182,6 @@ def _test_get_config_with_invitations(
                 "skipfinal": True,
                 "loa": loa,
                 "ordered": ordered,
-                "allowbankid": False,
             },
         }
 

@@ -64,7 +64,6 @@ def _test_edit_multi_sign_request(client, environ_base, monkeypatch, sample_doc_
                 'skipfinal': False,
                 'loa': 'low',
                 'ordered': False,
-                'allowbankid': False,
                 'invites': [
                     {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en', 'ssn': ''},
                     {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en', 'ssn': ''},

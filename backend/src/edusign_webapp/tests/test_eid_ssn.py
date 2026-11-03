@@ -44,8 +44,7 @@ from flask import session
 
 from edusign_webapp.utils import WrongSSN, add_attributes_to_session_bankid_freja
 
-# allowbankid=True so the document accepts eID signatures
-_invitation_flags = [True, 'none', False, False, True, 'Invitation text']
+_invitation_flags = [True, 'none', False, False, 'Invitation text']
 
 
 def _b64attr(value):

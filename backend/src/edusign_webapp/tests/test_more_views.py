@@ -53,7 +53,6 @@ invitation_flags = [
     'none',  # loa
     False,  # skipfinal
     False,  # ordered
-    False,  # allowbankid
     'Invitation text',  # invitation_text
 ]
 
@@ -586,12 +585,12 @@ _eid_headers = {
     'Md-Organizationname': 'Test Org',
 }
 
-# sendsigned, loa, skipfinal, ordered, allowbankid, invitation_text
-_eid_invitation_flags = [True, 'none', False, False, True, 'Invitation text']
+# sendsigned, loa, skipfinal, ordered, invitation_text
+_eid_invitation_flags = [True, 'none', False, False, 'Invitation text']
 
 
 def test_eid_login_recorded(client, sample_doc_1, sample_owner_1):
-    invites = [{'name': 'Invited Kid', 'email': 'invite0@example.org', 'ssn': '199001019876', 'lang': 'en'}]
+    invites = [{'name': 'Invited Kid', 'email': 'invite0@example.org', 'ssn': '199001019876', 'lang': 'en', 'alloweid': True}]
     app = client.application
     with app.app_context():
         invite_key = app.extensions['doc_store'].add_document(
@@ -620,7 +619,7 @@ def test_eid_login_recorded_scope_lowercased(client, sample_doc_1):
     # an IdP may send the inviter's eppn scope in mixed case; the use is
     # recorded under the lowercased scope, as EID_WHITELIST has it
     owner = {'name': 'owner', 'email': 'owner@sunet.se', 'eppn': 'owner-eppn@SUNET.se', 'lang': 'en'}
-    invites = [{'name': 'Invited Kid', 'email': 'invite0@example.org', 'ssn': '199001019876', 'lang': 'en'}]
+    invites = [{'name': 'Invited Kid', 'email': 'invite0@example.org', 'ssn': '199001019876', 'lang': 'en', 'alloweid': True}]
     app = client.application
     with app.app_context():
         invite_key = app.extensions['doc_store'].add_document(sample_doc_1, owner, invites, *_eid_invitation_flags)[0][

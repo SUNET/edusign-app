@@ -45,6 +45,9 @@ from edusign_webapp.marshal import ResponseSchema
 INVITE_0 = {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en', 'ssn': ''}
 INVITE_1 = {'name': 'invite1', 'email': 'invite1@example.org', 'lang': 'en', 'ssn': ''}
 INVITE_2 = {'name': 'invite2', 'email': 'invite2@example.org', 'lang': 'en', 'ssn': ''}
+# the same invitees, allowed to sign with eID
+INVITE_0_EID = {**INVITE_0, 'alloweid': True}
+INVITE_1_EID = {**INVITE_1, 'alloweid': True}
 
 POST_HEADERS = {
     'X-Requested-With': 'XMLHttpRequest',
@@ -93,7 +96,6 @@ def _create_invitation(
     sendsigned=True,
     skipfinal=False,
     ordered=False,
-    allowbankid=False,
     loa='low',
     owner='tester@example.org',
 ):
@@ -105,7 +107,6 @@ def _create_invitation(
         'skipfinal': skipfinal,
         'loa': loa,
         'ordered': ordered,
-        'allowbankid': allowbankid,
         'invites': invites,
     }
     return _post(client, '/sign/create-multi-sign', csrf_token, payload)
@@ -191,10 +192,10 @@ def test_create_no_invitations_made(client, monkeypatch, sample_doc_1):
     assert resp_data['message'] == 'Success sending invitations to sign'
 
 
-def test_create_allowbankid(client, monkeypatch, sample_doc_1):
+def test_create_alloweid(client, monkeypatch, sample_doc_1):
     csrf_token = _csrf_setup(client, monkeypatch)
 
-    resp_data = _create_invitation(client, csrf_token, sample_doc_1, [INVITE_0, INVITE_1], allowbankid=True)
+    resp_data = _create_invitation(client, csrf_token, sample_doc_1, [INVITE_0_EID, INVITE_1_EID])
 
     assert resp_data['message'] == 'Success sending invitations to sign'
 
@@ -271,9 +272,9 @@ def test_reminder_ordered(client, monkeypatch, sample_doc_1):
     assert resp_data['message'] == 'Success sending reminder email to pending users'
 
 
-def test_reminder_allowbankid(client, monkeypatch, sample_doc_1):
+def test_reminder_alloweid(client, monkeypatch, sample_doc_1):
     csrf_token = _csrf_setup(client, monkeypatch)
-    _create_invitation(client, csrf_token, sample_doc_1, [INVITE_0, INVITE_1], allowbankid=True)
+    _create_invitation(client, csrf_token, sample_doc_1, [INVITE_0_EID, INVITE_1_EID])
 
     resp_data = _post(client, '/sign/send-multisign-reminder', csrf_token, {'key': sample_doc_1['key']})
 
@@ -323,9 +324,9 @@ def test_edit_ordered_new_next(client, monkeypatch, sample_doc_1):
     assert resp_data['message'] == "Success editing invitation to sign 'test1.pdf'"
 
 
-def test_edit_ordered_new_next_allowbankid(client, monkeypatch, sample_doc_1):
+def test_edit_ordered_new_next_alloweid(client, monkeypatch, sample_doc_1):
     csrf_token = _csrf_setup(client, monkeypatch)
-    _create_invitation(client, csrf_token, sample_doc_1, [INVITE_0, INVITE_1], ordered=True, allowbankid=True)
+    _create_invitation(client, csrf_token, sample_doc_1, [INVITE_0_EID, INVITE_1_EID], ordered=True)
 
     resp_data = _post(client, '/sign/edit-multi-sign', csrf_token, _edit_payload(sample_doc_1['key'], [INVITE_1]))
 
@@ -376,9 +377,9 @@ def test_edit_ordered_to_empty_skipfinal_raises(client, monkeypatch, sample_doc_
 # edit-multi-sign, unordered invitations
 
 
-def test_edit_added_allowbankid(client, monkeypatch, sample_doc_1):
+def test_edit_added_alloweid(client, monkeypatch, sample_doc_1):
     csrf_token = _csrf_setup(client, monkeypatch)
-    _create_invitation(client, csrf_token, sample_doc_1, [INVITE_0, INVITE_1], allowbankid=True)
+    _create_invitation(client, csrf_token, sample_doc_1, [INVITE_0_EID, INVITE_1_EID])
 
     resp_data = _post(
         client,
@@ -607,9 +608,9 @@ def test_decline_ordered_next_invitation(client, environ_base_2, monkeypatch, sa
     assert resp_data['message'] == 'Success declining signature'
 
 
-def test_decline_ordered_next_invitation_allowbankid(client, environ_base_2, monkeypatch, sample_doc_1):
+def test_decline_ordered_next_invitation_alloweid(client, environ_base_2, monkeypatch, sample_doc_1):
     csrf_token = _csrf_setup(client, monkeypatch)
-    _create_invitation(client, csrf_token, sample_doc_1, [INVITE_0, INVITE_1], ordered=True, allowbankid=True)
+    _create_invitation(client, csrf_token, sample_doc_1, [INVITE_0_EID, INVITE_1_EID], ordered=True)
 
     csrf_token2 = _switch_user(client, monkeypatch, environ_base_2)
 
@@ -891,3 +892,59 @@ def test_edit_to_empty_no_skipfinal(client, monkeypatch, sample_doc_1):
     resp_data = _post(client, '/sign/edit-multi-sign', csrf_token, _edit_payload(sample_doc_1['key'], []))
 
     assert resp_data['message'] == "Success editing invitation to sign 'test1.pdf'"
+
+
+# Per-invitee eID permission: the invitation email of an invitee allowed eID
+# links to the eID login for their invitation; the others share one email per
+# language linking to the index.
+
+
+def _capture_mail(monkeypatch):
+    sent = []
+    monkeypatch.setattr('edusign_webapp.views.sendmail_bulk', lambda msgs: sent.extend(msgs))
+    return sent
+
+
+def _invitation_links(sent):
+    """{recipient: link} over the invitation emails sent."""
+    links = {}
+    for (recipients, subject, body_txt, body_html), _ in sent:
+        if not subject.startswith('You have been invited'):
+            continue
+        link = next(word for word in body_txt.split() if word.startswith('http'))
+        for recipient in recipients:
+            links[recipient] = link
+    return links
+
+
+def test_create_mixed_alloweid_links(client, monkeypatch, sample_doc_1):
+    csrf_token = _csrf_setup(client, monkeypatch)
+    sent = _capture_mail(monkeypatch)
+    resp_data = _create_invitation(client, csrf_token, sample_doc_1, [INVITE_0_EID, INVITE_1, INVITE_2])
+
+    assert resp_data['message'] == 'Success sending invitations to sign'
+    links = _invitation_links(sent)
+    assert '/home-eid/' in links['invite0 <invite0@example.org>']
+    assert '/home-eid/' not in links['invite1 <invite1@example.org>']
+    assert links['invite1 <invite1@example.org>'] == links['invite2 <invite2@example.org>']
+    # one email to the eID invitee, one shared by the other two
+    assert len(sent) == 2
+
+
+def test_edit_toggle_alloweid_resends_with_eid_link(client, monkeypatch, sample_doc_1):
+    csrf_token = _csrf_setup(client, monkeypatch)
+    _create_invitation(client, csrf_token, sample_doc_1, [INVITE_0, INVITE_1])
+
+    sent = _capture_mail(monkeypatch)
+    resp_data = _post(
+        client,
+        '/sign/edit-multi-sign',
+        csrf_token,
+        _edit_payload(sample_doc_1['key'], [INVITE_0_EID, INVITE_1]),
+    )
+
+    assert resp_data['message'] == "Success editing invitation to sign 'test1.pdf'"
+    # only the toggled invitee is re-invited, now with the eID link
+    links = _invitation_links(sent)
+    assert list(links) == ['invite0 <invite0@example.org>']
+    assert '/home-eid/' in links['invite0 <invite0@example.org>']

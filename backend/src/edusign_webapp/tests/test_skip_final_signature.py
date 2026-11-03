@@ -74,7 +74,6 @@ def _test_skip_final_signature(client, monkeypatch, sample_doc_1):
                 'sendsigned': True,
                 'skipfinal': False,
                 'ordered': False,
-                'allowbankid': False,
                 'loa': 'low',
                 'invites': [
                     {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en', 'ssn': ''},
@@ -159,7 +158,7 @@ def test_get_partially_signed_doesnt(client, monkeypatch, sample_doc_1):
 
     assert resp_data['message'] == 'Cannot find the document being signed'
 
-_seed_flags = [True, 'none', False, False, False, 'Invitation text']
+_seed_flags = [True, 'none', False, False, 'Invitation text']
 
 
 def _seed_and_post_skip(client, monkeypatch, sample_doc_1, sample_owner_1):

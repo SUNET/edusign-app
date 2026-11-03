@@ -73,7 +73,6 @@ invitation_flags = [
     'none',  # loa
     False,  # skipfinal
     False,  # ordered
-    False,  # allowbankid
     'Invitation text',  # invitation_text
 ]
 
@@ -338,6 +337,31 @@ def test_get_invitations_bankid_standing(app, sample_doc_1, sample_owner_1):
         assert len(result['pending_multisign']) == 1
         assert result['pending_multisign'][0]['name'] == sample_doc_1['name']
         assert session['mail_aliases'] == ['invite0@example.org']
+
+
+def test_get_invitations_bankid_loa_not_required(app, sample_doc_1, sample_owner_1):
+    # the LoA required by a document applies to institutional accounts; an eID
+    # session, which has no eduPersonAssurance, is not marked failed-loa
+    tempdir, app = app
+    invites = [{'name': 'invite0', 'email': 'invite0@example.org', 'ssn': '', 'lang': 'en', 'alloweid': True}]
+    flags = list(invitation_flags)
+    flags[1] = 'low'  # loa
+    with app.app_context():
+        invitations = app.extensions['doc_store'].add_document(sample_doc_1, sample_owner_1, invites, *flags)
+    invite_key = invitations[0]['key']
+
+    with app.test_request_context():
+        session['eppn'] = '8112189876'
+        session['mail'] = 'invite0@example.org'
+        session['using-bankid'] = True
+        session['using-freja'] = False
+        session['registrationAuthority'] = 'dummy-bankid'
+        session['eduPersonAssurance'] = []
+        result = get_invitations(invite_key=invite_key)
+
+        assert len(result['pending_multisign']) == 1
+        assert result['pending_multisign'][0]['state'] == 'unconfirmed'
+        assert result['pending_multisign'][0]['loa'] == 'low,Low'
 
 
 def test_get_invitations_bankid_not_standing(app, sample_owner_1):

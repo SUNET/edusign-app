@@ -63,7 +63,6 @@ def _test_get_partially_signed_doc(client, monkeypatch, sample_doc_1):
                 'sendsigned': True,
                 'skipfinal': False,
                 'ordered': False,
-                'allowbankid': False,
                 'loa': '',
                 'invites': [
                     {'name': 'invite0', 'email': 'invite0@example.org', 'lang': 'en', 'ssn': ''},
@@ -135,7 +134,7 @@ def test_get_partially_signed_doesnt(client, monkeypatch, sample_doc_1):
 
     assert resp_data['message'] == 'Cannot find the document being signed'
 
-_invitation_flags = [True, 'none', False, False, False, 'Invitation text']
+_invitation_flags = [True, 'none', False, False, 'Invitation text']
 
 
 def _seed_document(client, doc, owner, invites):
