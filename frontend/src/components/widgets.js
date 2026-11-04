@@ -46,7 +46,7 @@ export const InfoLine = ({ doc }) => {
   let created = "";
   if (creationDate !== null) {
     created = (
-      <div className="info-line info-line-1 info-row">
+      <div className="info-row">
         <span className="label">
           <FormattedMessage
             defaultMessage="Created:"
@@ -63,7 +63,7 @@ export const InfoLine = ({ doc }) => {
     const loaName = loa[1];
     const loaValue = loa[0];
     requiredLoa = (
-      <div className="info-line info-line-2 info-row">
+      <div className="info-row">
         <span className="label">
           <FormattedMessage
             defaultMessage="Required assurance level:"
@@ -90,11 +90,11 @@ export const InfoLine = ({ doc }) => {
     );
   }
   return (
-    <div className="doc-info-line">
+    <>
       {created}
       {requiredLoa}
       {ordered}
-    </div>
+    </>
   );
 };
 
@@ -124,7 +124,7 @@ export const InfoLine2 = ({ doc }) => {
   const info_t = infos.join("; ");
   return (
     <div className="doc-info-line">
-      <div className="info-line info-line-2 info-row">
+      <div className="info-row">
         <span className="label">
           <FormattedMessage defaultMessage="Info:" key="info-line-2-label" />
         </span>

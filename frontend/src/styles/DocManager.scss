@@ -225,6 +225,10 @@ div.doc-info-line {
   .info-line {
     padding-right: 1rem;
   }
+
+  @media screen and (max-width: $breakpoint-md) {
+    flex-direction: column;
+  }
 }
 
 p.invited-legend-title {
@@ -237,14 +241,25 @@ p.invited-legend-title {
   display: grid;
   grid-template-columns: auto 1fr auto auto;
   grid-template-areas:
-    "icon name action remove"
-    "icon size action remove";
+    "icon name    action remove"
+    "icon size    action remove"
+    ".    message action remove";
   align-items: center;
   column-gap: 0.75rem;
   width: 100%;
 
-  > div {
+  .doc-name,
+  .doc-size {
     width: 100%;
+  }
+
+  // Without an area of its own the message would be auto-placed into the icon
+  // column and stretch it, leaving the icon floating in the middle of a gap.
+  .message-flex-item {
+    grid-area: message;
+    align-self: start;
+    margin: 0;
+    color: $error-red;
   }
 
   > svg,
@@ -295,6 +310,7 @@ p.invited-legend-title {
     grid-area: action;
     justify-self: end;
     align-self: center;
+    width: auto;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -316,9 +332,10 @@ p.invited-legend-title {
   @media (max-width: $breakpoint-md) {
     grid-template-columns: auto 1fr auto;
     grid-template-areas:
-      "icon name   remove"
-      "icon size   remove"
-      "action action action";
+      "icon name    remove"
+      "icon size    remove"
+      ".    message message"
+      ".    action  action";
 
     .buttons-flex {
       justify-self: start;

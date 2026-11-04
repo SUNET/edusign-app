@@ -146,7 +146,7 @@ export const preparePrevSigs = (doc, size) => {
         <div className="info-row" key="-1">
           <span className="label">
             <FormattedMessage
-              defaultMessage="Previously signed by:"
+              defaultMessage="Already signed before upload:"
               key="multisign-owned-prev-signed"
             />
           </span>
@@ -160,7 +160,7 @@ export const preparePrevSigs = (doc, size) => {
       <div className="info-row" key="-1">
         <span className="label">
           <FormattedMessage
-            defaultMessage="Previously signed by:"
+            defaultMessage="Already signed before upload:"
             key="multisign-owned-prev-signed"
           />
         </span>

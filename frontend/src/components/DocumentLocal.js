@@ -239,6 +239,7 @@ function DocumentLocal(ownProps) {
             </div>
           )}
           {(doc.state === "loaded" || doc.state === "selected") && (
+            // here //
             <div className="select-column">
               {widgets.selectDoc(props, doc)}
               {widgets.docName(doc)}
