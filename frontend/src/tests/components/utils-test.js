@@ -210,7 +210,7 @@ describe("preparePrevSigs", () => {
       prev_signatures: "2.5.4.3=CN",
     });
     expect(screen.getByText("Previously signed by:")).toBeInTheDocument();
-    expect(container.querySelectorAll(".info-row-item").length).toEqual(0);
+    expect(container.querySelectorAll(".item").length).toEqual(0);
   });
 
   it("shows Unknown for signatures it cannot parse", () => {

@@ -28,16 +28,14 @@ export const docCreated = (props) => {
   const creationDate = getCreationDate(props.doc);
   if (creationDate !== null) {
     return (
-      <div className="doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Created:"
             key="creation-date-label"
           />
         </span>
-        <span className="info-row-items">
-          <span className="info-row-item">{creationDate.toLocaleString()}</span>
-        </span>
+        <span className="item">{creationDate.toLocaleString()}</span>
       </div>
     );
   } else return "";
@@ -48,16 +46,14 @@ export const InfoLine = ({ doc }) => {
   let created = "";
   if (creationDate !== null) {
     created = (
-      <div className="info-line info-line-1 doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-line info-line-1 info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Created:"
             key="creation-date-label"
           />
         </span>
-        <span className="info-row-items">
-          <span className="info-row-item">{creationDate.toLocaleString()}</span>
-        </span>
+        <span className="item">{creationDate.toLocaleString()}</span>
       </div>
     );
   }
@@ -67,15 +63,15 @@ export const InfoLine = ({ doc }) => {
     const loaName = loa[1];
     const loaValue = loa[0];
     requiredLoa = (
-      <div className="info-line info-line-2 doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-line info-line-2 info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Required assurance level:"
             key="multisign-loa"
           />
         </span>
         &nbsp;
-        <span className="info-row-item">{loaName}</span>
+        <span className="item">{loaName}</span>
       </div>
     );
   }
@@ -83,8 +79,8 @@ export const InfoLine = ({ doc }) => {
   let ordered = "";
   if (doc.ordered) {
     ordered = (
-      <div className="info-line info-line-3 doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-line info-line-3 info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Workflow invitation"
             key="multisign-owned-ordered"
@@ -128,13 +124,11 @@ export const InfoLine2 = ({ doc }) => {
   const info_t = infos.join("; ");
   return (
     <div className="doc-info-line">
-      <div className="info-line info-line-2 doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-line info-line-2 info-row">
+        <span className="label">
           <FormattedMessage defaultMessage="Info:" key="info-line-2-label" />
         </span>
-        <span className="info-row-items">
-          <span className="info-row-item">{info_t}</span>
-        </span>
+        <span className="item">{info_t}</span>
       </div>
     </div>
   );

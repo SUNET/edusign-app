@@ -91,64 +91,58 @@ class DocumentOwned extends Component {
       "";
     const pending =
       (doc.state === "incomplete" && (
-        <div className="doc-container-info-row">
-          <span className="info-row-label">
+        <div className="info-row">
+          <span className="label">
             <FormattedMessage
               defaultMessage="Waiting for signatures by:"
               key="multisign-owned-waiting"
             />
           </span>
-          <span className="info-row-items">
-            {doc.pending.map((invite, index) => {
-              return (
-                <span className="info-row-item" key={index}>
-                  {invite.name} &lt;{invite.email}&gt;{" "}
-                  {index < doc.pending.length - 1 ? "," : "."}
-                </span>
-              );
-            })}
-          </span>
+          {doc.pending.map((invite, index) => {
+            return (
+              <span className="item" key={index}>
+                {invite.name} &lt;{invite.email}&gt;{" "}
+                {index < doc.pending.length - 1 ? "," : "."}
+              </span>
+            );
+          })}
         </div>
       )) ||
       "";
     const signed = (
-      <div className="doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Signed by:"
             key="multisign-owned-signed"
           />
         </span>
-        <span className="info-row-items">
-          {doc.signed.map((invite, index) => {
-            return (
-              <span className="info-row-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;{" "}
-                {index < doc.signed.length - 1 ? "," : "."}
-              </span>
-            );
-          })}
-        </span>
+        {doc.signed.map((invite, index) => {
+          return (
+            <span className="item" key={index}>
+              {invite.name} &lt;{invite.email}&gt;{" "}
+              {index < doc.signed.length - 1 ? "," : "."}
+            </span>
+          );
+        })}
       </div>
     );
     const declined = (
-      <div className="doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Declined to sign by:"
             key="multisign-owned-declined"
           />
         </span>
-        <span className="info-row-items">
-          {doc.declined.map((invite, index) => {
-            return (
-              <span className="info-row-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;{" "}
-                {index < doc.declined.length - 1 ? "," : "."}
-              </span>
-            );
-          })}
-        </span>
+        {doc.declined.map((invite, index) => {
+          return (
+            <span className="item" key={index}>
+              {invite.name} &lt;{invite.email}&gt;{" "}
+              {index < doc.declined.length - 1 ? "," : "."}
+            </span>
+          );
+        })}
       </div>
     );
     const invites = (

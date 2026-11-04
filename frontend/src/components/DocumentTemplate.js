@@ -36,17 +36,15 @@ class DocumentTemplate extends React.Component {
     const doc = this.props.doc;
     const signed =
       (doc.state === "signed" && (
-        <div className="doc-container-info-row" key="-1">
-          <span className="info-row-label">
+        <div className="info-row" key="-1">
+          <span className="label">
             <FormattedMessage
               defaultMessage="Signed by:"
               key="multisign-owned-signed"
             />
           </span>
-          <span className="info-row-items">
-            <span className="info-row-item">
-              {this.props.name} &lt;{this.props.mail}&gt;.
-            </span>
+          <span className="item">
+            {this.props.name} &lt;{this.props.mail}&gt;.
           </span>
         </div>
       )) ||

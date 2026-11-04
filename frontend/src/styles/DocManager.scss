@@ -125,25 +125,19 @@
   }
 }
 
-.doc-container-info-row {
+.info-row {
   flex: none;
-  margin-top: 0.2rem;
-  margin-bottom: 0.2rem;
   line-height: 1.2rem;
 
-  .info-row-label {
+  .label {
     color: $darker-dark-grey;
     font-size: 0.8rem;
   }
 
-  .info-row-items {
-    .info-row-item {
-      margin-left: 0.3rem;
-      font-size: 0.8rem;
-      display: inline-block;
-    }
-  }
-  .info-row-item {
+  .item {
+    margin-left: 0.3rem;
+    font-size: 0.8rem;
+    display: inline-block;
     font-size: 0.8rem;
     display: inline-block;
   }
@@ -329,7 +323,7 @@ p.invited-legend-title {
     .buttons-flex {
       justify-self: start;
       justify-content: flex-start;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
     }
   }
 }

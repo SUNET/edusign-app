@@ -115,39 +115,35 @@ function DocumentLocal(ownProps) {
   let signed;
   if (doc.signed && doc.signed.length > 0) {
     signed = (
-      <div className="doc-container-info-row" key={doc.name}>
-        <span className="info-row-label">
+      <div className="info-row" key={doc.name}>
+        <span className="label">
           <FormattedMessage
             defaultMessage="Signed by:"
             key="multisign-signed"
           />
         </span>
-        <span className="info-row-items">
-          {doc.signed.map((invite, index) => {
-            return (
-              <span className="info-row-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;{" "}
-                {index < doc.signed.length - 1 ? "," : "."}
-              </span>
-            );
-          })}
-        </span>
+        {doc.signed.map((invite, index) => {
+          return (
+            <span className="item" key={index}>
+              {invite.name} &lt;{invite.email}&gt;{" "}
+              {index < doc.signed.length - 1 ? "," : "."}
+            </span>
+          );
+        })}
       </div>
     );
   } else {
     signed =
       (doc.state === "signed" && (
-        <div className="doc-container-info-row" key={doc.name}>
-          <span className="info-row-label">
+        <div className="info-row" key={doc.name}>
+          <span className="label">
             <FormattedMessage
               defaultMessage="Signed by:"
               key="multisign-owned-signed"
             />
           </span>
-          <span className="info-row-items">
-            <span className="info-row-item">
-              {props.name} &lt;{props.mail}&gt;.
-            </span>
+          <span className="item">
+            {props.name} &lt;{props.mail}&gt;.
           </span>
         </div>
       )) ||
@@ -156,8 +152,8 @@ function DocumentLocal(ownProps) {
   // validated is unused for now
   const validated =
     (doc.state === "signed" && (
-      <div className="doc-container-info-row" key={doc.name}>
-        <span className="info-row-label">
+      <div className="info-row" key={doc.name}>
+        <span className="label">
           {(doc.validated && (
             <FormattedMessage
               defaultMessage="Validated"
