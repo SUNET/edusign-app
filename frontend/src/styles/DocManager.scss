@@ -127,23 +127,14 @@
 
 .info-row {
   flex: none;
-  line-height: 1.2rem;
-
+  line-height: 1.4rem;
+  font-size: 0.875rem;
   .label {
-    color: $darker-dark-grey;
-    font-size: 0.8rem;
+    font-weight: 300;
   }
 
   .item {
     margin-left: 0.3rem;
-    font-size: 0.8rem;
-    display: inline-block;
-    font-size: 0.8rem;
-    display: inline-block;
-  }
-
-  @media (max-width: $breakpoint-md) {
-    line-height: 1.4rem;
   }
 }
 
