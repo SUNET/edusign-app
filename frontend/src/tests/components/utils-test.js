@@ -101,6 +101,11 @@ describe("docToFile", () => {
     expect(docToFile({ name: "test.pdf" })).toEqual(undefined);
   });
 
+  it("returns undefined while the document is still being read", () => {
+    const doc = { name: "test.pdf", type: "application/pdf", blob: null };
+    expect(docToFile(doc)).toEqual(undefined);
+  });
+
   it("returns null for undecodable data", () => {
     const doc = {
       name: "test.pdf",
