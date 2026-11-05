@@ -269,6 +269,7 @@ export const removeConfirmButton = (props, doc, id) => {
         className="text-danger"
         onClick={props.showConfirm(id)}
         id={"button-rm-invitation-" + doc.key}
+        aria-label={"Remove document " + doc.name}
       >
         <FontAwesomeIcon icon={faTrashCan} />
       </Button>
@@ -293,6 +294,7 @@ export const removeTemplate = (props, doc) => {
         className="text-danger"
         onClick={props.showConfirm(id)}
         id={"button-rm-template-" + doc.name}
+        aria-label={"Remove document " + doc.name}
       >
         <FontAwesomeIcon icon={faTrashCan} />
       </Button>
@@ -316,6 +318,7 @@ export const removeButton = (props, doc) => {
         data-testid={"rm-button-" + doc.name}
         onClick={props.handleRemove(doc.name)}
         id={"button-rm-template-" + doc.name}
+        aria-label={"Remove document " + doc.name}
       >
         <FontAwesomeIcon icon={faTrashCan} />
       </Button>

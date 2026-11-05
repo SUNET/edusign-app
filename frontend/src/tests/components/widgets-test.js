@@ -195,12 +195,12 @@ describe("widgets", function () {
     unmount();
   });
 
-  it("dummySelectDoc renders an empty selector slot", function () {
+  it("dummySelectDoc renders a file icon placeholder", function () {
     const { container, unmount } = renderWidget(dummySelectDoc());
     try {
-      expect(
-        container.querySelectorAll(".doc-selector-flex-item").length,
-      ).toEqual(1);
+      expect(container.querySelectorAll("svg.svg-inline--fa").length).toEqual(
+        1,
+      );
     } catch (err) {
       unmount();
       throw err;
@@ -265,7 +265,9 @@ describe("widgets", function () {
     const { unmount } = renderWidget(removeConfirmButton(props, doc));
     try {
       expect(props.showConfirm).toHaveBeenCalledWith("confirm-remove-test.pdf");
-      fireEvent.click(screen.getByText("Remove"));
+      fireEvent.click(
+        screen.getByRole("button", { name: "Remove document test.pdf" }),
+      );
       expect(handler).toHaveBeenCalled();
     } catch (err) {
       unmount();
@@ -298,7 +300,9 @@ describe("widgets", function () {
       expect(props.showConfirm).toHaveBeenCalledWith(
         "confirm-remove-template.pdf",
       );
-      fireEvent.click(screen.getByText("Remove"));
+      fireEvent.click(
+        screen.getByRole("button", { name: "Remove document template.pdf" }),
+      );
       expect(handler).toHaveBeenCalled();
     } catch (err) {
       unmount();
