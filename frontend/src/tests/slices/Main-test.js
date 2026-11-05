@@ -391,7 +391,6 @@ describe("fetchConfig", () => {
     expect(state.main.poll).toEqual(undefined);
     expect(state.main.skipped).toEqual(undefined);
     expect(state.poll.poll).toEqual(true);
-    expect(state.inviteform.allowbankid).toEqual(true);
   });
 
   it("honors the configPath argument", async () => {

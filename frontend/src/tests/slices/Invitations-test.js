@@ -90,6 +90,7 @@ describe("sendInvites thunk", () => {
         email: "invited1@example.org",
         lang: "en",
         ssn: "",
+        alloweid: false,
       },
     ],
     invitationText: "please sign",
@@ -124,12 +125,14 @@ describe("sendInvites thunk", () => {
         email: "invited1@example.org",
         lang: "en",
         ssn: "",
+        alloweid: false,
       },
     ]);
     expect(body.payload.text).toEqual("please sign");
     expect(body.payload.sendsigned).toEqual(true);
     expect(body.payload.skipfinal).toEqual(false);
-    expect(body.payload.allowbankid).toEqual(false);
+    // eID permission is per invitee, there is no document-level flag
+    expect(body.payload.allowbankid).toEqual(undefined);
     expect(body.payload.ordered).toEqual(true);
     expect(body.payload.loa).toEqual("none");
     expect(body.payload.document).toEqual({
@@ -155,6 +158,48 @@ describe("sendInvites thunk", () => {
     expect(state.poll.initialPoll).toEqual(true);
     expect(state.poll.poll).toEqual(true);
     expect(state.notifications.message).toEqual(null);
+  });
+
+  it("sends each invitee's eID permission", async () => {
+    await sendInvitesSuccess(
+      inviteValues({
+        invitees: [
+          {
+            name: "With eID",
+            email: "eid@example.org",
+            lang: "en",
+            ssn: "199001019876",
+            alloweid: true,
+          },
+          {
+            name: "Without eID",
+            email: "plain@example.org",
+            lang: "sv",
+            ssn: "",
+          },
+        ],
+      }),
+    );
+
+    const body = JSON.parse(
+      fetchMock.callHistory.lastCall("/sign/create-multi-sign").options.body,
+    );
+    expect(body.payload.invites).toEqual([
+      {
+        name: "With eID",
+        email: "eid@example.org",
+        lang: "en",
+        ssn: "199001019876",
+        alloweid: true,
+      },
+      {
+        name: "Without eID",
+        email: "plain@example.org",
+        lang: "sv",
+        ssn: "",
+        alloweid: false,
+      },
+    ]);
   });
 
   it("labels the invitation with the low loa", async () => {
@@ -256,7 +301,15 @@ describe("editInvites thunk", () => {
     invitationText: "changed text",
     sendsignedChoice: true,
     skipfinalChoice: true,
-    invitees: [{ name: "New Invitee", email: "new@example.org", lang: "sv" }],
+    invitees: [
+      {
+        name: "New Invitee",
+        email: "new@example.org",
+        lang: "sv",
+        ssn: "199001019876",
+        alloweid: true,
+      },
+    ],
     ...overrides,
   });
 
@@ -270,17 +323,55 @@ describe("editInvites thunk", () => {
     const body = JSON.parse(
       fetchMock.callHistory.lastCall("/sign/edit-multi-sign").options.body,
     );
+    // the SSN and the eID permission are sent along, so that the backend
+    // keeps them for the invitees that stay
     expect(body.payload).toEqual({
       key: ownedKey,
       text: "changed text",
       sendsigned: true,
       skipfinal: true,
-      invites: [{ name: "New Invitee", email: "new@example.org", lang: "sv" }],
+      invites: [
+        {
+          name: "New Invitee",
+          email: "new@example.org",
+          lang: "sv",
+          ssn: "199001019876",
+          alloweid: true,
+        },
+      ],
     });
     const owned = store.getState().main.owned_multisign[0];
     expect(owned.pending).toEqual(editValues().invitees);
     expect(owned.state).toEqual("incomplete");
     expect(store.getState().notifications.message).toEqual(null);
+  });
+
+  it("sends an empty ssn and no eID permission when the invitee has none", async () => {
+    const store = await setupStore({ owned_multisign: [ownedDoc()] });
+    fetchMock.post("/sign/edit-multi-sign", { csrf_token: "dummy token" });
+
+    await store.dispatch(
+      editInvites({
+        values: editValues({
+          invitees: [{ name: "Plain", email: "plain@example.org", lang: "en" }],
+        }),
+        intl: intl,
+      }),
+    );
+    await flush();
+
+    const body = JSON.parse(
+      fetchMock.callHistory.lastCall("/sign/edit-multi-sign").options.body,
+    );
+    expect(body.payload.invites).toEqual([
+      {
+        name: "Plain",
+        email: "plain@example.org",
+        lang: "en",
+        ssn: "",
+        alloweid: false,
+      },
+    ]);
   });
 
   it("marks the document loaded when no invitees are left but some signed", async () => {

@@ -7,7 +7,6 @@ import {
   validateSendsigned,
   validateSkipfinal,
   validateOrdered,
-  validateAllowBankID,
   validateNewname,
 } from "components/validation";
 
@@ -195,7 +194,6 @@ describe("no-op validators", () => {
     expect(validateSendsigned(true)).toEqual(undefined);
     expect(validateSkipfinal(false)).toEqual(undefined);
     expect(validateOrdered(true)).toEqual(undefined);
-    expect(validateAllowBankID(false)).toEqual(undefined);
   });
 });
 
