@@ -44,7 +44,6 @@ import {
   createDocument,
 } from "slices/Documents";
 import { setInitialPolling } from "slices/Poll";
-import { setAllowBankID } from "slices/InviteForm";
 import { b64toBlob, nameForDownload } from "components/utils";
 import { dbRemoveDocument } from "init-app/database";
 
@@ -184,9 +183,6 @@ export const fetchConfig = createAsyncThunk(
         const eppn = configData.payload.signer_attributes.eppn;
         thunkAPI.dispatch(setInitialPolling(configData.payload.poll));
         delete configData.payload.poll;
-
-        const allowbankid = configData.payload.ui_defaults.allow_bankid;
-        thunkAPI.dispatch(setAllowBankID(allowbankid));
 
         // The skipped docs are added to the IndexedDB db before dispatching
         // loadDocuments, so that its read finds them there.

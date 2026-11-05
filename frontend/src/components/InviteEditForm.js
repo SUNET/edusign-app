@@ -59,10 +59,9 @@ const validateBody = (value) => {
   return undefined;
 };
 
-// Whether the SSN field is shown is decided per document, from the
-// `docAllowbankid` prop (the owned document's `use_eid`). The form never
-// writes the global inviteform.allowbankid flag: that belongs to the
-// create form's checkbox.
+// eID permission and the SSN field are per invitee: each pending invite
+// arrives from the backend with its `alloweid` and `ssn`, and the invitee
+// widget shows the SSN field for the rows that allow eID.
 class InviteEditForm extends React.Component {
   render() {
     if (!this.props.show) return "";
@@ -192,7 +191,6 @@ InviteEditForm.propTypes = {
   size: PropTypes.string,
   docKey: PropTypes.string,
   docOrdered: PropTypes.bool,
-  docAllowbankid: PropTypes.bool,
   docSendSigned: PropTypes.bool,
   docSkipFinal: PropTypes.bool,
   handleCloseResetting: PropTypes.func,

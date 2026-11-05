@@ -49,9 +49,8 @@ const mapStateToProps = (state, props) => {
   };
 };
 
-// The edit form has no ordered or eID control, so it never writes the
-// inviteform.ordered / inviteform.allowbankid globals and does not reset
-// them here.
+// The edit form has no ordered control, so it never writes the
+// inviteform.ordered global and does not reset it here.
 const _close = (dispatch) => {
   dispatch(unsetSpinning());
   dispatch(enablePolling());

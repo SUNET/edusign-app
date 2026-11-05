@@ -83,7 +83,6 @@ class DocumentOwned extends Component {
         <InviteEditFormContainer
           docKey={doc.key}
           docOrdered={doc.ordered}
-          docAllowbankid={doc.use_eid}
           docSendSigned={doc.sendsigned}
           docSkipFinal={doc.skipfinal}
         />

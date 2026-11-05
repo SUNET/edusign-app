@@ -54,7 +54,6 @@ export interface EduSignDocument {
   signedContent?: string;
   showForced?: boolean;
   ordered?: boolean;
-  allowbankid?: boolean;
   signed_draft?: boolean;
   loa?: string;
   pending?: Invitee[];
@@ -82,6 +81,8 @@ export interface Invitee {
   name: string;
   email: string;
   lang?: string;
+  ssn?: string;
+  alloweid?: boolean;
 }
 
 /**
@@ -325,7 +326,6 @@ function DocManager(props: Readonly<DocManagerProps>) {
                       docId={doc.id}
                       docName={doc.name}
                       docOrdered={doc.ordered}
-                      docAllowbankid={doc.allowbankid}
                       isTemplate={true}
                     />
                   </React.Fragment>
@@ -469,7 +469,6 @@ function DocManager(props: Readonly<DocManagerProps>) {
                         docId={doc.id}
                         docName={doc.name}
                         docOrdered={doc.ordered}
-                        docAllowbankid={doc.allowbankid}
                       />
                     )}
                   </React.Fragment>

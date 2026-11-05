@@ -43,6 +43,7 @@ export const sendInvites = createAsyncThunk(
       email: invitee.email,
       lang: invitee.lang,
       ssn: invitee.ssn,
+      alloweid: Boolean(invitee.alloweid),
     }));
     const isTemplate = args.values.isTemplate;
     const ordered =
@@ -56,10 +57,6 @@ export const sendInvites = createAsyncThunk(
     const skipfinal =
       args.values.skipfinalChoice !== undefined
         ? args.values.skipfinalChoice
-        : false;
-    const allowbankid =
-      args.values.allowBankIDChoice !== undefined
-        ? args.values.allowBankIDChoice
         : false;
 
     let document;
@@ -119,7 +116,6 @@ export const sendInvites = createAsyncThunk(
       text: args.values.invitationText,
       sendsigned: sendsigned,
       skipfinal: skipfinal,
-      allowbankid: allowbankid,
       loa: loa,
       ordered: ordered,
       document: {
@@ -218,8 +214,6 @@ export const sendInvites = createAsyncThunk(
       created: Date.now(),
       loa: `${loa},${display_loa}`,
       ordered: ordered,
-      // Owned documents from the backend carry this flag as `use_eid`.
-      use_eid: allowbankid,
       skipfinal: skipfinal,
       sendsigned: sendsigned,
     };
@@ -376,10 +370,14 @@ const editInvitesPending = async (values, thunkAPI, intl) => {
   const invitationText = values.invitationText;
   const sendsigned = values.sendsignedChoice;
   const skipfinal = values.skipfinalChoice;
+  // the SSN and the eID permission are kept: the backend matches the
+  // pending invites on them, and resets what the payload leaves out
   const invitees = values.invitees.map((invitee) => ({
     name: invitee.name,
     email: invitee.email,
     lang: invitee.lang,
+    ssn: invitee.ssn || "",
+    alloweid: Boolean(invitee.alloweid),
   }));
 
   let state = thunkAPI.getState();

@@ -10,7 +10,6 @@ const inviteFormSlice = createSlice({
   initialState: {
     inviting: false,
     ordered: null,
-    allowbankid: null,
   },
   reducers: {
     /**
@@ -37,18 +36,10 @@ const inviteFormSlice = createSlice({
     setOrdered(state, action) {
       state.ordered = action.payload;
     },
-    /**
-     * @public
-     * @function setAllowBankID
-     * @desc Redux action to indicate that the invitations can be signed with BankID
-     */
-    setAllowBankID(state, action) {
-      state.allowbankid = action.payload;
-    },
   },
 });
 
-export const { isInviting, isNotInviting, setOrdered, setAllowBankID } =
+export const { isInviting, isNotInviting, setOrdered } =
   inviteFormSlice.actions;
 
 export default inviteFormSlice.reducer;
