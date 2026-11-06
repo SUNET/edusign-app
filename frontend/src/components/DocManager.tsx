@@ -42,7 +42,7 @@ export interface EduSignDocument {
   type: string;
   size: number;
   created: number;
-  blob: string;
+  blob: string | null;
   pprinted: string;
   prev_signatures: string;
   sign_requirement: string;

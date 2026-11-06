@@ -76,7 +76,7 @@ export function humanFileSize(bytes, si = false, dp = 1) {
  *
  */
 export function docToFile(doc) {
-  if (doc.blob === undefined) {
+  if (doc.blob === undefined || doc.blob === null) {
     return undefined;
   }
   let newFile = null;
