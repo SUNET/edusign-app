@@ -12,28 +12,30 @@ import {
   faTrashCan,
   faDownload,
   faFileSignature,
+  faFile,
+  faTrashAlt,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
+import { faFileAlt } from "@fortawesome/free-regular-svg-icons";
 
 export const docName = (doc) => {
-  return <div className="name-flex-item">{doc.name}</div>;
+  return <div className="doc-name">{doc.name}</div>;
 };
 export const docSize = (doc) => {
-  return <div className="size-flex-item">{humanFileSize(doc.size)}</div>;
+  return <div className="doc-size">{humanFileSize(doc.size)}</div>;
 };
 export const docCreated = (props) => {
   const creationDate = getCreationDate(props.doc);
   if (creationDate !== null) {
     return (
-      <div className="doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Created:"
             key="creation-date-label"
           />
         </span>
-        <span className="info-row-items">
-          <span className="info-row-item">{creationDate.toLocaleString()}</span>
-        </span>
+        <span className="item">{creationDate.toLocaleString()}</span>
       </div>
     );
   } else return "";
@@ -44,16 +46,14 @@ export const InfoLine = ({ doc }) => {
   let created = "";
   if (creationDate !== null) {
     created = (
-      <div className="info-line info-line-1 doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Created:"
             key="creation-date-label"
           />
         </span>
-        <span className="info-row-items">
-          <span className="info-row-item">{creationDate.toLocaleString()}</span>
-        </span>
+        <span className="item">{creationDate.toLocaleString()}</span>
       </div>
     );
   }
@@ -63,15 +63,15 @@ export const InfoLine = ({ doc }) => {
     const loaName = loa[1];
     const loaValue = loa[0];
     requiredLoa = (
-      <div className="info-line info-line-2 doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Required assurance level:"
             key="multisign-loa"
           />
         </span>
         &nbsp;
-        <span className="info-row-item">{loaName}</span>
+        <span className="item">{loaName}</span>
       </div>
     );
   }
@@ -79,8 +79,8 @@ export const InfoLine = ({ doc }) => {
   let ordered = "";
   if (doc.ordered) {
     ordered = (
-      <div className="info-line info-line-3 doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-line info-line-3 info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Workflow invitation"
             key="multisign-owned-ordered"
@@ -90,11 +90,11 @@ export const InfoLine = ({ doc }) => {
     );
   }
   return (
-    <div className="doc-info-line">
+    <>
       {created}
       {requiredLoa}
       {ordered}
-    </div>
+    </>
   );
 };
 
@@ -124,13 +124,11 @@ export const InfoLine2 = ({ doc }) => {
   const info_t = infos.join("; ");
   return (
     <div className="doc-info-line">
-      <div className="info-line info-line-2 doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-row">
+        <span className="label">
           <FormattedMessage defaultMessage="Info:" key="info-line-2-label" />
         </span>
-        <span className="info-row-items">
-          <span className="info-row-item">{info_t}</span>
-        </span>
+        <span className="item">{info_t}</span>
       </div>
     </div>
   );
@@ -147,29 +145,27 @@ export const namedSpinner = (index, name) => {
 
 export const selectDoc = (props, doc) => {
   return (
-    <div className="doc-selector-flex-item">
-      <ESTooltip
-        helpId={"doc-selector-" + doc.key}
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Select the document for signing"
-            key="select-doc-tootip"
-          />
-        }
-      >
-        <input
-          type="checkbox"
-          data-testid={"doc-selector-" + doc.key}
-          onChange={props.handleDocSelection(doc.name, doc.key)}
-          checked={doc.state === "selected"}
+    <ESTooltip
+      helpId={"doc-selector-" + doc.key}
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Select the document for signing"
+          key="select-doc-tootip"
         />
-      </ESTooltip>
-    </div>
+      }
+    >
+      <input
+        type="checkbox"
+        data-testid={"doc-selector-" + doc.key}
+        onChange={props.handleDocSelection(doc.name, doc.key)}
+        checked={doc.state === "selected"}
+      />
+    </ESTooltip>
   );
 };
 
 export const dummySelectDoc = () => {
-  return <div className="doc-selector-flex-item" />;
+  return <FontAwesomeIcon icon={faFileAlt} />;
 };
 
 export const forcedPreviewButton = (props, doc) => {
@@ -259,76 +255,74 @@ export const removeConfirmButton = (props, doc, id) => {
     id = "confirm-remove-" + doc.name;
   }
   return (
-    <div className="button-remove-flex-item">
-      <ESTooltip
-        helpId={id}
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Remove document"
-            key="owned-remove-button-help"
-          />
-        }
+    <ESTooltip
+      helpId={id}
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Remove document"
+          key="owned-remove-button-help"
+        />
+      }
+    >
+      <Button
+        variant="link"
+        className="text-danger"
+        onClick={props.showConfirm(id)}
+        id={"button-rm-invitation-" + doc.key}
+        aria-label={"Remove document " + doc.name}
       >
-        <Button
-          variant="outline-danger"
-          size="sm"
-          onClick={props.showConfirm(id)}
-          id={"button-rm-invitation-" + doc.key}
-        >
-          <FormattedMessage defaultMessage="Remove" key="remove-button" />
-        </Button>
-      </ESTooltip>
-    </div>
+        <FontAwesomeIcon icon={faTrashCan} />
+      </Button>
+    </ESTooltip>
   );
 };
 
 export const removeTemplate = (props, doc) => {
   const id = "confirm-remove-" + doc.name;
   return (
-    <div className="button-remove-flex-item">
-      <ESTooltip
-        helpId={id}
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Remove template"
-            key="template-remove-button-help"
-          />
-        }
+    <ESTooltip
+      helpId={id}
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Remove template"
+          key="template-remove-button-help"
+        />
+      }
+    >
+      <Button
+        variant="link"
+        className="text-danger"
+        onClick={props.showConfirm(id)}
+        id={"button-rm-template-" + doc.name}
+        aria-label={"Remove document " + doc.name}
       >
-        <Button
-          variant="outline-danger"
-          size="sm"
-          onClick={props.showConfirm(id)}
-          id={"button-rm-template-" + doc.name}
-        >
-          <FormattedMessage defaultMessage="Remove" key="remove-button" />
-        </Button>
-      </ESTooltip>
-    </div>
+        <FontAwesomeIcon icon={faTrashCan} />
+      </Button>
+    </ESTooltip>
   );
 };
 export const removeButton = (props, doc) => {
   return (
-    <div className="button-remove-flex-item">
-      <ESTooltip
-        helpId={"rm-button-" + doc.name}
-        tooltip={
-          <FormattedMessage
-            defaultMessage="Discard document"
-            key="button-remove-tootip"
-          />
-        }
+    <ESTooltip
+      helpId={"rm-button-" + doc.name}
+      tooltip={
+        <FormattedMessage
+          defaultMessage="Discard document"
+          key="button-remove-tootip"
+        />
+      }
+    >
+      <Button
+        variant="link"
+        className="text-danger"
+        data-testid={"rm-button-" + doc.name}
+        onClick={props.handleRemove(doc.name)}
+        id={"button-rm-template-" + doc.name}
+        aria-label={"Remove document " + doc.name}
       >
-        <Button
-          variant="outline-danger"
-          size="sm"
-          data-testid={"rm-button-" + doc.name}
-          onClick={props.handleRemove(doc.name)}
-        >
-          <FormattedMessage defaultMessage="Remove" key="remove-button" />
-        </Button>
-      </ESTooltip>
-    </div>
+        <FontAwesomeIcon icon={faTrashCan} />
+      </Button>
+    </ESTooltip>
   );
 };
 

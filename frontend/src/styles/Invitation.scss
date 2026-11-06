@@ -11,90 +11,66 @@
     color: $error-red;
   }
 
-  .name-and-buttons {
-    flex: none;
+  .docname-plus-message {
     display: flex;
+    flex-direction: column;
+    align-items: baseline;
+  }
+
+  .button-dummy-flex-item {
+    flex: none;
+    width: 8rem;
+  }
+
+  .message-flex-item {
+    flex: none;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    color: $error-red;
+  }
+
+  .date-flex-item {
+    flex: none;
+    margin-right: 1rem;
+    color: $darker-dark-grey;
+  }
+
+  .spinner-flex-item {
+    flex: none;
+    width: 2rem;
+    margin-bottom: -2rem;
+  }
+  .spinning-flex-item {
+    flex: none;
+    width: 5rem;
+  }
+
+  .button-preview-flex-item,
+  .button-resend-flex-item,
+  .button-skip-flex-item,
+  .button-download-flex-item,
+  .button-decline-flex-item,
+  .button-dummy-flex-item,
+  .button-edit-invitations-flex-item,
+  .button-forced-preview-flex-item {
+    flex: none;
+  }
+
+  .buttons-flex {
+    flex: 3 1 auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
     flex-wrap: wrap;
-    width: 100%;
+    gap: 0.5rem;
+  }
 
-    .docname-plus-message {
-      display: flex;
-      flex-direction: column;
-      align-items: baseline;
-    }
-
-    .doc-selector-flex-item {
-      flex: none;
-      width: 2rem;
-    }
-
-    .button-dummy-flex-item {
-      flex: none;
-      width: 8rem;
-    }
-
-    .name-flex-item {
-      flex: 5 1 auto;
-    }
-
-    .message-flex-item {
-      flex: none;
-      margin-left: 1rem;
-      margin-right: 1rem;
-      color: $error-red;
-    }
-
-    .size-flex-item {
-      flex: none;
-      margin-right: 1rem;
-      color: $darker-dark-grey;
-    }
-
-    .date-flex-item {
-      flex: none;
-      margin-right: 1rem;
-      color: $darker-dark-grey;
-    }
-
-    .spinner-flex-item {
-      flex: none;
-      width: 2rem;
-      margin-bottom: -2rem;
-    }
-    .spinning-flex-item {
-      flex: none;
-      width: 5rem;
-    }
-
-    .button-preview-flex-item,
-    .button-remove-flex-item,
-    .button-resend-flex-item,
-    .button-skip-flex-item,
-    .button-download-flex-item,
-    .button-decline-flex-item,
-    .button-dummy-flex-item,
-    .button-edit-invitations-flex-item,
-    .button-forced-preview-flex-item {
-      flex: none;
-    }
-
+  // On narrow screens the buttons wrap onto their own line, where they sit
+  // side by side and aligned to the start of the row.
+  @media (max-width: $breakpoint-xl) {
     .buttons-flex {
-      flex: 3 1 auto;
-      display: flex;
-      flex-direction: row;
-      justify-content: flex-end;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    // On narrow screens the buttons wrap onto their own line, where they sit
-    // side by side and aligned to the start of the row.
-    @media (max-width: $breakpoint-xl) {
-      .buttons-flex {
-        flex: 1 0 100%;
-        justify-content: flex-start;
-        margin-top: 0.5rem;
-      }
+      flex: 1 0 100%;
+      justify-content: flex-start;
     }
   }
 }

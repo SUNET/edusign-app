@@ -135,7 +135,7 @@ export const preparePrevSigs = (doc, size) => {
     }
     const sigElems = signatures.map((sig, i) => {
       return (
-        <span className="info-row-item" title={sig.alt} key={i}>
+        <span className="item" title={sig.alt} key={i}>
           {sig.mainVal}
           {i < sigStrs.length - 1 ? "," : "."}
         </span>
@@ -143,34 +143,32 @@ export const preparePrevSigs = (doc, size) => {
     });
     return (
       (doc.prev_signatures && doc.prev_signatures.length > 0 && (
-        <div className="doc-container-info-row" key="-1">
-          <span className="info-row-label">
+        <div className="info-row" key="-1">
+          <span className="label">
             <FormattedMessage
-              defaultMessage="Previously signed by:"
+              defaultMessage="Already signed before upload:"
               key="multisign-owned-prev-signed"
             />
           </span>
-          <span className="info-row-items">{sigElems}</span>
+          {sigElems}
         </div>
       )) ||
       ""
     );
   } catch (err) {
     return (
-      <div className="doc-container-info-row" key="-1">
-        <span className="info-row-label">
+      <div className="info-row" key="-1">
+        <span className="label">
           <FormattedMessage
-            defaultMessage="Previously signed by:"
+            defaultMessage="Already signed before upload:"
             key="multisign-owned-prev-signed"
           />
         </span>
-        <span className="info-row-items">
-          <span className="info-row-item">
-            <FormattedMessage
-              defaultMessage="Unknown"
-              key="multisign-owned-prev-signed-unknown"
-            />
-          </span>
+        <span className="item">
+          <FormattedMessage
+            defaultMessage="Unknown"
+            key="multisign-owned-prev-signed-unknown"
+          />
         </span>
       </div>
     );

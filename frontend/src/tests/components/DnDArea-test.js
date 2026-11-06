@@ -202,8 +202,10 @@ describe("DnDArea Component", function () {
       );
       expect(previewButton.length).toEqual(1);
 
-      rmButton = await waitFor(() => screen.getAllByText("Remove"));
-      expect(rmButton.length).toEqual(1);
+      rmButton = await waitFor(() =>
+        screen.getByRole("button", { name: "Remove document test.pdf" }),
+      );
+      expect(rmButton).toBeInTheDocument();
 
       fetchMock.hardReset();
     } catch (err) {

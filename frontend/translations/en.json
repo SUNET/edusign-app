@@ -129,7 +129,7 @@
   "components.dropdownItems.fillform-button": "Fill form",
   "components.dropdownItems.preview-button": "Preview",
   "components.dropdownItems.resend-invitations-button": "Send reminder",
-  "components.utils.multisign-owned-prev-signed": "Previously signed by:",
+  "components.utils.multisign-owned-prev-signed": "Already signed before upload:",
   "components.utils.multisign-owned-prev-signed-unknown": "Unknown",
   "components.validation.dn-ilegal-chars": "Display name includes ilegal characters.",
   "components.validation.do-no-invite-yourself": "Do not invite yourself",

@@ -24,3 +24,16 @@ button.btn-primary {
     background-color: $dark-orange;
   }
 }
+
+button.btn-link {
+  border-radius: 25px;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition: transform 0.15s ease;
+  }
+
+  &:hover,
+  &:focus {
+    transform: scale(0.9);
+  }
+}

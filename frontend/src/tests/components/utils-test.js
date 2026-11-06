@@ -157,7 +157,9 @@ describe("preparePrevSigs", () => {
       type: "application/pdf",
       prev_signatures: "Common Name: John Doe, Serial Number: 123",
     });
-    expect(screen.getByText("Previously signed by:")).toBeInTheDocument();
+    expect(
+      screen.getByText("Already signed before upload:"),
+    ).toBeInTheDocument();
     const item = screen.getByTitle("Serial Number: 123");
     expect(item.textContent).toEqual("John Doe.");
   });
@@ -214,8 +216,10 @@ describe("preparePrevSigs", () => {
       type: "text/xml",
       prev_signatures: "2.5.4.3=CN",
     });
-    expect(screen.getByText("Previously signed by:")).toBeInTheDocument();
-    expect(container.querySelectorAll(".info-row-item").length).toEqual(0);
+    expect(
+      screen.getByText("Already signed before upload:"),
+    ).toBeInTheDocument();
+    expect(container.querySelectorAll(".item").length).toEqual(0);
   });
 
   it("shows Unknown for signatures it cannot parse", () => {
@@ -223,7 +227,9 @@ describe("preparePrevSigs", () => {
       type: "application/pdf",
       prev_signatures: "garbage",
     });
-    expect(screen.getByText("Previously signed by:")).toBeInTheDocument();
+    expect(
+      screen.getByText("Already signed before upload:"),
+    ).toBeInTheDocument();
     expect(screen.getByText("Unknown")).toBeInTheDocument();
   });
 });

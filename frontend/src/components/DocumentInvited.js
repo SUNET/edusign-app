@@ -94,75 +94,67 @@ class DocumentInvited extends Component {
   render() {
     const doc = this.props.doc;
     const invitedBy = (
-      <div className="doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-row">
+        <span className="label">
           <FormattedMessage defaultMessage="Invited by:" key="invited-by" />
         </span>
-        <span className="info-row-items">
-          <span className="info-row-item">
-            {doc.owner.name} &lt;{doc.owner.email}&gt;.
-          </span>
+        <span className="item">
+          {doc.owner.name} &lt;{doc.owner.email}&gt;.
         </span>
       </div>
     );
     const pending = (
-      <div className="doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Waiting for signatures by:"
             key="multisign-owned-waiting"
           />
         </span>
-        <span className="info-row-items">
-          {doc.pending.map((invite, index) => {
-            return (
-              <span className="info-row-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;{" "}
-                {index < doc.pending.length - 1 ? "," : "."}
-              </span>
-            );
-          })}
-        </span>
+        {doc.pending.map((invite, index) => {
+          return (
+            <span className="item" key={index}>
+              {invite.name} &lt;{invite.email}&gt;{" "}
+              {index < doc.pending.length - 1 ? "," : "."}
+            </span>
+          );
+        })}
       </div>
     );
     const signed = (
-      <div className="doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Signed by:"
             key="multisign-signed"
           />
         </span>
-        <span className="info-row-items">
-          {doc.signed.map((invite, index) => {
-            return (
-              <span className="info-row-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;{" "}
-                {index < doc.signed.length - 1 ? "," : "."}
-              </span>
-            );
-          })}
-        </span>
+        {doc.signed.map((invite, index) => {
+          return (
+            <span className="item" key={index}>
+              {invite.name} &lt;{invite.email}&gt;{" "}
+              {index < doc.signed.length - 1 ? "," : "."}
+            </span>
+          );
+        })}
       </div>
     );
     const declined = (
-      <div className="doc-container-info-row">
-        <span className="info-row-label">
+      <div className="info-row">
+        <span className="label">
           <FormattedMessage
             defaultMessage="Declined to sign by:"
             key="multisign-owned-declined"
           />
         </span>
-        <span className="info-row-items">
-          {doc.declined.map((invite, index) => {
-            return (
-              <span className="info-row-item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;{" "}
-                {index < doc.declined.length - 1 ? "," : "."}
-              </span>
-            );
-          })}
-        </span>
+        {doc.declined.map((invite, index) => {
+          return (
+            <span className="item" key={index}>
+              {invite.name} &lt;{invite.email}&gt;{" "}
+              {index < doc.declined.length - 1 ? "," : "."}
+            </span>
+          );
+        })}
       </div>
     );
     const invites = (
@@ -189,12 +181,14 @@ class DocumentInvited extends Component {
           data-testid={`representation-for-doc-${doc.key}`}
         >
           <div className="doc-detail-block">
-            <div className="name-and-buttons" id={"invitee-doc-" + doc.key}>
+            <div id={"invitee-doc-" + doc.key}>
               {doc.state === "unconfirmed" && (
                 <>
-                  {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
-                  {widgets.docName(doc)}
+                  <div className="select-column">
+                    {widgets.dummySelectDoc()}
+                    {widgets.docName(doc)}
+                    {widgets.docSize(doc)}
+                  </div>
                   <ESDropdown doc={doc}>
                     {menu.downloadDraftMenuItem(this.props, doc)}
                   </ESDropdown>
@@ -204,9 +198,11 @@ class DocumentInvited extends Component {
               )}
               {["loaded", "selected", "failed-signing"].includes(doc.state) && (
                 <>
-                  {widgets.selectDoc(this.props, doc)}
-                  {widgets.docSize(doc)}
-                  {widgets.docName(doc)}
+                  <div className="select-column">
+                    {widgets.selectDoc(this.props, doc)}
+                    {widgets.docName(doc)}
+                    {widgets.docSize(doc)}
+                  </div>
                   {widgets.showMessage(doc)}
                   <ESDropdown doc={doc}>
                     {menu.previewMenuItem(this.props, doc)}
@@ -219,39 +215,43 @@ class DocumentInvited extends Component {
                 </>
               )}
               {doc.state === "signing" && (
-                <>
+                <div className="select-column">
                   {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
                   {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
                   {widgets.namedSpinner(doc.key, "signing")}
-                </>
+                </div>
               )}
               {doc.state === "signed" && (
                 <>
-                  {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
-                  {widgets.docName(doc)}
+                  <div className="select-column">
+                    {widgets.dummySelectDoc()}
+                    {widgets.docName(doc)}
+                    {widgets.docSize(doc)}
+                  </div>
                   {widgets.downloadDraftButton(this.props, doc)}
                 </>
               )}
               {doc.state === "declined" && (
                 <>
-                  {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
-                  {widgets.docName(doc)}
-                  {widgets.showMessage(doc)}
+                  <div className="select-column">
+                    {widgets.dummySelectDoc()}
+                    {widgets.docName(doc)}
+                    {widgets.docSize(doc)}
+                    {widgets.showMessage(doc)}
+                  </div>
                   {widgets.dummyButton()}
                 </>
               )}
               {doc.state === "failed-loa" && (
-                <>
+                <div className="select-column">
                   {widgets.dummySelectDoc()}
-                  {widgets.docSize(doc)}
                   {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
                   <div className="buttons-flex">
                     {widgets.declineSignatureButton(this.props, doc)}
                   </div>
-                </>
+                </div>
               )}
             </div>
             {failedLoA}
