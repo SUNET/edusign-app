@@ -235,37 +235,35 @@ class InviteForm extends React.Component {
     const newNameControl = (props, fprops) => {
       if (props.isTemplate) {
         return (
-          <>
-            <div className="newname-text-holder">
-              <BForm.Group className="newname-text-group form-group">
-                <BForm.Label
-                  className="newname-text-label"
-                  htmlFor="newnameInput"
-                >
-                  <FormattedMessage
-                    defaultMessage="New name for document to send for signatures:"
-                    key="newname-text-field"
-                  />
-                </BForm.Label>
-                {requiredField("newname")}
-                <Field
-                  name="newnameInput"
-                  data-testid="newnameInput"
-                  as={BForm.Control}
-                  type="text"
-                  aria-required="true"
-                  validate={validateNewname(props)}
-                  isValid={!fprops.errors.newnameInput}
-                  isInvalid={!props.inviting && fprops.errors.newnameInput}
+          <div className="newname-text-holder">
+            <BForm.Group className="newname-text-group form-group">
+              <BForm.Label
+                className="newname-text-label"
+                htmlFor="newnameInput"
+              >
+                <FormattedMessage
+                  defaultMessage="New name for document to send for signatures:"
+                  key="newname-text-field"
                 />
-                <ErrorMessage
-                  name="newnameInput"
-                  component="div"
-                  className="field-error"
-                />
-              </BForm.Group>
-            </div>
-          </>
+              </BForm.Label>
+              {requiredField("newname")}
+              <Field
+                name="newnameInput"
+                data-testid="newnameInput"
+                as={BForm.Control}
+                type="text"
+                aria-required="true"
+                validate={validateNewname(props)}
+                isValid={!fprops.errors.newnameInput}
+                isInvalid={!props.inviting && fprops.errors.newnameInput}
+              />
+              <ErrorMessage
+                name="newnameInput"
+                component="div"
+                className="field-error"
+              />
+            </BForm.Group>
+          </div>
         );
       } else {
         return <Field name="newnameInput" value="" type="hidden" />;
@@ -287,7 +285,6 @@ class InviteForm extends React.Component {
             <Modal
               show={this.props.show}
               onHide={this.props.handleCloseResetting(fprops.resetForm)}
-              size={this.props.size}
               keyboard={false}
             >
               <Form id={formId} data-testid={formId}>

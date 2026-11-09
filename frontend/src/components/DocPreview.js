@@ -52,65 +52,63 @@ function DocPreview(props) {
   }
 
   return (
-    <>
-      <Modal
-        show={props.doc.show}
-        onHide={props.handleClose(props.doc.name)}
-        size="lg"
-        centered
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{props.doc.name}</Modal.Title>
-        </Modal.Header>
+    <Modal
+      show={props.doc.show}
+      onHide={props.handleClose(props.doc.name)}
+      size="lg"
+      centered
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>{props.doc.name}</Modal.Title>
+      </Modal.Header>
 
-        <Modal.Body>
-          <Document
-            file={docFile}
-            onLoadSuccess={onDocumentLoadSuccess}
-            onPassword={(c) => {
-              throw new Error("Never password");
-            }}
-            options={documentOptions}
-          >
-            {(props.width < 550 && (
-              <Page
-                pageNumber={pageNumber}
-                width={props.width - 20}
-                renderInteractiveForms={false}
-                renderAnnotationLayer={true}
-              />
-            )) || (
-              <Page
-                pageNumber={pageNumber}
-                renderInteractiveForms={false}
-                renderAnnotationLayer={true}
-              />
-            )}
-          </Document>
-        </Modal.Body>
-
-        <Modal.Footer>
-          <div className="pdf-navigation">
-            <Pagination
-              numPages={numPages}
+      <Modal.Body>
+        <Document
+          file={docFile}
+          onLoadSuccess={onDocumentLoadSuccess}
+          onPassword={(c) => {
+            throw new Error("Never password");
+          }}
+          options={documentOptions}
+        >
+          {(props.width < 550 && (
+            <Page
               pageNumber={pageNumber}
-              firstPage={firstPage}
-              previousPage={previousPage}
-              nextPage={nextPage}
-              lastPage={lastPage}
-              index={props.index}
+              width={props.width - 20}
+              renderInteractiveForms={false}
+              renderAnnotationLayer={true}
             />
-          </div>
-          <Button
-            variant="outline-secondary"
-            onClick={props.handleClose(props.doc.name)}
-            data-testid={"preview-button-close-" + props.doc.name}
-          >
-            <FormattedMessage defaultMessage="Close" key="button-close" />
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </>
+          )) || (
+            <Page
+              pageNumber={pageNumber}
+              renderInteractiveForms={false}
+              renderAnnotationLayer={true}
+            />
+          )}
+        </Document>
+      </Modal.Body>
+
+      <Modal.Footer>
+        <div className="pdf-navigation">
+          <Pagination
+            numPages={numPages}
+            pageNumber={pageNumber}
+            firstPage={firstPage}
+            previousPage={previousPage}
+            nextPage={nextPage}
+            lastPage={lastPage}
+            index={props.index}
+          />
+        </div>
+        {/* <Button
+          variant="outline-secondary"
+          onClick={props.handleClose(props.doc.name)}
+          data-testid={"preview-button-close-" + props.doc.name}
+        >
+          <FormattedMessage defaultMessage="Close" key="button-close" />
+        </Button> */}
+      </Modal.Footer>
+    </Modal>
   );
 }
 
