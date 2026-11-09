@@ -301,6 +301,31 @@ def test_get_invitations_medium_no_loa(
     assert invitations['pending_multisign'][0]['state'] == 'failed-loa'
 
 
+def test_get_invitations_low_no_registration_authority_no_loa(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    # IdP without Md-Registrationauthority: the default LoAs apply
+    no_ra_headers = {k: v for k, v in headers.items() if k not in ('Md-Registrationauthority', 'Edupersonassurance-20')}
+    invitation_flags[1] = 'low'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, no_ra_headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'failed-loa'
+
+
+def test_get_invitations_low_no_registration_authority_refeds_low(
+    environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1, sample_owner_1, sample_invites_1
+):
+    # IdP without Md-Registrationauthority, REFEDS IAP/low
+    no_ra_headers = {k: v for k, v in headers.items() if k != 'Md-Registrationauthority'}
+    no_ra_headers['Edupersonassurance-20'] = 'PG5zMTpBdHRyaWJ1dGVWYWx1ZSB4bWxuczpuczE9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIHhtbG5zOnhzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYSIgeG1sbnM6eHNpPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIgeHNpOnR5cGU9InhzOnN0cmluZyI+aHR0cHM6Ly9yZWZlZHMub3JnL2Fzc3VyYW5jZS9JQVAvbG93PC9uczE6QXR0cmlidXRlVmFsdWU+'
+    invitation_flags[1] = 'low'
+    invitations = _test_get_invitations_loa(environ_base, app_and_client, doc_store_local_sqlite, sample_doc_1,
+                                            sample_owner_1, sample_invites_1, no_ra_headers, invitation_flags)
+
+    assert invitations['pending_multisign'][0]['state'] == 'unconfirmed'
+
+
 def _test_sign_personal(
     environ_base, app_and_client, sample_doc_1, headers
 ):

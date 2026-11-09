@@ -340,7 +340,13 @@ def get_invitations(remove_finished=False, invite_key=''):
         doc['loa'] = f"{loa},{display_levels[loa]}"
         if loa != 'none' and not is_eid_session():
             required_level = levels[loa]
-            required_loa = current_app.config['AVAILABLE_LOAS'][session['registrationAuthority']][required_level]
+            # the IdP may come without a registration authority (no
+            # Md-Registrationauthority header); fall back to the default LoAs,
+            # as `APIClient._get_sign_request_data` does
+            available_loas = current_app.config['AVAILABLE_LOAS']
+            required_loa = available_loas.get(session['registrationAuthority'], available_loas['default'])[
+                required_level
+            ]
             if required_loa not in session['eduPersonAssurance']:
                 doc['state'] = 'failed-loa'
                 doc['message'] = gettext("You do not fullfil required assurance level for your user account")
