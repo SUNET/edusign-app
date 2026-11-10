@@ -33,6 +33,11 @@ http://sp.edusign.docker/sign2/ for the second. The two can invite
 each other. Use that name, not localhost: the session cookie is set
 for it, and the browser drops it on any other host.
 
+To test invitations to users outside the institutions allowed to initiate
+signing processes, in the [docker compose file](../docker-compose-dev.yml),
+uncomment the line containing `USER_BLACKLIST=kujih-bakik@eduid.se`, this will
+simulate that the user under `/sign2/` is in a disallowed institution.
+
 `make dev-env-stop` removes the containers. The fake API keeps its
 documents in memory, so a restart empties them; the backend's sqlite
 database and uploaded files live inside the `www` container and go

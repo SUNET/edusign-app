@@ -41,6 +41,7 @@ services:
       - "APP_IN_TWO_PATHS=True"
       - "EDUSIGN_API_BASE_URL=http://fakeapi:8080/v1/"
       - "VALIDATOR_API_BASE_URL=http://fakeapi:8080/"
+      #- "USER_BLACKLIST=kujih-bakik@eduid.se"
     depends_on:
       - fakeapi
 
