@@ -34,6 +34,7 @@ from importlib import import_module
 from typing import Callable, Optional
 
 from flask import Flask, current_app, request
+from flask.sessions import SecureCookieSessionInterface
 from flask_babel import Babel
 from flask_cors import CORS
 from flask_mailman import Mail
@@ -51,6 +52,20 @@ def get_locale():
     if 'lang' in request.cookies:
         return request.cookies.get('lang')
     return request.accept_languages.best_match(app.config.get('SUPPORTED_LANGUAGES'))
+
+
+class TwoPathsSessionInterface(SecureCookieSessionInterface):
+    """
+    Session interface for `APP_IN_TWO_PATHS`. Requests under `/sign2` get
+    the session cookie with path `/sign2`, the rest with the configured
+    `SESSION_COOKIE_PATH`. The browser then keeps the two sessions apart,
+    see docker/dev-env-notes.md.
+    """
+
+    def get_cookie_path(self, app: Flask) -> str:
+        if request.path.startswith('/sign2'):
+            return '/sign2'
+        return super().get_cookie_path(app)
 
 
 class EduSignApp(Flask):
@@ -93,6 +108,7 @@ class EduSignApp(Flask):
             from edusign_webapp.views import edusign_views2
 
             self.register_blueprint(edusign_views2)
+            self.session_interface = TwoPathsSessionInterface()
 
 
 def edusign_init_app(name: str, config: Optional[dict] = None) -> EduSignApp:

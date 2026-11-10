@@ -68,6 +68,22 @@ def test_app_in_two_paths_registers_second_blueprint():
     assert 'edusign2' in app.blueprints
 
 
+def test_app_in_two_paths_session_cookie_path():
+    config = copy(config_dev)
+    config['APP_IN_TWO_PATHS'] = True
+    app = run.edusign_init_app('testing', config)
+    with app.test_request_context('/sign2/config'):
+        assert app.session_interface.get_cookie_path(app) == '/sign2'
+    with app.test_request_context('/sign/config'):
+        assert app.session_interface.get_cookie_path(app) == app.config['SESSION_COOKIE_PATH']
+
+
+def test_app_in_one_path_default_session_cookie_path():
+    app = run.edusign_init_app('testing', copy(config_dev))
+    with app.test_request_context('/sign2/config'):
+        assert app.session_interface.get_cookie_path(app) == app.config['SESSION_COOKIE_PATH']
+
+
 def test_app_logger_level_from_config():
     config = copy(config_dev)
     config['LOG_LEVEL'] = 'WARNING'
