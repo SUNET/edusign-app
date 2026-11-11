@@ -202,14 +202,12 @@ class DocumentInvited extends Component {
                 {widgets.selectDoc(this.props, doc)}
                 {widgets.docName(doc)}
                 {widgets.docSize(doc)}
-
                 {widgets.showMessage(doc)}
                 <div className="buttons-flex">
                   <ESDropdown doc={doc}>
                     {menu.previewMenuItem(this.props, doc)}
                     {menu.downloadDraftMenuItem(this.props, doc)}
                   </ESDropdown>
-
                   {doc.state === "selected" &&
                     (this.props.using_bankid || this.props.using_freja) &&
                     widgets.signButton(this.props, doc)}
