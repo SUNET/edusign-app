@@ -21,6 +21,7 @@
   "components.DnDArea.dnd-area-head-sm": "Toca para elegir archivos",
   "components.DnDArea.dnd-area-lead": "Puedes subir documentos PDF y XML.",
   "components.DnDArea.heading-1": "Añadir documentos para firmar",
+  "components.DocManager.invited-multisign-lead-text": "Has sido invitado a firmar estos documentos. Necesitas revisar y aprobar cada documento antes de poder firmarlo.",
   "components.DocManager.invited-multisign-legend": "Documentos que has sido invitado a firmar",
   "components.DocManager.invited-unauthn-title": "Te han invitado a firmar los siguientes documento(s)",
   "components.DocManager.local-invited-legend-title": "",
