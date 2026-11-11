@@ -210,27 +210,27 @@ function DocManager(props: Readonly<DocManagerProps>) {
   return (
     <>
       {unauthn && invitedUnauthn && (
-        <div className="invited-unauthn-title">
+        <h1>
           <FormattedMessage
             defaultMessage="You have been invited to sign the following document(s)"
             key="invited-unauthn-title"
           />
-        </div>
+        </h1>
       )}
       {unauthn && !invitedUnauthn && (
         <>
-          <div className="invited-unauthn-title">
+          <h1>
             <FormattedMessage
               defaultMessage="No documents to sign"
               key="unauthn-title"
             />
-          </div>
-          <div className="invited-unauthn-text">
+          </h1>
+          <p className="lead-text">
             <FormattedMessage
               defaultMessage="You are currently not invited to sign any documents. The organization/identity provider you are affiliated with does not have permission to upload your own documents into eduSign to sign. Please contact your IT-department if you would like to be able to sign your own documents or invite others to sign your documents."
               key="unauthn-text"
             />
-          </div>
+          </p>
         </>
       )}
       {/* The groups that need action come first: documents the user is
@@ -241,10 +241,18 @@ function DocManager(props: Readonly<DocManagerProps>) {
         <fieldset className="invited-multisign-container">
           {(!using_bankid && !using_freja && (
             <legend data-testid="legend-invited">
-              <FormattedMessage
-                defaultMessage="Documents you are invited to sign"
-                key="invited-multisign-legend"
-              />
+              <h2 className="heading">
+                <FormattedMessage
+                  defaultMessage="Documents you are invited to sign"
+                  key="invited-multisign-legend"
+                />
+              </h2>
+              <p className="lead-text">
+                <FormattedMessage
+                  defaultMessage="You have been invited to sign these documents. You need to review and approve each document before you can sign it."
+                  key="invited-multisign-lead-text"
+                />
+              </p>
             </legend>
           )) ||
             (pending[0].state === "signed" && (

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { injectIntl } from "init-app/intl";
@@ -180,80 +180,83 @@ class DocumentInvited extends Component {
           className={"doc-flex-container " + doc.state}
           data-testid={`representation-for-doc-${doc.key}`}
         >
-          <div className="doc-detail-block">
-            <div id={"invitee-doc-" + doc.key}>
-              {doc.state === "unconfirmed" && (
-                <>
-                  <div className="select-column">
-                    {widgets.dummySelectDoc()}
-                    {widgets.docName(doc)}
-                    {widgets.docSize(doc)}
-                  </div>
-                  <ESDropdown doc={doc}>
-                    {menu.downloadDraftMenuItem(this.props, doc)}
-                  </ESDropdown>
-                  {widgets.forcedPreviewButton(this.props, doc)}
-                  {widgets.declineSignatureButton(this.props, doc)}
-                </>
-              )}
-              {["loaded", "selected", "failed-signing"].includes(doc.state) && (
-                <>
-                  <div className="select-column">
-                    {widgets.selectDoc(this.props, doc)}
-                    {widgets.docName(doc)}
-                    {widgets.docSize(doc)}
-                  </div>
-                  {widgets.showMessage(doc)}
-                  <ESDropdown doc={doc}>
-                    {menu.previewMenuItem(this.props, doc)}
-                    {menu.downloadDraftMenuItem(this.props, doc)}
-                  </ESDropdown>
-                  {doc.state === "selected" &&
-                    (this.props.using_bankid || this.props.using_freja) &&
-                    widgets.signButton(this.props, doc)}
-                  {widgets.declineSignatureButton(this.props, doc)}
-                </>
-              )}
-              {doc.state === "signing" && (
-                <div className="select-column">
-                  {widgets.dummySelectDoc()}
-                  {widgets.docName(doc)}
-                  {widgets.docSize(doc)}
-                  {widgets.namedSpinner(doc.key, "signing")}
-                </div>
-              )}
-              {doc.state === "signed" && (
-                <>
-                  <div className="select-column">
-                    {widgets.dummySelectDoc()}
-                    {widgets.docName(doc)}
-                    {widgets.docSize(doc)}
-                  </div>
-                  {widgets.downloadDraftButton(this.props, doc)}
-                </>
-              )}
-              {doc.state === "declined" && (
-                <>
-                  <div className="select-column">
-                    {widgets.dummySelectDoc()}
-                    {widgets.docName(doc)}
-                    {widgets.docSize(doc)}
-                    {widgets.showMessage(doc)}
-                  </div>
-                  {widgets.dummyButton()}
-                </>
-              )}
-              {doc.state === "failed-loa" && (
+          <div className="doc-detail-block" id={"invitee-doc-" + doc.key}>
+            {doc.state === "unconfirmed" && (
+              <>
                 <div className="select-column">
                   {widgets.dummySelectDoc()}
                   {widgets.docName(doc)}
                   {widgets.docSize(doc)}
                   <div className="buttons-flex">
+                    <ESDropdown doc={doc}>
+                      {menu.downloadDraftMenuItem(this.props, doc)}
+                    </ESDropdown>
+                    {widgets.forcedPreviewButton(this.props, doc)}
                     {widgets.declineSignatureButton(this.props, doc)}
                   </div>
                 </div>
-              )}
-            </div>
+              </>
+            )}
+            {["loaded", "selected", "failed-signing"].includes(doc.state) && (
+              <div className="select-column">
+                {widgets.selectDoc(this.props, doc)}
+                {widgets.docName(doc)}
+                {widgets.docSize(doc)}
+
+                {widgets.showMessage(doc)}
+                <div className="buttons-flex">
+                  <ESDropdown doc={doc}>
+                    {menu.previewMenuItem(this.props, doc)}
+                    {menu.downloadDraftMenuItem(this.props, doc)}
+                  </ESDropdown>
+
+                  {doc.state === "selected" &&
+                    (this.props.using_bankid || this.props.using_freja) &&
+                    widgets.signButton(this.props, doc)}
+                  {widgets.declineSignatureButton(this.props, doc)}
+                </div>
+              </div>
+            )}
+            {doc.state === "signing" && (
+              <div className="select-column">
+                {widgets.dummySelectDoc()}
+                {widgets.docName(doc)}
+                {widgets.docSize(doc)}
+                {widgets.namedSpinner(doc.key, "signing")}
+              </div>
+            )}
+            {doc.state === "signed" && (
+              <div className="select-column">
+                {widgets.dummySelectDoc()}
+                {widgets.docName(doc)}
+                {widgets.docSize(doc)}
+                <div className="buttons-flex">
+                  {widgets.downloadDraftButton(this.props, doc)}
+                </div>
+              </div>
+            )}
+            {doc.state === "declined" && (
+              <>
+                <div className="select-column">
+                  {widgets.dummySelectDoc()}
+                  {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
+                  {widgets.showMessage(doc)}
+                  <div className="buttons-flex">{widgets.dummyButton()}</div>
+                </div>
+              </>
+            )}
+            {doc.state === "failed-loa" && (
+              <div className="select-column">
+                {widgets.dummySelectDoc()}
+                {widgets.docName(doc)}
+                {widgets.docSize(doc)}
+                <div className="buttons-flex">
+                  {widgets.declineSignatureButton(this.props, doc)}
+                </div>
+              </div>
+            )}
+
             {failedLoA}
             {invites}
             {preparePrevSigs(doc, this.props.size)}

@@ -38,13 +38,17 @@ class Main extends Component {
           <main id="main-content">
             {!this.props.unauthn &&
               !this.props.using_freja &&
-              !this.props.using_bankid && <DnDArea />}
-            <p id="contact-local-it-msg" className="help-text">
-              <FormattedMessage
-                defaultMessage="If you experience problems with eduSign contact your local IT-support"
-                key="contact-local-it-msg"
-              />
-            </p>
+              !this.props.using_bankid && (
+                <>
+                  <DnDArea />
+                  <p id="contact-local-it-msg" className="help-text">
+                    <FormattedMessage
+                      defaultMessage="If you experience problems with eduSign contact your local IT-support"
+                      key="contact-local-it-msg"
+                    />
+                  </p>
+                </>
+              )}
             <DocManagerContainer />
           </main>
           <Footer />
