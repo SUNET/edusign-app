@@ -21,6 +21,7 @@
   "components.DnDArea.dnd-area-head-sm": "Tap to choose files",
   "components.DnDArea.dnd-area-lead": "You can upload PDF and XML documents.",
   "components.DnDArea.heading-1": "Add documents to sign",
+  "components.DocManager.invited-multisign-lead-text": "You have been invited to sign these documents. You need to review and approve each document before you can sign it.",
   "components.DocManager.invited-multisign-legend": "Documents you are invited to sign",
   "components.DocManager.invited-unauthn-title": "You have been invited to sign the following document(s)",
   "components.DocManager.local-invited-legend-title": "The draft document can be downloaded now, but will disappear when this window is closed. The fully signed document will be available from the person who invited the signature.",

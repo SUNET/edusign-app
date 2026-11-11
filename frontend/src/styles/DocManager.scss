@@ -22,35 +22,29 @@
     color: $darker-dark-grey;
   }
 
-  .buttons-flex {
-    flex: 3 1 auto;
-    display: flex;
-    justify-content: flex-end;
-
-    .spinner-flex-item {
-      flex: none;
-      width: 2rem;
-      margin-bottom: -2rem;
-    }
-    .spinning-flex-item {
-      flex: none;
-      width: 5rem;
-    }
-    .button-forced-preview-flex-item,
-    .button-preview-flex-item,
-    .button-resend-flex-item,
-    .button-remove-flex-item,
-    .button-retry-flex-item,
-    .button-download-flex-item,
-    .button-create-template-flex-item,
-    .button-decline-flex-item,
-    .button-skip-flex-item,
-    .button-edit-invitations-flex-item,
-    .button-multisign-flex-item {
-      flex: none;
-      button {
-        padding: inherit 0.5rem;
-      }
+  .spinner-flex-item {
+    flex: none;
+    width: 2rem;
+    margin-bottom: -2rem;
+  }
+  .spinning-flex-item {
+    flex: none;
+    width: 5rem;
+  }
+  .button-forced-preview-flex-item,
+  .button-preview-flex-item,
+  .button-resend-flex-item,
+  .button-remove-flex-item,
+  .button-retry-flex-item,
+  .button-download-flex-item,
+  .button-create-template-flex-item,
+  .button-decline-flex-item,
+  .button-skip-flex-item,
+  .button-edit-invitations-flex-item,
+  .button-multisign-flex-item {
+    flex: none;
+    button {
+      padding: inherit 0.5rem;
     }
   }
 }
@@ -203,7 +197,7 @@ legend {
   float: unset;
 }
 
-div.invited-unauthn-title {
+h1 {
   font-size: 2rem;
   margin-top: 3rem;
   margin-bottom: 4rem;

@@ -21,6 +21,7 @@
   "components.DnDArea.dnd-area-head-sm": "Tryck för att välja filer",
   "components.DnDArea.dnd-area-lead": "Du kan ladda upp PDF- och XML-dokument.",
   "components.DnDArea.heading-1": "Lägg till dokument att signera",
+  "components.DocManager.invited-multisign-lead-text": "Du har blivit inbjuden att signera dessa dokument. Du behöver granska och godkänna varje dokument innan du kan signera det.",
   "components.DocManager.invited-multisign-legend": "Dokument du är inbjuden att signera",
   "components.DocManager.invited-unauthn-title": "Du har blivit inbjuden att signera nedan dokument",
   "components.DocManager.local-invited-legend-title": "Dokumentutkastet kan laddas ner nu, men försvinner när detta fönster stängs. Det färdiga dokumentet finns hos den som bjöd in till signatur",
