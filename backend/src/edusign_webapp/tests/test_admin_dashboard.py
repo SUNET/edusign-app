@@ -330,10 +330,12 @@ class _DavResponse:
         self.text = ''
 
 
-def _nextcloud(client, monkeypatch, statuses):
+def _nextcloud(client, monkeypatch, statuses, share_token=''):
     client.application.config.update(
         {
             'NEXTCLOUD_URL': 'https://cloud.example.se',
+            'NEXTCLOUD_SHARE_TOKEN': share_token,
+            'NEXTCLOUD_SHARE_PASSWORD': 'share-pw' if share_token else '',
             'NEXTCLOUD_USER': 'billing',
             'NEXTCLOUD_PASSWORD': 'app-pw',
             'NEXTCLOUD_FOLDER': 'eid-reports',
@@ -392,6 +394,28 @@ def test_eid_usage_report_to_nextcloud_failure(client, monkeypatch, statuses, me
     assert response.status == '502 BAD GATEWAY'
     assert response.data == message
     assert len(calls) == len(statuses)
+
+
+def test_eid_usage_report_to_nextcloud_share(client, monkeypatch):
+    _add_signatures(client, 'sunet.se', 'bankid', 5, timestamp=1752000000000)
+    calls = _nextcloud(client, monkeypatch, [201], share_token='9iklasefipuhsiou')
+
+    response = client.post('/admin/eid-signatures-report-to-nextcloud', data={'year': '2025', 'month': '7'})
+    assert response.status == '200 OK'
+    assert response.data == b'Stored eid-usage-2025-07.txt in the Nextcloud share\n'
+    assert [(c[0], c[1], c[3]) for c in calls] == [
+        ('PUT', 'https://cloud.example.se/public.php/webdav/eid-usage-2025-07.txt', ('9iklasefipuhsiou', 'share-pw')),
+    ]
+    assert calls[0][2].decode().splitlines()[2] == 'Report on eID usage for July 2025'
+
+
+def test_eid_usage_report_to_nextcloud_share_failure(client, monkeypatch):
+    calls = _nextcloud(client, monkeypatch, [403], share_token='9iklasefipuhsiou')
+
+    response = client.post('/admin/eid-signatures-report-to-nextcloud', data={'year': '2025', 'month': '7'})
+    assert response.status == '502 BAD GATEWAY'
+    assert response.data == b'Nextcloud answered 403 to PUT of eid-usage-2025-07.txt'
+    assert len(calls) == 1
 
 
 def test_eid_usage_report_to_nextcloud_bad_parameters(client, monkeypatch):

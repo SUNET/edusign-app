@@ -226,9 +226,12 @@ EID_BASE_PRICE = Decimal(os.environ.get('EID_BASE_PRICE', default='0'))
 EXTRA_EID_COST = Decimal(os.environ.get('EXTRA_EID_COST', default='0'))
 
 # Nextcloud instance where the admin dashboard can store the eID usage
-# report, over WebDAV with an app password. Empty URL: the option is not
-# offered.
+# report, over WebDAV. Empty URL: the option is not offered. With a share
+# token, the report goes to that public (file drop) share; otherwise to
+# the folder of the user, with an app password.
 NEXTCLOUD_URL = os.environ.get('NEXTCLOUD_URL', default='').rstrip('/')
+NEXTCLOUD_SHARE_TOKEN = os.environ.get('NEXTCLOUD_SHARE_TOKEN', default='')
+NEXTCLOUD_SHARE_PASSWORD = os.environ.get('NEXTCLOUD_SHARE_PASSWORD', default='')
 NEXTCLOUD_USER = os.environ.get('NEXTCLOUD_USER', default='')
 NEXTCLOUD_PASSWORD = os.environ.get('NEXTCLOUD_PASSWORD', default='')
 NEXTCLOUD_FOLDER = os.environ.get('NEXTCLOUD_FOLDER', default='eid-reports').strip('/')
