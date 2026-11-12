@@ -420,7 +420,8 @@ def eid_signatures_report_to_nextcloud():
     `year` and `month`, see `_eid_usage_report`, in the Nextcloud
     instance at NEXTCLOUD_URL, over WebDAV. With NEXTCLOUD_SHARE_TOKEN,
     the file is PUT into that public (file drop) share, the token as
-    username and NEXTCLOUD_SHARE_PASSWORD as password. Otherwise it goes
+    username and NEXTCLOUD_SHARE_PASSWORD as password; a repeated name is
+    renamed by Nextcloud's file drop plugin. Otherwise it goes
     to the folder NEXTCLOUD_FOLDER of NEXTCLOUD_USER; the folder is
     created if it does not exist (MKCOL answers 405 when it does), and
     the file is overwritten if it exists.
@@ -436,8 +437,9 @@ def eid_signatures_report_to_nextcloud():
     config = current_app.config
     if config['NEXTCLOUD_SHARE_TOKEN']:
         where = "the Nextcloud share"
-        auth = (config['NEXTCLOUD_SHARE_TOKEN'], config['NEXTCLOUD_SHARE_PASSWORD'])
-        steps = (('PUT', f"{config['NEXTCLOUD_URL']}/public.php/webdav/{filename}", text.encode('utf-8'), (201, 204)),)
+        token = config['NEXTCLOUD_SHARE_TOKEN']
+        auth = (token, config['NEXTCLOUD_SHARE_PASSWORD'])
+        steps = (('PUT', f"{config['NEXTCLOUD_URL']}/public.php/dav/files/{token}/{filename}", text.encode('utf-8'), (201, 204)),)
     else:
         folder = config['NEXTCLOUD_FOLDER']
         where = f"the Nextcloud folder {folder}"

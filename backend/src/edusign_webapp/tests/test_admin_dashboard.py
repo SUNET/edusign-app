@@ -404,7 +404,7 @@ def test_eid_usage_report_to_nextcloud_share(client, monkeypatch):
     assert response.status == '200 OK'
     assert response.data == b'Stored eid-usage-2025-07.txt in the Nextcloud share\n'
     assert [(c[0], c[1], c[3]) for c in calls] == [
-        ('PUT', 'https://cloud.example.se/public.php/webdav/eid-usage-2025-07.txt', ('9iklasefipuhsiou', 'share-pw')),
+        ('PUT', 'https://cloud.example.se/public.php/dav/files/9iklasefipuhsiou/eid-usage-2025-07.txt', ('9iklasefipuhsiou', 'share-pw')),
     ]
     assert calls[0][2].decode().splitlines()[2] == 'Report on eID usage for July 2025'
 
