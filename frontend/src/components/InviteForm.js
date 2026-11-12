@@ -368,7 +368,8 @@ class InviteForm extends React.Component {
                     }
                   >
                     <Button
-                      variant="outline-success"
+                      variant="primary"
+                      size="lg"
                       onClick={fprops.submitForm}
                       id={"button-send-invites-" + this.props.docName}
                       disabling={true}
