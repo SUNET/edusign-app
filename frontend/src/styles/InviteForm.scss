@@ -3,11 +3,10 @@
 .invitation-fields {
   display: flex;
   flex-direction: column;
-  margin-right: 1rem;
-  margin-left: 1rem;
   margin-bottom: 1rem;
-  border: 1px solid $orange-opaque;
-  border-radius: 2px;
+  border: 1px solid $dark-gray;
+  border-radius: 8px;
+  background-color: $light-gray;
 
   .invite-header {
     display: flex;
@@ -68,11 +67,6 @@
     }
     .invitee-form-eid {
       grid-column: 1 / -1;
-
-      .alloweid-choice-group {
-        margin-left: 0;
-        margin-right: 0;
-      }
     }
 
     .invitee-form-name,
@@ -106,8 +100,6 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-right: 10%;
-  margin-left: 10%;
 
   .invitation-text-label {
     align-self: flex-start;
@@ -137,8 +129,6 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  margin-right: 10%;
-  margin-left: 10%;
 
   .sendsigned-choice-label,
   .skipfinal-choice-label,
@@ -194,9 +184,6 @@
 }
 
 .newname-text-group {
-  margin-right: 10%;
-  margin-left: 10%;
-
   .required-field-mark {
     color: $error-red;
   }
@@ -212,16 +199,13 @@
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  align-items: baseline;
-  margin-right: 10%;
-  margin-left: 10%;
+  align-items: center;
 
   #loa-select-input {
     width: auto;
   }
 
   .loa-select-label {
-    margin-bottom: 1rem;
     margin-right: 1rem;
     display: flex;
     flex-direction: column;
@@ -269,13 +253,12 @@
     .invitee-form-row,
     .invitee-form-row.with-ssn {
       padding-left: 2px;
-      margin: 0;
       grid-template-columns: 1fr;
       grid-template-areas:
         "name"
         "email"
-        "ssn"
-        "lang";
+        "lang"
+        "ssn";
     }
   }
 }
