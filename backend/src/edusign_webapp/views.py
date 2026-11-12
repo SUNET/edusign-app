@@ -444,10 +444,14 @@ def eid_signatures_report():
 def eid_signatures_report_to_nextcloud():
     """
     Store the eID usage report of the month given by the form fields
-    `year` and `month`, see `_eid_usage_report`, in the folder
-    NEXTCLOUD_FOLDER of the Nextcloud instance at NEXTCLOUD_URL, over
-    WebDAV as NEXTCLOUD_USER. The folder is created if it does not exist
-    (MKCOL answers 405 when it does). The file is overwritten if it exists.
+    `year` and `month`, see `_eid_usage_report`, in the Nextcloud
+    instance at NEXTCLOUD_URL, over WebDAV. With NEXTCLOUD_SHARE_TOKEN,
+    the file is PUT into that public (file drop) share, the token as
+    username and NEXTCLOUD_SHARE_PASSWORD as password; a repeated name is
+    renamed by Nextcloud's file drop plugin. Otherwise it goes
+    to the folder NEXTCLOUD_FOLDER of NEXTCLOUD_USER; the folder is
+    created if it does not exist (MKCOL answers 405 when it does), and
+    the file is overwritten if it exists.
 
     :return: a text line naming the file and the folder; 400 on bad
              parameters, 502 when Nextcloud does not take the file
@@ -458,13 +462,20 @@ def eid_signatures_report_to_nextcloud():
     filename, text = _eid_usage_report(*year_month)
 
     config = current_app.config
-    folder = config['NEXTCLOUD_FOLDER']
-    folder_url = f"{config['NEXTCLOUD_URL']}/remote.php/dav/files/{config['NEXTCLOUD_USER']}/{folder}"
-    auth = (config['NEXTCLOUD_USER'], config['NEXTCLOUD_PASSWORD'])
-    steps = (
-        ('MKCOL', folder_url, None, (201, 405)),
-        ('PUT', f"{folder_url}/{filename}", text.encode('utf-8'), (201, 204)),
-    )
+    if config['NEXTCLOUD_SHARE_TOKEN']:
+        where = "the Nextcloud share"
+        token = config['NEXTCLOUD_SHARE_TOKEN']
+        auth = (token, config['NEXTCLOUD_SHARE_PASSWORD'])
+        steps = (('PUT', f"{config['NEXTCLOUD_URL']}/public.php/dav/files/{token}/{filename}", text.encode('utf-8'), (201, 204)),)
+    else:
+        folder = config['NEXTCLOUD_FOLDER']
+        where = f"the Nextcloud folder {folder}"
+        folder_url = f"{config['NEXTCLOUD_URL']}/remote.php/dav/files/{config['NEXTCLOUD_USER']}/{folder}"
+        auth = (config['NEXTCLOUD_USER'], config['NEXTCLOUD_PASSWORD'])
+        steps = (
+            ('MKCOL', folder_url, None, (201, 405)),
+            ('PUT', f"{folder_url}/{filename}", text.encode('utf-8'), (201, 204)),
+        )
     for method, url, data, accepted in steps:
         try:
             response = requests.request(method, url, data=data, auth=auth, timeout=30)
@@ -475,8 +486,8 @@ def eid_signatures_report_to_nextcloud():
             current_app.logger.error(f"Nextcloud answered {response.status_code} to {method} {url}: {response.text[:500]}")
             return make_response((f"Nextcloud answered {response.status_code} to {method} of {filename}", 502, {'Content-Type': 'text/plain'}))
 
-    current_app.logger.info(f"Stored {filename} in the Nextcloud folder {folder}")
-    return make_response((f"Stored {filename} in the Nextcloud folder {folder}\n", 200, {'Content-Type': 'text/plain; charset=utf-8'}))
+    current_app.logger.info(f"Stored {filename} in {where}")
+    return make_response((f"Stored {filename} in {where}\n", 200, {'Content-Type': 'text/plain; charset=utf-8'}))
 
 
 @admin_edusign_views.route('/migrate-to-postgres-and-s3', methods=['POST'])
