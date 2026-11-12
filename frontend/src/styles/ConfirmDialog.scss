@@ -29,3 +29,7 @@ div.confirm-buttons {
     --bs-modal-width: 50vw;
   }
 }
+
+.modal .form-control::placeholder {
+  color: $darker-grey;
+}
