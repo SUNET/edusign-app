@@ -16,6 +16,14 @@ import {
   validateLang,
   validateSSN,
 } from "components/validation";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCircle,
+  faCirclePlus,
+  faPlus,
+  faX,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 
 const mapStateToProps = (state, props) => {
   let ordered;
@@ -60,7 +68,6 @@ export const requiredField = (fid) => (
 
 export const optionalField = (
   <span className="optional-field-mark">
-    {" "}
     <FormattedMessage defaultMessage="(optional)" key="optional-field-mark" />
   </span>
 );
@@ -100,7 +107,6 @@ function _InviteesControl(props) {
       >
         <BButton
           variant="outline"
-          size="sm"
           data-testid={`button-rm-entry-${index}`}
           onClick={() => {
             arrayHelpers.remove(index);
@@ -110,7 +116,7 @@ function _InviteesControl(props) {
             }, 0);
           }}
         >
-          ×
+          <FontAwesomeIcon icon={faXmark} />
         </BButton>
       </ESTooltip>
     </div>
@@ -469,24 +475,22 @@ function _InviteesArray(props) {
     >
       {(arrayHelpers) => (
         <>
-          <div>
-            {fprops.values.invitees.length > 0 &&
-              fprops.values.invitees.map((invitee, index) => (
-                <div
-                  data-dummy={`dummy-${props.ordered}`}
-                  className="invitation-fields"
-                  data-testid={`invitation-field-${index}`}
-                  key={index}
-                >
-                  <InviteesControl
-                    invitee={invitee}
-                    index={index}
-                    arrayHelpers={arrayHelpers}
-                    {...props}
-                  />
-                </div>
-              ))}
-          </div>
+          {fprops.values.invitees.length > 0 &&
+            fprops.values.invitees.map((invitee, index) => (
+              <div
+                data-dummy={`dummy-${props.ordered}`}
+                className="invitation-fields"
+                data-testid={`invitation-field-${index}`}
+                key={index}
+              >
+                <InviteesControl
+                  invitee={invitee}
+                  index={index}
+                  arrayHelpers={arrayHelpers}
+                  {...props}
+                />
+              </div>
+            ))}
           {props.button(arrayHelpers)}
         </>
       )}
@@ -530,7 +534,7 @@ function _InviteesWidget(props) {
       }
     >
       <Button
-        variant="outline-secondary"
+        variant="primary"
         data-testid="button-add-invitation"
         disabled={too_many}
         onClick={() => {
@@ -544,10 +548,9 @@ function _InviteesWidget(props) {
           });
         }}
       >
-        <FormattedMessage
-          defaultMessage="Invite more people"
-          key="add-invite"
-        />
+        <FontAwesomeIcon icon={faCirclePlus} />
+        &nbsp;
+        <FormattedMessage defaultMessage="Add more people" key="add-invite" />
       </Button>
     </ESTooltip>
   );
