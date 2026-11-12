@@ -52,12 +52,7 @@ function DocPreview(props) {
   }
 
   return (
-    <Modal
-      show={props.doc.show}
-      onHide={props.handleClose(props.doc.name)}
-      size="lg"
-      centered
-    >
+    <Modal show={props.doc.show} onHide={props.handleClose(props.doc.name)}>
       <Modal.Header closeButton>
         <Modal.Title>{props.doc.name}</Modal.Title>
       </Modal.Header>

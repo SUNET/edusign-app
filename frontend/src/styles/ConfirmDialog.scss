@@ -20,4 +20,12 @@ div.confirm-buttons {
   min-height: 100vh;
   margin-top: auto;
   margin-bottom: auto;
+  --bs-modal-margin: 1rem;
+  --bs-modal-width: 90%;
+}
+
+@media (min-width: 1200px) {
+  .modal .modal-dialog {
+    --bs-modal-width: 50vw;
+  }
 }

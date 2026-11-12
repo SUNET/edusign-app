@@ -144,117 +144,113 @@ class PDFForm extends React.Component {
   render() {
     if (!this.props.show) return "";
     return (
-      <>
-        <Modal
-          id="pdf-form-modal"
-          show={this.props.show}
-          onHide={this.props.handleClose}
-          size="lg"
-          centered
-        >
-          <Modal.Header closeButton className="pdf-form-header">
-            <Formik
-              innerRef={this.state.formRef}
-              initialValues={initValues(this.props)}
-              validate={validate(this.props)}
-              enableReinitialize={true}
-              validateOnBlur={true}
-              validateOnChange={true}
-              validateOnMount={true}
-            >
-              {(fprops) => (
-                <Form data-testid={"newfname-form-" + this.props.doc.name}>
-                  <div className="newfname-text-holder">
-                    <BForm.Group className="newfname-text-group form-group">
-                      <BForm.Label
-                        className="newfname-text-label"
-                        htmlFor="newfname"
-                      >
-                        <FormattedMessage
-                          defaultMessage="Set name for new document"
-                          key="newfname-text-field"
-                        />
-                      </BForm.Label>
-                      <Field
-                        name="newfname"
-                        id="newfname"
-                        data-testid="newfname-text-input"
-                        className="newfname-text"
-                        as={BForm.Control}
-                        type="text"
-                        validate={validateNewname(this.props)}
-                        isValid={!fprops.errors.newfname}
-                        isInvalid={fprops.errors.newfname}
+      <Modal
+        id="pdf-form-modal"
+        show={this.props.show}
+        onHide={this.props.handleClose}
+      >
+        <Modal.Header closeButton className="pdf-form-header">
+          <Formik
+            innerRef={this.state.formRef}
+            initialValues={initValues(this.props)}
+            validate={validate(this.props)}
+            enableReinitialize={true}
+            validateOnBlur={true}
+            validateOnChange={true}
+            validateOnMount={true}
+          >
+            {(fprops) => (
+              <Form data-testid={"newfname-form-" + this.props.doc.name}>
+                <div className="newfname-text-holder">
+                  <BForm.Group className="newfname-text-group form-group">
+                    <BForm.Label
+                      className="newfname-text-label"
+                      htmlFor="newfname"
+                    >
+                      <FormattedMessage
+                        defaultMessage="Set name for new document"
+                        key="newfname-text-field"
                       />
-                      <ErrorMessage
-                        name="newfname"
-                        component="div"
-                        className="field-error"
-                      />
-                    </BForm.Group>
-                  </div>
-                </Form>
-              )}
-            </Formik>
-          </Modal.Header>
+                    </BForm.Label>
+                    <Field
+                      name="newfname"
+                      id="newfname"
+                      data-testid="newfname-text-input"
+                      className="newfname-text"
+                      as={BForm.Control}
+                      type="text"
+                      validate={validateNewname(this.props)}
+                      isValid={!fprops.errors.newfname}
+                      isInvalid={fprops.errors.newfname}
+                    />
+                    <ErrorMessage
+                      name="newfname"
+                      component="div"
+                      className="field-error"
+                    />
+                  </BForm.Group>
+                </div>
+              </Form>
+            )}
+          </Formik>
+        </Modal.Header>
 
-          <Modal.Body>
-            <Document
-              file={this.props.docFile}
-              onLoadSuccess={this.onDocumentLoadSuccess.bind(this)}
-              onPassword={(c) => {
-                throw new Error("Never password");
-              }}
-              options={documentOptions}
-            >
-              {(this.props.width < 550 && (
-                <Page
-                  pageNumber={this.state.pageNumber}
-                  width={this.props.width - 20}
-                  renderForms={true}
-                  renderAnnotationLayer={true}
-                  onRenderSuccess={this.initPage.bind(this)}
-                />
-              )) || (
-                <Page
-                  pageNumber={this.state.pageNumber}
-                  renderForms={true}
-                  renderAnnotationLayer={true}
-                  onRenderSuccess={this.initPage.bind(this)}
-                />
-              )}
-            </Document>
-          </Modal.Body>
-
-          <Modal.Footer>
-            <div className="pdf-navigation">
-              <Pagination
-                numPages={this.state.numPages}
+        <Modal.Body>
+          <Document
+            file={this.props.docFile}
+            onLoadSuccess={this.onDocumentLoadSuccess.bind(this)}
+            onPassword={(c) => {
+              throw new Error("Never password");
+            }}
+            options={documentOptions}
+          >
+            {(this.props.width < 550 && (
+              <Page
                 pageNumber={this.state.pageNumber}
-                firstPage={this.firstPage.bind(this)}
-                previousPage={this.previousPage.bind(this)}
-                nextPage={this.nextPage.bind(this)}
-                lastPage={this.lastPage.bind(this)}
-                index={Number(0)}
+                width={this.props.width - 20}
+                renderForms={true}
+                renderAnnotationLayer={true}
+                onRenderSuccess={this.initPage.bind(this)}
               />
-            </div>
-            <Button
-              variant="outline-primary"
-              onClick={this.props.handleSendPDFForm.bind(this)}
-              data-testid={"pdfform-button-send-" + this.props.doc.name}
-            >
-              <FormattedMessage defaultMessage="Done" key="button-sendform" />
-            </Button>
-            <Button
-              variant="outline-secondary"
-              onClick={this.props.handleClose}
-              data-testid={"preview-button-close-" + this.props.doc.name}
-            >
-              <FormattedMessage defaultMessage="Close" key="button-close" />
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </>
+            )) || (
+              <Page
+                pageNumber={this.state.pageNumber}
+                renderForms={true}
+                renderAnnotationLayer={true}
+                onRenderSuccess={this.initPage.bind(this)}
+              />
+            )}
+          </Document>
+        </Modal.Body>
+
+        <Modal.Footer>
+          <div className="pdf-navigation">
+            <Pagination
+              numPages={this.state.numPages}
+              pageNumber={this.state.pageNumber}
+              firstPage={this.firstPage.bind(this)}
+              previousPage={this.previousPage.bind(this)}
+              nextPage={this.nextPage.bind(this)}
+              lastPage={this.lastPage.bind(this)}
+              index={Number(0)}
+            />
+          </div>
+          <Button
+            variant="outline-primary"
+            onClick={this.props.handleSendPDFForm.bind(this)}
+            data-testid={"pdfform-button-send-" + this.props.doc.name}
+          >
+            <FormattedMessage defaultMessage="Done" key="button-sendform" />
+          </Button>
+          <Button
+            variant="outline-secondary"
+            onClick={this.props.handleClose}
+            data-testid={"preview-button-close-" + this.props.doc.name}
+          >
+            <FormattedMessage defaultMessage="Close" key="button-close" />
+          </Button>
+        </Modal.Footer>
+      </Modal>
     );
   }
 }

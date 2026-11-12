@@ -48,164 +48,161 @@ const validateEmail = (mail, mail_aliases) => {
 class DelegateForm extends React.Component {
   render() {
     return (
-      <>
-        <Formik
-          initialValues={initialValues(
-            this.props.doc.invite_key,
-            this.props.doc.key,
-          )}
-          enableReinitialize={true}
-          onSubmit={async (values) => {
-            await this.props.handleSubmit(values, this.props);
-            this.props.handleClose(this.props.doc.key)();
-          }}
-        >
-          {(fprops) => (
-            <Modal
-              show={this.props.doc.delegating}
-              onHide={this.props.handleClose(this.props.doc.key)}
-              size={this.props.size}
-            >
-              <Form data-testid={"delegate-form-" + this.props.doc.name}>
-                <Field
-                  type="hidden"
-                  name="inviteKey"
-                  value={fprops.values.inviteKey}
-                />
-                <Field
-                  type="hidden"
-                  name="documentKey"
-                  value={fprops.values.documentKey}
-                />
-                <Modal.Header closeButton>
-                  <Modal.Title>
-                    <FormattedMessage
-                      defaultMessage={`Delegate signature of {docName}`}
-                      key="delegate-form-title"
-                      values={{ docName: this.props.doc.name }}
+      <Formik
+        initialValues={initialValues(
+          this.props.doc.invite_key,
+          this.props.doc.key,
+        )}
+        enableReinitialize={true}
+        onSubmit={async (values) => {
+          await this.props.handleSubmit(values, this.props);
+          this.props.handleClose(this.props.doc.key)();
+        }}
+      >
+        {(fprops) => (
+          <Modal
+            show={this.props.doc.delegating}
+            onHide={this.props.handleClose(this.props.doc.key)}
+          >
+            <Form data-testid={"delegate-form-" + this.props.doc.name}>
+              <Field
+                type="hidden"
+                name="inviteKey"
+                value={fprops.values.inviteKey}
+              />
+              <Field
+                type="hidden"
+                name="documentKey"
+                value={fprops.values.documentKey}
+              />
+              <Modal.Header closeButton>
+                <Modal.Title>
+                  <FormattedMessage
+                    defaultMessage={`Delegate signature of {docName}`}
+                    key="delegate-form-title"
+                    values={{ docName: this.props.doc.name }}
+                  />
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <div className="delegation-form-name">
+                  <BForm.Group className="form-group">
+                    <BForm.Label htmlFor="delegation-name-input">
+                      <FormattedMessage
+                        defaultMessage="Name"
+                        key="name-input-field"
+                      />
+                    </BForm.Label>
+                    <ErrorMessage
+                      name="delegationName"
+                      component="div"
+                      className="field-error"
                     />
-                  </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  <div className="delegation-form-name">
-                    <BForm.Group className="form-group">
-                      <BForm.Label htmlFor="delegation-name-input">
-                        <FormattedMessage
-                          defaultMessage="Name"
-                          key="name-input-field"
-                        />
-                      </BForm.Label>
-                      <ErrorMessage
-                        name="delegationName"
-                        component="div"
-                        className="field-error"
-                      />
-                      <Field
-                        name="delegationName"
-                        id="delegation-name-input"
-                        value={fprops.values.delegationName}
-                        placeholder="Jane Doe"
-                        as={BForm.Control}
-                        type="text"
-                        validate={validateName(this.props)}
-                        isValid={
-                          fprops.touched.delegationName &&
-                          !fprops.errors.delegationName
-                        }
-                        isInvalid={
-                          fprops.touched.delegationName &&
-                          fprops.errors.delegationName
-                        }
-                      />
-                    </BForm.Group>
-                  </div>
-                  <div className="delegation-form-email">
-                    <BForm.Group className="form-group">
-                      <BForm.Label htmlFor="delegation-email-input">
-                        <FormattedMessage
-                          defaultMessage="Email"
-                          key="email-input-field"
-                        />
-                      </BForm.Label>
-                      <ErrorMessage
-                        name="delegationEmail"
-                        component="div"
-                        className="field-error"
-                      />
-                      <Field
-                        name="delegationEmail"
-                        id="delegation-email-input"
-                        value={fprops.values.delegationEmail}
-                        placeholder="Jane Doe"
-                        as={BForm.Control}
-                        type="text"
-                        validate={validateEmail(
-                          this.props.mail,
-                          this.props.mail_aliases,
-                        )}
-                        isValid={
-                          fprops.touched.delegationEmail &&
-                          !fprops.errors.delegationEmail
-                        }
-                        isInvalid={
-                          fprops.touched.delegationEmail &&
-                          fprops.errors.delegationEmail
-                        }
-                      />
-                    </BForm.Group>
-                  </div>
-                </Modal.Body>
-                <Modal.Footer>
-                  <ESTooltip
-                    helpId={"button-cancel-delegating-" + this.props.doc.name}
-                    inModal={true}
-                    tooltip={
+                    <Field
+                      name="delegationName"
+                      id="delegation-name-input"
+                      value={fprops.values.delegationName}
+                      placeholder="Jane Doe"
+                      as={BForm.Control}
+                      type="text"
+                      validate={validateName(this.props)}
+                      isValid={
+                        fprops.touched.delegationName &&
+                        !fprops.errors.delegationName
+                      }
+                      isInvalid={
+                        fprops.touched.delegationName &&
+                        fprops.errors.delegationName
+                      }
+                    />
+                  </BForm.Group>
+                </div>
+                <div className="delegation-form-email">
+                  <BForm.Group className="form-group">
+                    <BForm.Label htmlFor="delegation-email-input">
                       <FormattedMessage
-                        defaultMessage="Dismiss delegation form"
-                        key="cancel-delegation-button-tootip"
+                        defaultMessage="Email"
+                        key="email-input-field"
                       />
-                    }
+                    </BForm.Label>
+                    <ErrorMessage
+                      name="delegationEmail"
+                      component="div"
+                      className="field-error"
+                    />
+                    <Field
+                      name="delegationEmail"
+                      id="delegation-email-input"
+                      value={fprops.values.delegationEmail}
+                      placeholder="Jane Doe"
+                      as={BForm.Control}
+                      type="text"
+                      validate={validateEmail(
+                        this.props.mail,
+                        this.props.mail_aliases,
+                      )}
+                      isValid={
+                        fprops.touched.delegationEmail &&
+                        !fprops.errors.delegationEmail
+                      }
+                      isInvalid={
+                        fprops.touched.delegationEmail &&
+                        fprops.errors.delegationEmail
+                      }
+                    />
+                  </BForm.Group>
+                </div>
+              </Modal.Body>
+              <Modal.Footer>
+                <ESTooltip
+                  helpId={"button-cancel-delegating-" + this.props.doc.name}
+                  inModal={true}
+                  tooltip={
+                    <FormattedMessage
+                      defaultMessage="Dismiss delegation form"
+                      key="cancel-delegation-button-tootip"
+                    />
+                  }
+                >
+                  <Button
+                    variant="outline-secondary"
+                    onClick={this.props.handleClose(this.props.doc.key)}
+                    id={"button-cancel-delegating-" + this.props.doc.name}
                   >
-                    <Button
-                      variant="outline-secondary"
-                      onClick={this.props.handleClose(this.props.doc.key)}
-                      id={"button-cancel-delegating-" + this.props.doc.name}
-                    >
-                      <FormattedMessage
-                        defaultMessage="Cancel"
-                        key="cancel-delegate"
-                      />
-                    </Button>
-                  </ESTooltip>
-                  <ESTooltip
-                    helpId={"button-delegate-" + this.props.doc.name}
-                    inModal={true}
-                    tooltip={
-                      <FormattedMessage
-                        defaultMessage="Delegate invitation to sign"
-                        key="delegate-button-tootip"
-                      />
-                    }
+                    <FormattedMessage
+                      defaultMessage="Cancel"
+                      key="cancel-delegate"
+                    />
+                  </Button>
+                </ESTooltip>
+                <ESTooltip
+                  helpId={"button-delegate-" + this.props.doc.name}
+                  inModal={true}
+                  tooltip={
+                    <FormattedMessage
+                      defaultMessage="Delegate invitation to sign"
+                      key="delegate-button-tootip"
+                    />
+                  }
+                >
+                  <Button
+                    variant="outline-success"
+                    onClick={fprops.submitForm}
+                    id={"button-delegate-" + this.props.doc.name}
+                    disabling={true}
+                    disabled={!fprops.isValid}
                   >
-                    <Button
-                      variant="outline-success"
-                      onClick={fprops.submitForm}
-                      id={"button-delegate-" + this.props.doc.name}
-                      disabling={true}
-                      disabled={!fprops.isValid}
-                    >
-                      <FormattedMessage
-                        defaultMessage="Delegate"
-                        key="delegate-invite"
-                      />
-                    </Button>
-                  </ESTooltip>
-                </Modal.Footer>
-              </Form>
-            </Modal>
-          )}
-        </Formik>
-      </>
+                    <FormattedMessage
+                      defaultMessage="Delegate"
+                      key="delegate-invite"
+                    />
+                  </Button>
+                </ESTooltip>
+              </Modal.Footer>
+            </Form>
+          </Modal>
+        )}
+      </Formik>
     );
   }
 }

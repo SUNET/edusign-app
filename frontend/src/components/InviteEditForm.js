@@ -67,121 +67,116 @@ class InviteEditForm extends React.Component {
     if (!this.props.show) return "";
     const formId = "invite-form-" + this.props.doc.name;
     return (
-      <>
-        <Formik
-          initialValues={initialValues(this.props)}
-          onSubmit={this.props.handleSubmit.bind(this)}
-          validate={validate(this.props)}
-          enableReinitialize={true}
-          validateOnBlur={true}
-          validateOnChange={true}
-          validateOnMount={true}
-          initialErrors={{}}
-        >
-          {(fprops) => (
-            <Modal
-              show={this.props.show}
-              onHide={this.props.handleCloseResetting(fprops.resetForm)}
-              size={this.props.size}
-              keyboard={false}
-            >
-              <Form id={formId} data-testid={formId}>
-                <Field
-                  type="hidden"
-                  name="documentKey"
-                  value={fprops.values.documentKey}
-                />
-                <Modal.Header closeButton>
-                  <Modal.Title>
-                    <FormattedMessage
-                      defaultMessage={`Edit invitations for {docName}`}
-                      key="edit-invitation"
-                      values={{ docName: this.props.doc.name }}
+      <Formik
+        initialValues={initialValues(this.props)}
+        onSubmit={this.props.handleSubmit.bind(this)}
+        validate={validate(this.props)}
+        enableReinitialize={true}
+        validateOnBlur={true}
+        validateOnChange={true}
+        validateOnMount={true}
+        initialErrors={{}}
+      >
+        {(fprops) => (
+          <Modal
+            show={this.props.show}
+            onHide={this.props.handleCloseResetting(fprops.resetForm)}
+            keyboard={false}
+          >
+            <Form id={formId} data-testid={formId}>
+              <Field
+                type="hidden"
+                name="documentKey"
+                value={fprops.values.documentKey}
+              />
+              <Modal.Header closeButton>
+                <Modal.Title>
+                  <FormattedMessage
+                    defaultMessage={`Edit invitations for {docName}`}
+                    key="edit-invitation"
+                    values={{ docName: this.props.doc.name }}
+                  />
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <div className="invitation-text-holder">
+                  <BForm.Group className="invitation-text-group form-group">
+                    <BForm.Label
+                      className="invitation-text-label"
+                      htmlFor="invitation-text-input"
+                    >
+                      <FormattedMessage
+                        defaultMessage="Add a message to send to all new invitees"
+                        key="edit-invitation-text-field"
+                      />
+                      {optionalField}
+                    </BForm.Label>
+                    <Field
+                      name="invitationText"
+                      id="invitation-text-input"
+                      data-testid="invitation-text-input"
+                      className="invitation-text"
+                      validate={validateBody}
+                      as="textarea"
                     />
-                  </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  <div className="invitation-text-holder">
-                    <BForm.Group className="invitation-text-group form-group">
-                      <BForm.Label
-                        className="invitation-text-label"
-                        htmlFor="invitation-text-input"
-                      >
-                        <FormattedMessage
-                          defaultMessage="Add a message to send to all new invitees"
-                          key="edit-invitation-text-field"
-                        />
-                        {optionalField}
-                      </BForm.Label>
-                      <Field
-                        name="invitationText"
-                        id="invitation-text-input"
-                        data-testid="invitation-text-input"
-                        className="invitation-text"
-                        validate={validateBody}
-                        as="textarea"
-                      />
-                    </BForm.Group>
-                  </div>
-                  {sendsignedControl}
-                  {skipFinalControl}
-                  <InviteesWidget parentForm="edit" {...this.props} />
-                </Modal.Body>
-                <Modal.Footer>
-                  <ESTooltip
-                    helpId="button-cancel-edit-form"
-                    inModal={true}
-                    tooltip={
-                      <FormattedMessage
-                        defaultMessage="Dismiss edit form"
-                        key="cancel-invitation-edit-tootip"
-                      />
+                  </BForm.Group>
+                </div>
+                {sendsignedControl}
+                {skipFinalControl}
+                <InviteesWidget parentForm="edit" {...this.props} />
+              </Modal.Body>
+              <Modal.Footer>
+                <ESTooltip
+                  helpId="button-cancel-edit-form"
+                  inModal={true}
+                  tooltip={
+                    <FormattedMessage
+                      defaultMessage="Dismiss edit form"
+                      key="cancel-invitation-edit-tootip"
+                    />
+                  }
+                >
+                  <Button
+                    variant="outline-secondary"
+                    onClick={this.props.handleCloseResetting(fprops.resetForm)}
+                  >
+                    <FormattedMessage
+                      defaultMessage="Cancel"
+                      key="cancel-edit-invite"
+                    />
+                  </Button>
+                </ESTooltip>
+                <ESTooltip
+                  helpId="button-save-edit-form"
+                  inModal={true}
+                  tooltip={
+                    <FormattedMessage
+                      defaultMessage="Save changes to invitation"
+                      key="save-edit-invitation-tootip"
+                    />
+                  }
+                >
+                  <Button
+                    variant="outline-success"
+                    onClick={fprops.submitForm}
+                    id={"button-save-edit-invitation-" + this.props.doc.name}
+                    disabling={true}
+                    disabled={!fprops.isValid}
+                    data-testid={
+                      "button-save-edit-invitation-" + this.props.doc.name
                     }
                   >
-                    <Button
-                      variant="outline-secondary"
-                      onClick={this.props.handleCloseResetting(
-                        fprops.resetForm,
-                      )}
-                    >
-                      <FormattedMessage
-                        defaultMessage="Cancel"
-                        key="cancel-edit-invite"
-                      />
-                    </Button>
-                  </ESTooltip>
-                  <ESTooltip
-                    helpId="button-save-edit-form"
-                    inModal={true}
-                    tooltip={
-                      <FormattedMessage
-                        defaultMessage="Save changes to invitation"
-                        key="save-edit-invitation-tootip"
-                      />
-                    }
-                  >
-                    <Button
-                      variant="outline-success"
-                      onClick={fprops.submitForm}
-                      id={"button-save-edit-invitation-" + this.props.doc.name}
-                      disabling={true}
-                      disabled={!fprops.isValid}
-                      data-testid={
-                        "button-save-edit-invitation-" + this.props.doc.name
-                      }
-                    >
-                      <FormattedMessage
-                        defaultMessage="Save"
-                        key="save-edit-invitation"
-                      />
-                    </Button>
-                  </ESTooltip>
-                </Modal.Footer>
-              </Form>
-            </Modal>
-          )}
-        </Formik>
-      </>
+                    <FormattedMessage
+                      defaultMessage="Save"
+                      key="save-edit-invitation"
+                    />
+                  </Button>
+                </ESTooltip>
+              </Modal.Footer>
+            </Form>
+          </Modal>
+        )}
+      </Formik>
     );
   }
 }

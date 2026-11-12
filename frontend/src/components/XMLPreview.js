@@ -13,35 +13,31 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
  */
 function XMLPreview(props) {
   return (
-    <>
-      <Modal
-        show={props.doc.show}
-        onHide={props.handleClose(props.doc.name)}
-        size="lg"
-        centered
-        dialogClassName="xml-preview-display"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{props.doc.name}</Modal.Title>
-        </Modal.Header>
+    <Modal
+      show={props.doc.show}
+      onHide={props.handleClose(props.doc.name)}
+      dialogClassName="xml-preview-display"
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>{props.doc.name}</Modal.Title>
+      </Modal.Header>
 
-        <Modal.Body>
-          <div
-            dangerouslySetInnerHTML={{ __html: atob(props.doc.pprinted) }}
-          ></div>
-        </Modal.Body>
+      <Modal.Body>
+        <div
+          dangerouslySetInnerHTML={{ __html: atob(props.doc.pprinted) }}
+        ></div>
+      </Modal.Body>
 
-        <Modal.Footer>
-          <Button
-            variant="outline-secondary"
-            onClick={props.handleClose(props.doc.name)}
-            data-testid={"preview-button-close-" + props.doc.name}
-          >
-            <FormattedMessage defaultMessage="Close" key="button-close" />
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </>
+      <Modal.Footer>
+        <Button
+          variant="outline-secondary"
+          onClick={props.handleClose(props.doc.name)}
+          data-testid={"preview-button-close-" + props.doc.name}
+        >
+          <FormattedMessage defaultMessage="Close" key="button-close" />
+        </Button>
+      </Modal.Footer>
+    </Modal>
   );
 }
 

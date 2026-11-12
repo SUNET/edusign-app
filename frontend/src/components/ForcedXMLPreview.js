@@ -16,76 +16,66 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
  */
 function ForcedXMLPreview(props) {
   return (
-    <>
-      <Modal
-        show={props.doc.showForced}
-        onHide={props.handleClose(props.doc.name)}
-        size="lg"
-        centered
-        dialogClassName="xml-preview-display"
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{props.doc.name}</Modal.Title>
-        </Modal.Header>
+    <Modal
+      show={props.doc.showForced}
+      onHide={props.handleClose(props.doc.name)}
+      dialogClassName="xml-preview-display"
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>{props.doc.name}</Modal.Title>
+      </Modal.Header>
 
-        <Modal.Body>
-          <div
-            dangerouslySetInnerHTML={{ __html: atob(props.doc.pprinted) }}
-          ></div>
-        </Modal.Body>
+      <Modal.Body>
+        <div
+          dangerouslySetInnerHTML={{ __html: atob(props.doc.pprinted) }}
+        ></div>
+      </Modal.Body>
 
-        <Modal.Footer>
-          <ESTooltip
-            helpId={"preview-button-dissaprove-" + props.index}
-            inModal={true}
-            tooltip={
-              <FormattedMessage
-                defaultMessage="Click here to reject/remove the document"
-                key="dissaprove-doc-tootip"
-              />
-            }
+      <Modal.Footer>
+        <ESTooltip
+          helpId={"preview-button-dissaprove-" + props.index}
+          inModal={true}
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Click here to reject/remove the document"
+              key="dissaprove-doc-tootip"
+            />
+          }
+        >
+          <Button
+            variant="outline-danger"
+            disabling={true}
+            onClick={props.handleUnConfirm({
+              doc: props.doc,
+              intl: props.intl,
+            })}
+            id={"preview-button-dissaprove-" + props.index}
           >
+            <FormattedMessage defaultMessage="Reject" key="button-dissaprove" />
+          </Button>
+        </ESTooltip>
+        <ESTooltip
+          helpId={"preview-button-confirm-" + props.index}
+          inModal={true}
+          tooltip={
+            <FormattedMessage
+              defaultMessage="Click here to approve the document for signing"
+              key="confirm-doc-tootip"
+            />
+          }
+        >
+          <span className="d-inline-block">
             <Button
-              variant="outline-danger"
-              disabling={true}
-              onClick={props.handleUnConfirm({
-                doc: props.doc,
-                intl: props.intl,
-              })}
-              id={"preview-button-dissaprove-" + props.index}
+              onClick={props.handleConfirm(props.doc)}
+              variant="outline-success"
+              id={"preview-button-confirm-" + props.index}
             >
-              <FormattedMessage
-                defaultMessage="Reject"
-                key="button-dissaprove"
-              />
+              <FormattedMessage defaultMessage="Approve" key="button-confirm" />
             </Button>
-          </ESTooltip>
-          <ESTooltip
-            helpId={"preview-button-confirm-" + props.index}
-            inModal={true}
-            tooltip={
-              <FormattedMessage
-                defaultMessage="Click here to approve the document for signing"
-                key="confirm-doc-tootip"
-              />
-            }
-          >
-            <span className="d-inline-block">
-              <Button
-                onClick={props.handleConfirm(props.doc)}
-                variant="outline-success"
-                id={"preview-button-confirm-" + props.index}
-              >
-                <FormattedMessage
-                  defaultMessage="Approve"
-                  key="button-confirm"
-                />
-              </Button>
-            </span>
-          </ESTooltip>
-        </Modal.Footer>
-      </Modal>
-    </>
+          </span>
+        </ESTooltip>
+      </Modal.Footer>
+    </Modal>
   );
 }
 

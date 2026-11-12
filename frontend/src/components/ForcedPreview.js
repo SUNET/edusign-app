@@ -122,8 +122,6 @@ function ForcedPreview(props) {
       <Modal
         show={props.doc.showForced}
         onHide={props.handleClose(props.doc.name)}
-        size="lg"
-        centered
       >
         <Modal.Header closeButton>
           <Modal.Title>{props.doc.name}</Modal.Title>
