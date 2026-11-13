@@ -92,7 +92,7 @@
   "components.InviteForm.send-invite": "Invitar",
   "components.InviteForm.too-many-invitations": "",
   "components.InviteesWidget.add-invitation-tootip": "",
-  "components.InviteesWidget.add-invite": "",
+  "components.InviteesWidget.add-invite": "Añadir más personas",
   "components.InviteesWidget.alloweid-choice-field": "Permitir firma con eID sueco",
   "components.InviteesWidget.alloweid-choice-help": "Esta persona podrá firmar el documento con eID sueco.",
   "components.InviteesWidget.email-input-field": "",

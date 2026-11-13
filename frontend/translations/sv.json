@@ -92,7 +92,7 @@
   "components.InviteForm.send-invite": "Skicka inbjudan",
   "components.InviteForm.too-many-invitations": "Det är endast möjligt att bjuda in som mest {max_signatures} personer",
   "components.InviteesWidget.add-invitation-tootip": "Bjud in en person till att signera dokumentet",
-  "components.InviteesWidget.add-invite": "Bjud in fler personer",
+  "components.InviteesWidget.add-invite": "Lägg till fler personer",
   "components.InviteesWidget.alloweid-choice-field": "Tillåt signering med svensk e-legitimation",
   "components.InviteesWidget.alloweid-choice-help": "Den här personen kommer att få signera dokumentet med svensk e-legitimation.",
   "components.InviteesWidget.email-input-field": "E-post",
