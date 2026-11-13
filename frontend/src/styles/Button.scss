@@ -17,6 +17,10 @@ button.btn:disabled {
 }
 
 button.btn-primary {
+  --bs-btn-active-bg: #{$dark-orange};
+  --bs-btn-active-border-color: #{$dark-orange};
+  --bs-btn-active-color: #{$white};
+
   background-color: $btn-orange;
   border-radius: 25px;
   border: solid 2px $dark-orange;
@@ -27,6 +31,10 @@ button.btn-primary {
 }
 
 button.btn-outline-secondary {
+  --bs-btn-active-bg: #{$black};
+  --bs-btn-active-border-color: #{$darker-dark-grey};
+  --bs-btn-active-color: #{$white};
+
   border-radius: 25px;
   border: solid 1px $darker-dark-grey;
   color: $darker-dark-grey;
@@ -36,6 +44,10 @@ button.btn-outline-secondary {
 }
 
 button.btn-secondary {
+  --bs-btn-active-bg: #{$white};
+  --bs-btn-active-border-color: #{$btn-orange};
+  --bs-btn-active-color: #{$dark-orange};
+
   border: solid 2px $btn-orange;
   background-color: $white;
   border-radius: 25px;
