@@ -9,13 +9,6 @@ button.button-with-spinner {
   }
 }
 
-button.btn:disabled {
-  color: $darker-dark-grey;
-  pointer-events: none;
-  background-color: $dark-gray;
-  border: 2px solid $light-gray;
-}
-
 button.btn-primary {
   --bs-btn-active-bg: #{$dark-orange};
   --bs-btn-active-border-color: #{$dark-orange};
@@ -62,12 +55,33 @@ button.btn-secondary {
 button.btn-link {
   border-radius: 25px;
 
+  &:disabled {
+    background-color: transparent;
+    border-color: transparent;
+    opacity: 1;
+  }
+
   @media (prefers-reduced-motion: no-preference) {
     transition: transform 0.15s ease;
   }
 
   &:hover,
-  &:focus {
+  &:focus-visible {
     transform: scale(0.9);
   }
+
+  &:focus:not(:focus-visible) {
+    box-shadow: none;
+  }
+}
+
+button.btn-primary:disabled,
+button.btn-secondary:disabled {
+  color: $darker-dark-grey;
+  background-color: $dark-gray;
+  border: 2px solid $light-gray;
+}
+
+button.btn:disabled {
+  pointer-events: none;
 }
