@@ -170,7 +170,8 @@ function ForcedPreview(props) {
           tooltip={rejectButtonHelpText}
         >
           <Button
-            variant="outline-danger"
+            variant="outline-secondary"
+            size="lg"
             disabling={true}
             onClick={props.handleUnConfirm({
               doc: props.doc,
@@ -191,7 +192,8 @@ function ForcedPreview(props) {
               disabled={!readyToConfirm}
               onClick={props.handleConfirm(props.doc)}
               style={(!readyToConfirm && { pointerEvents: "none" }) || {}}
-              variant="outline-success"
+              variant="primary"
+              size="lg"
               id={"preview-button-confirm-" + props.index}
             >
               {acceptButtonLabel}
