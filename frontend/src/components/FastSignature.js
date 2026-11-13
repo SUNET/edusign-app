@@ -59,6 +59,7 @@ class FastSignature extends React.Component {
           >
             <Button
               variant="outline-secondary"
+              size="lg"
               onClick={this.props.handleClose}
             >
               <FormattedMessage
@@ -77,7 +78,7 @@ class FastSignature extends React.Component {
               />
             }
           >
-            <Button variant="outline-success" onClick={this.props.handleSign}>
+            <Button variant="primary" size="lg" onClick={this.props.handleSign}>
               <FormattedMessage
                 defaultMessage="Sign"
                 key="accept-fast-signature-label"

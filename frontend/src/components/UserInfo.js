@@ -26,113 +26,107 @@ class UserInfo extends React.Component {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <>
-            <div className="user-info-holder">
-              {this.props.details.includes("display_name") && (
-                <div className="user-attr-holder">
-                  <div className="user-attr-name-holder">
-                    <FormattedMessage
-                      defaultMessage={"Display name"}
-                      key="user-info-display-name"
-                    />
-                  </div>
-                  <div className="user-attr-value-holder">
-                    {this.props.display_name}
+          <div className="user-info-holder">
+            {this.props.details.includes("display_name") && (
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
+                    defaultMessage={"Display name"}
+                    key="user-info-display-name"
+                  />
+                </div>
+                <div className="user-attr-value-holder">
+                  {this.props.display_name}
+                </div>
+              </div>
+            )}
+            {this.props.details.includes("mail") && (
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
+                    defaultMessage={"Mail"}
+                    key="user-info-mail"
+                  />
+                </div>
+                <div className="user-attr-value-holder">{this.props.mail}</div>
+              </div>
+            )}
+            {this.props.details.includes("mail_aliases") && (
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
+                    defaultMessage={"Mail aliases"}
+                    key="user-info-mail-aliases"
+                  />
+                </div>
+                <div className="user-attr-value-holder">
+                  <div className="user-attr-value-list-holder">
+                    {this.props.mail_aliases.map((alias, i) => (
+                      <div className="user-attr-value-list-item" key={i}>
+                        {alias}
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )}
-              {this.props.details.includes("mail") && (
-                <div className="user-attr-holder">
-                  <div className="user-attr-name-holder">
-                    <FormattedMessage
-                      defaultMessage={"Mail"}
-                      key="user-info-mail"
-                    />
-                  </div>
-                  <div className="user-attr-value-holder">
-                    {this.props.mail}
+              </div>
+            )}
+            {this.props.details.includes("idp") && (
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
+                    defaultMessage={"Identity Provider"}
+                    key="user-info-identity-provider"
+                  />
+                </div>
+                <div className="user-attr-value-holder">
+                  {this.props.identity_provider}
+                </div>
+              </div>
+            )}
+            {this.props.details.includes("eppn") && (
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
+                    defaultMessage={"User identity"}
+                    key="user-info-user-identity"
+                  />
+                </div>
+                <div className="user-attr-value-holder">{this.props.eppn}</div>
+              </div>
+            )}
+            {this.props.details.includes("loa") && (
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
+                    defaultMessage={"Assurance levels"}
+                    key="user-info-assurance-levels"
+                  />
+                </div>
+                <div className="user-attr-value-holder">
+                  <div className="user-attr-value-list-holder">
+                    {this.props.assurance_levels.map((level, i) => (
+                      <div className="user-attr-value-list-item" key={i}>
+                        {level}
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )}
-              {this.props.details.includes("mail_aliases") && (
-                <div className="user-attr-holder">
-                  <div className="user-attr-name-holder">
-                    <FormattedMessage
-                      defaultMessage={"Mail aliases"}
-                      key="user-info-mail-aliases"
-                    />
-                  </div>
-                  <div className="user-attr-value-holder">
-                    <div className="user-attr-value-list-holder">
-                      {this.props.mail_aliases.map((alias, i) => (
-                        <div className="user-attr-value-list-item" key={i}>
-                          {alias}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+              </div>
+            )}
+            {this.props.details.includes("authn_context") && (
+              <div className="user-attr-holder">
+                <div className="user-attr-name-holder">
+                  <FormattedMessage
+                    defaultMessage={"Authn Context"}
+                    key="user-info-authn-context"
+                  />
                 </div>
-              )}
-              {this.props.details.includes("idp") && (
-                <div className="user-attr-holder">
-                  <div className="user-attr-name-holder">
-                    <FormattedMessage
-                      defaultMessage={"Identity Provider"}
-                      key="user-info-identity-provider"
-                    />
-                  </div>
-                  <div className="user-attr-value-holder">
-                    {this.props.identity_provider}
-                  </div>
+                <div className="user-attr-value-holder">
+                  {this.props.authn_context}
                 </div>
-              )}
-              {this.props.details.includes("eppn") && (
-                <div className="user-attr-holder">
-                  <div className="user-attr-name-holder">
-                    <FormattedMessage
-                      defaultMessage={"User identity"}
-                      key="user-info-user-identity"
-                    />
-                  </div>
-                  <div className="user-attr-value-holder">
-                    {this.props.eppn}
-                  </div>
-                </div>
-              )}
-              {this.props.details.includes("loa") && (
-                <div className="user-attr-holder">
-                  <div className="user-attr-name-holder">
-                    <FormattedMessage
-                      defaultMessage={"Assurance levels"}
-                      key="user-info-assurance-levels"
-                    />
-                  </div>
-                  <div className="user-attr-value-holder">
-                    <div className="user-attr-value-list-holder">
-                      {this.props.assurance_levels.map((level, i) => (
-                        <div className="user-attr-value-list-item" key={i}>
-                          {level}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {this.props.details.includes("authn_context") && (
-                <div className="user-attr-holder">
-                  <div className="user-attr-name-holder">
-                    <FormattedMessage
-                      defaultMessage={"Authn Context"}
-                      key="user-info-authn-context"
-                    />
-                  </div>
-                  <div className="user-attr-value-holder">
-                    {this.props.authn_context}
-                  </div>
-                </div>
-              )}
-            </div>
-          </>
+              </div>
+            )}
+          </div>
         </Modal.Body>
         <Modal.Footer>
           <ESTooltip
@@ -147,6 +141,7 @@ class UserInfo extends React.Component {
           >
             <Button
               variant="outline-secondary"
+              size="lg"
               onClick={this.props.handleClose}
             >
               <FormattedMessage

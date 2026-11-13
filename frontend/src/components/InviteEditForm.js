@@ -138,11 +138,12 @@ class InviteEditForm extends React.Component {
                 >
                   <Button
                     variant="outline-secondary"
+                    size="lg"
                     onClick={this.props.handleCloseResetting(fprops.resetForm)}
                   >
                     <FormattedMessage
                       defaultMessage="Cancel"
-                      key="cancel-edit-invite"
+                      key="cancel-button"
                     />
                   </Button>
                 </ESTooltip>
@@ -157,7 +158,8 @@ class InviteEditForm extends React.Component {
                   }
                 >
                   <Button
-                    variant="outline-success"
+                    variant="primary"
+                    size="lg"
                     onClick={fprops.submitForm}
                     id={"button-save-edit-invitation-" + this.props.doc.name}
                     disabling={true}

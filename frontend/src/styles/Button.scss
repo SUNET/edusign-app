@@ -13,15 +13,37 @@ button.btn:disabled {
   color: $darker-dark-grey;
   pointer-events: none;
   background-color: $dark-gray;
-  border: 1px solid $light-gray;
+  border: 2px solid $light-gray;
 }
 
 button.btn-primary {
   background-color: $btn-orange;
-  border: none;
   border-radius: 25px;
+  border: solid 2px $dark-orange;
   &:hover {
     background-color: $dark-orange;
+    border: solid 2px $dark-orange;
+  }
+}
+
+button.btn-outline-secondary {
+  border-radius: 25px;
+  border: solid 1px $darker-dark-grey;
+  color: $darker-dark-grey;
+  &:hover {
+    background-color: $black;
+  }
+}
+
+button.btn-secondary {
+  border: solid 2px $btn-orange;
+  background-color: $white;
+  border-radius: 25px;
+  color: $dark-orange;
+  &:hover {
+    background-color: $white;
+    border: solid 2px $btn-orange;
+    color: $dark-orange;
   }
 }
 

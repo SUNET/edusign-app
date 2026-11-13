@@ -31,6 +31,7 @@ function XMLPreview(props) {
       <Modal.Footer>
         <Button
           variant="outline-secondary"
+          size="lg"
           onClick={props.handleClose(props.doc.name)}
           data-testid={"preview-button-close-" + props.doc.name}
         >

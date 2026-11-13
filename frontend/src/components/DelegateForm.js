@@ -166,12 +166,13 @@ class DelegateForm extends React.Component {
                 >
                   <Button
                     variant="outline-secondary"
+                    size="lg"
                     onClick={this.props.handleClose(this.props.doc.key)}
                     id={"button-cancel-delegating-" + this.props.doc.name}
                   >
                     <FormattedMessage
                       defaultMessage="Cancel"
-                      key="cancel-delegate"
+                      key="cancel-button"
                     />
                   </Button>
                 </ESTooltip>
@@ -186,7 +187,8 @@ class DelegateForm extends React.Component {
                   }
                 >
                   <Button
-                    variant="outline-success"
+                    variant="primary"
+                    size="lg"
                     onClick={fprops.submitForm}
                     id={"button-delegate-" + this.props.doc.name}
                     disabling={true}

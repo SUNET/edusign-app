@@ -236,18 +236,20 @@ class PDFForm extends React.Component {
             />
           </div>
           <Button
-            variant="outline-primary"
-            onClick={this.props.handleSendPDFForm.bind(this)}
-            data-testid={"pdfform-button-send-" + this.props.doc.name}
-          >
-            <FormattedMessage defaultMessage="Done" key="button-sendform" />
-          </Button>
-          <Button
             variant="outline-secondary"
+            size="lg"
             onClick={this.props.handleClose}
             data-testid={"preview-button-close-" + this.props.doc.name}
           >
             <FormattedMessage defaultMessage="Close" key="button-close" />
+          </Button>
+          <Button
+            variant="primary"
+            size="lg"
+            onClick={this.props.handleSendPDFForm.bind(this)}
+            data-testid={"pdfform-button-send-" + this.props.doc.name}
+          >
+            <FormattedMessage defaultMessage="Done" key="button-sendform" />
           </Button>
         </Modal.Footer>
       </Modal>

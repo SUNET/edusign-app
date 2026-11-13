@@ -77,12 +77,13 @@ class ReInviteForm extends React.Component {
                 >
                   <Button
                     variant="outline-secondary"
+                    size="lg"
                     onClick={this.props.handleClose}
                     data-testid={"button-cancel-resend-" + this.props.doc.name}
                   >
                     <FormattedMessage
                       defaultMessage="Cancel"
-                      key="cancel-invite"
+                      key="cancel-button"
                     />
                   </Button>
                 </ESTooltip>
@@ -97,7 +98,8 @@ class ReInviteForm extends React.Component {
                   }
                 >
                   <Button
-                    variant="outline-success"
+                    variant="primary"
+                    size="lg"
                     onClick={fprops.submitForm}
                     id={"button-resend-" + this.props.doc.name}
                     disabling={true}

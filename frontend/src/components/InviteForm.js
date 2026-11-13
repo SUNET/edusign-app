@@ -347,13 +347,14 @@ class InviteForm extends React.Component {
                   >
                     <Button
                       variant="outline-secondary"
+                      size="lg"
                       onClick={this.props.handleCloseResetting(
                         fprops.resetForm,
                       )}
                     >
                       <FormattedMessage
                         defaultMessage="Cancel"
-                        key="cancel-invite"
+                        key="cancel-button"
                       />
                     </Button>
                   </ESTooltip>

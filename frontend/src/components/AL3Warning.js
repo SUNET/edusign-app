@@ -40,7 +40,11 @@ class AL3Warning extends React.Component {
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="outline-secondary" onClick={this.props.handleClose}>
+          <Button
+            variant="outline-secondary"
+            size="lg"
+            onClick={this.props.handleClose}
+          >
             <FormattedMessage
               defaultMessage="Close"
               key="close-al3-warning-label"

@@ -95,13 +95,14 @@ function DocPreview(props) {
             index={props.index}
           />
         </div>
-        {/* <Button
+        <Button
           variant="outline-secondary"
+          size="lg"
           onClick={props.handleClose(props.doc.name)}
           data-testid={"preview-button-close-" + props.doc.name}
         >
           <FormattedMessage defaultMessage="Close" key="button-close" />
-        </Button> */}
+        </Button>
       </Modal.Footer>
     </Modal>
   );

@@ -43,7 +43,8 @@ function ForcedXMLPreview(props) {
           }
         >
           <Button
-            variant="outline-danger"
+            variant="outline-secondary"
+            size="lg"
             disabling={true}
             onClick={props.handleUnConfirm({
               doc: props.doc,
@@ -67,7 +68,8 @@ function ForcedXMLPreview(props) {
           <span className="d-inline-block">
             <Button
               onClick={props.handleConfirm(props.doc)}
-              variant="outline-success"
+              variant="primary"
+              size="lg"
               id={"preview-button-confirm-" + props.index}
             >
               <FormattedMessage defaultMessage="Approve" key="button-confirm" />

@@ -118,90 +118,88 @@ function ForcedPreview(props) {
   }
 
   return (
-    <>
-      <Modal
-        show={props.doc.showForced}
-        onHide={props.handleClose(props.doc.name)}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>{props.doc.name}</Modal.Title>
-        </Modal.Header>
+    <Modal
+      show={props.doc.showForced}
+      onHide={props.handleClose(props.doc.name)}
+    >
+      <Modal.Header closeButton>
+        <Modal.Title>{props.doc.name}</Modal.Title>
+      </Modal.Header>
 
-        <Modal.Body>
-          <Document
-            file={docFile}
-            onLoadSuccess={onDocumentLoadSuccess}
-            onPassword={(c) => {
-              throw new Error("Never password");
-            }}
-            options={documentOptions}
-          >
-            {(props.width < 550 && (
-              <Page
-                pageNumber={pageNumber}
-                width={props.width - 20}
-                renderInteractiveForms={false}
-                renderAnnotationLayer={true}
-              />
-            )) || (
-              <Page
-                pageNumber={pageNumber}
-                renderInteractiveForms={false}
-                renderAnnotationLayer={true}
-              />
-            )}
-          </Document>
-        </Modal.Body>
-
-        <Modal.Footer>
-          <div className="pdf-navigation">
-            <Pagination
-              numPages={numPages}
+      <Modal.Body>
+        <Document
+          file={docFile}
+          onLoadSuccess={onDocumentLoadSuccess}
+          onPassword={(c) => {
+            throw new Error("Never password");
+          }}
+          options={documentOptions}
+        >
+          {(props.width < 550 && (
+            <Page
               pageNumber={pageNumber}
-              firstPage={firstPage}
-              previousPage={previousPage}
-              nextPage={nextPage}
-              lastPage={lastPage}
-              index={props.index}
+              width={props.width - 20}
+              renderInteractiveForms={false}
+              renderAnnotationLayer={true}
             />
-          </div>
-          <ESTooltip
-            helpId={"preview-button-dissaprove-" + props.index}
-            inModal={true}
-            tooltip={rejectButtonHelpText}
+          )) || (
+            <Page
+              pageNumber={pageNumber}
+              renderInteractiveForms={false}
+              renderAnnotationLayer={true}
+            />
+          )}
+        </Document>
+      </Modal.Body>
+
+      <Modal.Footer>
+        <div className="pdf-navigation">
+          <Pagination
+            numPages={numPages}
+            pageNumber={pageNumber}
+            firstPage={firstPage}
+            previousPage={previousPage}
+            nextPage={nextPage}
+            lastPage={lastPage}
+            index={props.index}
+          />
+        </div>
+        <ESTooltip
+          helpId={"preview-button-dissaprove-" + props.index}
+          inModal={true}
+          tooltip={rejectButtonHelpText}
+        >
+          <Button
+            variant="outline-danger"
+            disabling={true}
+            onClick={props.handleUnConfirm({
+              doc: props.doc,
+              intl: props.intl,
+            })}
+            id={"preview-button-dissaprove-" + props.index}
           >
+            {rejectButtonLabel}
+          </Button>
+        </ESTooltip>
+        <ESTooltip
+          helpId={"preview-button-confirm-" + props.index}
+          inModal={true}
+          tooltip={acceptButtonHelpText}
+        >
+          <span className="d-inline-block">
             <Button
-              variant="outline-danger"
-              disabling={true}
-              onClick={props.handleUnConfirm({
-                doc: props.doc,
-                intl: props.intl,
-              })}
-              id={"preview-button-dissaprove-" + props.index}
+              disabled={!readyToConfirm}
+              onClick={props.handleConfirm(props.doc)}
+              style={(!readyToConfirm && { pointerEvents: "none" }) || {}}
+              variant="outline-success"
+              id={"preview-button-confirm-" + props.index}
             >
-              {rejectButtonLabel}
+              {acceptButtonLabel}
             </Button>
-          </ESTooltip>
-          <ESTooltip
-            helpId={"preview-button-confirm-" + props.index}
-            inModal={true}
-            tooltip={acceptButtonHelpText}
-          >
-            <span className="d-inline-block">
-              <Button
-                disabled={!readyToConfirm}
-                onClick={props.handleConfirm(props.doc)}
-                style={(!readyToConfirm && { pointerEvents: "none" }) || {}}
-                variant="outline-success"
-                id={"preview-button-confirm-" + props.index}
-              >
-                {acceptButtonLabel}
-              </Button>
-            </span>
-          </ESTooltip>
-        </Modal.Footer>
-      </Modal>
-    </>
+          </span>
+        </ESTooltip>
+      </Modal.Footer>
+    </Modal>
   );
 }
 
