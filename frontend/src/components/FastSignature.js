@@ -6,8 +6,6 @@ import { FormattedMessage } from "react-intl";
 import { injectIntl } from "init-app/intl";
 import { ESTooltip } from "containers/Overlay";
 
-import "styles/FastSignature.scss";
-
 class FastSignature extends React.Component {
   render() {
     return (
@@ -27,23 +25,28 @@ class FastSignature extends React.Component {
         </Modal.Header>
         <Modal.Body>
           <div className="user-info-holder">
-            <div className="user-info-holder-1">
+            <p className="info-text">
               <FormattedMessage
-                defaultMessage={
-                  'You have approved the preview of "{docName}". Do you want to sign it?'
-                }
+                defaultMessage={"You have approved the preview of {docName}."}
                 key="fast-signature-desc"
-                values={{ docName: this.props.doc.name }}
+                values={{ docName: <strong>{this.props.doc.name}</strong> }}
               />
-            </div>
-            <div className="user-info-holder-2">
+            </p>
+            <p className="info-text">
+              <FormattedMessage
+                defaultMessage={"Do you want to sign it?"}
+                key="fast-signature-desc1"
+              />
+            </p>
+            <p className="info-text">
               <FormattedMessage
                 defaultMessage={
-                  'If you press "Sign" you will be redirected to your identity provider to authenticate and sign.'
+                  "If you press {Sign} you will be redirected to your identity provider to authenticate and sign."
                 }
                 key="fast-signature-desc-2"
+                values={{ Sign: <strong>Sign</strong> }}
               />
-            </div>
+            </p>
           </div>
         </Modal.Body>
         <Modal.Footer>

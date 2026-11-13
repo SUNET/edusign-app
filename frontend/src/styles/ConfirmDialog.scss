@@ -33,3 +33,13 @@ div.confirm-buttons {
 .modal .form-control::placeholder {
   color: $darker-grey;
 }
+
+p.info-text {
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 300;
+
+  strong {
+    font-weight: 600;
+  }
+}
