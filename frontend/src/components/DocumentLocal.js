@@ -8,6 +8,7 @@ import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
 
 import "styles/DocManager.scss";
+import { useAppSelector } from "init-app/hooks";
 
 /**
  * @desc This component provides a representation of the documents in the session.
@@ -27,6 +28,7 @@ import "styles/DocManager.scss";
 function DocumentLocal(ownProps) {
   const intl = useIntl();
   const props = { ...ownProps, intl };
+  const signer = useAppSelector((state) => state.main.signer_attributes);
   const getHelp = (msg) => {
     const msgs = {
       "loading-title": intl.formatMessage({
@@ -143,7 +145,7 @@ function DocumentLocal(ownProps) {
             />
           </span>
           <span className="item">
-            {props.name} &lt;{props.mail}&gt;.
+            {signer.name} &lt;{signer.mail}&gt;.
           </span>
         </div>
       )) ||
