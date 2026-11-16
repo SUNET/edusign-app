@@ -17,13 +17,7 @@ import {
   validateSSN,
 } from "components/validation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faCircle,
-  faCirclePlus,
-  faPlus,
-  faX,
-  faXmark,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCirclePlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 const mapStateToProps = (state, props) => {
   let ordered;
