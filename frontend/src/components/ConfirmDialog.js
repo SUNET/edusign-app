@@ -35,26 +35,23 @@ class ConfirmDialog extends Component {
           <Modal.Footer>
             <div className="confirm-buttons">
               <Button
+                id={this.props.confirmId + "-cancel-button"}
+                variant="outline-secondary"
+                size="lg"
+                onClick={this.props.closeConfirm}
+              >
+                <FormattedMessage defaultMessage="Cancel" key="cancel-button" />
+              </Button>
+              <Button
                 id={this.props.confirmId + "-confirm-button"}
                 disabling={true}
-                variant="outline-success"
-                size="sm"
+                variant="primary"
+                size="lg"
                 onClick={this.handleConfirm(this.props)}
               >
                 <FormattedMessage
                   defaultMessage="Confirm"
                   key="confirm-dialog-confirm"
-                />
-              </Button>
-              <Button
-                id={this.props.confirmId + "-cancel-button"}
-                variant="outline-danger"
-                size="sm"
-                onClick={this.props.closeConfirm}
-              >
-                <FormattedMessage
-                  defaultMessage="Cancel"
-                  key="confirm-dialog-cancel"
                 />
               </Button>
             </div>

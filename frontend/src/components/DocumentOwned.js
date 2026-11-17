@@ -206,25 +206,25 @@ class DocumentOwned extends Component {
                 </div>
               )}
               {doc.state === "signed" && (
-                <>
-                  <div className="select-column">
-                    {widgets.dummySelectDoc()}
-                    {widgets.docName(doc)}
-                    {widgets.docSize(doc)}
-                    {widgets.removeConfirmButton(
-                      this.props,
-                      doc,
-                      "confirm-remove-" + doc.name,
-                    )}
+                <div className="select-column">
+                  {widgets.dummySelectDoc()}
+                  {widgets.docName(doc)}
+                  {widgets.docSize(doc)}
+                  {widgets.removeConfirmButton(
+                    this.props,
+                    doc,
+                    "confirm-remove-" + doc.name,
+                  )}
+                  <div className="buttons-flex">
+                    <ESDropdown doc={doc}>
+                      {menu.previewMenuItem(this.props, doc)}
+                    </ESDropdown>
+                    {widgets.multiSignButton(this.props, doc)}
+                    {(doc.signed.length > 0 &&
+                      widgets.downloadSignedButton(this.props, doc)) ||
+                      ""}
                   </div>
-                  <ESDropdown doc={doc}>
-                    {menu.previewMenuItem(this.props, doc)}
-                  </ESDropdown>
-                  {widgets.multiSignButton(this.props, doc)}
-                  {(doc.signed.length > 0 &&
-                    widgets.downloadSignedButton(this.props, doc)) ||
-                    ""}
-                </>
+                </div>
               )}
 
               {invites}

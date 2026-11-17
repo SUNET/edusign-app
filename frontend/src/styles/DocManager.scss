@@ -253,12 +253,12 @@ p.invited-legend-title {
     grid-area: icon;
     align-self: center;
     justify-self: center;
-    width: auto;
   }
 
   > svg {
     font-size: 1.5rem;
     color: $darker-grey;
+    width: auto;
   }
 
   .doc-selector-flex-item {
@@ -267,14 +267,6 @@ p.invited-legend-title {
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-
-  input[type="checkbox"] {
-    display: block;
-    width: 1.25rem;
-    height: 1.25rem;
-    margin: 0;
-    cursor: pointer;
   }
 
   .doc-name {

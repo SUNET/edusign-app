@@ -52,10 +52,26 @@ p.help-text {
 
 .form-group {
   margin-bottom: 1rem;
+  align-items: center;
 }
 
 fieldset {
   margin-top: 2rem;
   border-top: 2px solid $mid-gray;
   padding-top: 2rem;
+}
+
+a {
+  color: $btn-orange;
+
+  &:hover {
+    transition: transform 0.15s ease;
+  }
+}
+
+input[type="checkbox"] {
+  display: block;
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
 }
