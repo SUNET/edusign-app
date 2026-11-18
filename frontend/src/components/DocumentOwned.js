@@ -7,6 +7,7 @@ import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
 import InviteEditFormContainer from "containers/InviteEditForm";
 import { useDocHelp } from "hooks/useDocHelp";
+import DocumentRow from "./DocumentRow";
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
@@ -105,70 +106,61 @@ function DocumentOwned(props) {
         >
           <div className="doc-detail-block">
             {doc.state === "incomplete" && (
-              <div className="select-column">
-                {widgets.dummySelectDoc()}
-                {widgets.docName(doc)}
-                {widgets.docSize(doc)}
-                <div className="buttons-flex">
+              <DocumentRow
+                props={props}
+                doc={doc}
+                removable
+                buttons={
                   <ESDropdown doc={doc}>
                     {menu.editInvitationMenuItem(props, doc)}
                     {menu.resendMenuItem(props, doc)}
                     {menu.previewMenuItem(props, doc)}
                   </ESDropdown>
-                </div>
-                {widgets.removeConfirmButton(
-                  props,
-                  doc,
-                  "confirm-remove-" + doc.name,
-                )}
-              </div>
+                }
+              />
             )}
             {["loaded", "selected", "failed-signing"].includes(doc.state) && (
-              <div className="select-column">
-                {widgets.selectDoc(props, doc)}
-                {widgets.docName(doc)}
-                {widgets.docSize(doc)}
-                {widgets.showMessage(doc)}
-                <div className="buttons-flex">
-                  <ESDropdown doc={doc}>
-                    {menu.editInvitationMenuItem(props, doc)}
-                    {menu.previewMenuItem(props, doc)}
-                  </ESDropdown>
-                  {widgets.skipSignatureButton(props, doc)}
-                </div>
-                {widgets.removeConfirmButton(props, doc)}
-              </div>
+              <DocumentRow
+                props={props}
+                doc={doc}
+                selectable
+                message
+                removable
+                buttons={
+                  <>
+                    <ESDropdown doc={doc}>
+                      {menu.editInvitationMenuItem(props, doc)}
+                      {menu.previewMenuItem(props, doc)}
+                    </ESDropdown>
+                    {widgets.skipSignatureButton(props, doc)}
+                  </>
+                }
+              />
             )}
             {doc.state === "signing" && (
-              <div className="select-column">
-                {widgets.dummySelectDoc()}
-                {widgets.docName(doc)}
-                {widgets.docSize(doc)}
-                {widgets.namedSpinner(doc.name, "signing")}
-              </div>
+              <DocumentRow
+                props={props}
+                doc={doc}
+                buttons={widgets.namedSpinner(doc.name, "signing")}
+              />
             )}
             {doc.state === "signed" && (
-              <div className="select-column">
-                {widgets.dummySelectDoc()}
-                {widgets.docName(doc)}
-                {widgets.docSize(doc)}
-                {widgets.removeConfirmButton(
-                  props,
-                  doc,
-                  "confirm-remove-" + doc.name,
-                )}
-                <div className="buttons-flex">
-                  <ESDropdown doc={doc}>
-                    {menu.previewMenuItem(props, doc)}
-                  </ESDropdown>
-                  {widgets.multiSignButton(props, doc)}
-                  {(doc.signed.length > 0 &&
-                    widgets.downloadSignedButton(props, doc)) ||
-                    ""}
-                </div>
-              </div>
+              <DocumentRow
+                props={props}
+                doc={doc}
+                removable
+                buttons={
+                  <>
+                    <ESDropdown doc={doc}>
+                      {menu.previewMenuItem(props, doc)}
+                    </ESDropdown>
+                    {widgets.multiSignButton(props, doc)}
+                    {doc.signed.length > 0 &&
+                      widgets.downloadSignedButton(props, doc)}
+                  </>
+                }
+              />
             )}
-
             {invites}
             {preparePrevSigs(doc, props.size)}
             <widgets.InfoLine doc={doc} />
