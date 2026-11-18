@@ -1,11 +1,9 @@
-import React, { Component, Fragment } from "react";
-import PropTypes from "prop-types";
+import React from "react";
 import { FormattedMessage } from "react-intl";
-import { injectIntl } from "init-app/intl";
-import { ESPopover, ESTooltip } from "containers/Overlay";
+import { ESPopover } from "containers/Overlay";
 import ESDropdown from "components/Dropdown";
 import * as menu from "components/dropdownItems";
-
+import { useDocHelp } from "hooks/useDocHelp";
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
 
@@ -14,260 +12,170 @@ import { preparePrevSigs } from "components/utils";
  *
  * @component
  */
-class DocumentInvited extends Component {
-  getHelp(msg) {
-    const msgs = {
-      "loaded-title": this.props.intl.formatMessage({
-        defaultMessage: "Document loaded",
-        id: "docmanager-help-loaded-title",
-      }),
-      loaded: this.props.intl.formatMessage({
-        defaultMessage:
-          'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign selected documents"',
-        id: "docmanager-help-loaded",
-      }),
-      "unconfirmed-title": this.props.intl.formatMessage({
-        defaultMessage: "This document has not yet been approved",
-        id: "docmanager-help-unconfirmed-title",
-      }),
-      unconfirmed: this.props.intl.formatMessage({
-        defaultMessage:
-          'Click on the button labeled "Preview and approve" to review the document and confirm that you approve it for signature',
-        id: "docmanager-help-unconfirmed",
-      }),
-      "selected-title": this.props.intl.formatMessage({
-        defaultMessage: "Document selected for signing",
-        id: "docmanager-help-selected-title",
-      }),
-      selected: this.props.intl.formatMessage({
-        defaultMessage:
-          'Click on the button below labelled "Sign selected documents" to sign this document',
-        id: "docmanager-help-selected",
-      }),
-      "signing-title": this.props.intl.formatMessage({
-        defaultMessage: "Signing document",
-        id: "docmanager-help-signing-title",
-      }),
-      signing: this.props.intl.formatMessage({
-        defaultMessage: "Please wait while the document is signed",
-        id: "docmanager-help-signing",
-      }),
-      "failed-signing-title": this.props.intl.formatMessage({
-        defaultMessage: "Failed signing document",
-        id: "docmanager-help-failed-signing-title",
-      }),
-      "failed-signing": this.props.intl.formatMessage({
-        defaultMessage:
-          'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign selected documents"',
-        id: "docmanager-help-failed-signing",
-      }),
-      "signed-title": this.props.intl.formatMessage({
-        defaultMessage: "Document signed",
-        id: "docmanager-help-signed-title",
-      }),
-      signed: this.props.intl.formatMessage({
-        defaultMessage:
-          "You have successfully signed the document. Note that if you reload the app you will not have access to the document anymore. The inviter has been notified of your signature, it is up to them to decide if the system should send you the final signed version.",
-        id: "docmanager-help-signed-invited",
-      }),
-      "declined-title": this.props.intl.formatMessage({
-        defaultMessage: "Signature declined",
-        id: "docmanager-help-declined-title",
-      }),
-      declined: this.props.intl.formatMessage({
-        defaultMessage:
-          "You have declined to sign this document. It will dissapear from here if you reload the app.",
-        id: "docmanager-help-declined-invited",
-      }),
-      "failed-loa-title": this.props.intl.formatMessage({
-        defaultMessage: "Insufficient assurance level",
-        id: "docmanager-help-failed-loa-title",
-      }),
-      "failed-loa": this.props.intl.formatMessage({
-        defaultMessage:
-          "Your account does not provide the required assurance level. Please take the steps to provide it.",
-        id: "docmanager-help-failed-loa-invited",
-      }),
-    };
-    return msgs[msg];
-  }
-  render() {
-    const doc = this.props.doc;
-    const invitedBy = (
-      <div className="info-row">
-        <span className="label">
-          <FormattedMessage defaultMessage="Invited by:" key="invited-by" />
-        </span>
-        <span className="item">
-          {doc.owner.name} &lt;{doc.owner.email}&gt;.
-        </span>
-      </div>
-    );
-    const pending = (
-      <div className="info-row">
-        <span className="label">
-          <FormattedMessage
-            defaultMessage="Waiting for signatures by:"
-            key="multisign-owned-waiting"
-          />
-        </span>
-        {doc.pending.map((invite, index) => {
-          return (
-            <span className="item" key={index}>
-              {invite.name} &lt;{invite.email}&gt;{" "}
-              {index < doc.pending.length - 1 ? "," : "."}
-            </span>
-          );
-        })}
-      </div>
-    );
-    const signed = (
-      <div className="info-row">
-        <span className="label">
-          <FormattedMessage
-            defaultMessage="Signed by:"
-            key="multisign-signed"
-          />
-        </span>
-        {doc.signed.map((invite, index) => {
-          return (
-            <span className="item" key={index}>
-              {invite.name} &lt;{invite.email}&gt;{" "}
-              {index < doc.signed.length - 1 ? "," : "."}
-            </span>
-          );
-        })}
-      </div>
-    );
-    const declined = (
-      <div className="info-row">
-        <span className="label">
-          <FormattedMessage
-            defaultMessage="Declined to sign by:"
-            key="multisign-owned-declined"
-          />
-        </span>
-        {doc.declined.map((invite, index) => {
-          return (
-            <span className="item" key={index}>
-              {invite.name} &lt;{invite.email}&gt;{" "}
-              {index < doc.declined.length - 1 ? "," : "."}
-            </span>
-          );
-        })}
-      </div>
-    );
-    const invites = (
-      <>
-        {invitedBy}
-        {doc.pending.length > 0 && <>{pending}</>}
-        {doc.signed.length > 0 && <>{signed}</>}
-        {doc.declined !== undefined && doc.declined.length > 0 && (
-          <>{declined}</>
-        )}
-      </>
-    );
-    const failedLoA =
-      (doc.state === "failed-loa" && <>{widgets.showMessage(doc)}</>) || "";
-    return (
-      <ESPopover
-        helpId={"invited-doc-container-" + doc.key}
-        key={doc.key}
-        title={this.getHelp(doc.state + "-title")}
-        body={this.getHelp(doc.state)}
+function DocumentInvited(props) {
+  const getHelp = useDocHelp();
+  const doc = props.doc;
+  const invitedBy = (
+    <div className="info-row">
+      <span className="label">
+        <FormattedMessage defaultMessage="Invited by:" key="invited-by" />
+      </span>
+      <span className="item">
+        {doc.owner.name} &lt;{doc.owner.email}&gt;.
+      </span>
+    </div>
+  );
+  const pending = (
+    <div className="info-row">
+      <span className="label">
+        <FormattedMessage
+          defaultMessage="Waiting for signatures by:"
+          key="multisign-owned-waiting"
+        />
+      </span>
+      {doc.pending.map((invite, index) => {
+        return (
+          <span className="item" key={index}>
+            {invite.name} &lt;{invite.email}&gt;{" "}
+            {index < doc.pending.length - 1 ? "," : "."}
+          </span>
+        );
+      })}
+    </div>
+  );
+  const signed = (
+    <div className="info-row">
+      <span className="label">
+        <FormattedMessage defaultMessage="Signed by:" key="multisign-signed" />
+      </span>
+      {doc.signed.map((invite, index) => {
+        return (
+          <span className="item" key={index}>
+            {invite.name} &lt;{invite.email}&gt;{" "}
+            {index < doc.signed.length - 1 ? "," : "."}
+          </span>
+        );
+      })}
+    </div>
+  );
+  const declined = (
+    <div className="info-row">
+      <span className="label">
+        <FormattedMessage
+          defaultMessage="Declined to sign by:"
+          key="multisign-owned-declined"
+        />
+      </span>
+      {doc.declined.map((invite, index) => {
+        return (
+          <span className="item" key={index}>
+            {invite.name} &lt;{invite.email}&gt;{" "}
+            {index < doc.declined.length - 1 ? "," : "."}
+          </span>
+        );
+      })}
+    </div>
+  );
+  const invites = (
+    <>
+      {invitedBy}
+      {doc.pending.length > 0 && <>{pending}</>}
+      {doc.signed.length > 0 && <>{signed}</>}
+      {doc.declined !== undefined && doc.declined.length > 0 && <>{declined}</>}
+    </>
+  );
+  const failedLoA =
+    (doc.state === "failed-loa" && <>{widgets.showMessage(doc)}</>) || "";
+  return (
+    <ESPopover
+      helpId={"invited-doc-container-" + doc.key}
+      key={doc.key}
+      title={getHelp(doc.state + "-title")}
+      body={getHelp(doc.state)}
+    >
+      <div
+        className={"doc-flex-container " + doc.state}
+        data-testid={`representation-for-doc-${doc.key}`}
       >
-        <div
-          className={"doc-flex-container " + doc.state}
-          data-testid={`representation-for-doc-${doc.key}`}
-        >
-          <div className="doc-detail-block" id={"invitee-doc-" + doc.key}>
-            {doc.state === "unconfirmed" && (
-              <>
-                <div className="select-column">
-                  {widgets.dummySelectDoc()}
-                  {widgets.docName(doc)}
-                  {widgets.docSize(doc)}
-                  <div className="buttons-flex">
-                    <ESDropdown doc={doc}>
-                      {menu.downloadDraftMenuItem(this.props, doc)}
-                    </ESDropdown>
-                    {widgets.forcedPreviewButton(this.props, doc)}
-                    {widgets.declineSignatureButton(this.props, doc)}
-                  </div>
-                </div>
-              </>
-            )}
-            {["loaded", "selected", "failed-signing"].includes(doc.state) && (
-              <div className="select-column">
-                {widgets.selectDoc(this.props, doc)}
-                {widgets.docName(doc)}
-                {widgets.docSize(doc)}
-                {widgets.showMessage(doc)}
-                <div className="buttons-flex">
-                  <ESDropdown doc={doc}>
-                    {menu.previewMenuItem(this.props, doc)}
-                    {menu.downloadDraftMenuItem(this.props, doc)}
-                  </ESDropdown>
-                  {doc.state === "selected" &&
-                    (this.props.using_bankid || this.props.using_freja) &&
-                    widgets.signButton(this.props, doc)}
-                  {widgets.declineSignatureButton(this.props, doc)}
-                </div>
+        <div className="doc-detail-block" id={"invitee-doc-" + doc.key}>
+          {doc.state === "unconfirmed" && (
+            <div className="select-column">
+              {widgets.dummySelectDoc()}
+              {widgets.docName(doc)}
+              {widgets.docSize(doc)}
+              <div className="buttons-flex">
+                <ESDropdown doc={doc}>
+                  {menu.downloadDraftMenuItem(props, doc)}
+                </ESDropdown>
+                {widgets.forcedPreviewButton(props, doc)}
+                {widgets.declineSignatureButton(props, doc)}
               </div>
-            )}
-            {doc.state === "signing" && (
-              <div className="select-column">
-                {widgets.dummySelectDoc()}
-                {widgets.docName(doc)}
-                {widgets.docSize(doc)}
-                {widgets.namedSpinner(doc.key, "signing")}
+            </div>
+          )}
+          {["loaded", "selected", "failed-signing"].includes(doc.state) && (
+            <div className="select-column">
+              {widgets.selectDoc(props, doc)}
+              {widgets.docName(doc)}
+              {widgets.docSize(doc)}
+              {widgets.showMessage(doc)}
+              <div className="buttons-flex">
+                <ESDropdown doc={doc}>
+                  {menu.previewMenuItem(props, doc)}
+                  {menu.downloadDraftMenuItem(props, doc)}
+                </ESDropdown>
+                {doc.state === "selected" &&
+                  (props.using_bankid || props.using_freja) &&
+                  widgets.signButton(props, doc)}
+                {widgets.declineSignatureButton(props, doc)}
               </div>
-            )}
-            {doc.state === "signed" && (
-              <div className="select-column">
-                {widgets.dummySelectDoc()}
-                {widgets.docName(doc)}
-                {widgets.docSize(doc)}
-                <div className="buttons-flex">
-                  {widgets.downloadDraftButton(this.props, doc)}
-                </div>
+            </div>
+          )}
+          {doc.state === "signing" && (
+            <div className="select-column">
+              {widgets.dummySelectDoc()}
+              {widgets.docName(doc)}
+              {widgets.docSize(doc)}
+              {widgets.namedSpinner(doc.key, "signing")}
+            </div>
+          )}
+          {doc.state === "signed" && (
+            <div className="select-column">
+              {widgets.dummySelectDoc()}
+              {widgets.docName(doc)}
+              {widgets.docSize(doc)}
+              <div className="buttons-flex">
+                {widgets.downloadDraftButton(props, doc)}
               </div>
-            )}
-            {doc.state === "declined" && (
-              <>
-                <div className="select-column">
-                  {widgets.dummySelectDoc()}
-                  {widgets.docName(doc)}
-                  {widgets.docSize(doc)}
-                  {widgets.showMessage(doc)}
-                  <div className="buttons-flex">{widgets.dummyButton()}</div>
-                </div>
-              </>
-            )}
-            {doc.state === "failed-loa" && (
-              <div className="select-column">
-                {widgets.dummySelectDoc()}
-                {widgets.docName(doc)}
-                {widgets.docSize(doc)}
-                <div className="buttons-flex">
-                  {widgets.declineSignatureButton(this.props, doc)}
-                </div>
+            </div>
+          )}
+          {doc.state === "declined" && (
+            <div className="select-column">
+              {widgets.dummySelectDoc()}
+              {widgets.docName(doc)}
+              {widgets.docSize(doc)}
+              {widgets.showMessage(doc)}
+              <div className="buttons-flex">{widgets.dummyButton()}</div>
+            </div>
+          )}
+          {doc.state === "failed-loa" && (
+            <div className="select-column">
+              {widgets.dummySelectDoc()}
+              {widgets.docName(doc)}
+              {widgets.docSize(doc)}
+              <div className="buttons-flex">
+                {widgets.declineSignatureButton(props, doc)}
               </div>
-            )}
+            </div>
+          )}
 
-            {failedLoA}
-            {invites}
-            {preparePrevSigs(doc, this.props.size)}
-            <widgets.InfoLine doc={doc} />
-          </div>
+          {failedLoA}
+          {invites}
+          {preparePrevSigs(doc, props.size)}
+          <widgets.InfoLine doc={doc} />
         </div>
-      </ESPopover>
-    );
-  }
+      </div>
+    </ESPopover>
+  );
 }
 
-DocumentInvited.propTypes = {
-  owned: PropTypes.array,
-};
-
-export default injectIntl(DocumentInvited);
+export default DocumentInvited;
