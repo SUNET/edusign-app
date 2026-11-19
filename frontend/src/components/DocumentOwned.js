@@ -29,67 +29,45 @@ function DocumentOwned(props) {
       />
     )) ||
     "";
-  const pending =
-    (doc.state === "incomplete" && (
+
+  const inviteRow = (label, invitees) =>
+    invitees !== undefined &&
+    invitees.length > 0 && (
       <div className="info-row">
-        <span className="label">
+        <span className="label">{label}</span>
+        {invitees.map((invite, index) => (
+          <span className="item" key={invite.email}>
+            {invite.name} &lt;{invite.email}&gt;{" "}
+            {index < invitees.length - 1 ? "," : "."}
+          </span>
+        ))}
+      </div>
+    );
+
+  const invites = (
+    <>
+      {doc.state === "incomplete" &&
+        inviteRow(
           <FormattedMessage
             defaultMessage="Waiting for signatures by:"
             key="multisign-owned-waiting"
-          />
-        </span>
-        {doc.pending.map((invite, index) => {
-          return (
-            <span className="item" key={index}>
-              {invite.name} &lt;{invite.email}&gt;{" "}
-              {index < doc.pending.length - 1 ? "," : "."}
-            </span>
-          );
-        })}
-      </div>
-    )) ||
-    "";
-  const signed = (
-    <div className="info-row">
-      <span className="label">
+          />,
+          doc.pending,
+        )}
+      {inviteRow(
         <FormattedMessage
           defaultMessage="Signed by:"
           key="multisign-owned-signed"
-        />
-      </span>
-      {doc.signed.map((invite, index) => {
-        return (
-          <span className="item" key={index}>
-            {invite.name} &lt;{invite.email}&gt;{" "}
-            {index < doc.signed.length - 1 ? "," : "."}
-          </span>
-        );
-      })}
-    </div>
-  );
-  const declined = doc.declined !== undefined && (
-    <div className="info-row">
-      <span className="label">
+        />,
+        doc.signed,
+      )}
+      {inviteRow(
         <FormattedMessage
           defaultMessage="Declined to sign by:"
           key="multisign-owned-declined"
-        />
-      </span>
-      {doc.declined.map((invite, index) => {
-        return (
-          <span className="item" key={index}>
-            {invite.name} &lt;{invite.email}&gt;{" "}
-            {index < doc.declined.length - 1 ? "," : "."}
-          </span>
-        );
-      })}
-    </div>
-  );
-  const invites = (
-    <>
-      {doc.pending.length > 0 && <>{pending}</>}
-      {doc.signed.length > 0 && <>{signed}</>}
-      {doc.declined !== undefined && doc.declined.length > 0 && <>{declined}</>}
+        />,
+        doc.declined,
+      )}
     </>
   );
   return (
