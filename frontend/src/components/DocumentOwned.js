@@ -67,7 +67,7 @@ function DocumentOwned(props) {
       })}
     </div>
   );
-  const declined = (
+  const declined = doc.declined !== undefined && (
     <div className="info-row">
       <span className="label">
         <FormattedMessage
