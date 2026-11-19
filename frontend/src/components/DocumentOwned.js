@@ -70,6 +70,62 @@ function DocumentOwned(props) {
       )}
     </>
   );
+
+  const rowForState = () => {
+    switch (doc.state) {
+      case "incomplete":
+        return {
+          removable: true,
+          buttons: (
+            <ESDropdown doc={doc}>
+              {menu.editInvitationMenuItem(props, doc)}
+              {menu.resendMenuItem(props, doc)}
+              {menu.previewMenuItem(props, doc)}
+            </ESDropdown>
+          ),
+        };
+      case "loaded":
+      case "selected":
+      case "failed-signing":
+        return {
+          selectable: true,
+          message: true,
+          removable: true,
+          buttons: (
+            <>
+              <ESDropdown doc={doc}>
+                {menu.editInvitationMenuItem(props, doc)}
+                {menu.previewMenuItem(props, doc)}
+              </ESDropdown>
+              {widgets.skipSignatureButton(props, doc)}
+            </>
+          ),
+        };
+      case "signing":
+        return {
+          buttons: widgets.namedSpinner(doc.name, "signing"),
+        };
+      case "signed":
+        return {
+          removable: true,
+          buttons: (
+            <>
+              <ESDropdown doc={doc}>
+                {menu.previewMenuItem(props, doc)}
+              </ESDropdown>
+              {widgets.multiSignButton(props, doc)}
+              {doc.signed.length > 0 &&
+                widgets.downloadSignedButton(props, doc)}
+            </>
+          ),
+        };
+      default:
+        return null;
+    }
+  };
+
+  const row = rowForState();
+
   return (
     <>
       <ESPopover
@@ -83,62 +139,7 @@ function DocumentOwned(props) {
           data-testid={`representation-for-doc-${doc.name}`}
         >
           <div className="doc-detail-block">
-            {doc.state === "incomplete" && (
-              <DocumentRow
-                props={props}
-                doc={doc}
-                removable
-                buttons={
-                  <ESDropdown doc={doc}>
-                    {menu.editInvitationMenuItem(props, doc)}
-                    {menu.resendMenuItem(props, doc)}
-                    {menu.previewMenuItem(props, doc)}
-                  </ESDropdown>
-                }
-              />
-            )}
-            {["loaded", "selected", "failed-signing"].includes(doc.state) && (
-              <DocumentRow
-                props={props}
-                doc={doc}
-                selectable
-                message
-                removable
-                buttons={
-                  <>
-                    <ESDropdown doc={doc}>
-                      {menu.editInvitationMenuItem(props, doc)}
-                      {menu.previewMenuItem(props, doc)}
-                    </ESDropdown>
-                    {widgets.skipSignatureButton(props, doc)}
-                  </>
-                }
-              />
-            )}
-            {doc.state === "signing" && (
-              <DocumentRow
-                props={props}
-                doc={doc}
-                buttons={widgets.namedSpinner(doc.name, "signing")}
-              />
-            )}
-            {doc.state === "signed" && (
-              <DocumentRow
-                props={props}
-                doc={doc}
-                removable
-                buttons={
-                  <>
-                    <ESDropdown doc={doc}>
-                      {menu.previewMenuItem(props, doc)}
-                    </ESDropdown>
-                    {widgets.multiSignButton(props, doc)}
-                    {doc.signed.length > 0 &&
-                      widgets.downloadSignedButton(props, doc)}
-                  </>
-                }
-              />
-            )}
+            {row && <DocumentRow props={props} doc={doc} {...row} />}
             {invites}
             {preparePrevSigs(doc, props.size)}
             <widgets.InfoLine doc={doc} />
