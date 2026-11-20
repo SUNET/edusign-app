@@ -31,37 +31,6 @@
     flex: none;
     width: 5rem;
   }
-  .button-forced-preview-flex-item,
-  .button-preview-flex-item,
-  .button-resend-flex-item,
-  .button-remove-flex-item,
-  .button-retry-flex-item,
-  .button-download-flex-item,
-  .button-create-template-flex-item,
-  .button-decline-flex-item,
-  .button-skip-flex-item,
-  .button-edit-invitations-flex-item,
-  .button-multisign-flex-item {
-    flex: none;
-    button {
-      padding: inherit 0.5rem;
-    }
-  }
-}
-// }
-
-.button-forced-preview-flex-item,
-.button-preview-flex-item,
-.button-resend-flex-item,
-.button-remove-flex-item,
-.button-retry-flex-item,
-.button-download-flex-item,
-.button-create-template-flex-item,
-.button-decline-flex-item,
-.button-skip-flex-item,
-.button-edit-invitations-flex-item,
-.button-multisign-flex-item {
-  margin-right: 0.5rem;
 }
 
 .doc-container-button-row {
@@ -71,23 +40,6 @@
   display: flex;
   justify-content: flex-end;
   flex-wrap: wrap;
-
-  .button-forced-preview-flex-item,
-  .button-preview-flex-item,
-  .button-resend-flex-item,
-  .button-remove-flex-item,
-  .button-retry-flex-item,
-  .button-download-flex-item,
-  .button-create-template-flex-item,
-  .button-decline-flex-item,
-  .button-skip-flex-item,
-  .button-edit-invitations-flex-item,
-  .button-multisign-flex-item {
-    flex: none;
-    button {
-      padding: inherit 0.5rem;
-    }
-  }
 }
 
 .doc-container-msg-row {
@@ -296,7 +248,6 @@ p.invited-legend-title {
   }
 
   // The remove button keeps its place at the far right on every viewport.
-  .button-remove-flex-item,
   > button {
     grid-area: remove;
     justify-self: end;
