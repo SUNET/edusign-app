@@ -20,7 +20,6 @@ class ESDropdown extends React.Component {
         disabling={true}
         id={buttonId}
         data-testid={buttonId}
-        {...this.props}
       >
         {this.props.children}
       </DropdownButton>
