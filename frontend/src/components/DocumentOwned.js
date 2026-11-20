@@ -1,247 +1,155 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React from "react";
 import { FormattedMessage } from "react-intl";
-import { injectIntl } from "init-app/intl";
-import { ESPopover, ESTooltip } from "containers/Overlay";
+import { ESPopover } from "containers/Overlay";
 import ESDropdown from "components/Dropdown";
 import * as menu from "components/dropdownItems";
-
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
 import InviteEditFormContainer from "containers/InviteEditForm";
+import { useDocHelp } from "hooks/useDocHelp";
+import DocumentRow from "./DocumentRow";
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.
  *
  * @component
  */
-class DocumentOwned extends Component {
-  getHelp(msg) {
-    const msgs = {
-      "loaded-title": this.props.intl.formatMessage({
-        defaultMessage: "Document loaded",
-        id: "docmanager-help-loaded-title",
-      }),
-      loaded: this.props.intl.formatMessage({
-        defaultMessage:
-          'To sign this document, select it on the checkbox to left and then click on the button labelled "Sign selected documents"',
-        id: "docmanager-help-loaded",
-      }),
-      "incomplete-title": this.props.intl.formatMessage({
-        defaultMessage: "Waiting for invited signatures",
-        id: "docmanager-help-incomplete-title",
-      }),
-      incomplete: this.props.intl.formatMessage({
-        defaultMessage:
-          "You must wait for all invited people to respond before signing this document yourself.",
-        id: "docmanager-help-incomplete",
-      }),
-      "selected-title": this.props.intl.formatMessage({
-        defaultMessage: "Document selected for signing",
-        id: "docmanager-help-selected-title",
-      }),
-      selected: this.props.intl.formatMessage({
-        defaultMessage:
-          'Click on the button below labelled "Sign selected documents" to sign this document',
-        id: "docmanager-help-selected",
-      }),
-      "signing-title": this.props.intl.formatMessage({
-        defaultMessage: "Signing document",
-        id: "docmanager-help-signing-title",
-      }),
-      signing: this.props.intl.formatMessage({
-        defaultMessage: "Please wait while the document is signed",
-        id: "docmanager-help-signing",
-      }),
-      "failed-signing-title": this.props.intl.formatMessage({
-        defaultMessage: "Failed signing document",
-        id: "docmanager-help-failed-signing-title",
-      }),
-      "failed-signing": this.props.intl.formatMessage({
-        defaultMessage:
-          'There was a problem signing the document, to try again click on the checkbox to the left and then on the button labelled "Sign selected documents"',
-        id: "docmanager-help-failed-signing",
-      }),
-      "signed-title": this.props.intl.formatMessage({
-        defaultMessage: "Document signed",
-        id: "docmanager-help-signed-title",
-      }),
-      signed: this.props.intl.formatMessage({
-        defaultMessage:
-          'Document succesfully signed, click on the button labelled "Download (signed)" to download it',
-        id: "docmanager-help-signed",
-      }),
-    };
-    return msgs[msg];
-  }
-  render() {
-    const doc = this.props.doc;
-    const editForm =
-      (["loaded", "selected", "failed-signing", "incomplete"].includes(
-        doc.state,
-      ) && (
-        <InviteEditFormContainer
-          docKey={doc.key}
-          docOrdered={doc.ordered}
-          docSendSigned={doc.sendsigned}
-          docSkipFinal={doc.skipfinal}
-        />
-      )) ||
-      "";
-    const pending =
-      (doc.state === "incomplete" && (
-        <div className="info-row">
-          <span className="label">
-            <FormattedMessage
-              defaultMessage="Waiting for signatures by:"
-              key="multisign-owned-waiting"
-            />
-          </span>
-          {doc.pending.map((invite, index) => {
-            return (
-              <span className="item" key={index}>
-                {invite.name} &lt;{invite.email}&gt;{" "}
-                {index < doc.pending.length - 1 ? "," : "."}
-              </span>
-            );
-          })}
-        </div>
-      )) ||
-      "";
-    const signed = (
-      <div className="info-row">
-        <span className="label">
-          <FormattedMessage
-            defaultMessage="Signed by:"
-            key="multisign-owned-signed"
-          />
-        </span>
-        {doc.signed.map((invite, index) => {
-          return (
-            <span className="item" key={index}>
-              {invite.name} &lt;{invite.email}&gt;{" "}
-              {index < doc.signed.length - 1 ? "," : "."}
-            </span>
-          );
-        })}
-      </div>
-    );
-    const declined = (
-      <div className="info-row">
-        <span className="label">
-          <FormattedMessage
-            defaultMessage="Declined to sign by:"
-            key="multisign-owned-declined"
-          />
-        </span>
-        {doc.declined.map((invite, index) => {
-          return (
-            <span className="item" key={index}>
-              {invite.name} &lt;{invite.email}&gt;{" "}
-              {index < doc.declined.length - 1 ? "," : "."}
-            </span>
-          );
-        })}
-      </div>
-    );
-    const invites = (
-      <>
-        {doc.pending.length > 0 && <>{pending}</>}
-        {doc.signed.length > 0 && <>{signed}</>}
-        {doc.declined !== undefined && doc.declined.length > 0 && (
-          <>{declined}</>
-        )}
-      </>
-    );
-    return (
-      <>
-        <ESPopover
-          helpId={"owned-doc-container-" + doc.name}
-          key={doc.name}
-          title={this.getHelp(doc.state + "-title")}
-          body={this.getHelp(doc.state)}
-        >
-          <div
-            className={"doc-flex-container invitation-multisign " + doc.state}
-            data-testid={`representation-for-doc-${doc.name}`}
-          >
-            <div className="doc-detail-block">
-              {doc.state === "incomplete" && (
-                <div className="select-column">
-                  {widgets.dummySelectDoc()}
-                  {widgets.docName(doc)}
-                  {widgets.docSize(doc)}
-                  <div className="buttons-flex">
-                    <ESDropdown doc={doc}>
-                      {menu.editInvitationMenuItem(this.props, doc)}
-                      {menu.resendMenuItem(this.props, doc)}
-                      {menu.previewMenuItem(this.props, doc)}
-                    </ESDropdown>
-                  </div>
-                  {widgets.removeConfirmButton(this.props, doc)}
-                </div>
-              )}
-              {["loaded", "selected", "failed-signing"].includes(doc.state) && (
-                <div className="select-column">
-                  {widgets.selectDoc(this.props, doc)}
-                  {widgets.docName(doc)}
-                  {widgets.docSize(doc)}
-                  {widgets.showMessage(doc)}
-                  <div className="buttons-flex">
-                    <ESDropdown doc={doc}>
-                      {menu.editInvitationMenuItem(this.props, doc)}
-                      {menu.previewMenuItem(this.props, doc)}
-                    </ESDropdown>
-                    {widgets.skipSignatureButton(this.props, doc)}
-                  </div>
-                  {widgets.removeConfirmButton(this.props, doc)}
-                </div>
-              )}
-              {doc.state === "signing" && (
-                <div className="select-column">
-                  {widgets.dummySelectDoc()}
-                  {widgets.docName(doc)}
-                  {widgets.docSize(doc)}
-                  {widgets.namedSpinner(doc.name, "signing")}
-                </div>
-              )}
-              {doc.state === "signed" && (
-                <div className="select-column">
-                  {widgets.dummySelectDoc()}
-                  {widgets.docName(doc)}
-                  {widgets.docSize(doc)}
-                  {widgets.removeConfirmButton(
-                    this.props,
-                    doc,
-                    "confirm-remove-" + doc.name,
-                  )}
-                  <div className="buttons-flex">
-                    <ESDropdown doc={doc}>
-                      {menu.previewMenuItem(this.props, doc)}
-                    </ESDropdown>
-                    {widgets.multiSignButton(this.props, doc)}
-                    {(doc.signed.length > 0 &&
-                      widgets.downloadSignedButton(this.props, doc)) ||
-                      ""}
-                  </div>
-                </div>
-              )}
+function DocumentOwned(props) {
+  const getHelp = useDocHelp();
+  const doc = props.doc;
+  const editForm =
+    (["loaded", "selected", "failed-signing", "incomplete"].includes(
+      doc.state,
+    ) && (
+      <InviteEditFormContainer
+        docKey={doc.key}
+        docOrdered={doc.ordered}
+        docSendSigned={doc.sendsigned}
+        docSkipFinal={doc.skipfinal}
+      />
+    )) ||
+    "";
 
-              {invites}
-              {preparePrevSigs(doc, this.props.size)}
-              <widgets.InfoLine doc={doc} />
-              <widgets.InfoLine2 doc={doc} />
-            </div>
-          </div>
-        </ESPopover>
-        {editForm}
-      </>
+  const inviteRow = (label, invitees) =>
+    invitees !== undefined &&
+    invitees.length > 0 && (
+      <div className="info-row">
+        <span className="label">{label}</span>
+        {invitees.map((invite, index) => (
+          <span className="item" key={invite.email}>
+            {invite.name} &lt;{invite.email}&gt;{" "}
+            {index < invitees.length - 1 ? "," : "."}
+          </span>
+        ))}
+      </div>
     );
-  }
+
+  const invites = (
+    <>
+      {doc.state === "incomplete" &&
+        inviteRow(
+          <FormattedMessage
+            defaultMessage="Waiting for signatures by:"
+            key="multisign-owned-waiting"
+          />,
+          doc.pending,
+        )}
+      {inviteRow(
+        <FormattedMessage
+          defaultMessage="Signed by:"
+          key="multisign-owned-signed"
+        />,
+        doc.signed,
+      )}
+      {inviteRow(
+        <FormattedMessage
+          defaultMessage="Declined to sign by:"
+          key="multisign-owned-declined"
+        />,
+        doc.declined,
+      )}
+    </>
+  );
+
+  const rowForState = () => {
+    switch (doc.state) {
+      case "incomplete":
+        return {
+          removable: true,
+          buttons: (
+            <ESDropdown doc={doc}>
+              {menu.editInvitationMenuItem(props, doc)}
+              {menu.resendMenuItem(props, doc)}
+              {menu.previewMenuItem(props, doc)}
+            </ESDropdown>
+          ),
+        };
+      case "loaded":
+      case "selected":
+      case "failed-signing":
+        return {
+          selectable: true,
+          message: true,
+          removable: true,
+          buttons: (
+            <>
+              <ESDropdown doc={doc}>
+                {menu.editInvitationMenuItem(props, doc)}
+                {menu.previewMenuItem(props, doc)}
+              </ESDropdown>
+              {widgets.skipSignatureButton(props, doc)}
+            </>
+          ),
+        };
+      case "signing":
+        return {
+          buttons: widgets.namedSpinner(doc.name, "signing"),
+        };
+      case "signed":
+        return {
+          removable: true,
+          buttons: (
+            <>
+              <ESDropdown doc={doc}>
+                {menu.previewMenuItem(props, doc)}
+              </ESDropdown>
+              {widgets.multiSignButton(props, doc)}
+              {doc.signed.length > 0 &&
+                widgets.downloadSignedButton(props, doc)}
+            </>
+          ),
+        };
+      default:
+        return null;
+    }
+  };
+
+  const row = rowForState();
+
+  return (
+    <>
+      <ESPopover
+        helpId={"owned-doc-container-" + doc.name}
+        key={doc.name}
+        title={getHelp(doc.state + "-title")}
+        body={getHelp(doc.state)}
+      >
+        <div
+          className={"doc-flex-container invitation-multisign " + doc.state}
+          data-testid={`representation-for-doc-${doc.name}`}
+        >
+          <div className="doc-detail-block">
+            {row && <DocumentRow props={props} doc={doc} {...row} />}
+            {invites}
+            {preparePrevSigs(doc, props.size)}
+            <widgets.InfoLine doc={doc} />
+            <widgets.InfoLine2 doc={doc} />
+          </div>
+        </div>
+      </ESPopover>
+      {editForm}
+    </>
+  );
 }
 
-DocumentOwned.propTypes = {
-  owned: PropTypes.array,
-};
-
-export default injectIntl(DocumentOwned);
+export default DocumentOwned;
