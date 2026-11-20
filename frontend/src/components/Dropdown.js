@@ -19,6 +19,7 @@ function ESDropdown(props) {
       disabling={true}
       id={buttonId}
       data-testid={buttonId}
+      doc={props.doc.name}
     >
       {props.children}
     </DropdownButton>
