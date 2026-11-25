@@ -7,7 +7,9 @@ import ESDropdown from "components/Dropdown";
 import * as menu from "components/dropdownItems";
 import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
+import { useDocHelp } from "hooks/useDocHelp";
 import "styles/DocManager.scss";
+import DocumentRow from "./DocumentRow";
 
 /**
  * @desc This component provides a representation of the document templates in the session.
@@ -15,20 +17,7 @@ import "styles/DocManager.scss";
  * @component
  */
 function DocumentTemplate(props) {
-  const getHelp = (msg) => {
-    const msgs = {
-      "template-title": props.intl.formatMessage({
-        defaultMessage: "Template",
-        id: "docmanager-help-template-loaded-title",
-      }),
-      "template-body": props.intl.formatMessage({
-        defaultMessage:
-          'To create a copy of this template, click on "invite others to sign"',
-        id: "docmanager-help-template-loaded",
-      }),
-    };
-    return msgs[msg];
-  };
+  const getHelp = useDocHelp();
 
   const doc = props.doc;
   const signed =
@@ -60,19 +49,21 @@ function DocumentTemplate(props) {
         key="0"
       >
         <div className="doc-detail-block">
-          <div className="select-column">
-            {widgets.dummySelectDoc()}
-            {widgets.docName(doc)}
-            {widgets.docSize(doc)}
-            <div className="buttons-flex">
-              <ESDropdown doc={doc}>
-                {(doc.has_form && menu.fillFormMenuItem(props, doc)) || ""}
-                {menu.previewTemplateMenuItem(props, doc)}
-              </ESDropdown>
-              {widgets.multiSignButton(props, doc)}
-            </div>
-            {widgets.removeTemplate(props, doc)}
-          </div>
+          <DocumentRow
+            props={props}
+            doc={doc}
+            size={true}
+            buttons={
+              <>
+                <ESDropdown doc={doc}>
+                  {(doc.has_form && menu.fillFormMenuItem(props, doc)) || ""}
+                  {menu.previewTemplateMenuItem(props, doc)}
+                </ESDropdown>
+                {widgets.multiSignButton(props, doc)}
+              </>
+            }
+            removeButton={widgets.removeTemplate(props, doc)}
+          />
         </div>
         {widgets.docCreated(props)}
         {signed}

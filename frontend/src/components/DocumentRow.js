@@ -19,6 +19,7 @@ const DocumentRow = ({
   message = false,
   buttons = null,
   removable = false,
+  removeButton = null,
 }) => (
   <div className="select-column">
     {selectable ? widgets.selectDoc(props, doc) : widgets.dummySelectDoc()}
@@ -28,6 +29,7 @@ const DocumentRow = ({
     {buttons && <div className="buttons-flex">{buttons}</div>}
     {removable &&
       widgets.removeConfirmButton(props, doc, `confirm-remove-${doc.name}`)}
+    {removeButton}
   </div>
 );
 
