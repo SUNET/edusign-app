@@ -38,7 +38,7 @@ if (!Element.prototype.closest)
 
 // end Polyfill
 
-import Main from "containers/Main";
+import Main from "components/Main";
 import init_app from "init-app/init-app";
 
 init_app(document.getElementById("root"), <Main />);
