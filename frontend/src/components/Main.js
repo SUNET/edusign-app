@@ -1,7 +1,5 @@
-import React, { Component, useEffect } from "react";
-import PropTypes from "prop-types";
+import React, { useEffect } from "react";
 import { FormattedMessage } from "react-intl";
-import { injectIntl } from "init-app/intl";
 import Header from "components/Header";
 import SplashContainer from "containers/Splash";
 import Footer from "components/Footer";
@@ -66,4 +64,4 @@ function Main() {
   );
 }
 
-export default injectIntl(Main);
+export default Main;
