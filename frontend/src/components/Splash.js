@@ -1,9 +1,8 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React, { useEffect, useRef } from "react";
 import { Spinner } from "spin.js";
-
 import "../../node_modules/spin.js/spin.css";
 import "styles/Splash.scss";
+import { useSelector } from "react-redux";
 
 const spinnerOpts = {
   lines: 13, // The number of lines to draw
@@ -30,40 +29,25 @@ const spinnerOpts = {
  * @desc Splash screen showing a large spinner, shown when the app is loading.
  * @component
  */
-class Splash extends Component {
-  componentDidMount() {
-    this.spin();
-  }
+function Splash() {
+  const isAppLoading = useSelector((state) => state.main.loading);
+  const anchor = useRef(null);
 
-  // The splash div unmounts (taking the spinner with it) when loading
-  // finishes; a new spinner is needed each time loading starts again.
-  componentDidUpdate(prevProps) {
-    if (!prevProps.is_app_loading) {
-      this.spin();
-    }
-  }
+  useEffect(() => {
+    if (!isAppLoading) return;
+    const spinner = new Spinner(spinnerOpts).spin(anchor.current);
+    return () => spinner.stop();
+  }, [isAppLoading]);
 
-  spin() {
-    if (this.props.is_app_loading) {
-      const splash = document.getElementById("edusign-splash-screen");
-      new Spinner(spinnerOpts).spin(splash);
-    }
-  }
-
-  render() {
-    return this.props.is_app_loading ? (
-      <div id="edusign-splash-screen" data-testid="edusign-splash-screen" />
-    ) : (
-      ""
-    );
-  }
+  return (
+    isAppLoading && (
+      <div
+        id="edusign-splash-screen"
+        data-testid="edusign-splash-screen"
+        ref={anchor}
+      />
+    )
+  );
 }
-
-Splash.propTypes = {
-  /**
-   * Whether the app is loading or has finished loading.
-   */
-  is_app_loading: PropTypes.bool,
-};
 
 export default Splash;

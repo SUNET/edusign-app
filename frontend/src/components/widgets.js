@@ -3,7 +3,7 @@ import { FormattedMessage, useIntl } from "react-intl";
 import { ESTooltip } from "containers/Overlay";
 import BForm from "react-bootstrap/Form";
 import { Field } from "formik";
-import Button from "containers/Button";
+import Button from "components/Button";
 import { humanFileSize, getCreationDate } from "components/utils";
 import LittleSpinner from "components/LittleSpinner";
 import ConfirmDialogContainer from "containers/ConfirmDialog";

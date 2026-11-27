@@ -7,7 +7,7 @@ import * as widgets from "components/widgets";
 import { preparePrevSigs } from "components/utils";
 import InviteEditFormContainer from "containers/InviteEditForm";
 import { useDocHelp } from "hooks/useDocHelp";
-import DocumentRow from "./DocumentRow";
+import DocumentRow from "components/DocumentRow";
 
 /**
  * @desc eduSign component showing a list of signing invitations by the logged in user.

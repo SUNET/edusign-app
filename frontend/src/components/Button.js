@@ -1,11 +1,13 @@
-import React, { Component } from "react";
+import React, { forwardRef, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import BButton from "react-bootstrap/Button";
 import BDropdownButton from "react-bootstrap/DropdownButton";
 import { Spinner } from "spin.js";
+import { setSpinning, unsetSpinning } from "slices/Button";
 
 import "../../node_modules/spin.js/spin.css";
 import "styles/Button.scss";
+import { useDispatch, useSelector } from "react-redux";
 
 const spinnerOpts = {
   lines: 8, // The number of lines to draw
@@ -29,14 +31,15 @@ const spinnerOpts = {
  * @desc Spinner in button
  * @component
  */
-class Spin extends Component {
-  componentDidMount() {
-    const anchor = document.getElementById(this.props.id);
-    new Spinner(spinnerOpts).spin(anchor);
-  }
-  render() {
-    return <div className="spinner-button-item" id={this.props.id}></div>;
-  }
+function Spin({ id }) {
+  const anchor = useRef(null);
+
+  useEffect(() => {
+    const spinner = new Spinner(spinnerOpts).spin(anchor.current);
+    return () => spinner.stop();
+  }, []);
+
+  return <div className="spinner-button-item" id={id} ref={anchor}></div>;
 }
 
 Spin.propTypes = {
@@ -47,39 +50,49 @@ Spin.propTypes = {
  * @desc Override react-bootstrap's Button to add a spinner on top
  * @component
  */
-class Button extends Component {
-  render() {
-    const { doHandleClick, disabling, disabled, spinning, onClick, ...props } =
-      this.props;
-    const isDisabled = disabled || spinning !== "";
-    const isSpinning = spinning === this.props.id;
-    return (
-      <BButton
-        className={isSpinning ? "button-with-spinner" : ""}
-        data-testid={props.id}
-        disabled={isDisabled}
-        onClick={doHandleClick.bind(this)}
-        {...props}
-      >
-        {isSpinning && <Spin id={"spinner-" + props.id} />}
-        {props.children}
-      </BButton>
-    );
-  }
-}
+const Button = forwardRef(function Button(
+  { disabling = false, disabled = false, onClick = async () => {}, ...props },
+  ref,
+) {
+  const dispatch = useDispatch();
+  const spinning = useSelector((state) => state.button.spinning);
+
+  const handleClick = async (e) => {
+    if (disabling) dispatch(setSpinning(props.id));
+    try {
+      await onClick(e);
+    } finally {
+      if (disabling) dispatch(unsetSpinning());
+    }
+  };
+
+  const isDisabled = disabled || spinning !== "";
+  const isSpinning = spinning === props.id;
+  return (
+    <BButton
+      ref={ref}
+      className={isSpinning ? "button-with-spinner" : ""}
+      data-testid={props.id}
+      disabled={isDisabled}
+      onClick={handleClick}
+      {...props}
+    >
+      {isSpinning && <Spin id={"spinner-" + props.id} />}
+      {props.children}
+    </BButton>
+  );
+});
 
 Button.propTypes = {
   id: PropTypes.string,
   disabling: PropTypes.bool,
   disabled: PropTypes.bool,
-  spinning: PropTypes.string,
   onClick: PropTypes.func,
 };
 
 Button.defaultProps = {
   disabling: false,
   disabled: false,
-  spinning: "",
   onClick: async () => {},
 };
 
@@ -89,34 +102,32 @@ export default Button;
  * @desc Override react-bootstrap's DropdownButton to add a spinner on top
  * @component
  */
-export class DropdownButton extends Component {
-  render() {
-    const { disabling, disabled, spinning, dispatch, ...props } = this.props;
-    const isDisabled = disabled || spinning !== "";
-    const isSpinning = spinning === this.props.id;
-    return (
-      <BDropdownButton
-        className={isSpinning ? "button-with-spinner" : ""}
-        data-testid={props.id}
-        disabled={isDisabled}
-        {...props}
-      >
-        {isSpinning && <Spin id={"spinner-" + props.id} />}
-        {props.children}
-      </BDropdownButton>
-    );
-  }
+export function DropdownButton({
+  disabling = false,
+  disabled = false,
+  doc,
+  id,
+  children,
+  ...rest
+}) {
+  const spinning = useSelector((state) => state.button.spinning);
+  const isDisabled = disabled || spinning !== "";
+  const isSpinning = spinning === id;
+  return (
+    <BDropdownButton
+      className={isSpinning ? "button-with-spinner" : ""}
+      data-testid={id}
+      disabled={isDisabled}
+      {...rest}
+    >
+      {isSpinning && <Spin id={"spinner-" + id} />}
+      {children}
+    </BDropdownButton>
+  );
 }
 
 DropdownButton.propTypes = {
   id: PropTypes.string,
   disabling: PropTypes.bool,
   disabled: PropTypes.bool,
-  spinning: PropTypes.string,
-};
-
-DropdownButton.defaultProps = {
-  disabling: false,
-  disabled: false,
-  spinning: "",
 };

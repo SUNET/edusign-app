@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { injectIntl } from "init-app/intl";
 import BButton from "react-bootstrap/Button";
-import Button from "containers/Button";
+import Button from "components/Button";
 import Modal from "react-bootstrap/Modal";
 import { Document, Page } from "react-pdf";
 import { ESTooltip } from "containers/Overlay";
