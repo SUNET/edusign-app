@@ -29,7 +29,7 @@ const spinnerOpts = {
  * @desc Splash screen showing a large spinner, shown when the app is loading.
  * @component
  */
-function Splash(props) {
+function Splash() {
   const isAppLoading = useSelector((state) => state.main.loading);
   const anchor = useRef(null);
 
