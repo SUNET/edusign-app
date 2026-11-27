@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { FormattedMessage } from "react-intl";
 import { injectIntl } from "init-app/intl";
 import Header from "components/Header";
-import SplashContainer from "containers/Splash";
+import SplashContainer from "components/Splash";
 import Footer from "components/Footer";
 import DnDArea from "components/DnDArea";
 import DocManagerContainer from "containers/DocManager";
