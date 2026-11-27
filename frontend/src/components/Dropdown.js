@@ -1,5 +1,5 @@
 import React from "react";
-import DropdownButton from "containers/DropdownButton";
+import { DropdownButton } from "components/Button";
 import "styles/Dropdown.scss";
 import { useIntl } from "react-intl";
 
