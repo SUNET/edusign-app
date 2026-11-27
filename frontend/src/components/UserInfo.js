@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
-import Button from "containers/Button";
+import Button from "components/Button";
 import { FormattedMessage } from "react-intl";
 import { injectIntl } from "init-app/intl";
 import { ESTooltip } from "containers/Overlay";

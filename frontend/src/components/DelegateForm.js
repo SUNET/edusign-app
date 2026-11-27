@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Modal from "react-bootstrap/Modal";
-import Button from "containers/Button";
+import Button from "components/Button";
 import BForm from "react-bootstrap/Form";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { FormattedMessage } from "react-intl";
