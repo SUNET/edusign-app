@@ -115,6 +115,15 @@ export const useDocHelp = () => {
           "You must wait for all invited people to respond before signing this document yourself.",
         id: "docmanager-help-incomplete",
       }),
+      "template-title": intl.formatMessage({
+        defaultMessage: "Template",
+        id: "docmanager-help-template-loaded-title",
+      }),
+      "template-body": intl.formatMessage({
+        defaultMessage:
+          'To create a copy of this template, click on "invite others to sign"',
+        id: "docmanager-help-template-loaded",
+      }),
     };
     return msgs[msg];
   };
