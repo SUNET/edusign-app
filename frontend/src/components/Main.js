@@ -6,7 +6,7 @@ import Footer from "components/Footer";
 import DnDArea from "components/DnDArea";
 import DocManagerContainer from "containers/DocManager";
 import PollContainer from "containers/Poll";
-import UserInfoContainer from "containers/UserInfo";
+import UserInfo from "components/UserInfo";
 import { appIsRendered } from "init-app/init-app";
 import Notifications from "components/Notifications";
 import "../../node_modules/bootstrap/dist/css/bootstrap.min.css";
@@ -59,7 +59,7 @@ function Main() {
         <Footer />
       </div>
       <PollContainer />
-      <UserInfoContainer />
+      <UserInfo />
     </>
   );
 }
